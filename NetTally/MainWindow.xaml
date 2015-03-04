@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         Title="Net Tally" Height="546.055" Width="798.437">
     <Grid>
-        <Button x:Name="button" Content="Tally" HorizontalAlignment="Left" Height="47" Margin="10,10,0,0" VerticalAlignment="Top" Width="158" Click="button_Click"/>
-        <TextBox x:Name="textBox" Margin="10,62,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="3" FontSize="13.333">
+        <Button x:Name="tallyButton" Content="Tally" HorizontalAlignment="Left" Height="47" Margin="10,10,0,0" VerticalAlignment="Top" Width="158" Click="tallyButton_Click"/>
+        <TextBox x:Name="resultsWindow" Margin="10,62,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="3" FontSize="13.333">
             <TextBox.Text>
                 <Binding Path="TallyResults" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
             </TextBox.Text>

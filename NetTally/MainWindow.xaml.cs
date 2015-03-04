@@ -25,11 +25,11 @@ namespace NetTally
         public MainWindow()
         {
             InitializeComponent();
-            this.textBox.DataContext = tally;
+            this.resultsWindow.DataContext = tally;
             //this.DataContext = tally;
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void tallyButton_Click(object sender, RoutedEventArgs e)
         {
             tally.Run("puella-magi-adfligo-systema.2538", 36743, 0);
         }
