@@ -112,7 +112,7 @@ namespace NetTally
 
 
             // Tally the votes from the loaded pages.
-            TallyVotes(pages);
+            TallyVotes(pages, startPost, endPost);
 
             // Compose the final result string.
             ConstructResults();
@@ -218,7 +218,7 @@ namespace NetTally
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
         /// <param name="pages"></param>
-        private void TallyVotes(List<HtmlDocument> pages)
+        private void TallyVotes(List<HtmlDocument> pages, int startPost, int endPost)
         {
             foreach (var page in pages)
             {
@@ -244,42 +244,86 @@ namespace NetTally
                 // Process each <li> child node as a message.
                 foreach (var msg in messageList.ChildNodes.Where(n => n.Name == "li"))
                 {
+                    int postNumber = GetPostNumber(msg);
+
+                    // Ignore posts outside the selected numeric post range.
+                    if (postNumber < startPost || (endPost > 0 && postNumber > endPost))
+                        continue;
+
                     // The post author is contained in the <li> element.
                     postAuthor = msg.GetAttributeValue("data-author", "");
 
                     // Ignore posts by the thread author.
-                    if (postAuthor != threadAuthor)
+                    if (postAuthor == threadAuthor)
+                        continue;
+
+                    // The post ID is also contained in the <li> element.
+                    postID = msg.Id;
+                    if (postID.StartsWith("post-"))
                     {
-                        // The post ID is also contained in the <li> element.
-                        postID = msg.Id;
-                        if (postID.StartsWith("post-"))
+                        postID = postID.Substring("post-".Length);
+                    }
+
+                    postText = ExtractVote(msg);
+
+                    // Pull out actual vote lines from the post.
+                    matches = voteRegex.Matches(postText);
+                    if (matches.Count > 0)
+                    {
+                        RemoveSupport(postAuthor);
+
+                        string vote = CombineMatchesIntoVote(matches);
+
+                        string voteKey = FindMatchingVote(vote, matches);
+
+                        if (!voteSupporters.ContainsKey(voteKey))
                         {
-                            postID = postID.Substring("post-".Length);
+                            voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         }
 
-                        postText = ExtractVote(msg);
-
-                        // Pull out actual vote lines from the post.
-                        matches = voteRegex.Matches(postText);
-                        if (matches.Count > 0)
-                        {
-                            RemoveSupport(postAuthor);
-
-                            string vote = CombineMatchesIntoVote(matches);
-
-                            string voteKey = FindMatchingVote(vote, matches);
-
-                            if (!voteSupporters.ContainsKey(voteKey))
-                            {
-                                voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                            }
-
-                            voteSupporters[voteKey].Add(postAuthor);
-                            voterMessageId[postAuthor] = postID;
-                        }
+                        voteSupporters[voteKey].Add(postAuthor);
+                        voterMessageId[postAuthor] = postID;
                     }
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Given an li node containing a post message, extract the thread sequence number from it.
+        /// </summary>
+        /// <param name="post">LI node containing a post message.</param>
+        /// <returns>Returns the numeric thread sequence number of the post.</returns>
+        private int GetPostNumber(HtmlNode post)
+        {
+            int postNum = 0;
+
+            try
+            {
+                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
+
+                // Step down into the post to find the post number value.
+                //var a = post.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("primaryContent"));
+                //var b = a.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("messageMeta"));
+                //var c = b.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("publicControls"));
+                //var d = c.Elements("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
+
+                // Find the anchor node that contains the post number value.
+                var anchor = post.Descendants("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
+
+                // Post number is written as #1123.  Remove the leading #.
+                var postNumText = anchor.InnerText;
+                if (postNumText.StartsWith("#"))
+                    postNumText = postNumText.Substring(1);
+
+                int.TryParse(postNumText, out postNum);
+            }
+            catch (Exception)
+            {
+                // If any of the above fail, just return 0 as the post number.
+            }
+
+            return postNum;
         }
 
 
