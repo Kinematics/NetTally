@@ -91,35 +91,32 @@ namespace NetTally
 
             // Construct a list for storing all the tasks we're running.
             List<Task<HtmlDocument>> taskList = new List<Task<HtmlDocument>>();
-
-            // Initiate tasks for all pages other than the first page (which we already loaded)
-            for (int pageNum = startPage + 1; pageNum <= endPage; pageNum++)
-            {
-                taskList.Add(GetPage(baseUrl, pageNum));
-            }
-
             // We will store the loaded pages in a new List.
             List<HtmlDocument> pages = new List<HtmlDocument>();
 
-            try
+            pages.Add(firstPage);
+
+            int pagesToScan = endPage - startPage;
+            if (pagesToScan > 0)
             {
+                // Initiate tasks for all pages other than the first page (which we already loaded)
+                var tasks = from int pNum in Enumerable.Range(startPage + 1, pagesToScan)
+                            select GetPage(baseUrl, pNum);
+
                 // Wait for all the tasks to be completed.
-                HtmlDocument[] pageArray = await Task.WhenAll(taskList);
+                HtmlDocument[] pageArray = await Task.WhenAll(tasks);
 
                 // Add the results to our list of pages.
-                pages.Add(firstPage);
                 pages.AddRange(pageArray);
-
-                // Tally the votes from the loaded pages.
-                TallyVotes(pages);
-
-                // Compose the final result string.
-                ConstructResults();
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
+
+
+            // Tally the votes from the loaded pages.
+            TallyVotes(pages);
+
+            // Compose the final result string.
+            ConstructResults();
+
         }
 
 
