@@ -267,6 +267,8 @@ namespace NetTally
                         matches = voteRegex.Matches(postText);
                         if (matches.Count > 0)
                         {
+                            RemoveSupport(postAuthor);
+
                             string vote = CombineMatchesIntoVote(matches);
 
                             string voteKey = FindMatchingVote(vote, matches);
@@ -276,7 +278,6 @@ namespace NetTally
                                 voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                             }
 
-                            RemoveSupport(postAuthor);
                             voteSupporters[voteKey].Add(postAuthor);
                             voterMessageId[postAuthor] = postID;
                         }
