@@ -19,7 +19,7 @@
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="177,45,0,0" TextWrapping="Wrap" Text="Start" VerticalAlignment="Top" Width="84"/>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="266,45,0,0" TextWrapping="Wrap" Text="End" VerticalAlignment="Top" Width="84"/>
         <Button x:Name="clearTallyCacheButton" HorizontalAlignment="Left" Height="47" Margin="568,10,0,0" VerticalAlignment="Top" Width="49" Click="clearTallyCacheButton_Click">
-            <TextBlock>Clear<LineBreak/>Cache</TextBlock>
+            <TextBlock TextWrapping="Wrap">Clear Cache</TextBlock>
         </Button>
 
     </Grid>
