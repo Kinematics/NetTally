@@ -56,6 +56,14 @@ namespace NetTally
         #endregion
 
 
+        #region Internal functions
+        internal void ClearPageCache()
+        {
+            pageCache.Clear();
+        }
+        #endregion
+
+
         public async Task Run(string questTitle, int startPost, int endPost)
         {
             if (startPost < 1)

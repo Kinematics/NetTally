@@ -32,6 +32,7 @@ namespace NetTally
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
             tallyButton.IsEnabled = false;
+            clearTallyCacheButton.IsEnabled = false;
 
             try
             {
@@ -40,6 +41,23 @@ namespace NetTally
             finally
             {
                 tallyButton.IsEnabled = true;
+                clearTallyCacheButton.IsEnabled = true;
+            }
+        }
+
+        private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
+        {
+            tallyButton.IsEnabled = false;
+            clearTallyCacheButton.IsEnabled = false;
+
+            try
+            {
+                tally.ClearPageCache();
+            }
+            finally
+            {
+                tallyButton.IsEnabled = true;
+                clearTallyCacheButton.IsEnabled = true;
             }
         }
     }
