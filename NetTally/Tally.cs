@@ -230,6 +230,8 @@ namespace NetTally
             {
                 // Root of the tree
                 var root = page.DocumentNode;
+                if (!root.HasChildNodes)
+                    continue;
 
                 // Thread author
                 var pageDesc = root.Descendants("p").First(n => n.Id == "pageDescription");
