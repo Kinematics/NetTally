@@ -80,8 +80,7 @@ namespace NetTally
             TallyResults = string.Empty;
 
             // Get the first scanned page and extract the last page number of the thread from that.
-            var page = GetPage(baseUrl, startPage);
-            var firstPage = await page;
+            var firstPage = await GetPage(baseUrl, startPage);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -102,7 +101,6 @@ namespace NetTally
 
             // We will store the loaded pages in a new List.
             List<HtmlDocument> pages = new List<HtmlDocument>();
-            pages.Add(firstPage);
 
             try
             {
@@ -110,6 +108,7 @@ namespace NetTally
                 HtmlDocument[] pageArray = await Task.WhenAll(taskList);
 
                 // Add the results to our list of pages.
+                pages.Add(firstPage);
                 pages.AddRange(pageArray);
 
                 // Tally the votes from the loaded pages.
