@@ -43,6 +43,7 @@ namespace NetTally
         // Declare the event 
         public event PropertyChangedEventHandler PropertyChanged;
 
+
         // Create the OnPropertyChanged method to raise the event 
         protected void OnPropertyChanged(string propertyName)
         {
@@ -90,36 +91,34 @@ namespace NetTally
                 endPage = lastPageNum;
             }
 
-            // Construct a list of tasks for loading up all the pages we want to read from the thread.
+            // Construct a list for storing all the tasks we're running.
             List<Task<HtmlDocument>> taskList = new List<Task<HtmlDocument>>();
-            List<HtmlDocument> pages = new List<HtmlDocument>();
-            pages.Add(firstPage);
 
+            // Initiate tasks for all pages other than the first page (which we already loaded)
             for (int pageNum = startPage + 1; pageNum <= endPage; pageNum++)
             {
                 taskList.Add(GetPage(baseUrl, pageNum));
             }
 
+            // We will store the loaded pages in a new List.
+            List<HtmlDocument> pages = new List<HtmlDocument>();
+            pages.Add(firstPage);
+
             try
             {
-                // Read the pages (async wait)
-                foreach (var task in taskList)
-                {
-                    await task;
-                }
+                // Wait for all the tasks to be completed.
+                HtmlDocument[] pageArray = await Task.WhenAll(taskList);
 
-                // Compile the read pages into a list.
-                foreach (var task in taskList)
-                {
-                    pages.Add(task.Result);
-                }
+                // Add the results to our list of pages.
+                pages.AddRange(pageArray);
 
-                // Tally the votes and compose the final result string.
+                // Tally the votes from the loaded pages.
                 TallyVotes(pages);
 
+                // Compose the final result string.
                 ConstructResults();
             }
-            catch (AggregateException e)
+            catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
