@@ -7,12 +7,20 @@
         mc:Ignorable="d"
         Title="Net Tally" Height="546.055" Width="798.437">
     <Grid>
-        <Button x:Name="tallyButton" Content="Tally" HorizontalAlignment="Left" Height="47" Margin="10,10,0,0" VerticalAlignment="Top" Width="158" Click="tallyButton_Click"/>
-        <TextBox x:Name="resultsWindow" Margin="10,62,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="3" FontSize="13.333">
+        <Button x:Name="tallyButton" Content="Tally" HorizontalAlignment="Left" Height="47" Margin="622,10,0,0" VerticalAlignment="Top" Width="158" Click="tallyButton_Click"/>
+        <TextBox x:Name="resultsWindow" Margin="10,80,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333">
             <TextBox.Text>
                 <Binding Path="TallyResults" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
             </TextBox.Text>
         </TextBox>
+        <ComboBox x:Name="questList" HorizontalAlignment="Left" Height="30" Margin="10,10,0,0" VerticalAlignment="Top" Width="500" />
+        <Button x:Name="addQuestButton" Content="New" HorizontalAlignment="Left" Height="30" Margin="10,45,0,0" VerticalAlignment="Top" Width="60"/>
+        <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60"/>
+        <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="177,45,0,0" TextWrapping="Wrap" Text="Start" VerticalAlignment="Top" Width="84"/>
+        <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="266,45,0,0" TextWrapping="Wrap" Text="End" VerticalAlignment="Top" Width="84"/>
+        <Button x:Name="clearTallyCacheButton" HorizontalAlignment="Left" Height="47" Margin="568,10,0,0" VerticalAlignment="Top" Width="49" Click="clearTallyCacheButton_Click">
+            <TextBlock>Clear<LineBreak/>Cache</TextBlock>
+        </Button>
 
     </Grid>
 </Window>
