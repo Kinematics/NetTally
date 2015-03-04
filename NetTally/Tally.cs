@@ -81,7 +81,7 @@ namespace NetTally
             threadAuthor = string.Empty;
 
             // Get the first scanned page and extract the last page number of the thread from that.
-            var firstPage = await GetPage(baseUrl, startPage);
+            var firstPage = await GetPage(baseUrl, startPage).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -106,7 +106,7 @@ namespace NetTally
                             select GetPage(baseUrl, pNum);
 
                 // Wait for all the tasks to be completed.
-                HtmlDocument[] pageArray = await Task.WhenAll(tasks);
+                HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 // Add the results to our list of pages.
                 pages.AddRange(pageArray);
@@ -177,7 +177,7 @@ namespace NetTally
                 // Call asynchronous network methods in a try/catch block to handle exceptions 
                 try
                 {
-                    string responseBody = await client.GetStringAsync(url);
+                    string responseBody = await client.GetStringAsync(url).ConfigureAwait(false);
 
                     htmldoc.LoadHtml(responseBody);
 
