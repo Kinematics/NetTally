@@ -23,6 +23,7 @@ namespace NetTally
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
 
+        string threadAuthor = string.Empty;
 
         #region Results property that can be used to notify watchers of data changes.
 
@@ -77,6 +78,7 @@ namespace NetTally
             string baseUrl = GetSufficientVelocityUrl(questTitle);
 
             TallyResults = string.Empty;
+            threadAuthor = string.Empty;
 
             // Get the first scanned page and extract the last page number of the thread from that.
             var firstPage = await GetPage(baseUrl, startPage);
@@ -222,69 +224,102 @@ namespace NetTally
         {
             foreach (var page in pages)
             {
-                // Root of the tree
+                // Root of the tree.  Make sure we actually have a document.
                 var root = page.DocumentNode;
                 if (!root.HasChildNodes)
                     continue;
 
-                // Thread author
-                var pageDesc = root.Descendants("p").First(n => n.Id == "pageDescription");
-                var authorAnchor = pageDesc.Elements("a").First(n => n.GetAttributeValue("class", "") == "username");
-                string threadAuthor = authorAnchor.InnerText;
-
-                string postAuthor;
-                string postID;
-                string postText;
-
-                MatchCollection matches;
+                // Set the thread author for reference.
+                SetThreadAuthor(root);
 
                 // Find the ordered list containing all the messages on this page.
-                var messageList = root.Descendants("ol").First(n => n.Id == "messageList");
+                var postList = root.Descendants("ol").First(n => n.Id == "messageList");
 
                 // Process each <li> child node as a message.
-                foreach (var msg in messageList.ChildNodes.Where(n => n.Name == "li"))
+                foreach (var post in postList.ChildNodes.Where(n => n.Name == "li"))
                 {
-                    int postNumber = GetPostNumber(msg);
-
-                    // Ignore posts outside the selected numeric post range.
-                    if (postNumber < startPost || (endPost > 0 && postNumber > endPost))
-                        continue;
-
-                    // The post author is contained in the <li> element.
-                    postAuthor = msg.GetAttributeValue("data-author", "");
-
-                    // Ignore posts by the thread author.
-                    if (postAuthor == threadAuthor)
-                        continue;
-
-                    // The post ID is also contained in the <li> element.
-                    postID = msg.Id;
-                    if (postID.StartsWith("post-"))
-                    {
-                        postID = postID.Substring("post-".Length);
-                    }
-
-                    postText = ExtractVote(msg);
-
-                    // Pull out actual vote lines from the post.
-                    matches = voteRegex.Matches(postText);
-                    if (matches.Count > 0)
-                    {
-                        RemoveSupport(postAuthor);
-
-                        string vote = CombineMatchesIntoVote(matches);
-
-                        string voteKey = FindMatchingVote(vote, matches);
-
-                        if (!voteSupporters.ContainsKey(voteKey))
-                        {
-                            voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                        }
-
-                        voteSupporters[voteKey].Add(postAuthor);
-                        voterMessageId[postAuthor] = postID;
-                    }
+                    ProcessPost(post, startPost, endPost);
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Function to set the thread author for the current processing run.
+        /// </summary>
+        /// <param name="root">Root node of a page of the thread.</param>
+        private void SetThreadAuthor(HtmlNode root)
+        {
+            if (threadAuthor == string.Empty)
+            {
+                var pageDesc = root.Descendants("p").First(n => n.Id == "pageDescription");
+                var authorAnchor = pageDesc.Elements("a").First(n => n.GetAttributeValue("class", "") == "username");
+                threadAuthor = authorAnchor.InnerText;
+            }
+        }
+
+
+        /// <summary>
+        /// Function to process individual posts within the thread.
+        /// Updates the vote records maintained in the class.
+        /// </summary>
+        /// <param name="post">The list item node containing the post.</param>
+        /// <param name="startPost">The first post number of the thread to check.</param>
+        /// <param name="endPost">The last post number of the thread to check.</param>
+        private void ProcessPost(HtmlNode post, int startPost, int endPost)
+        {
+            string postAuthor;
+            string postID;
+            string postText;
+
+            MatchCollection matches;
+
+            int postNumber = GetPostNumber(post);
+
+            // Ignore posts outside the selected numeric post range.
+            if (postNumber < startPost || (endPost > 0 && postNumber > endPost))
+                return;
+
+            // The post author is contained in the <li> element.
+            postAuthor = post.GetAttributeValue("data-author", "");
+
+            // Ignore posts by the thread author.
+            if (postAuthor == threadAuthor)
+                return;
+
+            // The post ID is also contained in the <li> element.
+            postID = post.Id;
+            // Extract only the numeric portion.
+            if (postID.StartsWith("post-"))
+            {
+                postID = postID.Substring("post-".Length);
+            }
+
+            // Get the text from the post that can be searched for a vote.
+            postText = ExtractPostText(post);
+
+            // Pull out actual vote lines from the post.
+            matches = voteRegex.Matches(postText);
+            if (matches.Count > 0)
+            {
+                // Remove the post author from any other existing votes.
+                RemoveSupport(postAuthor);
+
+                // Create a single string composite of the matched vote lines.
+                string vote = CombineMatchesIntoVote(matches);
+
+                // If the vote names another user, pull that user's vote to fill in this vote.
+                string voteKey = FindMatchingVote(vote, matches);
+
+                // Create a new hashtable for vote supporters, if necessary.
+                if (!voteSupporters.ContainsKey(voteKey))
+                {
+                    voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                }
+
+                // Update the supporters list, and save this voter's post ID for linking.
+                voteSupporters[voteKey].Add(postAuthor);
+                voterMessageId[postAuthor] = postID;
             }
         }
 
@@ -328,11 +363,12 @@ namespace NetTally
 
 
         /// <summary>
-        /// Extract the text of any vote contained within the provided post.
+        /// Extract the text of the provided post, ignoring quotes, spoilers, or other
+        /// invalid regions.  Clean up HTML entities as well.
         /// </summary>
         /// <param name="post">The li HTML node containing the user post.</param>
-        /// <returns>A string containing all proper voting lines.</returns>
-        private string ExtractVote(HtmlNode post)
+        /// <returns>A string containing all valid text lines.</returns>
+        private string ExtractPostText(HtmlNode post)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -340,7 +376,8 @@ namespace NetTally
             var postArticle = post.Descendants("article").First();
             var articleBlock = postArticle.Element("blockquote");
 
-            // Handle each type of valid sub-node and convert it back into BBCode.
+            // Search the post for valid element types, and put them all together
+            // into a single string.
             foreach (var node in articleBlock.ChildNodes)
             {
                 if (node.InnerText.Trim() == string.Empty)
@@ -396,6 +433,7 @@ namespace NetTally
 
             string postText = sb.ToString().TrimStart();
             postText = HtmlEntity.DeEntitize(postText);
+
             return postText;
         }
 
@@ -429,6 +467,7 @@ namespace NetTally
         /// <returns></returns>
         private string FindMatchingVote(string vote, MatchCollection originalMatches)
         {
+            // If the vote already matches an existing key, we don't need to search again.
             if (voteSupporters.ContainsKey(vote))
             {
                 return vote;
@@ -479,16 +518,16 @@ namespace NetTally
 
 
         /// <summary>
-        /// Remove the author's support for any existing votes.
+        /// Remove the voter's support for any existing votes.
         /// </summary>
-        /// <param name="postAuthor">The author name to check for.</param>
-        private void RemoveSupport(string postAuthor)
+        /// <param name="voter">The voter name to check for.</param>
+        private void RemoveSupport(string voter)
         {
             List<string> emptyVotes = new List<string>();
 
             foreach (var vote in voteSupporters)
             {
-                if (vote.Value.Remove(postAuthor))
+                if (vote.Value.Remove(voter))
                 {
                     if (vote.Value.Count == 0)
                     {
