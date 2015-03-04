@@ -56,17 +56,7 @@ namespace NetTally
         #endregion
 
 
-        public void Run(string questTitle)
-        {
-            Run(questTitle, 1);
-        }
-
-        public void Run(string questTitle, int startPost)
-        {
-            Run(questTitle, startPost, 0);
-        }
-
-        public async void Run(string questTitle, int startPost, int endPost)
+        public async Task Run(string questTitle, int startPost, int endPost)
         {
             if (startPost < 1)
                 throw new ArgumentOutOfRangeException(nameof(startPost), startPost, "Vote tally must start at at least post 1.");

@@ -29,9 +29,18 @@ namespace NetTally
             //this.DataContext = tally;
         }
 
-        private void tallyButton_Click(object sender, RoutedEventArgs e)
+        private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
-            tally.Run("puella-magi-adfligo-systema.2538", 36743, 0);
+            tallyButton.IsEnabled = false;
+
+            try
+            {
+                await tally.Run("puella-magi-adfligo-systema.2538", 36743, 37300);
+            }
+            finally
+            {
+                tallyButton.IsEnabled = true;
+            }
         }
     }
 }
