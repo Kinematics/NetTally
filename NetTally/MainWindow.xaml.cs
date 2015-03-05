@@ -90,7 +90,7 @@ namespace NetTally
                 {
                     XmlSerializer sr = new XmlSerializer(typeof(Quests));
                     Quests qs = (Quests)sr.Deserialize(fs);
-                    quests.CurrentQuest = qs.CurrentQuest;
+                    quests.SetCurrentQuestByName(qs.CurrentQuestName);
                 }
             }
         }
