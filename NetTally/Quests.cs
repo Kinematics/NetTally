@@ -39,8 +39,7 @@ namespace NetTally
             if (!questList.Any(q => q.Name == quest.Name))
             {
                 questList.Add(quest);
-                questList.Sort();
-                OnPropertyChanged("QuestList");
+                OnPropertyChanged("QuestListNames");
             }
         }
 
@@ -48,7 +47,7 @@ namespace NetTally
         {
             if (questList.Remove(CurrentQuest))
             {
-                OnPropertyChanged("QuestList");
+                OnPropertyChanged("QuestListNames");
                 CurrentQuest = questList.FirstOrDefault();
             }
         }
@@ -57,12 +56,16 @@ namespace NetTally
         {
             if (questList.Remove(quest))
             {
-                OnPropertyChanged("QuestList");
+                OnPropertyChanged("QuestListNames");
                 if (!questList.Contains(CurrentQuest))
                     CurrentQuest = questList.FirstOrDefault();
             }
         }
 
+        public void Update()
+        {
+            OnPropertyChanged("QuestListNames");
+        }
         #endregion
 
         #region Access functions for binding and serialization
@@ -92,8 +95,7 @@ namespace NetTally
                 {
                     questList.Clear();
                     questList.AddRange(value);
-                    questList.Sort();
-                    OnPropertyChanged("QuestList");
+                    OnPropertyChanged("QuestListNames");
                 }
             }
         }
@@ -102,9 +104,13 @@ namespace NetTally
         /// Used for binding with the main window combo box.
         /// </summary>
         [XmlIgnore()]
-        public IEnumerable<string> QuestListNames
+        public string[] QuestListNames
         {
-            get { return from q in questList select q.Name; }
+            get
+            {
+                var names = from q in questList orderby q.Name select q.Name;
+                return names.ToArray();
+            }
         }
 
 
