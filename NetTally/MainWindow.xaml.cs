@@ -21,12 +21,24 @@ namespace NetTally
     public partial class MainWindow : Window
     {
         Tally tally = new Tally();
+        Quests quests = new Quests();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            this.DataContext = quests;
             this.resultsWindow.DataContext = tally;
-            //this.DataContext = tally;
+
+            InitQuests();
+        }
+
+        private void InitQuests()
+        {
+
+            quests.AddToQuestList(new Quest("awake-already-homura-nge-pmmm-fusion-quest.11111", 1, 100));
+            quests.AddToQuestList(new Quest("sayakaquest-thread-10-glory-to-the-death.87", 101, 200));
+            quests.AddToQuestList(new Quest("puella-magi-adfligo-systema.2538", 36743, 37322));
         }
 
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
@@ -36,7 +48,7 @@ namespace NetTally
 
             try
             {
-                await tally.Run("puella-magi-adfligo-systema.2538", 36743, 37300);
+                await tally.Run(quests.CurrentQuest.Name, quests.CurrentQuest.StartPost, quests.CurrentQuest.EndPost);
             }
             finally
             {

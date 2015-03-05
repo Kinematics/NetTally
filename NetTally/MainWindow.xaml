@@ -5,21 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="546.055" Width="798.437">
+        Title="Net Tally" Height="546.055" Width="824.437">
+
+    <Window.Resources>
+        <local:QuestConverter x:Key="QConverter"></local:QuestConverter>
+    </Window.Resources>
+    
     <Grid>
-        <Button x:Name="tallyButton" Content="Tally" HorizontalAlignment="Left" Height="47" Margin="622,10,0,0" VerticalAlignment="Top" Width="158" Click="tallyButton_Click"/>
-        <TextBox x:Name="resultsWindow" Margin="10,80,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333">
-            <TextBox.Text>
-                <Binding Path="TallyResults" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
-            </TextBox.Text>
-        </TextBox>
-        <ComboBox x:Name="questList" HorizontalAlignment="Left" Height="30" Margin="10,10,0,0" VerticalAlignment="Top" Width="500" />
+        <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="622,10,10,0" VerticalAlignment="Top" Click="tallyButton_Click" Width="158" HorizontalAlignment="Right"/>
+        <TextBox x:Name="resultsWindow" Margin="10,80,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
+                 Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <ComboBox x:Name="questList" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=QuestList}" SelectedValue="{Binding Path=CurrentQuest, Converter={StaticResource QConverter}}" FontSize="13.333" Padding="8,2,4,4"/>
         <Button x:Name="addQuestButton" Content="New" HorizontalAlignment="Left" Height="30" Margin="10,45,0,0" VerticalAlignment="Top" Width="60"/>
         <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="177,45,0,0" TextWrapping="Wrap" Text="Start" VerticalAlignment="Top" Width="84"/>
-        <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="266,45,0,0" TextWrapping="Wrap" Text="End" VerticalAlignment="Top" Width="84"/>
-        <Button x:Name="clearTallyCacheButton" HorizontalAlignment="Left" Height="47" Margin="568,10,0,0" VerticalAlignment="Top" Width="49" Click="clearTallyCacheButton_Click">
-            <TextBlock TextWrapping="Wrap">Clear Cache</TextBlock>
+        <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="177,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
+                 Text="{Binding Path=CurrentQuest.StartPost}"/>
+        <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="266,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
+                 Text="{Binding Path=CurrentQuest.EndPost}"/>
+        <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49">
+            <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
         </Button>
 
     </Grid>
