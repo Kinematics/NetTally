@@ -43,6 +43,8 @@ namespace NetTally
 
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
+            CleanupEditQuestName();
+
             tallyButton.IsEnabled = false;
             clearTallyCacheButton.IsEnabled = false;
 
@@ -59,6 +61,8 @@ namespace NetTally
 
         private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
         {
+            CleanupEditQuestName();
+
             tallyButton.IsEnabled = false;
             clearTallyCacheButton.IsEnabled = false;
 
@@ -75,7 +79,23 @@ namespace NetTally
 
         private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
+            CleanupEditQuestName();
             Clipboard.SetText(tally.TallyResults);
+        }
+
+        private void addQuestButton_Click(object sender, RoutedEventArgs e)
+        {
+            quests.AddToQuestList(new Quest("New Entry", 1, 0));
+            quests.SetCurrentQuestByName("New Entry");
+            editQuestName.Visibility = Visibility.Visible;
+            editQuestName.Focus();
+            editQuestName.SelectAll();
+        }
+
+        private void removeQuestButton_Click(object sender, RoutedEventArgs e)
+        {
+            quests.RemoveCurrentQuest();
+            CleanupEditQuestName();
         }
 
 
@@ -109,14 +129,32 @@ namespace NetTally
             }
         }
 
-        private void InitQuests()
-        {
-            quests.AddToQuestList(new Quest("awake-already-homura-nge-pmmm-fusion-quest.11111", 1, 100));
-            quests.AddToQuestList(new Quest("sayakaquest-thread-10-glory-to-the-death.87", 101, 200));
-            quests.AddToQuestList(new Quest("puella-magi-adfligo-systema.2538", 36743, 37322));
-        }
-
         #endregion
 
+
+        private void CleanupEditQuestName()
+        {
+            if (editQuestName.Visibility == Visibility.Visible)
+            {
+                editQuestName.Visibility = Visibility.Hidden;
+                quests.CurrentQuest.CleanName();
+                var cqn = quests.CurrentQuest.Name;
+                quests.Update();
+                quests.SetCurrentQuestByName(cqn);
+            }
+        }
+
+        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                CleanupEditQuestName();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                quests.RemoveCurrentQuest();
+                CleanupEditQuestName();
+            }
+        }
     }
 }
