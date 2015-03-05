@@ -96,7 +96,9 @@ namespace NetTally
             string baseUrl = GetSufficientVelocityUrl(questTitle);
 
             // Get the first scanned page and extract the last page number of the thread from that.
-            var firstPage = await GetPage(baseUrl, startPage, endPage).ConfigureAwait(false);
+            // Bypass the cache, because this page is used to find out what the last page of the
+            // thread is.
+            var firstPage = await GetPage(baseUrl, startPage, true).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -117,8 +119,8 @@ namespace NetTally
             if (pagesToScan > 0)
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
-                var tasks = from int pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(baseUrl, pNum, endPage);
+                var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
+                            select GetPage(baseUrl, pNum, (pNum == endPage));
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -167,15 +169,16 @@ namespace NetTally
         /// </summary>
         /// <param name="baseUrl">The thread URL.</param>
         /// <param name="pageNum">The page number in the thread to load.</param>
+        /// <param name="bypassCache">Whether to skip checking the cache.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        private async Task<HtmlDocument> GetPage(string baseUrl, int pageNum, int endPage)
+        private async Task<HtmlDocument> GetPage(string baseUrl, int pageNum, bool bypassCache)
         {
             string url = baseUrl + pageNum.ToString();
 
             TallyResults = TallyResults + url + "\n";
 
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
-            if (endPage != 0 && pageNum != endPage && pageCache.ContainsKey(url))
+            if (!bypassCache && pageCache.ContainsKey(url))
             {
                 var cache = pageCache[url];
                 var age = (DateTime.Now - cache.Timestamp).TotalMinutes;
