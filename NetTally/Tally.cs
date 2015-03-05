@@ -175,8 +175,6 @@ namespace NetTally
         {
             string url = baseUrl + pageNum.ToString();
 
-            TallyResults = TallyResults + url + "\n";
-
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
             if (!bypassCache && pageCache.ContainsKey(url))
             {
@@ -184,9 +182,12 @@ namespace NetTally
                 var age = (DateTime.Now - cache.Timestamp).TotalMinutes;
                 if (age < 30)
                 {
+                    TallyResults = TallyResults + "Page " + pageNum.ToString() + " loaded from memory!\n";
                     return cache.Doc;
                 }
             }
+
+            TallyResults = TallyResults + url + "\n";
 
             HtmlDocument htmldoc = new HtmlDocument();
 
