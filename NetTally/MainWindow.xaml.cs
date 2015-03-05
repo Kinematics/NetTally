@@ -23,6 +23,8 @@ namespace NetTally
     {
         // Filename to record quests
         const string questFile = "questlist.xml";
+
+        // Local holding variables
         Tally tally = new Tally();
         Quests quests = new Quests();
 
@@ -44,6 +46,9 @@ namespace NetTally
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
             CleanupEditQuestName();
+
+            if (quests.CurrentQuest == null)
+                return;
 
             tallyButton.IsEnabled = false;
             clearTallyCacheButton.IsEnabled = false;
@@ -83,6 +88,7 @@ namespace NetTally
             Clipboard.SetText(tally.TallyResults);
         }
 
+        #region Adding and removing quests
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
             quests.AddToQuestList(new Quest("New Entry", 1, 0));
@@ -97,6 +103,38 @@ namespace NetTally
             quests.RemoveCurrentQuest();
             CleanupEditQuestName();
         }
+
+        /// <summary>
+        /// Hitting enter will complete the entry.
+        /// Hitting escape will cancel the entry.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                CleanupEditQuestName();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                quests.RemoveCurrentQuest();
+                CleanupEditQuestName();
+            }
+        }
+
+        private void CleanupEditQuestName()
+        {
+            if (editQuestName.Visibility == Visibility.Visible)
+            {
+                editQuestName.Visibility = Visibility.Hidden;
+                quests.CurrentQuest.CleanName();
+                var cqn = quests.CurrentQuest.Name;
+                quests.Update();
+                quests.SetCurrentQuestByName(cqn);
+            }
+        }
+        #endregion
 
 
         #region Serialization
@@ -131,30 +169,5 @@ namespace NetTally
 
         #endregion
 
-
-        private void CleanupEditQuestName()
-        {
-            if (editQuestName.Visibility == Visibility.Visible)
-            {
-                editQuestName.Visibility = Visibility.Hidden;
-                quests.CurrentQuest.CleanName();
-                var cqn = quests.CurrentQuest.Name;
-                quests.Update();
-                quests.SetCurrentQuestByName(cqn);
-            }
-        }
-
-        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                CleanupEditQuestName();
-            }
-            else if (e.Key == Key.Escape)
-            {
-                quests.RemoveCurrentQuest();
-                CleanupEditQuestName();
-            }
-        }
     }
 }
