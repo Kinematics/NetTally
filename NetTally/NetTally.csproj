@@ -61,6 +61,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CachedPage.cs" />
+    <Compile Include="Quest.cs" />
+    <Compile Include="Quests.cs" />
     <Compile Include="Tally.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
