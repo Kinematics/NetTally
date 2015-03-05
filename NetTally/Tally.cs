@@ -62,6 +62,25 @@ namespace NetTally
         #endregion
 
 
+        /// <summary>
+        /// Initialize variables that will be used during the run to a clean state.
+        /// </summary>
+        private void InitForRun()
+        {
+            TallyResults = string.Empty;
+            threadAuthor = string.Empty;
+            voterMessageId.Clear();
+            voteSupporters.Clear();
+        }
+
+
+        /// <summary>
+        /// Run the actual tally.
+        /// </summary>
+        /// <param name="questTitle">The name of the quest thread to scan.</param>
+        /// <param name="startPost">The starting post number.</param>
+        /// <param name="endPost">The ending post number.</param>
+        /// <returns></returns>
         public async Task Run(string questTitle, int startPost, int endPost)
         {
             if (startPost < 1)
@@ -69,13 +88,12 @@ namespace NetTally
             if (endPost < 0)
                 throw new ArgumentOutOfRangeException(nameof(endPost), endPost, "Vote tally ending must be at at least post 0.");
 
+            InitForRun();
+
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(endPost);
 
             string baseUrl = GetSufficientVelocityUrl(questTitle);
-
-            TallyResults = string.Empty;
-            threadAuthor = string.Empty;
 
             // Get the first scanned page and extract the last page number of the thread from that.
             var firstPage = await GetPage(baseUrl, startPage, endPage).ConfigureAwait(false);
