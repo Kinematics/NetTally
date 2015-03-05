@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Globalization;
@@ -18,7 +18,10 @@ namespace NetTally
             EndPost = end;
         }
 
-        #region Property update notifications
+        #region Interface implementations
+        /// <summary>
+        /// INotifyPropertyChanged
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -68,6 +71,24 @@ namespace NetTally
                 endPost = value;
                 // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Function to clean up a possible HTML-form name.
+        /// Example:
+        /// http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518
+        /// </summary>
+        internal void CleanName()
+        {
+            if (Name != null)
+            {
+                Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+                var m = urlRegex.Match(Name);
+                if (m.Success)
+                {
+                    Name = m.Groups["questName"].Value;
+                }
             }
         }
         #endregion
