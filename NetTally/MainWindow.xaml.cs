@@ -72,5 +72,10 @@ namespace NetTally
                 clearTallyCacheButton.IsEnabled = true;
             }
         }
+
+        private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(tally.TallyResults);
+        }
     }
 }
