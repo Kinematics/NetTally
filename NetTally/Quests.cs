@@ -132,7 +132,6 @@ namespace NetTally
         public string CurrentQuestName
         {
             get { return CurrentQuest?.Name; }
-            set { SetCurrentQuestByName(value); }
         }
 
         public void SetCurrentQuestByName(string name)
