@@ -9,10 +9,16 @@ namespace NetTally
 {
     public class Quests : INotifyPropertyChanged
     {
+        [XmlIgnore()]
+        public static List<Quest> questList = new List<Quest>();
+        Quest currentQuest;
+
+        /// <summary>
+        /// Public void constructor to allow for XML serialization.
+        /// </summary>
         public Quests()
         {
         }
-
 
         #region Property update notifications
         public event PropertyChangedEventHandler PropertyChanged;
@@ -27,63 +33,84 @@ namespace NetTally
         }
         #endregion
 
-        [XmlIgnore()]
-        public static SortedList<string, Quest> questList = new SortedList<string, Quest>();
-
-
-        [XmlArray("QuestList")]
-        [XmlArrayItem("Quest", Type = typeof(Quest))]
-        public Quest[] QuestList
-        {
-            get { return new List<Quest>(questList.Values).ToArray(); }
-            set
-            {
-                if (value != null)
-                {
-                    foreach (var q in value)
-                    {
-                        questList.Add(q.Name, q);
-                    }
-                }
-            }
-        }
-
-        public void Init()
-        {
-            OnPropertyChanged("QuestList");
-            if (questList.Count > 0)
-            {
-                CurrentQuest = questList.First().Value;
-            }
-        }
-
-
-        [XmlIgnore()]
-        public IList<string> QuestListNames
-        {
-            get { return questList.Keys; }
-        }
-
+        #region Functions for manipulating the quest list
         public void AddToQuestList(Quest quest)
         {
-            if (!questList.ContainsKey(quest.Name))
+            if (!questList.Any(q => q.Name == quest.Name))
             {
-                questList.Add(quest.Name, quest);
+                questList.Add(quest);
+                questList.Sort();
                 OnPropertyChanged("QuestList");
-                CurrentQuest = questList.First().Value;
+            }
+        }
+
+        public void RemoveCurrentQuest()
+        {
+            if (questList.Remove(CurrentQuest))
+            {
+                OnPropertyChanged("QuestList");
+                CurrentQuest = questList.FirstOrDefault();
             }
         }
 
         public void RemoveFromQuestList(Quest quest)
         {
-            if (questList.Remove(quest.Name))
+            if (questList.Remove(quest))
             {
                 OnPropertyChanged("QuestList");
-                CurrentQuest = questList.FirstOrDefault().Value;
+                if (!questList.Contains(CurrentQuest))
+                    CurrentQuest = questList.FirstOrDefault();
             }
         }
 
-        Quest currentQuest;
+        #endregion
+
+        #region Access functions for binding and serialization
+        /// <summary>
+        /// Static query function to allow the type converter to access the quest list.
+        /// </summary>
+        /// <param name="name">The name of the quest to find.</param>
+        /// <returns>Returns the quest that matches the provided name.</returns>
+        public static Quest GetQuest(string name)
+        {
+            return questList.FirstOrDefault(q => q.Name == name);
+        }
+
+
+        /// <summary>
+        /// Property solely used for serialization of the quest list.
+        /// Needs to be an array or it won't deserialize back properly.
+        /// </summary>
+        [XmlArray("QuestList")]
+        [XmlArrayItem("Quest", Type = typeof(Quest))]
+        public Quest[] QuestList
+        {
+            get { return questList.ToArray(); }
+            set
+            {
+                if (value != null)
+                {
+                    questList.Clear();
+                    questList.AddRange(value);
+                    questList.Sort();
+                    OnPropertyChanged("QuestList");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Used for binding with the main window combo box.
+        /// </summary>
+        [XmlIgnore()]
+        public IEnumerable<string> QuestListNames
+        {
+            get { return from q in questList select q.Name; }
+        }
+
+
+        /// <summary>
+        /// Used for binding with the main window combo box.
+        /// </summary>
         [XmlIgnore()]
         public Quest CurrentQuest
         {
@@ -95,5 +122,21 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+        public string CurrentQuestName
+        {
+            get { return CurrentQuest?.Name; }
+            set { SetCurrentQuestByName(value); }
+        }
+
+        public void SetCurrentQuestByName(string name)
+        {
+            Quest q = questList.FirstOrDefault(a => a.Name == name);
+            if (q != null)
+            {
+                CurrentQuest = q;
+            }
+        }
+        #endregion
     }
 }

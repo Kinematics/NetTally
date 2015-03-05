@@ -30,12 +30,10 @@ namespace NetTally
         {
             InitializeComponent();
 
-            LoadQuests();
-
             this.DataContext = quests;
             this.resultsWindow.DataContext = tally;
 
-            quests.Init();
+            LoadQuests();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -91,7 +89,8 @@ namespace NetTally
                 using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read))
                 {
                     XmlSerializer sr = new XmlSerializer(typeof(Quests));
-                    quests = (Quests)sr.Deserialize(fs);
+                    Quests qs = (Quests)sr.Deserialize(fs);
+                    quests.CurrentQuest = qs.CurrentQuest;
                 }
             }
         }
