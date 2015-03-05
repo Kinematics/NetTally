@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
-using System.Globalization;
-using System.Windows.Data;
+using System.Xml.Serialization;
 
 
 namespace NetTally
 {
-    class Quests : INotifyPropertyChanged
+    public class Quests : INotifyPropertyChanged
     {
         public Quests()
         {
@@ -31,10 +27,39 @@ namespace NetTally
         }
         #endregion
 
-
+        [XmlIgnore()]
         public static SortedList<string, Quest> questList = new SortedList<string, Quest>();
 
-        public IList<string> QuestList
+
+        [XmlArray("QuestList")]
+        [XmlArrayItem("Quest", Type = typeof(Quest))]
+        public Quest[] QuestList
+        {
+            get { return new List<Quest>(questList.Values).ToArray(); }
+            set
+            {
+                if (value != null)
+                {
+                    foreach (var q in value)
+                    {
+                        questList.Add(q.Name, q);
+                    }
+                }
+            }
+        }
+
+        public void Init()
+        {
+            OnPropertyChanged("QuestList");
+            if (questList.Count > 0)
+            {
+                CurrentQuest = questList.First().Value;
+            }
+        }
+
+
+        [XmlIgnore()]
+        public IList<string> QuestListNames
         {
             get { return questList.Keys; }
         }
@@ -59,6 +84,7 @@ namespace NetTally
         }
 
         Quest currentQuest;
+        [XmlIgnore()]
         public Quest CurrentQuest
         {
             get { return currentQuest; }

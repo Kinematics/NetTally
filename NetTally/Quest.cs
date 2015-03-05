@@ -7,8 +7,7 @@ using System.Windows.Data;
 
 namespace NetTally
 {
-    [Serializable]
-    class Quest : INotifyPropertyChanged
+    public class Quest : INotifyPropertyChanged
     {
         public Quest() { }
 
