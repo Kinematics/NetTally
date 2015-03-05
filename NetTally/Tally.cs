@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace NetTally
             {
                 results = value;
                 // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged("TallyResults");
+                OnPropertyChanged();
             }
         }
 
@@ -45,7 +46,7 @@ namespace NetTally
 
 
         // Create the OnPropertyChanged method to raise the event 
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
