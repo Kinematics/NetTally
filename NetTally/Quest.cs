@@ -7,7 +7,7 @@ using System.Windows.Data;
 
 namespace NetTally
 {
-    public class Quest : INotifyPropertyChanged, IComparable
+    public class Quest : INotifyPropertyChanged
     {
         public Quest() { }
 
@@ -28,12 +28,6 @@ namespace NetTally
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public int CompareTo(object obj)
-        {
-            Quest questToCompare = obj as Quest;
-            return name.CompareTo(questToCompare.name);
         }
         #endregion
 
