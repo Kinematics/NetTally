@@ -82,7 +82,7 @@ namespace NetTally
             threadAuthor = string.Empty;
 
             // Get the first scanned page and extract the last page number of the thread from that.
-            var firstPage = await GetPage(baseUrl, startPage).ConfigureAwait(false);
+            var firstPage = await GetPage(baseUrl, startPage, endPage).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -104,7 +104,7 @@ namespace NetTally
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from int pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(baseUrl, pNum);
+                            select GetPage(baseUrl, pNum, endPage);
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -154,14 +154,14 @@ namespace NetTally
         /// <param name="baseUrl">The thread URL.</param>
         /// <param name="pageNum">The page number in the thread to load.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        private async Task<HtmlDocument> GetPage(string baseUrl, int pageNum)
+        private async Task<HtmlDocument> GetPage(string baseUrl, int pageNum, int endPage)
         {
             string url = baseUrl + pageNum.ToString();
 
             TallyResults = TallyResults + url + "\n";
 
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
-            if (pageCache.ContainsKey(url))
+            if (endPage != 0 && pageNum != endPage && pageCache.ContainsKey(url))
             {
                 var cache = pageCache[url];
                 var age = (DateTime.Now - cache.Timestamp).TotalMinutes;
