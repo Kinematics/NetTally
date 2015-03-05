@@ -137,6 +137,10 @@ namespace NetTally
         public void SetCurrentQuestByName(string name)
         {
             Quest q = questList.FirstOrDefault(a => a.Name == name);
+            if (q == null && CurrentQuestName == null)
+            {
+                q = questList.FirstOrDefault();
+            }
             if (q != null)
             {
                 CurrentQuest = q;
