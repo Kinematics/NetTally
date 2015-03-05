@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Xml.Serialization;
 
 namespace NetTally
 {
@@ -20,6 +21,8 @@ namespace NetTally
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Filename to record quests
+        const string questFile = "questlist.xml";
         Tally tally = new Tally();
         Quests quests = new Quests();
 
@@ -27,18 +30,17 @@ namespace NetTally
         {
             InitializeComponent();
 
+            LoadQuests();
+
             this.DataContext = quests;
             this.resultsWindow.DataContext = tally;
 
-            InitQuests();
+            quests.Init();
         }
 
-        private void InitQuests()
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
-            quests.AddToQuestList(new Quest("awake-already-homura-nge-pmmm-fusion-quest.11111", 1, 100));
-            quests.AddToQuestList(new Quest("sayakaquest-thread-10-glory-to-the-death.87", 101, 200));
-            quests.AddToQuestList(new Quest("puella-magi-adfligo-systema.2538", 36743, 37322));
+            SaveQuests();
         }
 
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
@@ -77,5 +79,45 @@ namespace NetTally
         {
             Clipboard.SetText(tally.TallyResults);
         }
+
+
+        #region Serialization
+        private void LoadQuests()
+        {
+            string filepath = Path.Combine(System.Windows.Forms.Application.CommonAppDataPath, questFile);
+
+            if (File.Exists(filepath))
+            {
+                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read))
+                {
+                    XmlSerializer sr = new XmlSerializer(typeof(Quests));
+                    quests = (Quests)sr.Deserialize(fs);
+                }
+            }
+        }
+
+        private void SaveQuests()
+        {
+            string filepath = Path.Combine(System.Windows.Forms.Application.CommonAppDataPath, questFile);
+
+            using (FileStream fs = new FileStream(filepath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                using (TextWriter tw = new StreamWriter(fs))
+                {
+                    XmlSerializer sr = new XmlSerializer(typeof(Quests));
+                    sr.Serialize(tw, quests);
+                }
+            }
+        }
+
+        private void InitQuests()
+        {
+            quests.AddToQuestList(new Quest("awake-already-homura-nge-pmmm-fusion-quest.11111", 1, 100));
+            quests.AddToQuestList(new Quest("sayakaquest-thread-10-glory-to-the-death.87", 101, 200));
+            quests.AddToQuestList(new Quest("puella-magi-adfligo-systema.2538", 36743, 37322));
+        }
+
+        #endregion
+
     }
 }
