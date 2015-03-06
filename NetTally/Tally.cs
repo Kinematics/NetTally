@@ -105,15 +105,12 @@ namespace NetTally
 
         private async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
         {
-
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(endPost);
 
-            string baseUrl = GetSufficientVelocityUrl(questTitle);
+            string baseUrl = GetThreadBaseUrl(questTitle);
 
-            // Get the first scanned page and extract the last page number of the thread from that.
-            // Bypass the cache, because this page is used to find out what the last page of the
-            // thread is.
+            // Get the first page and extract the last page number of the thread from that (bypass the cache).
             var firstPage = await GetPage(baseUrl, startPage, true).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
@@ -127,6 +124,7 @@ namespace NetTally
             // We will store the loaded pages in a new List.
             List<HtmlDocument> pages = new List<HtmlDocument>();
 
+            // First page is already loaded.
             pages.Add(firstPage);
 
             int pagesToScan = endPage - startPage;
@@ -169,7 +167,7 @@ namespace NetTally
         /// </summary>
         /// <param name="questTitle">The title of the quest thread.</param>
         /// <returns>The full website URL</returns>
-        private string GetSufficientVelocityUrl(string questTitle)
+        private string GetThreadBaseUrl(string questTitle)
         {
             StringBuilder url = new StringBuilder(SVThreadURL);
             url.Append(questTitle);
@@ -246,6 +244,7 @@ namespace NetTally
                     return lastPage;
 
                 var content = root.Descendants("div").First(n => n.Id == "content");
+
                 // Page should always have this div
                 var pageNavLinkGroup = content.Descendants("div").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("pageNavLinkGroup"));
 
