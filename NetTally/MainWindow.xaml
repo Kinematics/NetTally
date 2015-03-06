@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="598.055" Width="890.437" MinWidth="680" Closing="Window_Closing" MinHeight="200">
+        Title="Net Tally" Height="598.055" Width="890.437" MinWidth="800" Closing="Window_Closing" MinHeight="200">
 
     <Window.Resources>
         <local:QuestConverter x:Key="QConverter"></local:QuestConverter>
+        <local:RadioPartitionConverter x:Key="radioPartitionConverter"></local:RadioPartitionConverter>
     </Window.Resources>
 
     <Grid>
@@ -23,16 +24,22 @@
                  Text="{Binding Path=CurrentQuest.StartPost}"/>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
                  Text="{Binding Path=CurrentQuest.EndPost}"/>
-        <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Height="30" Margin="0,45,227,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="113"
-                Click="copyToClipboardButton_Click"/>
+        <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=UseVotePartitions}" Checked="partitionedVotes_Checked" HorizontalAlignment="Left" Width="95"/>
+        <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" Margin="433,45,0,0" VerticalAlignment="Top"
+                     GroupName="PartitionType" IsChecked="{Binding Path=PartitionByLine, Converter={StaticResource radioPartitionConverter}, 
+                     ConverterParameter=Line}"/>
+        <RadioButton x:Name="partitionByBlock" Content="By Block" HorizontalAlignment="Left" Margin="492,45,0,0" VerticalAlignment="Top"
+                     GroupName="PartitionType" IsChecked="{Binding Path=PartitionByLine, Converter={StaticResource radioPartitionConverter}, 
+                     ConverterParameter=Block}"/>
         <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
         </Button>
         <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Click="tallyButton_Click" Width="158" HorizontalAlignment="Right"/>
-        <TextBox x:Name="resultsWindow" Margin="10,80,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
+        <TextBox x:Name="resultsWindow" Margin="10,80,10,45" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-        <CheckBox x:Name="partitionedVotes" Content="Partition Votes" HorizontalAlignment="Right" Margin="0,59,73,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=UseVotePartitions}"/>
+        <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,0,10,10" HorizontalAlignment="Right" Width="113"
+                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Bottom"/>
 
     </Grid>
 </Window>
