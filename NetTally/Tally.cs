@@ -450,24 +450,24 @@ namespace NetTally
                 {
                     if (sb.Length == 0 || line.StartsWith("-"))
                     {
-                        sb.AppendLine(line);
+                        sb.AppendLine(line.Trim());
                     }
                     else
                     {
-                        partitions.Add(sb.ToString().Trim());
+                        partitions.Add(sb.ToString());
                         sb.Clear();
-                        sb.AppendLine(line);
+                        sb.AppendLine(line.Trim());
                     }
                 }
                 else
                 {
-                    sb.AppendLine(line);
+                    sb.AppendLine(line.Trim());
                 }
             }
 
 
             if (sb.Length > 0)
-                partitions.Add(sb.ToString().Trim());
+                partitions.Add(sb.ToString());
 
             return partitions;
         }
@@ -707,7 +707,7 @@ namespace NetTally
 
             foreach (var vote in votesWithSupporters)
             {
-                sb.AppendLine(vote.Key);
+                sb.Append(vote.Key);
 
                 sb.Append("[b]No. of Votes: ");
                 sb.Append(vote.Value.Count);
