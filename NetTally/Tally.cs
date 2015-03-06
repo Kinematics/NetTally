@@ -27,6 +27,7 @@ namespace NetTally
 
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
+        Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
 
         string threadAuthor = string.Empty;
 
@@ -353,6 +354,12 @@ namespace NetTally
 
             // Get the text from the post that can be searched for a vote.
             postText = ExtractPostText(post);
+
+            // If the post contains ##### at the start of the line for part of its text,
+            // it's a tally result.  Skip the post.
+            matches = tallyRegex.Matches(postText);
+            if (matches.Count > 0)
+                return;
 
             // Pull out actual vote lines from the post.
             matches = voteRegex.Matches(postText);
@@ -693,6 +700,9 @@ namespace NetTally
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("[b]Vote Tally[/b]");
+            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
+                System.Windows.Forms.Application.ProductName,
+                System.Windows.Forms.Application.ProductVersion);
             sb.AppendLine("");
 
             foreach (var vote in votesWithSupporters)
