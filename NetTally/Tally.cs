@@ -53,15 +53,7 @@ namespace NetTally
 
         #endregion
 
-
-        #region Internal functions
-        internal void ClearPageCache()
-        {
-            pageCache.Clear();
-        }
-        #endregion
-
-
+        #region Functions for resetting stuff
         /// <summary>
         /// Initialize variables that will be used during the run to a clean state.
         /// </summary>
@@ -72,6 +64,16 @@ namespace NetTally
             voterMessageId.Clear();
             voteSupporters.Clear();
         }
+
+        /// <summary>
+        /// Allow manual clearing of the page cache.
+        /// </summary>
+        internal void ClearPageCache()
+        {
+            pageCache.Clear();
+            lastPageLoaded.Clear();
+        }
+        #endregion
 
 
         /// <summary>
@@ -86,7 +88,7 @@ namespace NetTally
             if (startPost < 1)
                 throw new ArgumentOutOfRangeException(nameof(startPost), startPost, "Vote tally must start at at least post 1.");
             if (endPost < 0)
-                throw new ArgumentOutOfRangeException(nameof(endPost), endPost, "Vote tally ending must be at at least post 0.");
+                throw new ArgumentOutOfRangeException(nameof(endPost), endPost, "Vote tally ending cannot be negative.");
 
             InitForRun();
 
