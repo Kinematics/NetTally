@@ -19,7 +19,7 @@ namespace NetTally
 
         Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         Dictionary<string, string> voterMessageId = new Dictionary<string, string>();
-        Dictionary<string, HashSet<string>> voteSupporters = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, HashSet<string>> votesWithSupporters = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, int> lastPageLoaded = new Dictionary<string, int>();
 
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
@@ -63,7 +63,8 @@ namespace NetTally
             TallyResults = string.Empty;
             threadAuthor = string.Empty;
             voterMessageId.Clear();
-            voteSupporters.Clear();
+            votesWithSupporters.Clear();
+            cleanVoteLookup.Clear();
         }
 
         /// <summary>
@@ -364,13 +365,13 @@ namespace NetTally
                 string voteKey = FindMatchingVote(vote, matches);
 
                 // Create a new hashtable for vote supporters, if necessary.
-                if (!voteSupporters.ContainsKey(voteKey))
+                if (!votesWithSupporters.ContainsKey(voteKey))
                 {
-                    voteSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    votesWithSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 }
 
                 // Update the supporters list, and save this voter's post ID for linking.
-                voteSupporters[voteKey].Add(postAuthor);
+                votesWithSupporters[voteKey].Add(postAuthor);
                 voterMessageId[postAuthor] = postID;
             }
         }
@@ -520,7 +521,7 @@ namespace NetTally
         private string FindMatchingVote(string vote, MatchCollection originalMatches)
         {
             // If the vote already matches an existing key, we don't need to search again.
-            if (voteSupporters.ContainsKey(vote))
+            if (votesWithSupporters.ContainsKey(vote))
             {
                 return vote;
             }
@@ -557,7 +558,7 @@ namespace NetTally
         /// <returns>Returns the vote key for the vote the voter is currently supporting, if any.</returns>
         private string FindVoteForVoter(string voter)
         {
-            foreach (var vote in voteSupporters)
+            foreach (var vote in votesWithSupporters)
             {
                 if (vote.Value.Contains(voter))
                 {
@@ -577,7 +578,7 @@ namespace NetTally
         {
             List<string> emptyVotes = new List<string>();
 
-            foreach (var vote in voteSupporters)
+            foreach (var vote in votesWithSupporters)
             {
                 if (vote.Value.Remove(voter))
                 {
@@ -590,7 +591,7 @@ namespace NetTally
 
             foreach (var vote in emptyVotes)
             {
-                voteSupporters.Remove(vote);
+                votesWithSupporters.Remove(vote);
             }
         }
 
@@ -605,7 +606,7 @@ namespace NetTally
             sb.AppendLine("[b]Vote Tally[/b]");
             sb.AppendLine("");
 
-            foreach (var vote in voteSupporters)
+            foreach (var vote in votesWithSupporters)
             {
                 sb.Append(vote.Key);
 
