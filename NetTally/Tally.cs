@@ -33,6 +33,7 @@ namespace NetTally
         #region Results property that can be used to notify watchers of data changes.
 
         private string results = string.Empty;
+        private bool useVotePartitions = true;
 
         public string TallyResults
         {
@@ -361,22 +362,108 @@ namespace NetTally
                 // Remove the post author from any other existing votes.
                 RemoveSupport(postAuthor);
 
-                // Create a single string composite of the matched vote lines.
-                string vote = CombineMatchesIntoVote(matches);
+                // Build the blocks of the vote, possibly partitioned, and including
+                // referral votes.
+                List<string> votePartitions = CombineVotePartitions(matches);
 
-                // If the vote names another user, pull that user's vote to fill in this vote.
-                string voteKey = FindMatchingVote(vote, matches);
-
-                // Create a new hashtable for vote supporters, if necessary.
-                if (!votesWithSupporters.ContainsKey(voteKey))
+                foreach (var votePartition in votePartitions)
                 {
-                    votesWithSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    // If the vote names another user, pull that user's vote to fill in this vote. (not for partitioned votes)
+                    // Also check for other votes that might match except for BBCode.
+                    string voteKey = FindMatchingVote(votePartition, matches);
+
+                    // Create a new hashtable for vote supporters, if necessary.
+                    if (!votesWithSupporters.ContainsKey(voteKey))
+                    {
+                        votesWithSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    }
+
+                    // Update the supporters list, and save this voter's post ID for linking.
+                    votesWithSupporters[voteKey].Add(postAuthor);
+                    voterMessageId[postAuthor] = postID;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Given a collection of vote line matches, combine them into a single string entity,
+        /// or multiple blocks of strings if we're using vote partitions.
+        /// </summary>
+        /// <param name="matches">Matches for a valid vote line.</param>
+        /// <returns>List of the combined partitions.</returns>
+        private List<string> CombineVotePartitions(MatchCollection matches)
+        {
+            List<string> matchStrings = new List<string>();
+            foreach (Match match in matches)
+            {
+                matchStrings.Add(match.Value);
+            }
+
+            return CombineVotePartitions(matchStrings);
+        }
+
+        private List<string> CombineVotePartitions(List<string> lines)
+        {
+            List<string> partitions = new List<string>();
+            StringBuilder sb = new StringBuilder();
+
+            // Work through the list of matched lines
+            foreach (string line in lines)
+            {
+                // If a line refers to another voter, pull that voter's votes
+                Match vm = voterRegex.Match(line);
+                if (vm.Success)
+                {
+                    var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
+
+                    if (referralVotes.Count > 0)
+                    {
+                        // If we're using vote partitions, add each of the other voter's
+                        // votes to our partition list.  Otherwise, append them all onto
+                        // the currently being built string.
+                        if (useVotePartitions)
+                        {
+                            partitions.AddRange(referralVotes);
+                        }
+                        else
+                        {
+                            foreach (var v in referralVotes)
+                                sb.Append(v);
+                        }
+
+                        // Go to the next vote line if we were successful in pulling a referral vote.
+                        continue;
+                    }
                 }
 
-                // Update the supporters list, and save this voter's post ID for linking.
-                votesWithSupporters[voteKey].Add(postAuthor);
-                voterMessageId[postAuthor] = postID;
+                // For lines that don't refer to other voters, compile them into
+                // unit blocks if we're using vote partitions, or just add to the
+                // end of the total string if not.
+                if (useVotePartitions)
+                {
+                    if (sb.Length == 0 || line.StartsWith("-"))
+                    {
+                        sb.AppendLine(line);
+                    }
+                    else
+                    {
+                        partitions.Add(sb.ToString().Trim());
+                        sb.Clear();
+                        sb.AppendLine(line);
+                    }
+                }
+                else
+                {
+                    sb.AppendLine(line);
+                }
             }
+
+
+            if (sb.Length > 0)
+                partitions.Add(sb.ToString().Trim());
+
+            return partitions;
         }
 
 
@@ -495,28 +582,8 @@ namespace NetTally
 
 
         /// <summary>
-        /// Given a collection of vote line matches, combine them into a single string entity.
-        /// </summary>
-        /// <param name="matches">Matches for a valid vote line.</param>
-        /// <returns>String containing all the matches on individual lines.</returns>
-        private string CombineMatchesIntoVote(MatchCollection matches)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            // The regex matches do not contain EOL characters.
-            foreach (Match match in matches)
-            {
-                sb.AppendLine(match.Value);
-            }
-
-            return sb.ToString();
-        }
-
-
-        /// <summary>
-        /// Attempt to find any existing vote that matches what the current vote describes.
-        /// If the current vote includes a voter name, pull the full version of their currently
-        /// supported vote and insert it in place of that line in this one.
+        /// Attempt to find any existing vote that matches what the the vote we have.
+        /// Allow for a comparison using a version cleaned of any BBCode.
         /// </summary>
         /// <param name="vote"></param>
         /// <param name="originalMatches"></param>
@@ -537,40 +604,9 @@ namespace NetTally
                 return lookupVote;
             }
 
+            cleanVoteLookup[cleanVote] = vote;
 
-            List<string> expandedVote = new List<string>();
-            StringBuilder sb = new StringBuilder();
-
-            foreach (Match match in originalMatches)
-            {
-                Match m = voterRegex.Match(match.Value);
-                if (m.Success)
-                {
-                    string refVote = FindVoteForVoter(m.Groups["name"].Value);
-
-                    if (refVote != string.Empty)
-                    {
-                        sb.Append(refVote);
-                    }
-                    else
-                    {
-                        sb.AppendLine(match.Value);
-                    }
-                }
-            }
-
-            string builtVote = sb.ToString();
-
-            cleanVote = CleanVote(builtVote);
-            lookupVote = string.Empty;
-            if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
-            {
-                return lookupVote;
-            }
-
-            cleanVoteLookup[cleanVote] = builtVote;
-
-            return builtVote;
+            return vote;
         }
 
 
@@ -603,6 +639,21 @@ namespace NetTally
             }
 
             return string.Empty;
+        }
+
+        private List<string> FindVotesForVoter(string voter)
+        {
+            List<string> votes = new List<string>();
+
+            foreach (var vote in votesWithSupporters)
+            {
+                if (vote.Value.Contains(voter))
+                {
+                    votes.Add(vote.Key);
+                }
+            }
+
+            return votes;
         }
 
 
