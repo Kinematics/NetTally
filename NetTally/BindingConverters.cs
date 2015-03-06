@@ -34,5 +34,24 @@ namespace NetTally
     }
 
 
+    public class RadioPartitionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (parameter.Equals("Line"))
+                return value;
+            else
+                return !(bool)value;
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (parameter.Equals("Line"))
+                return value;
+            else
+                return !(bool)value;
+        }
+    }
 }
