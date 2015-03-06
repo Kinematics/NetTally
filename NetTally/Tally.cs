@@ -618,8 +618,8 @@ namespace NetTally
         /// <returns>Return the vote without any BBCode markup.</returns>
         private string CleanVote(string vote)
         {
-            Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\])");
-            return cleanRegex.Replace(vote, "");
+            Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
+            return cleanRegex.Replace(vote, "").ToLower();
         }
 
 
