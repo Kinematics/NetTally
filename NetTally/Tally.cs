@@ -33,7 +33,6 @@ namespace NetTally
         #region Results property that can be used to notify watchers of data changes.
 
         private string results = string.Empty;
-        private bool useVotePartitions = true;
 
         public string TallyResults
         {
@@ -45,6 +44,8 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+        public bool UseVotePartitions { get; set; } = false;
 
         // Declare the event 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -420,7 +421,7 @@ namespace NetTally
                         // If we're using vote partitions, add each of the other voter's
                         // votes to our partition list.  Otherwise, append them all onto
                         // the currently being built string.
-                        if (useVotePartitions)
+                        if (UseVotePartitions)
                         {
                             partitions.AddRange(referralVotes);
                         }
@@ -438,7 +439,7 @@ namespace NetTally
                 // For lines that don't refer to other voters, compile them into
                 // unit blocks if we're using vote partitions, or just add to the
                 // end of the total string if not.
-                if (useVotePartitions)
+                if (UseVotePartitions)
                 {
                     if (sb.Length == 0 || line.StartsWith("-"))
                     {

@@ -34,6 +34,7 @@ namespace NetTally
 
             this.DataContext = quests;
             this.resultsWindow.DataContext = tally;
+            this.partitionedVotes.DataContext = tally;
 
             LoadQuests();
         }
