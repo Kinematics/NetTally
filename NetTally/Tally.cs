@@ -235,15 +235,36 @@ namespace NetTally
         /// <returns>The last page number of the thread.</returns>
         private int GetLastPageNumber(HtmlDocument doc)
         {
-            // Root of the tree
-            var root = doc.DocumentNode;
+            int lastPage = 1;
 
-            var content = root.Descendants("div").First(n => n.Id == "content");
-            var pageNav = content.Descendants("div").First(n => n.GetAttributeValue("class", "") == "PageNav");
-            string lastPageStr = pageNav.GetAttributeValue("data-last", "1");
+            try
+            {
+                // Root of the tree
+                var root = doc.DocumentNode;
 
-            int lastPage = 0;
-            int.TryParse(lastPageStr, out lastPage);
+                if (root.HasChildNodes == false)
+                    return lastPage;
+
+                var content = root.Descendants("div").First(n => n.Id == "content");
+                // Page should always have this div
+                var pageNavLinkGroup = content.Descendants("div").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("pageNavLinkGroup"));
+
+                if (pageNavLinkGroup != null)
+                {
+                    // Threads with only one page won't have a pageNav div, so be careful with this.
+                    var pageNav = pageNavLinkGroup.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("PageNav"));
+
+                    if (pageNav != null)
+                    {
+                        string lastPageStr = pageNav.GetAttributeValue("data-last", "1");
+                        int.TryParse(lastPageStr, out lastPage);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
 
             return lastPage;
         }
