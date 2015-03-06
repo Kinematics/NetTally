@@ -28,6 +28,8 @@ namespace NetTally
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
+        Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
 
         string threadAuthor = string.Empty;
 
@@ -47,6 +49,18 @@ namespace NetTally
         }
 
         public bool UseVotePartitions { get; set; } = false;
+
+        bool partitionByLine = true;
+        public bool PartitionByLine
+        {
+            get { return partitionByLine; }
+            set
+            {
+                partitionByLine = value;
+                // Call OnPropertyChanged whenever the property is updated
+                OnPropertyChanged();
+            }
+        }
 
         // Declare the event 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -448,7 +462,17 @@ namespace NetTally
                 // end of the total string if not.
                 if (UseVotePartitions)
                 {
-                    if (sb.Length == 0 || line.StartsWith("-"))
+                    if (sb.Length == 0)
+                    {
+                        sb.AppendLine(line.Trim());
+                    }
+                    else if (PartitionByLine)
+                    {
+                        partitions.Add(sb.ToString());
+                        sb.Clear();
+                        sb.AppendLine(line.Trim());
+                    }
+                    else if (line.Trim().StartsWith("-"))
                     {
                         sb.AppendLine(line.Trim());
                     }
@@ -626,8 +650,10 @@ namespace NetTally
         /// <returns>Return the vote without any BBCode markup.</returns>
         private string CleanVote(string vote)
         {
-            Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
-            return cleanRegex.Replace(vote, "").ToLower();
+            if (UseVotePartitions && PartitionByLine)
+                return cleanLinePartRegex.Replace(vote, "").ToLower();
+            else
+                return cleanRegex.Replace(vote, "").ToLower();
         }
 
 
