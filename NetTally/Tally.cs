@@ -153,8 +153,6 @@ namespace NetTally
         }
 
 
-
-
         /// <summary>
         /// Calculate the page number the corresponds to the post number given.
         /// </summary>
@@ -523,6 +521,12 @@ namespace NetTally
             // into a single string.
             foreach (var node in articleBlock.ChildNodes)
             {
+                if (node.Name == "br")
+                {
+                    sb.AppendLine("");
+                    continue;
+                }
+
                 if (node.InnerText.Trim() == string.Empty)
                     continue;
 
@@ -564,9 +568,6 @@ namespace NetTally
                         sb.Append("\"]");
                         sb.Append(node.InnerText);
                         sb.Append("[/url]");
-                        break;
-                    case "br":
-                        sb.AppendLine("");
                         break;
                     default:
                         break;
@@ -695,7 +696,7 @@ namespace NetTally
 
             foreach (var vote in votesWithSupporters)
             {
-                sb.Append(vote.Key);
+                sb.AppendLine(vote.Key);
 
                 sb.Append("[b]No. of Votes: ");
                 sb.Append(vote.Value.Count);
@@ -717,7 +718,5 @@ namespace NetTally
 
             TallyResults = sb.ToString();
         }
-
-
-    }
+    }        
 }
