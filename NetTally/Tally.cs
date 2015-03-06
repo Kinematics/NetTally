@@ -28,8 +28,8 @@ namespace NetTally
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
-        Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
-        Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[url[^]]+\]|\[/url\]|\s|\.)");
+        Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
 
         string threadAuthor = string.Empty;
 
