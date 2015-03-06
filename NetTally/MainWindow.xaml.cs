@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Serialization;
 
@@ -160,6 +161,27 @@ namespace NetTally
         }
 
         #endregion
+
+        private void post_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = (sender as TextBox);
+            if (tb != null)
+                tb.SelectAll();
+        }
+
+        private void post_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TextBox tb = (sender as TextBox);
+
+            if (tb != null)
+            {
+                if (!tb.IsKeyboardFocusWithin)
+                {
+                    e.Handled = true;
+                    tb.Focus();
+                }
+            }
+        }
 
     }
 }
