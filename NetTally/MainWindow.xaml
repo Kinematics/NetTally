@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="546.055" Width="824.437" MinWidth="680" Closing="Window_Closing">
+        Title="Net Tally" Height="598.055" Width="890.437" MinWidth="680" Closing="Window_Closing" MinHeight="200">
 
     <Window.Resources>
         <local:QuestConverter x:Key="QConverter"></local:QuestConverter>
