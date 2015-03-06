@@ -22,6 +22,9 @@ namespace NetTally
         Dictionary<string, HashSet<string>> votesWithSupporters = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, int> lastPageLoaded = new Dictionary<string, int>();
 
+        Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
+
+
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
 
@@ -526,6 +529,15 @@ namespace NetTally
                 return vote;
             }
 
+            var cleanVote = CleanVote(vote);
+
+            string lookupVote = string.Empty;
+            if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
+            {
+                return lookupVote;
+            }
+
+
             List<string> expandedVote = new List<string>();
             StringBuilder sb = new StringBuilder();
 
@@ -547,8 +559,32 @@ namespace NetTally
                 }
             }
 
-            return sb.ToString();
+            string builtVote = sb.ToString();
+
+            cleanVote = CleanVote(builtVote);
+            lookupVote = string.Empty;
+            if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
+            {
+                return lookupVote;
+            }
+
+            cleanVoteLookup[cleanVote] = builtVote;
+
+            return builtVote;
         }
+
+
+        /// <summary>
+        /// Strip all markup from the vote.
+        /// </summary>
+        /// <param name="vote">Original vote with possible markup.</param>
+        /// <returns>Return the vote without any BBCode markup.</returns>
+        private string CleanVote(string vote)
+        {
+            Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[url[^]]+\]|\[/url\])");
+            return cleanRegex.Replace(vote, "");
+        }
+
 
 
         /// <summary>
