@@ -20,6 +20,7 @@ namespace NetTally
         Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         Dictionary<string, string> voterMessageId = new Dictionary<string, string>();
         Dictionary<string, HashSet<string>> voteSupporters = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, int> lastPageLoaded = new Dictionary<string, int>();
 
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
@@ -92,6 +93,19 @@ namespace NetTally
 
             InitForRun();
 
+            // Load pages from the website
+            var pages = await LoadPages(questTitle, startPost, endPost);
+
+            // Tally the votes from the loaded pages.
+            TallyVotes(pages, startPost, endPost);
+
+            // Compose the final result string from the compiled votes.
+            ConstructResults();
+        }
+
+        private async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
+        {
+
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(endPost);
 
@@ -110,8 +124,6 @@ namespace NetTally
                 endPage = lastPageNum;
             }
 
-            // Construct a list for storing all the tasks we're running.
-            List<Task<HtmlDocument>> taskList = new List<Task<HtmlDocument>>();
             // We will store the loaded pages in a new List.
             List<HtmlDocument> pages = new List<HtmlDocument>();
 
@@ -122,7 +134,9 @@ namespace NetTally
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(baseUrl, pNum, (pNum == endPage));
+                            select GetPage(baseUrl, pNum,
+                                (pNum == endPage ||
+                                (lastPageLoaded.ContainsKey(questTitle) && pNum == lastPageLoaded[questTitle])));
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -131,14 +145,12 @@ namespace NetTally
                 pages.AddRange(pageArray);
             }
 
+            lastPageLoaded[questTitle] = endPage;
 
-            // Tally the votes from the loaded pages.
-            TallyVotes(pages, startPost, endPost);
-
-            // Compose the final result string.
-            ConstructResults();
-
+            return pages;
         }
+
+
 
 
         /// <summary>
