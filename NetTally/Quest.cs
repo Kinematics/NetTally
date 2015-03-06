@@ -1,9 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
-using System.Globalization;
-using System.Windows.Data;
 
 namespace NetTally
 {
