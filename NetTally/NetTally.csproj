@@ -66,6 +66,7 @@
     </ApplicationDefinition>
     <Compile Include="BindingConverters.cs" />
     <Compile Include="CachedPage.cs" />
+    <Compile Include="IQuest.cs" />
     <Compile Include="Quest.cs" />
     <Compile Include="Quests.cs" />
     <Compile Include="Tally.cs" />

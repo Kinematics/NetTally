@@ -9,7 +9,7 @@ namespace NetTally
     /// The quest class is for storing a quest's thread name, and the starting and
     /// ending posts that are being used to construct a tally.
     /// </summary>
-    public class Quest : INotifyPropertyChanged
+    public class Quest : IQuest, INotifyPropertyChanged
     {
         static Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
 
