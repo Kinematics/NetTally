@@ -7,6 +7,9 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
+    /// <summary>
+    /// Class to save a web page, and the time at which it was loaded.
+    /// </summary>
     public class CachedPage
     {
         public DateTime Timestamp { get; } = DateTime.Now;
