@@ -63,6 +63,8 @@ namespace NetTally
             get { return startPost; }
             set
             {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException("Start Post", "Start post must be at least 1.");
                 startPost = value;
                 OnPropertyChanged();
             }
@@ -79,6 +81,8 @@ namespace NetTally
             get { return endPost; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("End Post", "End post must be at least 0.");
                 endPost = value;
                 OnPropertyChanged();
             }

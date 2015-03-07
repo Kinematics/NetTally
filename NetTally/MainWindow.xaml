@@ -21,9 +21,9 @@
         <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding Path=CurrentQuest.Name, UpdateSourceTrigger=PropertyChanged}" Visibility="Hidden" FontSize="13.333" KeyUp="editQuestName_KeyUp"/>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentQuest.StartPost}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown"/>
+                 Text="{Binding Path=CurrentQuest.StartPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"/>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentQuest.EndPost}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown"/>
+                 Text="{Binding Path=CurrentQuest.EndPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"/>
         <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=UseVotePartitions}" HorizontalAlignment="Left" Width="95"/>
         <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" Margin="433,45,0,0" VerticalAlignment="Top"
