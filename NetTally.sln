@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTally", "NetTally\NetTally.csproj", "{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ACA0D1B9-B3FC-449D-AC3D-680832CC5AEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyUnitTest", "TallyUnitTest\TallyUnitTest.csproj", "{7C756E0C-F734-4501-BD21-453E49C88C17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +19,15 @@ Global
 		{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C756E0C-F734-4501-BD21-453E49C88C17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C756E0C-F734-4501-BD21-453E49C88C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C756E0C-F734-4501-BD21-453E49C88C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C756E0C-F734-4501-BD21-453E49C88C17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7C756E0C-F734-4501-BD21-453E49C88C17} = {ACA0D1B9-B3FC-449D-AC3D-680832CC5AEF}
 	EndGlobalSection
 EndGlobal
