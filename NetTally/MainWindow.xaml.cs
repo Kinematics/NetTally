@@ -246,11 +246,8 @@ namespace NetTally
 
             using (FileStream fs = new FileStream(filepath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                using (TextWriter tw = new StreamWriter(fs))
-                {
-                    XmlSerializer sr = new XmlSerializer(typeof(Quests));
-                    sr.Serialize(tw, quests);
-                }
+                XmlSerializer sr = new XmlSerializer(typeof(Quests));
+                sr.Serialize(fs, quests);
             }
         }
 
