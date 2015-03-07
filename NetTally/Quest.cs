@@ -1,16 +1,26 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 
 namespace NetTally
 {
+    /// <summary>
+    /// The quest class is for storing a quest's thread name, and the starting and
+    /// ending posts that are being used to construct a tally.
+    /// </summary>
     public class Quest : INotifyPropertyChanged
     {
+        static Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+
+        /// <summary>
+        /// Empty constructor for XML serialization.
+        /// </summary>
         public Quest() { }
 
         #region Interface implementations
         /// <summary>
-        /// INotifyPropertyChanged
+        /// Event for INotifyPropertyChanged.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -25,60 +35,68 @@ namespace NetTally
         #endregion
 
         #region Properties
-        string name = string.Empty;
-
+        string name = "New Entry";
+        /// <summary>
+        /// The name of the quest thread.
+        /// </summary>
         public string Name
         {
             get { return name; }
             set
             {
+                if (value == null)
+                    throw new ArgumentNullException();
+                if (value == string.Empty)
+                    throw new ArgumentOutOfRangeException("Quest.Name", "Quest name cannot be set to empty.");
                 name = value;
-                // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
             }
         }
 
-        int startPost = 0;
-
+        int startPost = 1;
+        /// <summary>
+        /// The number of the post to start looking for votes in.
+        /// Not valid below 1.
+        /// </summary>
         public int StartPost
         {
             get { return startPost; }
             set
             {
                 startPost = value;
-                // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
             }
         }
 
         int endPost = 0;
-
+        /// <summary>
+        /// The number of the last post to look for votes in.
+        /// Not valid below 0.
+        /// A value of 0 means it reads to the end of the thread.
+        /// </summary>
         public int EndPost
         {
             get { return endPost; }
             set
             {
                 endPost = value;
-                // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
             }
         }
 
         /// <summary>
-        /// Function to clean up a possible HTML-form name.
+        /// Function to clean up a user-entered name that may contain a web URL.
         /// Example:
         /// http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518
+        /// Becomes:
+        /// awake-already-homura-nge-pmmm-fusion-quest.11111
         /// </summary>
         internal void CleanName()
         {
-            if (Name != null)
+            var m = urlRegex.Match(Name);
+            if (m.Success)
             {
-                Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
-                var m = urlRegex.Match(Name);
-                if (m.Success)
-                {
-                    Name = m.Groups["questName"].Value;
-                }
+                Name = m.Groups["questName"].Value;
             }
         }
         #endregion
