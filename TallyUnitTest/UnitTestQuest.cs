@@ -62,29 +62,21 @@ namespace TallyUnitTest
             string expectedName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
 
             a.Name = testName;
-            a.CleanName();
-
             Assert.AreEqual(a.Name, expectedName);
 
             testName = "awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
 
             a.Name = testName;
-            a.CleanName();
-
             Assert.AreEqual(a.Name, expectedName);
 
             testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111";
 
             a.Name = testName;
-            a.CleanName();
-
             Assert.AreEqual(a.Name, expectedName);
 
             testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
 
             a.Name = testName;
-            a.CleanName();
-
             Assert.AreEqual(a.Name, expectedName);
         }
         #endregion
