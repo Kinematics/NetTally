@@ -48,7 +48,7 @@ namespace NetTally
                     throw new ArgumentNullException();
                 if (value == string.Empty)
                     throw new ArgumentOutOfRangeException("Quest.Name", "Quest name cannot be set to empty.");
-                name = value;
+                name = Clean(value);
                 OnPropertyChanged();
             }
         }
@@ -95,13 +95,15 @@ namespace NetTally
         /// Becomes:
         /// awake-already-homura-nge-pmmm-fusion-quest.11111
         /// </summary>
-        internal void CleanName()
+        string Clean(string name)
         {
-            var m = urlRegex.Match(Name);
+            var m = urlRegex.Match(name);
             if (m.Success)
             {
-                Name = m.Groups["questName"].Value;
+                return m.Groups["questName"].Value;
             }
+
+            return name;
         }
         #endregion
     }
