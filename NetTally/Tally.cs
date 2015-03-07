@@ -247,14 +247,15 @@ namespace NetTally
                     htmldoc.LoadHtml(responseBody);
 
                     pageCache[url] = new CachedPage(htmldoc);
+
+                    TallyResults = TallyResults + "Page " + pageNum.ToString() + " loaded!\n";
                 }
                 catch (HttpRequestException e)
                 {
-                    Debug.WriteLine("Message :{0} ", e.Message);
+                    TallyResults = TallyResults + "Page " + pageNum.ToString() + ": " + e.Message;
+                    throw;
                 }
             }
-
-            TallyResults = TallyResults + "Page " + pageNum.ToString() + " loaded!\n";
 
             return htmldoc;
         }

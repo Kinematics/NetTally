@@ -65,6 +65,10 @@ namespace NetTally
             {
                 await tally.Run(quests.CurrentQuest.Name, quests.CurrentQuest.StartPost, quests.CurrentQuest.EndPost);
             }
+            catch (System.Net.Http.HttpRequestException)
+            {
+                // Error message is pushed into the tally results window, so don't do anything with it here.
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
