@@ -8,13 +8,6 @@ namespace NetTally
     {
         public Quest() { }
 
-        public Quest(string name, int start, int end)
-        {
-            Name = name;
-            StartPost = start;
-            EndPost = end;
-        }
-
         #region Interface implementations
         /// <summary>
         /// INotifyPropertyChanged

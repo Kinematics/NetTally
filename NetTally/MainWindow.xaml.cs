@@ -84,7 +84,7 @@ namespace NetTally
         #region Adding and removing quests
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            quests.AddToQuestList(new Quest("New Entry", 1, 0));
+            quests.AddToQuestList(new Quest());
             quests.SetCurrentQuestByName("New Entry");
             editQuestName.Visibility = Visibility.Visible;
             editQuestName.Focus();
