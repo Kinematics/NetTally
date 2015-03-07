@@ -9,16 +9,13 @@ namespace NetTally
 {
     public class Quests : INotifyPropertyChanged
     {
-        [XmlIgnore()]
-        public static List<Quest> questList = new List<Quest>();
+        static List<Quest> questList = new List<Quest>();
         Quest currentQuest;
 
         /// <summary>
-        /// Public void constructor to allow for XML serialization.
+        /// Empty constructor for XML serialization.
         /// </summary>
-        public Quests()
-        {
-        }
+        public Quests() { }
 
         #region Property update notifications
         public event PropertyChangedEventHandler PropertyChanged;
