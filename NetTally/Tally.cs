@@ -30,6 +30,8 @@ namespace NetTally
         Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Make sure that the quest name is valid to be inserted into a URL, and has the proper form.
+        Regex validateQuestNameForUrl = new Regex(@"\S+\.\d+");
 
         string threadAuthor = string.Empty;
 
@@ -204,6 +206,10 @@ namespace NetTally
         /// <returns>The full website URL</returns>
         private string GetThreadBaseUrl(string questTitle)
         {
+            // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
+            if (!validateQuestNameForUrl.Match(questTitle).Success)
+                throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
+
             StringBuilder url = new StringBuilder(SVThreadURL);
             url.Append(questTitle);
             url.Append("/page-");
