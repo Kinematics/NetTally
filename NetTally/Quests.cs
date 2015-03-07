@@ -18,6 +18,9 @@ namespace NetTally
         public Quests() { }
 
         #region Property update notifications
+        /// <summary>
+        /// Event for INotifyPropertyChanged.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -31,6 +34,10 @@ namespace NetTally
         #endregion
 
         #region Functions for manipulating the quest list
+        /// <summary>
+        /// Add a quest to the current list of quests.
+        /// </summary>
+        /// <param name="quest"></param>
         public void AddToQuestList(Quest quest)
         {
             if (!questList.Any(q => q.Name == quest.Name))
@@ -40,6 +47,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Remove the current quest from the list of quest.
+        /// </summary>
         public void RemoveCurrentQuest()
         {
             if (questList.Remove(CurrentQuest))
@@ -49,6 +59,10 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Remove the specified quest from the list of quests.
+        /// </summary>
+        /// <param name="quest">The quest to remove.</param>
         public void RemoveFromQuestList(Quest quest)
         {
             if (questList.Remove(quest))
@@ -59,6 +73,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Public method call to force a property changed invocation for the quest list.
+        /// </summary>
         public void Update()
         {
             OnPropertyChanged("QuestListNames");
@@ -126,12 +143,20 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// The name of the current quest.
+        /// Setting this changes the current quest, not the current quest name.
+        /// </summary>
         public string CurrentQuestName
         {
             get { return CurrentQuest?.Name; }
             set { SetCurrentQuestByName(value); }
         }
 
+        /// <summary>
+        /// Function to set the current quest based on the supplied name.
+        /// </summary>
+        /// <param name="name">The name of the quest to change to.</param>
         public void SetCurrentQuestByName(string name)
         {
             Quest q = questList.FirstOrDefault(a => a.Name == name);
