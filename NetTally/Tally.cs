@@ -24,11 +24,15 @@ namespace NetTally
 
         Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
-
+        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         Regex voteRegex = new Regex(@"^\s*-*\[[xX]\].*", RegexOptions.Multiline);
+        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
+        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        // Clean extraneous information from a vote in order to compare with other votes.
         Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Clean extraneous information from a vote line in order to compare with other votes.
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Make sure that the quest name is valid to be inserted into a URL, and has the proper form.
         Regex validateQuestNameForUrl = new Regex(@"\S+\.\d+");
