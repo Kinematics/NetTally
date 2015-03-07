@@ -33,40 +33,16 @@ namespace NetTally
 
         string threadAuthor = string.Empty;
 
-        #region Results property that can be used to notify watchers of data changes.
-
-        private string results = string.Empty;
-
-        public string TallyResults
-        {
-            get { return results; }
-            set
-            {
-                results = value;
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
-            }
-        }
-
-        public bool UseVotePartitions { get; set; } = false;
-
-        bool partitionByLine = true;
-        public bool PartitionByLine
-        {
-            get { return partitionByLine; }
-            set
-            {
-                partitionByLine = value;
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
-            }
-        }
-
-        // Declare the event 
+        #region Property update notifications
+        /// <summary>
+        /// Event for INotifyPropertyChanged.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-
-        // Create the OnPropertyChanged method to raise the event 
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -97,6 +73,42 @@ namespace NetTally
         }
         #endregion
 
+        #region Behavior properties
+        string results = string.Empty;
+        /// <summary>
+        /// Property for the string containing the current tally progress or results.
+        /// </summary>
+        public string TallyResults
+        {
+            get { return results; }
+            set
+            {
+                results = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to use vote partitioning when tallying votes.
+        /// Does not need to call OnPropertyChanged for binding.
+        /// </summary>
+        public bool UseVotePartitions { get; set; } = false;
+
+        /// <summary>
+        /// Flag for whether to use by-line or by-block partitioning, if
+        /// partitioning votes during the tally.
+        /// </summary>
+        bool partitionByLine = true;
+        public bool PartitionByLine
+        {
+            get { return partitionByLine; }
+            set
+            {
+                partitionByLine = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Run the actual tally.
@@ -124,6 +136,13 @@ namespace NetTally
             ConstructResults();
         }
 
+        /// <summary>
+        /// Load the pages for the given quest.
+        /// </summary>
+        /// <param name="questTitle">The name of the quest thread to load.</param>
+        /// <param name="startPost">The first post we're interested in tallying.</param>
+        /// <param name="endPost">The last post we're interested in tallying.</param>
+        /// <returns></returns>
         private async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
         {
             int startPage = GetPageNumberFromPost(startPost);
@@ -168,9 +187,8 @@ namespace NetTally
             return pages;
         }
 
-
         /// <summary>
-        /// Calculate the page number the corresponds to the post number given.
+        /// Calculate the page number that corresponds to the post number given.
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
@@ -178,7 +196,6 @@ namespace NetTally
         {
             return ((post - 1) / 25) + 1;
         }
-
 
         /// <summary>
         /// Construct the full SV web site base URL based on the quest title.
@@ -192,7 +209,6 @@ namespace NetTally
             url.Append("/page-");
             return url.ToString();
         }
-
 
         /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
@@ -242,7 +258,6 @@ namespace NetTally
 
             return htmldoc;
         }
-
 
         /// <summary>
         /// Get the last page number of the thread, based on info from the provided page.
@@ -314,7 +329,6 @@ namespace NetTally
             }
         }
 
-
         /// <summary>
         /// Function to set the thread author for the current processing run.
         /// </summary>
@@ -328,7 +342,6 @@ namespace NetTally
                 threadAuthor = authorAnchor.InnerText;
             }
         }
-
 
         /// <summary>
         /// Function to process individual posts within the thread.
@@ -405,7 +418,6 @@ namespace NetTally
             }
         }
 
-
         /// <summary>
         /// Given a collection of vote line matches, combine them into a single string entity,
         /// or multiple blocks of strings if we're using vote partitions.
@@ -423,6 +435,12 @@ namespace NetTally
             return CombineVotePartitions(matchStrings);
         }
 
+        /// <summary>
+        /// Given a list of vote lines, combine them into a single string entity,
+        /// or multiple blocks of strings if we're using vote partitions.
+        /// </summary>
+        /// <param name="lines">List of valid vote lines.</param>
+        /// <returns>List of the combined partitions.</returns>
         private List<string> CombineVotePartitions(List<string> lines)
         {
             List<string> partitions = new List<string>();
@@ -496,7 +514,6 @@ namespace NetTally
             return partitions;
         }
 
-
         /// <summary>
         /// Given an li node containing a post message, extract the thread sequence number from it.
         /// </summary>
@@ -533,7 +550,6 @@ namespace NetTally
 
             return postNum;
         }
-
 
         /// <summary>
         /// Extract the text of the provided post, ignoring quotes, spoilers, or other
@@ -613,7 +629,6 @@ namespace NetTally
             return postText;
         }
 
-
         /// <summary>
         /// Attempt to find any existing vote that matches what the the vote we have.
         /// Allow for a comparison using a version cleaned of any BBCode.
@@ -642,7 +657,6 @@ namespace NetTally
             return vote;
         }
 
-
         /// <summary>
         /// Strip all markup from the vote.
         /// </summary>
@@ -656,26 +670,11 @@ namespace NetTally
                 return cleanRegex.Replace(vote, "").ToLower();
         }
 
-
-
         /// <summary>
-        /// Find which vote a given voter is currently voting for.
+        /// Find all votes that a given voter is supporting.
         /// </summary>
-        /// <param name="voter">The voter to check on.</param>
-        /// <returns>Returns the vote key for the vote the voter is currently supporting, if any.</returns>
-        private string FindVoteForVoter(string voter)
-        {
-            foreach (var vote in votesWithSupporters)
-            {
-                if (vote.Value.Contains(voter))
-                {
-                    return vote.Key;
-                }
-            }
-
-            return string.Empty;
-        }
-
+        /// <param name="voter">The name of the voter.</param>
+        /// <returns>A list of all votes that that voter currently supports.</returns>
         private List<string> FindVotesForVoter(string voter)
         {
             List<string> votes = new List<string>();
@@ -690,7 +689,6 @@ namespace NetTally
 
             return votes;
         }
-
 
         /// <summary>
         /// Remove the voter's support for any existing votes.
