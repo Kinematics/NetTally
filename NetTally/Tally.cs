@@ -35,7 +35,7 @@ namespace NetTally
         // Clean extraneous information from a vote line in order to compare with other votes.
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Make sure that the quest name is valid to be inserted into a URL, and has the proper form.
-        Regex validateQuestNameForUrl = new Regex(@"\S+\.\d+");
+        Regex validateQuestNameForUrl = new Regex(@"^\S+\.\d+$");
 
         string threadAuthor = string.Empty;
 
