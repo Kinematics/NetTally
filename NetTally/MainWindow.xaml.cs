@@ -210,7 +210,6 @@ namespace NetTally
             if (editQuestName.Visibility == Visibility.Visible)
             {
                 editQuestName.Visibility = Visibility.Hidden;
-                quests.CurrentQuest.CleanName();
                 var cqn = quests.CurrentQuest.Name;
                 quests.Update();
                 quests.SetCurrentQuestByName(cqn);
