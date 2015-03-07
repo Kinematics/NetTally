@@ -78,6 +78,12 @@ namespace TallyUnitTest
 
             a.Name = testName;
             Assert.AreEqual(a.Name, expectedName);
+
+            // This will fail the regex filter, so should just give back the original.
+            testName = "/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
+
+            a.Name = testName;
+            Assert.AreEqual(a.Name, testName);
         }
         #endregion
 
