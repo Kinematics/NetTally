@@ -45,10 +45,16 @@ namespace NetTally
         /// <param name="pages"></param>
         public void TallyVotes(List<HtmlDocument> pages, int startPost, int endPost)
         {
+            if (pages == null)
+                throw new ArgumentNullException(nameof(pages));
+
             Reset();
 
             foreach (var page in pages)
             {
+                if (page == null)
+                    continue;
+
                 // Root of the tree.  Make sure we actually have a document.
                 var root = page.DocumentNode;
                 if (!root.HasChildNodes)
