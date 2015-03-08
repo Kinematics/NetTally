@@ -25,13 +25,19 @@ namespace NetTally
             this.pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
 
+
+        #region Event handling
+        /// <summary>
+        /// Keep watch for any status messasges from the page provider, and add them
+        /// to the TallyResults string so that they can be displayed in the UI.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
         {
             TallyResults = TallyResults + e.Message;
         }
 
-
-        #region Property update notifications
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -46,16 +52,6 @@ namespace NetTally
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        #endregion
-
-        #region Functions for resetting stuff
-        /// <summary>
-        /// Allow manual clearing of the page cache.
-        /// </summary>
-        public void ClearPageCache()
-        {
-            pageProvider.ClearPageCache();
-        }
         #endregion
 
         #region Behavior properties
@@ -75,37 +71,25 @@ namespace NetTally
 
         /// <summary>
         /// Flag for whether to use vote partitioning when tallying votes.
-        /// Does not need to call OnPropertyChanged for binding.
         /// </summary>
         public bool UseVotePartitions
         {
-            get
-            {
-                return voteCounter.UseVotePartitions;
-            }
-            set
-            {
-                voteCounter.UseVotePartitions = value;
-            }
+            get { return voteCounter.UseVotePartitions; }
+            set { voteCounter.UseVotePartitions = value; }
         }
 
         /// <summary>
-        /// Flag for whether to use by-line or by-block partitioning, if
-        /// partitioning votes during the tally.
+        /// Flag for whether to use by-line or by-block partitioning,
+        /// if partitioning votes during the tally.
         /// </summary>
         public bool PartitionByLine
         {
-            get
-            {
-                return voteCounter.PartitionByLine;
-            }
-            set
-            {
-                voteCounter.PartitionByLine = value;
-            }
+            get { return voteCounter.PartitionByLine; }
+            set { voteCounter.PartitionByLine = value; }
         }
         #endregion
 
+        #region Interface functions
         /// <summary>
         /// Run the actual tally.
         /// </summary>
@@ -128,7 +112,19 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Compose the stored results into a string to put in the Results property.
+        /// Allow manual clearing of the page cache.
+        /// </summary>
+        public void ClearPageCache()
+        {
+            pageProvider.ClearPageCache();
+        }
+
+        #endregion
+
+        #region Local class functions
+        /// <summary>
+        /// Compose the tallied results into a string to put in the TallyResults property,
+        /// for display in the UI.
         /// </summary>
         private void ConstructResults()
         {
@@ -164,5 +160,6 @@ namespace NetTally
 
             TallyResults = sb.ToString();
         }
+        #endregion
     }        
 }
