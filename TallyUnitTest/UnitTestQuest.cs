@@ -109,8 +109,6 @@ namespace TallyUnitTest
             int testPost = 0;
 
             a.StartPost = testPost;
-
-            Assert.AreEqual(a.StartPost, testPost);
         }
 
         [TestMethod]
@@ -122,8 +120,6 @@ namespace TallyUnitTest
             int testPost = -20;
 
             a.StartPost = testPost;
-
-            Assert.AreEqual(a.StartPost, testPost);
         }
         #endregion
 
@@ -161,8 +157,6 @@ namespace TallyUnitTest
             int testPost = -20;
 
             a.EndPost = testPost;
-
-            Assert.AreEqual(a.EndPost, testPost);
         }
         #endregion
 
