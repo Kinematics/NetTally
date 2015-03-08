@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetTally
 {
-    interface IQuest
+    public interface IQuest
     {
         string Name { get; set; }
         int StartPost { get; set; }
