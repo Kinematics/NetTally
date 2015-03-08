@@ -9,8 +9,8 @@ namespace NetTally
 {
     public class Quests : INotifyPropertyChanged
     {
-        static List<Quest> questList = new List<Quest>();
-        Quest currentQuest;
+        static List<IQuest> questList = new List<IQuest>();
+        IQuest currentQuest;
 
         /// <summary>
         /// Empty constructor for XML serialization.
@@ -63,7 +63,7 @@ namespace NetTally
         /// Remove the specified quest from the list of quests.
         /// </summary>
         /// <param name="quest">The quest to remove.</param>
-        public void RemoveFromQuestList(Quest quest)
+        public void RemoveFromQuestList(IQuest quest)
         {
             if (questList.Remove(quest))
             {
@@ -88,7 +88,7 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name of the quest to find.</param>
         /// <returns>Returns the quest that matches the provided name.</returns>
-        public static Quest GetQuest(string name)
+        public static IQuest GetQuest(string name)
         {
             return questList.FirstOrDefault(q => q.Name == name);
         }
@@ -102,7 +102,7 @@ namespace NetTally
         [XmlArrayItem("Quest", Type = typeof(Quest))]
         public Quest[] QuestList
         {
-            get { return questList.ToArray(); }
+            get { return questList.Cast<Quest>().ToArray(); }
             set
             {
                 if (value != null)
@@ -132,7 +132,7 @@ namespace NetTally
         /// Used for binding with the main window combo box.
         /// </summary>
         [XmlIgnore()]
-        public Quest CurrentQuest
+        public IQuest CurrentQuest
         {
             get { return currentQuest; }
             set
@@ -159,7 +159,7 @@ namespace NetTally
         /// <param name="name">The name of the quest to change to.</param>
         public void SetCurrentQuestByName(string name)
         {
-            Quest q = questList.FirstOrDefault(a => a.Name == name);
+            IQuest q = questList.FirstOrDefault(a => a.Name == name);
             if (q == null && CurrentQuestName == null)
             {
                 q = questList.FirstOrDefault();

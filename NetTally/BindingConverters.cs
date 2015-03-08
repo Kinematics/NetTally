@@ -8,7 +8,7 @@ namespace NetTally
     /// Data binding conversion class to convert a Quest object to the
     /// name of that quest.
     /// </summary>
-    [ValueConversion(typeof(Quest), typeof(string))]
+    [ValueConversion(typeof(IQuest), typeof(string))]
     public class QuestConverter : IValueConverter
     {
         /// <summary>
@@ -17,7 +17,7 @@ namespace NetTally
         /// <returns>Returns the name of the quest object for display.</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var q = value as Quest;
+            var q = value as IQuest;
             if (q != null)
                 return q.Name;
 
