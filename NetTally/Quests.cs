@@ -15,7 +15,10 @@ namespace NetTally
         /// <summary>
         /// Empty constructor for XML serialization.
         /// </summary>
-        public Quests() { }
+        public Quests()
+        {
+            CurrentQuest = questList.FirstOrDefault();
+        }
 
         #region Property update notifications
         /// <summary>
