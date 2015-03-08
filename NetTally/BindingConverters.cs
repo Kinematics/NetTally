@@ -30,7 +30,7 @@ namespace NetTally
         /// <returns>Returns the object that corresponds to the provided quest name.</returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return Quests.GetQuest((string)value);
+            return Quests.StaticGetQuestByName((string)value);
         }
     }
 

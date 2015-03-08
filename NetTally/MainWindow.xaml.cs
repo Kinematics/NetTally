@@ -164,7 +164,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            quests.AddToQuestList(new Quest());
+            quests.AddNewQuest();
             quests.SetCurrentQuestByName("New Entry");
             editQuestName.Visibility = Visibility.Visible;
             editQuestName.Focus();
