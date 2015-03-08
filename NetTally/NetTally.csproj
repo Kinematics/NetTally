@@ -66,11 +66,16 @@
     </ApplicationDefinition>
     <Compile Include="BindingConverters.cs" />
     <Compile Include="CachedPage.cs" />
-    <Compile Include="IQuest.cs" />
-    <Compile Include="IQuests.cs" />
+    <Compile Include="Interfaces\IPageProvider.cs" />
+    <Compile Include="Interfaces\IQuest.cs" />
+    <Compile Include="Interfaces\IQuests.cs" />
+    <Compile Include="Interfaces\IVoteCounter.cs" />
     <Compile Include="Quest.cs" />
     <Compile Include="Quests.cs" />
+    <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Tally.cs" />
+    <Compile Include="VoteCounter.cs" />
+    <Compile Include="WebPageProvider.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

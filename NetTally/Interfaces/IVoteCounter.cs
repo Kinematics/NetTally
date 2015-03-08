@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using HtmlAgilityPack;
 
 namespace NetTally
 {
     public interface IVoteCounter
     {
+        Dictionary<string, HashSet<string>> VotesWithSupporters { get; }
+        Dictionary<string, string> VoterMessageId { get; }
+
+        bool UseVotePartitions { get; set; }
+        bool PartitionByLine { get; set; }
+
+
+        void TallyVotes(List<HtmlDocument> pages, int startPost, int endPost);
     }
 }

@@ -16,7 +16,7 @@ namespace NetTally
         const string questFile = "questlist.xml";
 
         // Local holding variables
-        Tally tally = new Tally();
+        Tally tally = new Tally(new WebPageProvider(), new VoteCounter());
         Quests quests = new Quests();
 
         /// <summary>
