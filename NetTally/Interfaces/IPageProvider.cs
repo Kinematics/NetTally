@@ -7,11 +7,23 @@ namespace NetTally
 {
     public interface IPageProvider
     {
-        List<HtmlDocument> LoadPages(string questTitle, int startPost, int endPost);
-        Task<List<HtmlDocument>> LoadPagesAsync(string questTitle, int startPost, int endPost);
+        /// <summary>
+        /// Asynchronously load pages based on the provided parameters.
+        /// </summary>
+        /// <param name="questTitle">The title of the quest.</param>
+        /// <param name="startPost">The starting post.</param>
+        /// <param name="endPost">The ending post.</param>
+        /// <returns>Returns a list of HTML documents.</returns>
+        Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost);
 
+        /// <summary>
+        /// Clear the cache of any previously loaded pages.
+        /// </summary>
         void ClearPageCache();
 
+        /// <summary>
+        /// Have an event that can be watched for status messages.
+        /// </summary>
         event EventHandler<MessageEventArgs> StatusChanged;
     }
 }

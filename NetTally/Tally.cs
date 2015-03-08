@@ -119,7 +119,7 @@ namespace NetTally
             TallyResults = string.Empty;
 
             // Load pages from the website
-            var pages = await pageProvider.LoadPagesAsync(questTitle, startPost, endPost).ConfigureAwait(false);
+            var pages = await pageProvider.LoadPages(questTitle, startPost, endPost).ConfigureAwait(false);
 
             // Tally the votes from the loaded pages.
             voteCounter.TallyVotes(pages, startPost, endPost);

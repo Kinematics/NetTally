@@ -45,29 +45,13 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Load the pages for the given quest.
-        /// </summary>
-        /// <param name="questTitle"></param>
-        /// <param name="startPost"></param>
-        /// <param name="endPost"></param>
-        /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public List<HtmlDocument> LoadPages(string questTitle, int startPost, int endPost)
-        {
-            // We just wrap the async version of the code, then wait on the results syncrhonously.
-            var asyncPages = LoadPagesAsync(questTitle, startPost, endPost);
-            asyncPages.Wait();
-
-            return asyncPages.Result;
-        }
-
-        /// <summary>
         /// Load the pages for the given quest asynchronously.
         /// </summary>
         /// <param name="questTitle">The name of the quest thread to load.</param>
         /// <param name="startPost">The first post we're interested in tallying.</param>
         /// <param name="endPost">The last post we're interested in tallying.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadPagesAsync(string questTitle, int startPost, int endPost)
+        public async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
         {
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(endPost);
