@@ -54,6 +54,8 @@
     <Compile Include="UnitTestQuest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTestQuests.cs" />
+    <Compile Include="VoteCounterTests.cs" />
+    <Compile Include="WebPageProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetTally\NetTally.csproj">
