@@ -102,7 +102,6 @@ namespace NetTally
             set
             {
                 voteCounter.PartitionByLine = value;
-                OnPropertyChanged();
             }
         }
         #endregion
