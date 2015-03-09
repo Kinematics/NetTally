@@ -19,6 +19,9 @@ namespace NetTally
         Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Clean extraneous information from a vote line in order to compare with other votes.
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Bad characters we want to remove
+        // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
+        Regex badCharactersRegex = new Regex("\u200b");
 
         Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         string threadAuthor = string.Empty;
@@ -305,75 +308,98 @@ namespace NetTally
         /// <returns>A string containing all valid text lines.</returns>
         private string ExtractPostText(HtmlNode post)
         {
-            StringBuilder sb = new StringBuilder();
-
             // Extract the actual contents of the post.
             var postArticle = post.Descendants("article").First();
             var articleBlock = postArticle.Element("blockquote");
 
+            string postText = ExtractNodeText(articleBlock);
+
+            // Clean up the extracted text
+            postText = postText.TrimStart();
+            postText = HtmlEntity.DeEntitize(postText);
+            postText = badCharactersRegex.Replace(postText, "");
+
+            return postText;
+        }
+
+        private string ExtractNodeText(HtmlNode node)
+        {
+            StringBuilder sb = new StringBuilder();
+
             // Search the post for valid element types, and put them all together
             // into a single string.
-            foreach (var node in articleBlock.ChildNodes)
+            foreach (var childNode in node.ChildNodes)
             {
-                if (node.Name == "br")
+                // Once we reach the end marker of the post, no more processing is needed.
+                if (childNode.GetAttributeValue("class", "").Contains("messageTextEndMarker"))
+                    return sb.ToString();
+
+                // If we encounter a quote, skip past it
+                if (childNode.GetAttributeValue("class", "").Contains("bbCodeQuote"))
+                    continue;
+
+                // A <br> element adds a newline
+                if (childNode.Name == "br")
                 {
                     sb.AppendLine("");
                     continue;
                 }
 
-                if (node.InnerText.Trim() == string.Empty)
+                // If the node doesn't contain any text, move to the next.
+                if (childNode.InnerText.Trim() == string.Empty)
                     continue;
 
-                switch (node.Name)
+                switch (childNode.Name)
                 {
                     case "#text":
-                        sb.Append(node.InnerText);
+                        sb.Append(childNode.InnerText);
                         break;
                     case "i":
                         sb.Append("[i]");
-                        sb.Append(node.InnerText);
+                        sb.Append(childNode.InnerText);
                         sb.Append("[/i]");
                         break;
                     case "b":
                         sb.Append("[b]");
-                        sb.Append(node.InnerText);
+                        sb.Append(childNode.InnerText);
                         sb.Append("[/b]");
                         break;
                     case "u":
                         sb.Append("[u]");
-                        sb.Append(node.InnerText);
+                        sb.Append(childNode.InnerText);
                         sb.Append("[/u]");
                         break;
                     case "span":
-                        string spanStyle = node.GetAttributeValue("style", "");
+                        string spanStyle = childNode.GetAttributeValue("style", "");
                         if (spanStyle.StartsWith("color:", StringComparison.OrdinalIgnoreCase))
                         {
                             string spanColor = spanStyle.Substring("color:".Length).Trim();
                             sb.Append("[color=");
                             sb.Append(spanColor);
                             sb.Append("]");
-                            sb.Append(node.InnerText);
+                            sb.Append(childNode.InnerText);
                             sb.Append("[/color]");
                         }
                         break;
                     case "a":
                         sb.Append("[url=\"");
-                        sb.Append(node.GetAttributeValue("href", ""));
+                        sb.Append(childNode.GetAttributeValue("href", ""));
                         sb.Append("\"]");
-                        sb.Append(node.InnerText);
+                        sb.Append(childNode.InnerText);
                         sb.Append("[/url]");
+                        break;
+                    case "div":
+                        // Recurse into divs
+                        sb.Append(ExtractNodeText(childNode));
                         break;
                     default:
                         break;
                 }
             }
 
-
-            string postText = sb.ToString().TrimStart();
-            postText = HtmlEntity.DeEntitize(postText);
-
-            return postText;
+            return sb.ToString();
         }
+
 
         /// <summary>
         /// Attempt to find any existing vote that matches what the the vote we have.
