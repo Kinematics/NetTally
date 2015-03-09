@@ -93,7 +93,7 @@ namespace NetTally
             // Find the ordered list containing all the messages on this page.
             var postList = GetPostList(root);
 
-            // Process each <li> child node as a user post.
+            // Process each user post in the list.
             foreach (var post in GetPostsFromList(postList))
             {
                 ProcessPost(post, startPost, endPost);
@@ -151,7 +151,7 @@ namespace NetTally
             postText = ExtractPostText(post);
 
             // Attempt to get vote information from the post.
-            ProcessPostText(postText, postAuthor, postID);
+            ProcessPostContents(postText, postAuthor, postID);
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace NetTally
         /// <param name="postText">The text of the post.</param>
         /// <param name="postAuthor">The author of the post.</param>
         /// <param name="postID">The ID of the post.</param>
-        private void ProcessPostText(string postText, string postAuthor, string postID)
+        private void ProcessPostContents(string postText, string postAuthor, string postID)
         {
             if (IsTallyPost(postText))
                 return;
@@ -238,21 +238,14 @@ namespace NetTally
                 // Remove the post author from any other existing votes.
                 RemoveSupport(postAuthor);
 
-                // Build the blocks of the vote, possibly partitioned, and including
-                // referral votes.
-                List<string> votePartitions = CombineVotePartitions(matches);
+                // Get the list of all vote partitions, built according to current preferences.
+                // One of: By line, By block, or By post (ie: entire vote)
+                List<string> votePartitions = GetVotePartitions(matches);
 
                 foreach (var votePartition in votePartitions)
                 {
-                    // If the vote names another user, pull that user's vote to fill in this vote. (not for partitioned votes)
-                    // Also check for other votes that might match except for BBCode.
-                    string voteKey = FindMatchingVote(votePartition, matches);
-
-                    // Create a new hashtable for vote supporters, if necessary.
-                    if (!VotesWithSupporters.ContainsKey(voteKey))
-                    {
-                        VotesWithSupporters[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    }
+                    // Find any existing vote that matches the current vote partition.
+                    string voteKey = GetVoteKey(votePartition);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(postAuthor);
@@ -280,7 +273,7 @@ namespace NetTally
         /// </summary>
         /// <param name="matches">Matches for a valid vote line.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> CombineVotePartitions(MatchCollection matches)
+        private List<string> GetVotePartitions(MatchCollection matches)
         {
             List<string> matchStrings = new List<string>();
             foreach (Match match in matches)
@@ -288,7 +281,7 @@ namespace NetTally
                 matchStrings.Add(match.Value);
             }
 
-            return CombineVotePartitions(matchStrings);
+            return GetVotePartitions(matchStrings);
         }
 
         /// <summary>
@@ -297,7 +290,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> CombineVotePartitions(List<string> lines)
+        private List<string> GetVotePartitions(List<string> lines)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -473,13 +466,12 @@ namespace NetTally
 
 
         /// <summary>
-        /// Attempt to find any existing vote that matches what the the vote we have.
-        /// Allow for a comparison using a version cleaned of any BBCode.
+        /// Attempt to find any existing vote that matches with the vote we have,
+        /// and can be used as a key in the VotesWithSupporters table.
         /// </summary>
-        /// <param name="vote"></param>
-        /// <param name="originalMatches"></param>
-        /// <returns></returns>
-        private string FindMatchingVote(string vote, MatchCollection originalMatches)
+        /// <param name="vote">The vote to search for.</param>
+        /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
+        private string GetVoteKey(string vote)
         {
             // If the vote already matches an existing key, we don't need to search again.
             if (VotesWithSupporters.ContainsKey(vote))
@@ -489,6 +481,7 @@ namespace NetTally
 
             var cleanVote = CleanVote(vote);
 
+            // If it matches a lookup value, use the existing key
             string lookupVote = string.Empty;
             if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
             {
@@ -496,6 +489,9 @@ namespace NetTally
             }
 
             cleanVoteLookup[cleanVote] = vote;
+
+            // Otherwise create a new hashtable for vote supporters for the new vote key.
+            VotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             return vote;
         }
