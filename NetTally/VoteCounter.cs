@@ -9,6 +9,29 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public VoteCounter()
+        {
+            SetupFormattingRegexes();
+        }
+
+
+        // Public properties and variables
+
+        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
+
+        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        public bool UseVotePartitions { get; set; } = false;
+        public bool PartitionByLine { get; set; } = true;
+
+
+        // Private variables
+
+        string threadAuthor = string.Empty;
+
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
@@ -25,15 +48,41 @@ namespace NetTally
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         Regex badCharactersRegex = new Regex("\u200b");
 
+        List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
+        Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
+        Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
+
         Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
-        string threadAuthor = string.Empty;
 
-        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
 
-        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public bool UseVotePartitions { get; set; } = false;
-        public bool PartitionByLine { get; set; } = true;
+
+        /// <summary>
+        /// Reset all tracking variables.
+        /// </summary>
+        private void Reset()
+        {
+            VotesWithSupporters.Clear();
+            VoterMessageId.Clear();
+            cleanVoteLookup.Clear();
+            threadAuthor = string.Empty;
+        }
+
+        /// <summary>
+        /// Setup some dictionary lists for validating vote formatting.
+        /// </summary>
+        private void SetupFormattingRegexes()
+        {
+            foreach (var tag in formattingTags)
+            {
+                if (tag == "color")
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
+                else
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
+
+                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
+            }
+        }
 
 
         /// <summary>
@@ -58,17 +107,6 @@ namespace NetTally
                 if (page != null)
                     ProcessPage(page.DocumentNode, startPost, endPost);
             }
-        }
-
-        /// <summary>
-        /// Reset all tracking variables.
-        /// </summary>
-        private void Reset()
-        {
-            VotesWithSupporters.Clear();
-            VoterMessageId.Clear();
-            cleanVoteLookup.Clear();
-            threadAuthor = string.Empty;
         }
 
         /// <summary>
@@ -365,7 +403,61 @@ namespace NetTally
             if (sb.Length > 0)
                 partitions.Add(sb.ToString());
 
+            CloseFormattingTags(partitions);
+
             return partitions;
+        }
+
+        /// <summary>
+        /// Make sure each vote string in the provided list closes any opened BBCode formatting it uses,
+        /// and that orphan closing tags are removed.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void CloseFormattingTags(List<string> partitions)
+        {
+            Dictionary<string, string> replacements = new Dictionary<string, string>();
+
+            bool replace;
+
+            foreach (var partition in partitions)
+            {
+                string replacement = partition.TrimEnd();
+                replace = false;
+
+                foreach (var tag in formattingTags)
+                {
+                    var start = rxStart[tag];
+                    var end = rxEnd[tag];
+
+                    var starts = start.Matches(partition);
+                    var ends = end.Matches(partition);
+
+                    if (starts.Count > ends.Count)
+                    {
+                        for (int i = ends.Count; i < starts.Count; i++)
+                        {
+                            replacement += "[/" + tag + "]";
+                        }
+                        replace = true;
+                    }
+                    else if (ends.Count > starts.Count)
+                    {
+                        replacement = end.Replace(replacement, "", ends.Count - starts.Count);
+                        replace = true;
+                    }
+                }
+
+                if (replace)
+                {
+                    replacements[partition] = replacement + "\r\n";
+                }
+            }
+
+            foreach (var rep in replacements)
+            {
+                partitions.Remove(rep.Key);
+                partitions.Add(rep.Value);
+            }
         }
 
         /// <summary>
@@ -381,8 +473,6 @@ namespace NetTally
             else
                 return voteLine;
         }
-
-
 
         /// <summary>
         /// Extract the text of the provided post, ignoring quotes, spoilers, or other
