@@ -17,6 +17,22 @@ namespace NetTally
             SetupFormattingRegexes();
         }
 
+        /// <summary>
+        /// Setup some dictionary lists for validating vote formatting.
+        /// </summary>
+        private void SetupFormattingRegexes()
+        {
+            foreach (var tag in formattingTags)
+            {
+                if (tag == "color")
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
+                else
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
+
+                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
+            }
+        }
+
 
         // Public properties and variables
 
@@ -55,36 +71,6 @@ namespace NetTally
         Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
 
-
-
-        /// <summary>
-        /// Reset all tracking variables.
-        /// </summary>
-        private void Reset()
-        {
-            VotesWithSupporters.Clear();
-            VoterMessageId.Clear();
-            cleanVoteLookup.Clear();
-            threadAuthor = string.Empty;
-        }
-
-        /// <summary>
-        /// Setup some dictionary lists for validating vote formatting.
-        /// </summary>
-        private void SetupFormattingRegexes()
-        {
-            foreach (var tag in formattingTags)
-            {
-                if (tag == "color")
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
-                else
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
-
-                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
-            }
-        }
-
-
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
@@ -107,6 +93,17 @@ namespace NetTally
                 if (page != null)
                     ProcessPage(page.DocumentNode, startPost, endPost);
             }
+        }
+
+        /// <summary>
+        /// Reset all tracking variables.
+        /// </summary>
+        private void Reset()
+        {
+            VotesWithSupporters.Clear();
+            VoterMessageId.Clear();
+            cleanVoteLookup.Clear();
+            threadAuthor = string.Empty;
         }
 
         /// <summary>
@@ -258,6 +255,115 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Extract the text of the provided post, ignoring quotes, spoilers, or other
+        /// invalid regions.  Clean up HTML entities as well.
+        /// </summary>
+        /// <param name="post">The li HTML node containing the user post.</param>
+        /// <returns>A string containing all valid text lines.</returns>
+        private string ExtractPostText(HtmlNode post)
+        {
+            // Extract the actual contents of the post.
+            var postArticle = post.Descendants("article").First();
+            var articleBlock = postArticle.Element("blockquote");
+
+            string postText = ExtractNodeText(articleBlock);
+
+            // Clean up the extracted text
+            postText = postText.TrimStart();
+            postText = HtmlEntity.DeEntitize(postText);
+            postText = badCharactersRegex.Replace(postText, "");
+
+            return postText;
+        }
+
+        /// <summary>
+        /// Extract the text of the provided HTML node.  Recurses into nested
+        /// divs.
+        /// </summary>
+        /// <param name="node">The node to pull text content from.</param>
+        /// <returns>A string containing the text of the post, with formatting
+        /// elements converted to BBCode tags.</returns>
+        private string ExtractNodeText(HtmlNode node)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Search the post for valid element types, and put them all together
+            // into a single string.
+            foreach (var childNode in node.ChildNodes)
+            {
+                // Once we reach the end marker of the post, no more processing is needed.
+                if (childNode.GetAttributeValue("class", "").Contains("messageTextEndMarker"))
+                    return sb.ToString();
+
+                // If we encounter a quote, skip past it
+                if (childNode.GetAttributeValue("class", "").Contains("bbCodeQuote"))
+                    continue;
+
+                // A <br> element adds a newline
+                if (childNode.Name == "br")
+                {
+                    sb.AppendLine("");
+                    continue;
+                }
+
+                // If the node doesn't contain any text, move to the next.
+                if (childNode.InnerText.Trim() == string.Empty)
+                    continue;
+
+                // Add BBCode markup in place of HTML format elements,
+                // while collecting the text in the post.
+                switch (childNode.Name)
+                {
+                    case "#text":
+                        sb.Append(childNode.InnerText);
+                        break;
+                    case "i":
+                        sb.Append("[i]");
+                        sb.Append(childNode.InnerText);
+                        sb.Append("[/i]");
+                        break;
+                    case "b":
+                        sb.Append("[b]");
+                        sb.Append(childNode.InnerText);
+                        sb.Append("[/b]");
+                        break;
+                    case "u":
+                        sb.Append("[u]");
+                        sb.Append(childNode.InnerText);
+                        sb.Append("[/u]");
+                        break;
+                    case "span":
+                        string spanStyle = childNode.GetAttributeValue("style", "");
+                        if (spanStyle.StartsWith("color:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string spanColor = spanStyle.Substring("color:".Length).Trim();
+                            sb.Append("[color=");
+                            sb.Append(spanColor);
+                            sb.Append("]");
+                            sb.Append(childNode.InnerText);
+                            sb.Append("[/color]");
+                        }
+                        break;
+                    case "a":
+                        sb.Append("[url=\"");
+                        sb.Append(childNode.GetAttributeValue("href", ""));
+                        sb.Append("\"]");
+                        sb.Append(childNode.InnerText);
+                        sb.Append("[/url]");
+                        break;
+                    case "div":
+                        // Recurse into divs
+                        sb.Append(ExtractNodeText(childNode));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Examine the text of the post, determine if it contains any votes, put the vote
         /// together, and update our vote and voter records.
         /// </summary>
@@ -304,6 +410,30 @@ namespace NetTally
             return (tallyRegex.Matches(postText).Count > 0);
         }
 
+        /// <summary>
+        /// Remove the voter's support for any existing votes.
+        /// </summary>
+        /// <param name="voter">The voter name to check for.</param>
+        private void RemoveSupport(string voter)
+        {
+            List<string> emptyVotes = new List<string>();
+
+            foreach (var vote in VotesWithSupporters)
+            {
+                if (vote.Value.Remove(voter))
+                {
+                    if (vote.Value.Count == 0)
+                    {
+                        emptyVotes.Add(vote.Key);
+                    }
+                }
+            }
+
+            foreach (var vote in emptyVotes)
+            {
+                VotesWithSupporters.Remove(vote);
+            }
+        }
 
         /// <summary>
         /// Given a collection of vote line matches, combine them into a single string entity,
@@ -403,9 +533,44 @@ namespace NetTally
             if (sb.Length > 0)
                 partitions.Add(sb.ToString());
 
+            // Make sure any BBCode formatting is cleaned up in each partition result.
             CloseFormattingTags(partitions);
 
             return partitions;
+        }
+
+        /// <summary>
+        /// Find all votes that a given voter is supporting.
+        /// </summary>
+        /// <param name="voter">The name of the voter.</param>
+        /// <returns>A list of all votes that that voter currently supports.</returns>
+        private List<string> FindVotesForVoter(string voter)
+        {
+            List<string> votes = new List<string>();
+
+            foreach (var vote in VotesWithSupporters)
+            {
+                if (vote.Value.Contains(voter))
+                {
+                    votes.Add(vote.Key);
+                }
+            }
+
+            return votes;
+        }
+
+        /// <summary>
+        /// Given a vote line, strip off any leading BBCode formatting chunks.
+        /// </summary>
+        /// <param name="voteLine">The vote line to examine.</param>
+        /// <returns>Returns the vote line without any leading formatting.</returns>
+        private string StripLeadingFormatting(string voteLine)
+        {
+            Match m = stripLeadingFormattingRegex.Match(voteLine);
+            if (m.Success)
+                return m.Groups["line"].Value;
+            else
+                return voteLine;
         }
 
         /// <summary>
@@ -461,121 +626,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Given a vote line, strip off any leading BBCode formatting chunks.
-        /// </summary>
-        /// <param name="voteLine">The vote line to examine.</param>
-        /// <returns>Returns the vote line without any leading formatting.</returns>
-        private string StripLeadingFormatting(string voteLine)
-        {
-            Match m = stripLeadingFormattingRegex.Match(voteLine);
-            if (m.Success)
-                return m.Groups["line"].Value;
-            else
-                return voteLine;
-        }
-
-        /// <summary>
-        /// Extract the text of the provided post, ignoring quotes, spoilers, or other
-        /// invalid regions.  Clean up HTML entities as well.
-        /// </summary>
-        /// <param name="post">The li HTML node containing the user post.</param>
-        /// <returns>A string containing all valid text lines.</returns>
-        private string ExtractPostText(HtmlNode post)
-        {
-            // Extract the actual contents of the post.
-            var postArticle = post.Descendants("article").First();
-            var articleBlock = postArticle.Element("blockquote");
-
-            string postText = ExtractNodeText(articleBlock);
-
-            // Clean up the extracted text
-            postText = postText.TrimStart();
-            postText = HtmlEntity.DeEntitize(postText);
-            postText = badCharactersRegex.Replace(postText, "");
-
-            return postText;
-        }
-
-        private string ExtractNodeText(HtmlNode node)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            // Search the post for valid element types, and put them all together
-            // into a single string.
-            foreach (var childNode in node.ChildNodes)
-            {
-                // Once we reach the end marker of the post, no more processing is needed.
-                if (childNode.GetAttributeValue("class", "").Contains("messageTextEndMarker"))
-                    return sb.ToString();
-
-                // If we encounter a quote, skip past it
-                if (childNode.GetAttributeValue("class", "").Contains("bbCodeQuote"))
-                    continue;
-
-                // A <br> element adds a newline
-                if (childNode.Name == "br")
-                {
-                    sb.AppendLine("");
-                    continue;
-                }
-
-                // If the node doesn't contain any text, move to the next.
-                if (childNode.InnerText.Trim() == string.Empty)
-                    continue;
-
-                switch (childNode.Name)
-                {
-                    case "#text":
-                        sb.Append(childNode.InnerText);
-                        break;
-                    case "i":
-                        sb.Append("[i]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/i]");
-                        break;
-                    case "b":
-                        sb.Append("[b]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/b]");
-                        break;
-                    case "u":
-                        sb.Append("[u]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/u]");
-                        break;
-                    case "span":
-                        string spanStyle = childNode.GetAttributeValue("style", "");
-                        if (spanStyle.StartsWith("color:", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string spanColor = spanStyle.Substring("color:".Length).Trim();
-                            sb.Append("[color=");
-                            sb.Append(spanColor);
-                            sb.Append("]");
-                            sb.Append(childNode.InnerText);
-                            sb.Append("[/color]");
-                        }
-                        break;
-                    case "a":
-                        sb.Append("[url=\"");
-                        sb.Append(childNode.GetAttributeValue("href", ""));
-                        sb.Append("\"]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/url]");
-                        break;
-                    case "div":
-                        // Recurse into divs
-                        sb.Append(ExtractNodeText(childNode));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return sb.ToString();
-        }
-
-
-        /// <summary>
         /// Attempt to find any existing vote that matches with the vote we have,
         /// and can be used as a key in the VotesWithSupporters table.
         /// </summary>
@@ -617,51 +667,6 @@ namespace NetTally
                 return cleanLinePartRegex.Replace(vote, "").ToLower();
             else
                 return cleanRegex.Replace(vote, "").ToLower();
-        }
-
-        /// <summary>
-        /// Find all votes that a given voter is supporting.
-        /// </summary>
-        /// <param name="voter">The name of the voter.</param>
-        /// <returns>A list of all votes that that voter currently supports.</returns>
-        private List<string> FindVotesForVoter(string voter)
-        {
-            List<string> votes = new List<string>();
-
-            foreach (var vote in VotesWithSupporters)
-            {
-                if (vote.Value.Contains(voter))
-                {
-                    votes.Add(vote.Key);
-                }
-            }
-
-            return votes;
-        }
-
-        /// <summary>
-        /// Remove the voter's support for any existing votes.
-        /// </summary>
-        /// <param name="voter">The voter name to check for.</param>
-        private void RemoveSupport(string voter)
-        {
-            List<string> emptyVotes = new List<string>();
-
-            foreach (var vote in VotesWithSupporters)
-            {
-                if (vote.Value.Remove(voter))
-                {
-                    if (vote.Value.Count == 0)
-                    {
-                        emptyVotes.Add(vote.Key);
-                    }
-                }
-            }
-
-            foreach (var vote in emptyVotes)
-            {
-                VotesWithSupporters.Remove(vote);
-            }
         }
     }
 }
