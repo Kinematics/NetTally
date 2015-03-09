@@ -84,7 +84,7 @@ namespace NetTally
             {
                 var pageDesc = root.Descendants("p").First(n => n.Id == "pageDescription");
                 var authorAnchor = pageDesc.Elements("a").First(n => n.GetAttributeValue("class", "") == "username");
-                threadAuthor = authorAnchor.InnerText;
+                threadAuthor = HtmlEntity.DeEntitize(authorAnchor.InnerText);
             }
         }
 
@@ -111,6 +111,7 @@ namespace NetTally
 
             // The post author is contained in the <li> element.
             postAuthor = post.GetAttributeValue("data-author", "");
+            postAuthor = HtmlEntity.DeEntitize(postAuthor);
 
             // Ignore posts by the thread author.
             if (postAuthor == threadAuthor)
