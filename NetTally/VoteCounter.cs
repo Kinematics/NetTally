@@ -53,6 +53,9 @@ namespace NetTally
 
             Reset();
 
+            // Set the thread author for reference.
+            SetThreadAuthor(pages.First(a => a != null));
+
             foreach (var page in pages)
             {
                 if (page == null)
@@ -63,9 +66,6 @@ namespace NetTally
                 if (!root.HasChildNodes)
                     continue;
 
-                // Set the thread author for reference.
-                SetThreadAuthor(root);
-
                 ProcessPage(root, startPost, endPost);
             }
         }
@@ -74,14 +74,15 @@ namespace NetTally
         /// Function to set the thread author for the current processing run.
         /// </summary>
         /// <param name="root">Root node of a page of the thread.</param>
-        private void SetThreadAuthor(HtmlNode root)
+        private void SetThreadAuthor(HtmlDocument root)
         {
-            if (threadAuthor == string.Empty)
-            {
-                var pageDesc = root.Descendants("p").First(n => n.Id == "pageDescription");
-                var authorAnchor = pageDesc.Elements("a").First(n => n.GetAttributeValue("class", "") == "username");
+            var rd = root.DocumentNode;
+
+            var pageDesc = rd.Descendants("p")?.FirstOrDefault(n => n.Id == "pageDescription");
+            var authorAnchor = pageDesc?.Elements("a")?.FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
+
+            if (authorAnchor != null)
                 threadAuthor = HtmlEntity.DeEntitize(authorAnchor.InnerText);
-            }
         }
 
         /// <summary>
