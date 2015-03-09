@@ -34,14 +34,6 @@ namespace NetTally
         public bool PartitionByLine { get; set; } = true;
 
 
-        private void Reset()
-        {
-            VotesWithSupporters.Clear();
-            VoterMessageId.Clear();
-            cleanVoteLookup.Clear();
-            threadAuthor = string.Empty;
-        }
-
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
@@ -57,32 +49,34 @@ namespace NetTally
             Reset();
 
             // Set the thread author for reference.
-            SetThreadAuthor(pages.First(a => a != null));
+            SetThreadAuthor(pages.FirstOrDefault()?.DocumentNode);
 
             foreach (var page in pages)
             {
-                if (page == null)
-                    continue;
-
-                // Root of the tree.  Make sure we actually have a document.
-                var root = page.DocumentNode;
-                if (!root.HasChildNodes)
-                    continue;
-
-                ProcessPage(root, startPost, endPost);
+                if (page != null)
+                    ProcessPage(page.DocumentNode, startPost, endPost);
             }
+        }
+
+        /// <summary>
+        /// Reset all tracking variables.
+        /// </summary>
+        private void Reset()
+        {
+            VotesWithSupporters.Clear();
+            VoterMessageId.Clear();
+            cleanVoteLookup.Clear();
+            threadAuthor = string.Empty;
         }
 
         /// <summary>
         /// Function to set the thread author for the current processing run.
         /// </summary>
         /// <param name="root">Root node of a page of the thread.</param>
-        private void SetThreadAuthor(HtmlDocument root)
+        private void SetThreadAuthor(HtmlNode root)
         {
-            var rd = root.DocumentNode;
-
-            var pageDesc = rd.Descendants("p")?.FirstOrDefault(n => n.Id == "pageDescription");
-            var authorAnchor = pageDesc?.Elements("a")?.FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
+            var pageDesc = root?.Descendants("p").FirstOrDefault(n => n.Id == "pageDescription");
+            var authorAnchor = pageDesc?.Elements("a").FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
 
             if (authorAnchor != null)
                 threadAuthor = HtmlEntity.DeEntitize(authorAnchor.InnerText);
