@@ -19,6 +19,8 @@ namespace NetTally
         Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Clean extraneous information from a vote line in order to compare with other votes.
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Strip leading formatting from a vote line
+        Regex stripLeadingFormattingRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*(?<line>.+)$");
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         Regex badCharactersRegex = new Regex("\u200b");
@@ -339,7 +341,7 @@ namespace NetTally
                         sb.Clear();
                         sb.AppendLine(line.Trim());
                     }
-                    else if (line.Trim().StartsWith("-"))
+                    else if (StripLeadingFormatting(line.Trim()).StartsWith("-"))
                     {
                         sb.AppendLine(line.Trim());
                     }
@@ -362,6 +364,21 @@ namespace NetTally
 
             return partitions;
         }
+
+        /// <summary>
+        /// Given a vote line, strip off any leading BBCode formatting chunks.
+        /// </summary>
+        /// <param name="voteLine">The vote line to examine.</param>
+        /// <returns>Returns the vote line without any leading formatting.</returns>
+        private string StripLeadingFormatting(string voteLine)
+        {
+            Match m = stripLeadingFormattingRegex.Match(voteLine);
+            if (m.Success)
+                return m.Groups["line"].Value;
+            else
+                return voteLine;
+        }
+
 
 
         /// <summary>
