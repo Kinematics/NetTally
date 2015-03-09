@@ -66,14 +66,7 @@ namespace NetTally
                 // Set the thread author for reference.
                 SetThreadAuthor(root);
 
-                // Find the ordered list containing all the messages on this page.
-                var postList = root.Descendants("ol").First(n => n.Id == "messageList");
-
-                // Process each <li> child node as a message.
-                foreach (var post in postList.ChildNodes.Where(n => n.Name == "li"))
-                {
-                    ProcessPost(post, startPost, endPost);
-                }
+                ProcessPage(root, startPost, endPost);
             }
         }
 
@@ -92,6 +85,44 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Given a valid page, process the user posts on that page.
+        /// </summary>
+        /// <param name="root">The root node of the HTML page.</param>
+        /// <param name="startPost">The first post number to process.</param>
+        /// <param name="endPost">The last post number to process.</param>
+        private void ProcessPage(HtmlNode root, int startPost, int endPost)
+        {
+            // Find the ordered list containing all the messages on this page.
+            var postList = GetPostList(root);
+
+            // Process each <li> child node as a user post.
+            foreach (var post in GetPostsFromList(postList))
+            {
+                ProcessPost(post, startPost, endPost);
+            }
+        }
+
+        /// <summary>
+        /// Gets the HTML node containing the list of posts on the page.
+        /// </summary>
+        /// <param name="root">The root element of the page.</param>
+        /// <returns>Returns the node containing all posts on the page.</returns>
+        private HtmlNode GetPostList(HtmlNode root)
+        {
+            return root.Descendants("ol").First(n => n.Id == "messageList");
+        }
+
+        /// <summary>
+        /// Gets an IEnumerable that provides all the post nodes on the page.
+        /// </summary>
+        /// <param name="postList">A list element of the page that contains the posts.</param>
+        /// <returns>Returns the list of posts on the page.</returns>
+        private IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
+        {
+            return postList.ChildNodes.Where(n => n.Name == "li");
+        }
+
+        /// <summary>
         /// Function to process individual posts within the thread.
         /// Updates the vote records maintained in the class.
         /// </summary>
@@ -104,38 +135,103 @@ namespace NetTally
             string postID;
             string postText;
 
-            MatchCollection matches;
-
             int postNumber = GetPostNumber(post);
 
-            // Ignore posts outside the selected numeric post range.
+            // Ignore posts outside the selected post range.
             if (postNumber < startPost || (endPost > 0 && postNumber > endPost))
                 return;
 
-            // The post author is contained in the <li> element.
-            postAuthor = post.GetAttributeValue("data-author", "");
-            postAuthor = HtmlEntity.DeEntitize(postAuthor);
+            postAuthor = GetPostAuthor(post);
 
             // Ignore posts by the thread author.
             if (postAuthor == threadAuthor)
                 return;
 
-            // The post ID is also contained in the <li> element.
-            postID = post.Id;
-            // Extract only the numeric portion.
-            if (postID.StartsWith("post-"))
-            {
-                postID = postID.Substring("post-".Length);
-            }
+            postID = GetPostId(post);
 
             // Get the text from the post that can be searched for a vote.
             postText = ExtractPostText(post);
 
-            // If the post contains ##### at the start of the line for part of its text,
-            // it's a tally result.  Skip the post.
-            matches = tallyRegex.Matches(postText);
-            if (matches.Count > 0)
+            // Attempt to get vote information from the post.
+            ProcessPostText(postText, postAuthor, postID);
+        }
+
+        /// <summary>
+        /// Given an li node containing a post message, extract the thread sequence number from it.
+        /// </summary>
+        /// <param name="post">LI node containing a post message.</param>
+        /// <returns>Returns the numeric thread sequence number of the post.</returns>
+        private int GetPostNumber(HtmlNode post)
+        {
+            int postNum = 0;
+
+            try
+            {
+                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
+
+                // Find the anchor node that contains the post number value.
+                var anchor = post.Descendants("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
+
+                // Post number is written as #1123.  Remove the leading #.
+                var postNumText = anchor.InnerText;
+                if (postNumText.StartsWith("#"))
+                    postNumText = postNumText.Substring(1);
+
+                int.TryParse(postNumText, out postNum);
+            }
+            catch (Exception)
+            {
+                // If any of the above fail, just return 0 as the post number.
+            }
+
+            return postNum;
+        }
+
+        /// <summary>
+        /// Get the author of the provided post.
+        /// </summary>
+        /// <param name="post">A user post.</param>
+        /// <returns>Returns the author name.</returns>
+        private string GetPostAuthor(HtmlNode post)
+        {
+            // The author is provided in a data attribute of the root element.
+            string author = post.GetAttributeValue("data-author", "");
+            author = HtmlEntity.DeEntitize(author);
+            return author;
+        }
+
+        /// <summary>
+        /// Get the universal ID number of the post.
+        /// </summary>
+        /// <param name="post">The user's post.</param>
+        /// <returns>Returns the ID number of the post as a string.</returns>
+        private string GetPostId(HtmlNode post)
+        {
+            // The universal post ID is the ID of the root element of the post.
+            string id = post.Id;
+
+            // The format is "post-12345678", but we only want the number (as text).
+            if (id.StartsWith("post-"))
+            {
+                id = id.Substring("post-".Length);
+            }
+
+            return id;
+        }
+
+        /// <summary>
+        /// Examine the text of the post, determine if it contains any votes, put the vote
+        /// together, and update our vote and voter records.
+        /// </summary>
+        /// <param name="postText">The text of the post.</param>
+        /// <param name="postAuthor">The author of the post.</param>
+        /// <param name="postID">The ID of the post.</param>
+        private void ProcessPostText(string postText, string postAuthor, string postID)
+        {
+            if (IsTallyPost(postText))
                 return;
+
+            MatchCollection matches;
 
             // Pull out actual vote lines from the post.
             matches = voteRegex.Matches(postText);
@@ -166,6 +262,19 @@ namespace NetTally
                 }
             }
         }
+
+        /// <summary>
+        /// Determine if the provided post text is someone posting the results of a tally.
+        /// </summary>
+        /// <param name="postText">The text of the post to check.</param>
+        /// <returns>Returns true if the post contains tally results.</returns>
+        private bool IsTallyPost(string postText)
+        {
+            // If the post contains ##### at the start of the line for part of its text,
+            // it's a tally result.
+            return (tallyRegex.Matches(postText).Count > 0);
+        }
+
 
         /// <summary>
         /// Given a collection of vote line matches, combine them into a single string entity,
@@ -263,42 +372,6 @@ namespace NetTally
             return partitions;
         }
 
-        /// <summary>
-        /// Given an li node containing a post message, extract the thread sequence number from it.
-        /// </summary>
-        /// <param name="post">LI node containing a post message.</param>
-        /// <returns>Returns the numeric thread sequence number of the post.</returns>
-        private int GetPostNumber(HtmlNode post)
-        {
-            int postNum = 0;
-
-            try
-            {
-                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
-
-                // Step down into the post to find the post number value.
-                //var a = post.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("primaryContent"));
-                //var b = a.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("messageMeta"));
-                //var c = b.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("publicControls"));
-                //var d = c.Elements("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
-
-                // Find the anchor node that contains the post number value.
-                var anchor = post.Descendants("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
-
-                // Post number is written as #1123.  Remove the leading #.
-                var postNumText = anchor.InnerText;
-                if (postNumText.StartsWith("#"))
-                    postNumText = postNumText.Substring(1);
-
-                int.TryParse(postNumText, out postNum);
-            }
-            catch (Exception)
-            {
-                // If any of the above fail, just return 0 as the post number.
-            }
-
-            return postNum;
-        }
 
         /// <summary>
         /// Extract the text of the provided post, ignoring quotes, spoilers, or other
