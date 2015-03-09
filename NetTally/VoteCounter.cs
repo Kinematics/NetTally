@@ -443,13 +443,10 @@ namespace NetTally
         /// <returns>List of the combined partitions.</returns>
         private List<string> GetVotePartitions(MatchCollection matches)
         {
-            List<string> matchStrings = new List<string>();
-            foreach (Match match in matches)
-            {
-                matchStrings.Add(match.Value);
-            }
+            var strings = from Match m in matches
+                          select m.Value;
 
-            return GetVotePartitions(matchStrings);
+            return GetVotePartitions(strings);
         }
 
         /// <summary>
@@ -458,7 +455,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(List<string> lines)
+        private List<string> GetVotePartitions(IEnumerable<string> lines)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
