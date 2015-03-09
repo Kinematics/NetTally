@@ -51,6 +51,9 @@ namespace NetTally
             if (pages == null)
                 throw new ArgumentNullException(nameof(pages));
 
+            if (pages.Count == 0)
+                return;
+
             Reset();
 
             // Set the thread author for reference.
