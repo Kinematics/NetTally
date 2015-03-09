@@ -65,6 +65,7 @@ namespace NetTally
             }
         }
 
+        [XmlIgnore()]
         public List<IQuest> QuestListList { get { return questList; } }
 
         [XmlElement("CurrentQuestName")]
