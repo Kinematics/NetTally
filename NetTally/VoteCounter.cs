@@ -231,10 +231,8 @@ namespace NetTally
             if (IsTallyPost(postText))
                 return;
 
-            MatchCollection matches;
-
             // Pull out actual vote lines from the post.
-            matches = voteRegex.Matches(postText);
+            MatchCollection matches = voteRegex.Matches(postText);
             if (matches.Count > 0)
             {
                 // Remove the post author from any other existing votes.
@@ -326,35 +324,40 @@ namespace NetTally
                     }
                 }
 
+                string trimmedLine = line.Trim();
+
                 // For lines that don't refer to other voters, compile them into
                 // unit blocks if we're using vote partitions, or just add to the
                 // end of the total string if not.
                 if (UseVotePartitions)
                 {
-                    if (sb.Length == 0)
+                    if (PartitionByLine)
                     {
-                        sb.AppendLine(line.Trim());
-                    }
-                    else if (PartitionByLine)
-                    {
-                        partitions.Add(sb.ToString());
-                        sb.Clear();
-                        sb.AppendLine(line.Trim());
-                    }
-                    else if (StripLeadingFormatting(line.Trim()).StartsWith("-"))
-                    {
-                        sb.AppendLine(line.Trim());
+                        // If partitioning by line, every line gets added to the partitions list.
+                        partitions.Add(trimmedLine+"\r\n");
                     }
                     else
                     {
-                        partitions.Add(sb.ToString());
-                        sb.Clear();
-                        sb.AppendLine(line.Trim());
+                        // If partitioning by block, work on collecting chunks
+                        if (sb.Length == 0)
+                        {
+                            sb.AppendLine(trimmedLine);
+                        }
+                        else if (StripLeadingFormatting(trimmedLine).StartsWith("-"))
+                        {
+                            sb.AppendLine(trimmedLine);
+                        }
+                        else
+                        {
+                            partitions.Add(sb.ToString());
+                            sb.Clear();
+                            sb.AppendLine(trimmedLine);
+                        }
                     }
                 }
                 else
                 {
-                    sb.AppendLine(line.Trim());
+                    sb.AppendLine(trimmedLine);
                 }
             }
 
