@@ -255,8 +255,9 @@ namespace NetTally
             if (!bypassCache && pageCache.ContainsKey(url))
             {
                 var cache = pageCache[url];
-                var age = (DateTime.Now - cache.Timestamp).TotalMinutes;
-                if (age < 30)
+                var cacheAge = DateTime.Now - cache.Timestamp;
+
+                if (cacheAge.TotalMinutes < 30)
                 {
                     OnStatusChanged("Page " + shortDescrip + " loaded from memory!\n");
                     return cache.Doc;
