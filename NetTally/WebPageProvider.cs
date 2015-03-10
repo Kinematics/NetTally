@@ -259,7 +259,8 @@ namespace NetTally
 
                 if (cacheAge.TotalMinutes < 30)
                 {
-                    OnStatusChanged("Page " + shortDescrip + " loaded from memory!\n");
+                    if (cacheAge.TotalSeconds > 4)
+                        OnStatusChanged("Page " + shortDescrip + " loaded from memory!\n");
                     return cache.Doc;
                 }
             }
