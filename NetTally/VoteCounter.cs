@@ -49,7 +49,7 @@ namespace NetTally
         string threadAuthor = string.Empty;
 
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
