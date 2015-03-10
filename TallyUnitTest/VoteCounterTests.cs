@@ -153,8 +153,7 @@ namespace NetTally.Tests
             string line1b = "[x] Vote for stuff[/b]";
             string line1c = "[x] Vote for stuff[/color]";
             string line2 = "-[x] Vote for stuff";
-            string line2b = "-[x] Vote for stuff[/b]";
-            string line2c = "-[x] Vote for stuff[/color]";
+            string line2b = "-[x] Vote for stuff[/color]";
 
             string line3 = "[b][x] Vote for stuff[/b]";
             string line4 = "[color=blue][x] Vote for stuff[/color]";
@@ -173,7 +172,7 @@ namespace NetTally.Tests
 
             Assert.AreEqual(line2, (string)privateVote.Invoke("StripLeadingFormatting", line2));
             Assert.AreEqual(line2, (string)privateVote.Invoke("StripLeadingFormatting", line7));
-            Assert.AreEqual(line2c, (string)privateVote.Invoke("StripLeadingFormatting", line8));
+            Assert.AreEqual(line2b, (string)privateVote.Invoke("StripLeadingFormatting", line8));
 
             Assert.AreEqual(e, (string)privateVote.Invoke("StripLeadingFormatting", e));
         }
