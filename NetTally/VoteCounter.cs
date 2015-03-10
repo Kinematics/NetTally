@@ -464,7 +464,7 @@ namespace NetTally
             foreach (string line in lines)
             {
                 // If a line refers to another voter, pull that voter's votes
-                Match vm = voterRegex.Match(line);
+                Match vm = voterRegex.Match(StripFormatting(line));
                 if (vm.Success)
                 {
                     var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
