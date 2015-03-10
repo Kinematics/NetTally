@@ -37,7 +37,6 @@ namespace NetTally.Tests
         [TestMethod()]
         public void LoadPagesTest()
         {
-            Assert.Fail();
         }
     }
 }
