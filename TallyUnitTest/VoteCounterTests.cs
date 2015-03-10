@@ -147,34 +147,31 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void StripLeadingFormattingTest()
+        public void StripFormattingTest()
         {
             string line1 = "[x] Vote for stuff";
-            string line1b = "[x] Vote for stuff[/b]";
-            string line1c = "[x] Vote for stuff[/color]";
             string line2 = "-[x] Vote for stuff";
-            string line2b = "-[x] Vote for stuff[/color]";
 
             string line3 = "[b][x] Vote for stuff[/b]";
             string line4 = "[color=blue][x] Vote for stuff[/color]";
             string line5 = "[b][x] Vote for stuff";
-            string line6 = "[color=blue][b][x] Vote for stuff";
+            string line6 = "[color=blue][b][x] Vote for stuff[/b]";
             string line7 = "[b]-[x] Vote for stuff";
             string line8 = "[color=blue]-[x] Vote for stuff[/color]";
 
             string e = "";
 
-            Assert.AreEqual(line1, (string)privateVote.Invoke("StripLeadingFormatting", line1));
-            Assert.AreEqual(line1b, (string)privateVote.Invoke("StripLeadingFormatting", line3));
-            Assert.AreEqual(line1c, (string)privateVote.Invoke("StripLeadingFormatting", line4));
-            Assert.AreEqual(line1, (string)privateVote.Invoke("StripLeadingFormatting", line5));
-            Assert.AreEqual(line1, (string)privateVote.Invoke("StripLeadingFormatting", line6));
+            Assert.AreEqual(line1, (string)privateVote.Invoke("StripFormatting", line1));
+            Assert.AreEqual(line1, (string)privateVote.Invoke("StripFormatting", line3));
+            Assert.AreEqual(line1, (string)privateVote.Invoke("StripFormatting", line4));
+            Assert.AreEqual(line1, (string)privateVote.Invoke("StripFormatting", line5));
+            Assert.AreEqual(line1, (string)privateVote.Invoke("StripFormatting", line6));
 
-            Assert.AreEqual(line2, (string)privateVote.Invoke("StripLeadingFormatting", line2));
-            Assert.AreEqual(line2, (string)privateVote.Invoke("StripLeadingFormatting", line7));
-            Assert.AreEqual(line2b, (string)privateVote.Invoke("StripLeadingFormatting", line8));
+            Assert.AreEqual(line2, (string)privateVote.Invoke("StripFormatting", line2));
+            Assert.AreEqual(line2, (string)privateVote.Invoke("StripFormatting", line7));
+            Assert.AreEqual(line2, (string)privateVote.Invoke("StripFormatting", line8));
 
-            Assert.AreEqual(e, (string)privateVote.Invoke("StripLeadingFormatting", e));
+            Assert.AreEqual(e, (string)privateVote.Invoke("StripFormatting", e));
         }
 
         [TestMethod()]
