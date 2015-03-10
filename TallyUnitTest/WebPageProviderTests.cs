@@ -30,13 +30,24 @@ namespace NetTally.Tests
             Dictionary<string, CachedPage> accessPageCache = (Dictionary<string, CachedPage>)privateWeb.GetField("pageCache");
             Assert.IsTrue(accessPageCache.Count == 0);
 
-            Dictionary<string, int> accessLoadedPages = (Dictionary<string, int>)privateWeb.GetField("lastPageLoaded");
+            Dictionary<string, int> accessLoadedPages = (Dictionary<string, int>)privateWeb.GetField("lastPageLoadedFor");
             Assert.IsTrue(accessLoadedPages.Count == 0);
+        }
+
+        [TestMethod()]
+        public void CheckForLastThreadmarkTest()
+        {
+            pageProvider.CheckForLastThreadmark = true;
+            Assert.AreEqual(true, pageProvider.CheckForLastThreadmark);
+            pageProvider.CheckForLastThreadmark = false;
+            Assert.AreEqual(false, pageProvider.CheckForLastThreadmark);
         }
 
         [TestMethod()]
         public void LoadPagesTest()
         {
         }
+
+
     }
 }
