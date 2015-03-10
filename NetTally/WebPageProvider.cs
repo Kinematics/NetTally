@@ -75,7 +75,7 @@ namespace NetTally
             int lastPageNum = GetLastPageNumber(firstPage);
 
             // Limit the end page based on the last page number of the thread.
-            if (quest.EndPost == 0 || lastPageNum < endPage)
+            if (quest.ReadToEndOfThread || lastPageNum < endPage)
             {
                 endPage = lastPageNum;
             }
