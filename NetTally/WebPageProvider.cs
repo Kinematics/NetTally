@@ -56,9 +56,7 @@ namespace NetTally
         /// <summary>
         /// Load the pages for the given quest asynchronously.
         /// </summary>
-        /// <param name="questTitle">The name of the quest thread to load.</param>
-        /// <param name="startPost">The first post we're interested in tallying.</param>
-        /// <param name="endPost">The last post we're interested in tallying.</param>
+        /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
         public async Task<List<HtmlDocument>> LoadPages(IQuest quest)
         {
