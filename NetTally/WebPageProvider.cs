@@ -23,6 +23,8 @@ namespace NetTally
         //and has the proper form (thread number at end).
         Regex validateQuestNameForUrl = new Regex(@"^\S+\.\d+$");
 
+
+        #region Event handlers
         public event EventHandler<MessageEventArgs> StatusChanged;
 
         /// <summary>
@@ -33,9 +35,13 @@ namespace NetTally
         {
             StatusChanged?.Invoke(this, new MessageEventArgs(message));
         }
-
+        #endregion
 
         #region Public interface functions
+        /// <summary>
+        /// Flag for whether to try to override the provided starting post by
+        /// looking for the last threadmark.
+        /// </summary>
         public bool CheckForLastThreadmark { get; set; }
 
         /// <summary>
@@ -56,7 +62,11 @@ namespace NetTally
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
         public async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
         {
-            string baseUrl = GetThreadBaseUrl(questTitle);
+            // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
+            if (!validateQuestNameForUrl.Match(questTitle).Success)
+                throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
+
+            string baseUrl = GetThreadPageBaseUrl(questTitle);
 
             startPost = await GetStartPost(questTitle, startPost);
 
@@ -64,7 +74,7 @@ namespace NetTally
             int endPage = GetPageNumberFromPost(endPost);
 
             // Get the first page and extract the last page number of the thread from that (bypass the cache).
-            var firstPage = await GetPage(GetPageUrl(baseUrl, startPage), startPage.ToString(), true).ConfigureAwait(false);
+            var firstPage = await GetPage(GetPageUrl(questTitle, startPage), startPage.ToString(), true).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -85,7 +95,7 @@ namespace NetTally
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(GetPageUrl(baseUrl, pNum), pNum.ToString(),
+                            select GetPage(GetPageUrl(questTitle, pNum), pNum.ToString(),
                                 (lastPageLoaded.ContainsKey(questTitle) && pNum >= lastPageLoaded[questTitle]));
 
                 // Wait for all the tasks to be completed.
@@ -109,7 +119,7 @@ namespace NetTally
             if (!CheckForLastThreadmark)
                 return startPost;
 
-            var threadmarkPage = await GetPage(GetThreadmarksBaseUrl(questTitle), "Threadmarks", true);
+            var threadmarkPage = await GetPage(GetThreadmarksPageUrl(questTitle), "Threadmarks", true);
 
             if (IsValidThreadmarksPage(threadmarkPage))
             {
@@ -213,6 +223,19 @@ namespace NetTally
         }
         #endregion
 
+        #region String concatenation functions for constructing URLs.
+        private string GetThreadUrl(string questTitle) => SVThreadUrl + questTitle;
+
+        private string GetThreadPageBaseUrl(string questTitle) => GetThreadUrl(questTitle) + "/page-";
+
+        private string GetThreadmarksPageUrl(string questTitle) => GetThreadUrl(questTitle) + "/threadmarks";
+
+        private string GetPageUrl(string questTitle, int page) => GetThreadPageBaseUrl(questTitle) + page.ToString();
+
+        private string GetPostUrl(string post) => SVUrl + post;
+        #endregion
+
+
         /// <summary>
         /// Calculate the page number that corresponds to the post number given.
         /// </summary>
@@ -222,29 +245,6 @@ namespace NetTally
         {
             return ((post - 1) / 25) + 1;
         }
-
-        private string GetThreadUrlPrefix(string questTitle)
-        {
-            // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-            if (!validateQuestNameForUrl.Match(questTitle).Success)
-                throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
-
-            return SVThreadUrl + questTitle;
-        }
-
-        /// <summary>
-        /// Construct the full SV web site base URL based on the quest title.
-        /// </summary>
-        /// <param name="questTitle">The title of the quest thread.</param>
-        /// <returns>The full website URL</returns>
-        private string GetThreadBaseUrl(string questTitle) => GetThreadUrlPrefix(questTitle) + "/page-";
-
-        private string GetThreadmarksBaseUrl(string questTitle) => GetThreadUrlPrefix(questTitle) + "/threadmarks";
-
-        private string GetPageUrl(string baseUrl, int page) => baseUrl + page.ToString();
-
-        private string GetPostUrl(string post) => SVUrl + post;
-
 
         /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
