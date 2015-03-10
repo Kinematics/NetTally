@@ -66,7 +66,7 @@ namespace NetTally
             if (!validateQuestNameForUrl.Match(quest.Name).Success)
                 throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
 
-            int startPost = await GetStartPost(quest.Name, quest.StartPost);
+            int startPost = await GetStartPost(quest.Name, quest.StartPost).ConfigureAwait(false);
 
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(quest.EndPost);
