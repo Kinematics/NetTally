@@ -543,17 +543,11 @@ namespace NetTally
         /// <returns>A list of all votes that that voter currently supports.</returns>
         private List<string> FindVotesForVoter(string voter)
         {
-            List<string> votes = new List<string>();
+            var votes = from v in VotesWithSupporters
+                        where v.Value.Contains(voter)
+                        select v.Key;
 
-            foreach (var vote in VotesWithSupporters)
-            {
-                if (vote.Value.Contains(voter))
-                {
-                    votes.Add(vote.Key);
-                }
-            }
-
-            return votes;
+            return votes.ToList();
         }
 
         /// <summary>
