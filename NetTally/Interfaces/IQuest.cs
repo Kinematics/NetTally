@@ -11,5 +11,7 @@ namespace NetTally
         string Name { get; set; }
         int StartPost { get; set; }
         int EndPost { get; set; }
+
+        bool ReadToEndOfThread { get; }
     }
 }

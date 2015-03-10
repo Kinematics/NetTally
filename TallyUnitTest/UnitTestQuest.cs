@@ -160,6 +160,25 @@ namespace TallyUnitTest
         }
         #endregion
 
+        #region End of thread
+        [TestMethod]
+        public void TestReadToEndOfThread()
+        {
+            var a = new Quest();
+
+            a.EndPost = 1;
+            Assert.AreEqual(false, a.ReadToEndOfThread);
+
+            a.EndPost = 1000000;
+            Assert.AreEqual(false, a.ReadToEndOfThread);
+
+            a.EndPost = 0;
+            Assert.AreEqual(true, a.ReadToEndOfThread);
+        }
+
+        #endregion
+
+
         #region Events
         [TestMethod]
         public void TestEventRaising()

@@ -89,6 +89,12 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Boolean value indicating if the tally system should read to the end
+        /// of the thread.  This is done when the EndPost is 0.
+        /// </summary>
+        public bool ReadToEndOfThread => EndPost < 1;
+
+        /// <summary>
         /// Function to clean up a user-entered name that may contain a web URL.
         /// Example:
         /// http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518
