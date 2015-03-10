@@ -17,7 +17,7 @@ namespace NetTally
         const string SVThreadUrl = "http://forums.sufficientvelocity.com/threads/";
 
         Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
-        Dictionary<string, int> lastPageLoaded = new Dictionary<string, int>();
+        Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
         // Make sure that the quest name is valid to be inserted into a URL (no spaces),
         //and has the proper form (thread number at end).
@@ -50,7 +50,7 @@ namespace NetTally
         public void ClearPageCache()
         {
             pageCache.Clear();
-            lastPageLoaded.Clear();
+            lastPageLoadedFor.Clear();
         }
 
         /// <summary>
@@ -87,12 +87,14 @@ namespace NetTally
             pages.Add(firstPage);
 
             int pagesToScan = endPage - startPage;
+            int lastPageLoaded = 0;
+
             if (pagesToScan > 0)
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
                             select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
-                                (lastPageLoaded.ContainsKey(quest.Name) && pNum >= lastPageLoaded[quest.Name]));
+                                (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded));
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -101,7 +103,8 @@ namespace NetTally
                 pages.AddRange(pageArray);
             }
 
-            lastPageLoaded[quest.Name] = endPage;
+            lastPageLoadedFor[quest.Name] = endPage;
+            
 
             return pages;
         }
