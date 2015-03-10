@@ -323,8 +323,7 @@ namespace NetTally.Tests
 -[x] 20 minutes roof hopping practice. Then fly the rest of the way.
 -[x] Cleansing.
 -[x] Take both of them food shopping (or whoever wants to go.)
--[x] Light conversation. No need for serious precog questions right now.
-";
+-[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
 
@@ -344,8 +343,7 @@ namespace NetTally.Tests
 -[x] 20 minutes roof hopping practice. Then fly the rest of the way.
 -[x] Cleansing.
 -[x] Take both of them food shopping (or whoever wants to go.)
--[x] Light conversation. No need for serious precog questions right now.
-";
+-[x] Light conversation. No need for serious precog questions right now.";
 
             string author = "Muramasa";
             string postId = "123456";
@@ -366,8 +364,7 @@ namespace NetTally.Tests
 -[x] 20 minutes roof hopping practice. Then fly the rest of the way.
 -[x] Cleansing.
 -[x] Take both of them food shopping (or whoever wants to go.)
--[x] Light conversation. No need for serious precog questions right now.
-";
+-[x] Light conversation. No need for serious precog questions right now.";
 
             string author = "Muramasa";
             string postId = "123456";
@@ -390,8 +387,7 @@ namespace NetTally.Tests
 -[x] 20 minutes roof hopping practice. Then fly the rest of the way.
 -[x] Cleansing.
 -[x] Take both of them food shopping (or whoever wants to go.)
--[x] Light conversation. No need for serious precog questions right now.
-";
+-[x] Light conversation. No need for serious precog questions right now.";
 
             string author = "Muramasa";
             string postId = "123456";
@@ -401,6 +397,175 @@ namespace NetTally.Tests
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 0);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 0);
         }
+
+
+        [TestMethod()]
+        public void ProcessPostContentsWholeWithReferralTest1()
+        {
+            SetPartitionByVote();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+        [TestMethod()]
+        public void ProcessPostContentsBlockWithReferralTest1()
+        {
+            SetPartitionByBlock();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+        [TestMethod()]
+        public void ProcessPostContentsLineWithReferralTest1()
+        {
+            SetPartitionByLine();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+
+        [TestMethod()]
+        public void ProcessPostContentsWholeWithReferralTest2()
+        {
+            SetPartitionByVote();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa
+[x] With Cake";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 2);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 1));
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+        [TestMethod()]
+        public void ProcessPostContentsBlockWithReferralTest2()
+        {
+            SetPartitionByBlock();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa
+[x] With Cake";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 4);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 3);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 1) == 1);
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+        [TestMethod()]
+        public void ProcessPostContentsLineWithReferralTest2()
+        {
+            SetPartitionByLine();
+
+            string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            string author = "Muramasa";
+            string postId = "123456";
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+
+            string referralVote = @"[x] Muramasa
+[x] With Cake";
+            string refAuthor = "Gerbil";
+            string refID = "123457";
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 8);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 7);
+            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 1) == 1);
+            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+        }
+
+
 
     }
 }
