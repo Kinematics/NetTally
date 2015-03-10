@@ -38,10 +38,7 @@ namespace NetTally
         /// <summary>
         /// Public method call to force a property changed invocation for the quest list.
         /// </summary>
-        public void Update()
-        {
-            OnPropertyChanged("QuestListNames");
-        }
+        public void Update() => OnPropertyChanged("QuestListNames");
         #endregion
 
         #region Properties
@@ -66,7 +63,7 @@ namespace NetTally
         }
 
         [XmlIgnore()]
-        public List<IQuest> QuestListList { get { return questList; } }
+        public List<IQuest> QuestListList => questList;
 
         [XmlElement("CurrentQuestName")]
         public string CurrentQuestName
@@ -80,14 +77,7 @@ namespace NetTally
         /// Used for binding with the main window combo box.
         /// </summary>
         [XmlIgnore()]
-        public List<string> QuestListNames
-        {
-            get
-            {
-                var names = from q in questList orderby q.Name select q.Name;
-                return names.ToList();
-            }
-        }
+        public List<string> QuestListNames => (from q in questList orderby q.Name select q.Name).ToList();
 
         /// <summary>
         /// Used for binding with the main window combo box.
@@ -167,10 +157,7 @@ namespace NetTally
         /// <summary>
         /// Remove the current quest from the list of quest.
         /// </summary>
-        public bool RemoveCurrentQuest()
-        {
-            return RemoveQuest(CurrentQuest);
-        }
+        public bool RemoveCurrentQuest() => RemoveQuest(CurrentQuest);
 
         /// <summary>
         /// Clear the list of quests.
@@ -189,10 +176,7 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name of the quest to get.</param>
         /// <returns>Returns the quest, if found.</returns>
-        public IQuest GetQuestByName(string name)
-        {
-            return questList.FirstOrDefault(q => q.Name == name);
-        }
+        public IQuest GetQuestByName(string name) => questList.FirstOrDefault(q => q.Name == name);
 
         /// <summary>
         /// Get a quest by name.  Static version that can be called without a class instance,
@@ -200,10 +184,7 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name of the quest to get.</param>
         /// <returns>Returns the quest, if found.</returns>
-        public static IQuest StaticGetQuestByName(string name)
-        {
-            return questList.FirstOrDefault(q => q.Name == name);
-        }
+        public static IQuest StaticGetQuestByName(string name) => questList.FirstOrDefault(q => q.Name == name);
 
         /// <summary>
         /// Sets the current quest to the quest specified by name.
