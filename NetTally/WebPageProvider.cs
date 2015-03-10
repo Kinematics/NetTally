@@ -240,10 +240,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        private static int GetPageNumberFromPost(int post)
-        {
-            return ((post - 1) / 25) + 1;
-        }
+        private int GetPageNumberFromPost(int post) => ((post - 1) / 25) + 1;
 
         /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
