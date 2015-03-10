@@ -14,7 +14,7 @@ namespace NetTally
         /// <param name="startPost">The starting post.</param>
         /// <param name="endPost">The ending post.</param>
         /// <returns>Returns a list of HTML documents.</returns>
-        Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost);
+        Task<List<HtmlDocument>> LoadPages(IQuest quest);
 
         /// <summary>
         /// Clear the cache of any previously loaded pages.

@@ -64,7 +64,7 @@ namespace NetTally
 
             try
             {
-                await tally.Run(quests.CurrentQuest.Name, quests.CurrentQuest.StartPost, quests.CurrentQuest.EndPost);
+                await tally.Run(quests.CurrentQuest);
             }
             catch (System.Net.Http.HttpRequestException)
             {

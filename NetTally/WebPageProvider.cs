@@ -60,26 +60,24 @@ namespace NetTally
         /// <param name="startPost">The first post we're interested in tallying.</param>
         /// <param name="endPost">The last post we're interested in tallying.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadPages(string questTitle, int startPost, int endPost)
+        public async Task<List<HtmlDocument>> LoadPages(IQuest quest)
         {
             // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-            if (!validateQuestNameForUrl.Match(questTitle).Success)
+            if (!validateQuestNameForUrl.Match(quest.Name).Success)
                 throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
 
-            string baseUrl = GetThreadPageBaseUrl(questTitle);
-
-            startPost = await GetStartPost(questTitle, startPost);
+            int startPost = await GetStartPost(quest.Name, quest.StartPost);
 
             int startPage = GetPageNumberFromPost(startPost);
-            int endPage = GetPageNumberFromPost(endPost);
+            int endPage = GetPageNumberFromPost(quest.EndPost);
 
             // Get the first page and extract the last page number of the thread from that (bypass the cache).
-            var firstPage = await GetPage(GetPageUrl(questTitle, startPage), startPage.ToString(), true).ConfigureAwait(false);
+            var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
             // Limit the end page based on the last page number of the thread.
-            if (endPost == 0 || lastPageNum < endPage)
+            if (quest.EndPost == 0 || lastPageNum < endPage)
             {
                 endPage = lastPageNum;
             }
@@ -95,8 +93,8 @@ namespace NetTally
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(GetPageUrl(questTitle, pNum), pNum.ToString(),
-                                (lastPageLoaded.ContainsKey(questTitle) && pNum >= lastPageLoaded[questTitle]));
+                            select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
+                                (lastPageLoaded.ContainsKey(quest.Name) && pNum >= lastPageLoaded[quest.Name]));
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -105,7 +103,7 @@ namespace NetTally
                 pages.AddRange(pageArray);
             }
 
-            lastPageLoaded[questTitle] = endPage;
+            lastPageLoaded[quest.Name] = endPage;
 
             return pages;
         }

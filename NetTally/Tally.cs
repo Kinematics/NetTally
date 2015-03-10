@@ -107,15 +107,15 @@ namespace NetTally
         /// <param name="startPost">The starting post number.</param>
         /// <param name="endPost">The ending post number.</param>
         /// <returns></returns>
-        public async Task Run(string questTitle, int startPost, int endPost)
+        public async Task Run(IQuest quest)
         {
             TallyResults = string.Empty;
 
             // Load pages from the website
-            var pages = await pageProvider.LoadPages(questTitle, startPost, endPost).ConfigureAwait(false);
+            var pages = await pageProvider.LoadPages(quest).ConfigureAwait(false);
 
             // Tally the votes from the loaded pages.
-            voteCounter.TallyVotes(pages, startPost, endPost);
+            voteCounter.TallyVotes(pages, quest.StartPost, quest.EndPost);
 
             // Compose the final result string from the compiled votes.
             ConstructResults();
