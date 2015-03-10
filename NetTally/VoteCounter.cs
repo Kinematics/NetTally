@@ -59,7 +59,7 @@ namespace NetTally
         // Clean extraneous information from a vote line in order to compare with other votes.
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Strip leading formatting from a vote line
-        Regex stripLeadingFormattingRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*(?<line>.+)$");
+        Regex stripLeadingFormattingRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*(?<line>.+)");
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         Regex badCharactersRegex = new Regex("\u200b");
