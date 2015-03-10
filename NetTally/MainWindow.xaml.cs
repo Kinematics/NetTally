@@ -27,11 +27,12 @@ namespace NetTally
         {
             InitializeComponent();
 
-            this.DataContext = quests;
-            this.resultsWindow.DataContext = tally;
-            this.partitionedVotes.DataContext = tally;
-            this.partitionByBlock.DataContext = tally;
-            this.partitionByLine.DataContext = tally;
+            DataContext = quests;
+            resultsWindow.DataContext = tally;
+            partitionedVotes.DataContext = tally;
+            partitionByBlock.DataContext = tally;
+            partitionByLine.DataContext = tally;
+            tryLastThreadmark.DataContext = tally;
 
             LoadQuests();
         }
@@ -252,5 +253,10 @@ namespace NetTally
         }
 
         #endregion
+
+        private void checkBox_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

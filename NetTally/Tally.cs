@@ -87,6 +87,16 @@ namespace NetTally
             get { return voteCounter.PartitionByLine; }
             set { voteCounter.PartitionByLine = value; }
         }
+
+        /// <summary>
+        /// Flag for whether we should try to find the start post based on the last
+        /// threadmark of the thread.
+        /// </summary>
+        public bool CheckForLastThreadmark
+        {
+            get { return pageProvider.CheckForLastThreadmark; }
+            set { pageProvider.CheckForLastThreadmark = value; }
+        }
         #endregion
 
         #region Interface functions

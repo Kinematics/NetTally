@@ -25,5 +25,7 @@ namespace NetTally
         /// Have an event that can be watched for status messages.
         /// </summary>
         event EventHandler<MessageEventArgs> StatusChanged;
+
+        bool CheckForLastThreadmark { get; set; }
     }
 }
