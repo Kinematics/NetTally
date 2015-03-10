@@ -38,8 +38,8 @@
         <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Click="tallyButton_Click" Width="158" HorizontalAlignment="Right"/>
         <TextBox x:Name="resultsWindow" Margin="10,101,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-        <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,0,10,472" HorizontalAlignment="Right" Width="113"
-                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Bottom"/>
+        <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0" HorizontalAlignment="Right" Width="113"
+                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
                   RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CheckForLastThreadmark}"/>
 
