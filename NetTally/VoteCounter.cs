@@ -632,6 +632,8 @@ namespace NetTally
             string lookupVote = string.Empty;
             if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
             {
+                if (!VotesWithSupporters.ContainsKey(lookupVote))
+                    VotesWithSupporters[lookupVote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 return lookupVote;
             }
 
