@@ -42,6 +42,8 @@
                 Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
                   RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CheckForLastThreadmark}"/>
+        <Button x:Name="cancelTally" Content="Cancel" Height="30" Margin="0,66,128,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="94"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Invert, Mode=OneWay}"/>
 
     </Grid>
 </Window>
