@@ -184,6 +184,8 @@ namespace NetTally
             int tries = 0;
             using (HttpClient client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
             {
+                client.Timeout = TimeSpan.FromSeconds(2);
+
                 try
                 {
                     while (result == null && tries < 3 && token.IsCancellationRequested == false)
