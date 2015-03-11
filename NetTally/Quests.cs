@@ -9,7 +9,7 @@ namespace NetTally
 {
     public class Quests : IQuests, INotifyPropertyChanged
     {
-        static List<IQuest> questList = new List<IQuest>();
+        static readonly List<IQuest> questList = new List<IQuest>();
         IQuest currentQuest;
 
         /// <summary>

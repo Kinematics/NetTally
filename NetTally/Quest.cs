@@ -11,7 +11,7 @@ namespace NetTally
     /// </summary>
     public class Quest : IQuest, INotifyPropertyChanged
     {
-        static Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+        static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
 
         /// <summary>
         /// Empty constructor for XML serialization.

@@ -19,8 +19,8 @@ namespace NetTally
             this.forumData = forumData;
         }
 
-        Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
-        Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
+        readonly Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
+        readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
         #region Event handlers
         public event EventHandler<MessageEventArgs> StatusChanged;

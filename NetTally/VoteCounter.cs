@@ -52,23 +52,23 @@ namespace NetTally
         string threadAuthor = string.Empty;
 
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
+        readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
+        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
+        readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         // Clean extraneous information from a vote in order to compare with other votes.
-        Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        readonly Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Clean extraneous information from a vote line in order to compare with other votes.
-        Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        readonly Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Strip BBCode formatting from a vote line.  Use with Replace().
-        Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
+        readonly Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
 
-        List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
-        Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
-        Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
+        readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
+        readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
+        readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
 
-        Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
+        readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
 
         /// <summary>
