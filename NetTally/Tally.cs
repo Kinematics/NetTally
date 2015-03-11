@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -107,12 +108,12 @@ namespace NetTally
         /// <param name="startPost">The starting post number.</param>
         /// <param name="endPost">The ending post number.</param>
         /// <returns></returns>
-        public async Task Run(IQuest quest)
+        public async Task Run(IQuest quest, CancellationToken token)
         {
             TallyResults = string.Empty;
 
             // Load pages from the website
-            var pages = await pageProvider.LoadPages(quest).ConfigureAwait(false);
+            var pages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
             // Tally the votes from the loaded pages.
             voteCounter.TallyVotes(pages, quest.StartPost, quest.EndPost);

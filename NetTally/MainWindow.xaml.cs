@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,6 +19,8 @@ namespace NetTally
         // Local holding variables
         Tally tally = new Tally(new WebPageProvider(), new VoteCounter());
         Quests quests = new Quests();
+
+        CancellationTokenSource cts;
 
         /// <summary>
         /// Function that's run when the program first starts.
@@ -63,21 +66,37 @@ namespace NetTally
 
             try
             {
-                await tally.Run(quests.CurrentQuest);
+                cts = new CancellationTokenSource();
+                await tally.Run(quests.CurrentQuest, cts.Token);
             }
             catch (System.Net.Http.HttpRequestException)
             {
                 // Error message is pushed into the tally results window, so don't do anything with it here.
+                cts.Cancel();
+            }
+            catch (OperationCanceledException)
+            {
+                // got a cancel request somewhere
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error");
+                cts.Cancel();
             }
             finally
             {
                 tallyButton.IsEnabled = true;
+                cts.Dispose();
+                cts = null;
             }
         }
+
+
+        private void cancelTally_Click(object sender, RoutedEventArgs e)
+        {
+            cts?.Cancel();
+        }
+
 
         /// <summary>
         /// Clear the page cache so that subsequent tally requests load the pages from the network
@@ -249,10 +268,5 @@ namespace NetTally
         }
 
         #endregion
-
-        private void checkBox_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

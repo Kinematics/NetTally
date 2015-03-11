@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 using HtmlAgilityPack;
 
 namespace NetTally
@@ -10,11 +11,10 @@ namespace NetTally
         /// <summary>
         /// Asynchronously load pages based on the provided parameters.
         /// </summary>
-        /// <param name="questTitle">The title of the quest.</param>
-        /// <param name="startPost">The starting post.</param>
-        /// <param name="endPost">The ending post.</param>
-        /// <returns>Returns a list of HTML documents.</returns>
-        Task<List<HtmlDocument>> LoadPages(IQuest quest);
+        /// <param name="quest">The quest object describing which pages to load.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
+        Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token);
 
         /// <summary>
         /// Clear the cache of any previously loaded pages.

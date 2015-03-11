@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Threading;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -58,19 +58,19 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadPages(IQuest quest)
+        public async Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token)
         {
             // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
             if (!validateQuestNameForUrl.Match(quest.Name).Success)
                 throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
 
-            int startPost = await GetStartPost(quest.Name, quest.StartPost).ConfigureAwait(false);
+            int startPost = await GetStartPost(quest.Name, quest.StartPost, token).ConfigureAwait(false);
 
             int startPage = GetPageNumberFromPost(startPost);
             int endPage = GetPageNumberFromPost(quest.EndPost);
 
             // Get the first page and extract the last page number of the thread from that (bypass the cache).
-            var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true).ConfigureAwait(false);
+            var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
             int lastPageNum = GetLastPageNumber(firstPage);
 
@@ -94,7 +94,7 @@ namespace NetTally
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
                             select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
-                                (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded));
+                                (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                 // Wait for all the tasks to be completed.
                 HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -112,20 +112,20 @@ namespace NetTally
         #endregion
 
         #region Calculate start post based on last threadmark
-        private async Task<int> GetStartPost(string questTitle, int startPost)
+        private async Task<int> GetStartPost(string questTitle, int startPost, CancellationToken token)
         {
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!CheckForLastThreadmark)
                 return startPost;
 
-            var threadmarkPage = await GetPage(GetThreadmarksPageUrl(questTitle), "Threadmarks", true);
+            var threadmarkPage = await GetPage(GetThreadmarksPageUrl(questTitle), "Threadmarks", true, token);
 
             if (IsValidThreadmarksPage(threadmarkPage))
             {
                 string postLink = GetLastThreadmarkLink(threadmarkPage);
                 string postIndex = GetPostIndexFromPostLink(postLink);
 
-                var lastThreadmarkPage = await GetPage(GetPostUrl(postLink), postLink, false);
+                var lastThreadmarkPage = await GetPage(GetPostUrl(postLink), postLink, false, token);
                 var threadmarkPost = GetPostFromPage(lastThreadmarkPage, postIndex);
                 int threadmarkPostNumber = GetPostNumberFromPost(threadmarkPost);
 
@@ -249,7 +249,7 @@ namespace NetTally
         /// <param name="pageNum">The page number in the thread to load.</param>
         /// <param name="bypassCache">Whether to skip checking the cache.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        private async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache)
+        private async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token)
         {
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
             if (!bypassCache && pageCache.ContainsKey(url))
