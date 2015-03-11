@@ -7,6 +7,10 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
+    /// <summary>
+    /// Interface for classes that can be used to extract data from forum threads in
+    /// a site-specific manner.
+    /// </summary>
     public interface IForumData
     {
 

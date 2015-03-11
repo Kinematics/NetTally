@@ -8,6 +8,9 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
+    /// <summary>
+    /// Class for extracting data from Sufficient Velocity forums.
+    /// </summary>
     public class SVForumData : IForumData
     {
         const string ForumUrl = "http://forums.sufficientvelocity.com/";
