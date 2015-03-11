@@ -60,7 +60,6 @@ namespace NetTally
                 return;
 
             tallyButton.IsEnabled = false;
-            clearTallyCacheButton.IsEnabled = false;
 
             try
             {
@@ -77,7 +76,6 @@ namespace NetTally
             finally
             {
                 tallyButton.IsEnabled = true;
-                clearTallyCacheButton.IsEnabled = true;
             }
         }
 
@@ -92,7 +90,6 @@ namespace NetTally
             CleanupEditQuestName();
 
             tallyButton.IsEnabled = false;
-            clearTallyCacheButton.IsEnabled = false;
 
             try
             {
@@ -105,7 +102,6 @@ namespace NetTally
             finally
             {
                 tallyButton.IsEnabled = true;
-                clearTallyCacheButton.IsEnabled = true;
             }
         }
 
