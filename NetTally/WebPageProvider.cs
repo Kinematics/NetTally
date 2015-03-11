@@ -63,7 +63,7 @@ namespace NetTally
                 if (!forumData.IsValidThreadName(quest.Name))
                     throw new ArgumentException("The quest name is not valid.");
 
-                int startPost = await GetStartPost(quest.Name, quest.StartPost, token).ConfigureAwait(false);
+                int startPost = await GetStartPost(quest, token).ConfigureAwait(false);
 
                 int startPage = forumData.GetPageNumberFromPostNumber(startPost);
                 int endPage = forumData.GetPageNumberFromPostNumber(quest.EndPost);
@@ -116,19 +116,25 @@ namespace NetTally
 
         #endregion
 
-        #region Calculate start post based on last threadmark
-        private async Task<int> GetStartPost(string questTitle, int startPost, CancellationToken token)
+        /// <summary>
+        /// Calculate start post based on last threadmark on the threadmarks page.
+        /// </summary>
+        /// <param name="questTitle"></param>
+        /// <param name="startPost"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private async Task<int> GetStartPost(IQuest quest, CancellationToken token)
         {
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!CheckForLastThreadmark)
-                return startPost;
+                return quest.StartPost;
 
-            var threadmarkPage = await GetPage(forumData.GetThreadmarksPageUrl(questTitle), "Threadmarks", true, token);
+            var threadmarkPage = await GetPage(forumData.GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token);
 
             var threadmarks = forumData.GetThreadmarksFromPage(threadmarkPage);
 
             if (threadmarks == null || !threadmarks.Any())
-                return startPost;
+                return quest.StartPost;
 
             var lastThreadmark = threadmarks.Last();
             string threadmarkUrl = forumData.GetUrlOfThreadmark(lastThreadmark);
@@ -142,10 +148,8 @@ namespace NetTally
             if (threadmarkPostNumber > 0)
                 return threadmarkPostNumber + 1;
             else
-                return startPost;
+                return quest.StartPost;
         }
-
-        #endregion
 
 
         /// <summary>
