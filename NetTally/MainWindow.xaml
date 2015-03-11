@@ -31,12 +31,6 @@
         <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=UseVotePartitions}" HorizontalAlignment="Left" Width="95"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
-        <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" Margin="418,44,0,0" VerticalAlignment="Top"
-                     GroupName="PartitionType" IsChecked="{Binding Path=PartitionByLine, Converter={StaticResource BoolConverter}, ConverterParameter=Normal}"
-                     IsEnabled="{Binding ElementName=partitionedVotes, Path=IsChecked}"/>
-        <RadioButton x:Name="partitionByBlock" Content="By Block" HorizontalAlignment="Left" Margin="418,65,0,0" VerticalAlignment="Top"
-                     GroupName="PartitionType" IsChecked="{Binding Path=PartitionByLine, Converter={StaticResource BoolConverter}, ConverterParameter=Invert}"
-                     IsEnabled="{Binding ElementName=partitionedVotes, Path=IsChecked}"/>
         <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
@@ -51,6 +45,15 @@
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <Button x:Name="cancelTally" Content="Cancel" Height="30" Margin="0,66,128,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="94"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Invert, Mode=OneWay}"/>
+        <StackPanel HorizontalAlignment="Left" Height="51" Margin="418,45,0,0" VerticalAlignment="Top" Width="87"
+                    IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" VerticalAlignment="Top"
+        		GroupName="PartitionType" IsChecked="{Binding PartitionByLine, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}"
+        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}"/>
+            <RadioButton x:Name="partitionByBlock" Content="By Block" HorizontalAlignment="Left" VerticalAlignment="Top"
+        		GroupName="PartitionType" IsChecked="{Binding PartitionByLine, ConverterParameter=Invert, Converter={StaticResource BoolConverter}}"
+        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}"/>
+        </StackPanel>
 
     </Grid>
 </Window>
