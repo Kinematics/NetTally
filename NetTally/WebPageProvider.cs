@@ -19,17 +19,8 @@ namespace NetTally
             this.forumData = forumData;
         }
 
-        // Base URL for Sufficient Velocity web forums.
-        const string SVUrl = "http://forums.sufficientvelocity.com/";
-        const string SVThreadUrl = "http://forums.sufficientvelocity.com/threads/";
-
         Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
-
-        // Make sure that the quest name is valid to be inserted into a URL (no spaces),
-        //and has the proper form (thread number at end).
-        Regex validateQuestNameForUrl = new Regex(@"^\S+\.\d+$");
-
 
         #region Event handlers
         public event EventHandler<MessageEventArgs> StatusChanged;
@@ -69,19 +60,18 @@ namespace NetTally
         {
             try
             {
-                // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-                if (!validateQuestNameForUrl.Match(quest.Name).Success)
-                    throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
+                if (!forumData.IsValidThreadName(quest.Name))
+                    throw new ArgumentException("The quest name is not valid.");
 
                 int startPost = await GetStartPost(quest.Name, quest.StartPost, token).ConfigureAwait(false);
 
-                int startPage = GetPageNumberFromPost(startPost);
-                int endPage = GetPageNumberFromPost(quest.EndPost);
+                int startPage = forumData.GetPageNumberFromPostNumber(startPost);
+                int endPage = forumData.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumData.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
-                int lastPageNum = GetLastPageNumber(firstPage);
+                int lastPageNum = forumData.GetLastPageNumberOfThread(firstPage);
 
                 // Limit the end page based on the last page number of the thread.
                 if (quest.ReadToEndOfThread || lastPageNum < endPage)
@@ -102,7 +92,7 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
+                                select GetPage(forumData.GetPageUrl(quest.Name, pNum), pNum.ToString(),
                                     (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                     // Wait for all the tasks to be completed.
@@ -133,129 +123,30 @@ namespace NetTally
             if (!CheckForLastThreadmark)
                 return startPost;
 
-            var threadmarkPage = await GetPage(GetThreadmarksPageUrl(questTitle), "Threadmarks", true, token);
+            var threadmarkPage = await GetPage(forumData.GetThreadmarksPageUrl(questTitle), "Threadmarks", true, token);
 
-            if (IsValidThreadmarksPage(threadmarkPage))
-            {
-                string postLink = GetLastThreadmarkLink(threadmarkPage);
-                string postIndex = GetPostIndexFromPostLink(postLink);
+            var threadmarks = forumData.GetThreadmarksFromPage(threadmarkPage);
 
-                var lastThreadmarkPage = await GetPage(GetPostUrl(postLink), postLink, false, token);
-                var threadmarkPost = GetPostFromPage(lastThreadmarkPage, postIndex);
-                int threadmarkPostNumber = GetPostNumberFromPost(threadmarkPost);
-
-                if (threadmarkPostNumber > 0)
-                    return threadmarkPostNumber + 1;
-                else
-                    return startPost;
-            }
-            else
-            {
+            if (threadmarks == null || !threadmarks.Any())
                 return startPost;
-            }
-        }
 
-        private bool IsValidThreadmarksPage(HtmlDocument threadmarkPage)
-        {
-            var root = threadmarkPage.DocumentNode;
+            var lastThreadmark = threadmarks.Last();
+            string threadmarkUrl = forumData.GetUrlOfThreadmark(lastThreadmark);
+            string postId = forumData.GetPostIdFromUrl(threadmarkUrl);
 
-            var content = root?.Element("html")?.Element("body")?.Elements("div")?.FirstOrDefault(a => a.Id == "headerMover")?.
-                Elements("div")?.FirstOrDefault(a => a.Id == "content");
+            var lastThreadmarkPage = await GetPage(threadmarkUrl, postId, false, token);
 
-            string contentClass = content?.GetAttributeValue("class", "");
+            var threadmarkPost = forumData.GetPostFromPageById(lastThreadmarkPage, postId);
+            int threadmarkPostNumber = forumData.GetPostNumberOfPost(threadmarkPost);
 
-            if (contentClass == "error")
-            {
-                OnStatusChanged("No threadmarks available for this quest!\n");
-                return false;
-            }
-            else if (contentClass == "threadmarks")
-            {
-                return true;
-            }
+            if (threadmarkPostNumber > 0)
+                return threadmarkPostNumber + 1;
             else
-            {
-                return false;
-            }
+                return startPost;
         }
 
-        private string GetLastThreadmarkLink(HtmlDocument threadmarkPage)
-        {
-            var root = threadmarkPage.DocumentNode;
-
-            var content = root?.Element("html")?.Element("body")?.Elements("div")?.FirstOrDefault(a => a.Id == "headerMover")?.
-                Elements("div")?.FirstOrDefault(a => a.Id == "content");
-
-            var threadmarkList = content?.Descendants("ol")?.FirstOrDefault(a => a.GetAttributeValue("class", "") == "overlayScroll");
-
-            var lastThreadmark = threadmarkList?.Elements("li")?.LastOrDefault();
-
-            return lastThreadmark?.Element("a")?.GetAttributeValue("href", "");
-        }
-
-        private string GetPostIndexFromPostLink(string postLink)
-        {
-            Regex postLinkRegex = new Regex(@"posts/(?<postId>\d+)/");
-            var m = postLinkRegex.Match(postLink);
-            if (m.Success)
-                return m.Groups["postId"].Value;
-
-            throw new ArgumentException("Unable to extract post ID from link:\n" + postLink, nameof(postLink));
-        }
-
-        private HtmlNode GetPostFromPage(HtmlDocument root, string postIndex)
-        {
-            var postList = root.DocumentNode.Descendants("ol").First(n => n.Id == "messageList");
-            string checkIndex = "post-" + postIndex;
-            return postList.ChildNodes.Where(n => n.Name == "li").FirstOrDefault(a => a.Id == checkIndex);
-        }
-
-        private int GetPostNumberFromPost(HtmlNode post)
-        {
-            int postNum = 0;
-
-            try
-            {
-                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
-
-                // Find the anchor node that contains the post number value.
-                var anchor = post.Descendants("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
-
-                // Post number is written as #1123.  Remove the leading #.
-                var postNumText = anchor.InnerText;
-                if (postNumText.StartsWith("#"))
-                    postNumText = postNumText.Substring(1);
-
-                int.TryParse(postNumText, out postNum);
-            }
-            catch (Exception)
-            {
-                // If any of the above fail, just return 0 as the post number.
-            }
-
-            return postNum;
-        }
         #endregion
 
-        #region String concatenation functions for constructing URLs.
-        private string GetThreadUrl(string questTitle) => SVThreadUrl + questTitle;
-
-        private string GetThreadPageBaseUrl(string questTitle) => GetThreadUrl(questTitle) + "/page-";
-
-        private string GetThreadmarksPageUrl(string questTitle) => GetThreadUrl(questTitle) + "/threadmarks";
-
-        private string GetPageUrl(string questTitle, int page) => GetThreadPageBaseUrl(questTitle) + page.ToString();
-
-        private string GetPostUrl(string post) => SVUrl + post;
-        #endregion
-
-
-        /// <summary>
-        /// Calculate the page number that corresponds to the post number given.
-        /// </summary>
-        /// <param name="post">Post number.</param>
-        /// <returns>Page number.</returns>
-        private int GetPageNumberFromPost(int post) => ((post - 1) / 25) + 1;
 
         /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
@@ -311,47 +202,6 @@ namespace NetTally
 
             return htmldoc;
         }
-
-        /// <summary>
-        /// Get the last page number of the thread, based on info from the provided page.
-        /// </summary>
-        /// <param name="doc">The HtmlDocument of the page we're examining.</param>
-        /// <returns>The last page number of the thread.</returns>
-        private int GetLastPageNumber(HtmlDocument doc)
-        {
-            int lastPage = 1;
-
-            try
-            {
-                // Root of the tree
-                var root = doc.DocumentNode;
-
-                if (root.HasChildNodes == false)
-                    return lastPage;
-
-                var content = root.Descendants("div").First(n => n.Id == "content");
-
-                // Page should always have this div
-                var pageNavLinkGroup = content.Descendants("div").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("pageNavLinkGroup"));
-
-                if (pageNavLinkGroup != null)
-                {
-                    // Threads with only one page won't have a pageNav div, so be careful with this.
-                    var pageNav = pageNavLinkGroup.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("PageNav"));
-
-                    if (pageNav != null)
-                    {
-                        string lastPageStr = pageNav.GetAttributeValue("data-last", "1");
-                        int.TryParse(lastPageStr, out lastPage);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-
-            return lastPage;
-        }
+        
     }
 }
