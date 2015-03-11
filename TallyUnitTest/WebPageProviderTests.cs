@@ -13,11 +13,14 @@ namespace NetTally.Tests
     {
         static WebPageProvider pageProvider;
         static PrivateObject privateWeb;
+        static IForumData forumData;
+
 
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            pageProvider = new WebPageProvider();
+            forumData = new SVForumData();
+            pageProvider = new WebPageProvider(forumData);
             privateWeb = new PrivateObject(pageProvider);
         }
 

@@ -17,8 +17,9 @@ namespace NetTally
         const string questFile = "questlist.xml";
 
         // Local holding variables
-        Tally tally = new Tally(new WebPageProvider(), new VoteCounter());
+        IForumData forumData = new SVForumData();
         Quests quests = new Quests();
+        Tally tally;
 
         CancellationTokenSource cts;
 
@@ -28,6 +29,8 @@ namespace NetTally
         /// </summary>
         public MainWindow()
         {
+            tally = new Tally(new WebPageProvider(forumData), new VoteCounter(forumData), forumData);
+
             InitializeComponent();
 
             DataContext = quests;

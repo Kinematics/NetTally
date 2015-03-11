@@ -14,11 +14,13 @@ namespace NetTally.Tests
     {
         static VoteCounter voteCounter;
         static PrivateObject privateVote;
+        static IForumData forumData;
 
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            voteCounter = new VoteCounter();
+            forumData = new SVForumData();
+            voteCounter = new VoteCounter(forumData);
             privateVote = new PrivateObject(voteCounter);
         }
 
@@ -52,7 +54,7 @@ namespace NetTally.Tests
         [TestMethod()]
         public void TallyVotesTest()
         {
-            var a = new VoteCounter();
+            var a = new VoteCounter(forumData);
             Assert.AreEqual(0, a.VoterMessageId.Count);
             Assert.AreEqual(0, a.VotesWithSupporters.Count);
             Assert.AreEqual(false, a.UseVotePartitions);

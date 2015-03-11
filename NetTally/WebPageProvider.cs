@@ -12,6 +12,13 @@ namespace NetTally
 {
     public class WebPageProvider : IPageProvider
     {
+        IForumData forumData;
+
+        public WebPageProvider(IForumData forumData)
+        {
+            this.forumData = forumData;
+        }
+
         // Base URL for Sufficient Velocity web forums.
         const string SVUrl = "http://forums.sufficientvelocity.com/";
         const string SVThreadUrl = "http://forums.sufficientvelocity.com/threads/";
@@ -60,53 +67,61 @@ namespace NetTally
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
         public async Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token)
         {
-            // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-            if (!validateQuestNameForUrl.Match(quest.Name).Success)
-                throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
-
-            int startPost = await GetStartPost(quest.Name, quest.StartPost, token).ConfigureAwait(false);
-
-            int startPage = GetPageNumberFromPost(startPost);
-            int endPage = GetPageNumberFromPost(quest.EndPost);
-
-            // Get the first page and extract the last page number of the thread from that (bypass the cache).
-            var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
-
-            int lastPageNum = GetLastPageNumber(firstPage);
-
-            // Limit the end page based on the last page number of the thread.
-            if (quest.ReadToEndOfThread || lastPageNum < endPage)
+            try
             {
-                endPage = lastPageNum;
+                // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
+                if (!validateQuestNameForUrl.Match(quest.Name).Success)
+                    throw new ArgumentException("The quest name is not valid.\nCheck for spaces, and make sure it ends with the thread number.");
+
+                int startPost = await GetStartPost(quest.Name, quest.StartPost, token).ConfigureAwait(false);
+
+                int startPage = GetPageNumberFromPost(startPost);
+                int endPage = GetPageNumberFromPost(quest.EndPost);
+
+                // Get the first page and extract the last page number of the thread from that (bypass the cache).
+                var firstPage = await GetPage(GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+
+                int lastPageNum = GetLastPageNumber(firstPage);
+
+                // Limit the end page based on the last page number of the thread.
+                if (quest.ReadToEndOfThread || lastPageNum < endPage)
+                {
+                    endPage = lastPageNum;
+                }
+
+                // We will store the loaded pages in a new List.
+                List<HtmlDocument> pages = new List<HtmlDocument>();
+
+                // First page is already loaded.
+                pages.Add(firstPage);
+
+                int pagesToScan = endPage - startPage;
+                int lastPageLoaded = 0;
+
+                if (pagesToScan > 0)
+                {
+                    // Initiate tasks for all pages other than the first page (which we already loaded)
+                    var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
+                                select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
+                                    (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
+
+                    // Wait for all the tasks to be completed.
+                    HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                    // Add the results to our list of pages.
+                    pages.AddRange(pageArray);
+                }
+
+                lastPageLoadedFor[quest.Name] = endPage;
+
+
+                return pages;
             }
-
-            // We will store the loaded pages in a new List.
-            List<HtmlDocument> pages = new List<HtmlDocument>();
-
-            // First page is already loaded.
-            pages.Add(firstPage);
-
-            int pagesToScan = endPage - startPage;
-            int lastPageLoaded = 0;
-
-            if (pagesToScan > 0)
+            catch (OperationCanceledException)
             {
-                // Initiate tasks for all pages other than the first page (which we already loaded)
-                var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                            select GetPage(GetPageUrl(quest.Name, pNum), pNum.ToString(),
-                                (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
-
-                // Wait for all the tasks to be completed.
-                HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
-
-                // Add the results to our list of pages.
-                pages.AddRange(pageArray);
+                OnStatusChanged("Tally cancelled!\n");
+                throw;
             }
-
-            lastPageLoadedFor[quest.Name] = endPage;
-            
-
-            return pages;
         }
 
         #endregion
@@ -271,6 +286,11 @@ namespace NetTally
 
             using (HttpClient client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
             {
+                token.Register(() => client.CancelPendingRequests());
+
+                var q = client.GetAsync(url, HttpCompletionOption.ResponseContentRead, token);
+
+
                 // Call asynchronous network methods in a try/catch block to handle exceptions 
                 try
                 {
