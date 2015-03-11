@@ -323,6 +323,7 @@ namespace NetTally
             return sb.ToString();
         }
 
+        // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         Regex badCharactersRegex = new Regex("\u200b");
 
