@@ -22,5 +22,41 @@ namespace NetTally.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CheckForLastThreadmark {
+            get {
+                return ((bool)(this["CheckForLastThreadmark"]));
+            }
+            set {
+                this["CheckForLastThreadmark"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseVotePartitions {
+            get {
+                return ((bool)(this["UseVotePartitions"]));
+            }
+            set {
+                this["UseVotePartitions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PartitionByLine {
+            get {
+                return ((bool)(this["PartitionByLine"]));
+            }
+            set {
+                this["PartitionByLine"] = value;
+            }
+        }
     }
 }

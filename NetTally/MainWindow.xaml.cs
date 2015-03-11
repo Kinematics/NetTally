@@ -20,6 +20,7 @@ namespace NetTally
         IForumData forumData;
         Quests quests;
         Tally tally;
+        Properties.Settings settings = new Properties.Settings();
 
         CancellationTokenSource cts;
 
@@ -33,6 +34,7 @@ namespace NetTally
             tally = new Tally(forumData);
             quests = new Quests();
 
+
             InitializeComponent();
 
             DataContext = quests;
@@ -42,8 +44,17 @@ namespace NetTally
             partitionByLine.DataContext = tally;
             tryLastThreadmark.DataContext = tally;
 
+            LoadSettings();
             LoadQuests();
         }
+
+        private void LoadSettings()
+        {
+            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
+            tally.UseVotePartitions = settings.UseVotePartitions;
+            tally.PartitionByLine = settings.PartitionByLine;
+        }
+
 
         /// <summary>
         /// When the program closes, save the current list of quests.
@@ -52,8 +63,20 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            settings.Save();
+
+            SaveSettings();
             SaveQuests();
         }
+
+        private void SaveSettings()
+        {
+            settings.CheckForLastThreadmark = tally.CheckForLastThreadmark;
+            settings.UseVotePartitions = tally.UseVotePartitions;
+            settings.PartitionByLine = tally.PartitionByLine;
+            settings.Save();
+        }
+
 
         /// <summary>
         /// Start running the tally on the currently selected quest and post range.

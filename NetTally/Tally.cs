@@ -78,7 +78,11 @@ namespace NetTally
         public bool UseVotePartitions
         {
             get { return voteCounter.UseVotePartitions; }
-            set { voteCounter.UseVotePartitions = value; }
+            set
+            {
+                voteCounter.UseVotePartitions = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -88,7 +92,11 @@ namespace NetTally
         public bool PartitionByLine
         {
             get { return voteCounter.PartitionByLine; }
-            set { voteCounter.PartitionByLine = value; }
+            set
+            {
+                voteCounter.PartitionByLine = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -98,7 +106,11 @@ namespace NetTally
         public bool CheckForLastThreadmark
         {
             get { return pageProvider.CheckForLastThreadmark; }
-            set { pageProvider.CheckForLastThreadmark = value; }
+            set
+            {
+                pageProvider.CheckForLastThreadmark = value;
+                OnPropertyChanged();
+            }
         }
         #endregion
 

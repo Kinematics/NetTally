@@ -76,6 +76,7 @@
     <Compile Include="Quest.cs" />
     <Compile Include="Quests.cs" />
     <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="SVForumData.cs" />
     <Compile Include="Tally.cs" />
     <Compile Include="VoteCounter.cs" />
