@@ -116,6 +116,12 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Check whether the post is one that we want to process.
+        /// </summary>
+        /// <param name="post">Post to check.</param>
+        /// <param name="quest">Quest we're tallying.</param>
+        /// <returns>Returns true if we want to process this post.</returns>
         private bool IsValidPost(HtmlNode post, IQuest quest)
         {
             string postAuthor = forumData.GetAuthorOfPost(post);
