@@ -12,6 +12,6 @@ namespace NetTally
         bool PartitionByLine { get; set; }
 
 
-        void TallyVotes(List<HtmlDocument> pages, int startPost, int endPost);
+        void TallyVotes(List<HtmlDocument> pages, IQuest quest);
     }
 }

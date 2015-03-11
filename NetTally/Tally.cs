@@ -118,7 +118,7 @@ namespace NetTally
             var pages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
             // Tally the votes from the loaded pages.
-            voteCounter.TallyVotes(pages, quest.StartPost, quest.EndPost);
+            voteCounter.TallyVotes(pages, quest);
 
             // Compose the final result string from the compiled votes.
             ConstructResults();

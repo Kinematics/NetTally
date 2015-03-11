@@ -63,9 +63,6 @@ namespace NetTally
         Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Strip BBCode formatting from a vote line.  Use with Replace().
         Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
-        // Bad characters we want to remove
-        // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
-        Regex badCharactersRegex = new Regex("\u200b");
 
         List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
@@ -73,30 +70,6 @@ namespace NetTally
 
         Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
-
-        /// <summary>
-        /// Construct the votes Results from the provide list of HTML pages.
-        /// </summary>
-        /// <param name="pages"></param>
-        public void TallyVotes(List<HtmlDocument> pages, int startPost, int endPost)
-        {
-            if (pages == null)
-                throw new ArgumentNullException(nameof(pages));
-
-            if (pages.Count == 0)
-                return;
-
-            Reset();
-
-            // Set the thread author for reference.
-            SetThreadAuthor(pages.FirstOrDefault()?.DocumentNode);
-
-            foreach (var page in pages)
-            {
-                if (page != null)
-                    ProcessPage(page.DocumentNode, startPost, endPost);
-            }
-        }
 
         /// <summary>
         /// Reset all tracking variables.
@@ -110,54 +83,54 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Function to set the thread author for the current processing run.
+        /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
-        /// <param name="root">Root node of a page of the thread.</param>
-        private void SetThreadAuthor(HtmlNode root)
+        /// <param name="pages"></param>
+        public void TallyVotes(List<HtmlDocument> pages, IQuest quest)
         {
-            var pageDesc = root?.Descendants("p").FirstOrDefault(n => n.Id == "pageDescription");
-            var authorAnchor = pageDesc?.Elements("a").FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
+            if (pages == null)
+                throw new ArgumentNullException(nameof(pages));
 
-            if (authorAnchor != null)
-                threadAuthor = HtmlEntity.DeEntitize(authorAnchor.InnerText);
-        }
+            if (pages.Count == 0)
+                return;
 
-        /// <summary>
-        /// Given a valid page, process the user posts on that page.
-        /// </summary>
-        /// <param name="root">The root node of the HTML page.</param>
-        /// <param name="startPost">The first post number to process.</param>
-        /// <param name="endPost">The last post number to process.</param>
-        private void ProcessPage(HtmlNode root, int startPost, int endPost)
-        {
-            // Find the ordered list containing all the messages on this page.
-            var postList = GetPostList(root);
+            Reset();
 
-            // Process each user post in the list.
-            foreach (var post in GetPostsFromList(postList))
+            // Set the thread author for reference.
+            threadAuthor = forumData.GetAuthorOfThread(pages.First());
+
+            foreach (var page in pages)
             {
-                ProcessPost(post, startPost, endPost);
+                if (page != null)
+                {
+                    // Find the ordered list containing all the messages on this page.
+                    var postList = forumData.GetPostsFromPage(page);
+
+                    // Process each user post in the list.
+                    foreach (var post in postList)
+                    {
+                        if (IsValidPost(post, quest))
+                            ProcessPost(post);
+                    }
+                }
             }
         }
 
-        /// <summary>
-        /// Gets the HTML node containing the list of posts on the page.
-        /// </summary>
-        /// <param name="root">The root element of the page.</param>
-        /// <returns>Returns the node containing all posts on the page.</returns>
-        private HtmlNode GetPostList(HtmlNode root)
+        private bool IsValidPost(HtmlNode post, IQuest quest)
         {
-            return root.Descendants("ol").First(n => n.Id == "messageList");
-        }
+            string postAuthor = forumData.GetAuthorOfPost(post);
 
-        /// <summary>
-        /// Gets an IEnumerable that provides all the post nodes on the page.
-        /// </summary>
-        /// <param name="postList">A list element of the page that contains the posts.</param>
-        /// <returns>Returns the list of posts on the page.</returns>
-        private IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
-        {
-            return postList.ChildNodes.Where(n => n.Name == "li");
+            // Ignore posts by the thread author.
+            if (postAuthor == threadAuthor)
+                return false;
+
+            int postNumber = forumData.GetPostNumberOfPost(post);
+
+            // Ignore posts outside the selected post range.
+            if (postNumber < quest.StartPost || (!quest.ReadToEndOfThread && postNumber > quest.EndPost))
+                return false;
+
+            return true;
         }
 
         /// <summary>
@@ -167,205 +140,16 @@ namespace NetTally
         /// <param name="post">The list item node containing the post.</param>
         /// <param name="startPost">The first post number of the thread to check.</param>
         /// <param name="endPost">The last post number of the thread to check.</param>
-        private void ProcessPost(HtmlNode post, int startPost, int endPost)
+        private void ProcessPost(HtmlNode post)
         {
-            string postAuthor;
-            string postID;
-            string postText;
-
-            int postNumber = GetPostNumber(post);
-
-            // Ignore posts outside the selected post range.
-            if (postNumber < startPost || (endPost > 0 && postNumber > endPost))
-                return;
-
-            postAuthor = GetPostAuthor(post);
-
-            // Ignore posts by the thread author.
-            if (postAuthor == threadAuthor)
-                return;
-
-            postID = GetPostId(post);
-
-            // Get the text from the post that can be searched for a vote.
-            postText = ExtractPostText(post);
+            string postAuthor = forumData.GetAuthorOfPost(post);
+            string postID = forumData.GetIdOfPost(post);
+            string postText = forumData.GetTextOfPost(post);
 
             // Attempt to get vote information from the post.
             ProcessPostContents(postText, postAuthor, postID);
         }
-
-        /// <summary>
-        /// Given an li node containing a post message, extract the thread sequence number from it.
-        /// </summary>
-        /// <param name="post">LI node containing a post message.</param>
-        /// <returns>Returns the numeric thread sequence number of the post.</returns>
-        private int GetPostNumber(HtmlNode post)
-        {
-            int postNum = 0;
-
-            try
-            {
-                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
-
-                // Find the anchor node that contains the post number value.
-                var anchor = post.Descendants("a").First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
-
-                // Post number is written as #1123.  Remove the leading #.
-                var postNumText = anchor.InnerText;
-                if (postNumText.StartsWith("#"))
-                    postNumText = postNumText.Substring(1);
-
-                int.TryParse(postNumText, out postNum);
-            }
-            catch (Exception)
-            {
-                // If any of the above fail, just return 0 as the post number.
-            }
-
-            return postNum;
-        }
-
-        /// <summary>
-        /// Get the author of the provided post.
-        /// </summary>
-        /// <param name="post">A user post.</param>
-        /// <returns>Returns the author name.</returns>
-        private string GetPostAuthor(HtmlNode post)
-        {
-            // The author is provided in a data attribute of the root element.
-            string author = post.GetAttributeValue("data-author", "");
-            author = HtmlEntity.DeEntitize(author);
-            return author;
-        }
-
-        /// <summary>
-        /// Get the universal ID number of the post.
-        /// </summary>
-        /// <param name="post">The user's post.</param>
-        /// <returns>Returns the ID number of the post as a string.</returns>
-        private string GetPostId(HtmlNode post)
-        {
-            // The universal post ID is the ID of the root element of the post.
-            string id = post.Id;
-
-            // The format is "post-12345678", but we only want the number (as text).
-            if (id.StartsWith("post-"))
-            {
-                id = id.Substring("post-".Length);
-            }
-
-            return id;
-        }
-
-        /// <summary>
-        /// Extract the text of the provided post, ignoring quotes, spoilers, or other
-        /// invalid regions.  Clean up HTML entities as well.
-        /// </summary>
-        /// <param name="post">The li HTML node containing the user post.</param>
-        /// <returns>A string containing all valid text lines.</returns>
-        private string ExtractPostText(HtmlNode post)
-        {
-            // Extract the actual contents of the post.
-            var postArticle = post.Descendants("article").First();
-            var articleBlock = postArticle.Element("blockquote");
-
-            string postText = ExtractNodeText(articleBlock);
-
-            // Clean up the extracted text
-            postText = postText.TrimStart();
-            postText = HtmlEntity.DeEntitize(postText);
-            postText = badCharactersRegex.Replace(postText, "");
-
-            return postText;
-        }
-
-        /// <summary>
-        /// Extract the text of the provided HTML node.  Recurses into nested
-        /// divs.
-        /// </summary>
-        /// <param name="node">The node to pull text content from.</param>
-        /// <returns>A string containing the text of the post, with formatting
-        /// elements converted to BBCode tags.</returns>
-        private string ExtractNodeText(HtmlNode node)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            // Search the post for valid element types, and put them all together
-            // into a single string.
-            foreach (var childNode in node.ChildNodes)
-            {
-                // Once we reach the end marker of the post, no more processing is needed.
-                if (childNode.GetAttributeValue("class", "").Contains("messageTextEndMarker"))
-                    return sb.ToString();
-
-                // If we encounter a quote, skip past it
-                if (childNode.GetAttributeValue("class", "").Contains("bbCodeQuote"))
-                    continue;
-
-                // A <br> element adds a newline
-                if (childNode.Name == "br")
-                {
-                    sb.AppendLine("");
-                    continue;
-                }
-
-                // If the node doesn't contain any text, move to the next.
-                if (childNode.InnerText.Trim() == string.Empty)
-                    continue;
-
-                // Add BBCode markup in place of HTML format elements,
-                // while collecting the text in the post.
-                switch (childNode.Name)
-                {
-                    case "#text":
-                        sb.Append(childNode.InnerText);
-                        break;
-                    case "i":
-                        sb.Append("[i]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/i]");
-                        break;
-                    case "b":
-                        sb.Append("[b]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/b]");
-                        break;
-                    case "u":
-                        sb.Append("[u]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/u]");
-                        break;
-                    case "span":
-                        string spanStyle = childNode.GetAttributeValue("style", "");
-                        if (spanStyle.StartsWith("color:", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string spanColor = spanStyle.Substring("color:".Length).Trim();
-                            sb.Append("[color=");
-                            sb.Append(spanColor);
-                            sb.Append("]");
-                            sb.Append(childNode.InnerText);
-                            sb.Append("[/color]");
-                        }
-                        break;
-                    case "a":
-                        sb.Append("[url=\"");
-                        sb.Append(childNode.GetAttributeValue("href", ""));
-                        sb.Append("\"]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/url]");
-                        break;
-                    case "div":
-                        // Recurse into divs
-                        sb.Append(ExtractNodeText(childNode));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return sb.ToString();
-        }
-
+        
         /// <summary>
         /// Examine the text of the post, determine if it contains any votes, put the vote
         /// together, and update our vote and voter records.
