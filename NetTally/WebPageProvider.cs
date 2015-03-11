@@ -158,6 +158,7 @@ namespace NetTally
         /// <param name="baseUrl">The thread URL.</param>
         /// <param name="pageNum">The page number in the thread to load.</param>
         /// <param name="bypassCache">Whether to skip checking the cache.</param>
+        /// <param name="token">Cancellation token for the function.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
         private async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token)
         {
@@ -179,23 +180,27 @@ namespace NetTally
 
             HtmlDocument htmldoc = new HtmlDocument();
 
+            string result = null;
+            int tries = 0;
             using (HttpClient client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
             {
-                token.Register(() => client.CancelPendingRequests());
-
-                var q = client.GetAsync(url, HttpCompletionOption.ResponseContentRead, token);
-
-
-                // Call asynchronous network methods in a try/catch block to handle exceptions 
                 try
                 {
-                    string responseBody = await client.GetStringAsync(url).ConfigureAwait(false);
-
-                    htmldoc.LoadHtml(responseBody);
-
-                    pageCache[url] = new CachedPage(htmldoc);
-
-                    OnStatusChanged("Page " + shortDescrip + " loaded!\n");
+                    while (result == null && tries < 3 && token.IsCancellationRequested == false)
+                    {
+                        using (var response = await client.GetAsync(url, token).ConfigureAwait(false))
+                        {
+                            if (response.IsSuccessStatusCode)
+                            {
+                                result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                OnStatusChanged("Retrying page " + shortDescrip + "\n");
+                                tries++;
+                            }
+                        }
+                    }
                 }
                 catch (HttpRequestException e)
                 {
@@ -203,6 +208,23 @@ namespace NetTally
                     throw;
                 }
             }
+
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (result == null)
+            {
+                OnStatusChanged("Failed to load page " + shortDescrip + "\n");
+                return null;
+            }
+
+            htmldoc.LoadHtml(result);
+
+            pageCache[url] = new CachedPage(htmldoc);
+
+            OnStatusChanged("Page " + shortDescrip + " loaded!\n");
 
             return htmldoc;
         }
