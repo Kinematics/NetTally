@@ -19,13 +19,13 @@ namespace NetTally
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
 
-        public Tally(IPageProvider pageProvider, IVoteCounter voteCounter, IForumData forumData)
+        public Tally(IForumData forumData)
         {
-            this.pageProvider = pageProvider;
-            this.voteCounter = voteCounter;
             this.forumData = forumData;
+            pageProvider = new WebPageProvider(forumData);
+            voteCounter = new VoteCounter(forumData);
 
-            this.pageProvider.StatusChanged += PageProvider_StatusChanged;
+            pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
 
 

@@ -29,7 +29,7 @@ namespace NetTally
         /// </summary>
         public MainWindow()
         {
-            tally = new Tally(new WebPageProvider(forumData), new VoteCounter(forumData), forumData);
+            tally = new Tally(forumData);
 
             InitializeComponent();
 
