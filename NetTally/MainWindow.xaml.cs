@@ -97,11 +97,6 @@ namespace NetTally
                 cts = new CancellationTokenSource();
                 await tally.Run(quests.CurrentQuest, cts.Token);
             }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                // Error message is pushed into the tally results window, so don't do anything with it here.
-                cts.Cancel();
-            }
             catch (OperationCanceledException)
             {
                 // got a cancel request somewhere

@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ACA0D1B9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyUnitTest", "TallyUnitTest\TallyUnitTest.csproj", "{7C756E0C-F734-4501-BD21-453E49C88C17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyCore", "TallyCore\TallyCore.csproj", "{037E6032-88E9-4861-AB1F-42EC39859ECB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{7C756E0C-F734-4501-BD21-453E49C88C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C756E0C-F734-4501-BD21-453E49C88C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C756E0C-F734-4501-BD21-453E49C88C17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{037E6032-88E9-4861-AB1F-42EC39859ECB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{037E6032-88E9-4861-AB1F-42EC39859ECB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{037E6032-88E9-4861-AB1F-42EC39859ECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{037E6032-88E9-4861-AB1F-42EC39859ECB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

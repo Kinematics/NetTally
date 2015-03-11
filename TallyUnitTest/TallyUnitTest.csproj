@@ -62,6 +62,10 @@
       <Project>{5f9b045c-3d5b-4111-82f8-99bfe8b3d7f9}</Project>
       <Name>NetTally</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TallyCore\TallyCore.csproj">
+      <Project>{037e6032-88e9-4861-ab1f-42ec39859ecb}</Project>
+      <Name>TallyCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

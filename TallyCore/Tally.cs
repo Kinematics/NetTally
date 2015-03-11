@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,7 +13,7 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
-    class Tally : INotifyPropertyChanged
+    public class Tally : INotifyPropertyChanged
     {
         const string SVPostURL = "http://forums.sufficientvelocity.com/posts/";
 
@@ -155,10 +157,13 @@ namespace NetTally
         {
             StringBuilder sb = new StringBuilder();
 
+            var assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+
             sb.AppendLine("[b]Vote Tally[/b]");
             sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
-                System.Windows.Forms.Application.ProductName,
-                System.Windows.Forms.Application.ProductVersion);
+                fvi.ProductName,
+                fvi.ProductVersion);
             sb.AppendLine("");
 
             foreach (var vote in voteCounter.VotesWithSupporters)
