@@ -112,5 +112,12 @@ namespace NetTally
             return name;
         }
         #endregion
+
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
     }
 }
