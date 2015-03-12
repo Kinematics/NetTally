@@ -273,7 +273,6 @@ namespace NetTally
             if (editQuestName.Visibility == Visibility.Visible)
             {
                 editQuestName.Visibility = Visibility.Hidden;
-                QuestCollectionView.MoveCurrentTo(QuestCollectionView.CurrentItem);
                 QuestCollectionView.Refresh();
                 startPost.Focus();
             }
