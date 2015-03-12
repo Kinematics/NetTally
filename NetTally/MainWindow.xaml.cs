@@ -184,7 +184,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void post_GotFocus(object sender, RoutedEventArgs e)
+        private void textEntry_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (sender as TextBox);
             if (tb != null)
@@ -198,7 +198,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void post_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void textEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             TextBox tb = (sender as TextBox);
 
@@ -232,7 +232,6 @@ namespace NetTally
 
             editQuestName.Visibility = Visibility.Visible;
             editQuestName.Focus();
-            editQuestName.SelectAll();
         }
 
         /// <summary>

@@ -25,13 +25,14 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Text="{Binding Path=CurrentItem.Name, UpdateSourceTrigger=PropertyChanged}" Visibility="Hidden" FontSize="13.333" KeyUp="editQuestName_KeyUp"/>
+        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+                 Text="{Binding Path=CurrentItem.Name, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
+                 PreviewMouseDown="textEntry_PreviewMouseDown"/>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
+                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
+                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
                   RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CheckForLastThreadmark}"
