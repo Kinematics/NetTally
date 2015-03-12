@@ -11,7 +11,7 @@ namespace NetTally
     /// Interface for classes that can be used to extract data from forum threads in
     /// a site-specific manner.
     /// </summary>
-    public interface IForumData
+    public interface IForumAdapter
     {
 
         #region Functions for constructing URLs

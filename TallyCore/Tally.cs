@@ -17,11 +17,11 @@ namespace NetTally
     {
         const string SVPostURL = "http://forums.sufficientvelocity.com/posts/";
 
-        IForumData forumData;
+        IForumAdapter forumData;
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
 
-        public Tally(IForumData forumData)
+        public Tally(IForumAdapter forumData)
         {
             this.forumData = forumData;
             pageProvider = new WebPageProvider(forumData);

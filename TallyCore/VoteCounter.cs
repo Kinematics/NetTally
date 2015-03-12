@@ -9,12 +9,12 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
-        IForumData forumData;
+        IForumAdapter forumData;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public VoteCounter(IForumData forumData)
+        public VoteCounter(IForumAdapter forumData)
         {
             this.forumData = forumData;
             SetupFormattingRegexes();

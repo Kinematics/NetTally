@@ -11,7 +11,7 @@ namespace NetTally
     /// <summary>
     /// Class for extracting data from Sufficient Velocity forums.
     /// </summary>
-    public class SVForumData : IForumData
+    public class SVForumAdapter : IForumAdapter
     {
         const string ForumUrl = "http://forums.sufficientvelocity.com/";
         const string ThreadsUrl = "http://forums.sufficientvelocity.com/threads/";

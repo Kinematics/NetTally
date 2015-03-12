@@ -1,10 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
-using System.Xml.Serialization;
 
 namespace NetTally
 {
@@ -13,15 +16,17 @@ namespace NetTally
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Filename to record quests
+        // Storage vars
         const string questFile = "questlist.xml";
-
-        // Local holding variables
-        IForumData forumData;
-        Quests quests;
-        Tally tally;
         Properties.Settings settings = new Properties.Settings();
 
+        // Collections for holding quests
+        public ICollectionView QuestCollectionView { get; }
+        QuestCollection questCollection;
+
+        // Locals for managing the tally
+        IForumAdapter forumAdapter;
+        Tally tally;
         CancellationTokenSource cts;
 
         /// <summary>
@@ -30,14 +35,32 @@ namespace NetTally
         /// </summary>
         public MainWindow()
         {
-            forumData = new SVForumData();
-            tally = new Tally(forumData);
-            quests = new Quests();
-
-
             InitializeComponent();
 
-            DataContext = quests;
+            // Set tally vars
+            forumAdapter = new SVForumAdapter();
+            tally = new Tally(forumAdapter);
+
+            // Deserialize XML of quests
+            var wrapper = LoadQuestsContract();
+
+            if (wrapper == null)
+                questCollection = new QuestCollection();
+            else
+                questCollection = wrapper.QuestCollection;
+
+            QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
+
+            if (wrapper != null)
+                QuestCollectionView.MoveCurrentTo(questCollection.FirstOrDefault(q => q.Name == wrapper.CurrentQuest));
+
+            // Sort the collection view
+            var sortDesc = new SortDescription("Name", ListSortDirection.Ascending);
+            QuestCollectionView.SortDescriptions.Add(sortDesc);
+
+            // Set up data contexts
+            DataContext = QuestCollectionView;
+
             resultsWindow.DataContext = tally;
             partitionedVotes.DataContext = tally;
             partitionByBlock.DataContext = tally;
@@ -45,16 +68,7 @@ namespace NetTally
             tryLastThreadmark.DataContext = tally;
 
             LoadSettings();
-            LoadQuests();
         }
-
-        private void LoadSettings()
-        {
-            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
-            tally.UseVotePartitions = settings.UseVotePartitions;
-            tally.PartitionByLine = settings.PartitionByLine;
-        }
-
 
         /// <summary>
         /// When the program closes, save the current list of quests.
@@ -63,10 +77,15 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            settings.Save();
-
             SaveSettings();
             SaveQuests();
+        }
+
+        private void LoadSettings()
+        {
+            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
+            tally.UseVotePartitions = settings.UseVotePartitions;
+            tally.PartitionByLine = settings.PartitionByLine;
         }
 
         private void SaveSettings()
@@ -87,7 +106,7 @@ namespace NetTally
         {
             CleanupEditQuestName();
 
-            if (quests.CurrentQuest == null)
+            if (QuestCollectionView.CurrentItem == null)
                 return;
 
             tallyButton.IsEnabled = false;
@@ -95,7 +114,7 @@ namespace NetTally
             try
             {
                 cts = new CancellationTokenSource();
-                await tally.Run(quests.CurrentQuest, cts.Token);
+                await tally.Run(QuestCollectionView.CurrentItem as IQuest, cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -193,8 +212,6 @@ namespace NetTally
             }
         }
 
-
-        #region Adding and removing quests
         /// <summary>
         /// Event handler for adding a new quest.
         /// Create a new quest, and make the edit textbox visible so that the user can rename it.
@@ -203,8 +220,9 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            quests.AddNewQuest();
-            quests.SetCurrentQuestByName("New Entry");
+            var newQuest = questCollection.AddNewQuest();
+            QuestCollectionView.MoveCurrentTo(newQuest);
+
             editQuestName.Visibility = Visibility.Visible;
             editQuestName.Focus();
             editQuestName.SelectAll();
@@ -224,7 +242,7 @@ namespace NetTally
             }
             else if (e.Key == Key.Escape)
             {
-                quests.RemoveCurrentQuest();
+                questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
                 CleanupEditQuestName();
             }
         }
@@ -236,7 +254,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void removeQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            quests.RemoveCurrentQuest();
+            questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
             CleanupEditQuestName();
         }
 
@@ -249,31 +267,31 @@ namespace NetTally
             if (editQuestName.Visibility == Visibility.Visible)
             {
                 editQuestName.Visibility = Visibility.Hidden;
-                var cqn = quests.CurrentQuest.Name;
-                quests.Update();
-                quests.SetCurrentQuestByName(cqn);
+                QuestCollectionView.MoveCurrentTo(QuestCollectionView.CurrentItem);
+                QuestCollectionView.Refresh();
                 startPost.Focus();
             }
         }
-        #endregion
 
         #region Serialization
         /// <summary>
         /// Load any saved quest information when starting up the program.
         /// </summary>
-        private void LoadQuests()
+        private QuestCollectionWrapper LoadQuestsContract()
         {
             string filepath = Path.Combine(System.Windows.Forms.Application.CommonAppDataPath, questFile);
 
             if (File.Exists(filepath))
             {
-                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read))
+                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    XmlSerializer sr = new XmlSerializer(typeof(Quests));
-                    Quests qs = (Quests)sr.Deserialize(fs);
-                    quests.SetCurrentQuestByName(qs.CurrentQuestName);
+                    DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
+                    QuestCollectionWrapper qcw = (QuestCollectionWrapper)ser.ReadObject(fs);
+                    return qcw;
                 }
             }
+
+            return null;
         }
 
         /// <summary>
@@ -285,8 +303,9 @@ namespace NetTally
 
             using (FileStream fs = new FileStream(filepath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                XmlSerializer sr = new XmlSerializer(typeof(Quests));
-                sr.Serialize(fs, quests);
+                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, QuestCollectionView.CurrentItem?.ToString());
+                DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
+                ser.WriteObject(fs, qcw);
             }
         }
 

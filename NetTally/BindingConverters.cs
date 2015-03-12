@@ -4,37 +4,6 @@ using System.Windows.Data;
 
 namespace NetTally
 {
-    /// <summary>
-    /// Data binding conversion class to convert a Quest object to the
-    /// name of that quest.
-    /// </summary>
-    [ValueConversion(typeof(IQuest), typeof(string))]
-    public class QuestConverter : IValueConverter
-    {
-        /// <summary>
-        /// Convert from source (Quest) to target (string).
-        /// </summary>
-        /// <returns>Returns the name of the quest object for display.</returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var q = value as IQuest;
-            if (q != null)
-                return q.Name;
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Convert from target (string) to source (Quest).
-        /// </summary>
-        /// <returns>Returns the object that corresponds to the provided quest name.</returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Quests.StaticGetQuestByName((string)value);
-        }
-    }
-    
-
 
     /// <summary>
     /// Data binding conversion class to convert the bool to either the same value,

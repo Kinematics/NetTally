@@ -8,7 +8,6 @@
         Title="Net Tally" Height="598.055" Width="890.437" MinWidth="800" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico">
 
     <Window.Resources>
-        <local:QuestConverter x:Key="QConverter"></local:QuestConverter>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
     </Window.Resources>
 
@@ -18,15 +17,21 @@
         <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60" Click="removeQuestButton_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <ComboBox x:Name="questList" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
-                  ItemsSource="{Binding Path=QuestListNames}" SelectedValue="{Binding Path=CurrentQuest, Converter={StaticResource QConverter}}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                  ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
         <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Text="{Binding Path=CurrentQuest.Name, UpdateSourceTrigger=PropertyChanged}" Visibility="Hidden" FontSize="13.333" KeyUp="editQuestName_KeyUp"/>
+                 Text="{Binding Path=CurrentItem.Name, UpdateSourceTrigger=PropertyChanged}" Visibility="Hidden" FontSize="13.333" KeyUp="editQuestName_KeyUp"/>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentQuest.StartPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
+                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentQuest.EndPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
+                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="post_GotFocus" PreviewMouseDown="post_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
                   RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CheckForLastThreadmark}"

@@ -12,9 +12,9 @@ namespace NetTally
 {
     public class WebPageProvider : IPageProvider
     {
-        IForumData forumData;
+        IForumAdapter forumData;
 
-        public WebPageProvider(IForumData forumData)
+        public WebPageProvider(IForumAdapter forumData)
         {
             this.forumData = forumData;
         }
