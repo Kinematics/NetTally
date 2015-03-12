@@ -29,6 +29,7 @@ namespace NetTally
         Tally tally;
         CancellationTokenSource cts;
 
+        #region Startup/shutdown
         /// <summary>
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
@@ -80,23 +81,9 @@ namespace NetTally
             SaveSettings();
             SaveQuests();
         }
+        #endregion
 
-        private void LoadSettings()
-        {
-            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
-            tally.UseVotePartitions = settings.UseVotePartitions;
-            tally.PartitionByLine = settings.PartitionByLine;
-        }
-
-        private void SaveSettings()
-        {
-            settings.CheckForLastThreadmark = tally.CheckForLastThreadmark;
-            settings.UseVotePartitions = tally.UseVotePartitions;
-            settings.PartitionByLine = tally.PartitionByLine;
-            settings.Save();
-        }
-
-
+        #region User action event handling
         /// <summary>
         /// Start running the tally on the currently selected quest and post range.
         /// </summary>
@@ -179,6 +166,55 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Event handler for adding a new quest.
+        /// Create a new quest, and make the edit textbox visible so that the user can rename it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void addQuestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var newEntry = questCollection.AddNewQuest();
+            if (newEntry == null)
+            {
+                newEntry = questCollection.FirstOrDefault(q => q.Name == Quest.NewEntryName);
+                if (newEntry == null)
+                    return;
+            }
+
+            QuestCollectionView.MoveCurrentTo(newEntry);
+
+            editQuestName.Visibility = Visibility.Visible;
+            editQuestName.Focus();
+        }
+
+        /// <summary>
+        /// Remove the current quest from the quest list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void removeQuestButton_Click(object sender, RoutedEventArgs e)
+        {
+            questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
+            CleanupEditQuestName();
+        }
+        #endregion
+
+        #region Behavior event handling
+        /// <summary>
+        /// Any user interaction that ends the use of the text box for editing the quest
+        /// name needs to ensure some cleanup occurs.
+        /// </summary>
+        private void CleanupEditQuestName()
+        {
+            if (editQuestName.Visibility == Visibility.Visible)
+            {
+                editQuestName.Visibility = Visibility.Hidden;
+                QuestCollectionView.Refresh();
+                startPost.Focus();
+            }
+        }
+
+        /// <summary>
         /// If either start post or end post text boxes get focus, select the entire
         /// contents so that they're easy to replace.
         /// </summary>
@@ -213,28 +249,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Event handler for adding a new quest.
-        /// Create a new quest, and make the edit textbox visible so that the user can rename it.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void addQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            var newEntry = questCollection.AddNewQuest();
-            if (newEntry == null)
-            {
-                newEntry = questCollection.FirstOrDefault(q => q.Name == Quest.NewEntryName);
-                if (newEntry == null)
-                    return;
-            }
-
-            QuestCollectionView.MoveCurrentTo(newEntry);
-
-            editQuestName.Visibility = Visibility.Visible;
-            editQuestName.Focus();
-        }
-
-        /// <summary>
         /// When modifying the quest name, hitting enter will complete the entry,
         /// and hitting escape will cancel (and delete) the entry.
         /// </summary>
@@ -252,33 +266,9 @@ namespace NetTally
                 CleanupEditQuestName();
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Remove the current quest from the quest list.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void removeQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
-            CleanupEditQuestName();
-        }
-
-        /// <summary>
-        /// Any user interaction that ends the use of the text box for editing the quest
-        /// name needs to ensure some cleanup occurs.
-        /// </summary>
-        private void CleanupEditQuestName()
-        {
-            if (editQuestName.Visibility == Visibility.Visible)
-            {
-                editQuestName.Visibility = Visibility.Hidden;
-                QuestCollectionView.Refresh();
-                startPost.Focus();
-            }
-        }
-
-        #region Serialization
+        #region Serialization/Loading/Saving
         /// <summary>
         /// Load any saved quest information when starting up the program.
         /// </summary>
@@ -320,6 +310,21 @@ namespace NetTally
                 DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
                 ser.WriteObject(fs, qcw);
             }
+        }
+
+        private void LoadSettings()
+        {
+            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
+            tally.UseVotePartitions = settings.UseVotePartitions;
+            tally.PartitionByLine = settings.PartitionByLine;
+        }
+
+        private void SaveSettings()
+        {
+            settings.CheckForLastThreadmark = tally.CheckForLastThreadmark;
+            settings.UseVotePartitions = tally.UseVotePartitions;
+            settings.PartitionByLine = tally.PartitionByLine;
+            settings.Save();
         }
 
         #endregion
