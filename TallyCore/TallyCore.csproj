@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quest.cs" />
     <Compile Include="QuestCollection.cs" />
-    <Compile Include="SVForumData.cs" />
+    <Compile Include="SVForumAdapter.cs" />
     <Compile Include="Tally.cs" />
     <Compile Include="VoteCounter.cs" />
     <Compile Include="WebPageProvider.cs" />
