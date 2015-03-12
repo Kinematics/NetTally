@@ -14,6 +14,7 @@ namespace NetTally
     public class Quest : IQuest, INotifyPropertyChanged
     {
         static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+        public const string NewEntryName = "New Entry";
 
         /// <summary>
         /// Empty constructor for XML serialization.
@@ -37,7 +38,7 @@ namespace NetTally
         #endregion
 
         #region Properties
-        string name = "New Entry";
+        string name = NewEntryName;
         /// <summary>
         /// The name of the quest thread.
         /// </summary>

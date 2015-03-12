@@ -223,7 +223,7 @@ namespace NetTally
             var newEntry = questCollection.AddNewQuest();
             if (newEntry == null)
             {
-                newEntry = questCollection.FirstOrDefault(q => q.Name == "New Entry");
+                newEntry = questCollection.FirstOrDefault(q => q.Name == Quest.NewEntryName);
                 if (newEntry == null)
                     return;
             }
