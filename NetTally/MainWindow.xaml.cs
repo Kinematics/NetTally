@@ -286,8 +286,16 @@ namespace NetTally
                 using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
-                    QuestCollectionWrapper qcw = (QuestCollectionWrapper)ser.ReadObject(fs);
-                    return qcw;
+                    try
+                    {
+                        QuestCollectionWrapper qcw = (QuestCollectionWrapper)ser.ReadObject(fs);
+                        return qcw;
+                    }
+                    catch (SerializationException)
+                    {
+                        MessageBox.Show("Unable to load stored quests.  Data may be corrupt.\n\nNote: XML file will be overwritten on program close.",
+                            "Unable to load stored quests", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 }
             }
 
