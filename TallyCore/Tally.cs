@@ -158,12 +158,13 @@ namespace NetTally
             StringBuilder sb = new StringBuilder();
 
             var assembly = Assembly.GetExecutingAssembly();
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
             sb.AppendLine("[b]Vote Tally[/b]");
             sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
-                fvi.ProductName,
-                fvi.ProductVersion);
+                product.Product,
+                version.InformationalVersion);
             sb.AppendLine("");
 
             foreach (var vote in voteCounter.VotesWithSupporters)
