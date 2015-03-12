@@ -220,8 +220,15 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            var newQuest = questCollection.AddNewQuest();
-            QuestCollectionView.MoveCurrentTo(newQuest);
+            var newEntry = questCollection.AddNewQuest();
+            if (newEntry == null)
+            {
+                newEntry = questCollection.FirstOrDefault(q => q.Name == "New Entry");
+                if (newEntry == null)
+                    return;
+            }
+
+            QuestCollectionView.MoveCurrentTo(newEntry);
 
             editQuestName.Visibility = Visibility.Visible;
             editQuestName.Focus();
