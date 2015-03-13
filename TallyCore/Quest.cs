@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.ComponentModel;
 
 namespace NetTally
@@ -10,7 +9,6 @@ namespace NetTally
     /// The quest class is for storing a quest's thread name, and the starting and
     /// ending posts that are being used to construct a tally.
     /// </summary>
-    [DataContract(Name ="Quest")]
     public class Quest : IQuest, INotifyPropertyChanged
     {
         static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
@@ -42,7 +40,6 @@ namespace NetTally
         /// <summary>
         /// The name of the quest thread.
         /// </summary>
-        [DataMember(Order=1)]
         public string Name
         {
             get { return name; }
@@ -62,7 +59,6 @@ namespace NetTally
         /// The number of the post to start looking for votes in.
         /// Not valid below 1.
         /// </summary>
-        [DataMember(Order=2)]
         public int StartPost
         {
             get { return startPost; }
@@ -81,7 +77,6 @@ namespace NetTally
         /// Not valid below 0.
         /// A value of 0 means it reads to the end of the thread.
         /// </summary>
-        [DataMember(Order=3)]
         public int EndPost
         {
             get { return endPost; }

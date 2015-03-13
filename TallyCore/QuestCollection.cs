@@ -13,6 +13,11 @@ namespace NetTally
     [KnownType(typeof(Quest))]
     public class QuestCollection : ObservableCollection<IQuest>
     {
+        /// <summary>
+        /// Indexer into the collection by quest name.
+        /// </summary>
+        /// <param name="name">The name of the quest to look for.</param>
+        /// <returns>Returns the quest if found, or null if not.</returns>
         public IQuest this[string name] => this.FirstOrDefault(q => q.Name == name);
 
         /// <summary>
