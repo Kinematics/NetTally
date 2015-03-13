@@ -13,6 +13,8 @@ namespace NetTally
     [KnownType(typeof(Quest))]
     public class QuestCollection : ObservableCollection<IQuest>
     {
+        public IQuest this[string name] => this.FirstOrDefault(q => q.Name == name);
+
         /// <summary>
         /// Add a new quest to the current collection.
         /// </summary>
