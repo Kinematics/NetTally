@@ -1,13 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+
 
 namespace NetTally
 {
@@ -18,7 +17,6 @@ namespace NetTally
     {
         // Storage vars
         const string questFile = "questlist.xml";
-        Properties.Settings settings = new Properties.Settings();
 
         // Collections for holding quests
         public ICollectionView QuestCollectionView { get; }
@@ -42,22 +40,19 @@ namespace NetTally
             forumAdapter = new SVForumAdapter();
             tally = new Tally(forumAdapter);
 
-            // Deserialize XML of quests
-            var wrapper = LoadQuestsContract();
+            questCollection = new QuestCollection();
 
-            if (wrapper == null)
-                questCollection = new QuestCollection();
-            else
-                questCollection = wrapper.QuestCollection;
+            QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null);
+
+            NetTallyConfig.Load(tally, wrapper);
 
             QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
-
-            if (wrapper != null)
-                QuestCollectionView.MoveCurrentTo(questCollection.FirstOrDefault(q => q.Name == wrapper.CurrentQuest));
-
             // Sort the collection view
             var sortDesc = new SortDescription("Name", ListSortDirection.Ascending);
             QuestCollectionView.SortDescriptions.Add(sortDesc);
+            // Set the current item
+            QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
+
 
             // Set up data contexts
             DataContext = QuestCollectionView;
@@ -68,7 +63,6 @@ namespace NetTally
             partitionByLine.DataContext = tally;
             tryLastThreadmark.DataContext = tally;
 
-            LoadSettings();
         }
 
         /// <summary>
@@ -78,8 +72,8 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveSettings();
-            SaveQuests();
+            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, QuestCollectionView.CurrentItem?.ToString());
+            NetTallyConfig.Save(tally, qcw);
         }
         #endregion
 
@@ -266,67 +260,6 @@ namespace NetTally
                 CleanupEditQuestName();
             }
         }
-        #endregion
-
-        #region Serialization/Loading/Saving
-        /// <summary>
-        /// Load any saved quest information when starting up the program.
-        /// </summary>
-        private QuestCollectionWrapper LoadQuestsContract()
-        {
-            string filepath = Path.Combine(System.Windows.Forms.Application.CommonAppDataPath, questFile);
-
-            if (File.Exists(filepath))
-            {
-                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
-                    try
-                    {
-                        QuestCollectionWrapper qcw = (QuestCollectionWrapper)ser.ReadObject(fs);
-                        return qcw;
-                    }
-                    catch (SerializationException)
-                    {
-                        MessageBox.Show("Unable to load stored quests.  Data may be corrupt.\n\nNote: XML file will be overwritten on program close.",
-                            "Unable to load stored quests", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Save any quest information when shutting the program down.
-        /// </summary>
-        private void SaveQuests()
-        {
-            string filepath = Path.Combine(System.Windows.Forms.Application.CommonAppDataPath, questFile);
-
-            using (FileStream fs = new FileStream(filepath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, QuestCollectionView.CurrentItem?.ToString());
-                DataContractSerializer ser = new DataContractSerializer(typeof(QuestCollectionWrapper));
-                ser.WriteObject(fs, qcw);
-            }
-        }
-
-        private void LoadSettings()
-        {
-            tally.CheckForLastThreadmark = settings.CheckForLastThreadmark;
-            tally.UseVotePartitions = settings.UseVotePartitions;
-            tally.PartitionByLine = settings.PartitionByLine;
-        }
-
-        private void SaveSettings()
-        {
-            settings.CheckForLastThreadmark = tally.CheckForLastThreadmark;
-            settings.UseVotePartitions = tally.UseVotePartitions;
-            settings.PartitionByLine = tally.PartitionByLine;
-            settings.Save();
-        }
-
         #endregion
     }
 }
