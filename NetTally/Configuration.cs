@@ -17,14 +17,6 @@ namespace NetTally
         {
             config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
 
-            TallySection tallyConfig = config.Sections[TallySection.DefinedName] as TallySection;
-            if (tallyConfig == null)
-            {
-                tallyConfig = new TallySection();
-                tallyConfig.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToLocalUser;
-                config.Sections.Add(TallySection.DefinedName, tallyConfig);
-            }
-
             QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
             if (questConfig == null)
             {
@@ -33,7 +25,6 @@ namespace NetTally
                 config.Sections.Add(QuestsSection.DefinedName, questConfig);
             }
 
-            tallyConfig.Load(tally);
             questConfig.Load(questsWrapper);
         }
 
@@ -42,9 +33,6 @@ namespace NetTally
             if (config == null)
                 return;
 
-            TallySection tallyConfig = config.Sections[TallySection.DefinedName] as TallySection;
-            tallyConfig.Save(tally);
-
             QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
             questConfig.Save(questsWrapper);
 
@@ -52,48 +40,6 @@ namespace NetTally
         }
     }
 
-    /// <summary>
-    /// Class to handle the section for storing tally preference flags in the user config file.
-    /// </summary>
-    public class TallySection : ConfigurationSection
-    {
-        public const string DefinedName = "NetTally.TallySettings";
-
-        [ConfigurationProperty("CheckForLastThreadmark", DefaultValue = false)]
-        public bool CheckForLastThreadmark
-        {
-            get { return (bool)this["CheckForLastThreadmark"]; }
-            set { this["CheckForLastThreadmark"] = value; }
-        }
-
-        [ConfigurationProperty("UseVotePartitions", DefaultValue = false)]
-        public bool UseVotePartitions
-        {
-            get { return (bool)this["UseVotePartitions"]; }
-            set { this["UseVotePartitions"] = value; }
-        }
-
-        [ConfigurationProperty("PartitionByLine", DefaultValue = true)]
-        public bool PartitionByLine
-        {
-            get { return (bool)this["PartitionByLine"]; }
-            set { this["PartitionByLine"] = value; }
-        }
-
-        public void Load(Tally tally)
-        {
-            tally.CheckForLastThreadmark = CheckForLastThreadmark;
-            tally.UseVotePartitions = UseVotePartitions;
-            tally.PartitionByLine = PartitionByLine;
-        }
-
-        public void Save(Tally tally)
-        {
-            CheckForLastThreadmark = tally.CheckForLastThreadmark;
-            UseVotePartitions = tally.UseVotePartitions;
-            PartitionByLine = tally.PartitionByLine;
-        }
-    }
 
     /// <summary>
     /// Class to handle the section for storing quests in the user config file.
@@ -127,7 +73,15 @@ namespace NetTally
 
             foreach (QuestElement quest in Quests)
             {
-                IQuest q = new Quest() { Name = quest.Name, StartPost = quest.StartPost, EndPost = quest.EndPost };
+                IQuest q = new Quest()
+                {
+                    Name = quest.Name,
+                    StartPost = quest.StartPost,
+                    EndPost = quest.EndPost,
+                    CheckForLastThreadmark = quest.CheckForLastThreadmark,
+                    UseVotePartitions = quest.UseVotePartitions,
+                    PartitionByLine = quest.PartitionByLine
+                };
                 questWrapper.QuestCollection.Add(q);
             }
         }
@@ -185,7 +139,8 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
-            var questElement = new QuestElement(quest.Name, quest.StartPost, quest.EndPost);
+            var questElement = new QuestElement(quest.Name, quest.StartPost, quest.EndPost,
+                quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine);
             BaseAdd(questElement);
         }
 
@@ -201,11 +156,15 @@ namespace NetTally
     /// </summary>
     public class QuestElement : ConfigurationElement
     {
-        public QuestElement(string name, int startPost, int endPost)
+        public QuestElement(string name, int startPost, int endPost, bool checkForLastThreadmark,
+            bool useVotePartitions, bool partitionByLine)
         {
             Name = name;
             StartPost = startPost;
             EndPost = endPost;
+            CheckForLastThreadmark = checkForLastThreadmark;
+            UseVotePartitions = useVotePartitions;
+            PartitionByLine = partitionByLine;
         }
 
         public QuestElement()
@@ -231,6 +190,27 @@ namespace NetTally
         {
             get { return (int)this["EndPost"]; }
             set { this["EndPost"] = value; }
+        }
+
+        [ConfigurationProperty("CheckForLastThreadmark", DefaultValue = false)]
+        public bool CheckForLastThreadmark
+        {
+            get { return (bool)this["CheckForLastThreadmark"]; }
+            set { this["CheckForLastThreadmark"] = value; }
+        }
+
+        [ConfigurationProperty("UseVotePartitions", DefaultValue = false)]
+        public bool UseVotePartitions
+        {
+            get { return (bool)this["UseVotePartitions"]; }
+            set { this["UseVotePartitions"] = value; }
+        }
+
+        [ConfigurationProperty("PartitionByLine", DefaultValue = true)]
+        public bool PartitionByLine
+        {
+            get { return (bool)this["PartitionByLine"]; }
+            set { this["PartitionByLine"] = value; }
         }
     }
 

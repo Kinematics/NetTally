@@ -35,8 +35,14 @@ namespace NetTally
         }
         #endregion
 
-        #region Properties
         string name = NewEntryName;
+        int startPost = 1;
+        int endPost = 0;
+        bool checkForLastThreadmark = false;
+        bool useVotePartitions = false;
+        bool partitionByLine = true;
+
+        #region IQuest Properties
         /// <summary>
         /// The name of the quest thread.
         /// </summary>
@@ -54,7 +60,6 @@ namespace NetTally
             }
         }
 
-        int startPost = 1;
         /// <summary>
         /// The number of the post to start looking for votes in.
         /// Not valid below 1.
@@ -71,7 +76,6 @@ namespace NetTally
             }
         }
 
-        int endPost = 0;
         /// <summary>
         /// The number of the last post to look for votes in.
         /// Not valid below 0.
@@ -90,10 +94,54 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Flag for whether to use vote partitioning when tallying votes.
+        /// </summary>
+        public bool UseVotePartitions
+        {
+            get { return useVotePartitions; }
+            set
+            {
+                useVotePartitions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to use by-line or by-block partitioning,
+        /// if partitioning votes during the tally.
+        /// </summary>
+        public bool PartitionByLine
+        {
+            get { return partitionByLine; }
+            set
+            {
+                partitionByLine = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to try to override the provided starting post by
+        /// looking for the last threadmark.
+        /// </summary>
+        public bool CheckForLastThreadmark
+        {
+            get { return checkForLastThreadmark; }
+            set
+            {
+                checkForLastThreadmark = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
+        /// <summary>
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
         public bool ReadToEndOfThread => EndPost < 1;
+        #endregion
 
         /// <summary>
         /// Function to clean up a user-entered name that may contain a web URL.
@@ -112,7 +160,6 @@ namespace NetTally
 
             return name;
         }
-        #endregion
 
 
         public override string ToString()

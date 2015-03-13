@@ -24,31 +24,10 @@ namespace NetTally.Tests
             privateVote = new PrivateObject(voteCounter);
         }
 
-        private void SetPartitionByLine()
-        {
-            voteCounter.UseVotePartitions = true;
-            voteCounter.PartitionByLine = true;
-        }
-
-        private void SetPartitionByBlock()
-        {
-            voteCounter.UseVotePartitions = true;
-            voteCounter.PartitionByLine = false;
-        }
-
-        private void SetPartitionByVote()
-        {
-            voteCounter.UseVotePartitions = false;
-            voteCounter.PartitionByLine = true;
-        }
-
         [TestInitialize()]
         public void Initialize()
         {
             privateVote.Invoke("Reset");
-
-            voteCounter.UseVotePartitions = false;
-            voteCounter.PartitionByLine = true;
         }
 
         [TestMethod()]
@@ -57,29 +36,18 @@ namespace NetTally.Tests
             var a = new VoteCounter(forumAdapter);
             Assert.AreEqual(0, a.VoterMessageId.Count);
             Assert.AreEqual(0, a.VotesWithSupporters.Count);
-            Assert.AreEqual(false, a.UseVotePartitions);
-            Assert.AreEqual(true, a.PartitionByLine);
 
             privateVote.Invoke("Reset");
         }
 
-        [TestMethod()]
-        public void UsePartitionsTest()
-        {
-            voteCounter.UseVotePartitions = true;
-            Assert.AreEqual(true, voteCounter.UseVotePartitions);
-            voteCounter.UseVotePartitions = false;
-            Assert.AreEqual(false, voteCounter.UseVotePartitions);
-        }
+        private void SetPartitionByVote()
+        { }
 
-        [TestMethod()]
-        public void PartitionByLineTest()
-        {
-            voteCounter.PartitionByLine = true;
-            Assert.AreEqual(true, voteCounter.PartitionByLine);
-            voteCounter.PartitionByLine = false;
-            Assert.AreEqual(false, voteCounter.PartitionByLine);
-        }
+        private void SetPartitionByBlock()
+        { }
+
+        private void SetPartitionByLine()
+        { }
 
         [TestMethod()]
         public void CleanVoteWholeTest()
@@ -87,7 +55,7 @@ namespace NetTally.Tests
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            SetPartitionByVote();
+            //SetPartitionByVote();
             var results = privateVote.Invoke("CleanVote", input);
             Assert.AreEqual(expected, results);
         }
@@ -98,7 +66,7 @@ namespace NetTally.Tests
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "-[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            SetPartitionByBlock();
+            //SetPartitionByBlock();
             var results = privateVote.Invoke("CleanVote", input);
             Assert.AreEqual(expected, results);
         }
@@ -109,7 +77,7 @@ namespace NetTally.Tests
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            SetPartitionByLine();
+            //SetPartitionByLine();
             var results = privateVote.Invoke("CleanVote", input);
             Assert.AreEqual(expected, results);
         }

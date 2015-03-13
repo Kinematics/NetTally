@@ -38,15 +38,6 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void CheckForLastThreadmarkTest()
-        {
-            pageProvider.CheckForLastThreadmark = true;
-            Assert.AreEqual(true, pageProvider.CheckForLastThreadmark);
-            pageProvider.CheckForLastThreadmark = false;
-            Assert.AreEqual(false, pageProvider.CheckForLastThreadmark);
-        }
-
-        [TestMethod()]
         public void LoadPagesTest()
         {
         }

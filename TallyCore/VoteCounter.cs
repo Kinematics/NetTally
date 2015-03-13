@@ -43,9 +43,6 @@ namespace NetTally
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public bool UseVotePartitions { get; set; } = false;
-        public bool PartitionByLine { get; set; } = true;
-
 
         // Private variables
 
@@ -110,7 +107,7 @@ namespace NetTally
                     foreach (var post in postList)
                     {
                         if (IsValidPost(post, quest))
-                            ProcessPost(post);
+                            ProcessPost(post, quest);
                     }
                 }
             }
@@ -146,14 +143,14 @@ namespace NetTally
         /// <param name="post">The list item node containing the post.</param>
         /// <param name="startPost">The first post number of the thread to check.</param>
         /// <param name="endPost">The last post number of the thread to check.</param>
-        private void ProcessPost(HtmlNode post)
+        private void ProcessPost(HtmlNode post, IQuest quest)
         {
             string postAuthor = forumData.GetAuthorOfPost(post);
             string postID = forumData.GetIdOfPost(post);
             string postText = forumData.GetTextOfPost(post);
 
             // Attempt to get vote information from the post.
-            ProcessPostContents(postText, postAuthor, postID);
+            ProcessPostContents(postText, postAuthor, postID, quest);
         }
         
         /// <summary>
@@ -163,9 +160,9 @@ namespace NetTally
         /// <param name="postText">The text of the post.</param>
         /// <param name="postAuthor">The author of the post.</param>
         /// <param name="postID">The ID of the post.</param>
-        private void ProcessPostContents(string postText, string postAuthor, string postID)
+        private void ProcessPostContents(string postText, string postAuthor, string postID, IQuest quest)
         {
-            if (IsTallyPost(postText))
+            if (IsTallyPost(postText, quest))
                 return;
 
             // Pull out actual vote lines from the post.
@@ -177,12 +174,12 @@ namespace NetTally
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(matches);
+                List<string> votePartitions = GetVotePartitions(matches, quest);
 
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition);
+                    string voteKey = GetVoteKey(votePartition, quest);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(postAuthor);
@@ -196,7 +193,7 @@ namespace NetTally
         /// </summary>
         /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        private bool IsTallyPost(string postText)
+        private bool IsTallyPost(string postText, IQuest quest)
         {
             // If the post contains ##### at the start of the line for part of its text,
             // it's a tally result.
@@ -234,12 +231,12 @@ namespace NetTally
         /// </summary>
         /// <param name="matches">Matches for a valid vote line.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(MatchCollection matches)
+        private List<string> GetVotePartitions(MatchCollection matches, IQuest quest)
         {
             var strings = from Match m in matches
                           select m.Value;
 
-            return GetVotePartitions(strings);
+            return GetVotePartitions(strings, quest);
         }
 
         /// <summary>
@@ -248,7 +245,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -267,7 +264,7 @@ namespace NetTally
                         // If we're using vote partitions, add each of the other voter's
                         // votes to our partition list.  Otherwise, append them all onto
                         // the currently being built string.
-                        if (UseVotePartitions)
+                        if (quest.UseVotePartitions)
                         {
                             partitions.AddRange(referralVotes);
                         }
@@ -287,9 +284,9 @@ namespace NetTally
                 // For lines that don't refer to other voters, compile them into
                 // unit blocks if we're using vote partitions, or just add to the
                 // end of the total string if not.
-                if (UseVotePartitions)
+                if (quest.UseVotePartitions)
                 {
-                    if (PartitionByLine)
+                    if (quest.PartitionByLine)
                     {
                         // If partitioning by line, every line gets added to the partitions list.
                         partitions.Add(trimmedLine+"\r\n");
@@ -411,7 +408,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to search for.</param>
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetVoteKey(string vote)
+        private string GetVoteKey(string vote, IQuest quest)
         {
             // If the vote already matches an existing key, we don't need to search again.
             if (VotesWithSupporters.ContainsKey(vote))
@@ -419,7 +416,7 @@ namespace NetTally
                 return vote;
             }
 
-            var cleanVote = CleanVote(vote);
+            var cleanVote = CleanVote(vote, quest);
 
             // If it matches a lookup value, use the existing key
             string lookupVote = string.Empty;
@@ -443,9 +440,9 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">Original vote with possible markup.</param>
         /// <returns>Return the vote without any BBCode markup.</returns>
-        private string CleanVote(string vote)
+        private string CleanVote(string vote, IQuest quest)
         {
-            if (UseVotePartitions && PartitionByLine)
+            if (quest.UseVotePartitions && quest.PartitionByLine)
                 return cleanLinePartRegex.Replace(vote, "").ToLower();
             else
                 return cleanRegex.Replace(vote, "").ToLower();

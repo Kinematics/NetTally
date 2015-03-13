@@ -12,6 +12,14 @@ namespace NetTally
         int StartPost { get; set; }
         int EndPost { get; set; }
 
+        /// <summary>
+        /// Flag for whether to try to override the provided starting post by
+        /// looking for the last threadmark.
+        /// </summary>
+        bool CheckForLastThreadmark { get; set; }
+        bool UseVotePartitions { get; set; }
+        bool PartitionByLine { get; set; }
+
         bool ReadToEndOfThread { get; }
     }
 }

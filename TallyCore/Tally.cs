@@ -68,46 +68,6 @@ namespace NetTally
             }
         }
 
-        /// <summary>
-        /// Flag for whether to use vote partitioning when tallying votes.
-        /// </summary>
-        public bool UseVotePartitions
-        {
-            get { return voteCounter.UseVotePartitions; }
-            set
-            {
-                voteCounter.UseVotePartitions = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Flag for whether to use by-line or by-block partitioning,
-        /// if partitioning votes during the tally.
-        /// </summary>
-        public bool PartitionByLine
-        {
-            get { return voteCounter.PartitionByLine; }
-            set
-            {
-                voteCounter.PartitionByLine = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Flag for whether we should try to find the start post based on the last
-        /// threadmark of the thread.
-        /// </summary>
-        public bool CheckForLastThreadmark
-        {
-            get { return pageProvider.CheckForLastThreadmark; }
-            set
-            {
-                pageProvider.CheckForLastThreadmark = value;
-                OnPropertyChanged();
-            }
-        }
         #endregion
 
         #region Interface functions

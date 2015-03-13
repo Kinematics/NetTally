@@ -37,12 +37,6 @@ namespace NetTally
 
         #region Public interface functions
         /// <summary>
-        /// Flag for whether to try to override the provided starting post by
-        /// looking for the last threadmark.
-        /// </summary>
-        public bool CheckForLastThreadmark { get; set; }
-
-        /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
         public void ClearPageCache()
@@ -126,7 +120,7 @@ namespace NetTally
         private async Task<int> GetStartPost(IQuest quest, CancellationToken token)
         {
             // Use the provided start post if we aren't trying to find the threadmarks.
-            if (!CheckForLastThreadmark)
+            if (!quest.CheckForLastThreadmark)
                 return quest.StartPost;
 
             var threadmarkPage = await GetPage(forumData.GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token);

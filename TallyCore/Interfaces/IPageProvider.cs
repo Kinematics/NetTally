@@ -25,11 +25,5 @@ namespace NetTally
         /// Have an event that can be watched for status messages.
         /// </summary>
         event EventHandler<MessageEventArgs> StatusChanged;
-
-        /// <summary>
-        /// Flag for whether to try to override the provided starting post by
-        /// looking for the last threadmark.
-        /// </summary>
-        bool CheckForLastThreadmark { get; set; }
     }
 }

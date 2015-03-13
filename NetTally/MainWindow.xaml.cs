@@ -58,10 +58,6 @@ namespace NetTally
             DataContext = QuestCollectionView;
 
             resultsWindow.DataContext = tally;
-            partitionedVotes.DataContext = tally;
-            partitionByBlock.DataContext = tally;
-            partitionByLine.DataContext = tally;
-            tryLastThreadmark.DataContext = tally;
 
         }
 

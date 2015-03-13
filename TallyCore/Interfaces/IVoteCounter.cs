@@ -8,10 +8,6 @@ namespace NetTally
         Dictionary<string, HashSet<string>> VotesWithSupporters { get; }
         Dictionary<string, string> VoterMessageId { get; }
 
-        bool UseVotePartitions { get; set; }
-        bool PartitionByLine { get; set; }
-
-
         void TallyVotes(List<HtmlDocument> pages, IQuest quest);
     }
 }
