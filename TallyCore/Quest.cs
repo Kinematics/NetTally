@@ -13,7 +13,8 @@ namespace NetTally
     [DataContract(Name ="Quest")]
     public class Quest : IQuest, INotifyPropertyChanged
     {
-        static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+        //static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+        static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/)?)?(?<questName>[^/]+)(/.*)?");
         public const string NewEntryName = "New Entry";
 
         /// <summary>
@@ -56,8 +57,10 @@ namespace NetTally
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException();
-                site = value;
+                    site = string.Empty;
+                else
+                    site = value;
+
                 OnPropertyChanged();
             }
         }
@@ -75,7 +78,11 @@ namespace NetTally
                     throw new ArgumentNullException();
                 if (value == string.Empty)
                     throw new ArgumentOutOfRangeException("Quest.Name", "Quest name cannot be set to empty.");
-                name = Clean(value);
+
+                string urlSite = string.Empty;
+                name = CleanThreadURL(value, out urlSite);
+                Site = urlSite;
+
                 OnPropertyChanged();
             }
         }
@@ -172,11 +179,15 @@ namespace NetTally
         /// Becomes:
         /// awake-already-homura-nge-pmmm-fusion-quest.11111
         /// </summary>
-        string Clean(string name)
+        /// <returns>Returns just the thread name.</returns>
+        string CleanThreadURL(string name, out string siteName)
         {
+            siteName = string.Empty;
+
             var m = urlRegex.Match(name);
             if (m.Success)
             {
+                siteName = m.Groups["siteName"]?.Value;
                 return m.Groups["questName"].Value;
             }
 

@@ -83,7 +83,40 @@ namespace TallyUnitTest
             testName = "/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
 
             a.Name = testName;
-            Assert.AreEqual(a.Name, testName);
+            Assert.AreEqual(testName, a.Name);
+        }
+
+        [TestMethod]
+        public void TestSetSiteToNull()
+        {
+            var a = new Quest();
+
+            a.Site = null;
+
+            Assert.AreEqual(string.Empty, a.Site);
+        }
+
+
+        [TestMethod]
+        public void TestSetSiteToEmpty()
+        {
+            var a = new Quest();
+
+            a.Site = string.Empty;
+
+            Assert.AreEqual(string.Empty, a.Site);
+        }
+
+        [TestMethod]
+        public void TestSetSite()
+        {
+            var a = new Quest();
+
+            string testName = "http://forums.sufficientvelocity.com/";
+
+            a.Site = testName;
+
+            Assert.AreEqual(testName, a.Name);
         }
         #endregion
 
