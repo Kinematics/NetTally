@@ -9,8 +9,6 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
-        IForumAdapter forumAdapter;
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -19,64 +17,11 @@ namespace NetTally
             SetupFormattingRegexes();
         }
 
-        /// <summary>
-        /// Setup some dictionary lists for validating vote formatting.
-        /// </summary>
-        private void SetupFormattingRegexes()
-        {
-            foreach (var tag in formattingTags)
-            {
-                if (tag == "color")
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
-                else
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
-
-                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
-            }
-        }
-
-
-        // Public properties and variables
+        #region Public Interface
 
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-
-        // Private variables
-
-        string threadAuthor = string.Empty;
-
-        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
-        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
-        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
-        // Clean extraneous information from a vote in order to compare with other votes.
-        readonly Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
-        // Clean extraneous information from a vote line in order to compare with other votes.
-        readonly Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
-        // Strip BBCode formatting from a vote line.  Use with Replace().
-        readonly Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
-
-        readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
-        readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
-        readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
-
-        readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
-
-
-        /// <summary>
-        /// Reset all tracking variables.
-        /// </summary>
-        private void Reset()
-        {
-            VotesWithSupporters.Clear();
-            VoterMessageId.Clear();
-            cleanVoteLookup.Clear();
-            threadAuthor = string.Empty;
-        }
 
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
@@ -118,6 +63,64 @@ namespace NetTally
             }
         }
 
+        #endregion
+
+        #region Private variables
+
+        /// <summary>
+        /// Setup some dictionary lists for validating vote formatting.
+        /// </summary>
+        private void SetupFormattingRegexes()
+        {
+            foreach (var tag in formattingTags)
+            {
+                if (tag == "color")
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
+                else
+                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
+
+                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
+            }
+        }
+
+        readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
+        readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
+        readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
+
+        /// <summary>
+        /// Reset all tracking variables.
+        /// </summary>
+        private void Reset()
+        {
+            VotesWithSupporters.Clear();
+            VoterMessageId.Clear();
+            cleanVoteLookup.Clear();
+            threadAuthor = string.Empty;
+        }
+
+
+        IForumAdapter forumAdapter;
+
+        readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
+        string threadAuthor = string.Empty;
+
+        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
+        readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
+        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
+        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
+        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
+        readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
+        // Clean extraneous information from a vote in order to compare with other votes.
+        readonly Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Clean extraneous information from a vote line in order to compare with other votes.
+        readonly Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
+        // Strip BBCode formatting from a vote line.  Use with Replace().
+        readonly Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
+
+        #endregion
+
+
+        #region Private support methods
         /// <summary>
         /// Function to process individual posts within the thread.
         /// Updates the vote records maintained in the class.
@@ -429,5 +432,6 @@ namespace NetTally
             else
                 return cleanRegex.Replace(vote, "").ToLower();
         }
+        #endregion
     }
 }
