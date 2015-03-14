@@ -23,7 +23,6 @@ namespace NetTally
         QuestCollection questCollection;
 
         // Locals for managing the tally
-        IForumAdapter forumAdapter;
         Tally tally;
         CancellationTokenSource cts;
 
@@ -37,8 +36,7 @@ namespace NetTally
             InitializeComponent();
 
             // Set tally vars
-            forumAdapter = new SVForumAdapter();
-            tally = new Tally(forumAdapter);
+            tally = new Tally();
 
             questCollection = new QuestCollection();
 
