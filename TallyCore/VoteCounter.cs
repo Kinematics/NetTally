@@ -40,7 +40,7 @@ namespace NetTally
             Reset();
 
             // Set the thread author for reference.
-            threadAuthor = forumAdapter.GetAuthorOfThread(pages.First());
+            string threadAuthor = forumAdapter.GetAuthorOfThread(pages.First());
 
             foreach (var page in pages)
             {
@@ -95,14 +95,12 @@ namespace NetTally
             VotesWithSupporters.Clear();
             VoterMessageId.Clear();
             cleanVoteLookup.Clear();
-            threadAuthor = string.Empty;
         }
 
 
         IForumAdapter forumAdapter;
 
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
-        string threadAuthor = string.Empty;
 
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
