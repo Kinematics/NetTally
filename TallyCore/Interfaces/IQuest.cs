@@ -9,7 +9,13 @@ namespace NetTally
     public interface IQuest
     {
         string Name { get; set; }
+        /// <summary>
+        /// Starting post to start tallying from.
+        /// </summary>
         int StartPost { get; set; }
+        /// <summary>
+        /// Ending post for the tally to run to.
+        /// </summary>
         int EndPost { get; set; }
 
         /// <summary>
@@ -17,9 +23,18 @@ namespace NetTally
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+        /// <summary>
+        /// Flag for whether to use vote partitions for this quest.
+        /// </summary>
         bool UseVotePartitions { get; set; }
+        /// <summary>
+        /// Flag for whether vote partitions should be done by line or by block.
+        /// </summary>
         bool PartitionByLine { get; set; }
 
+        /// <summary>
+        /// Derived property.
+        /// </summary>
         bool ReadToEndOfThread { get; }
     }
 }
