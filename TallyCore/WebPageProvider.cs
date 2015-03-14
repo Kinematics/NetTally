@@ -12,13 +12,6 @@ namespace NetTally
 {
     public class WebPageProvider : IPageProvider
     {
-        IForumAdapter forumData;
-
-        public WebPageProvider(IForumAdapter forumData)
-        {
-            this.forumData = forumData;
-        }
-
         readonly Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
@@ -50,22 +43,22 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token)
+        public async Task<List<HtmlDocument>> LoadPages(IForumAdapter forumAdapter, IQuest quest, CancellationToken token)
         {
             try
             {
-                if (!forumData.IsValidThreadName(quest.Name))
+                if (!forumAdapter.IsValidThreadName(quest.Name))
                     throw new ArgumentException("The quest name is not valid.");
 
-                int startPost = await GetStartPost(quest, token).ConfigureAwait(false);
+                int startPost = await GetStartPost(forumAdapter, quest, token).ConfigureAwait(false);
 
-                int startPage = forumData.GetPageNumberFromPostNumber(startPost);
-                int endPage = forumData.GetPageNumberFromPostNumber(quest.EndPost);
+                int startPage = forumAdapter.GetPageNumberFromPostNumber(startPost);
+                int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumData.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
-                int lastPageNum = forumData.GetLastPageNumberOfThread(firstPage);
+                int lastPageNum = forumAdapter.GetLastPageNumberOfThread(firstPage);
 
                 // Limit the end page based on the last page number of the thread.
                 if (quest.ReadToEndOfThread || lastPageNum < endPage)
@@ -86,7 +79,7 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                select GetPage(forumData.GetPageUrl(quest.Name, pNum), pNum.ToString(),
+                                select GetPage(forumAdapter.GetPageUrl(quest.Name, pNum), pNum.ToString(),
                                     (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                     // Wait for all the tasks to be completed.
@@ -117,27 +110,27 @@ namespace NetTally
         /// <param name="startPost"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        private async Task<int> GetStartPost(IQuest quest, CancellationToken token)
+        private async Task<int> GetStartPost(IForumAdapter forumAdapter, IQuest quest, CancellationToken token)
         {
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
                 return quest.StartPost;
 
-            var threadmarkPage = await GetPage(forumData.GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token);
+            var threadmarkPage = await GetPage(forumAdapter.GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token);
 
-            var threadmarks = forumData.GetThreadmarksFromPage(threadmarkPage);
+            var threadmarks = forumAdapter.GetThreadmarksFromPage(threadmarkPage);
 
             if (threadmarks == null || !threadmarks.Any())
                 return quest.StartPost;
 
             var lastThreadmark = threadmarks.Last();
-            string threadmarkUrl = forumData.GetUrlOfThreadmark(lastThreadmark);
-            string postId = forumData.GetPostIdFromUrl(threadmarkUrl);
+            string threadmarkUrl = forumAdapter.GetUrlOfThreadmark(lastThreadmark);
+            string postId = forumAdapter.GetPostIdFromUrl(threadmarkUrl);
 
             var lastThreadmarkPage = await GetPage(threadmarkUrl, postId, false, token);
 
-            var threadmarkPost = forumData.GetPostFromPageById(lastThreadmarkPage, postId);
-            int threadmarkPostNumber = forumData.GetPostNumberOfPost(threadmarkPost);
+            var threadmarkPost = forumAdapter.GetPostFromPageById(lastThreadmarkPage, postId);
+            int threadmarkPostNumber = forumAdapter.GetPostNumberOfPost(threadmarkPost);
 
             if (threadmarkPostNumber > 0)
                 return threadmarkPostNumber + 1;
