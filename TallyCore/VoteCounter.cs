@@ -9,14 +9,13 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
-        IForumAdapter forumData;
+        IForumAdapter forumAdapter;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public VoteCounter(IForumAdapter forumData)
+        public VoteCounter()
         {
-            this.forumData = forumData;
             SetupFormattingRegexes();
         }
 
@@ -83,7 +82,7 @@ namespace NetTally
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
         /// <param name="pages"></param>
-        public void TallyVotes(List<HtmlDocument> pages, IQuest quest)
+        public void TallyVotes(IForumAdapter forumAdapterParam, IQuest quest, List<HtmlDocument> pages)
         {
             if (pages == null)
                 throw new ArgumentNullException(nameof(pages));
@@ -91,17 +90,19 @@ namespace NetTally
             if (pages.Count == 0)
                 return;
 
+            forumAdapter = forumAdapterParam;
+
             Reset();
 
             // Set the thread author for reference.
-            threadAuthor = forumData.GetAuthorOfThread(pages.First());
+            threadAuthor = forumAdapter.GetAuthorOfThread(pages.First());
 
             foreach (var page in pages)
             {
                 if (page != null)
                 {
                     // Find the ordered list containing all the messages on this page.
-                    var postList = forumData.GetPostsFromPage(page);
+                    var postList = forumAdapter.GetPostsFromPage(page);
 
                     // Process each user post in the list.
                     foreach (var post in postList)
@@ -121,13 +122,13 @@ namespace NetTally
         /// <returns>Returns true if we want to process this post.</returns>
         private bool IsValidPost(HtmlNode post, IQuest quest)
         {
-            string postAuthor = forumData.GetAuthorOfPost(post);
+            string postAuthor = forumAdapter.GetAuthorOfPost(post);
 
             // Ignore posts by the thread author.
             if (postAuthor == threadAuthor)
                 return false;
 
-            int postNumber = forumData.GetPostNumberOfPost(post);
+            int postNumber = forumAdapter.GetPostNumberOfPost(post);
 
             // Ignore posts outside the selected post range.
             if (postNumber < quest.StartPost || (!quest.ReadToEndOfThread && postNumber > quest.EndPost))
@@ -145,9 +146,9 @@ namespace NetTally
         /// <param name="endPost">The last post number of the thread to check.</param>
         private void ProcessPost(HtmlNode post, IQuest quest)
         {
-            string postAuthor = forumData.GetAuthorOfPost(post);
-            string postID = forumData.GetIdOfPost(post);
-            string postText = forumData.GetTextOfPost(post);
+            string postAuthor = forumAdapter.GetAuthorOfPost(post);
+            string postID = forumAdapter.GetIdOfPost(post);
+            string postText = forumAdapter.GetTextOfPost(post);
 
             // Attempt to get vote information from the post.
             ProcessPostContents(postText, postAuthor, postID, quest);
