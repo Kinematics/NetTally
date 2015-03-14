@@ -16,9 +16,9 @@ namespace TallyUnitTest
         {
             var a = new Quest();
 
-            Assert.AreEqual(a.Name, "New Entry");
-            Assert.AreEqual(a.StartPost, 1);
-            Assert.AreEqual(a.EndPost, 0);
+            Assert.AreEqual("New Entry", a.Name);
+            Assert.AreEqual(1, a.StartPost);
+            Assert.AreEqual(0, a.EndPost);
         }
         #endregion
 
@@ -50,7 +50,7 @@ namespace TallyUnitTest
 
             a.Name = testName;
 
-            Assert.AreEqual(a.Name, testName);
+            Assert.AreEqual(testName, a.Name);
         }
 
         [TestMethod]
@@ -62,22 +62,22 @@ namespace TallyUnitTest
             string expectedName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
 
             a.Name = testName;
-            Assert.AreEqual(a.Name, expectedName);
+            Assert.AreEqual(expectedName, a.Name);
 
             testName = "awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
 
             a.Name = testName;
-            Assert.AreEqual(a.Name, expectedName);
+            Assert.AreEqual(expectedName, a.Name);
 
             testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111";
 
             a.Name = testName;
-            Assert.AreEqual(a.Name, expectedName);
+            Assert.AreEqual(expectedName, a.Name);
 
             testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
 
             a.Name = testName;
-            Assert.AreEqual(a.Name, expectedName);
+            Assert.AreEqual(expectedName, a.Name);
 
             // This will fail the regex filter, so should just give back the original.
             testName = "/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
@@ -130,7 +130,7 @@ namespace TallyUnitTest
 
             a.StartPost = testPost;
 
-            Assert.AreEqual(a.StartPost, testPost);
+            Assert.AreEqual(testPost, a.StartPost);
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@ namespace TallyUnitTest
 
             a.EndPost = testPost;
 
-            Assert.AreEqual(a.EndPost, testPost);
+            Assert.AreEqual(testPost, a.EndPost);
         }
 
         [TestMethod]
@@ -178,7 +178,7 @@ namespace TallyUnitTest
 
             a.EndPost = testPost;
 
-            Assert.AreEqual(a.EndPost, testPost);
+            Assert.AreEqual(testPost, a.EndPost);
         }
 
         [TestMethod]
@@ -222,17 +222,17 @@ namespace TallyUnitTest
             propertyNameRaised = string.Empty;
 
             a.Name = "awake-already-homura-nge-pmmm-fusion-quest.11111";
-            Assert.AreEqual(propertyNameRaised, "Name");
+            Assert.AreEqual("Name", propertyNameRaised);
 
             propertyNameRaised = string.Empty;
 
             a.StartPost = 10;
-            Assert.AreEqual(propertyNameRaised, "StartPost");
+            Assert.AreEqual("StartPost", propertyNameRaised);
 
             propertyNameRaised = string.Empty;
 
             a.EndPost = 20;
-            Assert.AreEqual(propertyNameRaised, "EndPost");
+            Assert.AreEqual("EndPost", propertyNameRaised);
         }
 
         private void A_PropertyChanged(object sender, PropertyChangedEventArgs e)
