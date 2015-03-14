@@ -8,6 +8,13 @@ namespace NetTally
 {
     public interface IQuest
     {
+        /// <summary>
+        /// The web site that the quest is on.
+        /// </summary>
+        string Site { get; set; }
+        /// <summary>
+        /// The name of the quest (ie: the name of the thread in the URL).
+        /// </summary>
         string Name { get; set; }
         /// <summary>
         /// Starting post to start tallying from.
