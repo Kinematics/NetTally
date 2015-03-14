@@ -20,7 +20,7 @@ namespace NetTally.Tests
         public static void ClassInit(TestContext context)
         {
             forumAdapter = new SVForumAdapter();
-            pageProvider = new WebPageProvider(forumAdapter);
+            pageProvider = new WebPageProvider();
             privateWeb = new PrivateObject(pageProvider);
         }
 

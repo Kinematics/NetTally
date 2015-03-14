@@ -14,14 +14,14 @@ namespace NetTally.Tests
     {
         static VoteCounter voteCounter;
         static PrivateObject privateVote;
-        static IForumAdapter forumAdapter;
+        static IQuest sampleQuest;
 
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            forumAdapter = new SVForumAdapter();
-            voteCounter = new VoteCounter(forumAdapter);
+            voteCounter = new VoteCounter();
             privateVote = new PrivateObject(voteCounter);
+            sampleQuest = new Quest();
         }
 
         [TestInitialize()]
@@ -33,7 +33,7 @@ namespace NetTally.Tests
         [TestMethod()]
         public void TallyVotesTest()
         {
-            var a = new VoteCounter(forumAdapter);
+            var a = new VoteCounter();
             Assert.AreEqual(0, a.VoterMessageId.Count);
             Assert.AreEqual(0, a.VotesWithSupporters.Count);
 
@@ -41,13 +41,21 @@ namespace NetTally.Tests
         }
 
         private void SetPartitionByVote()
-        { }
+        {
+            sampleQuest.UseVotePartitions = false;
+        }
 
         private void SetPartitionByBlock()
-        { }
+        {
+            sampleQuest.UseVotePartitions = true;
+            sampleQuest.PartitionByLine = false;
+        }
 
         private void SetPartitionByLine()
-        { }
+        {
+            sampleQuest.UseVotePartitions = true;
+            sampleQuest.PartitionByLine = true;
+        }
 
         [TestMethod()]
         public void CleanVoteWholeTest()
@@ -55,8 +63,8 @@ namespace NetTally.Tests
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            //SetPartitionByVote();
-            var results = privateVote.Invoke("CleanVote", input);
+            SetPartitionByVote();
+            var results = privateVote.Invoke("CleanVote", input, sampleQuest);
             Assert.AreEqual(expected, results);
         }
 
@@ -66,8 +74,8 @@ namespace NetTally.Tests
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "-[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            //SetPartitionByBlock();
-            var results = privateVote.Invoke("CleanVote", input);
+            SetPartitionByBlock();
+            var results = privateVote.Invoke("CleanVote", input, sampleQuest);
             Assert.AreEqual(expected, results);
         }
 
@@ -77,8 +85,8 @@ namespace NetTally.Tests
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            //SetPartitionByLine();
-            var results = privateVote.Invoke("CleanVote", input);
+            SetPartitionByLine();
+            var results = privateVote.Invoke("CleanVote", input, sampleQuest);
             Assert.AreEqual(expected, results);
         }
 
@@ -87,7 +95,7 @@ namespace NetTally.Tests
         {
             string myVote = "[x] Vote for stuff";
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
             Assert.AreEqual(myVote, key);
         }
 
@@ -97,7 +105,7 @@ namespace NetTally.Tests
             string myVote = "[x] Vote for stuff";
             voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
             Assert.AreEqual(myVote, key);
         }
 
@@ -106,13 +114,13 @@ namespace NetTally.Tests
         {
             string myVote = "[x] Vote for stuff";
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
             Assert.AreEqual(myVote, key);
-            string key2 = (string)privateVote.Invoke("GetVoteKey", myVote);
+            string key2 = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
             Assert.AreEqual(myVote, key2);
 
             string myBoldVote = "[x] Vote for [b]stuff[/b] ";
-            string key3 = (string)privateVote.Invoke("GetVoteKey", myBoldVote);
+            string key3 = (string)privateVote.Invoke("GetVoteKey", myBoldVote, sampleQuest);
             Assert.AreEqual(myVote, key3);
         }
 
@@ -294,7 +302,7 @@ namespace NetTally.Tests
             string postId = "123456";
 
             SetPartitionByVote();
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
@@ -315,7 +323,7 @@ namespace NetTally.Tests
             string postId = "123456";
 
             SetPartitionByBlock();
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
@@ -336,7 +344,7 @@ namespace NetTally.Tests
             string postId = "123456";
 
             SetPartitionByLine();
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
@@ -358,7 +366,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
 
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 0);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 0);
@@ -379,12 +387,12 @@ namespace NetTally.Tests
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -406,12 +414,12 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -433,12 +441,12 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -460,13 +468,13 @@ namespace NetTally.Tests
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 2);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 1));
@@ -488,13 +496,13 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 4);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 3);
@@ -517,13 +525,13 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            privateVote.Invoke("ProcessPostContents", testVote, author, postId);
+            privateVote.Invoke("ProcessPostContents", testVote, author, postId, sampleQuest);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID);
+            privateVote.Invoke("ProcessPostContents", referralVote, refAuthor, refID, sampleQuest);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 8);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 7);
