@@ -79,18 +79,16 @@ namespace NetTally
         {
             try
             {
-                IForumAdapter forumAdapter = ForumAdapterFactory.GetAdapter(quest);
-
                 TallyResults = string.Empty;
 
                 // Load pages from the website
-                var pages = await pageProvider.LoadPages(forumAdapter, quest, token).ConfigureAwait(false);
+                var pages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
                 // Tally the votes from the loaded pages.
-                voteCounter.TallyVotes(forumAdapter, quest, pages);
+                voteCounter.TallyVotes(quest, pages);
 
                 // Compose the final result string from the compiled votes.
-                ConstructResults(forumAdapter);
+                ConstructResults(quest);
 
             }
             catch (NotImplementedException)
@@ -118,7 +116,7 @@ namespace NetTally
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
-        private void ConstructResults(IForumAdapter forumAdapter)
+        private void ConstructResults(IQuest quest)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -144,7 +142,7 @@ namespace NetTally
                 foreach (var supporter in vote.Value)
                 {
                     sb.Append("[url=\"");
-                    sb.Append(forumAdapter.GetPostUrlFromId(voteCounter.VoterMessageId[supporter]));
+                    sb.Append(quest.GetForumAdapter().GetPostUrlFromId(voteCounter.VoterMessageId[supporter]));
                     sb.Append("\"]");
                     sb.Append(supporter);
                     sb.AppendLine("[/url]");

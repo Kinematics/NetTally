@@ -8,6 +8,6 @@ namespace NetTally
         Dictionary<string, HashSet<string>> VotesWithSupporters { get; }
         Dictionary<string, string> VoterMessageId { get; }
 
-        void TallyVotes(IForumAdapter forumAdapter, IQuest quest, List<HtmlDocument> pages);
+        void TallyVotes(IQuest quest, List<HtmlDocument> pages);
     }
 }

@@ -27,7 +27,7 @@ namespace NetTally
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
         /// <param name="pages"></param>
-        public void TallyVotes(IForumAdapter forumAdapterParam, IQuest quest, List<HtmlDocument> pages)
+        public void TallyVotes(IQuest quest, List<HtmlDocument> pages)
         {
             if (pages == null)
                 throw new ArgumentNullException(nameof(pages));
@@ -35,7 +35,7 @@ namespace NetTally
             if (pages.Count == 0)
                 return;
 
-            forumAdapter = forumAdapterParam;
+            IForumAdapter forumAdapter = quest.GetForumAdapter();
 
             Reset();
 
@@ -98,8 +98,6 @@ namespace NetTally
         }
 
 
-        IForumAdapter forumAdapter;
-
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
@@ -128,6 +126,7 @@ namespace NetTally
         /// <param name="endPost">The last post number of the thread to check.</param>
         private void ProcessPost(HtmlNode post, IQuest quest)
         {
+            IForumAdapter forumAdapter = quest.GetForumAdapter();
             string postAuthor = forumAdapter.GetAuthorOfPost(post);
             string postID = forumAdapter.GetIdOfPost(post);
             string postText = forumAdapter.GetTextOfPost(post);

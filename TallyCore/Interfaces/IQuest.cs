@@ -43,5 +43,8 @@ namespace NetTally
         /// Derived property.
         /// </summary>
         bool ReadToEndOfThread { get; }
+
+
+        IForumAdapter GetForumAdapter();
     }
 }

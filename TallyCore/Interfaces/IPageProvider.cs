@@ -15,7 +15,7 @@ namespace NetTally
         /// <param name="quest">The quest object describing which pages to load.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<HtmlDocument>> LoadPages(IForumAdapter forumAdapter, IQuest quest, CancellationToken token);
+        Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token);
 
         /// <summary>
         /// Clear the cache of any previously loaded pages.

@@ -16,6 +16,7 @@ namespace NetTally
         //static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
         static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/)?)?(?<questName>[^/]+)(/.*)?");
         public const string NewEntryName = "New Entry";
+        IForumAdapter forumAdapter = null;
 
         /// <summary>
         /// Empty constructor for XML serialization.
@@ -47,6 +48,13 @@ namespace NetTally
         bool partitionByLine = true;
 
         #region IQuest Properties
+        public IForumAdapter GetForumAdapter()
+        {
+            if (forumAdapter == null)
+                forumAdapter = ForumAdapterFactory.GetAdapter(this);
+            return forumAdapter;
+        }
+
         /// <summary>
         /// The name of the web site that the thread is located on.
         /// </summary>
@@ -61,6 +69,7 @@ namespace NetTally
                 else
                     site = value;
 
+                forumAdapter = null;
                 OnPropertyChanged();
             }
         }

@@ -43,10 +43,12 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadPages(IForumAdapter forumAdapter, IQuest quest, CancellationToken token)
+        public async Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token)
         {
             try
             {
+                IForumAdapter forumAdapter = quest.GetForumAdapter();
+
                 if (!forumAdapter.IsValidThreadName(quest.Name))
                     throw new ArgumentException("The quest name is not valid.");
 
