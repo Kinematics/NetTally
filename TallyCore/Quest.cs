@@ -37,6 +37,7 @@ namespace NetTally
         }
         #endregion
 
+        string site = string.Empty;
         string name = NewEntryName;
         int startPost = 1;
         int endPost = 0;
@@ -45,6 +46,22 @@ namespace NetTally
         bool partitionByLine = true;
 
         #region IQuest Properties
+        /// <summary>
+        /// The name of the web site that the thread is located on.
+        /// </summary>
+        [DataMember(Order = 0)]
+        public string Site
+        {
+            get { return site; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                site = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// The name of the quest thread.
         /// </summary>
