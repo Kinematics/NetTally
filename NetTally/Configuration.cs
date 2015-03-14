@@ -173,7 +173,7 @@ namespace NetTally
         { }
 
 
-        [ConfigurationProperty("Site", DefaultValue = "", IsRequired = true, IsKey = true)]
+        [ConfigurationProperty("Site", DefaultValue = "", IsKey = true)]
         public string Site
         {
             get { return (string)this["Site"]; }
