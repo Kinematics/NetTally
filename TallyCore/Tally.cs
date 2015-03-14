@@ -12,7 +12,6 @@ namespace NetTally
     {
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
-        IForumAdapter forumAdapter;
 
         public Tally()
         {
@@ -80,7 +79,7 @@ namespace NetTally
         {
             try
             {
-                forumAdapter = ForumAdapterFactory.GetAdapter(quest);
+                IForumAdapter forumAdapter = ForumAdapterFactory.GetAdapter(quest);
 
                 TallyResults = string.Empty;
 
@@ -91,7 +90,7 @@ namespace NetTally
                 voteCounter.TallyVotes(forumAdapter, quest, pages);
 
                 // Compose the final result string from the compiled votes.
-                ConstructResults();
+                ConstructResults(forumAdapter);
 
             }
             catch (NotImplementedException)
@@ -119,7 +118,7 @@ namespace NetTally
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
-        private void ConstructResults()
+        private void ConstructResults(IForumAdapter forumAdapter)
         {
             StringBuilder sb = new StringBuilder();
 
