@@ -104,37 +104,21 @@ namespace NetTally
                     // Find the ordered list containing all the messages on this page.
                     var postList = forumAdapter.GetPostsFromPage(page);
 
+                    // Get a list of valid posts to process.
+                    var validPosts = from post in postList
+                                     let postNumber = forumAdapter.GetPostNumberOfPost(post)
+                                     where forumAdapter.GetAuthorOfPost(post) != threadAuthor &&
+                                        postNumber >= quest.StartPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
+                                     select post;
+
+
                     // Process each user post in the list.
-                    foreach (var post in postList)
+                    foreach (var post in validPosts)
                     {
-                        if (IsValidPost(post, quest))
-                            ProcessPost(post, quest);
+                        ProcessPost(post, quest);
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Check whether the post is one that we want to process.
-        /// </summary>
-        /// <param name="post">Post to check.</param>
-        /// <param name="quest">Quest we're tallying.</param>
-        /// <returns>Returns true if we want to process this post.</returns>
-        private bool IsValidPost(HtmlNode post, IQuest quest)
-        {
-            string postAuthor = forumAdapter.GetAuthorOfPost(post);
-
-            // Ignore posts by the thread author.
-            if (postAuthor == threadAuthor)
-                return false;
-
-            int postNumber = forumAdapter.GetPostNumberOfPost(post);
-
-            // Ignore posts outside the selected post range.
-            if (postNumber < quest.StartPost || (!quest.ReadToEndOfThread && postNumber > quest.EndPost))
-                return false;
-
-            return true;
         }
 
         /// <summary>
