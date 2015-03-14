@@ -101,11 +101,8 @@ namespace NetTally
             {
                 if (page != null)
                 {
-                    // Find the ordered list containing all the messages on this page.
-                    var postList = forumAdapter.GetPostsFromPage(page);
-
-                    // Get a list of valid posts to process.
-                    var validPosts = from post in postList
+                    // Get a list of valid posts to process from all posts on the page.
+                    var validPosts = from post in forumAdapter.GetPostsFromPage(page)
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)
                                      where forumAdapter.GetAuthorOfPost(post) != threadAuthor &&
                                         postNumber >= quest.StartPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
