@@ -147,7 +147,7 @@ namespace NetTally
         /// <param name="postID">The ID of the post.</param>
         private void ProcessPostContents(string postText, string postAuthor, string postID, IQuest quest)
         {
-            if (IsTallyPost(postText, quest))
+            if (IsTallyPost(postText))
                 return;
 
             // Pull out actual vote lines from the post.
@@ -178,7 +178,7 @@ namespace NetTally
         /// </summary>
         /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        private bool IsTallyPost(string postText, IQuest quest)
+        private bool IsTallyPost(string postText)
         {
             // If the post contains ##### at the start of the line for part of its text,
             // it's a tally result.
