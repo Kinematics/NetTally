@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedPage.cs" />
-    <Compile Include="ForumAdapterFactory.cs" />
+    <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />
     <Compile Include="Interfaces\IPageProvider.cs" />
     <Compile Include="Interfaces\IQuest.cs" />
@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quest.cs" />
     <Compile Include="QuestCollection.cs" />
-    <Compile Include="SVForumAdapter.cs" />
+    <Compile Include="Adapters\SufficientVelocityAdapter.cs" />
     <Compile Include="Tally.cs" />
     <Compile Include="VoteCounter.cs" />
     <Compile Include="WebPageProvider.cs" />
