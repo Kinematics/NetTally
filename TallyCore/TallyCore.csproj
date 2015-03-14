@@ -47,10 +47,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedPage.cs" />
+    <Compile Include="ForumAdapterFactory.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />
     <Compile Include="Interfaces\IPageProvider.cs" />
     <Compile Include="Interfaces\IQuest.cs" />
-    <Compile Include="Interfaces\IQuests.cs" />
     <Compile Include="Interfaces\IVoteCounter.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
