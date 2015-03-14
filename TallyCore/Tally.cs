@@ -10,10 +10,9 @@ namespace NetTally
 {
     public class Tally : INotifyPropertyChanged
     {
-        const string SVPostURL = "http://forums.sufficientvelocity.com/posts/";
-
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
+        IForumAdapter forumAdapter;
 
         public Tally()
         {
@@ -81,7 +80,7 @@ namespace NetTally
         {
             try
             {
-                IForumAdapter forumAdapter = ForumAdapterFactory.GetAdapter(quest);
+                forumAdapter = ForumAdapterFactory.GetAdapter(quest);
 
                 TallyResults = string.Empty;
 
@@ -146,9 +145,8 @@ namespace NetTally
                 foreach (var supporter in vote.Value)
                 {
                     sb.Append("[url=\"");
-                    sb.Append(SVPostURL);
-                    sb.Append(voteCounter.VoterMessageId[supporter]);
-                    sb.Append("/\"]");
+                    sb.Append(forumAdapter.GetPostUrlFromId(voteCounter.VoterMessageId[supporter]));
+                    sb.Append("\"]");
                     sb.Append(supporter);
                     sb.AppendLine("[/url]");
                 }
