@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,15 +12,13 @@ namespace NetTally
     {
         const string SVPostURL = "http://forums.sufficientvelocity.com/posts/";
 
-        IForumAdapter forumData;
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
 
-        public Tally(IForumAdapter forumData)
+        public Tally()
         {
-            this.forumData = forumData;
-            pageProvider = new WebPageProvider(forumData);
-            voteCounter = new VoteCounter(forumData);
+            pageProvider = new WebPageProvider();
+            voteCounter = new VoteCounter();
 
             pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
@@ -80,16 +79,30 @@ namespace NetTally
         /// <returns></returns>
         public async Task Run(IQuest quest, CancellationToken token)
         {
-            TallyResults = string.Empty;
+            try
+            {
+                IForumAdapter forumAdapter = ForumAdapterFactory.GetAdapter(quest);
 
-            // Load pages from the website
-            var pages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
+                TallyResults = string.Empty;
 
-            // Tally the votes from the loaded pages.
-            voteCounter.TallyVotes(pages, quest);
+                // Load pages from the website
+                var pages = await pageProvider.LoadPages(forumAdapter, quest, token).ConfigureAwait(false);
 
-            // Compose the final result string from the compiled votes.
-            ConstructResults();
+                // Tally the votes from the loaded pages.
+                voteCounter.TallyVotes(forumAdapter, quest, pages);
+
+                // Compose the final result string from the compiled votes.
+                ConstructResults();
+
+            }
+            catch (NotImplementedException)
+            {
+                throw;
+            }
+            finally
+            {
+
+            }
         }
 
         /// <summary>
