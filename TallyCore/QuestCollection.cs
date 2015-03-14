@@ -13,6 +13,8 @@ namespace NetTally
     [KnownType(typeof(Quest))]
     public class QuestCollection : ObservableCollection<IQuest>
     {
+        const string defaultSite = "http://forums.sufficientvelocity.com/";
+
         /// <summary>
         /// Indexer into the collection by quest name.
         /// </summary>
@@ -42,11 +44,13 @@ namespace NetTally
         /// <param name="item">Item to be entered.</param>
         protected override void InsertItem(int index, IQuest item)
         {
-            if (this.Any(q => q.Name == item.Name))
-            {
-                Debug.WriteLine("Attempting to add duplicate value of name: " + item.Name);
+            var dupes = from q in this
+                        where q.Name == item.Name && 
+                            (q.Site == item.Site || (q.Site == string.Empty && item.Site == defaultSite) || (q.Site == defaultSite && item.Site == string.Empty))
+                        select q;
+
+            if (dupes.Any())
                 return;
-            }
 
             base.InsertItem(index, item);
         }
