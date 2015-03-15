@@ -14,7 +14,7 @@ namespace NetTally.Tests
             IQuest quest = new Quest();
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(SVForumAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(SufficientVelocityAdapter));
         }
 
         [TestMethod]
@@ -24,7 +24,7 @@ namespace NetTally.Tests
             quest.Site = "http://forums.sufficientvelocity.com/";
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(SVForumAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(SufficientVelocityAdapter));
         }
 
         [TestMethod]
