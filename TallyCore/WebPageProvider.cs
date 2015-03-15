@@ -135,7 +135,10 @@ namespace NetTally
 
             string result = null;
             int tries = 0;
-            using (HttpClient client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
+            HttpClient client;
+            HttpResponseMessage response;
+
+            using (client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
             {
                 client.Timeout = TimeSpan.FromSeconds(2);
 
@@ -143,7 +146,7 @@ namespace NetTally
                 {
                     while (result == null && tries < 3 && token.IsCancellationRequested == false)
                     {
-                        using (var response = await client.GetAsync(url, token).ConfigureAwait(false))
+                        using (response = await client.GetAsync(url, token).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
