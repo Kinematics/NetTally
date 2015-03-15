@@ -18,8 +18,15 @@ namespace NetTally
         const string ThreadsUrl = "http://forums.sufficientvelocity.com/threads/";
         const string PostsUrl = "http://forums.sufficientvelocity.com/posts/";
 
+        // Bad characters we want to remove
+        // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
+        readonly Regex badCharactersRegex = new Regex("\u200b");
 
-        #region String concatenation functions for constructing URLs.
+
+        #region Public interface functions
+
+        // Functions for constructing URLs
+
         public string GetThreadsUrl(string questTitle) => ThreadsUrl + questTitle;
 
         public string GetThreadPageBaseUrl(string questTitle) => GetThreadsUrl(questTitle) + "/page-";
@@ -28,9 +35,16 @@ namespace NetTally
 
         public string GetPageUrl(string questTitle, int page) => GetThreadPageBaseUrl(questTitle) + page.ToString();
 
-        public string GetPostUrlFromId(string postId) => PostsUrl + postId;
+        public string GetPostUrlFromId(string postId) => PostsUrl + postId + "/";
 
         public string GetUrlFromRelativeAddress(string relative) => ForumUrl + relative;
+
+        /// <summary>
+        /// Calculate the page number that corresponds to the post number given.
+        /// </summary>
+        /// <param name="post">Post number.</param>
+        /// <returns>Page number.</returns>
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 25) + 1;
 
         /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
@@ -42,19 +56,6 @@ namespace NetTally
             // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
             Regex validateQuestNameForUrl = new Regex(@"^\S+\.\d+$");
             return validateQuestNameForUrl.Match(name).Success;
-        }
-        #endregion
-
-        #region Functions for extracting data from thread pages.
-        /// <summary>
-        /// Get the HTML node of the page that represents the top-level element
-        /// that contains all the primary content.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>The element containing the main page content.</returns>
-        public HtmlNode GetPageContent(HtmlDocument page)
-        {
-            return page.DocumentNode?.Descendants("div").FirstOrDefault(a => a.Id == "content");
         }
 
         /// <summary>
@@ -118,39 +119,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get the node element containing all the posts on the page.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns the page element that contains the posts.</returns>
-        public HtmlNode GetPostListFromPage(HtmlDocument page)
-        {
-            var pageContent = GetPageContent(page);
-
-            if (pageContent.GetAttributeValue("class", "").Contains("thread_view"))
-            {
-                return pageContent.Descendants("ol").First(n => n.Id == "messageList");
-            }
-
-            throw new InvalidOperationException("Page is not a forum thread.");
-        }
-
-        /// <summary>
-        /// Given the page node containing all of the posts on the thread,
-        /// get an IEnumerable list of all posts on the page.
-        /// </summary>
-        /// <param name="postList">Element containing posts from the page.</param>
-        /// <returns>Returns a list of posts.</returns>
-        public IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
-        {
-            if (postList.Name == "ol" && postList.Id == "messageList")
-            {
-                return postList.ChildNodes.Where(n => n.Name == "li");
-            }
-
-            throw new InvalidOperationException("Provided post list is not valid.");
-        }
-
-        /// <summary>
         /// Given a page, return a list of posts on the page.
         /// </summary>
         /// <param name="page">The page to search.</param>
@@ -160,40 +128,6 @@ namespace NetTally
             var postList = GetPostListFromPage(page);
             return GetPostsFromList(postList);
         }
-
-        /// <summary>
-        /// Get a specific post from the page, when provided with the unique
-        /// ID of the post.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <param name="id">The ID of the post.</param>
-        /// <returns>Returns the post.</returns>
-        public HtmlNode GetPostFromPageById(HtmlDocument page, string id)
-        {
-            if (!id.StartsWith("post-"))
-                id = "post-" + id;
-
-            var postsList = GetPostsFromPage(page);
-
-            return postsList.FirstOrDefault(a => a.Id == id);
-        }
-
-        #endregion
-
-        #region Functions for extracting data from posts.
-        /// <summary>
-        /// Function to tell if the provided HTML node is a thread post.
-        /// </summary>
-        /// <param name="post">Proposed post.</param>
-        /// <returns>Returns true if the node appears to be a legitimate post.</returns>
-        public bool IsPost(HtmlNode post)
-        {
-            // A post is a <li> node:
-            // <li id = "post-2948970" class="message " data-author="Fanhunter696">
-
-            return post.Name == "li" && post.GetAttributeValue("class", "").Contains("message") && post.Id.StartsWith("post-");
-        }
-
 
         /// <summary>
         /// Get the ID string of the provided post (the portion that can be used in a URL).
@@ -239,13 +173,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Calculate the page number that corresponds to the post number given.
-        /// </summary>
-        /// <param name="post">Post number.</param>
-        /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 25) + 1;
-
-        /// <summary>
         /// Gets the author of the post.
         /// </summary>
         /// <param name="post">The post to query.</param>
@@ -261,38 +188,6 @@ namespace NetTally
 
             throw new InvalidOperationException("Cannot get post author.  Does not appear to be a valid post.");
 
-        }
-
-        /// <summary>
-        /// Get the threadmarker node of the post, if any.
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the threadmarker node of the post, or null if none is found.</returns>
-        public HtmlNode GetThreadmarkerOfPost(HtmlNode post)
-        {
-            if (IsPost(post))
-            {
-                // The threadmarker of a post is contained in a div directly under the <li>, with class="threadmarker".
-                return post.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("threadmarker"));
-            }
-
-            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
-        }
-
-        /// <summary>
-        /// Gets the inner HTML node containing the actual contents of the post.
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the article node within the post.</returns>
-        public HtmlNode GetContentsOfPost(HtmlNode post)
-        {
-            if (IsPost(post))
-            {
-                // There is only one <article> node within each post, which contains the post contents.
-                return post.Descendants("article").Single();
-            }
-
-            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
         }
 
         /// <summary>
@@ -316,7 +211,137 @@ namespace NetTally
 
         #endregion
 
-        #region Functions for extracting other data from pages
+        #region Special Interface function
+        public async Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
+        {
+            // Use the provided start post if we aren't trying to find the threadmarks.
+            if (!quest.CheckForLastThreadmark)
+                return quest.StartPost;
+
+            // Attempt to get the starting post number from threadmarks, if that option is checked.
+            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
+
+            var threadmarks = GetThreadmarksFromPage(threadmarkPage);
+
+            if (threadmarks == null || !threadmarks.Any())
+                return quest.StartPost;
+
+            var lastThreadmark = threadmarks.Last();
+            string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
+            string postId = GetPostIdFromUrl(threadmarkUrl);
+
+            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
+
+            var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
+            int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
+
+            if (threadmarkPostNumber > 0)
+                return threadmarkPostNumber + 1;
+            else
+                return quest.StartPost;
+        }
+
+        #endregion
+
+
+        // Utility functions to support the above interface functions
+
+        #region Functions dealing with pages
+        /// <summary>
+        /// Get the HTML node of the page that represents the top-level element
+        /// that contains all the primary content.
+        /// </summary>
+        /// <param name="page">The page to search.</param>
+        /// <returns>The element containing the main page content.</returns>
+        private HtmlNode GetPageContent(HtmlDocument page)
+        {
+            return page.DocumentNode?.Descendants("div").FirstOrDefault(a => a.Id == "content");
+        }
+
+        /// <summary>
+        /// Get the node element containing all the posts on the page.
+        /// </summary>
+        /// <param name="page">The page to search.</param>
+        /// <returns>Returns the page element that contains the posts.</returns>
+        private HtmlNode GetPostListFromPage(HtmlDocument page)
+        {
+            var pageContent = GetPageContent(page);
+
+            if (pageContent.GetAttributeValue("class", "").Contains("thread_view"))
+            {
+                return pageContent.Descendants("ol").First(n => n.Id == "messageList");
+            }
+
+            throw new InvalidOperationException("Page is not a forum thread.");
+        }
+
+        /// <summary>
+        /// Given the page node containing all of the posts on the thread,
+        /// get an IEnumerable list of all posts on the page.
+        /// </summary>
+        /// <param name="postList">Element containing posts from the page.</param>
+        /// <returns>Returns a list of posts.</returns>
+        private IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
+        {
+            if (postList.Name == "ol" && postList.Id == "messageList")
+            {
+                return postList.ChildNodes.Where(n => n.Name == "li");
+            }
+
+            throw new InvalidOperationException("Provided post list is not valid.");
+        }
+
+        /// <summary>
+        /// Get a specific post from the page, when provided with the unique
+        /// ID of the post.
+        /// </summary>
+        /// <param name="page">The page to search.</param>
+        /// <param name="id">The ID of the post.</param>
+        /// <returns>Returns the post.</returns>
+        private HtmlNode GetPostFromPageById(HtmlDocument page, string id)
+        {
+            if (!id.StartsWith("post-"))
+                id = "post-" + id;
+
+            var postsList = GetPostsFromPage(page);
+
+            return postsList.FirstOrDefault(a => a.Id == id);
+        }
+        #endregion
+
+        #region Functions dealing with posts
+        /// <summary>
+        /// Function to tell if the provided HTML node is a thread post.
+        /// </summary>
+        /// <param name="post">Proposed post.</param>
+        /// <returns>Returns true if the node appears to be a legitimate post.</returns>
+        private bool IsPost(HtmlNode post)
+        {
+            // A post is a <li> node:
+            // <li id = "post-2948970" class="message " data-author="Fanhunter696">
+
+            return post.Name == "li" && post.GetAttributeValue("class", "").Contains("message") && post.Id.StartsWith("post-");
+        }
+
+        /// <summary>
+        /// Gets the inner HTML node containing the actual contents of the post.
+        /// </summary>
+        /// <param name="post">The post to query.</param>
+        /// <returns>Returns the article node within the post.</returns>
+        private HtmlNode GetContentsOfPost(HtmlNode post)
+        {
+            if (IsPost(post))
+            {
+                // There is only one <article> node within each post, which contains the post contents.
+                return post.Descendants("article").Single();
+            }
+
+            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
+        }
+
+        #endregion
+
+        #region Functions for threadmarks
         /// <summary>
         /// Given a page (presumably the threadmarks page), attempt to
         /// get the list node that holds all the threadmarks.
@@ -324,7 +349,7 @@ namespace NetTally
         /// <param name="page">The page to check.</param>
         /// <returns>Returns the element containing the threadmarks,
         /// or null if it's not a valid page.</returns>
-        public HtmlNode GetThreadmarksListFromPage(HtmlDocument page)
+        private HtmlNode GetThreadmarksListFromPage(HtmlDocument page)
         {
             var pageContent = GetPageContent(page);
 
@@ -348,7 +373,7 @@ namespace NetTally
         /// <param name="list">The list of potential threadmarks.</param>
         /// <returns>Returns an enumerable list of the threadmarks, or
         /// null if it fails.</returns>
-        public IEnumerable<HtmlNode> GetThreadmarksFromThreadmarksList(HtmlNode list)
+        private IEnumerable<HtmlNode> GetThreadmarksFromThreadmarksList(HtmlNode list)
         {
             return list?.Elements("li");
         }
@@ -360,7 +385,7 @@ namespace NetTally
         /// <param name="page">The page to search.</param>
         /// <returns>Returns an enumerable list of threadmarks, or
         /// null if it fails.</returns>
-        public IEnumerable<HtmlNode> GetThreadmarksFromPage(HtmlDocument page)
+        private IEnumerable<HtmlNode> GetThreadmarksFromPage(HtmlDocument page)
         {
             var threadmarksList = GetThreadmarksListFromPage(page);
 
@@ -373,7 +398,7 @@ namespace NetTally
         /// </summary>
         /// <param name="threadmarkEntry">A threadmark list entry.</param>
         /// <returns>Returns the full URL to the post.</returns>
-        public string GetUrlOfThreadmark(HtmlNode threadmarkEntry)
+        private string GetUrlOfThreadmark(HtmlNode threadmarkEntry)
         {
             return GetUrlFromRelativeAddress(threadmarkEntry.Element("a").GetAttributeValue("href", ""));
         }
@@ -383,7 +408,7 @@ namespace NetTally
         /// </summary>
         /// <param name="url">A url with a post's unique ID in it.</param>
         /// <returns>Returns the post's ID.</returns>
-        public string GetPostIdFromUrl(string url)
+        private string GetPostIdFromUrl(string url)
         {
             Regex postLinkRegex = new Regex(@"posts/(?<postId>\d+)/");
             var m = postLinkRegex.Match(url);
@@ -393,10 +418,25 @@ namespace NetTally
             throw new ArgumentException("Unable to extract post ID from link:\n" + url, nameof(url));
         }
 
+        /// <summary>
+        /// Get the threadmarker node of the post, if any.
+        /// </summary>
+        /// <param name="post">The post to query.</param>
+        /// <returns>Returns the threadmarker node of the post, or null if none is found.</returns>
+        private HtmlNode GetThreadmarkerOfPost(HtmlNode post)
+        {
+            if (IsPost(post))
+            {
+                // The threadmarker of a post is contained in a div directly under the <li>, with class="threadmarker".
+                return post.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("threadmarker"));
+            }
+
+            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
+        }
 
         #endregion
 
-        #region Utility support functions
+        #region Text processing functions
         /// <summary>
         /// Extract the text of the provided HTML node.  Recurses into nested
         /// divs.
@@ -488,10 +528,6 @@ namespace NetTally
             return sb.ToString();
         }
 
-        // Bad characters we want to remove
-        // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
-        Regex badCharactersRegex = new Regex("\u200b");
-
         /// <summary>
         /// Clean up problematic bits of text in the extracted post string.
         /// </summary>
@@ -505,36 +541,6 @@ namespace NetTally
             return postText;
         }
         #endregion
-
-        public async Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
-        {
-            // Use the provided start post if we aren't trying to find the threadmarks.
-            if (!quest.CheckForLastThreadmark)
-                return quest.StartPost;
-
-            // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
-
-            var threadmarks = GetThreadmarksFromPage(threadmarkPage);
-
-            if (threadmarks == null || !threadmarks.Any())
-                return quest.StartPost;
-
-            var lastThreadmark = threadmarks.Last();
-            string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
-            string postId = GetPostIdFromUrl(threadmarkUrl);
-
-            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
-
-            var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
-            int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
-
-            if (threadmarkPostNumber > 0)
-                return threadmarkPostNumber + 1;
-            else
-                return quest.StartPost;
-        }
-        
 
     }
 }
