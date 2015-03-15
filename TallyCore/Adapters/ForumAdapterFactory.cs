@@ -50,7 +50,7 @@ namespace NetTally
         {
             if (quest.Site.StartsWith("http://forums.sufficientvelocity.com/"))
                 return new SufficientVelocityAdapter();
-            else if (quest.Site.StartsWith("http://forums.sufficientvelocity.com/"))
+            else if (quest.Site.StartsWith("http://forums.spacebattles.com/"))
                 return new SpaceBattlesAdapter();
             else if (quest.Site == string.Empty)
                 // Sufficient Velocity is the default if no site name is given
