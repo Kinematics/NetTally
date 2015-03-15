@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetTally
@@ -50,5 +47,6 @@ namespace NetTally
         /// </summary>
         /// <returns></returns>
         IForumAdapter GetForumAdapter();
+        Task<IForumAdapter> GetForumAdapter(CancellationToken token);
     }
 }

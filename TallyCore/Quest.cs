@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetTally
 {
@@ -48,6 +50,13 @@ namespace NetTally
         bool partitionByLine = true;
 
         #region IQuest Properties
+        public async Task<IForumAdapter> GetForumAdapter(CancellationToken token)
+        {
+            if (forumAdapter == null)
+                forumAdapter = await ForumAdapterFactory.GetAdapter(this, token);
+            return forumAdapter;
+        }
+
         public IForumAdapter GetForumAdapter()
         {
             if (forumAdapter == null)
