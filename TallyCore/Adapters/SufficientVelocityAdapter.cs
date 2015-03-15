@@ -33,7 +33,13 @@ namespace NetTally
 
         public string GetThreadmarksPageUrl(string questTitle) => GetThreadsUrl(questTitle) + "/threadmarks";
 
-        public string GetPageUrl(string questTitle, int page) => GetThreadPageBaseUrl(questTitle) + page.ToString();
+        public string GetPageUrl(string questTitle, int page)
+        {
+            if (page > 1)
+                return GetThreadPageBaseUrl(questTitle) + page.ToString();
+            else
+                return GetThreadsUrl(questTitle);
+        }
 
         public string GetPostUrlFromId(string postId) => PostsUrl + postId + "/";
 
