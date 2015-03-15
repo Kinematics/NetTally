@@ -19,11 +19,13 @@ namespace NetTally
         public ICollectionView QuestCollectionView { get; }
         QuestCollection questCollection;
 
+        string editingName = string.Empty;
+
         // Locals for managing the tally
         Tally tally;
         CancellationTokenSource cts;
 
-        #region Startup/shutdown
+        #region Startup/shutdown events
         /// <summary>
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
@@ -41,6 +43,7 @@ namespace NetTally
 
             NetTallyConfig.Load(tally, wrapper);
 
+            // Set up view for binding
             QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
             // Sort the collection view
             var sortDesc = new SortDescription("Name", ListSortDirection.Ascending);
@@ -51,9 +54,7 @@ namespace NetTally
 
             // Set up data contexts
             DataContext = QuestCollectionView;
-
             resultsWindow.DataContext = tally;
-
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace NetTally
         }
         #endregion
 
-        #region User action event handling
+        #region User action events
         /// <summary>
         /// Start running the tally on the currently selected quest and post range.
         /// </summary>
@@ -76,7 +77,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
-            CleanupEditQuestName();
+            DoneEditing();
 
             if (QuestCollectionView.CurrentItem == null)
                 return;
@@ -111,7 +112,6 @@ namespace NetTally
             cts?.Cancel();
         }
 
-
         /// <summary>
         /// Clear the page cache so that subsequent tally requests load the pages from the network
         /// rather than from the cache.
@@ -120,7 +120,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
         {
-            CleanupEditQuestName();
+            DoneEditing();
 
             tallyButton.IsEnabled = false;
 
@@ -146,7 +146,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            CleanupEditQuestName();
+            DoneEditing();
             Clipboard.SetText(tally.TallyResults);
         }
 
@@ -158,6 +158,8 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
+            DoneEditing();
+
             var newEntry = questCollection.AddNewQuest();
             if (newEntry == null)
             {
@@ -168,8 +170,7 @@ namespace NetTally
 
             QuestCollectionView.MoveCurrentTo(newEntry);
 
-            editQuestName.Visibility = Visibility.Visible;
-            editQuestName.Focus();
+            EditQuestName();
         }
 
         /// <summary>
@@ -179,26 +180,13 @@ namespace NetTally
         /// <param name="e"></param>
         private void removeQuestButton_Click(object sender, RoutedEventArgs e)
         {
+            DoneEditing();
             questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
-            CleanupEditQuestName();
+            QuestCollectionView.Refresh();
         }
         #endregion
 
-        #region Behavior event handling
-        /// <summary>
-        /// Any user interaction that ends the use of the text box for editing the quest
-        /// name needs to ensure some cleanup occurs.
-        /// </summary>
-        private void CleanupEditQuestName()
-        {
-            if (editQuestName.Visibility == Visibility.Visible)
-            {
-                editQuestName.Visibility = Visibility.Hidden;
-                QuestCollectionView.Refresh();
-                startPost.Focus();
-            }
-        }
-
+        #region Behavior events
         /// <summary>
         /// If either start post or end post text boxes get focus, select the entire
         /// contents so that they're easy to replace.
@@ -233,9 +221,28 @@ namespace NetTally
             }
         }
 
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F2)
+            {
+                if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestSite.Visibility == Visibility.Hidden))
+                {
+                    EditQuestName();
+                }
+                else if (editQuestSite.Visibility == Visibility.Hidden)
+                {
+                    EditQuestSite();
+                }
+                else
+                {
+                    DoneEditingQuestSite();
+                }
+            }
+        }
+
         /// <summary>
         /// When modifying the quest name, hitting enter will complete the entry,
-        /// and hitting escape will cancel (and delete) the entry.
+        /// and hitting escape will cancel the edits.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -243,14 +250,86 @@ namespace NetTally
         {
             if (e.Key == Key.Enter)
             {
-                CleanupEditQuestName();
+                DoneEditingQuestName();
+                startPost.Focus();
             }
             else if (e.Key == Key.Escape)
             {
-                questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
-                CleanupEditQuestName();
+                // Restore original name if we escape.
+                IQuest quest = QuestCollectionView.CurrentItem as IQuest;
+                if (quest != null)
+                    quest.Name = editingName;
+                DoneEditingQuestName();
             }
         }
+
+        /// <summary>
+        /// When modifying the quest site, hitting enter will complete the entry,
+        /// and hitting escape will cancel the edits.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editQuestSite_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                DoneEditingQuestSite();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                // Restore original name if we escape.
+                IQuest quest = QuestCollectionView.CurrentItem as IQuest;
+                if (quest != null)
+                    quest.Site = editingName;
+                DoneEditingQuestSite();
+            }
+        }
+
         #endregion
+
+
+        #region Utility support methods
+
+        private void EditQuestName()
+        {
+            DoneEditingQuestSite();
+            editingName = ((IQuest)QuestCollectionView.CurrentItem).Name;
+            editDescriptor.Text = "Quest Name";
+            editQuestName.Visibility = Visibility.Visible;
+            editDescriptorCanvas.Visibility = Visibility.Visible;
+            editQuestName.Focus();
+        }
+
+        private void EditQuestSite()
+        {
+            DoneEditingQuestName();
+            editingName = ((IQuest)QuestCollectionView.CurrentItem).Site;
+            editDescriptor.Text = "Site Name";
+            editQuestSite.Visibility = Visibility.Visible;
+            editDescriptorCanvas.Visibility = Visibility.Visible;
+            editQuestSite.Focus();
+        }
+
+        private void DoneEditing()
+        {
+            DoneEditingQuestName();
+            DoneEditingQuestSite();
+        }
+
+        private void DoneEditingQuestName()
+        {
+            editQuestName.Visibility = Visibility.Hidden;
+            editDescriptorCanvas.Visibility = Visibility.Hidden;
+            QuestCollectionView.Refresh();
+        }
+
+        private void DoneEditingQuestSite()
+        {
+            editQuestSite.Visibility = Visibility.Hidden;
+            editDescriptorCanvas.Visibility = Visibility.Hidden;
+        }
+        #endregion
+
+
     }
 }
