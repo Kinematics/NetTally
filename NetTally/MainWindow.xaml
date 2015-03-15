@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="598.055" Width="890.437" MinWidth="800" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico">
+        Title="Net Tally" Height="598.055" Width="890.437" MinWidth="800" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
@@ -27,7 +27,15 @@
         </ComboBox>
         <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.Name, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
-                 PreviewMouseDown="textEntry_PreviewMouseDown"/>
+                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4">
+            
+        </TextBox>
+        <TextBox x:Name="editQuestSite" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+                 Text="{Binding Path=CurrentItem.Site, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestSite_KeyUp" GotFocus="textEntry_GotFocus"
+                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4"/>
+        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" Visibility="Hidden">
+            <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
+        </Canvas>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
                  Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
