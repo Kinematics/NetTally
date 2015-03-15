@@ -13,12 +13,14 @@ namespace NetTally.Adapters
     {
         public vBulletinAdapter(string baseSiteName)
         {
-
+            ForumUrl = baseSiteName;
+            ThreadsUrl = baseSiteName;
+            PostsUrl = baseSiteName;
         }
 
-        protected virtual string ForumUrl { get; } = "http://forums.spacebattles.com/";
-        protected virtual string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
-        protected virtual string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
+        protected virtual string ForumUrl { get; }
+        protected virtual string ThreadsUrl { get; }
+        protected virtual string PostsUrl { get; }
 
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
@@ -31,7 +33,7 @@ namespace NetTally.Adapters
 
         public string GetThreadsUrl(string questTitle) => ThreadsUrl + questTitle;
 
-        public string GetThreadPageBaseUrl(string questTitle) => GetThreadsUrl(questTitle) + "/page-";
+        public string GetThreadPageBaseUrl(string questTitle) => GetThreadsUrl(questTitle) + "&page=";
 
         public string GetThreadmarksPageUrl(string questTitle) => GetThreadsUrl(questTitle) + "/threadmarks";
 
@@ -43,7 +45,12 @@ namespace NetTally.Adapters
                 return GetThreadsUrl(questTitle);
         }
 
-        public string GetPostUrlFromId(string postId) => PostsUrl + postId + "/";
+        public string GetPostUrlFromId(string postId)
+        {
+            // http://forums.animesuki.com/showthread.php?p=5460127#post5460127
+            string url = ForumUrl + "showthread.php?p=" + postId + "#post" + postId;
+            return url;
+        }
 
         public string GetUrlFromRelativeAddress(string relative) => ForumUrl + relative;
 
@@ -52,7 +59,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 25) + 1;
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 20) + 1;
 
         /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
@@ -62,7 +69,7 @@ namespace NetTally.Adapters
         public bool IsValidThreadName(string name)
         {
             // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-            Regex validateQuestNameForUrl = new Regex(@"^\S+\.\d+$");
+            Regex validateQuestNameForUrl = new Regex(@"^showthread.php\?t=\d+");
             return validateQuestNameForUrl.Match(name).Success;
         }
 
@@ -73,24 +80,8 @@ namespace NetTally.Adapters
         /// <returns>Returns the thread author.</returns>
         public string GetAuthorOfThread(HtmlDocument page)
         {
-            var pageContent = GetPageContent(page);
-
-            if (pageContent.GetAttributeValue("class", "").Contains("thread_view"))
-            {
-                var pageDescription = pageContent.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pageWidth"))?.
-                    Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pageContent"))?.
-                    Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("titleBar"))?.
-                    Elements("p").FirstOrDefault(a => a.Id == "pageDescription");
-
-                var usernameA = pageDescription?.Elements("a").FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
-
-                if (usernameA == null)
-                    throw new InvalidOperationException("Unable to extract author from provided page.");
-
-                return HtmlEntity.DeEntitize(usernameA.InnerText);
-            }
-
-            throw new ArgumentException("Page is not a forum thread.");
+            // vBulletin does not provide thread author information
+            return string.Empty;
         }
 
         /// <summary>
@@ -101,29 +92,27 @@ namespace NetTally.Adapters
         /// <returns>Returns the last page number of the thread.</returns>
         public int GetLastPageNumberOfThread(HtmlDocument page)
         {
-            var pageContent = GetPageContent(page);
+            var pageNavDiv = page?.DocumentNode.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "") == "pagenav");
 
-            if (pageContent.GetAttributeValue("class", "").Contains("thread_view"))
+            if (pageNavDiv == null)
+                return 1;
+
+            var vbMenuControl = pageNavDiv.Descendants("td").FirstOrDefault(a => a.GetAttributeValue("class", "") == "vbmenu_control");
+
+            if (vbMenuControl != null)
             {
-                var pageNav = pageContent.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pageWidth"))?.
-                    Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pageContent"))?.
-                    Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pageNavLinkGroup"))?.
-                    Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("PageNav"));
-
-                // PageNav div does not exist if the thread only has one page.
-
-                if (pageNav == null)
-                    return 1;
-
-                int lastPage = 0;
-                string lastPageAttr = pageNav.GetAttributeValue("data-last", "1");
-                if (int.TryParse(lastPageAttr, out lastPage))
-                    return lastPage;
-
-                throw new InvalidOperationException("Unable to get the last page number of the thread.");
+                string pageNumbersText = vbMenuControl.InnerText;
+                Regex pageNumsRegex = new Regex(@"Page \d+ of (?<lastPage>\d+)");
+                Match m = pageNumsRegex.Match(pageNumbersText);
+                if (m.Success)
+                {
+                    int lastPage = 0;
+                    if (int.TryParse(m.Groups["lastPage"].Value, out lastPage))
+                        return lastPage;
+                }
             }
 
-            throw new ArgumentException("Page is not a forum thread.");
+            throw new InvalidOperationException("Unable to get the last page number of the thread.");
         }
 
         /// <summary>
@@ -145,13 +134,14 @@ namespace NetTally.Adapters
         /// to reach this post.</returns>
         public string GetIdOfPost(HtmlNode post)
         {
-            if (IsPost(post))
-            {
-                // The format is "post-12345678", but we only want the number (as text).
-                return post.Id.Substring("post-".Length);
-            }
+            if (post == null)
+                return string.Empty;
 
-            throw new InvalidOperationException("Cannot get ID.  Does not appear to be a valid post.");
+            string postIdString = post.Id;
+            if (postIdString.StartsWith("post"))
+                postIdString = postIdString.Substring("post".Length);
+
+            return postIdString;
         }
 
         /// <summary>
@@ -161,23 +151,25 @@ namespace NetTally.Adapters
         /// <returns>Returns the post number that's found.</returns>
         public int GetPostNumberOfPost(HtmlNode post)
         {
-
-            if (IsPost(post))
+            if (post != null)
             {
-                // Post content structure is like this:
-                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
+                string id = GetIdOfPost(post);
 
-                var anchor = post.Descendants("a").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("postNumber"))?.InnerText;
+                string postNumberAnchorID = "postcount" + id;
 
-                // Text format of the post number is #1234.  Remove the leading #
-                var postNumText = anchor?.Substring(1);
+                var anchor = post.Descendants("a").FirstOrDefault(a => a.Id == postNumberAnchorID);
 
-                int postNum = 0;
-                if (int.TryParse(postNumText, out postNum))
-                    return postNum;
+                if (anchor != null)
+                {
+                    string postNumText = anchor.GetAttributeValue("name", "");
+                    int postNum = 0;
+                    if (int.TryParse(postNumText, out postNum))
+                        return postNum;
+                }
             }
 
-            throw new InvalidOperationException("Unable to extract a post number from the post.");
+            return 0;
+            //throw new InvalidOperationException("Unable to extract a post number from the post.");
         }
 
         /// <summary>
@@ -187,15 +179,33 @@ namespace NetTally.Adapters
         /// <returns>Returns the author of the post.</returns>
         public string GetAuthorOfPost(HtmlNode post)
         {
-            if (IsPost(post))
+            string author = string.Empty;
+
+            if (post != null)
             {
-                // The author is provided in a data attribute of the root element.
-                // Be sure to fix HTML entities first.
-                return HtmlEntity.DeEntitize(post.GetAttributeValue("data-author", ""));
+                string id = GetIdOfPost(post);
+
+                string postAuthorDivID = "postmenu_" + id;
+
+                var authorDiv = post.Descendants("div").FirstOrDefault(a => a.Id == postAuthorDivID);
+
+                if (authorDiv != null)
+                {
+                    var authorAnchor = authorDiv.Element("a");
+
+                    if (authorAnchor != null)
+                    {
+                        author = authorAnchor.InnerText;
+
+                        if (authorAnchor.Element("span") != null)
+                        {
+                            author = authorAnchor.Element("span").InnerText;
+                        }
+                    }
+                }
             }
 
-            throw new InvalidOperationException("Cannot get post author.  Does not appear to be a valid post.");
-
+            return HtmlEntity.DeEntitize(author);
         }
 
         /// <summary>
@@ -207,11 +217,10 @@ namespace NetTally.Adapters
         public string GetTextOfPost(HtmlNode post)
         {
             // Get the inner contents, if it wasn't passed in directly
-            if (post.Name != "article")
-                post = GetContentsOfPost(post);
+            post = GetContentsOfPost(post);
 
             // Start recursing at the child blockquote node.
-            string postText = ExtractNodeText(post.Element("blockquote"));
+            string postText = ExtractNodeText(post);
 
             // Clean up the extracted text before returning.
             return CleanupPostString(postText);
@@ -220,33 +229,9 @@ namespace NetTally.Adapters
         #endregion
 
         #region Special Interface function
-        public async Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
+        public Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
         {
-            // Use the provided start post if we aren't trying to find the threadmarks.
-            if (!quest.CheckForLastThreadmark)
-                return quest.StartPost;
-
-            // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
-
-            var threadmarks = GetThreadmarksFromPage(threadmarkPage);
-
-            if (threadmarks == null || !threadmarks.Any())
-                return quest.StartPost;
-
-            var lastThreadmark = threadmarks.Last();
-            string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
-            string postId = GetPostIdFromUrl(threadmarkUrl);
-
-            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
-
-            var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
-            int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
-
-            if (threadmarkPostNumber > 0)
-                return threadmarkPostNumber + 1;
-            else
-                return quest.StartPost;
+            return Task.FromResult(quest.StartPost);
         }
 
         #endregion
@@ -263,7 +248,7 @@ namespace NetTally.Adapters
         /// <returns>The element containing the main page content.</returns>
         private HtmlNode GetPageContent(HtmlDocument page)
         {
-            return page.DocumentNode?.Descendants("div").FirstOrDefault(a => a.Id == "content");
+            return page.DocumentNode.Element("body").Elements("div").FirstOrDefault(a => a.Id == "posts");
         }
 
         /// <summary>
@@ -273,14 +258,11 @@ namespace NetTally.Adapters
         /// <returns>Returns the page element that contains the posts.</returns>
         private HtmlNode GetPostListFromPage(HtmlDocument page)
         {
-            var pageContent = GetPageContent(page);
+            var root = page?.DocumentNode;
+            if (root?.Name != "html")
+                root = root?.Element("html");
 
-            if (pageContent.GetAttributeValue("class", "").Contains("thread_view"))
-            {
-                return pageContent.Descendants("ol").First(n => n.Id == "messageList");
-            }
-
-            throw new InvalidOperationException("Page is not a forum thread.");
+            return root?.Element("body")?.Elements("div").FirstOrDefault(a => a.Id == "posts");
         }
 
         /// <summary>
@@ -291,12 +273,13 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of posts.</returns>
         private IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
         {
-            if (postList.Name == "ol" && postList.Id == "messageList")
-            {
-                return postList.ChildNodes.Where(n => n.Name == "li");
-            }
+            if (postList == null)
+                return new List<HtmlNode>();
 
-            throw new InvalidOperationException("Provided post list is not valid.");
+            var posts = from d in postList.Elements("div")
+                        select d.Descendants("table").FirstOrDefault(a => a.Id.StartsWith("post"));
+
+            return posts;
         }
 
         /// <summary>
@@ -308,12 +291,10 @@ namespace NetTally.Adapters
         /// <returns>Returns the post.</returns>
         private HtmlNode GetPostFromPageById(HtmlDocument page, string id)
         {
-            if (!id.StartsWith("post-"))
-                id = "post-" + id;
-
             var postsList = GetPostsFromPage(page);
+            string postId = "post" + id;
 
-            return postsList.FirstOrDefault(a => a.Id == id);
+            return postsList?.FirstOrDefault(a => a.Id == postId);
         }
         #endregion
 
@@ -325,10 +306,10 @@ namespace NetTally.Adapters
         /// <returns>Returns true if the node appears to be a legitimate post.</returns>
         private bool IsPost(HtmlNode post)
         {
-            // A post is a <li> node:
-            // <li id = "post-2948970" class="message " data-author="Fanhunter696">
+            if (post == null)
+                return false;
 
-            return post.Name == "li" && post.GetAttributeValue("class", "").Contains("message") && post.Id.StartsWith("post-");
+            return post.Name == "table" && post.Id.StartsWith("post");
         }
 
         /// <summary>
@@ -338,13 +319,16 @@ namespace NetTally.Adapters
         /// <returns>Returns the article node within the post.</returns>
         private HtmlNode GetContentsOfPost(HtmlNode post)
         {
-            if (IsPost(post))
-            {
-                // There is only one <article> node within each post, which contains the post contents.
-                return post.Descendants("article").Single();
-            }
+            if (post == null)
+                return null;
 
-            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
+            string id = GetIdOfPost(post);
+
+            string postMessageId = "post_message_" + id;
+
+            var message = post.Descendants("div").FirstOrDefault(a => a.Id == postMessageId);
+
+            return message;
         }
 
         #endregion
@@ -359,19 +343,8 @@ namespace NetTally.Adapters
         /// or null if it's not a valid page.</returns>
         private HtmlNode GetThreadmarksListFromPage(HtmlDocument page)
         {
-            var pageContent = GetPageContent(page);
-
-            if (pageContent.GetAttributeValue("class", "").Contains("threadmarks"))
-            {
-                return pageContent.Descendants("ol").First(n => n.GetAttributeValue("class", "").Contains("overlayScroll"));
-            }
-            else if (pageContent.GetAttributeValue("class", "").Contains("error"))
-            {
-                // An class of "error" indicates that there are no threadmarks for this thread.
-                return null;
-            }
-
-            throw new InvalidOperationException("Page is not a threadmarks listing.");
+            // vBulletin doesn't have threadmarks
+            return null;
         }
 
         /// <summary>
@@ -383,7 +356,7 @@ namespace NetTally.Adapters
         /// null if it fails.</returns>
         private IEnumerable<HtmlNode> GetThreadmarksFromThreadmarksList(HtmlNode list)
         {
-            return list?.Elements("li");
+            return null;
         }
 
         /// <summary>
@@ -395,9 +368,7 @@ namespace NetTally.Adapters
         /// null if it fails.</returns>
         private IEnumerable<HtmlNode> GetThreadmarksFromPage(HtmlDocument page)
         {
-            var threadmarksList = GetThreadmarksListFromPage(page);
-
-            return GetThreadmarksFromThreadmarksList(threadmarksList);
+            return null;
         }
 
         /// <summary>
@@ -408,7 +379,7 @@ namespace NetTally.Adapters
         /// <returns>Returns the full URL to the post.</returns>
         private string GetUrlOfThreadmark(HtmlNode threadmarkEntry)
         {
-            return GetUrlFromRelativeAddress(threadmarkEntry.Element("a").GetAttributeValue("href", ""));
+            return null;
         }
 
         /// <summary>
@@ -418,7 +389,7 @@ namespace NetTally.Adapters
         /// <returns>Returns the post's ID.</returns>
         private string GetPostIdFromUrl(string url)
         {
-            Regex postLinkRegex = new Regex(@"posts/(?<postId>\d+)/");
+            Regex postLinkRegex = new Regex(@"showthread?p=(?<postId>\d+)");
             var m = postLinkRegex.Match(url);
             if (m.Success)
                 return m.Groups["postId"].Value;
@@ -433,13 +404,7 @@ namespace NetTally.Adapters
         /// <returns>Returns the threadmarker node of the post, or null if none is found.</returns>
         private HtmlNode GetThreadmarkerOfPost(HtmlNode post)
         {
-            if (IsPost(post))
-            {
-                // The threadmarker of a post is contained in a div directly under the <li>, with class="threadmarker".
-                return post.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("threadmarker"));
-            }
-
-            throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
+            return null;
         }
 
         #endregion
@@ -460,16 +425,6 @@ namespace NetTally.Adapters
             // into a single string.
             foreach (var childNode in node.ChildNodes)
             {
-                string nodeClass = childNode.GetAttributeValue("class", "");
-
-                // Once we reach the end marker of the post, no more processing is needed.
-                if (nodeClass.Contains("messageTextEndMarker"))
-                    return sb.ToString();
-
-                // If we encounter a quote, skip past it
-                if (nodeClass.Contains("bbCodeQuote"))
-                    continue;
-
                 // A <br> element adds a newline.
                 // Usually redundant, but sometimes needed before we bail out on
                 // nodes without any inner text (such as <br/>).
@@ -525,8 +480,8 @@ namespace NetTally.Adapters
                         sb.Append("[/url]");
                         break;
                     case "div":
-                        // Recurse into divs
-                        sb.Append(ExtractNodeText(childNode));
+                        // Don't Recurse into divs
+                        //sb.Append(ExtractNodeText(childNode));
                         break;
                     default:
                         break;
