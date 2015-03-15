@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -16,8 +14,6 @@ namespace NetTally
         readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
         #region Event handlers
-        public event EventHandler<MessageEventArgs> StatusChanged;
-
         /// <summary>
         /// Function to raise events when page load status has been updated.
         /// </summary>
@@ -29,6 +25,9 @@ namespace NetTally
         #endregion
 
         #region Public interface functions
+
+        public event EventHandler<MessageEventArgs> StatusChanged;
+
         /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
@@ -181,6 +180,8 @@ namespace NetTally
 
             return htmldoc;
         }
-        
+
+        #endregion
+
     }
 }

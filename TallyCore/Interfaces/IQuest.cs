@@ -44,7 +44,11 @@ namespace NetTally
         /// </summary>
         bool ReadToEndOfThread { get; }
 
-
+        /// <summary>
+        /// Get the forum adapter needed to read results from the web site this
+        /// quest is for.
+        /// </summary>
+        /// <returns></returns>
         IForumAdapter GetForumAdapter();
     }
 }

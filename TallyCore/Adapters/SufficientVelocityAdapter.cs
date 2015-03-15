@@ -512,6 +512,7 @@ namespace NetTally
             if (!quest.CheckForLastThreadmark)
                 return quest.StartPost;
 
+            // Attempt to get the starting post number from threadmarks, if that option is checked.
             var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksFromPage(threadmarkPage);
