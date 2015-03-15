@@ -90,7 +90,8 @@ namespace NetTally
 
                 string urlSite = string.Empty;
                 name = CleanThreadURL(value, out urlSite);
-                Site = urlSite;
+                if (urlSite != string.Empty)
+                    Site = urlSite;
 
                 OnPropertyChanged();
             }
