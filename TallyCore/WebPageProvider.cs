@@ -59,6 +59,9 @@ namespace NetTally
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
                 var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
+                if (firstPage == null)
+                    throw new InvalidOperationException("Unable to load web page.");
+
                 int lastPageNum = forumAdapter.GetLastPageNumberOfThread(firstPage);
 
                 // Limit the end page based on the last page number of the thread.
