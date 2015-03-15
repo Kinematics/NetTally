@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -13,6 +11,8 @@ namespace NetTally
     /// </summary>
     public interface IForumAdapter
     {
+        Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token);
+
 
         #region Functions for constructing URLs
         string GetThreadsUrl(string questTitle);

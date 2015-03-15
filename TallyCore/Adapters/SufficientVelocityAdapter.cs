@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -504,5 +505,35 @@ namespace NetTally
             return postText;
         }
         #endregion
+
+        public async Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
+        {
+            // Use the provided start post if we aren't trying to find the threadmarks.
+            if (!quest.CheckForLastThreadmark)
+                return quest.StartPost;
+
+            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
+
+            var threadmarks = GetThreadmarksFromPage(threadmarkPage);
+
+            if (threadmarks == null || !threadmarks.Any())
+                return quest.StartPost;
+
+            var lastThreadmark = threadmarks.Last();
+            string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
+            string postId = GetPostIdFromUrl(threadmarkUrl);
+
+            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
+
+            var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
+            int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
+
+            if (threadmarkPostNumber > 0)
+                return threadmarkPostNumber + 1;
+            else
+                return quest.StartPost;
+        }
+        
+
     }
 }

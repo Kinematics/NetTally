@@ -52,7 +52,7 @@ namespace NetTally
                 if (!forumAdapter.IsValidThreadName(quest.Name))
                     throw new ArgumentException("The quest name is not valid.");
 
-                int startPost = await GetStartPost(forumAdapter, quest, token).ConfigureAwait(false);
+                int startPost = await forumAdapter.GetStartingPostNumber(this, quest, token).ConfigureAwait(false);
 
                 int startPage = forumAdapter.GetPageNumberFromPostNumber(startPost);
                 int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
@@ -102,44 +102,6 @@ namespace NetTally
                 throw;
             }
         }
-
-        #endregion
-
-        /// <summary>
-        /// Calculate start post based on last threadmark on the threadmarks page.
-        /// </summary>
-        /// <param name="questTitle"></param>
-        /// <param name="startPost"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        private async Task<int> GetStartPost(IForumAdapter forumAdapter, IQuest quest, CancellationToken token)
-        {
-            // Use the provided start post if we aren't trying to find the threadmarks.
-            if (!quest.CheckForLastThreadmark)
-                return quest.StartPost;
-
-            var threadmarkPage = await GetPage(forumAdapter.GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token);
-
-            var threadmarks = forumAdapter.GetThreadmarksFromPage(threadmarkPage);
-
-            if (threadmarks == null || !threadmarks.Any())
-                return quest.StartPost;
-
-            var lastThreadmark = threadmarks.Last();
-            string threadmarkUrl = forumAdapter.GetUrlOfThreadmark(lastThreadmark);
-            string postId = forumAdapter.GetPostIdFromUrl(threadmarkUrl);
-
-            var lastThreadmarkPage = await GetPage(threadmarkUrl, postId, false, token);
-
-            var threadmarkPost = forumAdapter.GetPostFromPageById(lastThreadmarkPage, postId);
-            int threadmarkPostNumber = forumAdapter.GetPostNumberOfPost(threadmarkPost);
-
-            if (threadmarkPostNumber > 0)
-                return threadmarkPostNumber + 1;
-            else
-                return quest.StartPost;
-        }
-
 
         /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
