@@ -149,7 +149,7 @@ namespace NetTally
         /// <param name="bypassCache">Whether to skip checking the cache.</param>
         /// <param name="token">Cancellation token for the function.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        private async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token)
         {
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
             if (!bypassCache && pageCache.ContainsKey(url))

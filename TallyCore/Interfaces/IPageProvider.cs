@@ -18,6 +18,16 @@ namespace NetTally
         Task<List<HtmlDocument>> LoadPages(IQuest quest, CancellationToken token);
 
         /// <summary>
+        /// Asynchronously load a specific page.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="shortDescrip"></param>
+        /// <param name="bypassCache"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token);
+
+        /// <summary>
         /// Clear the cache of any previously loaded pages.
         /// </summary>
         void ClearPageCache();
