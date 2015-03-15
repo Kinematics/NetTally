@@ -103,7 +103,7 @@ namespace NetTally
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX]\].*", RegexOptions.Multiline);
+        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\].*", RegexOptions.Multiline);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         // Clean extraneous information from a vote in order to compare with other votes.
