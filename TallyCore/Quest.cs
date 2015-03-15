@@ -16,7 +16,7 @@ namespace NetTally
     public class Quest : IQuest, INotifyPropertyChanged
     {
         //static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
-        static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?((?<questName>[^/]+)(&page=\d+))(/.*)?");
+        static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
         public const string NewEntryName = "New Entry";
         IForumAdapter forumAdapter = null;
 
