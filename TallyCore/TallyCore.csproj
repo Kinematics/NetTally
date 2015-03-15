@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\SpaceBattlesAdapter.cs" />
+    <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="CachedPage.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />

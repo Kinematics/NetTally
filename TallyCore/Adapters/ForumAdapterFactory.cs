@@ -34,6 +34,8 @@ namespace NetTally
                 case "":
                     // Sufficient Velocity is the default if no site name is given
                     return new SVForumAdapter();
+                case "http://forums.spacebattles.com/":
+                    return new SpaceBattlesAdapter();
                 default:
                     return null;
             }
