@@ -57,7 +57,8 @@ namespace NetTally
                     // Process each user post in the list.
                     foreach (var post in validPosts)
                     {
-                        ProcessPost(post, quest);
+                        if (post != null)
+                            ProcessPost(post, quest);
                     }
                 }
             }
