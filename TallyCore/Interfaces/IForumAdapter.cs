@@ -100,5 +100,7 @@ namespace NetTally
         /// <param name="post">The post or post content to query.</param>
         /// <returns>Returns the contents of the post as a formatted string.</returns>
         string GetTextOfPost(HtmlNode post);
+
+        string GetPageTitle(HtmlDocument page);
     }
 }

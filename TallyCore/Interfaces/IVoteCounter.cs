@@ -5,6 +5,7 @@ namespace NetTally
 {
     public interface IVoteCounter
     {
+        string Title { get; set; }
         Dictionary<string, HashSet<string>> VotesWithSupporters { get; }
         Dictionary<string, string> VoterMessageId { get; }
 

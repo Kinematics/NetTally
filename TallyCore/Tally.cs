@@ -126,7 +126,8 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
-            sb.AppendLine("[b]Vote Tally[/b]");
+            sb.AppendFormat("[b]Vote Tally[/b] : {0}", voteCounter.Title);
+            sb.AppendLine("");
             sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
                 product.Product,
                 version.InformationalVersion);

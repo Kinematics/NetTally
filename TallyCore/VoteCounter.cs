@@ -18,6 +18,7 @@ namespace NetTally
         }
 
         #region Public Interface
+        public string Title { get; set; } = string.Empty;
 
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
 
@@ -46,6 +47,9 @@ namespace NetTally
             {
                 if (page != null)
                 {
+                    if (Title == string.Empty)
+                        Title = forumAdapter.GetPageTitle(page);
+
                     // Get a list of valid posts to process from all posts on the page.
                     var validPosts = from post in forumAdapter.GetPostsFromPage(page)
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)

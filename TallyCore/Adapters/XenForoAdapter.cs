@@ -43,6 +43,22 @@ namespace NetTally.Adapters
         public string GetUrlFromRelativeAddress(string relative) => ForumUrl + relative;
 
         /// <summary>
+        /// Get the title of the web page.
+        /// </summary>
+        /// <param name="page">The page to search.</param>
+        /// <returns>Returns the title of the page.</returns>
+        public string GetPageTitle(HtmlDocument page)
+        {
+            var root = page.DocumentNode;
+            var title = root?.Element("html")?.Element("head")?.Element("title")?.InnerText;
+
+            if (title == null)
+                return string.Empty;
+
+            return CleanupPostString(title);
+        }
+
+        /// <summary>
         /// Calculate the page number that corresponds to the post number given.
         /// </summary>
         /// <param name="post">Post number.</param>
