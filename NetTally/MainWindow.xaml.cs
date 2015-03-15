@@ -15,9 +15,6 @@ namespace NetTally
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Storage vars
-        const string questFile = "questlist.xml";
-
         // Collections for holding quests
         public ICollectionView QuestCollectionView { get; }
         QuestCollection questCollection;
