@@ -11,9 +11,9 @@ namespace NetTally.Adapters
 {
     public class XenForoAdapter : IForumAdapter
     {
-        const string ForumUrl = "http://forums.spacebattles.com/";
-        const string ThreadsUrl = "http://forums.spacebattles.com/threads/";
-        const string PostsUrl = "http://forums.spacebattles.com/posts/";
+        protected virtual string ForumUrl { get; } = "http://forums.spacebattles.com/";
+        protected virtual string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
+        protected virtual string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
 
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.

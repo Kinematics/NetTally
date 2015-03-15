@@ -8,9 +8,9 @@ namespace NetTally.Adapters
 {
     public class SpaceBattlesAdapter : XenForoAdapter
     {
-        const string ForumUrl = "http://forums.spacebattles.com/";
-        const string ThreadsUrl = "http://forums.spacebattles.com/threads/";
-        const string PostsUrl = "http://forums.spacebattles.com/posts/";
+        override protected string ForumUrl { get; } = "http://forums.spacebattles.com/";
+        override protected string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
+        override protected string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
 
     }
 }
