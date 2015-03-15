@@ -116,7 +116,7 @@ namespace TallyUnitTest
 
             a.Site = testName;
 
-            Assert.AreEqual(testName, a.Name);
+            Assert.AreEqual(testName, a.Site);
         }
         #endregion
 
