@@ -92,7 +92,9 @@ namespace NetTally
                 Match m = siteRegex.Match(threadName);
                 if (m.Success)
                     return m.Groups["siteName"].Value;
-                return string.Empty;
+                //return string.Empty;
+                // Default site if no site given in thread name.
+                return "http://forums.sufficientvelocity.com/";
             }
         }
 

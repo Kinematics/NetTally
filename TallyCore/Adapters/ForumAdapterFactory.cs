@@ -48,11 +48,11 @@ namespace NetTally
         /// <returns>Returns a forum adapter for the site the quest is on.</returns>
         private static IForumAdapter GetExplicitAdapter(IQuest quest)
         {
-            if (quest.Site.StartsWith("http://forums.sufficientvelocity.com/"))
+            if (quest.SiteName == "http://forums.sufficientvelocity.com/")
                 return new SufficientVelocityAdapter();
-            else if (quest.Site.StartsWith("http://forums.spacebattles.com/"))
+            else if (quest.SiteName == "http://forums.spacebattles.com/")
                 return new SpaceBattlesAdapter();
-            else if (quest.Site == string.Empty)
+            else if (quest.SiteName == string.Empty)
                 // Sufficient Velocity is the default if no site name is given
                 return new SufficientVelocityAdapter();
             else return null;
@@ -68,21 +68,19 @@ namespace NetTally
         {
             IPageProvider webPageProvider = new WebPageProvider();
 
-            string url = quest.Site + quest.Name;
-
-            var page = await webPageProvider.GetPage(url, quest.Site, false, token);
+            var page = await webPageProvider.GetPage(quest.ThreadName, quest.SiteName, false, token);
 
             if (CheckForXenForo(page))
-                return new XenForoAdapter(quest.Site);
+                return new XenForoAdapter(quest.SiteName);
 
             if (CheckForVBulletin5(page))
-                return new vBulletinAdapter5(quest.Site);
+                return new vBulletinAdapter5(quest.SiteName);
 
             if (CheckForVBulletin4(page))
-                return new vBulletinAdapter4(quest.Site);
+                return new vBulletinAdapter4(quest.SiteName);
 
             if (CheckForVBulletin3(page))
-                return new vBulletinAdapter3(quest.Site);
+                return new vBulletinAdapter3(quest.SiteName);
 
             return null;
         }
