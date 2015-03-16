@@ -85,7 +85,7 @@ namespace NetTally.Adapters
         public bool IsValidThreadName(string name)
         {
             // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
-            Regex validateQuestNameForUrl = new Regex(@"^showthread.php\?t=\d+");
+            Regex validateQuestNameForUrl = new Regex(@"^showthread.php");
             return validateQuestNameForUrl.Match(name).Success;
         }
 
