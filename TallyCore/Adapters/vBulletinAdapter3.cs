@@ -9,9 +9,9 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public class vBulletinAdapter : IForumAdapter
+    public class vBulletinAdapter3 : IForumAdapter
     {
-        public vBulletinAdapter(string baseSiteName)
+        public vBulletinAdapter3(string baseSiteName)
         {
             ForumUrl = baseSiteName;
             ThreadsUrl = baseSiteName;
@@ -77,7 +77,7 @@ namespace NetTally.Adapters
         /// <returns>Returns true if the name is valid.</returns>
         public bool IsValidThreadName(string name)
         {
-            // URL should not have any whitespace in it, and should end with a thread number (eg: .11111).
+            // vBulletin thread name always starts with showthread.php
             Regex validateQuestNameForUrl = new Regex(@"^showthread.php");
             return validateQuestNameForUrl.Match(name).Success;
         }
@@ -108,6 +108,8 @@ namespace NetTally.Adapters
         /// <returns>Returns the last page number of the thread.</returns>
         public int GetLastPageNumberOfThread(HtmlDocument page)
         {
+            // If there's no pagenav div, that means there's no navigation to alternate pages,
+            // which means there's only one page in the thread.
             var pageNavDiv = page?.DocumentNode.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "") == "pagenav");
 
             if (pageNavDiv == null)
