@@ -62,12 +62,17 @@ namespace NetTally
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
 
-                int lastPageNum = forumAdapter.GetLastPageNumberOfThread(firstPage);
-
                 // Limit the end page based on the last page number of the thread.
-                if (quest.ReadToEndOfThread || lastPageNum < endPage)
+                if (quest.ReadToEndOfThread)
                 {
-                    endPage = lastPageNum;
+                    try
+                    {
+                        endPage = forumAdapter.GetLastPageNumberOfThread(firstPage);
+                    }
+                    catch (Exception)
+                    {
+                        endPage = startPage;
+                    }
                 }
 
                 // We will store the loaded pages in a new List.
