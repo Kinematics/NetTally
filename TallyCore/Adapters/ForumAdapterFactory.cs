@@ -72,6 +72,10 @@ namespace NetTally
 
             var page = await webPageProvider.GetPage(url, quest.Site, false, token);
 
+            if (CheckForXenForo(page))
+                return new XenForoAdapter(quest.Site);
+
+
             bool found = CheckForVBulletin(page);
             if (found)
                 return new vBulletinAdapter(quest.Site);
@@ -79,6 +83,32 @@ namespace NetTally
             return null;
         }
 
+        /// <summary>
+        /// Determine if the provided page has the signature indicating that it
+        /// is a XenForo forum site.
+        /// </summary>
+        /// <param name="page">Page to check.</param>
+        /// <returns>Returns true if it's a XenForo forum.</returns>
+        private static bool CheckForXenForo(HtmlDocument page)
+        {
+            if (page == null)
+                return false;
+
+            var html = page.DocumentNode.Element("html");
+            if (html != null)
+            {
+                return (html.Id == "XenForo");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determine if the provided page has the signature indicating that it
+        /// is a vBulletin forum site.
+        /// </summary>
+        /// <param name="page">Page to check.</param>
+        /// <returns>Returns true if it's a vBulletin forum.</returns>
         private static bool CheckForVBulletin(HtmlDocument page)
         {
             if (page == null)
