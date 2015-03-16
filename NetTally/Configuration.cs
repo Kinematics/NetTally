@@ -31,6 +31,9 @@ namespace NetTally
 
             var map = GetUpgradeMap();
 
+            if (map == null)
+                return;
+
             var upgradeConfig = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
 
             QuestsSection questConfig = upgradeConfig.Sections[QuestsSection.DefinedName] as QuestsSection;
