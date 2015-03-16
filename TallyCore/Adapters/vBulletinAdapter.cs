@@ -71,13 +71,6 @@ namespace NetTally.Adapters
         }
 
         /// <summary>
-        /// Calculate the page number that corresponds to the post number given.
-        /// </summary>
-        /// <param name="post">Post number.</param>
-        /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 20) + 1;
-
-        /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
         /// </summary>
         /// <param name="name">The name of the quest/thread.</param>
@@ -99,6 +92,13 @@ namespace NetTally.Adapters
             // vBulletin does not provide thread author information
             return string.Empty;
         }
+
+        /// <summary>
+        /// Calculate the page number that corresponds to the post number given.
+        /// </summary>
+        /// <param name="post">Post number.</param>
+        /// <returns>Page number.</returns>
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 20) + 1;
 
         /// <summary>
         /// Get the last page number of the thread, based on info available
