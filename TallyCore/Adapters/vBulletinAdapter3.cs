@@ -9,6 +9,9 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
+    /// <summary>
+    /// Class for web scraping forums using version 3 of vBulletin.
+    /// </summary>
     public class vBulletinAdapter3 : IForumAdapter
     {
         public vBulletinAdapter3(string baseSiteName)
