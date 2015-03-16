@@ -13,6 +13,9 @@ namespace NetTally.Adapters
     {
         public vBulletinAdapter3(string baseSiteName)
         {
+            if (baseSiteName == null)
+                throw new ArgumentNullException(nameof(baseSiteName));
+
             ForumUrl = baseSiteName;
             ThreadsUrl = baseSiteName;
             PostsUrl = baseSiteName;
@@ -47,6 +50,9 @@ namespace NetTally.Adapters
 
         public string GetPostUrlFromId(string postId)
         {
+            if (postId == null)
+                throw new ArgumentNullException(nameof(postId));
+
             // http://forums.animesuki.com/showthread.php?p=5460127#post5460127
             string url = ForumUrl + "showthread.php?p=" + postId + "#post" + postId;
             return url;
@@ -61,8 +67,10 @@ namespace NetTally.Adapters
         /// <returns>Returns the title of the page.</returns>
         public string GetPageTitle(HtmlDocument page)
         {
-            var root = page.DocumentNode;
-            var title = root?.Element("html")?.Element("head")?.Element("title")?.InnerText;
+            if (page == null)
+                throw new ArgumentNullException(nameof(page));
+
+            var title = page.DocumentNode.Element("html")?.Element("head")?.Element("title")?.InnerText;
 
             if (title == null)
                 return string.Empty;
@@ -77,6 +85,9 @@ namespace NetTally.Adapters
         /// <returns>Returns true if the name is valid.</returns>
         public bool IsValidThreadName(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             // vBulletin thread name always starts with showthread.php
             Regex validateQuestNameForUrl = new Regex(@"^showthread.php");
             return validateQuestNameForUrl.Match(name).Success;
@@ -108,9 +119,12 @@ namespace NetTally.Adapters
         /// <returns>Returns the last page number of the thread.</returns>
         public int GetLastPageNumberOfThread(HtmlDocument page)
         {
+            if (page == null)
+                throw new ArgumentNullException(nameof(page));
+
             // If there's no pagenav div, that means there's no navigation to alternate pages,
             // which means there's only one page in the thread.
-            var pageNavDiv = page?.DocumentNode.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "") == "pagenav");
+            var pageNavDiv = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "") == "pagenav");
 
             if (pageNavDiv == null)
                 return 1;
@@ -140,6 +154,9 @@ namespace NetTally.Adapters
         /// <returns>Returns an enumerable list of posts.</returns>
         public IEnumerable<HtmlNode> GetPostsFromPage(HtmlDocument page)
         {
+            if (page == null)
+                throw new ArgumentNullException(nameof(page));
+
             var postList = GetPostListFromPage(page);
             return GetPostsFromList(postList);
         }
@@ -153,7 +170,7 @@ namespace NetTally.Adapters
         public string GetIdOfPost(HtmlNode post)
         {
             if (post == null)
-                return string.Empty;
+                throw new ArgumentNullException(nameof(post));
 
             string postIdString = post.Id;
             if (postIdString.StartsWith("post"))
@@ -169,25 +186,24 @@ namespace NetTally.Adapters
         /// <returns>Returns the post number that's found.</returns>
         public int GetPostNumberOfPost(HtmlNode post)
         {
-            if (post != null)
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+
+            string id = GetIdOfPost(post);
+
+            string postNumberAnchorID = "postcount" + id;
+
+            var anchor = post.Descendants("a").FirstOrDefault(a => a.Id == postNumberAnchorID);
+
+            if (anchor != null)
             {
-                string id = GetIdOfPost(post);
-
-                string postNumberAnchorID = "postcount" + id;
-
-                var anchor = post.Descendants("a").FirstOrDefault(a => a.Id == postNumberAnchorID);
-
-                if (anchor != null)
-                {
-                    string postNumText = anchor.GetAttributeValue("name", "");
-                    int postNum = 0;
-                    if (int.TryParse(postNumText, out postNum))
-                        return postNum;
-                }
+                string postNumText = anchor.GetAttributeValue("name", "");
+                int postNum = 0;
+                if (int.TryParse(postNumText, out postNum))
+                    return postNum;
             }
 
-            return 0;
-            //throw new InvalidOperationException("Unable to extract a post number from the post.");
+            throw new InvalidOperationException("Unable to extract a post number from the post.");
         }
 
         /// <summary>
@@ -197,28 +213,28 @@ namespace NetTally.Adapters
         /// <returns>Returns the author of the post.</returns>
         public string GetAuthorOfPost(HtmlNode post)
         {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+
             string author = string.Empty;
 
-            if (post != null)
+            string id = GetIdOfPost(post);
+
+            string postAuthorDivID = "postmenu_" + id;
+
+            var authorDiv = post.Descendants("div").FirstOrDefault(a => a.Id == postAuthorDivID);
+
+            if (authorDiv != null)
             {
-                string id = GetIdOfPost(post);
+                var authorAnchor = authorDiv.Element("a");
 
-                string postAuthorDivID = "postmenu_" + id;
-
-                var authorDiv = post.Descendants("div").FirstOrDefault(a => a.Id == postAuthorDivID);
-
-                if (authorDiv != null)
+                if (authorAnchor != null)
                 {
-                    var authorAnchor = authorDiv.Element("a");
+                    author = authorAnchor.InnerText;
 
-                    if (authorAnchor != null)
+                    if (authorAnchor.Element("span") != null)
                     {
-                        author = authorAnchor.InnerText;
-
-                        if (authorAnchor.Element("span") != null)
-                        {
-                            author = authorAnchor.Element("span").InnerText;
-                        }
+                        author = authorAnchor.Element("span").InnerText;
                     }
                 }
             }
@@ -234,6 +250,9 @@ namespace NetTally.Adapters
         /// <returns>Returns the contents of the post as a formatted string.</returns>
         public string GetTextOfPost(HtmlNode post)
         {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+
             // Get the inner contents, if it wasn't passed in directly
             post = GetContentsOfPost(post);
 
@@ -249,6 +268,9 @@ namespace NetTally.Adapters
         #region Special Interface function
         public Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
             return Task.FromResult(quest.StartPost);
         }
 
@@ -260,28 +282,16 @@ namespace NetTally.Adapters
         #region Functions dealing with pages
 
         /// <summary>
-        /// Get the HTML node of the page that represents the top-level element
-        /// that contains all the primary content.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>The element containing the main page content.</returns>
-        private HtmlNode GetPageContent(HtmlDocument page)
-        {
-            return page.DocumentNode.Element("body").Elements("div").FirstOrDefault(a => a.Id == "posts");
-        }
-
-        /// <summary>
         /// Get the node element containing all the posts on the page.
         /// </summary>
         /// <param name="page">The page to search.</param>
         /// <returns>Returns the page element that contains the posts.</returns>
         private HtmlNode GetPostListFromPage(HtmlDocument page)
         {
-            var root = page?.DocumentNode;
-            if (root?.Name != "html")
-                root = root?.Element("html");
+            var divs = page.DocumentNode.Element("html")?.Element("body")?.Elements("div");
+            var posts = divs?.FirstOrDefault(a => a.Id == "posts");
 
-            return root?.Element("body")?.Elements("div").FirstOrDefault(a => a.Id == "posts");
+            return posts;
         }
 
         /// <summary>
@@ -313,7 +323,7 @@ namespace NetTally.Adapters
             var postsList = GetPostsFromPage(page);
             string postId = "post" + id;
 
-            return postsList?.FirstOrDefault(a => a.Id == postId);
+            return postsList.FirstOrDefault(a => a.Id == postId);
         }
         #endregion
 
@@ -352,82 +362,6 @@ namespace NetTally.Adapters
 
         #endregion
 
-        #region Functions for threadmarks
-        /// <summary>
-        /// Given a page (presumably the threadmarks page), attempt to
-        /// get the list node that holds all the threadmarks.
-        /// </summary>
-        /// <param name="page">The page to check.</param>
-        /// <returns>Returns the element containing the threadmarks,
-        /// or null if it's not a valid page.</returns>
-        private HtmlNode GetThreadmarksListFromPage(HtmlDocument page)
-        {
-            // vBulletin doesn't have threadmarks
-            return null;
-        }
-
-        /// <summary>
-        /// Given a list of threadmarks, return an IEnumerable of the threadmark
-        /// entries.
-        /// </summary>
-        /// <param name="list">The list of potential threadmarks.</param>
-        /// <returns>Returns an enumerable list of the threadmarks, or
-        /// null if it fails.</returns>
-        private IEnumerable<HtmlNode> GetThreadmarksFromThreadmarksList(HtmlNode list)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Given a page (presumably the threadmarks page), attempt to
-        /// get an enumeration list of all the threadmarks from the page.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns an enumerable list of threadmarks, or
-        /// null if it fails.</returns>
-        private IEnumerable<HtmlNode> GetThreadmarksFromPage(HtmlDocument page)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Given a threadmark entry from a list of threadmarks, get
-        /// the URL of the post the threadmark is for.
-        /// </summary>
-        /// <param name="threadmarkEntry">A threadmark list entry.</param>
-        /// <returns>Returns the full URL to the post.</returns>
-        private string GetUrlOfThreadmark(HtmlNode threadmarkEntry)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Given a url for a post, using its unique ID, extract the ID.
-        /// </summary>
-        /// <param name="url">A url with a post's unique ID in it.</param>
-        /// <returns>Returns the post's ID.</returns>
-        private string GetPostIdFromUrl(string url)
-        {
-            Regex postLinkRegex = new Regex(@"showthread?p=(?<postId>\d+)");
-            var m = postLinkRegex.Match(url);
-            if (m.Success)
-                return m.Groups["postId"].Value;
-
-            throw new ArgumentException("Unable to extract post ID from link:\n" + url, nameof(url));
-        }
-
-        /// <summary>
-        /// Get the threadmarker node of the post, if any.
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the threadmarker node of the post, or null if none is found.</returns>
-        private HtmlNode GetThreadmarkerOfPost(HtmlNode post)
-        {
-            return null;
-        }
-
-        #endregion
-
         #region Text processing functions
         /// <summary>
         /// Extract the text of the provided HTML node.  Recurses into nested
@@ -438,6 +372,9 @@ namespace NetTally.Adapters
         /// elements converted to BBCode tags.</returns>
         private string ExtractNodeText(HtmlNode node)
         {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
             StringBuilder sb = new StringBuilder();
 
             // Search the post for valid element types, and put them all together
@@ -517,6 +454,9 @@ namespace NetTally.Adapters
         /// <returns>Returns a cleaned version of the post text.</returns>
         private string CleanupPostString(string postText)
         {
+            if (postText == null)
+                throw new ArgumentNullException(nameof(postText));
+
             postText = postText.TrimStart();
             postText = HtmlEntity.DeEntitize(postText);
             postText = badCharactersRegex.Replace(postText, "");

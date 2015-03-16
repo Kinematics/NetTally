@@ -52,6 +52,7 @@ namespace NetTally
 
                     // Get a list of valid posts to process from all posts on the page.
                     var validPosts = from post in forumAdapter.GetPostsFromPage(page)
+                                     where post != null
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)
                                      where forumAdapter.GetAuthorOfPost(post) != threadAuthor &&
                                         postNumber >= quest.StartPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
