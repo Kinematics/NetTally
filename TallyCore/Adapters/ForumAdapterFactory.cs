@@ -75,10 +75,14 @@ namespace NetTally
             if (CheckForXenForo(page))
                 return new XenForoAdapter(quest.Site);
 
+            if (CheckForVBulletin5(page))
+                return new vBulletinAdapter5(quest.Site);
 
-            bool found = CheckForVBulletin(page);
-            if (found)
-                return new vBulletinAdapter(quest.Site);
+            if (CheckForVBulletin4(page))
+                return new vBulletinAdapter4(quest.Site);
+
+            if (CheckForVBulletin3(page))
+                return new vBulletinAdapter3(quest.Site);
 
             return null;
         }
@@ -105,11 +109,51 @@ namespace NetTally
 
         /// <summary>
         /// Determine if the provided page has the signature indicating that it
+        /// is a XenForo forum site.
+        /// </summary>
+        /// <param name="page">Page to check.</param>
+        /// <returns>Returns true if it's a XenForo forum.</returns>
+        private static bool CheckForVBulletin5(HtmlDocument page)
+        {
+            if (page == null)
+                return false;
+
+            var body = page.DocumentNode?.Element("html")?.Element("body");
+            if (body != null)
+            {
+                return (body.Id == "vb-page-body");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determine if the provided page has the signature indicating that it
+        /// is a XenForo forum site.
+        /// </summary>
+        /// <param name="page">Page to check.</param>
+        /// <returns>Returns true if it's a XenForo forum.</returns>
+        private static bool CheckForVBulletin4(HtmlDocument page)
+        {
+            if (page == null)
+                return false;
+
+            var html = page.DocumentNode?.Element("html");
+            if (html != null)
+            {
+                return (html.Id == "vbulletin_html");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determine if the provided page has the signature indicating that it
         /// is a vBulletin forum site.
         /// </summary>
         /// <param name="page">Page to check.</param>
         /// <returns>Returns true if it's a vBulletin forum.</returns>
-        private static bool CheckForVBulletin(HtmlDocument page)
+        private static bool CheckForVBulletin3(HtmlDocument page)
         {
             if (page == null)
                 return false;
