@@ -15,6 +15,31 @@ namespace NetTally.Adapters
         protected virtual string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
         protected virtual string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
 
+        public XenForoAdapter()
+        {
+
+        }
+
+        public XenForoAdapter(string site)
+        {
+            string baseSite = GetBaseSite(site);
+            ForumUrl = baseSite;
+            ThreadsUrl = baseSite + "threads/";
+            PostsUrl = baseSite + "posts/";
+        }
+
+        private string GetBaseSite(string site)
+        {
+            Regex baseSiteRegex = new Regex(@"(?<baseSite>http://[^/]+/)");
+            Match m = baseSiteRegex.Match(site);
+            if (m.Success)
+                return m.Groups["baseSite"].Value;
+
+            return site;
+        }
+
+
+
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         readonly Regex badCharactersRegex = new Regex("\u200b");
