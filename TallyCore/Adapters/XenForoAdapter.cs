@@ -11,9 +11,9 @@ namespace NetTally.Adapters
 {
     public class XenForoAdapter : IForumAdapter
     {
-        protected virtual string ForumUrl { get; } = "http://forums.spacebattles.com/";
-        protected virtual string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
-        protected virtual string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
+        protected virtual string ForumUrl { get; } = "http://forums.sufficientvelocity.com/";
+        protected virtual string ThreadsUrl { get; } = "http://forums.sufficientvelocity.com/threads/";
+        protected virtual string PostsUrl { get; } = "http://forums.sufficientvelocity.com/posts/";
 
         public XenForoAdapter()
         {
