@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetTally
 {
@@ -12,21 +9,76 @@ namespace NetTally
     /// </summary>
     public static class NetTallyConfig
     {
+        // Keep the configuration file for the duration of the program run.
         static Configuration config = null;
+
         public static void Load(Tally tally, QuestCollectionWrapper questsWrapper)
         {
+            Upgrade();
+
             config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
 
             QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
-            if (questConfig == null)
-            {
-                questConfig = new QuestsSection();
-                questConfig.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToLocalUser;
-                config.Sections.Add(QuestsSection.DefinedName, questConfig);
-            }
 
-            questConfig.Load(questsWrapper);
+            questConfig?.Load(questsWrapper);
         }
+        
+        private static void Upgrade()
+        {
+            var conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+            if (conf.HasFile)
+                return;
+
+            var map = GetUpgradeMap();
+
+            var upgradeConfig = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
+
+            QuestsSection questConfig = upgradeConfig.Sections[QuestsSection.DefinedName] as QuestsSection;
+
+            if (questConfig == null)
+                return;
+
+            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null);
+            questConfig.Load(questWrapper);
+
+            upgradeConfig.SaveAs(conf.FilePath, ConfigurationSaveMode.Full);
+        }
+
+
+        private static ExeConfigurationFileMap GetUpgradeMap()
+        {
+            var conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+            FileInfo defaultFile = new FileInfo(conf.FilePath);
+
+            var dir = defaultFile.Directory;
+            var parent = dir.Parent;
+
+            if (!parent.Exists)
+                return null;
+
+            var versionDirectories = parent.EnumerateDirectories("*.*.*.*", SearchOption.TopDirectoryOnly);
+            if (versionDirectories.Count() == 0)
+                return null;
+
+            // Get 'newest' directory that is not the one we expect to use
+            var latestDir = versionDirectories.OrderBy(d => d.Name).Last(d => d.Name != dir.Name);
+
+            var upgradeFile = Path.Combine(latestDir.FullName, defaultFile.Name);
+
+            ExeConfigurationFileMap map = new ExeConfigurationFileMap();
+            map.RoamingUserConfigFilename = upgradeFile;
+
+
+            conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            map.MachineConfigFilename = conf.FilePath;
+            map.ExeConfigFilename = conf.FilePath;
+
+            conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            map.LocalUserConfigFilename = conf.FilePath;
+
+            return map;
+        }
+        
 
         public static void Save(Tally tally, QuestCollectionWrapper questsWrapper)
         {
