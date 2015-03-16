@@ -5,6 +5,11 @@ namespace NetTally
 {
     public interface IQuest
     {
+        string ThreadName { get; set; }
+        string DisplayName { get; set; }
+        string SiteName { get; }
+
+
         /// <summary>
         /// The web site that the quest is on.
         /// </summary>

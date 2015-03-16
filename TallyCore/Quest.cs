@@ -15,15 +15,13 @@ namespace NetTally
     [DataContract(Name ="Quest")]
     public class Quest : IQuest, INotifyPropertyChanged
     {
+        static readonly Regex siteRegex = new Regex(@"^(?<siteName>http://[^/]+/)");
+        static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)$");
+
         //static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
         static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
         public const string NewEntryName = "New Entry";
         IForumAdapter forumAdapter = null;
-
-        /// <summary>
-        /// Empty constructor for XML serialization.
-        /// </summary>
-        public Quest() { }
 
         #region Interface implementations
         /// <summary>
@@ -40,6 +38,69 @@ namespace NetTally
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
+
+        string threadName = string.Empty;
+        string displayName = string.Empty;
+
+        public string ThreadName
+        {
+            get
+            {
+                return threadName;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("ThreadName");
+                if (value == string.Empty)
+                    throw new ArgumentOutOfRangeException("ThreadName", "Thread name cannot be empty.");
+
+                threadName = value;
+                OnPropertyChanged();
+                UpdateForumAdapter();
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (displayName != string.Empty)
+                    return displayName;
+
+                Match m = displayNameRegex.Match(threadName);
+                if (m.Success)
+                    return m.Groups["displayName"].Value;
+
+                return threadName;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("DisplayName");
+
+                displayName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SiteName
+        {
+            get
+            {
+                Match m = siteRegex.Match(threadName);
+                if (m.Success)
+                    return m.Groups["siteName"].Value;
+                return string.Empty;
+            }
+        }
+
+        private void UpdateForumAdapter()
+        {
+            forumAdapter = ForumAdapterFactory.GetAdapter(this);
+        }
+
 
         string site = string.Empty;
         string name = NewEntryName;
