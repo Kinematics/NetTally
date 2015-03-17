@@ -64,7 +64,13 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, QuestCollectionView.CurrentItem?.ToString());
+            string selectedQuest = "";
+            IQuest currentQuest = QuestCollectionView.CurrentItem as IQuest;
+            if (currentQuest != null)
+            {
+                selectedQuest = currentQuest.ThreadName;
+            }
+            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
             NetTallyConfig.Save(tally, qcw);
         }
         #endregion
