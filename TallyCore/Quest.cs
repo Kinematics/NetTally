@@ -223,7 +223,7 @@ namespace NetTally
             if (url == string.Empty)
                 return url;
 
-            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(#[^/]*)?$");
+            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
             Match m = pageNumberRegex.Match(url);
             if (m.Success)
                 url = m.Groups["base"].Value;
