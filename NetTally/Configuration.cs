@@ -130,6 +130,8 @@ namespace NetTally
             {
                 IQuest q = new Quest()
                 {
+                    DisplayName = quest.DisplayName,
+                    ThreadName = quest.ThreadName,
                     Site = quest.Site,
                     Name = quest.Name,
                     StartPost = quest.StartPost,
@@ -169,7 +171,12 @@ namespace NetTally
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((QuestElement)element).Name;
+            QuestElement qe = element as QuestElement;
+            if (qe.ThreadName != "")
+                return qe.ThreadName;
+            if (qe.Site != "" || qe.Name != "")
+                return qe.Site + qe.Name;
+            return qe.DisplayName;
         }
 
         public new QuestElement this[string name]
@@ -195,7 +202,7 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
-            var questElement = new QuestElement(quest.Site, quest.Name, quest.StartPost, quest.EndPost,
+            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine);
             BaseAdd(questElement);
         }
@@ -212,11 +219,13 @@ namespace NetTally
     /// </summary>
     public class QuestElement : ConfigurationElement
     {
-        public QuestElement(string site, string name, int startPost, int endPost, bool checkForLastThreadmark,
+        public QuestElement(string threadName, string displayName, int startPost, int endPost, bool checkForLastThreadmark,
             bool useVotePartitions, bool partitionByLine)
         {
-            Site = site;
-            Name = name;
+            //Site = site;
+            //Name = name;
+            ThreadName = threadName;
+            DisplayName = displayName;
             StartPost = startPost;
             EndPost = endPost;
             CheckForLastThreadmark = checkForLastThreadmark;
@@ -228,14 +237,36 @@ namespace NetTally
         { }
 
 
-        [ConfigurationProperty("Site", DefaultValue = "", IsKey = true)]
+        [ConfigurationProperty("ThreadName", DefaultValue = "", IsKey = true)]
+        public string ThreadName
+        {
+            get
+            {
+                string prop = (string)this["ThreadName"];
+                if ((prop == null) || (prop == string.Empty))
+                {
+                    prop = Site + Name;
+                }
+                return prop;
+            }
+            set { this["ThreadName"] = value; }
+        }
+
+        [ConfigurationProperty("DisplayName", DefaultValue = "")]
+        public string DisplayName
+        {
+            get { return (string)this["DisplayName"]; }
+            set { this["DisplayName"] = value; }
+        }
+
+        [ConfigurationProperty("Site", DefaultValue = "")]
         public string Site
         {
             get { return (string)this["Site"]; }
             set { this["Site"] = value; }
         }
 
-        [ConfigurationProperty("Name", DefaultValue = "Name", IsRequired = true, IsKey = true)]
+        [ConfigurationProperty("Name", DefaultValue = "")]
         public string Name
         {
             get { return (string)this["Name"]; }
