@@ -52,26 +52,38 @@ namespace NetTally.Adapters
 
         // Functions for constructing URLs
 
-        public string GetThreadsUrl(string questTitle) => ThreadsUrl + questTitle;
+        private string GetThreadmarksPageUrl(string threadName) => threadName + "/threadmarks";
 
-        public string GetThreadPageBaseUrl(string questTitle) => GetThreadsUrl(questTitle) + "/page-";
+        private string GetRelativeUrl(string relative) => ForumUrl + relative;
 
-        public string GetThreadmarksPageUrl(string questTitle) => GetThreadsUrl(questTitle) + "/threadmarks";
 
-        public string GetPageUrl(string questTitle, int page)
+        public string GetPageUrl(string threadName, int page)
         {
-            if (questTitle == null)
-                throw new ArgumentNullException(nameof(questTitle));
+            if (threadName == null)
+                throw new ArgumentNullException(nameof(threadName));
+            if (threadName == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(threadName));
 
-            if (page > 1)
-                return GetThreadPageBaseUrl(questTitle) + page.ToString();
-            else
-                return GetThreadsUrl(questTitle);
+            if (page == 1)
+                return threadName;
+
+            string trailSlash = "";
+            if (!threadName.EndsWith("/"))
+                trailSlash = "/";
+
+            return threadName + trailSlash + "page-" + page.ToString();
         }
 
-        public string GetPostUrlFromId(string postId) => PostsUrl + postId + "/";
+        public string GetPostUrlFromId(string threadName, string postId)
+        {
+            if (postId == null)
+                throw new ArgumentNullException(nameof(postId));
+            if (postId == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(postId));
 
-        public string GetUrlFromRelativeAddress(string relative) => ForumUrl + relative;
+            return PostsUrl + postId + "/";
+        }
+
 
         /// <summary>
         /// Get the title of the web page.
@@ -499,7 +511,7 @@ namespace NetTally.Adapters
             if (threadmarkEntry == null)
                 throw new ArgumentNullException(nameof(threadmarkEntry));
 
-            return GetUrlFromRelativeAddress(threadmarkEntry.Element("a").GetAttributeValue("href", ""));
+            return GetRelativeUrl(threadmarkEntry.Element("a").GetAttributeValue("href", ""));
         }
 
         /// <summary>

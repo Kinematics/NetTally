@@ -39,33 +39,40 @@ namespace NetTally.Adapters
 
         // Functions for constructing URLs
 
-        public string GetThreadsUrl(string questTitle) => ThreadsUrl + questTitle;
-
-        public string GetThreadPageBaseUrl(string questTitle) => GetThreadsUrl(questTitle) + "&page=";
-
-        public string GetThreadmarksPageUrl(string questTitle) => GetThreadsUrl(questTitle) + "/threadmarks";
-
-        public string GetPageUrl(string questTitle, int page)
+        public string GetPageUrl(string threadName, int page)
         {
-            if (page > 1)
-                return GetThreadPageBaseUrl(questTitle) + page.ToString();
-            else
-                return GetThreadsUrl(questTitle);
+            if (threadName == null)
+                throw new ArgumentNullException(nameof(threadName));
+            if (threadName == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(threadName));
+
+            if (page == 1)
+                return threadName;
+
+            string trailSlash = "";
+            if (!threadName.EndsWith("/"))
+                trailSlash = "/";
+
+            return threadName + trailSlash + "page" + page.ToString();
         }
 
-        public string GetPostUrlFromId(string postId)
+        public string GetPostUrlFromId(string threadName, string postId)
         {
+            if (threadName == null)
+                throw new ArgumentNullException(nameof(threadName));
+            if (threadName == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(threadName));
             if (postId == null)
                 throw new ArgumentNullException(nameof(postId));
+            if (postId == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(postId));
 
-            // http://forums.animesuki.com/showthread.php?p=5460127#post5460127
-            // http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=285696&viewfull=1#post285696
-            // v4 will work when formatted like v3
-            string url = ForumUrl + "showthread.php?p=" + postId + "#post" + postId;
-            return url;
+            // http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#poast288335
+
+            return threadName + "&p=" + postId + "#post" + postId;
         }
 
-        public string GetUrlFromRelativeAddress(string relative) => ForumUrl + relative;
+        public string GetRelativeUrl(string relative) => ForumUrl + relative;
 
         /// <summary>
         /// Get the title of the web page.

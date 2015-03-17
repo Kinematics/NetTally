@@ -14,7 +14,7 @@ namespace NetTally
         #region Functions for constructing URLs
         string GetPageUrl(string threadName, int page);
 
-        string GetPostUrlFromId(string postId);
+        string GetPostUrlFromId(string threadName, string postId);
         #endregion
 
         /// <summary>
