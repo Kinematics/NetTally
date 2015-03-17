@@ -248,7 +248,7 @@ namespace NetTally
         /// <summary>
         /// The name of the web site that the thread is located on.
         /// </summary>
-        [Obsolete()]
+        [Obsolete("Superceded by ThreadName")]
         public string Site
         {
             get { return site; }
@@ -267,7 +267,7 @@ namespace NetTally
         /// <summary>
         /// The name of the quest thread.
         /// </summary>
-        [Obsolete()]
+        [Obsolete("Superceded by DisplayName")]
         public string Name
         {
             get { return name; }
@@ -289,7 +289,7 @@ namespace NetTally
         /// awake-already-homura-nge-pmmm-fusion-quest.11111
         /// </summary>
         /// <returns>Returns just the thread name.</returns>
-        [Obsolete()]
+        [Obsolete("Name is now obsolete")]
         string CleanThreadName(string name)
         {
             //Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
