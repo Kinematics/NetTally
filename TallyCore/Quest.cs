@@ -35,7 +35,6 @@ namespace NetTally
         static readonly Regex siteRegex = new Regex(@"^(?<siteName>http://[^/]+/)");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
 
-        public const string NewEntryName = "New Entry";
         public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
 
         IForumAdapter forumAdapter = null;
@@ -84,7 +83,9 @@ namespace NetTally
                 if (value == string.Empty)
                     throw new ArgumentOutOfRangeException("ThreadName", "Thread name cannot be empty.");
 
-                threadName = value;
+                string cleanThreadName = CleanPageNumbers(value);
+
+                threadName = cleanThreadName;
                 OnPropertyChanged();
                 UpdateForumAdapter();
             }
@@ -211,6 +212,23 @@ namespace NetTally
         #endregion
 
 
+        #region Utility functions
+        /// <summary>
+        /// Clean page anchors and page numbers from the provided thread URL.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private string CleanPageNumbers(string url)
+        {
+            if (url == string.Empty)
+                return url;
+
+            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(#[^/]*)?$");
+            Match m = pageNumberRegex.Match(url);
+            if (m.Success)
+                url = m.Groups["base"].Value;
+            return url;
+        }
 
         public override string ToString()
         {
@@ -219,10 +237,11 @@ namespace NetTally
             else
                 return DisplayName;
         }
-
+        #endregion
 
         #region Obsolete Properties
 
+        public const string NewEntryName = "New Entry";
         string site = string.Empty;
         string name = NewEntryName;
 
@@ -256,10 +275,8 @@ namespace NetTally
             {
                 if (value == null)
                     throw new ArgumentNullException();
-                if (value == string.Empty)
-                    throw new ArgumentOutOfRangeException("Quest.Name", "Quest name cannot be set to empty.");
 
-                name = CleanThreadName(value);
+                name = value;
                 OnPropertyChanged();
             }
         }
