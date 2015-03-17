@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -141,20 +142,30 @@ namespace NetTally
                 sb.Append(vote.Value.Count);
                 sb.AppendLine("[/b]");
 
+                sb.Append(GenerateSupporterUrl(quest, vote.Value.First()));
 
-                foreach (var supporter in vote.Value)
-                {
-                    sb.Append("[url=\"");
-                    sb.Append(quest.GetForumAdapter().GetPostUrlFromId(voteCounter.VoterMessageId[supporter]));
-                    sb.Append("\"]");
-                    sb.Append(supporter);
-                    sb.AppendLine("[/url]");
-                }
+                var remainder = vote.Value.Skip(1);
+
+                foreach (var supporter in vote.Value.Skip(1).OrderBy(v => v))
+                    sb.Append(GenerateSupporterUrl(quest, supporter));
 
                 sb.AppendLine("");
             }
 
             TallyResults = sb.ToString();
+        }
+
+        private string GenerateSupporterUrl(IQuest quest, string supporter)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("[url=\"");
+            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
+            sb.Append("\"]");
+            sb.Append(supporter);
+            sb.AppendLine("[/url]");
+
+            return sb.ToString();
         }
         #endregion
     }        

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -48,26 +49,28 @@ namespace NetTally
             {
                 IForumAdapter forumAdapter = quest.GetForumAdapter();
 
-                if (!forumAdapter.IsValidThreadName(quest.Name))
-                    throw new ArgumentException("The quest name is not valid.");
-
                 int startPost = await forumAdapter.GetStartingPostNumber(this, quest, token).ConfigureAwait(false);
 
                 int startPage = forumAdapter.GetPageNumberFromPostNumber(startPost);
                 int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
 
-                int lastPageNum = forumAdapter.GetLastPageNumberOfThread(firstPage);
-
                 // Limit the end page based on the last page number of the thread.
-                if (quest.ReadToEndOfThread || lastPageNum < endPage)
+                if (quest.ReadToEndOfThread)
                 {
-                    endPage = lastPageNum;
+                    try
+                    {
+                        endPage = forumAdapter.GetLastPageNumberOfThread(firstPage);
+                    }
+                    catch (Exception)
+                    {
+                        endPage = startPage;
+                    }
                 }
 
                 // We will store the loaded pages in a new List.
@@ -83,8 +86,8 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                select GetPage(forumAdapter.GetPageUrl(quest.Name, pNum), pNum.ToString(),
-                                    (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
+                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pNum), pNum.ToString(),
+                                    (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -93,7 +96,7 @@ namespace NetTally
                     pages.AddRange(pageArray);
                 }
 
-                lastPageLoadedFor[quest.Name] = endPage;
+                lastPageLoadedFor[quest.ThreadName] = endPage;
 
 
                 return pages;
@@ -163,6 +166,12 @@ namespace NetTally
                 catch (HttpRequestException e)
                 {
                     OnStatusChanged("Page " + shortDescrip + ": " + e.Message);
+                    throw;
+                }
+                catch (OperationCanceledException e)
+                {
+                    Debug.WriteLine(string.Format("Operation was cancelled in taks {0}.", Task.CurrentId));
+                    Debug.WriteLine(string.Format("Cancellation requested: {0}  at source: {1}", e.CancellationToken.IsCancellationRequested, e.Source));
                     throw;
                 }
             }

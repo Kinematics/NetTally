@@ -12,25 +12,10 @@ namespace NetTally
     public interface IForumAdapter
     {
         #region Functions for constructing URLs
-        string GetThreadsUrl(string questTitle);
+        string GetPageUrl(string threadName, int page);
 
-        string GetThreadPageBaseUrl(string questTitle);
-
-        string GetThreadmarksPageUrl(string questTitle);
-
-        string GetPageUrl(string questTitle, int page);
-
-        string GetPostUrlFromId(string postId);
-
-        string GetUrlFromRelativeAddress(string relative);
+        string GetPostUrlFromId(string threadName, string postId);
         #endregion
-
-        /// <summary>
-        /// Check if the name of the thread is valid for inserting into a URL.
-        /// </summary>
-        /// <param name="name">The name of the quest/thread.</param>
-        /// <returns>Returns true if the name is valid.</returns>
-        bool IsValidThreadName(string name);
 
         /// <summary>
         /// Get the starting post number of the quest.  Use special options such as

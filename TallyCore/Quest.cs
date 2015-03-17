@@ -15,17 +15,7 @@ namespace NetTally
     [DataContract(Name ="Quest")]
     public class Quest : IQuest, INotifyPropertyChanged
     {
-        //static readonly Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
-        static readonly Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
-        public const string NewEntryName = "New Entry";
-        IForumAdapter forumAdapter = null;
-
-        /// <summary>
-        /// Empty constructor for XML serialization.
-        /// </summary>
-        public Quest() { }
-
-        #region Interface implementations
+        #region Property Changed implementation
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -41,13 +31,23 @@ namespace NetTally
         }
         #endregion
 
-        string site = string.Empty;
-        string name = NewEntryName;
+        #region Variable fields
+        static readonly Regex siteRegex = new Regex(@"^(?<siteName>http://[^/]+/)");
+        static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
+
+        public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
+
+        IForumAdapter forumAdapter = null;
+
+        string threadName = NewThreadEntry;
+        string displayName = string.Empty;
+
         int startPost = 1;
         int endPost = 0;
         bool checkForLastThreadmark = false;
         bool useVotePartitions = false;
         bool partitionByLine = true;
+        #endregion
 
         #region IQuest Properties
         public async Task<IForumAdapter> GetForumAdapter(CancellationToken token)
@@ -64,49 +64,74 @@ namespace NetTally
             return forumAdapter;
         }
 
-        /// <summary>
-        /// The name of the web site that the thread is located on.
-        /// </summary>
-        [DataMember(Order = 0)]
-        public string Site
+        private void UpdateForumAdapter()
         {
-            get { return site; }
-            set
-            {
-                if (value == null)
-                    site = string.Empty;
-                else
-                    site = value;
-
-                forumAdapter = null;
-                OnPropertyChanged();
-            }
+            forumAdapter = ForumAdapterFactory.GetAdapter(this);
         }
 
-        /// <summary>
-        /// The name of the quest thread.
-        /// </summary>
-        [DataMember(Order = 1)]
-        public string Name
+
+        public string ThreadName
         {
-            get { return name; }
+            get
+            {
+                return threadName;
+            }
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException("ThreadName");
                 if (value == string.Empty)
-                    throw new ArgumentOutOfRangeException("Quest.Name", "Quest name cannot be set to empty.");
+                    throw new ArgumentOutOfRangeException("ThreadName", "Thread name cannot be empty.");
 
-                name = CleanThreadName(value);
+                string cleanThreadName = CleanPageNumbers(value);
+
+                threadName = cleanThreadName;
+                OnPropertyChanged();
+                UpdateForumAdapter();
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                if (displayName != string.Empty)
+                    return displayName;
+
+                Match m = displayNameRegex.Match(threadName);
+                if (m.Success)
+                    return m.Groups["displayName"].Value;
+
+                return threadName;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("DisplayName");
+
+                displayName = value;
                 OnPropertyChanged();
             }
         }
+
+        public string SiteName
+        {
+            get
+            {
+                Match m = siteRegex.Match(threadName);
+                if (m.Success)
+                    return m.Groups["siteName"].Value;
+
+                // Default site if no site given in thread name.
+                return "http://forums.sufficientvelocity.com/";
+            }
+        }
+
 
         /// <summary>
         /// The number of the post to start looking for votes in.
         /// Not valid below 1.
         /// </summary>
-        [DataMember(Order = 2)]
         public int StartPost
         {
             get { return startPost; }
@@ -124,7 +149,6 @@ namespace NetTally
         /// Not valid below 0.
         /// A value of 0 means it reads to the end of the thread.
         /// </summary>
-        [DataMember(Order = 3)]
         public int EndPost
         {
             get { return endPost; }
@@ -187,6 +211,73 @@ namespace NetTally
         public bool ReadToEndOfThread => EndPost < 1;
         #endregion
 
+
+        #region Utility functions
+        /// <summary>
+        /// Clean page anchors and page numbers from the provided thread URL.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private string CleanPageNumbers(string url)
+        {
+            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
+            Match m = pageNumberRegex.Match(url);
+            if (m.Success)
+                url = m.Groups["base"].Value;
+            return url;
+        }
+
+        public override string ToString()
+        {
+            if (displayName == string.Empty)
+                return ThreadName;
+            else
+                return DisplayName;
+        }
+        #endregion
+
+        #region Obsolete Properties
+
+        public const string NewEntryName = "New Entry";
+        string site = string.Empty;
+        string name = NewEntryName;
+
+        /// <summary>
+        /// The name of the web site that the thread is located on.
+        /// </summary>
+        [Obsolete("Superceded by ThreadName")]
+        public string Site
+        {
+            get { return site; }
+            set
+            {
+                if (value == null)
+                    site = string.Empty;
+                else
+                    site = value;
+
+                forumAdapter = null;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The name of the quest thread.
+        /// </summary>
+        [Obsolete("Superceded by DisplayName")]
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+
+                name = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Function to clean up a user-entered name that may contain a web URL.
         /// Example:
@@ -195,8 +286,12 @@ namespace NetTally
         /// awake-already-homura-nge-pmmm-fusion-quest.11111
         /// </summary>
         /// <returns>Returns just the thread name.</returns>
+        [Obsolete("Name is now obsolete")]
         string CleanThreadName(string name)
         {
+            //Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
+            Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
+
             var m = urlRegex.Match(name);
             if (m.Success)
             {
@@ -210,12 +305,6 @@ namespace NetTally
 
             return name;
         }
-
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
+        #endregion
     }
 }

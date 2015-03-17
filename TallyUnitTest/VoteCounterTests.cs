@@ -125,6 +125,19 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
+        public void GetVoteKeyTest4()
+        {
+            string myVote = "[x] Vote for stuff";
+            voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
+
+            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me");
+
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            Assert.AreEqual(myVote, key);
+        }
+
+
+        [TestMethod()]
         public void StripFormattingTest()
         {
             string line1 = "[x] Vote for stuff";
