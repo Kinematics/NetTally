@@ -48,9 +48,6 @@ namespace NetTally
             {
                 IForumAdapter forumAdapter = quest.GetForumAdapter();
 
-                if (!forumAdapter.IsValidThreadName(quest.Name))
-                    throw new ArgumentException("The quest name is not valid.");
-
                 int startPost = await forumAdapter.GetStartingPostNumber(this, quest, token).ConfigureAwait(false);
 
                 int startPage = forumAdapter.GetPageNumberFromPostNumber(startPost);

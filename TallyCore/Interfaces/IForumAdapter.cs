@@ -26,13 +26,6 @@ namespace NetTally
         #endregion
 
         /// <summary>
-        /// Check if the name of the thread is valid for inserting into a URL.
-        /// </summary>
-        /// <param name="name">The name of the quest/thread.</param>
-        /// <returns>Returns true if the name is valid.</returns>
-        bool IsValidThreadName(string name);
-
-        /// <summary>
         /// Get the starting post number of the quest.  Use special options such as
         /// searching threadmarks if the quest options allow for it.
         /// </summary>
