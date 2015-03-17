@@ -115,7 +115,7 @@ namespace NetTally
             catch (Exception)
             {
                 lastTallyQuest = null;
-                loadedPages.Clear();
+                loadedPages?.Clear();
                 loadedPages = null;
                 throw;
             }
