@@ -67,7 +67,7 @@ namespace NetTally.Adapters
             if (postId == string.Empty)
                 throw new ArgumentOutOfRangeException(nameof(postId));
 
-            // http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#poast288335
+            // http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#post288335
 
             return threadName + "&p=" + postId + "#post" + postId;
         }
