@@ -31,7 +31,7 @@ namespace NetTally.Tests
         public void TestSpaceBattles()
         {
             IQuest quest = new Quest();
-            quest.Site = "http://forums.spacebattles.com/";
+            quest.ThreadName = "http://forums.spacebattles.com/";
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
             Assert.IsInstanceOfType(adapter, typeof(SpaceBattlesAdapter));
