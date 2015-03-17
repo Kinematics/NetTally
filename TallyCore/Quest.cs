@@ -220,9 +220,6 @@ namespace NetTally
         /// <returns></returns>
         private string CleanPageNumbers(string url)
         {
-            if (url == string.Empty)
-                return url;
-
             Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
             Match m = pageNumberRegex.Match(url);
             if (m.Success)
