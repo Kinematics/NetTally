@@ -313,7 +313,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void partitionedVotes_CheckedChanged(object sender, RoutedEventArgs e)
         {
-            tally.TallyMethodChanged(CurrentlySelectedQuest());
+            tally.UpdateTally(CurrentlySelectedQuest());
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void partitionByLine_CheckedChanged(object sender, RoutedEventArgs e)
         {
-            tally.TallyMethodChanged(CurrentlySelectedQuest());
+            tally.UpdateTally(CurrentlySelectedQuest());
         }
 
         #endregion

@@ -16,6 +16,12 @@ namespace NetTally
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
 
+        string results = string.Empty;
+        bool useSpoilerForVoters = false;
+
+        IQuest lastTallyQuest = null;
+        List<HtmlDocument> loadedPages = null;
+
         public Tally()
         {
             pageProvider = new WebPageProvider();
@@ -23,7 +29,6 @@ namespace NetTally
 
             pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
-
 
         #region Event handling
         /// <summary>
@@ -54,9 +59,9 @@ namespace NetTally
         #endregion
 
         #region Behavior properties
-        string results = string.Empty;
         /// <summary>
-        /// Property for the string containing the current tally progress or results.
+        /// The string containing the current tally progress or results.
+        /// Creates a notification event if the contents change.
         /// </summary>
         public string TallyResults
         {
@@ -68,14 +73,18 @@ namespace NetTally
             }
         }
 
-        bool useSpoilerForVoters = false;
+        /// <summary>
+        /// Flag for whether to use spoiler blocks for voter lists in
+        /// the output display.
+        /// Recalculates the display if changed.
+        /// </summary>
         public bool UseSpoilerForVoters
         {
             get { return useSpoilerForVoters; }
             set
             {
                 useSpoilerForVoters = value;
-                ChangeSpoilers();
+                ConstructResults(lastTallyQuest);
             }
         }
 
@@ -101,22 +110,33 @@ namespace NetTally
                 // Load pages from the website
                 loadedPages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
-                // Tally the votes from the loaded pages.
-                voteCounter.TallyVotes(quest, loadedPages);
-
-                // Compose the final result string from the compiled votes.
-                ConstructResults(quest);
-
+                UpdateTally(quest);
             }
             catch (Exception)
             {
                 lastTallyQuest = null;
                 loadedPages.Clear();
+                loadedPages = null;
                 throw;
             }
             finally
             {
 
+            }
+        }
+
+        public void UpdateTally(IQuest changedQuest)
+        {
+            if (lastTallyQuest != null && changedQuest == lastTallyQuest)
+            {
+                if (loadedPages != null && loadedPages.Count > 0)
+                {
+                    // Tally the votes from the loaded pages.
+                    voteCounter.TallyVotes(lastTallyQuest, loadedPages);
+
+                    // Compose the final result string from the compiled votes.
+                    ConstructResults(lastTallyQuest);
+                }
             }
         }
 
@@ -130,13 +150,16 @@ namespace NetTally
 
         #endregion
 
-        #region Local class functions
+        #region Functions for constructing the tally results output.
         /// <summary>
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
         private void ConstructResults(IQuest quest)
         {
+            if (quest == null)
+                return;
+
             StringBuilder sb = new StringBuilder();
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -193,30 +216,7 @@ namespace NetTally
 
             return sb.ToString();
         }
-        #endregion
 
-        #region Live Updates
-
-
-        IQuest lastTallyQuest = null;
-        List<HtmlDocument> loadedPages = null;
-        private void ChangeSpoilers()
-        {
-            if (lastTallyQuest != null)
-                ConstructResults(lastTallyQuest);
-        }
-
-        public void TallyMethodChanged(IQuest changedQuest)
-        {
-            if (lastTallyQuest != null && changedQuest == lastTallyQuest)
-            {
-                if (loadedPages != null && loadedPages.Count > 0)
-                {
-                    voteCounter.TallyVotes(lastTallyQuest, loadedPages);
-                    ConstructResults(lastTallyQuest);
-                }
-            }
-        }
         #endregion
 
     }
