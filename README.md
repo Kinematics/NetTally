@@ -16,13 +16,17 @@ Votes are identified by a bracketed x or checkmark at the start of each line of 
 Sub-votes use the hyphen character (-) to indent additional lines.  This allows you to refine the detail of a primary vote line.  Subvote lines are included with the main vote line when partitioning by block.
 
 Example:
+```
 [x] Fire the gun
 -[x] At the target on the left
+```
 
 Referral votes allow you to specify another user name whose vote you wish to support.
 
 Example:
+```
 [x] Username1
+```
 
 Partitioning votes breaks individual votes into single lines or blocks.  Partitioning by line treats every single line of each vote independently, while partitioning by block treats subvotes as part of each main vote entry.
 
