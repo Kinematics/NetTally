@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -165,6 +166,12 @@ namespace NetTally
                 catch (HttpRequestException e)
                 {
                     OnStatusChanged("Page " + shortDescrip + ": " + e.Message);
+                    throw;
+                }
+                catch (OperationCanceledException e)
+                {
+                    Debug.WriteLine(string.Format("Operation was cancelled in taks {0}.", Task.CurrentId));
+                    Debug.WriteLine(string.Format("Cancellation requested: {0}  at source: {1}", e.CancellationToken.IsCancellationRequested, e.Source));
                     throw;
                 }
             }
