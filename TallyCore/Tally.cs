@@ -160,7 +160,7 @@ namespace NetTally
             StringBuilder sb = new StringBuilder();
 
             sb.Append("[url=\"");
-            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(voteCounter.VoterMessageId[supporter]));
+            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
             sb.Append("\"]");
             sb.Append(supporter);
             sb.AppendLine("[/url]");
