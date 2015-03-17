@@ -46,7 +46,7 @@ namespace NetTally
             // Set up view for binding
             QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
             // Sort the collection view
-            var sortDesc = new SortDescription("Name", ListSortDirection.Ascending);
+            var sortDesc = new SortDescription("DisplayName", ListSortDirection.Ascending);
             QuestCollectionView.SortDescriptions.Add(sortDesc);
             // Set the current item
             QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
