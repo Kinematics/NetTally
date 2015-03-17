@@ -163,14 +163,14 @@ namespace NetTally
             var newEntry = questCollection.AddNewQuest();
             if (newEntry == null)
             {
-                newEntry = questCollection.FirstOrDefault(q => q.Name == Quest.NewEntryName);
+                newEntry = questCollection.FirstOrDefault(q => q.ThreadName == Quest.NewThreadEntry);
                 if (newEntry == null)
                     return;
             }
 
             QuestCollectionView.MoveCurrentTo(newEntry);
 
-            EditQuestName();
+            EditQuestThread();
         }
 
         /// <summary>
@@ -225,13 +225,13 @@ namespace NetTally
         {
             if (e.Key == Key.F2)
             {
-                if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestSite.Visibility == Visibility.Hidden))
+                if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestThread.Visibility == Visibility.Hidden))
                 {
                     EditQuestName();
                 }
-                else if (editQuestSite.Visibility == Visibility.Hidden)
+                else if (editQuestThread.Visibility == Visibility.Hidden)
                 {
-                    EditQuestSite();
+                    EditQuestThread();
                 }
                 else
                 {
@@ -239,6 +239,7 @@ namespace NetTally
                 }
             }
         }
+
 
         /// <summary>
         /// When modifying the quest name, hitting enter will complete the entry,
@@ -258,7 +259,7 @@ namespace NetTally
                 // Restore original name if we escape.
                 IQuest quest = QuestCollectionView.CurrentItem as IQuest;
                 if (quest != null)
-                    quest.Name = editingName;
+                    quest.DisplayName = editingName;
                 DoneEditingQuestName();
             }
         }
@@ -269,7 +270,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void editQuestSite_KeyUp(object sender, KeyEventArgs e)
+        private void editQuestThread_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -293,21 +294,21 @@ namespace NetTally
         private void EditQuestName()
         {
             DoneEditingQuestSite();
-            editingName = ((IQuest)QuestCollectionView.CurrentItem).Name;
-            editDescriptor.Text = "Quest Name";
+            editingName = ((IQuest)QuestCollectionView.CurrentItem).DisplayName;
+            editDescriptor.Text = "Name";
             editQuestName.Visibility = Visibility.Visible;
             editDescriptorCanvas.Visibility = Visibility.Visible;
             editQuestName.Focus();
         }
 
-        private void EditQuestSite()
+        private void EditQuestThread()
         {
             DoneEditingQuestName();
-            editingName = ((IQuest)QuestCollectionView.CurrentItem).Site;
-            editDescriptor.Text = "Site Name";
-            editQuestSite.Visibility = Visibility.Visible;
+            editingName = ((IQuest)QuestCollectionView.CurrentItem).ThreadName;
+            editDescriptor.Text = "Thread";
+            editQuestThread.Visibility = Visibility.Visible;
             editDescriptorCanvas.Visibility = Visibility.Visible;
-            editQuestSite.Focus();
+            editQuestThread.Focus();
         }
 
         private void DoneEditing()
@@ -325,11 +326,10 @@ namespace NetTally
 
         private void DoneEditingQuestSite()
         {
-            editQuestSite.Visibility = Visibility.Hidden;
+            editQuestThread.Visibility = Visibility.Hidden;
             editDescriptorCanvas.Visibility = Visibility.Hidden;
         }
+
         #endregion
-
-
     }
 }
