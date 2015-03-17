@@ -52,10 +52,25 @@ namespace NetTally.Adapters
 
         // Functions for constructing URLs
 
-        private string GetThreadmarksPageUrl(string threadName) => threadName + "/threadmarks";
-
         private string GetRelativeUrl(string relative) => ForumUrl + relative;
 
+        private string GetFullThreadName(string threadName)
+        {
+            if (!threadName.StartsWith(ThreadsUrl))
+                return ThreadsUrl + threadName;
+
+            return threadName;
+        }
+
+        private string GetThreadmarksPageUrl(string threadName)
+        {
+            if (threadName == null)
+                throw new ArgumentNullException(nameof(threadName));
+            if (threadName == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(threadName));
+
+            return GetFullThreadName(threadName) + "/threadmarks";
+        }
 
         public string GetPageUrl(string threadName, int page)
         {
@@ -71,7 +86,7 @@ namespace NetTally.Adapters
             if (!threadName.EndsWith("/"))
                 trailSlash = "/";
 
-            return threadName + trailSlash + "page-" + page.ToString();
+            return GetFullThreadName(threadName) + trailSlash + "page-" + page.ToString();
         }
 
         public string GetPostUrlFromId(string threadName, string postId)
@@ -310,7 +325,7 @@ namespace NetTally.Adapters
                 return quest.StartPost;
 
             // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.Name), "Threadmarks", true, token).ConfigureAwait(false);
+            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.ThreadName), "Threadmarks", true, token).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksFromPage(threadmarkPage);
 
