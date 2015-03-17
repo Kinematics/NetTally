@@ -20,7 +20,7 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name of the quest to look for.</param>
         /// <returns>Returns the quest if found, or null if not.</returns>
-        public IQuest this[string name] => this.FirstOrDefault(q => q.Name == name);
+        public IQuest this[string name] => this.FirstOrDefault(q => q.ThreadName == name);
 
         /// <summary>
         /// Add a new quest to the current collection.
@@ -45,7 +45,7 @@ namespace NetTally
         protected override void InsertItem(int index, IQuest item)
         {
             var dupes = from q in this
-                        where q.Name == item.Name && 
+                        where q.ThreadName == item.ThreadName && 
                             (q.Site == item.Site || (q.Site == string.Empty && item.Site == defaultSite) || (q.Site == defaultSite && item.Site == string.Empty))
                         select q;
 
