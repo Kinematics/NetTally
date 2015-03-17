@@ -86,7 +86,7 @@ namespace NetTally
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
                                 select GetPage(forumAdapter.GetPageUrl(quest.Name, pNum), pNum.ToString(),
-                                    (lastPageLoadedFor.TryGetValue(quest.Name, out lastPageLoaded) && pNum >= lastPageLoaded), token);
+                                    (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -95,7 +95,7 @@ namespace NetTally
                     pages.AddRange(pageArray);
                 }
 
-                lastPageLoadedFor[quest.Name] = endPage;
+                lastPageLoadedFor[quest.ThreadName] = endPage;
 
 
                 return pages;
