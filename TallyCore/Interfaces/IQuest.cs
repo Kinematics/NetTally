@@ -5,19 +5,32 @@ namespace NetTally
 {
     public interface IQuest
     {
+        /// <summary>
+        /// The name of the thread to be queried.
+        /// </summary>
         string ThreadName { get; set; }
+        /// <summary>
+        /// The display name that the user can select.
+        /// </summary>
         string DisplayName { get; set; }
+        /// <summary>
+        /// The base site name that can be used to get the forum adapter.
+        /// </summary>
         string SiteName { get; }
 
 
         /// <summary>
         /// The web site that the quest is on.
+        /// OBSOLETE
         /// </summary>
         string Site { get; set; }
         /// <summary>
         /// The name of the quest (ie: the name of the thread in the URL).
+        /// OBSOLETE
         /// </summary>
         string Name { get; set; }
+
+
         /// <summary>
         /// Starting post to start tallying from.
         /// </summary>
