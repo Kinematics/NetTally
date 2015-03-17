@@ -68,11 +68,12 @@ namespace NetTally
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             string selectedQuest = "";
-            IQuest currentQuest = QuestCollectionView.CurrentItem as IQuest;
-            if (currentQuest != null)
+
+            if (CurrentlySelectedQuest() != null)
             {
-                selectedQuest = currentQuest.ThreadName;
+                selectedQuest = CurrentlySelectedQuest().ThreadName;
             }
+
             QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
             NetTallyConfig.Save(tally, qcw);
 
@@ -81,6 +82,11 @@ namespace NetTally
             settings.Save();
         }
         #endregion
+
+        private IQuest CurrentlySelectedQuest()
+        {
+            return QuestCollectionView.CurrentItem as IQuest;
+        }
 
         #region User action events
         /// <summary>
@@ -297,6 +303,27 @@ namespace NetTally
                     quest.Site = editingName;
                 DoneEditingQuestSite();
             }
+        }
+
+
+        /// <summary>
+        /// If the option to partition votes is changed, retally the results.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void partitionedVotes_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            tally.TallyMethodChanged(CurrentlySelectedQuest());
+        }
+
+        /// <summary>
+        /// If the partition type is changed, retally the results.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void partitionByLine_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            tally.TallyMethodChanged(CurrentlySelectedQuest());
         }
 
         #endregion

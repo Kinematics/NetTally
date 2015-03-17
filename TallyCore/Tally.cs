@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -6,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace NetTally
 {
@@ -73,16 +75,8 @@ namespace NetTally
             set
             {
                 useSpoilerForVoters = value;
-                UpdateResults();
+                ChangeSpoilers();
             }
-        }
-
-
-        IQuest lastTallyQuest = null;
-        private void UpdateResults()
-        {
-            if (lastTallyQuest != null)
-                ConstructResults(lastTallyQuest);
         }
 
         #endregion
@@ -100,21 +94,24 @@ namespace NetTally
             try
             {
                 TallyResults = string.Empty;
+                lastTallyQuest = quest;
 
                 await quest.GetForumAdapter(token);
 
                 // Load pages from the website
-                var pages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
+                loadedPages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
                 // Tally the votes from the loaded pages.
-                voteCounter.TallyVotes(quest, pages);
+                voteCounter.TallyVotes(quest, loadedPages);
 
                 // Compose the final result string from the compiled votes.
                 ConstructResults(quest);
 
             }
-            catch (NotImplementedException)
+            catch (Exception)
             {
+                lastTallyQuest = null;
+                loadedPages.Clear();
                 throw;
             }
             finally
@@ -140,8 +137,6 @@ namespace NetTally
         /// </summary>
         private void ConstructResults(IQuest quest)
         {
-            lastTallyQuest = quest;
-
             StringBuilder sb = new StringBuilder();
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -199,5 +194,30 @@ namespace NetTally
             return sb.ToString();
         }
         #endregion
-    }        
+
+        #region Live Updates
+
+
+        IQuest lastTallyQuest = null;
+        List<HtmlDocument> loadedPages = null;
+        private void ChangeSpoilers()
+        {
+            if (lastTallyQuest != null)
+                ConstructResults(lastTallyQuest);
+        }
+
+        public void TallyMethodChanged(IQuest changedQuest)
+        {
+            if (lastTallyQuest != null && changedQuest == lastTallyQuest)
+            {
+                if (loadedPages != null && loadedPages.Count > 0)
+                {
+                    voteCounter.TallyVotes(lastTallyQuest, loadedPages);
+                    ConstructResults(lastTallyQuest);
+                }
+            }
+        }
+        #endregion
+
+    }
 }
