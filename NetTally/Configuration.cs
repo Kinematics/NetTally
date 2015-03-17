@@ -132,8 +132,11 @@ namespace NetTally
                 {
                     DisplayName = quest.DisplayName,
                     ThreadName = quest.ThreadName,
+#pragma warning disable 0618
+                    // These fields are obsolete, but we still want to read them from old config files.
                     Site = quest.Site,
                     Name = quest.Name,
+#pragma warning restore 0618
                     StartPost = quest.StartPost,
                     EndPost = quest.EndPost,
                     CheckForLastThreadmark = quest.CheckForLastThreadmark,
