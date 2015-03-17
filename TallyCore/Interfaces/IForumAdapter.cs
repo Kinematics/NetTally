@@ -12,17 +12,9 @@ namespace NetTally
     public interface IForumAdapter
     {
         #region Functions for constructing URLs
-        string GetThreadsUrl(string questTitle);
-
-        string GetThreadPageBaseUrl(string questTitle);
-
-        string GetThreadmarksPageUrl(string questTitle);
-
         string GetPageUrl(string questTitle, int page);
 
         string GetPostUrlFromId(string postId);
-
-        string GetUrlFromRelativeAddress(string relative);
         #endregion
 
         /// <summary>
