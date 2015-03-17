@@ -54,7 +54,7 @@ namespace NetTally
                 int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.Name, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
@@ -85,7 +85,7 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                select GetPage(forumAdapter.GetPageUrl(quest.Name, pNum), pNum.ToString(),
+                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pNum), pNum.ToString(),
                                     (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded), token);
 
                     // Wait for all the tasks to be completed.
