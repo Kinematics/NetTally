@@ -47,7 +47,7 @@
         <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=CurrentItem.UseVotePartitions}" HorizontalAlignment="Left" Width="95"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
-        <StackPanel HorizontalAlignment="Left" Height="51" Margin="418,45,0,0" VerticalAlignment="Top" Width="87"
+        <StackPanel HorizontalAlignment="Left" Height="39" Margin="418,45,0,0" VerticalAlignment="Top" Width="87"
                     IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" VerticalAlignment="Top"
         		GroupName="PartitionType" IsChecked="{Binding Path=CurrentItem.PartitionByLine, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}"
@@ -56,6 +56,8 @@
         		GroupName="PartitionType" IsChecked="{Binding ElementName=partitionByLine, Path=IsChecked, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}"
         		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}"/>
         </StackPanel>
+        <CheckBox x:Name="useSpoilerForVoters" Content="Use Spoiler for Voters" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=UseSpoilerForVoters}"/>
         <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>

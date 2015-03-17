@@ -34,5 +34,17 @@ namespace NetTally.Properties {
                 this["Upgraded"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseSpoilerForVoters {
+            get {
+                return ((bool)(this["UseSpoilerForVoters"]));
+            }
+            set {
+                this["UseSpoilerForVoters"] = value;
+            }
+        }
     }
 }

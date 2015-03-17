@@ -66,6 +66,25 @@ namespace NetTally
             }
         }
 
+        bool useSpoilerForVoters = false;
+        public bool UseSpoilerForVoters
+        {
+            get { return useSpoilerForVoters; }
+            set
+            {
+                useSpoilerForVoters = value;
+                UpdateResults();
+            }
+        }
+
+
+        IQuest lastTallyQuest = null;
+        private void UpdateResults()
+        {
+            if (lastTallyQuest != null)
+                ConstructResults(lastTallyQuest);
+        }
+
         #endregion
 
         #region Interface functions
@@ -121,6 +140,8 @@ namespace NetTally
         /// </summary>
         private void ConstructResults(IQuest quest)
         {
+            lastTallyQuest = quest;
+
             StringBuilder sb = new StringBuilder();
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -142,12 +163,22 @@ namespace NetTally
                 sb.Append(vote.Value.Count);
                 sb.AppendLine("[/b]");
 
+                if (UseSpoilerForVoters)
+                {
+                    sb.AppendLine("[spoiler=Voters]");
+                }
+
                 sb.Append(GenerateSupporterUrl(quest, vote.Value.First()));
 
                 var remainder = vote.Value.Skip(1);
 
                 foreach (var supporter in vote.Value.Skip(1).OrderBy(v => v))
                     sb.Append(GenerateSupporterUrl(quest, supporter));
+
+                if (UseSpoilerForVoters)
+                {
+                    sb.AppendLine("[/spoiler]");
+                }
 
                 sb.AppendLine("");
             }

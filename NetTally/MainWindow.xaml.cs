@@ -51,10 +51,13 @@ namespace NetTally
             // Set the current item
             QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
+            Properties.Settings settings = new Properties.Settings();
+            tally.UseSpoilerForVoters = settings.UseSpoilerForVoters;
 
             // Set up data contexts
             DataContext = QuestCollectionView;
             resultsWindow.DataContext = tally;
+            useSpoilerForVoters.DataContext = tally;
         }
 
         /// <summary>
@@ -72,6 +75,10 @@ namespace NetTally
             }
             QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
             NetTallyConfig.Save(tally, qcw);
+
+            Properties.Settings settings = new Properties.Settings();
+            settings.UseSpoilerForVoters = tally.UseSpoilerForVoters;
+            settings.Save();
         }
         #endregion
 
