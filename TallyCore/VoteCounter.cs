@@ -101,6 +101,7 @@ namespace NetTally
             VotesWithSupporters.Clear();
             VoterMessageId.Clear();
             cleanVoteLookup.Clear();
+            Title = string.Empty;
         }
 
 
