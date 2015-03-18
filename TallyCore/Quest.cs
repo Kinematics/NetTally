@@ -87,6 +87,7 @@ namespace NetTally
 
                 threadName = cleanThreadName;
                 OnPropertyChanged();
+                OnPropertyChanged("DisplayName");
                 UpdateForumAdapter();
             }
         }
