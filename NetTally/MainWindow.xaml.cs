@@ -368,6 +368,7 @@ namespace NetTally
         {
             editQuestThread.Visibility = Visibility.Hidden;
             editDescriptorCanvas.Visibility = Visibility.Hidden;
+            QuestCollectionView.Refresh();
         }
 
         #endregion
