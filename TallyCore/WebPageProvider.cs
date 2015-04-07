@@ -143,7 +143,7 @@ namespace NetTally
 
             using (client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
             {
-                client.Timeout = TimeSpan.FromSeconds(2);
+                client.Timeout = TimeSpan.FromSeconds(10);
 
                 try
                 {
