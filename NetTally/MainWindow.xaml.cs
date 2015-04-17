@@ -240,23 +240,27 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Global window key capture for using F2 to edit the quest name and URL.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F2)
             {
-                if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestThread.Visibility == Visibility.Hidden))
-                {
-                    EditQuestName();
-                }
-                else if (editQuestThread.Visibility == Visibility.Hidden)
-                {
-                    EditQuestThread();
-                }
-                else
-                {
-                    DoneEditingQuestSite();
-                }
+                EditActions();
             }
+        }
+
+        /// <summary>
+        /// Button event handler for editing the quest name and URL.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editNameButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditActions();
         }
 
 
@@ -331,11 +335,32 @@ namespace NetTally
 
         #region Utility support methods
 
+        /// <summary>
+        /// The sequence of edit actions performed when either hitting F2 or the Edit Name button.
+        /// </summary>
+        private void EditActions()
+        {
+            if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestThread.Visibility == Visibility.Hidden))
+            {
+                EditQuestName();
+            }
+            else if (editQuestThread.Visibility == Visibility.Hidden)
+            {
+                EditQuestThread();
+            }
+            else
+            {
+                DoneEditingQuestSite();
+            }
+        }
+
+
         private void EditQuestName()
         {
             DoneEditingQuestSite();
             editingName = ((IQuest)QuestCollectionView.CurrentItem).DisplayName;
             editDescriptor.Text = "Name";
+            editNameButton.Content = "Edit URL";
             editQuestName.Visibility = Visibility.Visible;
             editDescriptorCanvas.Visibility = Visibility.Visible;
             editQuestName.Focus();
@@ -346,6 +371,7 @@ namespace NetTally
             DoneEditingQuestName();
             editingName = ((IQuest)QuestCollectionView.CurrentItem).ThreadName;
             editDescriptor.Text = "Thread";
+            editNameButton.Content = "Finish Edit";
             editQuestThread.Visibility = Visibility.Visible;
             editDescriptorCanvas.Visibility = Visibility.Visible;
             editQuestThread.Focus();
@@ -366,11 +392,13 @@ namespace NetTally
 
         private void DoneEditingQuestSite()
         {
+            editNameButton.Content = "Edit Name";
             editQuestThread.Visibility = Visibility.Hidden;
             editDescriptorCanvas.Visibility = Visibility.Hidden;
             QuestCollectionView.Refresh();
         }
 
         #endregion
+
     }
 }

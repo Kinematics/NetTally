@@ -35,6 +35,8 @@
         <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" Visibility="Hidden">
             <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
         </Canvas>
+        <Button x:Name="editNameButton" Content="Edit Name" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="125" Click="editNameButton_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
                  Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
@@ -68,8 +70,7 @@
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Invert, Mode=OneWay}" Click="cancelTally_Click"/>
         <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0" HorizontalAlignment="Right" Width="113"
                 Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
-        <TextBox x:Name="resultsWindow" Margin="10,101,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
+        <TextBox x:Name="resultsWindow" Margin="10,107,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-
     </Grid>
 </Window>
