@@ -72,5 +72,8 @@
                 Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
         <TextBox x:Name="resultsWindow" Margin="10,107,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." HorizontalAlignment="Left" Margin="510,45,0,0" VerticalAlignment="Top" Width="94" Height="30"
+                Click="openMergeVotesWindow_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
     </Grid>
 </Window>

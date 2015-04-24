@@ -400,5 +400,17 @@ namespace NetTally
 
         #endregion
 
+        private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
+        {
+            MergeVotesWindow mergeWindow = new MergeVotesWindow(tally)
+            {
+                ShowInTaskbar = false,               // don't show the dialog on the taskbar
+                Topmost = true,                      // ensure we're Always On Top
+                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
+                Owner = Application.Current.MainWindow,
+            };
+
+            mergeWindow.ShowDialog();
+        }
     }
 }
