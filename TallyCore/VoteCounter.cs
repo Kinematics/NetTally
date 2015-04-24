@@ -55,7 +55,7 @@ namespace NetTally
                                      where post != null
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)
                                      where forumAdapter.GetAuthorOfPost(post) != threadAuthor &&
-                                        postNumber >= quest.StartPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
+                                        postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
                                      select post;
 
 

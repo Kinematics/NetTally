@@ -320,6 +320,8 @@ namespace NetTally.Adapters
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
 
+            quest.ThreadmarkPost = 0;
+
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
                 return quest.StartPost;
@@ -342,9 +344,9 @@ namespace NetTally.Adapters
             int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
 
             if (threadmarkPostNumber > 0)
-                return threadmarkPostNumber + 1;
-            else
-                return quest.StartPost;
+                quest.ThreadmarkPost = threadmarkPostNumber + 1;
+
+            return quest.FirstTallyPost;
         }
 
         #endregion
