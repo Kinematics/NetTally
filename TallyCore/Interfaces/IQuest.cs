@@ -60,6 +60,16 @@ namespace NetTally
         bool ReadToEndOfThread { get; }
 
         /// <summary>
+        /// Store the found threadmark post number.
+        /// </summary>
+        int ThreadmarkPost { get; set; }
+
+        /// <summary>
+        /// Return either the StartPost or the ThreadmarkPost, depending on config.
+        /// </summary>
+        int FirstTallyPost { get; }
+
+        /// <summary>
         /// Get the forum adapter needed to read results from the web site this
         /// quest is for.
         /// </summary>

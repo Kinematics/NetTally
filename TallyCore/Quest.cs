@@ -210,6 +210,25 @@ namespace NetTally
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
         public bool ReadToEndOfThread => EndPost < 1;
+
+        /// <summary>
+        /// Property to store any found threadmark post number.
+        /// </summary>
+        public int ThreadmarkPost { get; set; } = 0;
+
+        /// <summary>
+        /// Return either the StartPost or the ThreadmarkPost, depending on config.
+        /// </summary>
+        public int FirstTallyPost
+        {
+            get
+            {
+                if (CheckForLastThreadmark && ThreadmarkPost > 0)
+                    return ThreadmarkPost;
+                else
+                    return StartPost;
+            }
+        }
         #endregion
 
 
