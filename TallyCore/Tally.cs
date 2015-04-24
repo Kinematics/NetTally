@@ -173,7 +173,7 @@ namespace NetTally
                 version.InformationalVersion);
             sb.AppendLine("");
 
-            foreach (var vote in voteCounter.VotesWithSupporters)
+            foreach (var vote in voteCounter.VotesWithSupporters.OrderByDescending(v => v.Value.Count))
             {
                 sb.Append(vote.Key);
 
