@@ -31,6 +31,8 @@ namespace NetTally.Adapters
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
         readonly Regex badCharactersRegex = new Regex("\u200b");
+        // Extract color attributes from span style.
+        readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
 
 
         #region Public interface functions
@@ -421,15 +423,20 @@ namespace NetTally.Adapters
                         sb.Append("[/u]");
                         break;
                     case "span":
+                        // Keep any COLOR styles; ignore anything else, but keep the content
                         string spanStyle = childNode.GetAttributeValue("style", "");
-                        if (spanStyle.StartsWith("color:", StringComparison.OrdinalIgnoreCase))
+                        Match m = spanColorRegex.Match(spanStyle);
+                        if (m.Success)
                         {
-                            string spanColor = spanStyle.Substring("color:".Length).Trim();
                             sb.Append("[color=");
-                            sb.Append(spanColor);
+                            sb.Append(m.Groups["color"].Value);
                             sb.Append("]");
                             sb.Append(childNode.InnerText);
                             sb.Append("[/color]");
+                        }
+                        else
+                        {
+                            sb.Append(childNode.InnerText);
                         }
                         break;
                     case "a":
