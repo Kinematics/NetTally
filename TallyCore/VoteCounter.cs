@@ -173,16 +173,18 @@ namespace NetTally
             {
                 List<string> matchStrings = GetVoteLineStrings(matches);
 
-                Dictionary<VoteType, List<string>> voteLinesGrouped = SeparateBasePlanFromVote(matchStrings);
+                Dictionary<List<string>, VoteType> voteLinesGrouped = SeparateBasePlanFromVote(matchStrings);
 
-                if (voteLinesGrouped.ContainsKey(VoteType.Plan))
+                var plans = voteLinesGrouped.Where(v => v.Value == VoteType.Plan).Select(vs => vs.Key);
+
+                foreach (var plan in plans)
                 {
-                    string planName = GetPlanName(voteLinesGrouped[VoteType.Plan]);
+                    string planName = GetPlanName(plan);
 
                     // Remove the post author from any other existing votes.
                     RemoveSupport(planName);
 
-                    List<string> planLines = PromotePlanLines(voteLinesGrouped[VoteType.Plan]);
+                    List<string> planLines = PromotePlanLines(plan);
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
@@ -199,15 +201,17 @@ namespace NetTally
                         PlanNames.Add(planName);
                     }
                 }
+                
+                var vote = voteLinesGrouped.FirstOrDefault(v => v.Value == VoteType.Vote).Key;
 
-                if (voteLinesGrouped.ContainsKey(VoteType.Vote))
+                if (vote != null)
                 {
                     // Remove the post author from any other existing votes.
                     RemoveSupport(postAuthor);
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(voteLinesGrouped[VoteType.Vote], quest);
+                    List<string> votePartitions = GetVotePartitions(vote, quest);
 
                     foreach (var votePartition in votePartitions)
                     {
@@ -254,14 +258,14 @@ namespace NetTally
         /// <param name="postLines">All the vote lines of the post.</param>
         /// <returns>Returns a dict with lists of strings, each labeled according to
         /// the section of the post vote they correspond to (either plan or vote).</returns>
-        private Dictionary<VoteType, List<string>> SeparateBasePlanFromVote(List<string> postLines)
+        private Dictionary<List<string>, VoteType> SeparateBasePlanFromVote(List<string> postLines)
         {
             if (postLines == null || postLines.Count == 0)
                 throw new ArgumentNullException(nameof(postLines));
 
-            Dictionary<VoteType, List<string>> results = new Dictionary<VoteType, List<string>>();
+            Dictionary<List<string>, VoteType> results = new Dictionary<List<string>, VoteType>();
 
-            if (basePlanRegex.Match(postLines.First()).Success)
+            while (basePlanRegex.Match(postLines.First()).Success)
             {
                 List<string> basePlan = new List<string>();
                 // Add the "Base Plan" line
@@ -269,12 +273,13 @@ namespace NetTally
                 // Add all sub-lines after that (-[x])
                 basePlan.AddRange(postLines.Skip(1).TakeWhile(a => a.StartsWith("-")));
 
-                results.Add(VoteType.Plan, basePlan);
+                results.Add(basePlan, VoteType.Plan);
 
                 postLines = new List<string>(postLines.Skip(basePlan.Count));
             }
 
-            results.Add(VoteType.Vote, postLines);
+            if (postLines.Count > 0)
+                results.Add(postLines, VoteType.Vote);
 
             return results;
         }
