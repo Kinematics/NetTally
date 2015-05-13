@@ -62,8 +62,7 @@ namespace NetTally
                     // Process each user post in the list.
                     foreach (var post in validPosts)
                     {
-                        if (post != null)
-                            ProcessPost(post, quest);
+                        ProcessPost(post, quest);
                     }
                 }
             }
@@ -133,6 +132,9 @@ namespace NetTally
         /// <param name="endPost">The last post number of the thread to check.</param>
         private void ProcessPost(HtmlNode post, IQuest quest)
         {
+            if (post == null)
+                return;
+
             IForumAdapter forumAdapter = quest.GetForumAdapter();
             string postAuthor = forumAdapter.GetAuthorOfPost(post);
             string postID = forumAdapter.GetIdOfPost(post);
