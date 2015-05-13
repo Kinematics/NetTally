@@ -173,12 +173,12 @@ namespace NetTally
                 version.InformationalVersion);
             sb.AppendLine("");
 
-            foreach (var vote in voteCounter.VotesWithSupporters.OrderByDescending(v => v.Value.Count))
+            foreach (var vote in voteCounter.VotesWithSupporters.OrderByDescending(v => v.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false)))
             {
                 sb.Append(vote.Key);
 
                 sb.Append("[b]No. of Votes: ");
-                sb.Append(vote.Value.Count);
+                sb.Append(vote.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
                 sb.AppendLine("[/b]");
 
                 if (UseSpoilerForVoters)
