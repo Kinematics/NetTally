@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -33,12 +34,8 @@ namespace NetTally.Adapters
 
         private string GetBaseSite(string site)
         {
-            Regex baseSiteRegex = new Regex(@"(?<baseSite>http://[^/]+/)");
-            Match m = baseSiteRegex.Match(site);
-            if (m.Success)
-                return m.Groups["baseSite"].Value;
-
-            return site;
+            Uri uri = new Uri(site);
+            return uri.AbsoluteUri;
         }
 
         public virtual int GetPostsPerPage()

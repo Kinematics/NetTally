@@ -32,7 +32,7 @@ namespace NetTally
         #endregion
 
         #region Variable fields
-        static readonly Regex siteRegex = new Regex(@"^(?<siteName>http://[^/]+/)");
+        static readonly Regex siteRegex = new Regex(@"^(?<siteName>https?://[^/]+/)");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
 
         public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
@@ -310,7 +310,7 @@ namespace NetTally
         string CleanThreadName(string name)
         {
             //Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
-            Regex urlRegex = new Regex(@"^((?<siteName>http://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
+            Regex urlRegex = new Regex(@"^((?<siteName>https?://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
 
             var m = urlRegex.Match(name);
             if (m.Success)
