@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,7 +142,16 @@ namespace NetTally
             HttpClient client;
             HttpResponseMessage response;
 
-            using (client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
+            HttpClientHandler handler = new HttpClientHandler();
+            var cookies = ForumCookies.GetCookies(url);
+            if (cookies.Count > 0)
+            {
+                CookieContainer cookieJar = new CookieContainer();
+                cookieJar.Add(cookies);
+                handler.CookieContainer = cookieJar;
+            }
+
+            using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
             {
                 client.Timeout = TimeSpan.FromSeconds(10);
 
