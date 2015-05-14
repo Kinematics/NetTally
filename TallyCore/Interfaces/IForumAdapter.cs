@@ -86,6 +86,12 @@ namespace NetTally
         /// <returns>Returns the contents of the post as a formatted string.</returns>
         string GetTextOfPost(HtmlNode post);
 
+        /// <summary>
+        /// Get the title of an HTML page.
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
         string GetPageTitle(HtmlDocument page);
+
     }
 }
