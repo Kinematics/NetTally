@@ -30,7 +30,7 @@ namespace NetTally
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public List<string> PlanNames { get; } = new List<string>();
+        public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
