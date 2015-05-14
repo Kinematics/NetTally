@@ -12,6 +12,8 @@ namespace NetTally
     public interface IForumAdapter
     {
         #region Functions for constructing URLs
+        int GetPostsPerPage();
+
         string GetPageUrl(string threadName, int page);
 
         string GetPostUrlFromId(string threadName, string postId);

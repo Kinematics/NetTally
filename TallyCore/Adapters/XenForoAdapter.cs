@@ -41,7 +41,18 @@ namespace NetTally.Adapters
             return site;
         }
 
+        public virtual int GetPostsPerPage()
+        {
+            Uri uri = new Uri(ForumUrl);
 
+            switch (uri.Host)
+            {
+                case "forum.questionablequesting.com":
+                    return 30;
+                default:
+                    return 25;
+            }
+        }
 
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
@@ -125,7 +136,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 25) + 1;
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / GetPostsPerPage()) + 1;
 
         /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
