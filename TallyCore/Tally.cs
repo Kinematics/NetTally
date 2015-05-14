@@ -201,6 +201,10 @@ namespace NetTally
                 sb.AppendLine("");
             }
 
+            sb.AppendLine("");
+            int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
+            sb.AppendFormat("Total No. of Voters: {0}", totalVoterCount);
+
             TallyResults = sb.ToString();
         }
 
