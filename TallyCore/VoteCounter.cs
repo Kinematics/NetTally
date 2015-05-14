@@ -273,7 +273,13 @@ namespace NetTally
                 // Add all sub-lines after that (-[x])
                 basePlan.AddRange(postLines.Skip(1).TakeWhile(a => a.StartsWith("-")));
 
-                results.Add(basePlan, VoteType.Plan);
+                // As long as the plan has component lines, add it to the grouping
+                // collection.  If it has no component lines, it gets ignored, but
+                // we keep trying to see if there are any more base plans.
+                if (basePlan.Count > 1)
+                {
+                    results.Add(basePlan, VoteType.Plan);
+                }
 
                 postLines = new List<string>(postLines.Skip(basePlan.Count));
             }
