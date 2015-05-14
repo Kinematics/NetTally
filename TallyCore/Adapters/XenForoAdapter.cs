@@ -329,7 +329,7 @@ namespace NetTally.Adapters
                 return quest.StartPost;
 
             // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.ThreadName), "Threadmarks", true, token).ConfigureAwait(false);
+            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.ThreadName), "Threadmarks", Caching.BypassCache, token).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksFromPage(threadmarkPage);
 
@@ -340,7 +340,7 @@ namespace NetTally.Adapters
             string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
             string postId = GetPostIdFromUrl(threadmarkUrl);
 
-            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
+            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, Caching.UseCache, token).ConfigureAwait(false);
 
             var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
             int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);

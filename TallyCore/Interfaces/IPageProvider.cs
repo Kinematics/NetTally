@@ -6,6 +6,13 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
+    public enum Caching
+    {
+        UseCache,
+        BypassCache
+    }
+
+
     public interface IPageProvider
     {
         /// <summary>
@@ -24,7 +31,7 @@ namespace NetTally
         /// <param name="bypassCache">Flag for whether to bypass the cache when trying to load the page.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an HTML document.</returns>
-        Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token);
+        Task<HtmlDocument> GetPage(string url, string shortDescrip, Caching caching, CancellationToken token);
 
         /// <summary>
         /// Clear the cache of any previously loaded pages.

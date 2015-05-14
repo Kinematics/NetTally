@@ -56,7 +56,7 @@ namespace NetTally
                 int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage), startPage.ToString(), true, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage), startPage.ToString(), Caching.BypassCache, token).ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
@@ -87,8 +87,8 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pNum), pNum.ToString(),
-                                    (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded), token);
+                                let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
+                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pNum), pNum.ToString(), cacheMode, token);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -114,13 +114,13 @@ namespace NetTally
         /// </summary>
         /// <param name="baseUrl">The thread URL.</param>
         /// <param name="pageNum">The page number in the thread to load.</param>
-        /// <param name="bypassCache">Whether to skip checking the cache.</param>
+        /// <param name="caching">Whether to use or bypass the cache.</param>
         /// <param name="token">Cancellation token for the function.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, bool bypassCache, CancellationToken token)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, Caching caching, CancellationToken token)
         {
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
-            if (!bypassCache && pageCache.ContainsKey(url))
+            if (caching == Caching.UseCache && pageCache.ContainsKey(url))
             {
                 var cache = pageCache[url];
                 var cacheAge = DateTime.Now - cache.Timestamp;

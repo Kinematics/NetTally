@@ -68,7 +68,7 @@ namespace NetTally
         {
             IPageProvider webPageProvider = new WebPageProvider();
 
-            var page = await webPageProvider.GetPage(quest.ThreadName, quest.SiteName, false, token);
+            var page = await webPageProvider.GetPage(quest.ThreadName, quest.SiteName, Caching.UseCache, token);
 
             if (CheckForXenForo(page))
                 return new XenForoAdapter(quest.SiteName);
