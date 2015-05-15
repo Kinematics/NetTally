@@ -507,7 +507,15 @@ namespace NetTally.Adapters
             if (list == null)
                 return new List<HtmlNode>();
 
-            return list.Elements("li");
+            var tms = list.Elements("li");
+
+            // exclude any threadmark where the title starts with 'omake'
+            var storyTMs = from t in tms
+                           let isOmake = t.ChildNodes["a"]?.InnerText.StartsWith("omake", StringComparison.OrdinalIgnoreCase)
+                           where isOmake.HasValue && isOmake.Value == false
+                           select t;
+
+            return storyTMs;
         }
 
         /// <summary>
