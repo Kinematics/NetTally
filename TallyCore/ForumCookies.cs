@@ -19,13 +19,9 @@ namespace NetTally
 
             switch (uri.Host)
             {
-                case "forums.spacebattles.com":
-                    cookie = new Cookie("xf_user", "user_hash_placeholder", "/", uri.Host);
-                    cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
-                    cookies.Add(cookie);
-                    break;
                 case "forum.questionablequesting.com":
-                    cookie = new Cookie("xf_user", "user_hash_placeholder", "/", uri.Host);
+                    // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
+                    cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host);
                     cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
                     cookies.Add(cookie);
                     break;
