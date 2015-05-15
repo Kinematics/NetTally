@@ -265,7 +265,7 @@ namespace NetTally
 
             Dictionary<List<string>, VoteType> results = new Dictionary<List<string>, VoteType>();
 
-            while (basePlanRegex.Match(postLines.First()).Success)
+            while (postLines.Count > 0 && basePlanRegex.Match(postLines.First()).Success)
             {
                 List<string> basePlan = new List<string>();
                 // Add the "Base Plan" line
