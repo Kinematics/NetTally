@@ -12,5 +12,9 @@ namespace NetTally.Adapters
         override protected string ThreadsUrl { get; } = "http://forums.spacebattles.com/threads/";
         override protected string PostsUrl { get; } = "http://forums.spacebattles.com/posts/";
 
+        public override int GetPostsPerPage()
+        {
+            return 25;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -33,15 +34,22 @@ namespace NetTally.Adapters
 
         private string GetBaseSite(string site)
         {
-            Regex baseSiteRegex = new Regex(@"(?<baseSite>http://[^/]+/)");
-            Match m = baseSiteRegex.Match(site);
-            if (m.Success)
-                return m.Groups["baseSite"].Value;
-
-            return site;
+            Uri uri = new Uri(site);
+            return uri.AbsoluteUri;
         }
 
+        public virtual int GetPostsPerPage()
+        {
+            Uri uri = new Uri(ForumUrl);
 
+            switch (uri.Host)
+            {
+                case "forum.questionablequesting.com":
+                    return 30;
+                default:
+                    return 25;
+            }
+        }
 
         // Bad characters we want to remove
         // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
@@ -125,7 +133,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 25) + 1;
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / GetPostsPerPage()) + 1;
 
         /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
@@ -329,7 +337,7 @@ namespace NetTally.Adapters
                 return quest.StartPost;
 
             // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.ThreadName), "Threadmarks", true, token).ConfigureAwait(false);
+            var threadmarkPage = await pageProvider.GetPage(GetThreadmarksPageUrl(quest.ThreadName), "Threadmarks", Caching.BypassCache, token).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksFromPage(threadmarkPage);
 
@@ -340,7 +348,7 @@ namespace NetTally.Adapters
             string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
             string postId = GetPostIdFromUrl(threadmarkUrl);
 
-            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, false, token).ConfigureAwait(false);
+            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, Caching.UseCache, token).ConfigureAwait(false);
 
             var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
             int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);

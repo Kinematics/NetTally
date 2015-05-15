@@ -27,6 +27,10 @@ namespace NetTally.Adapters
         protected virtual string ThreadsUrl { get; }
         protected virtual string PostsUrl { get; }
 
+        public virtual int GetPostsPerPage()
+        {
+            return 20;
+        }
 
 
 
@@ -125,7 +129,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / 20) + 1;
+        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / GetPostsPerPage()) + 1;
 
         /// <summary>
         /// Get the last page number of the thread, based on info available

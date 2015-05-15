@@ -9,6 +9,12 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
+        public enum VoteType
+        {
+            Vote,
+            Plan
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -23,6 +29,8 @@ namespace NetTally
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
@@ -62,8 +70,7 @@ namespace NetTally
                     // Process each user post in the list.
                     foreach (var post in validPosts)
                     {
-                        if (post != null)
-                            ProcessPost(post, quest);
+                        ProcessPost(post, quest);
                     }
                 }
             }
@@ -100,6 +107,7 @@ namespace NetTally
         {
             VotesWithSupporters.Clear();
             VoterMessageId.Clear();
+            PlanNames.Clear();
             cleanVoteLookup.Clear();
             Title = string.Empty;
         }
@@ -111,6 +119,8 @@ namespace NetTally
         readonly Regex tallyRegex = new Regex(@"^(\[/?[ibu]\]|\[color[^]]+\])*#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\].*", RegexOptions.Multiline);
+        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+        readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan\s+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         // Clean extraneous information from a vote in order to compare with other votes.
@@ -133,6 +143,9 @@ namespace NetTally
         /// <param name="endPost">The last post number of the thread to check.</param>
         private void ProcessPost(HtmlNode post, IQuest quest)
         {
+            if (post == null)
+                return;
+
             IForumAdapter forumAdapter = quest.GetForumAdapter();
             string postAuthor = forumAdapter.GetAuthorOfPost(post);
             string postID = forumAdapter.GetIdOfPost(post);
@@ -158,21 +171,57 @@ namespace NetTally
             MatchCollection matches = voteRegex.Matches(postText);
             if (matches.Count > 0)
             {
-                // Remove the post author from any other existing votes.
-                RemoveSupport(postAuthor);
+                List<string> matchStrings = GetVoteLineStrings(matches);
 
-                // Get the list of all vote partitions, built according to current preferences.
-                // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(matches, quest);
+                Dictionary<List<string>, VoteType> voteLinesGrouped = SeparateBasePlanFromVote(matchStrings);
 
-                foreach (var votePartition in votePartitions)
+                var plans = voteLinesGrouped.Where(v => v.Value == VoteType.Plan).Select(vs => vs.Key);
+
+                foreach (var plan in plans)
                 {
-                    // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest);
+                    string planName = GetPlanName(plan);
 
-                    // Update the supporters list, and save this voter's post ID for linking.
-                    VotesWithSupporters[voteKey].Add(postAuthor);
-                    VoterMessageId[postAuthor] = postID;
+                    // Remove the post author from any other existing votes.
+                    RemoveSupport(planName);
+
+                    List<string> planLines = PromotePlanLines(plan);
+
+                    // Get the list of all vote partitions, built according to current preferences.
+                    // One of: By line, By block, or By post (ie: entire vote)
+                    List<string> votePartitions = GetVotePartitions(planLines, quest);
+
+                    foreach (var votePartition in votePartitions)
+                    {
+                        // Find any existing vote that matches the current vote partition.
+                        string voteKey = GetVoteKey(votePartition, quest);
+
+                        // Update the supporters list, and save this voter's post ID for linking.
+                        VotesWithSupporters[voteKey].Add(planName);
+                        VoterMessageId[planName] = postID;
+                        PlanNames.Add(planName);
+                    }
+                }
+                
+                var vote = voteLinesGrouped.FirstOrDefault(v => v.Value == VoteType.Vote).Key;
+
+                if (vote != null)
+                {
+                    // Remove the post author from any other existing votes.
+                    RemoveSupport(postAuthor);
+
+                    // Get the list of all vote partitions, built according to current preferences.
+                    // One of: By line, By block, or By post (ie: entire vote)
+                    List<string> votePartitions = GetVotePartitions(vote, quest);
+
+                    foreach (var votePartition in votePartitions)
+                    {
+                        // Find any existing vote that matches the current vote partition.
+                        string voteKey = GetVoteKey(votePartition, quest);
+
+                        // Update the supporters list, and save this voter's post ID for linking.
+                        VotesWithSupporters[voteKey].Add(postAuthor);
+                        VoterMessageId[postAuthor] = postID;
+                    }
                 }
             }
         }
@@ -187,6 +236,90 @@ namespace NetTally
             // If the post contains ##### at the start of the line for part of its text,
             // it's a tally result.
             return (tallyRegex.Matches(postText).Count > 0);
+        }
+
+        /// <summary>
+        /// Convert a collection of regex matches into a list of strings.
+        /// </summary>
+        /// <param name="matches">Collection of regex matches.</param>
+        /// <returns>Returns the list of strings corresponding to the matched values.</returns>
+        private List<string> GetVoteLineStrings(MatchCollection matches)
+        {
+            var strings = from Match m in matches
+                          select m.Value.Trim();
+
+            return new List<string>(strings);
+        }
+
+        /// <summary>
+        /// Given a list of vote lines from a post, separate out any that correspond to a
+        /// defined Base Plan, separate from the user's own vote.
+        /// </summary>
+        /// <param name="postLines">All the vote lines of the post.</param>
+        /// <returns>Returns a dict with lists of strings, each labeled according to
+        /// the section of the post vote they correspond to (either plan or vote).</returns>
+        private Dictionary<List<string>, VoteType> SeparateBasePlanFromVote(List<string> postLines)
+        {
+            if (postLines == null || postLines.Count == 0)
+                throw new ArgumentNullException(nameof(postLines));
+
+            Dictionary<List<string>, VoteType> results = new Dictionary<List<string>, VoteType>();
+
+            while (basePlanRegex.Match(postLines.First()).Success)
+            {
+                List<string> basePlan = new List<string>();
+                // Add the "Base Plan" line
+                basePlan.Add(postLines.First());
+                // Add all sub-lines after that (-[x])
+                basePlan.AddRange(postLines.Skip(1).TakeWhile(a => a.StartsWith("-")));
+
+                // As long as the plan has component lines, add it to the grouping
+                // collection.  If it has no component lines, it gets ignored, but
+                // we keep trying to see if there are any more base plans.
+                if (basePlan.Count > 1)
+                {
+                    results.Add(basePlan, VoteType.Plan);
+                }
+
+                postLines = new List<string>(postLines.Skip(basePlan.Count));
+            }
+
+            if (postLines.Count > 0)
+                results.Add(postLines, VoteType.Vote);
+
+            return results;
+        }
+
+        /// <summary>
+        /// Given a list of lines that corresponds to a base plan as part of a user's post,
+        /// extract the name of the plan.
+        /// </summary>
+        /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
+        /// <returns>Returns the name of the base plan.</returns>
+        private string GetPlanName(List<string> planLines)
+        {
+            Match m = basePlanRegex.Match(planLines.First());
+            if (m.Success)
+            {
+                return m.Groups["baseplan"].Value.Trim();
+            }
+
+            throw new InvalidOperationException("These are not the lines for a base plan.");
+        }
+
+        /// <summary>
+        /// Given a list of lines that corresponds to a base plan as part of a user's post,
+        /// remove the line with the plan's name, and promote all other lines one level.
+        /// Promotion = Turn a -[x] line to a [x] line.
+        /// </summary>
+        /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
+        /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
+        private List<string> PromotePlanLines(List<string> planLines)
+        {
+            var promotedLines = from p in planLines.Skip(1)
+                                select p.Substring(1);
+
+            return new List<string>(promotedLines);
         }
 
         /// <summary>
@@ -212,20 +345,6 @@ namespace NetTally
             {
                 VotesWithSupporters.Remove(vote);
             }
-        }
-
-        /// <summary>
-        /// Given a collection of vote line matches, combine them into a single string entity,
-        /// or multiple blocks of strings if we're using vote partitions.
-        /// </summary>
-        /// <param name="matches">Matches for a valid vote line.</param>
-        /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(MatchCollection matches, IQuest quest)
-        {
-            var strings = from Match m in matches
-                          select m.Value;
-
-            return GetVotePartitions(strings, quest);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.Adapters;
@@ -12,7 +13,7 @@ namespace TallyUnitTest
 // Disable obsolete warnings for fields that we're still testing
 #pragma warning disable 0618
 
-        static string propertyNameRaised = string.Empty;
+        static List<string> propertiesRaised = new List<string>();
 
         #region Constructor
         [TestMethod]
@@ -358,40 +359,50 @@ namespace TallyUnitTest
             var a = new Quest();
             a.PropertyChanged += A_PropertyChanged;
 
-            propertyNameRaised = string.Empty;
+            propertiesRaised.Clear();
 
             a.Name = "awake-already-homura-nge-pmmm-fusion-quest.11111";
-            Assert.AreEqual("Name", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("Name"));
 
-            propertyNameRaised = string.Empty;
+            propertiesRaised.Clear();
 
             a.StartPost = 10;
-            Assert.AreEqual("StartPost", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("StartPost"));
 
-            propertyNameRaised = string.Empty;
+            propertiesRaised.Clear();
 
             a.EndPost = 20;
-            Assert.AreEqual("EndPost", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("EndPost"));
+
+            propertiesRaised.Clear();
 
             a.DisplayName = "Display";
-            Assert.AreEqual("DisplayName", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("DisplayName"));
+
+            propertiesRaised.Clear();
 
             a.ThreadName = "http://www.example.com";
-            Assert.AreEqual("ThreadName", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("ThreadName"));
+
+            propertiesRaised.Clear();
 
             a.UseVotePartitions = true;
-            Assert.AreEqual("UseVotePartitions", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("UseVotePartitions"));
+
+            propertiesRaised.Clear();
 
             a.PartitionByLine = false;
-            Assert.AreEqual("PartitionByLine", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("PartitionByLine"));
+
+            propertiesRaised.Clear();
 
             a.CheckForLastThreadmark = true;
-            Assert.AreEqual("CheckForLastThreadmark", propertyNameRaised);
+            Assert.IsTrue(propertiesRaised.Contains("CheckForLastThreadmark"));
         }
 
         private void A_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            propertyNameRaised = e.PropertyName;
+            propertiesRaised.Add(e.PropertyName);
         }
         #endregion
 
