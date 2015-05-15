@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 
 namespace NetTally
@@ -24,6 +26,12 @@ namespace NetTally
         // Locals for managing the tally
         Tally tally;
         CancellationTokenSource cts;
+
+        private IQuest CurrentlySelectedQuest()
+        {
+            return QuestCollectionView.CurrentItem as IQuest;
+        }
+
 
         #region Startup/shutdown events
         /// <summary>
@@ -82,11 +90,6 @@ namespace NetTally
             settings.Save();
         }
         #endregion
-
-        private IQuest CurrentlySelectedQuest()
-        {
-            return QuestCollectionView.CurrentItem as IQuest;
-        }
 
         #region User action events
         /// <summary>
@@ -202,6 +205,12 @@ namespace NetTally
             DoneEditing();
             questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
             QuestCollectionView.Refresh();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
         #endregion
 
@@ -399,6 +408,5 @@ namespace NetTally
         }
 
         #endregion
-
     }
 }
