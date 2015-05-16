@@ -188,7 +188,7 @@ namespace NetTally
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(planLines, quest);
+                    List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
 
                     foreach (var votePartition in votePartitions)
                     {
@@ -211,7 +211,7 @@ namespace NetTally
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(vote, quest);
+                    List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
 
                     foreach (var votePartition in votePartitions)
                     {
@@ -353,7 +353,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -398,6 +398,10 @@ namespace NetTally
                     {
                         // If partitioning by line, every line gets added to the partitions list.
                         partitions.Add(trimmedLine+"\r\n");
+                    }
+                    else if (voteType == VoteType.Plan)
+                    {
+                        sb.AppendLine(trimmedLine);
                     }
                     else
                     {
