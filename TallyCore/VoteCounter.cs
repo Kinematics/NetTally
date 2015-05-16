@@ -401,11 +401,13 @@ namespace NetTally
                     }
                     else if (voteType == VoteType.Plan)
                     {
+                        // If partitioning a Base Plan by block, simply collate all lines together.
+                        // The entire plan is considered a single block.
                         sb.AppendLine(trimmedLine);
                     }
                     else
                     {
-                        // If partitioning by block, work on collecting chunks
+                        // If partitioning a vote by block, work on collecting chunks together.
                         if (sb.Length == 0)
                         {
                             sb.AppendLine(trimmedLine);
