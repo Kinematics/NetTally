@@ -138,6 +138,7 @@ namespace NetTally
             HtmlDocument htmldoc = new HtmlDocument();
 
             string result = null;
+            int maxtries = 5;
             int tries = 0;
             HttpClient client;
             HttpResponseMessage response;
@@ -157,7 +158,7 @@ namespace NetTally
 
                 try
                 {
-                    while (result == null && tries < 3 && token.IsCancellationRequested == false)
+                    while (result == null && tries < maxtries && token.IsCancellationRequested == false)
                     {
                         using (response = await client.GetAsync(url, token).ConfigureAwait(false))
                         {

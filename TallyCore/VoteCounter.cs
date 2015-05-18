@@ -188,7 +188,7 @@ namespace NetTally
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(planLines, quest);
+                    List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
 
                     foreach (var votePartition in votePartitions)
                     {
@@ -211,7 +211,7 @@ namespace NetTally
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(vote, quest);
+                    List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
 
                     foreach (var votePartition in votePartitions)
                     {
@@ -265,7 +265,7 @@ namespace NetTally
 
             Dictionary<List<string>, VoteType> results = new Dictionary<List<string>, VoteType>();
 
-            while (basePlanRegex.Match(postLines.First()).Success)
+            while (postLines.Count > 0 && basePlanRegex.Match(postLines.First()).Success)
             {
                 List<string> basePlan = new List<string>();
                 // Add the "Base Plan" line
@@ -353,7 +353,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -399,9 +399,15 @@ namespace NetTally
                         // If partitioning by line, every line gets added to the partitions list.
                         partitions.Add(trimmedLine+"\r\n");
                     }
+                    else if (voteType == VoteType.Plan)
+                    {
+                        // If partitioning a Base Plan by block, simply collate all lines together.
+                        // The entire plan is considered a single block.
+                        sb.AppendLine(trimmedLine);
+                    }
                     else
                     {
-                        // If partitioning by block, work on collecting chunks
+                        // If partitioning a vote by block, work on collecting chunks together.
                         if (sb.Length == 0)
                         {
                             sb.AppendLine(trimmedLine);

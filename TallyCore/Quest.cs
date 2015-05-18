@@ -203,13 +203,11 @@ namespace NetTally
             }
         }
 
-
-
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
-        public bool ReadToEndOfThread => EndPost < 1;
+        public bool ReadToEndOfThread => EndPost < 1 || ThreadmarkPost > 0;
 
         /// <summary>
         /// Property to store any found threadmark post number.
