@@ -90,6 +90,10 @@ namespace NetTally
 
         #endregion
 
+        #region Access properties
+        public IVoteCounter VoteCounter => voteCounter;
+        #endregion
+
         #region Interface functions
         /// <summary>
         /// Run the actual tally.
@@ -155,7 +159,7 @@ namespace NetTally
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
-        private void ConstructResults(IQuest quest)
+        public void ConstructResults(IQuest quest)
         {
             if (quest == null)
                 return;

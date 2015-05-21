@@ -408,6 +408,8 @@ namespace NetTally
         }
 
         #endregion
+
+
         private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
         {
             MergeVotesWindow mergeWindow = new MergeVotesWindow(tally)
@@ -419,6 +421,8 @@ namespace NetTally
             };
 
             mergeWindow.ShowDialog();
+
+            tally.ConstructResults(CurrentlySelectedQuest());
         }
     }
 }
