@@ -186,12 +186,24 @@ namespace NetTally
                     sb.AppendLine("[spoiler=Voters]");
                 }
 
-                sb.Append(GenerateSupporterUrl(quest, vote.Value.First()));
+                string firstVoter = vote.Value.First();
+                sb.Append(GenerateSupporterUrl(quest, firstVoter));
 
                 var remainder = vote.Value.Skip(1);
 
-                foreach (var supporter in vote.Value.Skip(1).OrderBy(v => v))
+                var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
+
+                foreach (var supporter in remainingPlans.OrderBy(v => v))
+                {
                     sb.Append(GenerateSupporterUrl(quest, supporter));
+                }
+
+                var remainingVoters = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == false);
+
+                foreach (var supporter in remainingVoters.OrderBy(v => v))
+                {
+                    sb.Append(GenerateSupporterUrl(quest, supporter));
+                }
 
                 if (UseSpoilerForVoters)
                 {
@@ -212,11 +224,20 @@ namespace NetTally
         {
             StringBuilder sb = new StringBuilder();
 
+            string tail = string.Empty;
+            if (voteCounter.PlanNames.Contains(supporter))
+            {
+                sb.Append("[b]Plan: ");
+                tail = "[/b]";
+            }
+
             sb.Append("[url=\"");
             sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
             sb.Append("\"]");
             sb.Append(supporter);
-            sb.AppendLine("[/url]");
+            sb.Append("[/url]");
+
+            sb.AppendLine(tail);
 
             return sb.ToString();
         }
