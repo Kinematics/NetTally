@@ -5,23 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Merge Votes" Height="542.837" Width="831" MinWidth="600" MinHeight="400" ResizeMode="NoResize">
+        Title="Merge Votes" Height="587.837" Width="828" MinWidth="600" MinHeight="400" ResizeMode="NoResize">
     <Grid>
-        <ListBox x:Name="votesFromListBox" Height="152" Margin="10,36,595,0" VerticalAlignment="Top"/>
-        <ListBox x:Name="votersFromListBox" HorizontalAlignment="Left" Height="152" Margin="233,36,0,0" VerticalAlignment="Top" Width="157"/>
-        <ListBox x:Name="votesToListBox" Height="152" Margin="0,36,13,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="340"/>
+        <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding VoteCollectionView1}" SelectionChanged="listBox_SelectionChanged"/>
+        <ListBox x:Name="votersFromListBox" Height="93" Width="360" Margin="10,412,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                 />
+        <ListBox x:Name="votesToListBox" Height="345" Margin="450,36,10,0" VerticalAlignment="Top" ItemsSource="{Binding VoteCollectionView2}" SelectionChanged="listBox_SelectionChanged"/>
+        <ListBox x:Name="votersToListBox" Height="93" Margin="450,412,10,0" VerticalAlignment="Top"/>
 
-        <TextBox x:Name="textBoxFrom" Margin="10,219,433,48" TextWrapping="Wrap" Text="TextBox"/>
-        <TextBox x:Name="textBoxTo" Margin="0,219,10,48" TextWrapping="Wrap" Text="TextBox" HorizontalAlignment="Right" Width="343"/>
-        
-        <Button x:Name="merge" Content="⟹" HorizontalAlignment="Right" Height="35" Margin="0,219,358,0" VerticalAlignment="Top" Width="70" FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1"/>
-        <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" HorizontalAlignment="Right" Width="92" Height="33" VerticalAlignment="Bottom" IsCancel="True"/>
-        
-        <Label x:Name="label1" Content="Votes" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label2" Content="Voters" HorizontalAlignment="Left" Margin="233,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label3" Content="Votes to merge into" HorizontalAlignment="Left" Margin="472,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label4" Content="Vote Contents" HorizontalAlignment="Left" Margin="10,193,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label5" Content="Merge Into Vote Contents" HorizontalAlignment="Right" Margin="0,193,205,0" VerticalAlignment="Top"/>
+        <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="375,36,0,0" VerticalAlignment="Top" Width="70"
+                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False"/>
+        <Button x:Name="closeButton" Content="Close" Margin="718,516,10,10" IsCancel="True"/>
+
+        <Label x:Name="label1" Content="Votes (Merge From)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label2" Content="Votes (Merge To)" HorizontalAlignment="Left" Margin="450,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,386,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="450,386,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
