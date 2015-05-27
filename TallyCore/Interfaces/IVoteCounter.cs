@@ -11,5 +11,6 @@ namespace NetTally
         HashSet<string> PlanNames { get; }
 
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
+        bool Merge(string fromVote, string toVote);
     }
 }

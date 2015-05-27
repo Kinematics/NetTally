@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="617.588" Width="890.437" MinWidth="800" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
+        Title="Net Tally" Height="617.588" Width="890.437" MinWidth="850" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
@@ -72,6 +72,9 @@
                 Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
         <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." Margin="510,45,0,0"
+                Click="openMergeVotesWindow_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="97"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
                 Wiki Help

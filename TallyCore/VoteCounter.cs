@@ -76,6 +76,38 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        public bool Merge(string fromVote, string toVote)
+        {
+            if (fromVote == null)
+                throw new ArgumentNullException(nameof(fromVote));
+            if (toVote == null)
+                throw new ArgumentNullException(nameof(toVote));
+            if (fromVote == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(fromVote), "Vote string is empty.");
+            if (toVote == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(toVote), "Vote string is empty.");
+            if (fromVote == toVote)
+                return false;
+
+            HashSet<string> fromVoters;
+            if (!VotesWithSupporters.TryGetValue(fromVote, out fromVoters))
+                throw new ArgumentException(nameof(fromVote) + " does not exist.");
+            HashSet<string> toVoters;
+            if (!VotesWithSupporters.TryGetValue(toVote, out toVoters))
+                throw new ArgumentException(nameof(toVote) + " does not exist.");
+
+            toVoters.UnionWith(fromVoters);
+
+            VotesWithSupporters.Remove(fromVote);
+
+            return true;
+        }
         #endregion
 
         #region Private variables
