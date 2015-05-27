@@ -207,6 +207,31 @@ namespace NetTally
             QuestCollectionView.Refresh();
         }
 
+        /// <summary>
+        /// Open the window for handling merging votes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
+        {
+            MergeVotesWindow mergeWindow = new MergeVotesWindow(tally)
+            {
+                ShowInTaskbar = false,               // don't show the dialog on the taskbar
+                Topmost = true,                      // ensure we're Always On Top
+                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
+                Owner = Application.Current.MainWindow,
+            };
+
+            mergeWindow.ShowDialog();
+
+            tally.ConstructResults(CurrentlySelectedQuest());
+        }
+
+        /// <summary>
+        /// Open a browser to view the wiki URL.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
@@ -408,21 +433,5 @@ namespace NetTally
         }
 
         #endregion
-
-
-        private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
-        {
-            MergeVotesWindow mergeWindow = new MergeVotesWindow(tally)
-            {
-                ShowInTaskbar = false,               // don't show the dialog on the taskbar
-                Topmost = true,                      // ensure we're Always On Top
-                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
-                Owner = Application.Current.MainWindow,
-            };
-
-            mergeWindow.ShowDialog();
-
-            tally.ConstructResults(CurrentlySelectedQuest());
-        }
     }
 }

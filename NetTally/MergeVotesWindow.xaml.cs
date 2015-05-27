@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -15,22 +14,24 @@ namespace NetTally
     {
         public IVoteCounter voteCounter;
 
+        public ObservableCollection<string> ObservableVotes { get; }
         public ICollectionView VoteCollectionView1 { get; }
         public ICollectionView VoteCollectionView2 { get; }
-        public ObservableCollection<string> ObservableVotes { get; }
 
-        public ICollectionView VoterView1 { get; }
-        public ICollectionView VoterView2 { get; }
         public ObservableCollection<string> Voters1 { get; }
         public ObservableCollection<string> Voters2 { get; }
-
-        //public ObservableCollection<Dictionary<string, HashSet<string>>> ObservableVotes { get; }
+        public ICollectionView VoterView1 { get; }
+        public ICollectionView VoterView2 { get; }
 
         public MergeVotesWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="tally">The tally that is having votes merged.</param>
         public MergeVotesWindow(Tally tally)
         {
             InitializeComponent();
@@ -50,6 +51,9 @@ namespace NetTally
             this.DataContext = this;
         }
 
+        /// <summary>
+        /// Returns whether or not it's valid to merge votes based on the current list selections.
+        /// </summary>
         public bool VotesCanMerge
         {
             get
@@ -63,6 +67,11 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Handler for the button to merge two vote items together.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void merge_Click(object sender, RoutedEventArgs e)
         {
             if (!VotesCanMerge)
@@ -85,18 +94,35 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Update enabled state of merge button, and current list of voters, based on current vote selection
+        /// for the list of votes to be merged from.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             merge.IsEnabled = VotesCanMerge;
             UpdateVoters(sender as ListBox, Voters1);
         }
 
+        /// <summary>
+        /// Update enabled state of merge button, and current list of voters, based on current vote selection
+        /// for the list of votes to be merged to.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             merge.IsEnabled = VotesCanMerge;
             UpdateVoters(sender as ListBox, Voters2);
         }
 
+        /// <summary>
+        /// Update the collection that the voter list boxes are observing.
+        /// </summary>
+        /// <param name="votesBox">The list box that we're checking the currently selected vote in.</param>
+        /// <param name="votersCollection">The voter collection being observed by the associated voter list box.</param>
         private void UpdateVoters(ListBox votesBox, ObservableCollection<string> votersCollection)
         {
             if (votesBox == null || votersCollection == null)
