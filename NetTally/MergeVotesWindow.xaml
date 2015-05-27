@@ -7,11 +7,14 @@
         mc:Ignorable="d"
         Title="Merge Votes" Height="587.837" Width="828" MinWidth="600" MinHeight="400" ResizeMode="NoResize">
     <Grid>
-        <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding VoteCollectionView1}" SelectionChanged="listBox_SelectionChanged"/>
+        <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                 ItemsSource="{Binding VoteCollectionView1}" SelectionChanged="votesFromListBox_SelectionChanged"/>
         <ListBox x:Name="votersFromListBox" Height="93" Width="360" Margin="10,412,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                 />
-        <ListBox x:Name="votesToListBox" Height="345" Margin="450,36,10,0" VerticalAlignment="Top" ItemsSource="{Binding VoteCollectionView2}" SelectionChanged="listBox_SelectionChanged"/>
-        <ListBox x:Name="votersToListBox" Height="93" Margin="450,412,10,0" VerticalAlignment="Top"/>
+                 ItemsSource="{Binding VoterView1}" />
+        <ListBox x:Name="votesToListBox" Height="345" Margin="450,36,10,0" VerticalAlignment="Top"
+                 ItemsSource="{Binding VoteCollectionView2}" SelectionChanged="votesToListBox_SelectionChanged"/>
+        <ListBox x:Name="votersToListBox" Height="93" Margin="450,412,10,0" VerticalAlignment="Top"
+                 ItemsSource="{Binding VoterView2}" />
 
         <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="375,36,0,0" VerticalAlignment="Top" Width="70"
                 FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False"/>

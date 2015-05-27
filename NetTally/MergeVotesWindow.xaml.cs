@@ -2,17 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace NetTally
 {
@@ -21,11 +13,16 @@ namespace NetTally
     /// </summary>
     public partial class MergeVotesWindow : Window
     {
-        IVoteCounter voteCounter;
+        public IVoteCounter voteCounter;
 
         public ICollectionView VoteCollectionView1 { get; }
         public ICollectionView VoteCollectionView2 { get; }
         public ObservableCollection<string> ObservableVotes { get; }
+
+        public ICollectionView VoterView1 { get; }
+        public ICollectionView VoterView2 { get; }
+        public ObservableCollection<string> Voters1 { get; }
+        public ObservableCollection<string> Voters2 { get; }
 
         //public ObservableCollection<Dictionary<string, HashSet<string>>> ObservableVotes { get; }
 
@@ -41,11 +38,14 @@ namespace NetTally
             voteCounter = tally.VoteCounter;
 
             ObservableVotes = new ObservableCollection<string>(voteCounter.VotesWithSupporters.Keys);
-            //ObservableVotes = new ObservableCollection<Dictionary<string, HashSet<string>>>(voteCounter.VotesWithSupporters);
 
             VoteCollectionView1 = new CollectionView(ObservableVotes);
             VoteCollectionView2 = new CollectionView(ObservableVotes);
 
+            Voters1 = new ObservableCollection<string>();
+            Voters2 = new ObservableCollection<string>();
+            VoterView1 = new CollectionView(Voters1);
+            VoterView2 = new CollectionView(Voters2);
 
             this.DataContext = this;
         }
@@ -65,9 +65,7 @@ namespace NetTally
 
         private void merge_Click(object sender, RoutedEventArgs e)
         {
-            if (votesFromListBox.SelectedIndex < 0)
-                return;
-            if (votesToListBox.SelectedIndex < 0)
+            if (!VotesCanMerge)
                 return;
 
             string fromVote = votesFromListBox.SelectedItem.ToString();
@@ -78,7 +76,7 @@ namespace NetTally
                 if (voteCounter.Merge(fromVote, toVote))
                 {
                     ObservableVotes.Remove(fromVote);
-                    //ShowVoters(votesToListBox);
+                    UpdateVoters(votesToListBox, Voters2);
                 }
             }
             catch (Exception ex)
@@ -87,37 +85,41 @@ namespace NetTally
             }
         }
 
-        private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             merge.IsEnabled = VotesCanMerge;
-            //ShowVoters(sender as ListBox);
-
+            UpdateVoters(sender as ListBox, Voters1);
         }
 
-        private void ShowVoters(ListBox listBox)
+        private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (listBox == null)
+            merge.IsEnabled = VotesCanMerge;
+            UpdateVoters(sender as ListBox, Voters2);
+        }
+
+        private void UpdateVoters(ListBox votesBox, ObservableCollection<string> votersCollection)
+        {
+            if (votesBox == null || votersCollection == null)
                 return;
 
-            ListBox voterListBox = votersFromListBox;
-            if (listBox == votesToListBox)
-                voterListBox = votersToListBox;
+            votersCollection.Clear();
 
-
-            //voterListBox.Items.Clear();
-
-            if (listBox.SelectedIndex < 0)
+            if (votesBox.SelectedIndex < 0)
             {
                 return;
             }
 
-            string vote = listBox.SelectedItem.ToString();
-            HashSet<string> voters;
-            if (voteCounter.VotesWithSupporters.TryGetValue(vote, out voters))
-            {
-                voterListBox.ItemsSource = voters;
-            }
+            string vote = votesBox.SelectedItem.ToString();
 
+            var voters = voteCounter.VotesWithSupporters[vote];
+
+            if (voters != null)
+            {
+                foreach (var voter in voters)
+                {
+                    votersCollection.Add(voter);
+                }
+            }
         }
     }
 }
