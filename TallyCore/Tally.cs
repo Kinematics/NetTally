@@ -19,6 +19,7 @@ namespace NetTally
 
         string results = string.Empty;
         bool useSpoilerForVoters = false;
+        bool tallyIsRunning = false;
 
         IQuest lastTallyQuest = null;
         List<HtmlDocument> loadedPages = null;
@@ -89,6 +90,16 @@ namespace NetTally
             }
         }
 
+        public bool TallyIsRunning
+        {
+            get { return tallyIsRunning; }
+            set
+            {
+                tallyIsRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Access properties
@@ -107,6 +118,8 @@ namespace NetTally
         {
             try
             {
+                TallyIsRunning = true;
+
                 TallyResults = string.Empty;
                 lastTallyQuest = quest;
 
@@ -126,7 +139,7 @@ namespace NetTally
             }
             finally
             {
-
+                TallyIsRunning = false;
             }
         }
 
