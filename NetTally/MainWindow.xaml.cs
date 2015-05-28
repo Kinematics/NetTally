@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,11 +28,20 @@ namespace NetTally
         Tally tally;
         CancellationTokenSource cts;
 
+        // Using a DependencyProperty as the backing store for MyTitle.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MyTitleProperty =
+            DependencyProperty.Register("MyTitle", typeof(string), typeof(MainWindow), new UIPropertyMetadata(null));
+
+        public string MyTitle
+        {
+            get { return (string)GetValue(MyTitleProperty); }
+            set { SetValue(MyTitleProperty, value); }
+        }
+
         private IQuest CurrentlySelectedQuest()
         {
             return QuestCollectionView.CurrentItem as IQuest;
         }
-
 
         #region Startup/shutdown events
         /// <summary>
@@ -64,10 +74,19 @@ namespace NetTally
 
             // Set up data contexts
             DataContext = QuestCollectionView;
-            resultsWindow.DataContext = tally;
+
             useSpoilerForVoters.DataContext = tally;
+            resultsWindow.DataContext = tally;
             tallyButton.DataContext = tally;
             cancelTally.DataContext = tally;
+
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+            MyTitle = string.Format("{0} - {1}",
+                product.Product,
+                version.InformationalVersion);
         }
 
         /// <summary>

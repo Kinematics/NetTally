@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Net Tally" Height="617.588" Width="890.437" MinWidth="850" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
+        Title="{Binding MyTitle, RelativeSource={RelativeSource Mode=Self}}"
+        Height="617.588" Width="890.437" MinWidth="850" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
