@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -176,45 +177,70 @@ namespace NetTally
                 product.Product,
                 version.InformationalVersion);
             sb.AppendLine("");
+            sb.AppendLine("");
 
-            foreach (var vote in voteCounter.VotesWithSupporters.OrderByDescending(v => v.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false)))
+            var groupedVotesWithSupporters = GroupVotes(voteCounter.VotesWithSupporters);
+            bool firstTask = true;
+
+            foreach (var taskGroup in groupedVotesWithSupporters)
             {
-                sb.Append(vote.Key);
-
-                sb.Append("[b]No. of Votes: ");
-                sb.Append(vote.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
-                sb.AppendLine("[/b]");
-
-                if (UseSpoilerForVoters)
+                if (firstTask)
                 {
-                    sb.AppendLine("[spoiler=Voters]");
+                    firstTask = false;
+                }
+                else
+                {
+                    sb.AppendLine("--------------------------------------------------------");
+                    sb.AppendLine("");
                 }
 
-                string firstVoter = vote.Value.First();
-                sb.Append(GenerateSupporterUrl(quest, firstVoter));
-
-                var remainder = vote.Value.Skip(1);
-
-                var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
-
-                foreach (var supporter in remainingPlans.OrderBy(v => v))
+                if (taskGroup.Key.Length > 0)
                 {
-                    sb.Append(GenerateSupporterUrl(quest, supporter));
+                    sb.Append("[b]Task: ");
+                    sb.Append(taskGroup.Key);
+                    sb.AppendLine("[/b]");
+                    sb.AppendLine("");
                 }
 
-                var remainingVoters = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == false);
-
-                foreach (var supporter in remainingVoters.OrderBy(v => v))
+                foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false)))
                 {
-                    sb.Append(GenerateSupporterUrl(quest, supporter));
-                }
+                    sb.Append(vote.Key);
 
-                if (UseSpoilerForVoters)
-                {
-                    sb.AppendLine("[/spoiler]");
-                }
+                    sb.Append("[b]No. of Votes: ");
+                    sb.Append(vote.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
+                    sb.AppendLine("[/b]");
 
-                sb.AppendLine("");
+                    if (UseSpoilerForVoters)
+                    {
+                        sb.AppendLine("[spoiler=Voters]");
+                    }
+
+                    string firstVoter = vote.Value.First();
+                    sb.Append(GenerateSupporterUrl(quest, firstVoter));
+
+                    var remainder = vote.Value.Skip(1);
+
+                    var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
+
+                    foreach (var supporter in remainingPlans.OrderBy(v => v))
+                    {
+                        sb.Append(GenerateSupporterUrl(quest, supporter));
+                    }
+
+                    var remainingVoters = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == false);
+
+                    foreach (var supporter in remainingVoters.OrderBy(v => v))
+                    {
+                        sb.Append(GenerateSupporterUrl(quest, supporter));
+                    }
+
+                    if (UseSpoilerForVoters)
+                    {
+                        sb.AppendLine("[/spoiler]");
+                    }
+
+                    sb.AppendLine("");
+                }
             }
 
             sb.AppendLine("");
@@ -222,6 +248,38 @@ namespace NetTally
             sb.AppendFormat("Total No. of Voters: {0}", totalVoterCount);
 
             TallyResults = sb.ToString();
+        }
+
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
+        {
+            var grouped = from v in votesWithSupporters
+                          group v by GetVoteTask(v.Key) into g
+                          orderby g.Key
+                          select g;
+
+            return grouped;
+        }
+
+        // Task name must start with a character or digit, followed by any number of chars or digits or spaces (as long
+        // as the space is followed by another char or digit), with an optional trailing question mark.
+        readonly Regex voteTaskRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\](\s*\[(?<task>(\w|\d)(\w|\d|(\s(\w|\d)))*\??)\])?.*");
+
+        private string GetVoteTask(string key)
+        {
+            var m = voteTaskRegex.Match(key);
+
+            if (m.Success == false)
+                return string.Empty;
+
+            string task = m.Groups["task"].Value;
+
+            if (task.Length == 0)
+                return string.Empty;
+
+            if (task.Length == 1)
+                return task.ToUpper();
+
+            return char.ToUpper(task[0]) + task.Substring(1).ToLower();
         }
 
         private string GenerateSupporterUrl(IQuest quest, string supporter)
