@@ -18,8 +18,7 @@ namespace NetTally
         /// Convert from source (property bool) to target (control bool).
         /// </summary>
         /// <returns>Returns whether the specified target control value should be on or off.</returns>
-        public object Convert(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (parameter.Equals("Invert"))
                 return !(bool)value;
@@ -32,8 +31,7 @@ namespace NetTally
         /// </summary>
         /// <returns>Returns what the source property value should be set to
         /// based on the target value.</returns>
-        public object ConvertBack(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (parameter.Equals("Invert"))
                 return !(bool)value;
@@ -42,5 +40,81 @@ namespace NetTally
         }
     }
 
+
+    /// <summary>
+    /// Data binding conversion class to return the AND state of all the objects
+    /// passed in via the values array.
+    /// If the parameter provided is "Invert", it will return the negation of
+    /// the expected result.
+    /// </summary>
+    public class MultiBoolAndConverter : IMultiValueConverter
+    {
+        /// <summary>
+        /// Return a bool indicating if all bool values passed in the array are true.
+        /// </summary>
+        /// <param name="values">Collection of binding values.</param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter">Optional "Invert" to reverse the results.</param>
+        /// <param name="culture"></param>
+        /// <returns>Returns true if all bindings are true.</returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool pass = true;
+            if (parameter != null && parameter.Equals("Invert"))
+                pass = false;
+
+            foreach (object value in values)
+            {
+                if ((value is bool) && (bool)value == false)
+                {
+                    return !pass;
+                }
+            }
+            return pass;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException("MultiBoolConverter is a OneWay converter.");
+        }
+    }
+
+    /// <summary>
+    /// Data binding conversion class to return the OR state of all the objects
+    /// passed in via the values array.
+    /// If the parameter provided is "Invert", it will return the negation of
+    /// the expected result.
+    /// </summary>
+    public class MultiBoolOrConverter : IMultiValueConverter
+    {
+        /// <summary>
+        /// Return a bool indicating if any bool values passed in the array are true.
+        /// </summary>
+        /// <param name="values">Collection of binding values.</param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter">Optional "Invert" to reverse the results.</param>
+        /// <param name="culture"></param>
+        /// <returns>Returns true if any bindings are true.</returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool pass = true;
+            if (parameter != null && parameter.Equals("Invert"))
+                pass = false;
+
+            foreach (object value in values)
+            {
+                if ((value is bool) && (bool)value == true)
+                {
+                    return pass;
+                }
+            }
+            return !pass;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException("MultiBoolConverter is a OneWay converter.");
+        }
+    }
 
 }
