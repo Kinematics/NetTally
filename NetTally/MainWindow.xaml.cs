@@ -67,6 +67,7 @@ namespace NetTally
             resultsWindow.DataContext = tally;
             useSpoilerForVoters.DataContext = tally;
             tallyButton.DataContext = tally;
+            cancelTally.DataContext = tally;
         }
 
         /// <summary>
