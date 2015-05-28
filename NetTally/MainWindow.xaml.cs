@@ -66,6 +66,7 @@ namespace NetTally
             DataContext = QuestCollectionView;
             resultsWindow.DataContext = tally;
             useSpoilerForVoters.DataContext = tally;
+            tallyButton.DataContext = tally;
         }
 
         /// <summary>
@@ -104,8 +105,6 @@ namespace NetTally
             if (QuestCollectionView.CurrentItem == null)
                 return;
 
-            tallyButton.IsEnabled = false;
-
             try
             {
                 cts = new CancellationTokenSource();
@@ -122,7 +121,6 @@ namespace NetTally
             }
             finally
             {
-                tallyButton.IsEnabled = true;
                 cts.Dispose();
                 cts = null;
             }
