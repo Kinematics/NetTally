@@ -284,7 +284,7 @@ namespace NetTally
             if (m.Success == false)
                 return string.Empty;
 
-            string task = m.Groups["task"].Value;
+            string task = m.Groups["task"].Value.Trim();
 
             if (task.Length == 0)
                 return string.Empty;
