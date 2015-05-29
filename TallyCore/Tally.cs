@@ -24,6 +24,10 @@ namespace NetTally
         IQuest lastTallyQuest = null;
         List<HtmlDocument> loadedPages = null;
 
+        // Task name must start with a character or digit, followed by any number of chars or digits or spaces (as long
+        // as the space is followed by another char or digit), with an optional trailing question mark.
+        readonly Regex voteTaskRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\](\s*\[(?<task>(\w|\d)(\w|\d|(\s(\w|\d)))*\??)\])?.*");
+
         public Tally()
         {
             pageProvider = new WebPageProvider();
@@ -272,10 +276,6 @@ namespace NetTally
 
             return grouped;
         }
-
-        // Task name must start with a character or digit, followed by any number of chars or digits or spaces (as long
-        // as the space is followed by another char or digit), with an optional trailing question mark.
-        readonly Regex voteTaskRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\](\s*\[(?<task>(\w|\d)(\w|\d|(\s(\w|\d)))*\??)\])?.*");
 
         private string GetVoteTask(string key)
         {
