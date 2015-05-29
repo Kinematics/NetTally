@@ -152,7 +152,7 @@ namespace NetTally
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\].*", RegexOptions.Multiline);
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan\s+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
+        readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan(:|\s)+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         // Clean extraneous information from a vote in order to compare with other votes.
