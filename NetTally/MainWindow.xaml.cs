@@ -28,6 +28,8 @@ namespace NetTally
         Tally tally;
         CancellationTokenSource cts;
 
+        CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
+
         // Using a DependencyProperty as the backing store for MyTitle.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MyTitleProperty =
             DependencyProperty.Register("MyTitle", typeof(string), typeof(MainWindow), new UIPropertyMetadata(null));
@@ -79,6 +81,7 @@ namespace NetTally
             resultsWindow.DataContext = tally;
             tallyButton.DataContext = tally;
             cancelTally.DataContext = tally;
+            newRelease.DataContext = checkForNewRelease;
 
 
             var assembly = Assembly.GetExecutingAssembly();
