@@ -149,7 +149,11 @@ namespace NetTally
             }
         }
 
-
+        /// <summary>
+        /// Cancel the cancellation token, if present.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cancelTally_Click(object sender, RoutedEventArgs e)
         {
             cts?.Cancel();
