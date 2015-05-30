@@ -18,7 +18,10 @@ namespace NetTally
         /// </summary>
         public CheckForNewRelease()
         {
+            // Disable warning about needing to use 'await' on an async method.
+#pragma warning disable 4014
             DoVersionCheck();
+#pragma warning restore 4014
         }
 
         /// <summary>
