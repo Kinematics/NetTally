@@ -81,8 +81,13 @@
             </Button.ToolTip>
         </Button>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
-                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiBoolOrConverter}" Mode="OneWay">
+                    <Binding ElementName="startPost" Path="(Validation.HasError)" Mode="OneWay" />
+                    <Binding ElementName="tallyButton" Path="IsEnabled" Mode="OneWay" />
+                </MultiBinding>
+            </TextBox.IsEnabled>
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -93,8 +98,13 @@
             </TextBox.ToolTip>
         </TextBox>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
-                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiBoolOrConverter}" Mode="OneWay">
+                    <Binding ElementName="endPost" Path="(Validation.HasError)" Mode="OneWay" />
+                    <Binding ElementName="tallyButton" Path="IsEnabled" Mode="OneWay" />
+                </MultiBinding>
+            </TextBox.IsEnabled>
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -184,6 +194,8 @@
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
                     <Binding ElementName="questList" Path="HasItems" Mode="OneWay" />
+                    <Binding ElementName="startPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding ElementName="endPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                     <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
