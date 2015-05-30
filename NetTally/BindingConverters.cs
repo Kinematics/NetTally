@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace NetTally
@@ -114,6 +115,48 @@ namespace NetTally
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException("MultiBoolConverter is a OneWay converter.");
+        }
+    }
+
+
+    /// <summary>
+    /// Data binding conversion class to convert the bool to either the same value,
+    /// or the inverse of the value, depending on the parameter value.
+    /// The 'parameter' parameter specifies whether to invert the boolean value.
+    /// Value of "Invert" will cause it to return the negation of the bool.
+    /// </summary>
+    [ValueConversion(typeof(bool), typeof(Visibility))]
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        /// <summary>
+        /// Convert from source (property bool) to target (visibility of the control).
+        /// </summary>
+        /// <returns>Returns whether the specified target control value should be on or off.</returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool)
+            {
+                bool visible = (bool)value;
+                if (parameter != null && parameter.Equals("Invert"))
+                    visible = !visible;
+
+                if (visible)
+                    return Visibility.Visible;
+                else
+                    return Visibility.Hidden;
+            }
+
+            return Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Convert from target (control bool) to source (property bool).
+        /// </summary>
+        /// <returns>Returns what the source property value should be set to
+        /// based on the target value.</returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException("BoolToVisibilityConverter is a OneWay converter.");
         }
     }
 
