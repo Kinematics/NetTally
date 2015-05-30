@@ -22,9 +22,26 @@
                     <Binding ElementName="tallyButton" Path="IsEnabled" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Add Quest</TextBlock>
+                        <TextBlock>Add a new forum thread to the quest list.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
         </Button>
         <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60" Click="removeQuestButton_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Delete Quest</TextBlock>
+                        <TextBlock>Delete the current quest from the quest list.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <ComboBox x:Name="questList" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
                   ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
@@ -33,6 +50,14 @@
                     <TextBlock Text="{Binding DisplayName}" />
                 </DataTemplate>
             </ComboBox.ItemTemplate>
+            <ComboBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Select Quest</TextBlock>
+                        <TextBlock>Select the quest to run the tally for.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </ComboBox.ToolTip>
         </ComboBox>
         <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.DisplayName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
@@ -45,34 +70,115 @@
             <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
         </Canvas>
         <Button x:Name="editNameButton" Content="Edit Name" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="125" Click="editNameButton_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Edit Quest Name/URL</TextBlock>
+                        <TextBlock>Edit the name and URL of the currently selected quest.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
                  Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
-                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Starting Post Number</TextBlock>
+                        <TextBlock>Enter the post number to begin tallying from.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
                  Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1"
-                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Ending Post Number</TextBlock>
+                        <TextBlock>Enter the post number to end tallying at.  A '0' will run to the end of the thread.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
                   RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CurrentItem.CheckForLastThreadmark}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Search For Threadmark</TextBlock>
+                        <TextBlock>Attempt to find the last threadmark of the thread, to use as the starting point for the tally.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
         <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=CurrentItem.UseVotePartitions}" HorizontalAlignment="Left" Width="95"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Checked="partitionedVotes_CheckedChanged" Unchecked="partitionedVotes_CheckedChanged"/>
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
+                  Checked="partitionedVotes_CheckedChanged" Unchecked="partitionedVotes_CheckedChanged">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Partition Votes</TextBlock>
+                        <TextBlock>Break tallied votes up by line or by block.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
         <StackPanel HorizontalAlignment="Left" Height="39" Margin="418,45,0,0" VerticalAlignment="Top" Width="87"
                     IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" VerticalAlignment="Top"
         		GroupName="PartitionType" IsChecked="{Binding Path=CurrentItem.PartitionByLine, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}"
-        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}" Checked="partitionByLine_CheckedChanged" Unchecked="partitionByLine_CheckedChanged"/>
+        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}" Checked="partitionByLine_CheckedChanged" Unchecked="partitionByLine_CheckedChanged">
+                <RadioButton.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Partition By Line</TextBlock>
+                            <TextBlock>Tally each individual vote line.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </RadioButton.ToolTip>
+            </RadioButton>
             <RadioButton x:Name="partitionByBlock" Content="By Block" HorizontalAlignment="Left" VerticalAlignment="Top"
         		GroupName="PartitionType" IsChecked="{Binding ElementName=partitionByLine, Path=IsChecked, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}"
-        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}"/>
+        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}">
+                <RadioButton.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Partition By Block</TextBlock>
+                            <TextBlock>Tally blocks of vote lines that begin with a non-indented line.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </RadioButton.ToolTip>
+            </RadioButton>
         </StackPanel>
         <CheckBox x:Name="useSpoilerForVoters" Content="Use Spoiler for Voters" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=UseSpoilerForVoters}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Spoiler Voters</TextBlock>
+                        <TextBlock>Place list of voters for each vote in a spoiler block.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
         <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Clear Tally Cache</TextBlock>
+                        <TextBlock>Clear cached web pages, to force the program to reload them from the web when tallying.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
         </Button>
         <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Click="tallyButton_Click" Width="158" HorizontalAlignment="Right">
             <Button.IsEnabled>
@@ -81,16 +187,52 @@
                     <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Tally Quest</TextBlock>
+                        <TextBlock>Run the tally on the currently selected quest.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
         </Button>
         <Button x:Name="cancelTally" Content="Cancel" Height="30" Margin="0,66,128,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="94"
-                IsEnabled="{Binding Path=TallyIsRunning, Mode=OneWay}" Click="cancelTally_Click"/>
+                IsEnabled="{Binding Path=TallyIsRunning, Mode=OneWay}" Click="cancelTally_Click" ToolTipService.ShowOnDisabled="True">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Cancel Tally</TextBlock>
+                        <TextBlock>Cancel the currently running tally.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0" HorizontalAlignment="Right" Width="113"
-                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top"/>
-        <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
-                 Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Copy To Clipboard</TextBlock>
+                        <TextBlock>Copy the entirety of the tally results to the clipboard.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." Margin="510,45,0,0"
                 Click="openMergeVotesWindow_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="97"/>
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
+                Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="97">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Merge Votes</TextBlock>
+                        <TextBlock>Open the window to handle merging votes together.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
+                 Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
                 Wiki Help

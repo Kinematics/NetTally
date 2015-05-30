@@ -17,7 +17,16 @@
                  ItemsSource="{Binding VoterView2}" />
 
         <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="375,36,0,0" VerticalAlignment="Top" Width="70"
-                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False"/>
+                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Merge</TextBlock>
+                        <TextBlock>Merge the voters for the selected vote on the left into the vote on the right.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <Button x:Name="closeButton" Content="Close" Margin="718,516,10,10" IsCancel="True"/>
 
         <Label x:Name="label1" Content="Votes (Merge From)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
