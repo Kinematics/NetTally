@@ -52,8 +52,8 @@ namespace NetTally
 
                 int startPost = await forumAdapter.GetStartingPostNumber(this, quest, token).ConfigureAwait(false);
 
-                int startPage = forumAdapter.GetPageNumberFromPostNumber(startPost);
-                int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
+                int startPage = forumAdapter.GetPageNumberFromPostNumber(quest, startPost);
+                int endPage = forumAdapter.GetPageNumberFromPostNumber(quest, quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
                 var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage),
