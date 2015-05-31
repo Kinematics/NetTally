@@ -56,7 +56,8 @@ namespace NetTally
                 int endPage = forumAdapter.GetPageNumberFromPostNumber(quest.EndPost);
 
                 // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage), startPage.ToString(), Caching.BypassCache, token).ConfigureAwait(false);
+                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage),
+                    "Page " + startPage.ToString(), Caching.BypassCache, token).ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
@@ -86,9 +87,9 @@ namespace NetTally
                 if (pagesToScan > 0)
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
-                    var tasks = from pNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
-                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pNum), pNum.ToString(), cacheMode, token);
+                    var tasks = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
+                                let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
+                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pageNum), "Page " + pageNum.ToString(), cacheMode, token);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -128,7 +129,7 @@ namespace NetTally
                 if (cacheAge.TotalMinutes < 30)
                 {
                     if (cacheAge.TotalSeconds > 4)
-                        OnStatusChanged("Page " + shortDescription + " loaded from memory!\n");
+                        OnStatusChanged(shortDescription + " loaded from memory!\n");
                     return cache.Doc;
                 }
             }
@@ -168,7 +169,7 @@ namespace NetTally
                             }
                             else
                             {
-                                OnStatusChanged("Retrying page " + shortDescription + "\n");
+                                OnStatusChanged("Retrying: " + shortDescription + "\n");
                                 tries++;
                             }
                         }
@@ -176,7 +177,7 @@ namespace NetTally
                 }
                 catch (HttpRequestException e)
                 {
-                    OnStatusChanged("Page " + shortDescription + ": " + e.Message);
+                    OnStatusChanged(shortDescription + ": " + e.Message);
                     throw;
                 }
                 catch (OperationCanceledException e)
@@ -194,7 +195,7 @@ namespace NetTally
 
             if (result == null)
             {
-                OnStatusChanged("Failed to load page " + shortDescription + "\n");
+                OnStatusChanged("Failed to load: " + shortDescription + "\n");
                 return null;
             }
 
@@ -202,7 +203,7 @@ namespace NetTally
 
             pageCache[url] = new CachedPage(htmldoc);
 
-            OnStatusChanged("Page " + shortDescription + " loaded!\n");
+            OnStatusChanged(shortDescription + " loaded!\n");
 
             return htmldoc;
         }

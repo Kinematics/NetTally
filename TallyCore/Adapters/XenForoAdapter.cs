@@ -348,7 +348,7 @@ namespace NetTally.Adapters
             string threadmarkUrl = GetUrlOfThreadmark(lastThreadmark);
             string postId = GetPostIdFromUrl(threadmarkUrl);
 
-            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, postId, Caching.UseCache, token).ConfigureAwait(false);
+            var lastThreadmarkPage = await pageProvider.GetPage(threadmarkUrl, "Post " + postId, Caching.UseCache, token).ConfigureAwait(false);
 
             var threadmarkPost = GetPostFromPageById(lastThreadmarkPage, postId);
             int threadmarkPostNumber = GetPostNumberOfPost(threadmarkPost);
