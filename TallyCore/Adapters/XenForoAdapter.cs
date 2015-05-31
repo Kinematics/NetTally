@@ -12,9 +12,9 @@ namespace NetTally.Adapters
 {
     public class XenForoAdapter : IForumAdapter
     {
-        protected virtual string ForumUrl { get; } = "http://forums.sufficientvelocity.com/";
-        protected virtual string ThreadsUrl { get; } = "http://forums.sufficientvelocity.com/threads/";
-        protected virtual string PostsUrl { get; } = "http://forums.sufficientvelocity.com/posts/";
+        protected virtual string ForumUrl { get; }
+        protected virtual string ThreadsUrl { get; }
+        protected virtual string PostsUrl { get; }
 
         public XenForoAdapter()
         {
@@ -26,10 +26,14 @@ namespace NetTally.Adapters
             if (site == null)
                 throw new ArgumentNullException(nameof(site));
 
-            string baseSite = GetBaseSite(site);
-            ForumUrl = baseSite;
-            ThreadsUrl = baseSite + "threads/";
-            PostsUrl = baseSite + "posts/";
+            // These readonly properties need to be set in the constructor
+            // Forum  = "http://forums.sufficientvelocity.com/"
+            // Thread = "http://forums.sufficientvelocity.com/threads/"
+            // Posts  = "http://forums.sufficientvelocity.com/posts/"
+
+            ForumUrl = GetBaseSite(site);
+            ThreadsUrl = ForumUrl + "threads/";
+            PostsUrl = ForumUrl + "posts/";
         }
 
         private string GetBaseSite(string site)

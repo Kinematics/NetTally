@@ -48,14 +48,19 @@ namespace NetTally
         /// <returns>Returns a forum adapter for the site the quest is on.</returns>
         private static IForumAdapter GetExplicitAdapter(IQuest quest)
         {
-            if (quest.SiteName == "http://forums.sufficientvelocity.com/")
-                return new SufficientVelocityAdapter();
-            else if (quest.SiteName == "http://forums.spacebattles.com/")
-                return new SpaceBattlesAdapter();
-            else if (quest.SiteName == string.Empty)
-                // Sufficient Velocity is the default if no site name is given
-                return new SufficientVelocityAdapter();
-            else return null;
+            switch (quest.SiteName)
+            {
+                case "http://forums.sufficientvelocity.com/":
+                case "http://forums.spacebattles.com/":
+                case "https://forum.questionablequesting.com/":
+                    // Known XenForo sites
+                    return new XenForoAdapter(quest.SiteName);
+                case "":
+                    // Sufficient Velocity is the default if no site name is given
+                    return new XenForoAdapter("http://forums.sufficientvelocity.com/");
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
