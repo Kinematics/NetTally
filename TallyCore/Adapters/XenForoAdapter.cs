@@ -79,7 +79,12 @@ namespace NetTally.Adapters
             if (threadName == string.Empty)
                 throw new ArgumentOutOfRangeException(nameof(threadName));
 
-            return GetFullThreadName(threadName) + "/threadmarks";
+            string fullThreadName = GetFullThreadName(threadName);
+            if (!fullThreadName.EndsWith("/"))
+                fullThreadName = fullThreadName + "/";
+            fullThreadName = fullThreadName + "threadmarks";
+
+            return fullThreadName;
         }
 
         public string GetPageUrl(string threadName, int page)
