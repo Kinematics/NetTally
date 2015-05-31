@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
         Title="{Binding MyTitle, RelativeSource={RelativeSource Mode=Self}}"
-        Height="617.588" Width="890.437" MinWidth="850" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
+        Height="617.588" Width="919.437" MinWidth="850" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
@@ -43,7 +43,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <ComboBox x:Name="questList" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
+        <ComboBox x:Name="questList" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
                   ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <ComboBox.ItemTemplate>
@@ -60,7 +60,7 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,297,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.DisplayName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
@@ -72,7 +72,7 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,227,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,297,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.ThreadName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
@@ -84,9 +84,21 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,227,0" VerticalAlignment="Top" Visibility="Hidden">
+        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" Visibility="Hidden">
             <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
         </Canvas>
+        <ComboBox x:Name="postsPerPage" Margin="0,10,227,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Right" Width="65"
+                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ValidPostsPerPage}"
+                  SelectedItem="{Binding Path=CurrentItem.PostsPerPage}">
+            <ComboBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Posts Per Page</TextBlock>
+                        <TextBlock>Specify the number of posts per page for this forum thread.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </ComboBox.ToolTip>
+        </ComboBox>
         <Button x:Name="editNameButton" Content="Edit Name" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="125" Click="editNameButton_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <Button.ToolTip>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -44,6 +45,8 @@ namespace NetTally
         {
             return QuestCollectionView.CurrentItem as IQuest;
         }
+
+        public List<int> ValidPostsPerPage { get; } = new List<int>() { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
         #region Startup/shutdown events
         /// <summary>
