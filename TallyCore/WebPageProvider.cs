@@ -117,7 +117,7 @@ namespace NetTally
         /// <param name="caching">Whether to use or bypass the cache.</param>
         /// <param name="token">Cancellation token for the function.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, Caching caching, CancellationToken token)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token)
         {
             // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
             if (caching == Caching.UseCache && pageCache.ContainsKey(url))
@@ -128,7 +128,7 @@ namespace NetTally
                 if (cacheAge.TotalMinutes < 30)
                 {
                     if (cacheAge.TotalSeconds > 4)
-                        OnStatusChanged("Page " + shortDescrip + " loaded from memory!\n");
+                        OnStatusChanged("Page " + shortDescription + " loaded from memory!\n");
                     return cache.Doc;
                 }
             }
@@ -168,7 +168,7 @@ namespace NetTally
                             }
                             else
                             {
-                                OnStatusChanged("Retrying page " + shortDescrip + "\n");
+                                OnStatusChanged("Retrying page " + shortDescription + "\n");
                                 tries++;
                             }
                         }
@@ -176,7 +176,7 @@ namespace NetTally
                 }
                 catch (HttpRequestException e)
                 {
-                    OnStatusChanged("Page " + shortDescrip + ": " + e.Message);
+                    OnStatusChanged("Page " + shortDescription + ": " + e.Message);
                     throw;
                 }
                 catch (OperationCanceledException e)
@@ -194,7 +194,7 @@ namespace NetTally
 
             if (result == null)
             {
-                OnStatusChanged("Failed to load page " + shortDescrip + "\n");
+                OnStatusChanged("Failed to load page " + shortDescription + "\n");
                 return null;
             }
 
@@ -202,7 +202,7 @@ namespace NetTally
 
             pageCache[url] = new CachedPage(htmldoc);
 
-            OnStatusChanged("Page " + shortDescrip + " loaded!\n");
+            OnStatusChanged("Page " + shortDescription + " loaded!\n");
 
             return htmldoc;
         }
