@@ -74,11 +74,6 @@ namespace NetTally
             return forumAdapter;
         }
 
-        private void UpdateForumAdapter()
-        {
-            forumAdapter = ForumAdapterFactory.GetAdapter(this);
-        }
-
         /// <summary>
         /// Gets the full thread URL for the quest.
         /// </summary>
@@ -100,7 +95,7 @@ namespace NetTally
                 threadName = cleanThreadName;
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
-                UpdateForumAdapter();
+                forumAdapter = null;
             }
         }
 
