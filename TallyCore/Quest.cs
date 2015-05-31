@@ -50,6 +50,11 @@ namespace NetTally
         #endregion
 
         #region IQuest Properties
+        /// <summary>
+        /// Gets the expected forum adapter for this quest, with option to cancel.
+        /// </summary>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
         public async Task<IForumAdapter> GetForumAdapter(CancellationToken token)
         {
             if (forumAdapter == null)
@@ -57,6 +62,10 @@ namespace NetTally
             return forumAdapter;
         }
 
+        /// <summary>
+        /// Gets the expected forum adapter for this quest.
+        /// </summary>
+        /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
         public IForumAdapter GetForumAdapter()
         {
             if (forumAdapter == null)
@@ -69,7 +78,9 @@ namespace NetTally
             forumAdapter = ForumAdapterFactory.GetAdapter(this);
         }
 
-
+        /// <summary>
+        /// Gets the full thread URL for the quest.
+        /// </summary>
         public string ThreadName
         {
             get
@@ -92,6 +103,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Gets the name to display in the combo box dropdown, for selecting a quest.
+        /// </summary>
         public string DisplayName
         {
             get
@@ -115,6 +129,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Gets the web site name from the thread URL.
+        /// </summary>
         public string SiteName
         {
             get
