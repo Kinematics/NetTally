@@ -38,16 +38,19 @@ namespace NetTally.Adapters
             return uri.AbsoluteUri;
         }
 
-        public virtual int GetPostsPerPage()
+        public int DefaultPostsPerPage
         {
-            Uri uri = new Uri(ForumUrl);
-
-            switch (uri.Host)
+            get
             {
-                case "forum.questionablequesting.com":
-                    return 30;
-                default:
-                    return 25;
+                Uri uri = new Uri(ForumUrl);
+
+                switch (uri.Host)
+                {
+                    case "forum.questionablequesting.com":
+                        return 30;
+                    default:
+                        return 25;
+                }
             }
         }
 
@@ -136,9 +139,10 @@ namespace NetTally.Adapters
         /// <summary>
         /// Calculate the page number that corresponds to the post number given.
         /// </summary>
+        /// <param name="quest">Quest that we're getting the page number for.</param>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / GetPostsPerPage()) + 1;
+        public int GetPageNumberFromPostNumber(IQuest quest, int postNumber) => ((postNumber - 1) / quest.PostsPerPage) + 1;
 
         /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.

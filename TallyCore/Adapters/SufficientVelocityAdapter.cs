@@ -17,10 +17,5 @@ namespace NetTally.Adapters
         override protected string ForumUrl { get; } = "http://forums.sufficientvelocity.com/";
         override protected string ThreadsUrl { get; } = "http://forums.sufficientvelocity.com/threads/";
         override protected string PostsUrl { get; } = "http://forums.sufficientvelocity.com/posts/";
-
-        public override int GetPostsPerPage()
-        {
-            return 25;
-        }
     }
 }

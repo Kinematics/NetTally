@@ -12,7 +12,7 @@ namespace NetTally
     public interface IForumAdapter
     {
         #region Functions for constructing URLs
-        int GetPostsPerPage();
+        int DefaultPostsPerPage { get; }
 
         string GetPageUrl(string threadName, int page);
 
@@ -34,7 +34,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        int GetPageNumberFromPostNumber(int postNumber);
+        int GetPageNumberFromPostNumber(IQuest quest, int postNumber);
 
         /// <summary>
         /// Get the last page number of the thread, based on info available

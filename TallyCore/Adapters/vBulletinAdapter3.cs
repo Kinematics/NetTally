@@ -28,10 +28,7 @@ namespace NetTally.Adapters
         protected virtual string ThreadsUrl { get; }
         protected virtual string PostsUrl { get; }
 
-        public virtual int GetPostsPerPage()
-        {
-            return 20;
-        }
+        public int DefaultPostsPerPage => 20;
 
 
         // Bad characters we want to remove
@@ -119,9 +116,10 @@ namespace NetTally.Adapters
         /// <summary>
         /// Calculate the page number that corresponds to the post number given.
         /// </summary>
+        /// <param name="quest">Quest that we're getting the page number for.</param>
         /// <param name="post">Post number.</param>
         /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(int postNumber) => ((postNumber - 1) / GetPostsPerPage()) + 1;
+        public int GetPageNumberFromPostNumber(IQuest quest, int postNumber) => ((postNumber - 1) / quest.PostsPerPage) + 1;
 
         /// <summary>
         /// Get the last page number of the thread, based on info available
