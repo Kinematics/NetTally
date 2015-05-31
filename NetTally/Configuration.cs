@@ -137,6 +137,7 @@ namespace NetTally
                     Site = quest.Site,
                     Name = quest.Name,
 #pragma warning restore 0618
+                    PostsPerPage = quest.PostsPerPage,
                     StartPost = quest.StartPost,
                     EndPost = quest.EndPost,
                     CheckForLastThreadmark = quest.CheckForLastThreadmark,
@@ -205,7 +206,7 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
-            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.StartPost, quest.EndPost,
+            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine);
             BaseAdd(questElement);
         }
@@ -222,13 +223,14 @@ namespace NetTally
     /// </summary>
     public class QuestElement : ConfigurationElement
     {
-        public QuestElement(string threadName, string displayName, int startPost, int endPost, bool checkForLastThreadmark,
+        public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
             bool useVotePartitions, bool partitionByLine)
         {
             //Site = site;
             //Name = name;
             ThreadName = threadName;
             DisplayName = displayName;
+            PostsPerPage = postsPerPage;
             StartPost = startPost;
             EndPost = endPost;
             CheckForLastThreadmark = checkForLastThreadmark;
@@ -274,6 +276,13 @@ namespace NetTally
         {
             get { return (string)this["Name"]; }
             set { this["Name"] = value; }
+        }
+
+        [ConfigurationProperty("PostsPerPage", DefaultValue = 0)]
+        public int PostsPerPage
+        {
+            get { return (int)this["PostsPerPage"]; }
+            set { this["PostsPerPage"] = value; }
         }
 
         [ConfigurationProperty("StartPost", DefaultValue = 1, IsRequired = true)]
