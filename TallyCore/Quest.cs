@@ -41,6 +41,7 @@ namespace NetTally
 
         string threadName = NewThreadEntry;
         string displayName = string.Empty;
+        int postsPerPage = 0;
 
         int startPost = 1;
         int endPost = 0;
@@ -145,6 +146,31 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// The number of posts per page for this forum thread.
+        /// Auto-detect value if current field value is 0.
+        /// </summary>
+        public int PostsPerPage
+        {
+            get
+            {
+                if (postsPerPage == 0)
+                    postsPerPage = GetPostsPerPage();
+
+                return postsPerPage;
+            }
+            set
+            {
+                postsPerPage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Get the number of posts per page for this forum thread.
+        /// Raw value, without attempt at auto-fill.
+        /// </summary>
+        public int RawPostsPerPage => postsPerPage;
 
         /// <summary>
         /// The number of the post to start looking for votes in.
@@ -248,6 +274,13 @@ namespace NetTally
 
 
         #region Utility functions
+
+        private int GetPostsPerPage()
+        {
+            throw new NotImplementedException();
+        }
+
+
         /// <summary>
         /// Clean page anchors and page numbers from the provided thread URL.
         /// </summary>
