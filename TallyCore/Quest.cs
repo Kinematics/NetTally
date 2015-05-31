@@ -317,9 +317,6 @@ namespace NetTally
                     site = string.Empty;
                 else
                     site = value;
-
-                forumAdapter = null;
-                OnPropertyChanged();
             }
         }
 
