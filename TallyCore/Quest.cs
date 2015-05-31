@@ -90,9 +90,8 @@ namespace NetTally
                 if (value == string.Empty)
                     throw new ArgumentOutOfRangeException("ThreadName", "Thread name cannot be empty.");
 
-                string cleanThreadName = CleanPageNumbers(value);
+                threadName = CleanPageNumbers(value);
 
-                threadName = cleanThreadName;
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
                 forumAdapter = null;
