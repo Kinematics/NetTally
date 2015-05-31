@@ -341,12 +341,12 @@ namespace TallyUnitTest
             Assert.IsInstanceOfType(adapter, typeof(SufficientVelocityAdapter));
 
             a.ThreadName = "http://forums.spacebattles.com/";
-            var adapterTask = a.GetForumAdapter(System.Threading.CancellationToken.None);
+            var adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
             adapter = adapterTask.Result;
             Assert.IsInstanceOfType(adapter, typeof(SpaceBattlesAdapter));
 
             a.Site = "http://forums.spacebattles.com/";
-            adapterTask = a.GetForumAdapter(System.Threading.CancellationToken.None);
+            adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
             adapter = adapterTask.Result;
             Assert.IsInstanceOfType(adapter, typeof(SpaceBattlesAdapter));
         }

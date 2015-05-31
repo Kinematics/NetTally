@@ -127,7 +127,7 @@ namespace NetTally
                 TallyResults = string.Empty;
                 lastTallyQuest = quest;
 
-                await quest.GetForumAdapter(token);
+                await quest.GetForumAdapterAsync(token);
 
                 // Load pages from the website
                 loadedPages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);

@@ -85,6 +85,6 @@ namespace NetTally
         /// </summary>
         /// <returns></returns>
         IForumAdapter GetForumAdapter();
-        Task<IForumAdapter> GetForumAdapter(CancellationToken token);
+        Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token);
     }
 }

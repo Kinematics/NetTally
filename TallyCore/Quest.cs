@@ -56,7 +56,7 @@ namespace NetTally
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
-        public async Task<IForumAdapter> GetForumAdapter(CancellationToken token)
+        public async Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token)
         {
             if (forumAdapter == null)
                 forumAdapter = await ForumAdapterFactory.GetAdapter(this, token);
