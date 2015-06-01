@@ -75,6 +75,37 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
+        /// </summary>
+        private void UpdateForumAdapter()
+        {
+            var prevForumAdapter = forumAdapter;
+
+            forumAdapter = ForumAdapterFactory.GetAdapter(this);
+
+            if (prevForumAdapter != null && prevForumAdapter != forumAdapter)
+                UpdatePostsPerPage();
+        }
+
+        /// <summary>
+        /// Update the posts per page if the forum adapter was modified.
+        /// </summary>
+        private void UpdatePostsPerPage()
+        {
+            var ppp = forumAdapter?.DefaultPostsPerPage;
+
+            if (ppp.HasValue)
+            {
+                PostsPerPage = ppp.Value;
+            }
+            else
+            {
+                PostsPerPage = 0;
+            }
+        }
+
+
+        /// <summary>
         /// Gets the full thread URL for the quest.
         /// </summary>
         public string ThreadName
