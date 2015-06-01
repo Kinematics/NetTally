@@ -185,8 +185,13 @@ namespace NetTally
             get
             {
                 if (postsPerPage == 0)
-                    postsPerPage = GetPostsPerPage();
-
+                {
+                    var ppp = GetForumAdapter()?.DefaultPostsPerPage;
+                    if (ppp.HasValue)
+                    {
+                        postsPerPage = ppp.Value;
+                    }
+                }
                 return postsPerPage;
             }
             set
