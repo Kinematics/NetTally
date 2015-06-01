@@ -61,7 +61,7 @@ namespace TallyUnitTest
         }
         #endregion
 
-        #region Names
+        #region Display Name and Thread Name
         [TestMethod]
         public void TestDisplayName()
         {
@@ -83,9 +83,9 @@ namespace TallyUnitTest
 
         }
 
-        [TestMethod]
         public void TestCleanURL()
         {
+            // Largely tested via ThreadName and SiteName
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@ namespace TallyUnitTest
 
         #endregion
 
-        #region Name
+        #region Name and Site (Obsolete)
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNameToNull()
@@ -212,7 +212,6 @@ namespace TallyUnitTest
         #endregion
 
         #region StartPost
-
         [TestMethod]
         public void TestSetStart()
         {
@@ -288,6 +287,9 @@ namespace TallyUnitTest
 
             a.EndPost = Int32.MaxValue;
             Assert.AreEqual(false, a.ReadToEndOfThread);
+
+            a.ThreadmarkPost = 517;
+            Assert.AreEqual(true, a.ReadToEndOfThread);
         }
 
         [TestMethod]
@@ -310,6 +312,29 @@ namespace TallyUnitTest
             a.CheckForLastThreadmark = true;
             Assert.AreEqual(true, a.CheckForLastThreadmark);
         }
+        #endregion
+
+        #region Other Properties
+        [TestMethod]
+        public void TestFirstTallyPost()
+        {
+            a.StartPost = 448;
+
+            Assert.AreEqual(448, a.FirstTallyPost);
+
+            a.CheckForLastThreadmark = true;
+
+            Assert.AreEqual(448, a.FirstTallyPost);
+
+            a.ThreadmarkPost = 517;
+
+            Assert.AreEqual(517, a.FirstTallyPost);
+
+            a.CheckForLastThreadmark = false;
+
+            Assert.AreEqual(448, a.FirstTallyPost);
+        }
+
         #endregion
 
         #region ForumAdapters
