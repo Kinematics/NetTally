@@ -15,7 +15,7 @@ namespace NetTally
     [DataContract(Name ="Quest")]
     public class Quest : IQuest, INotifyPropertyChanged
     {
-        #region Property Changed implementation
+        #region IPropertyChanged interface implementation
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -31,7 +31,7 @@ namespace NetTally
         }
         #endregion
 
-        #region Variable fields
+        #region Fields
         static readonly Regex siteRegex = new Regex(@"^(?<siteName>https?://[^/]+/)");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
 
@@ -41,10 +41,12 @@ namespace NetTally
 
         string threadName = NewThreadEntry;
         string displayName = string.Empty;
+
         int postsPerPage = 0;
 
         int startPost = 1;
         int endPost = 0;
+
         bool checkForLastThreadmark = false;
         bool useVotePartitions = false;
         bool partitionByLine = true;
@@ -79,37 +81,6 @@ namespace NetTally
             }
             return forumAdapter;
         }
-
-        /// <summary>
-        /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
-        /// </summary>
-        private void UpdateForumAdapter()
-        {
-            var prevForumAdapter = forumAdapter;
-
-            forumAdapter = ForumAdapterFactory.GetAdapter(this);
-
-            if (prevForumAdapter != null && prevForumAdapter != forumAdapter)
-                UpdatePostsPerPage();
-        }
-
-        /// <summary>
-        /// Update the posts per page if the forum adapter was modified.
-        /// </summary>
-        private void UpdatePostsPerPage()
-        {
-            var ppp = forumAdapter?.DefaultPostsPerPage;
-
-            if (ppp.HasValue)
-            {
-                PostsPerPage = ppp.Value;
-            }
-            else
-            {
-                PostsPerPage = 0;
-            }
-        }
-
 
         /// <summary>
         /// Gets the full thread URL for the quest.
@@ -313,14 +284,43 @@ namespace NetTally
         }
         #endregion
 
-
         #region Utility functions
+        /// <summary>
+        /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
+        /// </summary>
+        private void UpdateForumAdapter()
+        {
+            var prevForumAdapter = forumAdapter;
+
+            forumAdapter = ForumAdapterFactory.GetAdapter(this);
+
+            if (prevForumAdapter != null && prevForumAdapter != forumAdapter)
+                UpdatePostsPerPage();
+        }
+
+        /// <summary>
+        /// Update the posts per page if the forum adapter was modified.
+        /// </summary>
+        private void UpdatePostsPerPage()
+        {
+            var ppp = forumAdapter?.DefaultPostsPerPage;
+
+            if (ppp.HasValue)
+            {
+                PostsPerPage = ppp.Value;
+            }
+            else
+            {
+                PostsPerPage = 0;
+            }
+        }
+
         /// <summary>
         /// Clean page anchors and page numbers from the provided thread URL.
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        private string CleanPageNumbers(string url)
+        public string CleanPageNumbers(string url)
         {
             Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
             Match m = pageNumberRegex.Match(url);
@@ -329,6 +329,10 @@ namespace NetTally
             return url;
         }
 
+        /// <summary>
+        /// Override ToString for class.
+        /// </summary>
+        /// <returns>Returns a string representing the current object.</returns>
         public override string ToString()
         {
             if (displayName == string.Empty)
