@@ -74,6 +74,18 @@ namespace TallyUnitTest
             Assert.AreEqual("forums.sufficientvelocity.com", a.DisplayName);
             a.DisplayName = "/";
             Assert.AreEqual("/", a.DisplayName);
+
+            // Check that unicode control and formatting characters are removed
+            a.DisplayName = "MonkeyPhone";
+            Assert.AreEqual("MonkeyPhone", a.DisplayName);
+            a.DisplayName = "Monkey\u200bPhone";
+            Assert.AreEqual("MonkeyPhone", a.DisplayName);
+
+        }
+
+        [TestMethod]
+        public void TestCleanURL()
+        {
         }
 
         [TestMethod]
