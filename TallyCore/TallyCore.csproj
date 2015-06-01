@@ -64,6 +64,7 @@
     <Compile Include="QuestCollection.cs" />
     <Compile Include="Adapters\SufficientVelocityAdapter.cs" />
     <Compile Include="Tally.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="VoteCounter.cs" />
     <Compile Include="WebPageProvider.cs" />
   </ItemGroup>
