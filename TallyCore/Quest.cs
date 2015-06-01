@@ -59,7 +59,11 @@ namespace NetTally
         public async Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token)
         {
             if (forumAdapter == null)
-                forumAdapter = await ForumAdapterFactory.GetAdapter(this, token);
+            {
+                forumAdapter = await ForumAdapterFactory.GetAdapter(this, token).ConfigureAwait(false);
+                if (postsPerPage == 0)
+                    PostsPerPage = forumAdapter.DefaultPostsPerPage;
+            }
             return forumAdapter;
         }
 
