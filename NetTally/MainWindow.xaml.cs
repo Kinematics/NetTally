@@ -142,7 +142,14 @@ namespace NetTally
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error");
+                string exmsg = ex.Message;
+                var innerEx = ex.InnerException;
+                while (innerEx != null)
+                {
+                    exmsg = exmsg + "\n" + innerEx.Message;
+                    innerEx = innerEx.InnerException;
+                }
+                MessageBox.Show(exmsg, "Error");
                 cts.Cancel();
             }
             finally
