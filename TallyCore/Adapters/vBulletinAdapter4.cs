@@ -29,10 +29,6 @@ namespace NetTally.Adapters
 
         public int DefaultPostsPerPage => 20;
 
-
-        // Bad characters we want to remove
-        // \u200b = Zero width space (8203 decimal/html).  Trim() does not remove this character.
-        readonly Regex badCharactersRegex = new Regex("\u200b");
         // Extract color attributes from span style.
         readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
 
@@ -477,8 +473,8 @@ namespace NetTally.Adapters
 
             postText = postText.TrimStart();
             postText = HtmlEntity.DeEntitize(postText);
-            postText = badCharactersRegex.Replace(postText, "");
-            return postText;
+
+            return Utility.SafeString(postText);
         }
         #endregion
 

@@ -128,7 +128,7 @@ namespace NetTally
                 if (value == null)
                     throw new ArgumentNullException("DisplayName");
 
-                displayName = value;
+                displayName = Utility.SafeString(value);
                 OnPropertyChanged();
             }
         }
@@ -326,7 +326,8 @@ namespace NetTally
             Match m = pageNumberRegex.Match(url);
             if (m.Success)
                 url = m.Groups["base"].Value;
-            return url;
+
+            return Utility.SafeString(url);
         }
 
         /// <summary>
