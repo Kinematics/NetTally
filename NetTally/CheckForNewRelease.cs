@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -87,51 +88,21 @@ namespace NetTally
             return releaseText;
         }
 
-        /// <summary>
-        /// Gets the web page that holds the latest release download.
-        /// </summary>
-        /// <returns>Returns the web page document of the release page.
-        /// Returns null if the page was not loaded.</returns>
         private async Task<HtmlDocument> GetLatestReleasePage()
         {
+            IPageProvider webPageProvider = new WebPageProvider();
+
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            string result = null;
-            HttpClient client;
-            HttpResponseMessage response;
-
-            using (client = new HttpClient() { MaxResponseContentBufferSize = 1000000 })
+            try
             {
-                client.Timeout = TimeSpan.FromSeconds(15);
-
-                try
-                {
-                    using (response = await client.GetAsync(url).ConfigureAwait(false))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        }
-                    }
-                }
-                catch (HttpRequestException)
-                {
-                    return null;
-                }
+                return await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None);
             }
-
-            if (result == null)
+            catch
             {
                 return null;
             }
-
-            HtmlDocument htmldoc = new HtmlDocument();
-
-            htmldoc.LoadHtml(result);
-
-            return htmldoc;
         }
-
 
         #region Property event handling
         /// <summary>
