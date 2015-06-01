@@ -14,13 +14,19 @@ namespace TallyUnitTest
 #pragma warning disable 0618
 
         static List<string> propertiesRaised = new List<string>();
+        Quest a;
+
+        [TestInitialize()]
+        public void Initialize()
+        {
+            a = new Quest();
+        }
+
 
         #region Constructor
         [TestMethod]
         public void TestDefaultObject()
         {
-            var a = new Quest();
-
             // Obsolete
             Assert.AreEqual(Quest.NewEntryName, a.Name);
             Assert.AreEqual("", a.Site);
@@ -40,8 +46,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestToString()
         {
-            var a = new Quest();
-
             Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
             a.DisplayName = "Test Display";
             Assert.AreEqual("Test Display", a.ToString());
@@ -52,8 +56,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestDisplayName()
         {
-            var a = new Quest();
-
             Assert.AreEqual("fake-thread", a.DisplayName);
             a.DisplayName = "testing-thread";
             Assert.AreEqual("testing-thread", a.DisplayName);
@@ -68,8 +70,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestThreadName()
         {
-            var a = new Quest();
-
             a.ThreadName = "http://forums.sufficientvelocity.com/";
             Assert.AreEqual("http://forums.sufficientvelocity.com/", a.ThreadName);
             a.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
@@ -83,8 +83,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSiteName()
         {
-            var a = new Quest();
-
             Assert.AreEqual("http://forums.sufficientvelocity.com/", a.SiteName);
             a.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#poast288335";
             Assert.AreEqual("http://www.fandompost.com/", a.SiteName);
@@ -96,8 +94,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNullThreadName()
         {
-            var a = new Quest();
-
             a.ThreadName = null;
         }
 
@@ -105,8 +101,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestEmptyThreadName()
         {
-            var a = new Quest();
-
             a.ThreadName = "";
         }
 
@@ -114,8 +108,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNullDisplayName()
         {
-            var a = new Quest();
-
             a.DisplayName = null;
         }
 
@@ -126,16 +118,12 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNameToNull()
         {
-            var a = new Quest();
-
             a.Name = null;
         }
 
         [TestMethod]
         public void TestSetName()
         {
-            var a = new Quest();
-
             string testName = "Sample.Name";
 
             a.Name = testName;
@@ -146,8 +134,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestCleanName()
         {
-            var a = new Quest();
-
             string testName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
             //string expectedName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
 
@@ -179,8 +165,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetSiteToNull()
         {
-            var a = new Quest();
-
             a.Site = null;
 
             Assert.AreEqual(string.Empty, a.Site);
@@ -190,8 +174,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetSiteToEmpty()
         {
-            var a = new Quest();
-
             a.Site = string.Empty;
 
             Assert.AreEqual(string.Empty, a.Site);
@@ -200,8 +182,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetSite()
         {
-            var a = new Quest();
-
             string testName = "http://forums.sufficientvelocity.com/";
 
             a.Site = testName;
@@ -215,8 +195,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetStart()
         {
-            var a = new Quest();
-
             int testPost = 448;
 
             a.StartPost = testPost;
@@ -228,8 +206,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestSetStartZero()
         {
-            var a = new Quest();
-
             int testPost = 0;
 
             a.StartPost = testPost;
@@ -239,8 +215,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestSetStartNegative()
         {
-            var a = new Quest();
-
             int testPost = -20;
 
             a.StartPost = testPost;
@@ -251,8 +225,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetEnd()
         {
-            var a = new Quest();
-
             int testPost = 448;
 
             a.EndPost = testPost;
@@ -263,8 +235,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestSetEndZero()
         {
-            var a = new Quest();
-
             int testPost = 0;
 
             a.EndPost = testPost;
@@ -276,8 +246,6 @@ namespace TallyUnitTest
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestSetEndNegative()
         {
-            var a = new Quest();
-
             int testPost = -20;
 
             a.EndPost = testPost;
@@ -288,8 +256,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestReadToEndOfThread()
         {
-            var a = new Quest();
-
             a.EndPost = 1;
             Assert.AreEqual(false, a.ReadToEndOfThread);
 
@@ -306,8 +272,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestUseVotePartitions()
         {
-            var a = new Quest();
-
             a.UseVotePartitions = true;
             Assert.AreEqual(true, a.UseVotePartitions);
         }
@@ -315,8 +279,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestPartitionByLine()
         {
-            var a = new Quest();
-
             a.PartitionByLine = false;
             Assert.AreEqual(false, a.PartitionByLine);
         }
@@ -324,8 +286,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestCheckForLastThreadmark()
         {
-            var a = new Quest();
-
             a.CheckForLastThreadmark = true;
             Assert.AreEqual(true, a.CheckForLastThreadmark);
         }
@@ -335,8 +295,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestForumAdapters()
         {
-            Quest a = new Quest();
-
             var adapter = a.GetForumAdapter();
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
 
@@ -356,7 +314,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestEventRaising()
         {
-            var a = new Quest();
             a.PropertyChanged += A_PropertyChanged;
 
             propertiesRaised.Clear();
