@@ -361,7 +361,7 @@ namespace NetTally
                 if (value == null)
                     site = string.Empty;
                 else
-                    site = value;
+                    site = Utility.SafeString(value);
             }
         }
 
@@ -377,7 +377,7 @@ namespace NetTally
                 if (value == null)
                     throw new ArgumentNullException();
 
-                name = value;
+                name = Utility.SafeString(value);
                 OnPropertyChanged();
             }
         }
@@ -393,7 +393,6 @@ namespace NetTally
         [Obsolete("Name is now obsolete")]
         string CleanThreadName(string name)
         {
-            //Regex urlRegex = new Regex(@"^(http://forums.sufficientvelocity.com/threads/)?(?<questName>[^/]+)(/.*)?");
             Regex urlRegex = new Regex(@"^((?<siteName>https?://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
 
             var m = urlRegex.Match(name);
