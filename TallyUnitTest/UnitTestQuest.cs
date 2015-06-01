@@ -47,14 +47,17 @@ namespace TallyUnitTest
             Assert.AreEqual(1, a.FirstTallyPost);
 
             Assert.IsInstanceOfType(a.GetForumAdapter(), typeof(XenForoAdapter));
+            Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
         }
 
         [TestMethod]
         public void TestToString()
         {
-            Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
             a.DisplayName = "Test Display";
             Assert.AreEqual("Test Display", a.ToString());
+            // If display name is empty, fall back to the thread name
+            a.DisplayName = "";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/fake-thread", a.ToString());
         }
         #endregion
 
