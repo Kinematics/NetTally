@@ -137,7 +137,7 @@ namespace NetTally
                     Site = quest.Site,
                     Name = quest.Name,
 #pragma warning restore 0618
-                    PostsPerPage = quest.PostsPerPage,
+                    RawPostsPerPage = quest.PostsPerPage,
                     StartPost = quest.StartPost,
                     EndPost = quest.EndPost,
                     CheckForLastThreadmark = quest.CheckForLastThreadmark,
@@ -206,7 +206,7 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
-            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
+            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine);
             BaseAdd(questElement);
         }
