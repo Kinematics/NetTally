@@ -85,6 +85,13 @@ namespace NetTally
         /// </summary>
         /// <returns></returns>
         IForumAdapter GetForumAdapter();
+
+        /// <summary>
+        /// Get the forum adapter needed to read results from the web site this
+        /// quest is for.  Allow it to run async so that it can load web pages.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token);
     }
 }
