@@ -208,6 +208,123 @@ namespace NetTally
             return htmldoc;
         }
 
+
+        /// <summary>
+        /// Load the specified thread page and return the document as an HtmlDocument.
+        /// </summary>
+        /// <param name="baseUrl">The thread URL.</param>
+        /// <param name="pageNum">The page number in the thread to load.</param>
+        /// <param name="caching">Whether to use or bypass the cache.</param>
+        /// <param name="token">Cancellation token for the function.</param>
+        /// <returns>An HtmlDocument for the specified page.</returns>
+        public async Task<HtmlDocument> GetPageDocument(string url, string shortDescription, Caching caching, CancellationToken token)
+        {
+            // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
+            if (caching == Caching.UseCache && pageCache.ContainsKey(url))
+            {
+                CachedPage cache = pageCache[url];
+                TimeSpan cacheAge = DateTime.Now - cache.Timestamp;
+
+                if (cacheAge.TotalMinutes < 30)
+                {
+                    if (cacheAge.TotalSeconds > 4)
+                        OnStatusChanged(shortDescription + " loaded from memory!\n");
+
+                    return cache.Doc;
+                }
+            }
+
+            HtmlDocument htmldoc = new HtmlDocument();
+
+            string urlContents = await GetPageContents(url, shortDescription, token);
+
+            if (urlContents != null)
+            {
+                htmldoc.LoadHtml(urlContents);
+                pageCache[url] = new CachedPage(htmldoc);
+            }
+
+            return htmldoc;
+        }
+
+
+        /// <summary>
+        /// Load the specified thread page and return the document as an HtmlDocument.
+        /// </summary>
+        /// <param name="baseUrl">The thread URL.</param>
+        /// <param name="pageNum">The page number in the thread to load.</param>
+        /// <param name="token">Cancellation token for the function.</param>
+        /// <returns>An HtmlDocument for the specified page.</returns>
+        public async Task<string> GetPageContents(string url, string shortDescription, CancellationToken token)
+        {
+            OnStatusChanged(url + "\n");
+
+            string result = null;
+            int maxtries = 5;
+            int tries = 0;
+            HttpClient client;
+            HttpResponseMessage response;
+
+            HttpClientHandler handler = new HttpClientHandler();
+            var cookies = ForumCookies.GetCookies(url);
+            if (cookies.Count > 0)
+            {
+                CookieContainer cookieJar = new CookieContainer();
+                cookieJar.Add(cookies);
+                handler.CookieContainer = cookieJar;
+            }
+
+            using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
+            {
+                client.Timeout = TimeSpan.FromSeconds(10);
+
+                try
+                {
+                    while (result == null && tries < maxtries && token.IsCancellationRequested == false)
+                    {
+                        using (response = await client.GetAsync(url, token).ConfigureAwait(false))
+                        {
+                            if (response.IsSuccessStatusCode)
+                            {
+                                result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                OnStatusChanged("Retrying: " + shortDescription + "\n");
+                                tries++;
+                            }
+                        }
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    OnStatusChanged(shortDescription + ": " + e.Message);
+                    throw;
+                }
+                catch (OperationCanceledException e)
+                {
+                    Debug.WriteLine(string.Format("Operation was cancelled in task {0}.", Task.CurrentId));
+                    Debug.WriteLine(string.Format("Cancellation requested: {0}  at source: {1}", e.CancellationToken.IsCancellationRequested, e.Source));
+                    throw;
+                }
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (result == null)
+            {
+                OnStatusChanged("Failed to load: " + shortDescription + "\n");
+            }
+            else
+            {
+                OnStatusChanged(shortDescription + " loaded!\n");
+            }
+
+            return result;
+        }
         #endregion
 
     }
