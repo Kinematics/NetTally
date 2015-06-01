@@ -129,7 +129,8 @@ namespace NetTally
 
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
-                forumAdapter = null;
+
+                UpdateForumAdapter();
             }
         }
 
