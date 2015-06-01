@@ -75,6 +75,9 @@ namespace NetTally
 
             var page = await webPageProvider.GetPage(quest.ThreadName, quest.SiteName, Caching.UseCache, token);
 
+            if (token.IsCancellationRequested)
+                return null;
+
             if (CheckForXenForo(page))
                 return new XenForoAdapter(quest.SiteName);
 
