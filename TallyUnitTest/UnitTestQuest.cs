@@ -338,17 +338,17 @@ namespace TallyUnitTest
             Quest a = new Quest();
 
             var adapter = a.GetForumAdapter();
-            Assert.IsInstanceOfType(adapter, typeof(SufficientVelocityAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
 
-            a.ThreadName = "http://forums.spacebattles.com/";
+            a.ThreadName = "http://forums.sufficientvelocity.com/";
             var adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
             adapter = adapterTask.Result;
-            Assert.IsInstanceOfType(adapter, typeof(SpaceBattlesAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
 
             a.Site = "http://forums.spacebattles.com/";
             adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
             adapter = adapterTask.Result;
-            Assert.IsInstanceOfType(adapter, typeof(SpaceBattlesAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
         #endregion
 
