@@ -74,7 +74,9 @@ namespace NetTally
         public IForumAdapter GetForumAdapter()
         {
             if (forumAdapter == null)
+            {
                 forumAdapter = ForumAdapterFactory.GetAdapter(this);
+            }
             return forumAdapter;
         }
 
@@ -313,13 +315,6 @@ namespace NetTally
 
 
         #region Utility functions
-
-        private int GetPostsPerPage()
-        {
-            throw new NotImplementedException();
-        }
-
-
         /// <summary>
         /// Clean page anchors and page numbers from the provided thread URL.
         /// </summary>
