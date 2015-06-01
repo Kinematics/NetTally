@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using HtmlAgilityPack;
 
 namespace NetTally
@@ -85,6 +88,9 @@ namespace NetTally
                 releaseText = releaseText.Substring(0, spaceIndex);
             }
 
+
+            //await GetLatestVersionJSON();
+
             return releaseText;
         }
 
@@ -99,6 +105,37 @@ namespace NetTally
                 return await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None);
             }
             catch
+            {
+                return null;
+            }
+        }
+
+
+        private async Task<string> GetLatestVersionJSON()
+        {
+            string json = await GetLatestReleasePageJSON();
+
+            DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(GithubJSONData));
+            MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            GithubJSONData g = (GithubJSONData)js.ReadObject(stream);
+            System.Diagnostics.Debug.WriteLine(g.tag_name);
+
+            
+            return "";
+        }
+
+        private async Task<string> GetLatestReleasePageJSON()
+        {
+            IPageProvider webPageProvider = new WebPageProvider();
+
+            string url = "https://api.github.com/repos/Kinematics/NetTally/releases/latest";
+
+            try
+            {
+                string results = await webPageProvider.GetPageContents(url, "", CancellationToken.None);
+                return results;
+            }
+            catch (Exception e)
             {
                 return null;
             }
@@ -132,5 +169,14 @@ namespace NetTally
             }
         }
         #endregion
+    }
+
+
+    [DataContract]
+    public class GithubJSONData
+    {
+        [DataMember]
+        public string tag_name { get; set; }
+
     }
 }
