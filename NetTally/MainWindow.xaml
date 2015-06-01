@@ -89,7 +89,8 @@
         </Canvas>
         <ComboBox x:Name="postsPerPage" Margin="0,10,227,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Right" Width="65"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ValidPostsPerPage}"
-                  SelectedItem="{Binding Path=CurrentItem.PostsPerPage}">
+                  SelectedItem="{Binding Path=CurrentItem.PostsPerPage}"
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <ComboBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
