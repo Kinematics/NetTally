@@ -26,7 +26,7 @@ namespace NetTally
     public static class VoteLine
     {
         // Regex to get the different parts of the vote.
-        static readonly Regex voteLineRegex = new Regex(@"^-*\[(?<marker>[xX+✓✔1-9])\]\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?(?<content>.*)");
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\[(?<marker>[xX+✓✔1-9])\]\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?(?<content>.*)");
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
@@ -63,6 +63,23 @@ namespace NetTally
                 cleaned = leadHyphenRegex.Replace(cleaned, "");
 
             return cleaned;
+        }
+
+        /// <summary>
+        /// Get the marker of the vote line.
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns the marker of the vote line.</returns>
+        public static string GetVotePrefix(string voteLine)
+        {
+            string cleaned = CleanVote(voteLine);
+            Match m = voteLineRegex.Match(cleaned);
+            if (m.Success)
+            {
+                return m.Groups["prefix"].Value;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
