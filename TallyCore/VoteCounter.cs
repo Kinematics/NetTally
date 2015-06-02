@@ -69,12 +69,6 @@ namespace NetTally
         readonly Regex voterRegex = new Regex(@"^-*\[[xX+✓✔]\]\s*(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
-        // Regex to match any markup that we'll want to remove during comparisons.
-        readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
-        // Regex to allow us to collapse a vote to a commonly comparable version.
-        readonly Regex collapseRegex = new Regex(@"\s|\.");
-        // Regex to allow us to strip leading dashes from a per-line vote.
-        readonly Regex leadHyphenRegex = new Regex(@"^-+");
         #endregion
 
         #region Public Interface
@@ -350,7 +344,7 @@ namespace NetTally
         private bool IsTallyPost(string postText)
         {
             // If the post contains ##### at the start of the line for part of its text, it's a tally result.
-            string cleanText = CleanVote(postText);
+            string cleanText = VoteLine.CleanVote(postText);
             return (tallyRegex.Matches(cleanText).Count > 0);
         }
 
@@ -408,7 +402,7 @@ namespace NetTally
             }
 
             // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(CleanVote(a)).Success == false).ToList();
+            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(VoteLine.CleanVote(a)).Success == false).ToList();
 
             if (normalVote.Count > 0)
                 results.Add(normalVote, VoteType.Vote);
@@ -420,7 +414,7 @@ namespace NetTally
 
                 foreach (string line in rankLines)
                 {
-                    string nonMarkupLine = CleanVote(line);
+                    string nonMarkupLine = VoteLine.CleanVote(line);
 
                     Match m = rankVoteLineRegex.Match(nonMarkupLine);
 
@@ -515,7 +509,7 @@ namespace NetTally
                 }
 
                 // If a line refers to another voter, pull that voter's votes
-                Match vm = voterRegex.Match(CleanVote(trimmedLine));
+                Match vm = voterRegex.Match(VoteLine.CleanVote(trimmedLine));
                 if (vm.Success)
                 {
                     var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
@@ -563,7 +557,7 @@ namespace NetTally
                         {
                             sb.AppendLine(trimmedLine);
                         }
-                        else if (CleanVote(trimmedLine).StartsWith("-"))
+                        else if (VoteLine.CleanVote(trimmedLine).StartsWith("-"))
                         {
                             sb.AppendLine(trimmedLine);
                         }
@@ -671,7 +665,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = MinimizeVote(vote, quest);
+            var minVote = VoteLine.MinimizeVote(vote, quest);
 
             // If it matches a lookup value, use the existing key
             string lookupVote = string.Empty;
@@ -704,7 +698,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = MinimizeVote(vote, quest);
+            var minVote = VoteLine.MinimizeVote(vote, quest);
 
             // If it matches a lookup value, use the existing key
             string lookupVote = string.Empty;
@@ -721,36 +715,6 @@ namespace NetTally
             RankedVotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             return vote;
-        }
-
-        /// <summary>
-        /// Given a vote line, remove any BBCode formatting chunks.
-        /// </summary>
-        /// <param name="voteLine">The vote line to examine.</param>
-        /// <returns>Returns the vote line without any BBCode formatting.</returns>
-        private string CleanVote(string voteLine)
-        {
-            return markupRegex.Replace(voteLine, "");
-        }
-
-        /// <summary>
-        /// Collapse a vote to a minimized form, for comparison.
-        /// All BBCode markup is removed, along with all spaces and periods,
-        /// and leading dashes when partitioning by line.  The text is then
-        /// lowercased.
-        /// </summary>
-        /// <param name="vote">Original vote line to minimize.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns a minimized version of the vote string.</returns>
-        private string MinimizeVote(string vote, IQuest quest)
-        {
-            string cleaned = CleanVote(vote);
-            cleaned = collapseRegex.Replace(cleaned, "");
-            cleaned = cleaned.ToLower();
-            if (quest.UseVotePartitions && quest.PartitionByLine)
-                cleaned = leadHyphenRegex.Replace(cleaned, "");
-
-            return cleaned;
         }
         #endregion
     }
