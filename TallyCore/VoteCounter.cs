@@ -145,7 +145,7 @@ namespace NetTally
         /// </summary>
         /// <param name="fromVote">Vote that is being merged.</param>
         /// <param name="toVote">Vote that is being merged into.</param>
-        public bool Merge(string fromVote, string toVote)
+        public bool Merge(string fromVote, string toVote, VoteType voteType)
         {
             if (fromVote == null)
                 throw new ArgumentNullException(nameof(fromVote));
@@ -158,16 +158,24 @@ namespace NetTally
             if (fromVote == toVote)
                 return false;
 
+            Dictionary<string, HashSet<string>> votesSet;
+
+            if (voteType == VoteType.Rank)
+                votesSet = RankedVotesWithSupporters;
+            else
+                votesSet = VotesWithSupporters;
+
             HashSet<string> fromVoters;
-            if (!VotesWithSupporters.TryGetValue(fromVote, out fromVoters))
-                throw new ArgumentException(nameof(fromVote) + " does not exist.");
             HashSet<string> toVoters;
-            if (!VotesWithSupporters.TryGetValue(toVote, out toVoters))
+
+            if (!votesSet.TryGetValue(fromVote, out fromVoters))
+                throw new ArgumentException(nameof(fromVote) + " does not exist.");
+            if (!votesSet.TryGetValue(toVote, out toVoters))
                 throw new ArgumentException(nameof(toVote) + " does not exist.");
 
             toVoters.UnionWith(fromVoters);
 
-            VotesWithSupporters.Remove(fromVote);
+            votesSet.Remove(fromVote);
 
             return true;
         }
