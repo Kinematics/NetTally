@@ -66,7 +66,7 @@ namespace NetTally
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan(:|\s)+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX+✓✔]\]\s*(plan\s*)?(?<name>.*?)[.]?\s*$", RegexOptions.IgnoreCase);
+        readonly Regex voterRegex = new Regex(@"^-*\[[xX+✓✔]\]\s*(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
         // Regex to match any markup that we'll want to remove during comparisons.
