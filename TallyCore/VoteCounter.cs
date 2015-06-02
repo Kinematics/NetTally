@@ -257,7 +257,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest);
+                    string voteKey = GetVoteKey(votePartition, quest, VotesWithSupporters);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(planName);
@@ -290,7 +290,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest);
+                    string voteKey = GetVoteKey(votePartition, quest, VotesWithSupporters);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(postAuthor);
@@ -321,7 +321,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetRankedVoteKey(votePartition, quest);
+                    string voteKey = GetVoteKey(votePartition, quest, RankedVotesWithSupporters);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     RankedVotesWithSupporters[voteKey].Add(postAuthor);
@@ -650,10 +650,10 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to search for.</param>
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetVoteKey(string vote, IQuest quest)
+        private string GetVoteKey(string vote, IQuest quest, Dictionary<string, HashSet<string>> votesDict)
         {
             // If the vote already matches an existing key, we don't need to search again.
-            if (VotesWithSupporters.ContainsKey(vote))
+            if (votesDict.ContainsKey(vote))
             {
                 return vote;
             }
@@ -664,48 +664,15 @@ namespace NetTally
             string lookupVote = string.Empty;
             if (cleanVoteLookup.TryGetValue(minVote, out lookupVote))
             {
-                if (!VotesWithSupporters.ContainsKey(lookupVote))
-                    VotesWithSupporters[lookupVote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!votesDict.ContainsKey(lookupVote))
+                    votesDict[lookupVote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 return lookupVote;
             }
 
             cleanVoteLookup[minVote] = vote;
 
             // Otherwise create a new hashtable for vote supporters for the new vote key.
-            VotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            return vote;
-        }
-
-        /// <summary>
-        /// Attempt to find any existing vote that matches with the vote we have,
-        /// and can be used as a key in the VotesWithSupporters table.
-        /// </summary>
-        /// <param name="vote">The vote to search for.</param>
-        /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetRankedVoteKey(string vote, IQuest quest)
-        {
-            // If the vote already matches an existing key, we don't need to search again.
-            if (RankedVotesWithSupporters.ContainsKey(vote))
-            {
-                return vote;
-            }
-
-            var minVote = VoteLine.MinimizeVote(vote, quest);
-
-            // If it matches a lookup value, use the existing key
-            string lookupVote = string.Empty;
-            if (cleanVoteLookup.TryGetValue(minVote, out lookupVote))
-            {
-                if (!RankedVotesWithSupporters.ContainsKey(lookupVote))
-                    RankedVotesWithSupporters[lookupVote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                return lookupVote;
-            }
-
-            cleanVoteLookup[minVote] = vote;
-
-            // Otherwise create a new hashtable for vote supporters for the new vote key.
-            RankedVotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            votesDict[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             return vote;
         }
