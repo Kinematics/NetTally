@@ -18,6 +18,6 @@ namespace NetTally
         bool HasRankedVotes { get; }
 
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
-        bool Merge(string fromVote, string toVote);
+        bool Merge(string fromVote, string toVote, VoteType voteType);
     }
 }
