@@ -454,7 +454,7 @@ namespace NetTally
             var promotedLines = from p in planLines.Skip(1)
                                 select p.Substring(1);
 
-            return new List<string>(promotedLines);
+            return promotedLines.ToList();
         }
 
         /// <summary>
