@@ -35,13 +35,14 @@ namespace NetTally
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
 
         /// <summary>
-        /// Given a vote line, remove any BBCode formatting chunks.
+        /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
         /// </summary>
         /// <param name="voteLine">The vote line to examine.</param>
         /// <returns>Returns the vote line without any BBCode formatting.</returns>
         public static string CleanVote(string voteLine)
         {
-            return markupRegex.Replace(voteLine, "");
+            // Need to trim the result because removing markup may reveal new whitespace.
+            return markupRegex.Replace(voteLine, "").Trim();
         }
 
         /// <summary>
