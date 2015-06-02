@@ -200,7 +200,16 @@
         
         <CheckBox x:Name="useRankedVotes" Content="Allow Ranked Votes" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=CurrentItem.AllowRankedVotes}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Allow Ranked Votes</TextBlock>
+                        <TextBlock>Allow votes that rank choices by number to be tallied.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
 
         <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." Margin="510,45,0,0"
                 Click="openMergeVotesWindow_Click"
