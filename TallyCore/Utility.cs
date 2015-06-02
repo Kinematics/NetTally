@@ -92,7 +92,7 @@ namespace NetTally
             Match m = voteLineRegex.Match(cleaned);
             if (m.Success)
             {
-                return m.Groups["task"].Value;
+                return m.Groups["task"].Value.Trim();
             }
 
             return string.Empty;
@@ -109,7 +109,7 @@ namespace NetTally
             Match m = voteLineRegex.Match(cleaned);
             if (m.Success)
             {
-                return m.Groups["content"].Value;
+                return m.Groups["content"].Value.Trim();
             }
 
             return string.Empty;
