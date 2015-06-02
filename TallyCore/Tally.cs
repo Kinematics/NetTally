@@ -190,62 +190,58 @@ namespace NetTally
 
             StringBuilder sb = new StringBuilder();
 
-            ConstructHeader(sb);
+            AddHeader(sb);
 
+            ConstructRankedOutput(sb, quest);
+
+            ConstructNormalOutput(sb, quest);
+
+            TallyResults = sb.ToString();
+        }
+
+        /// <summary>
+        /// Construct the output of ranked votes for the quest.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void ConstructRankedOutput(StringBuilder sb, IQuest quest)
+        {
+            //throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Construct the output of normal votes for the quest.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void ConstructNormalOutput(StringBuilder sb, IQuest quest)
+        {
             var groupedVotesWithSupporters = GroupVotes(voteCounter.VotesWithSupporters);
             bool firstTask = true;
 
             foreach (var taskGroup in groupedVotesWithSupporters)
             {
-                if (firstTask)
+                if (!firstTask)
                 {
-                    firstTask = false;
-                }
-                else
-                {
-                    sb.AppendLine("--------------------------------------------------------");
-                    sb.AppendLine("");
+                    AddLineBreak(sb);
                 }
 
-                if (taskGroup.Key.Length > 0)
-                {
-                    sb.Append("[b]Task: ");
-                    sb.Append(taskGroup.Key);
-                    sb.AppendLine("[/b]");
-                    sb.AppendLine("");
-                }
+                firstTask = false;
+
+                AddTaskLabel(sb, taskGroup.Key);
 
                 foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false)))
                 {
                     sb.Append(vote.Key);
 
-                    sb.Append("[b]No. of Votes: ");
-                    sb.Append(vote.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
-                    sb.AppendLine("[/b]");
+                    AddVoteCount(sb, vote.Value);
 
                     if (UseSpoilerForVoters)
                     {
                         sb.AppendLine("[spoiler=Voters]");
                     }
 
-                    string firstVoter = vote.Value.First();
-                    sb.Append(GenerateSupporterUrl(quest, firstVoter));
-
-                    var remainder = vote.Value.Skip(1);
-
-                    var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
-
-                    foreach (var supporter in remainingPlans.OrderBy(v => v))
-                    {
-                        sb.Append(GenerateSupporterUrl(quest, supporter));
-                    }
-
-                    var remainingVoters = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == false);
-
-                    foreach (var supporter in remainingVoters.OrderBy(v => v))
-                    {
-                        sb.Append(GenerateSupporterUrl(quest, supporter));
-                    }
+                    AddVoters(sb, vote.Value, quest);
 
                     if (UseSpoilerForVoters)
                     {
@@ -256,53 +252,135 @@ namespace NetTally
                 }
             }
 
-            ConstructFooter(sb);
-
-            TallyResults = sb.ToString();
+            AddTotalVoterCount(sb);
         }
+        #endregion
 
-
+        #region Functions for adding pieces of text to the output results.
         /// <summary>
         /// Construct the header text for the tally results.
         /// </summary>
         /// <param name="sb">The string builder to add the results to.</param>
-        private void ConstructHeader(StringBuilder sb)
+        private void AddHeader(StringBuilder sb)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
-            sb.AppendFormat("[b]Vote Tally[/b] : {0}", voteCounter.Title);
-            sb.AppendLine("");
-            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
+            sb.AppendFormat("[b]Vote Tally[/b] : {0}\r\n", voteCounter.Title);
+            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]\r\n\r\n",
                 product.Product,
                 version.InformationalVersion);
-            sb.AppendLine("");
-            sb.AppendLine("");
         }
 
         /// <summary>
-        /// Construct the footer text for the tally results.
+        /// Add a line break to the output.
         /// </summary>
         /// <param name="sb">The string builder to add the results to.</param>
-        private void ConstructFooter(StringBuilder sb)
+        private void AddLineBreak(StringBuilder sb)
+        {
+            //sb.AppendLine("[hr][/hr]");
+            //sb.AppendLine("-----------------------------------------------------------\r\n");
+            sb.AppendLine("———————————————————————————————————————————————————————————\r\n");
+        }
+
+        /// <summary>
+        /// Add the total number of user votes to the output.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="voters">The set of voters voting for this item.</param>
+        private void AddVoteCount(StringBuilder sb, HashSet<string> voters)
+        {
+            sb.Append("[b]No. of Votes: ");
+            sb.Append(voters.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
+            sb.AppendLine("[/b]");
+        }
+
+        /// <summary>
+        /// Add a task label line to the string builder.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="task">The name of the task.</param>
+        private void AddTaskLabel(StringBuilder sb, string task)
+        {
+            if (task.Length > 0)
+            {
+                sb.AppendFormat("[b]Task: {0}[/b]\r\n", task);
+            }
+        }
+
+        /// <summary>
+        /// Add all voters from the provided list of voters to the output string.
+        /// Plans are placed before users, and each group (after the first voter)
+        /// is alphabetized.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="voters">The set of voters being added.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void AddVoters(StringBuilder sb, HashSet<string> voters, IQuest quest)
+        {
+            string firstVoter = voters.First();
+
+            AddVoter(sb, firstVoter, quest);
+
+            var remainder = voters.Skip(1);
+
+            var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
+
+            foreach (var supporter in remainingPlans.OrderBy(v => v))
+            {
+                AddVoter(sb, supporter, quest);
+            }
+
+            var remainingVoters = remainder.Except(remainingPlans);
+
+            foreach (var supporter in remainingVoters.OrderBy(v => v))
+            {
+                AddVoter(sb, supporter, quest);
+            }
+        }
+
+        /// <summary>
+        /// Add an individual voter to the output.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="voter">The name of the voter being added.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void AddVoter(StringBuilder sb, string voter, IQuest quest)
+        {
+            sb.Append(GenerateSupporterUrl(quest, voter));
+        }
+
+        /// <summary>
+        /// Add an individual voter to the output.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="voter">The name of the voter being added.</param>
+        /// <param name="rank">The rank that the voter rated the current vote.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void AddRankedVoter(StringBuilder sb, string voter, int rank, IQuest quest)
+        {
+            sb.Append(GenerateSupporterUrl(quest, voter, rank));
+        }
+
+        /// <summary>
+        /// Add the the total number of voters to the tally results.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        private void AddTotalVoterCount(StringBuilder sb)
         {
             sb.AppendLine("");
             int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
-            sb.AppendFormat("Total No. of Voters: {0}", totalVoterCount);
+            sb.AppendFormat("Total No. of Voters: {0}\r\n", totalVoterCount);
         }
 
-
-        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
-        {
-            var grouped = from v in votesWithSupporters
-                          group v by VoteLine.GetVoteTask(v.Key) into g
-                          orderby g.Key
-                          select g;
-
-            return grouped;
-        }
-
+        /// <summary>
+        /// Generate a line for a supporter (that's possibly a plan), including the
+        /// link to the original post that user voted in.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="supporter">The supporter of a given plan.</param>
+        /// <returns>Returns a url'ized string for the voter's post.</returns>
         private string GenerateSupporterUrl(IQuest quest, string supporter)
         {
             StringBuilder sb = new StringBuilder();
@@ -314,18 +392,62 @@ namespace NetTally
                 tail = "[/b]";
             }
 
-            sb.Append("[url=\"");
-            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
-            sb.Append("\"]");
-            sb.Append(supporter);
-            sb.Append("[/url]");
+            AddSupporterUrl(sb, supporter, quest);
 
             sb.AppendLine(tail);
 
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Generate a line for a voter that ranked a vote with a specific value, including the
+        /// link to the original post that user voted in.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="supporter">The supporter of a given plan.</param>
+        /// <returns>Returns a url'ized string for the voter's post.</returns>
+        private string GenerateSupporterUrl(IQuest quest, string supporter, int rank)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("[{0}] ", rank);
+            AddSupporterUrl(sb, supporter, quest);
+            sb.AppendLine("");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Adds a [url] entry to the provided string builder for the supporter,
+        /// within a given quest.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="supporter">The supporter of a given plan.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        private void AddSupporterUrl(StringBuilder sb, string supporter, IQuest quest)
+        {
+            sb.Append("[url=\"");
+            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
+            sb.Append("\"]");
+            sb.Append(supporter);
+            sb.Append("[/url]");
+        }
+
         #endregion
+
+        #region Utility functions for constructing chunks of the output.
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
+        {
+            var grouped = from v in votesWithSupporters
+                          group v by VoteLine.GetVoteTask(v.Key) into g
+                          orderby g.Key
+                          select g;
+
+            return grouped;
+        }
+
+        #endregion
+
 
     }
 }
