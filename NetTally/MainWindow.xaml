@@ -197,7 +197,25 @@
                 </RadioButton.ToolTip>
             </RadioButton>
         </StackPanel>
-        <CheckBox x:Name="useSpoilerForVoters" Content="Use Spoiler for Voters" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
+        
+        <CheckBox x:Name="useRankedVotes" Content="Allow Ranked Votes" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=CurrentItem.AllowRankedVotes}"
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"/>
+
+        <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." Margin="510,45,0,0"
+                Click="openMergeVotesWindow_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
+                Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="97">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Merge Votes</TextBlock>
+                        <TextBlock>Open the window to handle merging votes together.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <CheckBox x:Name="useSpoilerForVoters" Content="Use Spoilers" HorizontalAlignment="Left" Margin="510,80,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=UseSpoilerForVoters}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <CheckBox.ToolTip>
@@ -261,27 +279,15 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="openMergeVotesWindow" Content="Merge Votes..." Margin="510,45,0,0"
-                Click="openMergeVotesWindow_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
-                Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="97">
-            <Button.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Merge Votes</TextBlock>
-                        <TextBlock>Open the window to handle merging votes together.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </Button.ToolTip>
-        </Button>
+
         <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
                 Wiki Help
             </Hyperlink>
         </TextBlock>
-
         <TextBlock x:Name="newRelease" HorizontalAlignment="Left" Margin="140,0,0,3" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"
                    Visibility="{Binding Path=NewRelease, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/releases/latest" RequestNavigate="Hyperlink_RequestNavigate">
