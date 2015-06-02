@@ -190,17 +190,7 @@ namespace NetTally
 
             StringBuilder sb = new StringBuilder();
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
-            sb.AppendFormat("[b]Vote Tally[/b] : {0}", voteCounter.Title);
-            sb.AppendLine("");
-            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
-                product.Product,
-                version.InformationalVersion);
-            sb.AppendLine("");
-            sb.AppendLine("");
+            ConstructHeader(sb);
 
             var groupedVotesWithSupporters = GroupVotes(voteCounter.VotesWithSupporters);
             bool firstTask = true;
@@ -266,12 +256,42 @@ namespace NetTally
                 }
             }
 
-            sb.AppendLine("");
-            int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
-            sb.AppendFormat("Total No. of Voters: {0}", totalVoterCount);
+            ConstructFooter(sb);
 
             TallyResults = sb.ToString();
         }
+
+
+        /// <summary>
+        /// Construct the header text for the tally results.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        private void ConstructHeader(StringBuilder sb)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+
+            sb.AppendFormat("[b]Vote Tally[/b] : {0}", voteCounter.Title);
+            sb.AppendLine("");
+            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]",
+                product.Product,
+                version.InformationalVersion);
+            sb.AppendLine("");
+            sb.AppendLine("");
+        }
+
+        /// <summary>
+        /// Construct the footer text for the tally results.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        private void ConstructFooter(StringBuilder sb)
+        {
+            sb.AppendLine("");
+            int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
+            sb.AppendFormat("Total No. of Voters: {0}", totalVoterCount);
+        }
+
 
         private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
         {
