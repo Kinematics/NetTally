@@ -50,6 +50,7 @@ namespace NetTally
         bool checkForLastThreadmark = false;
         bool useVotePartitions = false;
         bool partitionByLine = true;
+        bool allowRankedVotes = false;
         #endregion
 
         #region IQuest Properties
@@ -280,6 +281,19 @@ namespace NetTally
                     return ThreadmarkPost;
                 else
                     return StartPost;
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to count votes using preferential vote ranking.
+        /// </summary>
+        public bool AllowRankedVotes
+        {
+            get { return allowRankedVotes; }
+            set
+            {
+                allowRankedVotes = value;
+                OnPropertyChanged();
             }
         }
         #endregion
