@@ -9,13 +9,6 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
-        // Local enum for separating vote categories
-        public enum VoteType
-        {
-            Vote,
-            Plan,
-            Rank
-        }
 
         /// <summary>
         /// Constructor

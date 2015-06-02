@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace NetTally
 {
+    // Local enum for separating vote categories
+    public enum VoteType
+    {
+        Vote,
+        Plan,
+        Rank
+    }
+
     public static class Utility
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
