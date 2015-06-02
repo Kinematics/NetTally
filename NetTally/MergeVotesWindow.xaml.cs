@@ -82,7 +82,7 @@ namespace NetTally
 
             try
             {
-                if (voteCounter.Merge(fromVote, toVote))
+                if (voteCounter.Merge(fromVote, toVote, VoteType.Vote))
                 {
                     ObservableVotes.Remove(fromVote);
                     UpdateVoters(votesToListBox, Voters2);
