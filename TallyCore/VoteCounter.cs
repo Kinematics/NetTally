@@ -506,14 +506,16 @@ namespace NetTally
             // Work through the list of matched lines
             foreach (string line in lines)
             {
+                string trimmedLine = line.Trim();
+
                 if (voteType == VoteType.Rank)
                 {
-                    partitions.Add(line.Trim() + "\r\n");
+                    partitions.Add(trimmedLine + "\r\n");
                     continue;
                 }
 
                 // If a line refers to another voter, pull that voter's votes
-                Match vm = voterRegex.Match(CleanVote(line));
+                Match vm = voterRegex.Match(CleanVote(trimmedLine));
                 if (vm.Success)
                 {
                     var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
@@ -537,8 +539,6 @@ namespace NetTally
                         continue;
                     }
                 }
-
-                string trimmedLine = line.Trim();
 
                 // For lines that don't refer to other voters, compile them into
                 // unit blocks if we're using vote partitions, or just add to the
