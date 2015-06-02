@@ -90,6 +90,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Flag whether the tally is currently running.
+        /// </summary>
         public bool TallyIsRunning
         {
             get { return tallyIsRunning; }
@@ -108,7 +111,7 @@ namespace NetTally
 
         #region Interface functions
         /// <summary>
-        /// Run the actual tally.
+        /// Run the tally for the specified quest.
         /// </summary>
         /// <param name="questTitle">The name of the quest thread to scan.</param>
         /// <param name="startPost">The starting post number.</param>
@@ -146,6 +149,10 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Process the results of the tally through the vote counter, and update the output.
+        /// </summary>
+        /// <param name="changedQuest"></param>
         public void UpdateTally(IQuest changedQuest)
         {
             if (lastTallyQuest != null && changedQuest == lastTallyQuest)
