@@ -254,7 +254,7 @@ namespace NetTally
                 string planName = GetPlanName(plan);
 
                 // Remove the post author from any other existing votes.
-                RemoveSupport(planName);
+                RemoveSupport(planName, VotesWithSupporters);
                 // Add/update the plan's post ID to the tracking hashset.
                 VoterMessageId[planName] = postID;
                 PlanNames.Add(planName);
@@ -290,7 +290,7 @@ namespace NetTally
             if (vote != null)
             {
                 // Remove the post author from any other existing votes.
-                RemoveSupport(postAuthor);
+                RemoveSupport(postAuthor, VotesWithSupporters);
                 // Add/update the post author's post ID to the tracking hashset.
                 VoterMessageId[postAuthor] = postID;
 
@@ -323,7 +323,7 @@ namespace NetTally
             foreach (var rankLines in ranks)
             {
                 // Remove the post author from any other existing votes.
-                RemoveRankedSupport(postAuthor);
+                RemoveSupport(postAuthor, RankedVotesWithSupporters);
 
                 RankedVoterMessageId[postAuthor] = postID;
 
@@ -473,11 +473,12 @@ namespace NetTally
         /// Remove the voter's support for any existing votes.
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
-        private void RemoveSupport(string voter)
+        /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
+        private void RemoveSupport(string voter, Dictionary<string, HashSet<string>> votesDict)
         {
             List<string> emptyVotes = new List<string>();
 
-            foreach (var vote in VotesWithSupporters)
+            foreach (var vote in votesDict)
             {
                 if (vote.Value.Remove(voter))
                 {
@@ -490,19 +491,9 @@ namespace NetTally
 
             foreach (var vote in emptyVotes)
             {
-                VotesWithSupporters.Remove(vote);
+                votesDict.Remove(vote);
             }
         }
-
-        /// <summary>
-        /// Remove the voter's support for any existing ranked votes
-        /// </summary>
-        /// <param name="voter">The voter name to check for.</param>
-        private void RemoveRankedSupport(string voter)
-        {
-            throw new NotImplementedException();
-        }
-
 
         /// <summary>
         /// Given a list of vote lines, combine them into a single string entity,
