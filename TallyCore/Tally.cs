@@ -24,10 +24,6 @@ namespace NetTally
         IQuest lastTallyQuest = null;
         List<HtmlDocument> loadedPages = null;
 
-        // Task name must start with a character or digit, followed by any number of chars or digits or spaces (as long
-        // as the space is followed by another char or digit), with an optional trailing question mark.
-        readonly Regex voteTaskRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\](\s*\[(?<task>(\w|\d)(\w|\d|(\s(\w|\d)))*\??)\])?.*");
-
         public Tally()
         {
             pageProvider = new WebPageProvider();
@@ -273,29 +269,11 @@ namespace NetTally
         private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
         {
             var grouped = from v in votesWithSupporters
-                          group v by GetVoteTask(v.Key) into g
+                          group v by VoteLine.GetVoteTask(v.Key) into g
                           orderby g.Key
                           select g;
 
             return grouped;
-        }
-
-        private string GetVoteTask(string key)
-        {
-            var m = voteTaskRegex.Match(key);
-
-            if (m.Success == false)
-                return string.Empty;
-
-            string task = m.Groups["task"].Value.Trim();
-
-            if (task.Length == 0)
-                return string.Empty;
-
-            if (task.Length == 1)
-                return task.ToUpper();
-
-            return char.ToUpper(task[0]) + task.Substring(1).ToLower();
         }
 
         private string GenerateSupporterUrl(IQuest quest, string supporter)
