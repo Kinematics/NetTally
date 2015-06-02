@@ -396,10 +396,11 @@ namespace NetTally
             }
 
             // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(VoteLine.CleanVote(a)).Success == false).ToList();
+            List<string> normalVote = postLines.TakeWhile(a => VoteLine.IsRankedVote(a) == false).ToList();
 
             if (normalVote.Count > 0)
                 results.Add(normalVote, VoteType.Vote);
+
 
             // Then put together all rank vote lines, each as a separate entry.
             if (postLines.Count > normalVote.Count)
@@ -408,11 +409,7 @@ namespace NetTally
 
                 foreach (string line in rankLines)
                 {
-                    string nonMarkupLine = VoteLine.CleanVote(line);
-
-                    Match m = rankVoteLineRegex.Match(nonMarkupLine);
-
-                    if (m.Success)
+                    if (VoteLine.IsRankedVote(line))
                     {
                         results.Add(new List<string>(1) { line }, VoteType.Rank);
                     }
