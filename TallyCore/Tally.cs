@@ -206,7 +206,12 @@ namespace NetTally
         /// <param name="quest">The quest being tallied.</param>
         private void ConstructRankedOutput(StringBuilder sb, IQuest quest)
         {
-            //throw new NotImplementedException();
+            if (voteCounter.HasRankedVotes)
+            {
+                RankVotes.Rank(voteCounter);
+
+                // output the ranking result
+            }
         }
 
         /// <summary>

@@ -63,6 +63,7 @@
     <Compile Include="Quest.cs" />
     <Compile Include="QuestCollection.cs" />
     <Compile Include="Adapters\SufficientVelocityAdapter.cs" />
+    <Compile Include="RankVotes.cs" />
     <Compile Include="Tally.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="VoteCounter.cs" />
