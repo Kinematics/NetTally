@@ -111,7 +111,16 @@ namespace NetTally
             Match m = voteLineRegex.Match(cleaned);
             if (m.Success)
             {
-                return m.Groups["task"].Value.Trim();
+                string task = m.Groups["task"].Value;
+
+                // A task name is composed of any number of characters or digits, with an optional ending question mark.
+                // The returned value will capitalize the first letter, and lowercase any following letters.
+
+                if (task.Length == 1)
+                    return task.ToUpper();
+
+                if (task.Length > 1)
+                    return char.ToUpper(task[0]) + task.Substring(1).ToLower();
             }
 
             return string.Empty;
