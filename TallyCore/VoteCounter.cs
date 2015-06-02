@@ -216,63 +216,134 @@ namespace NetTally
                 return;
 
             // Pull out actual vote lines from the post.
-            MatchCollection matches = voteRegex.Matches(postText);
+            MatchCollection matches;
+
+            // Use the regex that allows [1-9] if we're allowing ranked votes
+            if (quest.AllowRankedVotes)
+                matches = rankVoteRegex.Matches(postText);
+            else
+                matches = voteRegex.Matches(postText);
+
+            // If we found any matches, continue
             if (matches.Count > 0)
             {
+                // Pull the matched string out of the Match objects to make it easier to work with.
                 List<string> matchStrings = GetVoteLineStrings(matches);
 
                 Dictionary<List<string>, VoteType> voteLinesGrouped = SeparateVoteTypes(matchStrings);
 
-                var plans = voteLinesGrouped.Where(v => v.Value == VoteType.Plan).Select(vs => vs.Key);
+                ProcessPlans(voteLinesGrouped, postAuthor, postID, quest);
+                ProcessVotes(voteLinesGrouped, postAuthor, postID, quest);
+                ProcessRanks(voteLinesGrouped, postAuthor, postID, quest);
+            }
+        }
 
-                foreach (var plan in plans)
+        /// <summary>
+        /// Put any plans found in the grouped vote lines into the standard tracking sets.
+        /// </summary>
+        /// <param name="voteLinesGrouped"></param>
+        /// <param name="postAuthor"></param>
+        /// <param name="postID"></param>
+        /// <param name="quest"></param>
+        private void ProcessPlans(Dictionary<List<string>, VoteType> voteLinesGrouped, string postAuthor, string postID, IQuest quest)
+        {
+            var plans = voteLinesGrouped.Where(v => v.Value == VoteType.Plan).Select(vs => vs.Key);
+
+            foreach (var plan in plans)
+            {
+                string planName = GetPlanName(plan);
+
+                // Remove the post author from any other existing votes.
+                RemoveSupport(planName);
+                // Add/update the plan's post ID to the tracking hashset.
+                VoterMessageId[planName] = postID;
+                PlanNames.Add(planName);
+
+                List<string> planLines = PromotePlanLines(plan);
+
+                // Get the list of all vote partitions, built according to current preferences.
+                // One of: By line, By block, or By post (ie: entire vote)
+                List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
+
+                foreach (var votePartition in votePartitions)
                 {
-                    string planName = GetPlanName(plan);
+                    // Find any existing vote that matches the current vote partition.
+                    string voteKey = GetVoteKey(votePartition, quest);
 
-                    // Remove the post author from any other existing votes.
-                    RemoveSupport(planName);
-
-                    List<string> planLines = PromotePlanLines(plan);
-
-                    // Get the list of all vote partitions, built according to current preferences.
-                    // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
-
-                    foreach (var votePartition in votePartitions)
-                    {
-                        // Find any existing vote that matches the current vote partition.
-                        string voteKey = GetVoteKey(votePartition, quest);
-
-                        // Update the supporters list, and save this voter's post ID for linking.
-                        VotesWithSupporters[voteKey].Add(planName);
-                        VoterMessageId[planName] = postID;
-                        PlanNames.Add(planName);
-                    }
-                }
-                
-                var vote = voteLinesGrouped.FirstOrDefault(v => v.Value == VoteType.Vote).Key;
-
-                if (vote != null)
-                {
-                    // Remove the post author from any other existing votes.
-                    RemoveSupport(postAuthor);
-
-                    // Get the list of all vote partitions, built according to current preferences.
-                    // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
-
-                    foreach (var votePartition in votePartitions)
-                    {
-                        // Find any existing vote that matches the current vote partition.
-                        string voteKey = GetVoteKey(votePartition, quest);
-
-                        // Update the supporters list, and save this voter's post ID for linking.
-                        VotesWithSupporters[voteKey].Add(postAuthor);
-                        VoterMessageId[postAuthor] = postID;
-                    }
+                    // Update the supporters list, and save this voter's post ID for linking.
+                    VotesWithSupporters[voteKey].Add(planName);
                 }
             }
         }
+
+        /// <summary>
+        /// Put any votes found in the grouped vote lines into the standard tracking sets.
+        /// </summary>
+        /// <param name="voteLinesGrouped"></param>
+        /// <param name="postAuthor"></param>
+        /// <param name="postID"></param>
+        /// <param name="quest"></param>
+        private void ProcessVotes(Dictionary<List<string>, VoteType> voteLinesGrouped, string postAuthor, string postID, IQuest quest)
+        {
+            var vote = voteLinesGrouped.FirstOrDefault(v => v.Value == VoteType.Vote).Key;
+
+            if (vote != null)
+            {
+                // Remove the post author from any other existing votes.
+                RemoveSupport(postAuthor);
+                // Add/update the post author's post ID to the tracking hashset.
+                VoterMessageId[postAuthor] = postID;
+
+                // Get the list of all vote partitions, built according to current preferences.
+                // One of: By line, By block, or By post (ie: entire vote)
+                List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
+
+                foreach (var votePartition in votePartitions)
+                {
+                    // Find any existing vote that matches the current vote partition.
+                    string voteKey = GetVoteKey(votePartition, quest);
+
+                    // Update the supporters list, and save this voter's post ID for linking.
+                    VotesWithSupporters[voteKey].Add(postAuthor);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Put any ranking votes found in the grouped vote lines into the standard tracking sets.
+        /// </summary>
+        /// <param name="voteLinesGrouped"></param>
+        /// <param name="postAuthor"></param>
+        /// <param name="postID"></param>
+        /// <param name="quest"></param>
+        private void ProcessRanks(Dictionary<List<string>, VoteType> voteLinesGrouped, string postAuthor, string postID, IQuest quest)
+        {
+            var ranks = voteLinesGrouped.Where(v => v.Value == VoteType.Rank).Select(vs => vs.Key);
+
+            foreach (var rankLines in ranks)
+            {
+                // Remove the post author from any other existing votes.
+                RemoveRankedSupport(postAuthor);
+
+                RankedVoterMessageId[postAuthor] = postID;
+
+                List<string> votePartitions = GetVotePartitions(rankLines, quest, VoteType.Rank);
+
+                foreach (var votePartition in votePartitions)
+                {
+                    // Find any existing vote that matches the current vote partition.
+                    string voteKey = GetRankedVoteKey(votePartition, quest);
+
+                    // Update the supporters list, and save this voter's post ID for linking.
+                    RankedVotesWithSupporters[voteKey].Add(postAuthor);
+                }
+            }
+        }
+
+
+
+
+
 
         /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
@@ -296,12 +367,18 @@ namespace NetTally
             var strings = from Match m in matches
                           select m.Value.Trim();
 
-            return new List<string>(strings);
+
+            return strings.ToList();
         }
 
         /// <summary>
-        /// Given a list of vote lines from a post, separate out any that correspond to a
-        /// defined Base Plan, separate from the user's own vote.
+        /// Given a list of vote lines from a post, break it down into groups of lines,
+        /// based on vote type.
+        /// Type Plan: Base Plans come first, and must start with a [x] Base Plan: ~plan name~ line.
+        /// Type Vote: Normal votes come after that, and collect together all non-rank vote lines.
+        /// Type Rank: Rank votes come after that, and are treated independently, with each line as its own entry.
+        /// Any base plan lines after normal votes start are ignored.
+        /// Any normal vote lines after rank lines start are ignored.
         /// </summary>
         /// <param name="postLines">All the vote lines of the post.</param>
         /// <returns>Returns a dict with lists of strings, each labeled according to
@@ -313,6 +390,7 @@ namespace NetTally
 
             Dictionary<List<string>, VoteType> results = new Dictionary<List<string>, VoteType>();
 
+            // First put together all base plans
             while (postLines.Count > 0 && basePlanRegex.Match(postLines.First()).Success)
             {
                 List<string> basePlan = new List<string>();
@@ -332,8 +410,29 @@ namespace NetTally
                 postLines = new List<string>(postLines.Skip(basePlan.Count));
             }
 
-            if (postLines.Count > 0)
-                results.Add(postLines, VoteType.Vote);
+            // Then put together the normal vote
+            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(markupRegex.Replace(a, "")).Success == false).ToList();
+
+            if (normalVote.Count > 0)
+                results.Add(normalVote, VoteType.Vote);
+
+            // Then put together all rank vote lines, each as a separate entry.
+            if (postLines.Count > normalVote.Count)
+            {
+                var rankLines = postLines.Skip(normalVote.Count);
+
+                foreach (string line in rankLines)
+                {
+                    string nonMarkupLine = markupRegex.Replace(line, "");
+
+                    Match m = rankVoteLineRegex.Match(nonMarkupLine);
+
+                    if (m.Success)
+                    {
+                        results.Add(new List<string>(1) { line }, VoteType.Rank);
+                    }
+                }
+            }
 
             return results;
         }
@@ -396,6 +495,16 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Remove the voter's support for any existing ranked votes
+        /// </summary>
+        /// <param name="voter">The voter name to check for.</param>
+        private void RemoveRankedSupport(string voter)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        /// <summary>
         /// Given a list of vote lines, combine them into a single string entity,
         /// or multiple blocks of strings if we're using vote partitions.
         /// </summary>
@@ -409,6 +518,12 @@ namespace NetTally
             // Work through the list of matched lines
             foreach (string line in lines)
             {
+                if (voteType == VoteType.Rank)
+                {
+                    partitions.Add(line.Trim() + "\r\n");
+                    continue;
+                }
+
                 // If a line refers to another voter, pull that voter's votes
                 Match vm = voterRegex.Match(StripFormatting(line));
                 if (vm.Success)
@@ -593,6 +708,39 @@ namespace NetTally
 
             // Otherwise create a new hashtable for vote supporters for the new vote key.
             VotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            return vote;
+        }
+
+        /// <summary>
+        /// Attempt to find any existing vote that matches with the vote we have,
+        /// and can be used as a key in the VotesWithSupporters table.
+        /// </summary>
+        /// <param name="vote">The vote to search for.</param>
+        /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
+        private string GetRankedVoteKey(string vote, IQuest quest)
+        {
+            // If the vote already matches an existing key, we don't need to search again.
+            if (RankedVotesWithSupporters.ContainsKey(vote))
+            {
+                return vote;
+            }
+
+            var cleanVote = CleanVote(vote, quest);
+
+            // If it matches a lookup value, use the existing key
+            string lookupVote = string.Empty;
+            if (cleanVoteLookup.TryGetValue(cleanVote, out lookupVote))
+            {
+                if (!RankedVotesWithSupporters.ContainsKey(lookupVote))
+                    RankedVotesWithSupporters[lookupVote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                return lookupVote;
+            }
+
+            cleanVoteLookup[cleanVote] = vote;
+
+            // Otherwise create a new hashtable for vote supporters for the new vote key.
+            RankedVotesWithSupporters[vote] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             return vote;
         }
