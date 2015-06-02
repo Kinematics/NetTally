@@ -69,14 +69,12 @@ namespace NetTally
         readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX+✓✔]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
-        // Regex to match any markup that we'll want to remove during comparisons.
-        readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]+\]|\[/color\]");
         // Clean extraneous information from a vote in order to compare with other votes.
         readonly Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Clean extraneous information from a vote line in order to compare with other votes.
         readonly Regex cleanLinePartRegex = new Regex(@"(^-+|\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
-        // Strip BBCode formatting from a vote line.  Use with Replace().
-        readonly Regex stripFormattingRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
+        // Regex to match any markup that we'll want to remove during comparisons.
+        readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[/?color[^]]*\]");
 
         #endregion
 
@@ -411,7 +409,7 @@ namespace NetTally
             }
 
             // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(markupRegex.Replace(a, "")).Success == false).ToList();
+            List<string> normalVote = postLines.TakeWhile(a => rankVoteLineRegex.Match(StripFormatting(a)).Success == false).ToList();
 
             if (normalVote.Count > 0)
                 results.Add(normalVote, VoteType.Vote);
@@ -423,7 +421,7 @@ namespace NetTally
 
                 foreach (string line in rankLines)
                 {
-                    string nonMarkupLine = markupRegex.Replace(line, "");
+                    string nonMarkupLine = StripFormatting(line);
 
                     Match m = rankVoteLineRegex.Match(nonMarkupLine);
 
@@ -615,7 +613,7 @@ namespace NetTally
         /// <returns>Returns the vote line without any leading formatting.</returns>
         private string StripFormatting(string voteLine)
         {
-            return stripFormattingRegex.Replace(voteLine, "");
+            return markupRegex.Replace(voteLine, "");
         }
 
         /// <summary>
