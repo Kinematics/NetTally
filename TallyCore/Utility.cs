@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace NetTally
 {
@@ -131,6 +132,17 @@ namespace NetTally
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns true if the vote marker is a digit.</returns>
+        public static bool IsRankedVote(string voteLine)
+        {
+            return Char.IsDigit(VoteLine.GetVoteMarker(voteLine), 0);
+             //&& voteLine.StartsWith("-") == false;
         }
     }
 }
