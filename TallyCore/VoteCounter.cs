@@ -64,9 +64,7 @@ namespace NetTally
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex rankVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔1-9]\].*", RegexOptions.Multiline);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        readonly Regex voterRegex = new Regex(@"^-*\[[xX+✓✔]\]\s*(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
-        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
+        readonly Regex voterRegex = new Regex(@"^(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
         #endregion
@@ -395,6 +393,7 @@ namespace NetTally
                 postLines = new List<string>(postLines.Skip(basePlan.Count));
             }
 
+
             // Then put together the normal vote
             List<string> normalVote = postLines.TakeWhile(a => VoteLine.IsRankedVote(a) == false).ToList();
 
@@ -503,7 +502,7 @@ namespace NetTally
                 }
 
                 // If a line refers to another voter, pull that voter's votes
-                Match vm = voterRegex.Match(VoteLine.CleanVote(trimmedLine));
+                Match vm = voterRegex.Match(VoteLine.GetVoteContent(trimmedLine));
                 if (vm.Success)
                 {
                     var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
