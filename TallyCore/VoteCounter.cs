@@ -63,8 +63,6 @@ namespace NetTally
         readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\].*", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex rankVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔1-9]\].*", RegexOptions.Multiline);
-        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
-        readonly Regex voterRegex = new Regex(@"^(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
         #endregion
@@ -501,30 +499,27 @@ namespace NetTally
                     continue;
                 }
 
-                // If a line refers to another voter, pull that voter's votes
-                Match vm = voterRegex.Match(VoteLine.GetVoteContent(trimmedLine));
-                if (vm.Success)
+                // If a line refers to another voter or base plan, pull that voter's votes
+                string planName = VoteLine.GetVotePlanName(trimmedLine);
+
+                var referralVotes = FindVotesForVoter(planName);
+                if (referralVotes.Count > 0)
                 {
-                    var referralVotes = FindVotesForVoter(vm.Groups["name"].Value);
-
-                    if (referralVotes.Count > 0)
+                    // If we're using vote partitions, add each of the other voter's
+                    // votes to our partition list.  Otherwise, append them all onto
+                    // the currently being built string.
+                    if (quest.UseVotePartitions)
                     {
-                        // If we're using vote partitions, add each of the other voter's
-                        // votes to our partition list.  Otherwise, append them all onto
-                        // the currently being built string.
-                        if (quest.UseVotePartitions)
-                        {
-                            partitions.AddRange(referralVotes);
-                        }
-                        else
-                        {
-                            foreach (var v in referralVotes)
-                                sb.Append(v);
-                        }
-
-                        // Go to the next vote line if we were successful in pulling a referral vote.
-                        continue;
+                        partitions.AddRange(referralVotes);
                     }
+                    else
+                    {
+                        foreach (var v in referralVotes)
+                            sb.Append(v);
+                    }
+
+                    // Go to the next vote line if we were successful in pulling a referral vote.
+                    continue;
                 }
 
                 // For lines that don't refer to other voters, compile them into

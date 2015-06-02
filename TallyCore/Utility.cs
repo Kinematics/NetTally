@@ -144,6 +144,23 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Get the content of the vote line.
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns the content of the vote line.</returns>
+        public static string GetVotePlanName(string voteLine)
+        {
+            string content = GetVoteContent(voteLine);
+
+            if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+                content = content.Substring(5);
+            if (content.EndsWith("."))
+                content = content.Substring(0, content.Length - 2);
+
+            return content.Trim();
+        }
+
+        /// <summary>
         /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
