@@ -142,7 +142,8 @@ namespace NetTally
                     EndPost = quest.EndPost,
                     CheckForLastThreadmark = quest.CheckForLastThreadmark,
                     UseVotePartitions = quest.UseVotePartitions,
-                    PartitionByLine = quest.PartitionByLine
+                    PartitionByLine = quest.PartitionByLine,
+                    AllowRankedVotes = quest.AllowRankedVotes
                 };
                 questWrapper.QuestCollection.Add(q);
             }
@@ -207,7 +208,7 @@ namespace NetTally
         public void Add(IQuest quest)
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine);
+                quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine, quest.AllowRankedVotes);
             BaseAdd(questElement);
         }
 
@@ -224,7 +225,7 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            bool useVotePartitions, bool partitionByLine)
+            bool useVotePartitions, bool partitionByLine, bool allowRankedVotes)
         {
             //Site = site;
             //Name = name;
@@ -236,6 +237,7 @@ namespace NetTally
             CheckForLastThreadmark = checkForLastThreadmark;
             UseVotePartitions = useVotePartitions;
             PartitionByLine = partitionByLine;
+            AllowRankedVotes = allowRankedVotes;
         }
 
         public QuestElement()
@@ -318,6 +320,13 @@ namespace NetTally
         {
             get { return (bool)this["PartitionByLine"]; }
             set { this["PartitionByLine"] = value; }
+        }
+
+        [ConfigurationProperty("AllowRankedVotes", DefaultValue = false)]
+        public bool AllowRankedVotes
+        {
+            get { return (bool)this["AllowRankedVotes"]; }
+            set { this["AllowRankedVotes"] = value; }
         }
     }
 
