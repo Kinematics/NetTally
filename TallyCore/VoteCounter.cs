@@ -63,12 +63,12 @@ namespace NetTally
         readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\].*", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex rankVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔1-9]\].*", RegexOptions.Multiline);
-        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan(:|\s)+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex voterRegex = new Regex(@"^-*\[[xX+✓✔]\]\s*(plan\s+)?(?<name>.*?)[.]?$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
+        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+        readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
         #endregion
 
         #region Public Interface
@@ -331,11 +331,6 @@ namespace NetTally
             }
         }
 
-
-
-
-
-
         /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
         /// </summary>
@@ -357,7 +352,6 @@ namespace NetTally
         {
             var strings = from Match m in matches
                           select m.Value.Trim();
-
 
             return strings.ToList();
         }
@@ -436,7 +430,10 @@ namespace NetTally
         /// <returns>Returns the name of the base plan.</returns>
         private string GetPlanName(List<string> planLines)
         {
-            Match m = basePlanRegex.Match(planLines.First());
+            string firstLine = planLines.First();
+            string lineContent = VoteLine.GetVoteContent(firstLine);
+
+            Match m = basePlanRegex.Match(lineContent);
             if (m.Success)
             {
                 return m.Groups["baseplan"].Value.Trim();
