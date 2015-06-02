@@ -47,6 +47,8 @@ namespace NetTally
         {
             VotesWithSupporters.Clear();
             VoterMessageId.Clear();
+            RankedVotesWithSupporters.Clear();
+            RankedVoterMessageId.Clear();
             PlanNames.Clear();
             cleanVoteLookup.Clear();
             Title = string.Empty;
@@ -65,6 +67,10 @@ namespace NetTally
         readonly Regex basePlanRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\[[xX+✓✔]\]\s*base\s*plan(:|\s)+(?<baseplan>.+)$", RegexOptions.IgnoreCase);
         // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
         readonly Regex voterRegex = new Regex(@"^\s*-*\[[xX+✓✔]\]\s*([pP][lL][aA][nN]\s*)?(?<name>.*?)[.]?\s*$");
+        // A voter referral is a user name on a vote line, possibly starting with 'Plan'.
+        readonly Regex rankVoteLineRegex = new Regex(@"^\[[1-9]\].+");
+        // Regex to match any markup that we'll want to remove during comparisons.
+        readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]+\]|\[/color\]");
         // Clean extraneous information from a vote in order to compare with other votes.
         readonly Regex cleanRegex = new Regex(@"(\[/?[ibu]\]|\[color[^]]+\]|\[/color\]|\s|\.)");
         // Clean extraneous information from a vote line in order to compare with other votes.
@@ -81,7 +87,13 @@ namespace NetTally
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
+        public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>();
+
+        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
         public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
