@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace NetTally
@@ -28,6 +30,59 @@ namespace NetTally
         public static string SafeString(string input)
         {
             return UnsafeCharsRegex.Replace(input, "");
+        }
+
+
+        /// <summary>
+        /// Gets a user-friendly string description of an enum value.
+        /// </summary>
+        /// <typeparam name="T">An enum type.</typeparam>
+        /// <param name="enumerationValue">The enum we're working on.</param>
+        /// <returns>Returns the string description of the enum, as provided by attributes
+        /// in the original definition.</returns>
+        public static string GetDescription(this Enum enumerationValue)
+        {
+            FieldInfo fi = enumerationValue.GetType().GetField(enumerationValue.ToString());
+
+            DescriptionAttribute[] attributes =
+                (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+            if (attributes != null && attributes.Length > 0)
+                return attributes[0].Description;
+            else
+                return enumerationValue.ToString();
+        }
+
+        /// <summary>
+        /// Gets an enum value from a provided description.
+        /// </summary>
+        /// <typeparam name="T">The enum type being examined.</typeparam>
+        /// <param name="description">The text description we're trying to find an enum for.</param>
+        /// <returns>Returns the enum matching the description, or the default enum value.</returns>
+        public static T GetValueFromDescription<T>(string description)
+        {
+            var type = typeof(T);
+            if (!type.IsEnum)
+                throw new InvalidOperationException();
+
+            foreach (var field in type.GetFields())
+            {
+                var attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+
+                if (attribute != null)
+                {
+                    if (attribute.Description == description)
+                        return (T)field.GetValue(null);
+                }
+                else
+                {
+                    if (field.Name == description)
+                        return (T)field.GetValue(null);
+                }
+            }
+
+            //throw new ArgumentException("Not found.", nameof(description));
+            return default(T);
         }
     }
 
