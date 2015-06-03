@@ -307,13 +307,13 @@ namespace NetTally
         {
             var ranks = voteLinesGrouped.Where(v => v.Value == VoteType.Rank).Select(vs => vs.Key);
 
+            // Remove the post author from any other existing votes.
+            RemoveSupport(postAuthor, RankedVotesWithSupporters);
+
+            RankedVoterMessageId[postAuthor] = postID;
+
             foreach (var rankLines in ranks)
             {
-                // Remove the post author from any other existing votes.
-                RemoveSupport(postAuthor, RankedVotesWithSupporters);
-
-                RankedVoterMessageId[postAuthor] = postID;
-
                 List<string> votePartitions = GetVotePartitions(rankLines, quest, VoteType.Rank);
 
                 foreach (var votePartition in votePartitions)
