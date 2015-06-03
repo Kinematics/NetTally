@@ -15,6 +15,21 @@ namespace NetTally
         Rank
     }
 
+    /// <summary>
+    /// Enum for various modes of constructing the final tally display.
+    /// </summary>
+    public enum DisplayMode
+    {
+        [Description("Normal")]
+        Normal,
+        [Description("Spoiler Voters")]
+        SpoilerVoters,
+        [Description("Spoiler All")]
+        SpoilerAll,
+        [Description("Compact")]
+        Compact
+    }
+
     public static class Utility
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
