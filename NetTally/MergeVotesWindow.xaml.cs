@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,8 +12,9 @@ namespace NetTally
     /// <summary>
     /// Interaction logic for MergeVotesWindow.xaml
     /// </summary>
-    public partial class MergeVotesWindow : Window
+    public partial class MergeVotesWindow : Window, INotifyPropertyChanged
     {
+        #region Constructor and variables
         public IVoteCounter voteCounter;
 
         public ObservableCollection<string> ObservableVotes { get; }
@@ -22,6 +25,8 @@ namespace NetTally
         public ObservableCollection<string> Voters2 { get; }
         public ICollectionView VoterView1 { get; }
         public ICollectionView VoterView2 { get; }
+
+        bool displayStandardVotes = true;
 
         public MergeVotesWindow()
         {
@@ -38,7 +43,8 @@ namespace NetTally
 
             voteCounter = tally.VoteCounter;
 
-            ObservableVotes = new ObservableCollection<string>(voteCounter.VotesWithSupporters.Keys);
+            ObservableVotes = new ObservableCollection<string>(voteCounter.GetVotesCollection(CurrentVoteType).
+                Keys.OrderBy(v => VoteLine.GetVoteContent(v), StringComparer.OrdinalIgnoreCase));
 
             VoteCollectionView1 = new CollectionView(ObservableVotes);
             VoteCollectionView2 = new CollectionView(ObservableVotes);
@@ -50,6 +56,25 @@ namespace NetTally
 
             this.DataContext = this;
         }
+        #endregion
+
+        #region Event handling
+        /// <summary>
+        /// Event for INotifyPropertyChanged.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Returns whether or not it's valid to merge votes based on the current list selections.
@@ -58,15 +83,42 @@ namespace NetTally
         {
             get
             {
+                // Can't merge if nothing is selected
                 if (votesFromListBox.SelectedIndex < 0)
                     return false;
                 if (votesToListBox.SelectedIndex < 0)
                     return false;
 
-                return (votesFromListBox.SelectedItem.ToString() != votesToListBox.SelectedItem.ToString());
+                string fromVote = votesFromListBox.SelectedItem.ToString();
+                string toVote = votesToListBox.SelectedItem.ToString();
+
+                if (CurrentVoteType == VoteType.Rank)
+                {
+                    // Don't allow merging if they're not the same rank.
+
+                    string markFrom = VoteLine.GetVoteMarker(fromVote);
+                    string markTo = VoteLine.GetVoteMarker(toVote);
+
+                    if (markFrom != markTo)
+                        return false;
+
+                    // Don't allow merging if they're not the same task.
+
+                    string taskFrom = VoteLine.GetVoteTask(fromVote);
+                    string taskTo = VoteLine.GetVoteTask(toVote);
+
+                    if (taskFrom != taskTo)
+                        return false;
+                }
+
+                // Otherwise, allow merge if they're not the same
+                return (fromVote != toVote);
             }
         }
 
+        /// <summary>
+        /// Returns whether there are ranked votes available in the vote tally.
+        /// </summary>
         public bool HasRankedVotes
         {
             get
@@ -75,6 +127,40 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Flag whether we should be displaying standard votes or ranked votes.
+        /// </summary>
+        public bool DisplayStandardVotes
+        {
+            get
+            {
+                return displayStandardVotes;
+            }
+            set
+            {
+                displayStandardVotes = value;
+                ChangeVotesDisplayed();
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Get the VoteType enum value that corresponds to the current display.
+        /// </summary>
+        public VoteType CurrentVoteType
+        {
+            get
+            {
+                if (DisplayStandardVotes)
+                    return VoteType.Vote;
+                else
+                    return VoteType.Rank;
+            }
+        }
+        #endregion
+
+
+        #region Window events
         /// <summary>
         /// Handler for the button to merge two vote items together.
         /// </summary>
@@ -90,7 +176,7 @@ namespace NetTally
 
             try
             {
-                if (voteCounter.Merge(fromVote, toVote, VoteType.Vote))
+                if (voteCounter.Merge(fromVote, toVote, CurrentVoteType))
                 {
                     ObservableVotes.Remove(fromVote);
                     UpdateVoters(votesToListBox, Voters2);
@@ -125,6 +211,8 @@ namespace NetTally
             merge.IsEnabled = VotesCanMerge;
             UpdateVoters(sender as ListBox, Voters2);
         }
+        #endregion
+
 
         /// <summary>
         /// Update the collection that the voter list boxes are observing.
@@ -145,7 +233,7 @@ namespace NetTally
 
             string vote = votesBox.SelectedItem.ToString();
 
-            var voters = voteCounter.VotesWithSupporters[vote];
+            var voters = voteCounter.GetVotesCollection(CurrentVoteType)[vote];
 
             if (voters != null)
             {
@@ -154,6 +242,41 @@ namespace NetTally
                     votersCollection.Add(voter);
                 }
             }
+        }
+
+        /// <summary>
+        /// Updated the observed collection when the vote display mode is changed.
+        /// </summary>
+        private void ChangeVotesDisplayed()
+        {
+            ObservableVotes.Clear();
+
+            var votes = voteCounter.GetVotesCollection(CurrentVoteType).Keys;
+
+            IOrderedEnumerable<string> orderedVotes;
+
+            if (CurrentVoteType == VoteType.Rank)
+                orderedVotes = votes.OrderBy(v => BracketTask(VoteLine.GetVoteTask(v)) + VoteLine.GetVoteContent(v) + VoteLine.GetVoteMarker(v), StringComparer.OrdinalIgnoreCase);
+            else
+                orderedVotes = votes.OrderBy(v => VoteLine.GetVoteContent(v), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var vote in orderedVotes)
+            {
+                ObservableVotes.Add(vote);
+            }
+        }
+
+        /// <summary>
+        /// Convert the empty string to a space for the purposes of sorting ranked entries.
+        /// </summary>
+        /// <param name="task">The task for the vote</param>
+        /// <returns>Returns the task, or a space if the task is empty.</returns>
+        private string BracketTask(string task)
+        {
+            if (task == string.Empty)
+                return " ";
+            else
+                return task;
         }
     }
 }
