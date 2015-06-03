@@ -6,6 +6,13 @@
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
         Title="Merge Votes" Height="587.837" Width="828" MinWidth="600" MinHeight="400" ResizeMode="NoResize">
+    <Window.Resources>
+        <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
+        <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
+        <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
+    </Window.Resources>
+
     <Grid>
         <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoteCollectionView1}" SelectionChanged="votesFromListBox_SelectionChanged"/>
@@ -28,7 +35,8 @@
             </Button.ToolTip>
         </Button>
         
-        <RadioButton x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="375,176,0,0" VerticalAlignment="Top">
+        <RadioButton x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="375,176,0,0" VerticalAlignment="Top"
+                     IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}">
             <RadioButton.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -39,7 +47,8 @@
             </RadioButton.ToolTip>
         </RadioButton>
         <RadioButton x:Name="rankingRadio" Content="Rankings" HorizontalAlignment="Left" Margin="375,197,0,0" VerticalAlignment="Top"
-                     IsEnabled="{Binding Path=HasRankedVotes, Mode=OneWay}">
+                     IsEnabled="{Binding Path=HasRankedVotes, Mode=OneWay}"
+                     IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}">
             <RadioButton.ToolTip>
                 <ToolTip>
                     <StackPanel>
