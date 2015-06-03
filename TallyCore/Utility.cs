@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -98,6 +100,36 @@ namespace NetTally
 
             //throw new ArgumentException("Not found.", nameof(description));
             return default(T);
+        }
+
+
+        public static IEnumerable<T> EnumToList<T>()
+        {
+            Type enumType = typeof(T);
+
+            // Can't use generic type constraints on value types,
+            // so have to do check like this
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T must be of type System.Enum");
+
+            Array enumValArray = Enum.GetValues(enumType);
+
+            List<T> list = new List<T>();
+
+            foreach (T val in enumValArray)
+                list.Add(val);
+
+            return list;
+        }
+        
+        public static IEnumerable<string> EnumDescriptionsList<T>()
+        {
+            var enums = EnumToList<T>();
+
+            var enumDescrips = from Enum e in enums
+                               select e.GetDescription();
+
+            return enumDescrips;
         }
     }
 
