@@ -217,9 +217,11 @@ namespace NetTally
 
                     AddRankedOptions(sb, result.Key);
 
-                    AddRankedWinner(sb, result.Value);
+                    AddRankedWinner(sb, result.Value.First());
 
                     AddRankedVoters(sb, quest, result);
+
+                    AddRunnersUp(sb, result.Value.Skip(1));
 
                     sb.AppendLine("");
                 }
@@ -492,16 +494,18 @@ namespace NetTally
         /// <param name="sb">The string builder to add the results to.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="result">The task and winning vote.</param>
-        private void AddRankedVoters(StringBuilder sb, IQuest quest, KeyValuePair<string, string> result)
+        private void AddRankedVoters(StringBuilder sb, IQuest quest, KeyValuePair<string, List<string>> result)
         {
             if (UseSpoilerForVoters)
             {
                 sb.AppendLine("[spoiler=Voters]");
             }
 
+            string winningChoice = result.Value.First();
+
             var whoVoted = from v in voteCounter.RankedVotesWithSupporters
                            where VoteLine.GetVoteTask(v.Key) == result.Key &&
-                                 VoteLine.GetVoteContent(v.Key) == result.Value
+                                 VoteLine.GetVoteContent(v.Key) == winningChoice
                            select new { marker = VoteLine.GetVoteMarker(v.Key), voters = v.Value };
 
             var markerOrder = whoVoted.OrderBy(a => a.marker);
@@ -521,6 +525,27 @@ namespace NetTally
             }
 
             sb.AppendLine("");
+        }
+
+
+        /// <summary>
+        /// Add the top two runners-up in the tally.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="runnersUp">The list of runners-up, in order.</param>
+        private void AddRunnersUp(StringBuilder sb, IEnumerable<string> runnersUp)
+        {
+            if (runnersUp.Count() > 0)
+            {
+                sb.AppendLine("Runners Up:");
+
+                foreach (var ranker in runnersUp)
+                {
+                    sb.AppendLine(ranker);
+                }
+
+                sb.AppendLine("");
+            }
         }
 
         #endregion

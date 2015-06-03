@@ -15,7 +15,7 @@ namespace NetTally
         /// <param name="voteCounter">Vote counter with a tallied collection of votes.</param>
         /// <returns>Returns a dictionary of task grouping to preferred vote for the
         /// top-rated choice.</returns>
-        public static Dictionary<string, string> Rank(IVoteCounter voteCounter)
+        public static Dictionary<string, List<string>> Rank(IVoteCounter voteCounter)
         {
             if (voteCounter == null)
                 throw new ArgumentNullException(nameof(voteCounter));
@@ -28,7 +28,7 @@ namespace NetTally
                               group vote by VoteLine.GetVoteTask(vote.Key) into g
                               select g;
 
-            Dictionary<string, string> taskPreference = new Dictionary<string, string>();
+            Dictionary<string, List<string>> taskPreference = new Dictionary<string, List<string>>();
 
             foreach (var task in groupByTask)
             {
@@ -43,9 +43,37 @@ namespace NetTally
         /// </summary>
         /// <param name="task">Collection of votes designated for a particular task.</param>
         /// <returns>Returns the top voter choice for the task.</returns>
-        private static string RankTask(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
+        private static List<string> RankTask(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
-            var voterList = ConvertVotesToVoters(task);
+            var voterChoices = ConvertVotesToVoters(task);
+
+            List<string> topChoices = new List<string>(3);
+
+            // 1st, 2nd and 3rd place results
+            for (int i = 0; i < 3; i++)
+            {
+                var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
+
+                string topChoice = GetTopRank(voterChoicesCopy);
+
+                if (topChoice != string.Empty)
+                    topChoices.Add(topChoice);
+            
+                RemoveChoice(topChoice, voterChoices);
+            }
+
+            return topChoices;
+        }
+
+        /// <summary>
+        /// Select the top option out of the votes cast for a given task.
+        /// </summary>
+        /// <param name="task">Collection of votes designated for a particular task.</param>
+        /// <returns>Returns the top voter choice for the task.</returns>
+        private static string GetTopRank(Dictionary<string, List<string>> voterChoices)
+        {
+            if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
+                return string.Empty;
 
             // Limit to 10 iterations, to ensure there are no infinite loops
             int loop = 0;
@@ -53,11 +81,11 @@ namespace NetTally
             while (true)
             {
                 // First see if any options has a majority of #1 votes
-                var firstChoices = CountFirstPlaceVotes(voterList);
+                var firstChoices = CountFirstPlaceVotes(voterChoices);
 
                 var topChoice = firstChoices.OrderByDescending(a => a.Value).First();
 
-                if (IsMajority(topChoice.Value, voterList.Count) || OnlyOneChoiceLeft(voterList) || ++loop > 9)
+                if (IsMajority(topChoice.Value, voterChoices.Count) || OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
                 {
                     return topChoice.Key;
                 }
@@ -65,13 +93,14 @@ namespace NetTally
                 // If no option has an absolute majority, find the most-disliked option
                 // and remove it from all voters' option lists, in preparation of another
                 // round of checks.
-                var lastChoices = CountLastPlaceVotes(voterList);
+                var lastChoices = CountLastPlaceVotes(voterChoices);
 
                 var bottomChoice = lastChoices.OrderByDescending(a => a.Value).First();
 
-                RemoveLastPlaceOption(bottomChoice, voterList);
+                RemoveLastPlaceOption(bottomChoice, voterChoices);
             }
         }
+
 
         /// <summary>
         /// Convert the original grouping of voters per vote into a grouping of votes per voter,
@@ -169,6 +198,19 @@ namespace NetTally
                 {
                     voter.Value.Remove(bottomChoice.Key);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Remove an entry unconditionally from the list of voter choices.
+        /// </summary>
+        /// <param name="choice">The choice to remove.</param>
+        /// <param name="voterChoices">The list of all voter ranked choices.</param>
+        private static void RemoveChoice(string choice, Dictionary<string, List<string>> voterChoices)
+        {
+            foreach (var voter in voterChoices)
+            {
+                voter.Value.Remove(choice);
             }
         }
 
