@@ -67,6 +67,14 @@ namespace NetTally
             }
         }
 
+        public bool HasRankedVotes
+        {
+            get
+            {
+                return voteCounter.HasRankedVotes;
+            }
+        }
+
         /// <summary>
         /// Handler for the button to merge two vote items together.
         /// </summary>

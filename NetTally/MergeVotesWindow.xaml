@@ -27,6 +27,29 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
+        
+        <RadioButton x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="375,176,0,0" VerticalAlignment="Top">
+            <RadioButton.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Votes</TextBlock>
+                        <TextBlock>Handle merging of normal votes.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </RadioButton.ToolTip>
+        </RadioButton>
+        <RadioButton x:Name="rankingRadio" Content="Rankings" HorizontalAlignment="Left" Margin="375,197,0,0" VerticalAlignment="Top"
+                     IsEnabled="{Binding Path=HasRankedVotes, Mode=OneWay}">
+            <RadioButton.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Rankings</TextBlock>
+                        <TextBlock>Handle merging of runoff rankings.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </RadioButton.ToolTip>
+        </RadioButton>
+
         <Button x:Name="closeButton" Content="Close" Margin="718,516,10,10" IsCancel="True"/>
 
         <Label x:Name="label1" Content="Votes (Merge From)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
