@@ -82,6 +82,14 @@ namespace NetTally
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
+        public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+                return RankedVotesWithSupporters;
+            else
+                return VotesWithSupporters;
+        }
+
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
