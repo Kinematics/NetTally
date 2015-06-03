@@ -208,9 +208,22 @@ namespace NetTally
         {
             if (voteCounter.HasRankedVotes)
             {
-                RankVotes.Rank(voteCounter);
+                // Get ranked results, and order them by task name
+                var results = RankVotes.Rank(voteCounter).OrderBy(a => a.Key);
 
                 // output the ranking result
+                foreach (var result in results)
+                {
+                    AddTaskLabel(sb, result.Key);
+
+                    AddRankedOptions(sb, result.Key);
+
+                    AddRankedWinner(sb, result.Value);
+
+                    AddRankedVoters(sb, quest, result);
+
+                    sb.AppendLine("");
+                }
             }
         }
 
@@ -285,8 +298,8 @@ namespace NetTally
         private void AddLineBreak(StringBuilder sb)
         {
             //sb.AppendLine("[hr][/hr]");
-            //sb.AppendLine("-----------------------------------------------------------\r\n");
-            sb.AppendLine("———————————————————————————————————————————————————————————\r\n");
+            //sb.AppendLine("---------------------------------------------------------\r\n");
+            sb.AppendLine("—————————————————————————————————————————————————————————\r\n");
         }
 
         /// <summary>
@@ -310,7 +323,7 @@ namespace NetTally
         {
             if (task.Length > 0)
             {
-                sb.AppendFormat("[b]Task: {0}[/b]\r\n", task);
+                sb.AppendFormat("[b]Task: {0}[/b]\r\n\r\n", task);
             }
         }
 
@@ -363,9 +376,9 @@ namespace NetTally
         /// <param name="voter">The name of the voter being added.</param>
         /// <param name="rank">The rank that the voter rated the current vote.</param>
         /// <param name="quest">The quest being tallied.</param>
-        private void AddRankedVoter(StringBuilder sb, string voter, int rank, IQuest quest)
+        private void AddRankedVoter(StringBuilder sb, string voter, string marker, IQuest quest)
         {
-            sb.Append(GenerateSupporterUrl(quest, voter, rank));
+            sb.Append(GenerateSupporterUrl(quest, voter, marker));
         }
 
         /// <summary>
@@ -374,9 +387,12 @@ namespace NetTally
         /// <param name="sb">The string builder to add the results to.</param>
         private void AddTotalVoterCount(StringBuilder sb)
         {
-            sb.AppendLine("");
             int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
-            sb.AppendFormat("Total No. of Voters: {0}\r\n", totalVoterCount);
+            if (totalVoterCount > 0)
+            {
+                sb.AppendLine("");
+                sb.AppendFormat("Total No. of Voters: {0}\r\n", totalVoterCount);
+            }
         }
 
         /// <summary>
@@ -397,7 +413,7 @@ namespace NetTally
                 tail = "[/b]";
             }
 
-            AddSupporterUrl(sb, supporter, quest);
+            AddSupporterUrl(sb, supporter, voteCounter.VoterMessageId, quest);
 
             sb.AppendLine(tail);
 
@@ -411,12 +427,12 @@ namespace NetTally
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="supporter">The supporter of a given plan.</param>
         /// <returns>Returns a url'ized string for the voter's post.</returns>
-        private string GenerateSupporterUrl(IQuest quest, string supporter, int rank)
+        private string GenerateSupporterUrl(IQuest quest, string supporter, string marker)
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("[{0}] ", rank);
-            AddSupporterUrl(sb, supporter, quest);
+            sb.AppendFormat("[{0}] ", marker);
+            AddSupporterUrl(sb, supporter, voteCounter.RankedVoterMessageId, quest);
             sb.AppendLine("");
 
             return sb.ToString();
@@ -429,13 +445,83 @@ namespace NetTally
         /// <param name="sb">The string builder to add the results to.</param>
         /// <param name="supporter">The supporter of a given plan.</param>
         /// <param name="quest">The quest being tallied.</param>
-        private void AddSupporterUrl(StringBuilder sb, string supporter, IQuest quest)
+        private void AddSupporterUrl(StringBuilder sb, string supporter, Dictionary<string, string> idLookup, IQuest quest)
         {
             sb.Append("[url=\"");
-            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, voteCounter.VoterMessageId[supporter]));
+            sb.Append(quest.GetForumAdapter().GetPostUrlFromId(quest.ThreadName, idLookup[supporter]));
             sb.Append("\"]");
             sb.Append(supporter);
             sb.Append("[/url]");
+        }
+
+        /// <summary>
+        /// Add the list of options available for the given ranked task.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="task"></param>
+        private void AddRankedOptions(StringBuilder sb, string task)
+        {
+            var voteContents = voteCounter.RankedVotesWithSupporters.
+                Where(v => VoteLine.GetVoteTask(v.Key) == task).
+                Select(v => VoteLine.GetVoteContent(v.Key));
+
+            HashSet<string> uniqueOptions = new HashSet<string>(voteContents, StringComparer.OrdinalIgnoreCase);
+
+            sb.AppendLine("[b]Options:[/b]");
+
+            foreach (var option in uniqueOptions.OrderBy(a => a))
+            {
+                sb.AppendLine(option);
+            }
+
+            sb.AppendLine("");
+        }
+
+        /// <summary>
+        /// Add the winner of the runoff for the given task's options.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="winningChoice">The winning choice.</param>
+        private void AddRankedWinner(StringBuilder sb, string winningChoice)
+        {
+            sb.AppendFormat("[b]Winner:[/b] {0}\r\n\r\n", winningChoice);
+        }
+
+        /// <summary>
+        /// Add the list of voters who voted for the winning vote for the current task.
+        /// </summary>
+        /// <param name="sb">The string builder to add the results to.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="result">The task and winning vote.</param>
+        private void AddRankedVoters(StringBuilder sb, IQuest quest, KeyValuePair<string, string> result)
+        {
+            if (UseSpoilerForVoters)
+            {
+                sb.AppendLine("[spoiler=Voters]");
+            }
+
+            var whoVoted = from v in voteCounter.RankedVotesWithSupporters
+                           where VoteLine.GetVoteTask(v.Key) == result.Key &&
+                                 VoteLine.GetVoteContent(v.Key) == result.Value
+                           select new { marker = VoteLine.GetVoteMarker(v.Key), voters = v.Value };
+
+            var markerOrder = whoVoted.OrderBy(a => a.marker);
+
+            foreach (var mark in markerOrder)
+            {
+                var sortedVoters = mark.voters.OrderBy(a => a);
+                foreach (var voter in sortedVoters)
+                {
+                    AddRankedVoter(sb, voter, mark.marker, quest);
+                }
+            }
+
+            if (UseSpoilerForVoters)
+            {
+                sb.AppendLine("[/spoiler]");
+            }
+
+            sb.AppendLine("");
         }
 
         #endregion
