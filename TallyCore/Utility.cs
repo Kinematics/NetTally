@@ -3,7 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace NetTally
 {
-    // Local enum for separating vote categories
+    /// <summary>
+    /// Enum for separating vote categories
+    /// </summary>
     public enum VoteType
     {
         Vote,
@@ -18,6 +20,11 @@ namespace NetTally
         // Do not remove CR/LF characters
         public static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
 
+        /// <summary>
+        /// Filter unsafe characters from the provided string.
+        /// </summary>
+        /// <param name="input">The string to filter.</param>
+        /// <returns>The input string with all unicode control characters (except cr/lf) removed.</returns>
         public static string SafeString(string input)
         {
             return UnsafeCharsRegex.Replace(input, "");
