@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NetTally
 {
-    public class TextResults
+    public class TextResults : ITextResultsProvider
     {
         IQuest Quest { get; set; }
         DisplayMode DisplayMode { get; set; }

@@ -15,6 +15,7 @@ namespace NetTally
     {
         IPageProvider PageProvider { get; } = new WebPageProvider();
         public IVoteCounter VoteCounter { get; } = new VoteCounter();
+        public ITextResultsProvider TextResults { get; set; } = new TextResults();
 
         bool tallyIsRunning = false;
         string results = string.Empty;
@@ -207,6 +208,9 @@ namespace NetTally
             if (quest == null)
                 return;
 
+            TallyResults = TextResults.BuildOutput(quest, VoteCounter, DisplayMode);
+
+            /*
             StringBuilder sb = new StringBuilder();
 
             AddHeader(sb);
@@ -216,6 +220,7 @@ namespace NetTally
             ConstructNormalOutput(sb, quest);
 
             TallyResults = sb.ToString();
+            */
         }
 
         /// <summary>
