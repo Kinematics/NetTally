@@ -65,6 +65,7 @@
     <Compile Include="Adapters\SufficientVelocityAdapter.cs" />
     <Compile Include="RankVotes.cs" />
     <Compile Include="Tally.cs" />
+    <Compile Include="TextResults.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="VoteCounter.cs" />
     <Compile Include="WebPageProvider.cs" />
