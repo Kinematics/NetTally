@@ -64,7 +64,7 @@ namespace NetTally
 
             questCollection = new QuestCollection();
 
-            QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null);
+            QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null, DisplayMode.Normal);
 
             NetTallyConfig.Load(tally, wrapper);
 
@@ -78,6 +78,7 @@ namespace NetTally
 
             Properties.Settings settings = new Properties.Settings();
             tally.UseSpoilerForVoters = settings.UseSpoilerForVoters;
+            tally.DisplayMode = wrapper.DisplayMode;
 
             // Set up data contexts
             DataContext = QuestCollectionView;
@@ -112,7 +113,7 @@ namespace NetTally
                 selectedQuest = CurrentlySelectedQuest().ThreadName;
             }
 
-            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
+            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
             NetTallyConfig.Save(tally, qcw);
 
             Properties.Settings settings = new Properties.Settings();

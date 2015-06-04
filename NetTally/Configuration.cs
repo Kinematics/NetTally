@@ -41,7 +41,7 @@ namespace NetTally
             if (questConfig == null)
                 return;
 
-            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null);
+            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null, DisplayMode.Normal);
             questConfig.Load(questWrapper);
 
             upgradeConfig.SaveAs(conf.FilePath, ConfigurationSaveMode.Full);
@@ -119,12 +119,20 @@ namespace NetTally
             set { this["CurrentQuest"] = value; }
         }
 
+        [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
+        public DisplayMode DisplayMode
+        {
+            get { return (DisplayMode)this["DisplayMode"]; }
+            set { this["DisplayMode"] = value; }
+        }
+
         public void Load(QuestCollectionWrapper questWrapper)
         {
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
 
             questWrapper.CurrentQuest = CurrentQuest;
+            questWrapper.DisplayMode = DisplayMode;
 
             foreach (QuestElement quest in Quests)
             {
@@ -152,6 +160,7 @@ namespace NetTally
         public void Save(QuestCollectionWrapper questWrapper)
         {
             CurrentQuest = questWrapper.CurrentQuest;
+            DisplayMode = questWrapper.DisplayMode;
 
             Quests.Clear();
             foreach (var quest in questWrapper.QuestCollection)

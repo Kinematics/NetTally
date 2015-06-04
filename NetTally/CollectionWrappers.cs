@@ -8,11 +8,13 @@
     {
         public QuestCollection QuestCollection { get; set; }
         public string CurrentQuest { get; set; }
+        public DisplayMode DisplayMode { get; set; }
 
-        public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest)
+        public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest, DisplayMode displayMode)
         {
             QuestCollection = questCollection;
             CurrentQuest = currentQuest;
+            DisplayMode = displayMode;
         }
     }
 
