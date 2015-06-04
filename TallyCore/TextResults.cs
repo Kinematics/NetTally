@@ -57,15 +57,15 @@ namespace NetTally
                 {
                     if (DisplayMode == DisplayMode.Compact)
                     {
-                        // Compact Format: [Task] Winner
-                        // [+Task] for Runners up
-                        sb.AppendFormat("[{0}] {1}\r\n", result.Key, result.Value.First());
-
-                        string extra = "+";
-                        foreach (var additional in result.Value.Skip(1))
+                        if (result.Key.Length > 0)
                         {
-                            sb.AppendFormat("[{0}{1}] {2}\r\n", extra, result.Key, additional);
-                            extra = extra + "+";
+                            sb.AppendFormat("{0}:\r\n", result.Key);
+                        }
+
+                        int num = 1;
+                        foreach (var entry in result.Value)
+                        {
+                            sb.AppendFormat("[{0}] {1}\r\n", num++, entry);
                         }
 
                         sb.AppendLine("");
