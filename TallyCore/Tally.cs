@@ -16,9 +16,10 @@ namespace NetTally
         IPageProvider pageProvider;
         IVoteCounter voteCounter;
 
+        bool tallyIsRunning = false;
         string results = string.Empty;
         bool useSpoilerForVoters = false;
-        bool tallyIsRunning = false;
+        DisplayMode displayMode = DisplayMode.Normal;
 
         IQuest lastTallyQuest = null;
         List<HtmlDocument> loadedPages = null;
@@ -85,6 +86,21 @@ namespace NetTally
             set
             {
                 useSpoilerForVoters = value;
+                ConstructResults(lastTallyQuest);
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to use spoiler blocks for voter lists in
+        /// the output display.
+        /// Recalculates the display if changed.
+        /// </summary>
+        public DisplayMode DisplayMode
+        {
+            get { return displayMode; }
+            set
+            {
+                displayMode = value;
                 ConstructResults(lastTallyQuest);
             }
         }
