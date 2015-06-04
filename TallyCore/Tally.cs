@@ -13,8 +13,8 @@ namespace NetTally
 {
     public class Tally : INotifyPropertyChanged
     {
-        IPageProvider pageProvider;
-        IVoteCounter voteCounter;
+        IPageProvider PageProvider { get; } = new WebPageProvider();
+        public IVoteCounter VoteCounter { get; } = new VoteCounter();
 
         bool tallyIsRunning = false;
         string results = string.Empty;
@@ -25,11 +25,19 @@ namespace NetTally
         List<HtmlDocument> loadedPages = null;
 
         public Tally()
+            : this(null, null)
         {
-            pageProvider = new WebPageProvider();
-            voteCounter = new VoteCounter();
+        }
 
-            pageProvider.StatusChanged += PageProvider_StatusChanged;
+        public Tally(IVoteCounter altVoteCounter, IPageProvider altPageProvider)
+        {
+            if (altVoteCounter != null)
+                VoteCounter = altVoteCounter;
+
+            if (altPageProvider != null)
+                PageProvider = altPageProvider;
+
+            PageProvider.StatusChanged += PageProvider_StatusChanged;
         }
 
         #region Event handling
@@ -120,10 +128,6 @@ namespace NetTally
 
         #endregion
 
-        #region Access properties
-        public IVoteCounter VoteCounter => voteCounter;
-        #endregion
-
         #region Interface functions
         /// <summary>
         /// Run the tally for the specified quest.
@@ -147,7 +151,7 @@ namespace NetTally
                     throw new InvalidOperationException(string.Format("Unable to load a forum adapter for the quest thread:\n{0}", quest.ThreadName));
 
                 // Load pages from the website
-                loadedPages = await pageProvider.LoadPages(quest, token).ConfigureAwait(false);
+                loadedPages = await PageProvider.LoadPages(quest, token).ConfigureAwait(false);
 
                 UpdateTally(quest);
             }
@@ -175,7 +179,7 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    voteCounter.TallyVotes(lastTallyQuest, loadedPages);
+                    VoteCounter.TallyVotes(lastTallyQuest, loadedPages);
 
                     // Compose the final result string from the compiled votes.
                     ConstructResults(lastTallyQuest);
@@ -188,7 +192,7 @@ namespace NetTally
         /// </summary>
         public void ClearPageCache()
         {
-            pageProvider.ClearPageCache();
+            PageProvider.ClearPageCache();
         }
 
         #endregion
@@ -221,10 +225,10 @@ namespace NetTally
         /// <param name="quest">The quest being tallied.</param>
         private void ConstructRankedOutput(StringBuilder sb, IQuest quest)
         {
-            if (voteCounter.HasRankedVotes)
+            if (VoteCounter.HasRankedVotes)
             {
                 // Get ranked results, and order them by task name
-                var results = RankVotes.Rank(voteCounter).OrderBy(a => a.Key);
+                var results = RankVotes.Rank(VoteCounter).OrderBy(a => a.Key);
 
                 // output the ranking result
                 foreach (var result in results)
@@ -251,7 +255,7 @@ namespace NetTally
         /// <param name="quest">The quest being tallied.</param>
         private void ConstructNormalOutput(StringBuilder sb, IQuest quest)
         {
-            var groupedVotesWithSupporters = GroupVotes(voteCounter.VotesWithSupporters);
+            var groupedVotesWithSupporters = GroupVotes(VoteCounter.VotesWithSupporters);
             bool firstTask = true;
 
             foreach (var taskGroup in groupedVotesWithSupporters)
@@ -265,7 +269,7 @@ namespace NetTally
 
                 AddTaskLabel(sb, taskGroup.Key);
 
-                foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => voteCounter.PlanNames.Contains(vc) == false)))
+                foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false)))
                 {
                     sb.Append(vote.Key);
 
@@ -302,7 +306,7 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
-            sb.AppendFormat("[b]Vote Tally[/b] : {0}\r\n", voteCounter.Title);
+            sb.AppendFormat("[b]Vote Tally[/b] : {0}\r\n", VoteCounter.Title);
             sb.AppendFormat("[color=transparent]##### {0} {1}[/color]\r\n\r\n",
                 product.Product,
                 version.InformationalVersion);
@@ -327,7 +331,7 @@ namespace NetTally
         private void AddVoteCount(StringBuilder sb, HashSet<string> voters)
         {
             sb.Append("[b]No. of Votes: ");
-            sb.Append(voters.Count(vc => voteCounter.PlanNames.Contains(vc) == false));
+            sb.Append(voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
             sb.AppendLine("[/b]");
         }
 
@@ -360,7 +364,7 @@ namespace NetTally
 
             var remainder = voters.Skip(1);
 
-            var remainingPlans = remainder.Where(vc => voteCounter.PlanNames.Contains(vc) == true);
+            var remainingPlans = remainder.Where(vc => VoteCounter.PlanNames.Contains(vc) == true);
 
             foreach (var supporter in remainingPlans.OrderBy(v => v))
             {
@@ -404,7 +408,7 @@ namespace NetTally
         /// <param name="sb">The string builder to add the results to.</param>
         private void AddTotalVoterCount(StringBuilder sb)
         {
-            int totalVoterCount = voteCounter.VoterMessageId.Count - voteCounter.PlanNames.Count;
+            int totalVoterCount = VoteCounter.VoterMessageId.Count - VoteCounter.PlanNames.Count;
             if (totalVoterCount > 0)
             {
                 sb.AppendLine("");
@@ -424,13 +428,13 @@ namespace NetTally
             StringBuilder sb = new StringBuilder();
 
             string tail = string.Empty;
-            if (voteCounter.PlanNames.Contains(supporter))
+            if (VoteCounter.PlanNames.Contains(supporter))
             {
                 sb.Append("[b]Plan: ");
                 tail = "[/b]";
             }
 
-            AddSupporterUrl(sb, supporter, voteCounter.VoterMessageId, quest);
+            AddSupporterUrl(sb, supporter, VoteCounter.VoterMessageId, quest);
 
             sb.AppendLine(tail);
 
@@ -449,7 +453,7 @@ namespace NetTally
             StringBuilder sb = new StringBuilder();
 
             sb.AppendFormat("[{0}] ", marker);
-            AddSupporterUrl(sb, supporter, voteCounter.RankedVoterMessageId, quest);
+            AddSupporterUrl(sb, supporter, VoteCounter.RankedVoterMessageId, quest);
             sb.AppendLine("");
 
             return sb.ToString();
@@ -478,7 +482,7 @@ namespace NetTally
         /// <param name="task"></param>
         private void AddRankedOptions(StringBuilder sb, string task)
         {
-            var voteContents = voteCounter.RankedVotesWithSupporters.
+            var voteContents = VoteCounter.RankedVotesWithSupporters.
                 Where(v => VoteLine.GetVoteTask(v.Key) == task).
                 Select(v => VoteLine.GetVoteContent(v.Key));
 
@@ -519,7 +523,7 @@ namespace NetTally
 
             string winningChoice = result.Value.First();
 
-            var whoVoted = from v in voteCounter.RankedVotesWithSupporters
+            var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
                            where VoteLine.GetVoteTask(v.Key) == result.Key &&
                                  VoteLine.GetVoteContent(v.Key) == winningChoice
                            select new { marker = VoteLine.GetVoteMarker(v.Key), voters = v.Value };
