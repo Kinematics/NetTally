@@ -48,6 +48,8 @@ namespace NetTally
 
         public List<int> ValidPostsPerPage { get; } = new List<int>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
+        public List<string> DisplayModes { get; } = Utility.EnumDescriptionsList<DisplayMode>().ToList();
+
         #region Startup/shutdown events
         /// <summary>
         /// Function that's run when the program first starts.
@@ -84,6 +86,7 @@ namespace NetTally
             resultsWindow.DataContext = tally;
             tallyButton.DataContext = tally;
             cancelTally.DataContext = tally;
+            displayMode.DataContext = tally;
             newRelease.DataContext = checkForNewRelease;
 
 
@@ -400,7 +403,6 @@ namespace NetTally
         }
 
         #endregion
-
 
         #region Utility support methods
 
