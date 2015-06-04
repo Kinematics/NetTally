@@ -13,6 +13,7 @@
         <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
         <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
+        <local:DisplayModeConverter x:Key="DisplayModeConverter"></local:DisplayModeConverter>
     </Window.Resources>
 
     <Grid>
