@@ -57,7 +57,7 @@ namespace NetTally
                 var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
                 var voterNonChoicesCopy = voterNonChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
 
-                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy);
+                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices);
 
                 if (topChoice != string.Empty)
                     topChoices.Add(topChoice);
@@ -135,7 +135,9 @@ namespace NetTally
         /// </summary>
         /// <param name="task">Collection of votes designated for a particular task.</param>
         /// <returns>Returns the top voter choice for the task.</returns>
-        private static string GetTopRank(Dictionary<string, List<string>> voterChoices, Dictionary<string, List<string>> voterNonChoices)
+        private static string GetTopRank(Dictionary<string, List<string>> voterChoices,
+            Dictionary<string, List<string>> voterNonChoices,
+            Dictionary<string, List<string>> originalVotersChoices)
         {
             if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
                 return string.Empty;
@@ -160,9 +162,9 @@ namespace NetTally
                 // round of checks.
                 var lastChoices = CountLastPlaceVotes(voterChoices, voterNonChoices);
 
-                var bottomChoice = lastChoices.OrderByDescending(a => a.Value).First();
+                var lastChoice = GetLastChoice(lastChoices, originalVotersChoices);
 
-                RemoveLastPlaceOption(bottomChoice.Key, voterChoices, voterNonChoices);
+                RemoveLastPlaceOption(lastChoice, voterChoices, voterNonChoices);
             }
         }
 
