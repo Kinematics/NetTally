@@ -166,6 +166,69 @@ namespace NetTally
             }
         }
 
+        private static string GetLastChoice(Dictionary<string, int> lastChoices,
+            Dictionary<string, List<string>> originalVotersChoices)
+        {
+            int highestNumberOfChoices = lastChoices.Max(a => a.Value);
+
+            // Get the list of all choices that have the same total (max) number of selections
+            var choicesWithMostVotes = lastChoices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
+
+            if (choicesWithMostVotes.Count() == 1)
+                return choicesWithMostVotes.First();
+
+            return GetLowestScoreOption(choicesWithMostVotes, originalVotersChoices);
+        }
+
+        private static string GetHighestScoreOption(IEnumerable<string> choices,
+            Dictionary<string, List<string>> originalVotersChoices)
+        {
+            var scores = from a in choices
+                         select new { Choice = a, Score = GetScore(a, originalVotersChoices) };
+
+            int maxScore = scores.Max(a => a.Score);
+
+            var withMaxScore = scores.Where(a => a.Score == maxScore);
+
+            var pick = withMaxScore.OrderBy(a => a.Choice).Last();
+
+            return pick.Choice;
+        }
+
+        private static string GetLowestScoreOption(IEnumerable<string> choices,
+            Dictionary<string, List<string>> originalVotersChoices)
+        {
+            var scores = from a in choices
+                         select new { Choice = a, Score = GetScore(a, originalVotersChoices) };
+
+            int minScore = scores.Min(a => a.Score);
+
+            var withMinScore = scores.Where(a => a.Score == minScore);
+
+            var pick = withMinScore.OrderBy(a => a.Choice).Last();
+
+            return pick.Choice;
+        }
+
+        private static int GetScore(string choice, Dictionary<string, List<string>> originalVotersChoices)
+        {
+            int score = 0;
+
+            foreach (var voter in originalVotersChoices)
+            {
+                int index = voter.Value.IndexOf(choice);
+                if (index >= 0)
+                {
+                    score += (10 - index);
+                }
+            }
+
+            return score;
+        }
+
+
+
+
 
         /// <summary>
         /// Count up the first choice options for all voters, and return a tally.
