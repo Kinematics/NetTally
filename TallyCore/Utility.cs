@@ -270,6 +270,42 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Function to get all of the individual components of the vote line at once, rather than calling and
+        /// parsing the line multiple times.
+        /// </summary>
+        /// <param name="voteLine">The vote line to analyze.</param>
+        /// <param name="prefix">The prefix (if any) for the vote line.</param>
+        /// <param name="marker">The marker for the vote line.</param>
+        /// <param name="task">The task for the vote line.</param>
+        /// <param name="content">The content of the vote line.</param>
+        public static void GetVoteComponents(string voteLine, out string prefix, out string marker, out string task, out string content)
+        {
+            string cleaned = CleanVote(voteLine);
+            Match m = voteLineRegex.Match(cleaned);
+            if (m.Success)
+            {
+                prefix = m.Groups["prefix"].Value;
+                marker = m.Groups["marker"].Value;
+                content = m.Groups["content"].Value.Trim();
+
+                task = m.Groups["task"].Value.Trim();
+
+                // A task name is composed of any number of characters or digits, with an optional ending question mark.
+                // The returned value will capitalize the first letter, and lowercase any following letters.
+
+                if (task.Length == 1)
+                    task = task.ToUpper();
+
+                if (task.Length > 1)
+                    task = char.ToUpper(task[0]) + task.Substring(1).ToLower();
+            }
+            else
+            {
+                throw new InvalidOperationException("Unable to parse vote line.");
+            }
+        }
+
+        /// <summary>
         /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
