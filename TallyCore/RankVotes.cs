@@ -45,7 +45,9 @@ namespace NetTally
         /// <returns>Returns the top voter choice for the task.</returns>
         private static List<string> RankTask(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
+            List<string> allVotes = GetVoteList(task);
             var voterChoices = ConvertVotesToVoters(task);
+            var voterNonChoices = GetNonChoices(voterChoices, allVotes);
 
             List<string> topChoices = new List<string>(3);
 
@@ -53,8 +55,9 @@ namespace NetTally
             for (int i = 0; i < 3; i++)
             {
                 var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
+                var voterNonChoicesCopy = voterNonChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
 
-                string topChoice = GetTopRank(voterChoicesCopy);
+                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy);
 
                 if (topChoice != string.Empty)
                     topChoices.Add(topChoice);
@@ -66,41 +69,17 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Select the top option out of the votes cast for a given task.
+        /// Gets the list of all votes (as vote contents), for use in identifying
+        /// vote selections that were not ranked by any given voter.
         /// </summary>
-        /// <param name="task">Collection of votes designated for a particular task.</param>
-        /// <returns>Returns the top voter choice for the task.</returns>
-        private static string GetTopRank(Dictionary<string, List<string>> voterChoices)
+        /// <param name="task">The list of all votes for a task.</param>
+        /// <returns>Returns a list of all votes.</returns>
+        private static List<string> GetVoteList(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
-            if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
-                return string.Empty;
-
-            // Limit to 10 iterations, to ensure there are no infinite loops
-            int loop = 0;
-
-            while (true)
-            {
-                // First see if any options has a majority of #1 votes
-                var firstChoices = CountFirstPlaceVotes(voterChoices);
-
-                var topChoice = firstChoices.OrderByDescending(a => a.Value).First();
-
-                if (IsMajority(topChoice.Value, voterChoices.Count) || OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
-                {
-                    return topChoice.Key;
-                }
-
-                // If no option has an absolute majority, find the most-disliked option
-                // and remove it from all voters' option lists, in preparation of another
-                // round of checks.
-                var lastChoices = CountLastPlaceVotes(voterChoices);
-
-                var bottomChoice = lastChoices.OrderByDescending(a => a.Value).First();
-
-                RemoveLastPlaceOption(bottomChoice, voterChoices);
-            }
+            var votes = from vote in task
+                        select VoteLine.GetVoteContent(vote.Key);
+            return votes.ToList();
         }
-
 
         /// <summary>
         /// Convert the original grouping of voters per vote into a grouping of votes per voter,
@@ -133,6 +112,62 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Gets a dictionary of lists of all vote options that each voter did not rank.
+        /// </summary>
+        /// <param name="voterChoices">The collection of all choices that each voter did rank.</param>
+        /// <param name="allVotes">The list of all possible vote options.</param>
+        /// <returns>Returns a dictionary collection of all options each voter did not rank.</returns>
+        private static Dictionary<string, List<string>> GetNonChoices(Dictionary<string, List<string>> voterChoices, List<string> allVotes)
+        {
+            Dictionary<string, List<string>> voterNonChoices = new Dictionary<string, List<string>>();
+
+            foreach (var voter in voterChoices)
+            {
+                var nonChoices = allVotes.Except(voter.Value);
+                voterNonChoices.Add(voter.Key, nonChoices.ToList());
+            }
+
+            return voterNonChoices;
+        }
+
+        /// <summary>
+        /// Select the top option out of the votes cast for a given task.
+        /// </summary>
+        /// <param name="task">Collection of votes designated for a particular task.</param>
+        /// <returns>Returns the top voter choice for the task.</returns>
+        private static string GetTopRank(Dictionary<string, List<string>> voterChoices, Dictionary<string, List<string>> voterNonChoices)
+        {
+            if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
+                return string.Empty;
+
+            // Limit to 10 iterations, to ensure there are no infinite loops
+            int loop = 0;
+
+            while (true)
+            {
+                // First see if any options has a majority of #1 votes
+                var firstChoices = CountFirstPlaceVotes(voterChoices);
+
+                var topChoice = firstChoices.OrderByDescending(a => a.Value).First();
+
+                if (IsMajority(topChoice.Value, voterChoices.Count) || OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
+                {
+                    return topChoice.Key;
+                }
+
+                // If no option has an absolute majority, find the most-disliked option
+                // and remove it from all voters' option lists, in preparation of another
+                // round of checks.
+                var lastChoices = CountLastPlaceVotes(voterChoices, voterNonChoices);
+
+                var bottomChoice = lastChoices.OrderByDescending(a => a.Value).First();
+
+                RemoveLastPlaceOption(bottomChoice.Key, voterChoices, voterNonChoices);
+            }
+        }
+
+
+        /// <summary>
         /// Count up the first choice options for all voters, and return a tally.
         /// </summary>
         /// <param name="voterList">The list of all voters and their ranked choices.</param>
@@ -163,22 +198,40 @@ namespace NetTally
         /// </summary>
         /// <param name="voterList">The list of all voters and their ranked choices.</param>
         /// <returns>Returns the number of votes for each of the last-ranked vote options.</returns>
-        private static Dictionary<string, int> CountLastPlaceVotes(Dictionary<string, List<string>> voterList)
+        private static Dictionary<string, int> CountLastPlaceVotes(Dictionary<string, List<string>> voterList,
+            Dictionary<string, List<string>> voterNonChoices)
         {
             Dictionary<string, int> voteCount = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             int count = 0;
 
-            foreach (var vote in voterList)
+            foreach (var voter in voterList)
             {
-                string lastVote = vote.Value.Last();
+                var nonChoices = voterNonChoices[voter.Key];
 
-                if (!voteCount.TryGetValue(lastVote, out count))
+                if (nonChoices.Count > 0)
                 {
-                    count = 0;
-                }
+                    foreach (var nonChoice in nonChoices)
+                    {
+                        if (!voteCount.TryGetValue(nonChoice, out count))
+                        {
+                            count = 0;
+                        }
 
-                voteCount[lastVote] = ++count;
+                        voteCount[nonChoice] = ++count;
+                    }
+                }
+                else
+                {
+                    string lastVote = voter.Value.Last();
+
+                    if (!voteCount.TryGetValue(lastVote, out count))
+                    {
+                        count = 0;
+                    }
+
+                    voteCount[lastVote] = ++count;
+                }
             }
 
             return voteCount;
@@ -190,14 +243,20 @@ namespace NetTally
         /// </summary>
         /// <param name="bottomChoice">The last place option that's being removed.</param>
         /// <param name="voterList">The list of all voters.</param>
-        private static void RemoveLastPlaceOption(KeyValuePair<string, int> bottomChoice, Dictionary<string, List<string>> voterList)
+        private static void RemoveLastPlaceOption(string bottomChoice, Dictionary<string, List<string>> voterList,
+            Dictionary<string, List<string>> voterNonChoices)
         {
             foreach (var voter in voterList)
             {
                 if (voter.Value.Count > 1)
                 {
-                    voter.Value.Remove(bottomChoice.Key);
+                    voter.Value.Remove(bottomChoice);
                 }
+            }
+
+            foreach (var voter in voterNonChoices)
+            {
+                voter.Value.Remove(bottomChoice);
             }
         }
 
