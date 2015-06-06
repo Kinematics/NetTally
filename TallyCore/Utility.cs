@@ -254,20 +254,54 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get the content of the vote line.
+        /// Get the name of a vote plan from the contents of a vote line.
+        /// Standard version will mark the content with the plan name marker character
+        /// if the content starts with the word "plan", but won't add the character
+        /// if it doesn't.
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
-        /// <returns>Returns the content of the vote line.</returns>
+        /// <returns>Returns a possible plan name from the vote line.</returns>
         public static string GetVotePlanName(string voteLine)
         {
             string content = GetVoteContent(voteLine);
 
             if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+            {
                 content = content.Substring(5);
+                content = Utility.PlanNameMarker + content;
+            }
+
             if (content.EndsWith("."))
                 content = content.Substring(0, content.Length - 2);
 
-            return Utility.PlanNameMarker + content.Trim();
+            return content.Trim();
+        }
+
+        /// <summary>
+        /// Get the name of a vote plan from the contents of a vote line.
+        /// Alternate version will mark the content with the plan name marker character
+        /// if the content does *not* start with the word "plan", but will not add the
+        /// character if it does.
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns a possible plan name from the vote line.</returns>
+        public static string GetAltVotePlanName(string voteLine)
+        {
+            string content = GetVoteContent(voteLine);
+
+            if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+            {
+                content = content.Substring(5);
+            }
+            else
+            {
+                content = Utility.PlanNameMarker + content;
+            }
+
+            if (content.EndsWith("."))
+                content = content.Substring(0, content.Length - 2);
+
+            return content.Trim();
         }
 
         /// <summary>
