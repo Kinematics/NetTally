@@ -120,7 +120,7 @@ namespace NetTally
                     var validPosts = from post in forumAdapter.GetPostsFromPage(page)
                                      where post != null
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)
-                                     where forumAdapter.GetAuthorOfPost(post) != threadAuthor &&
+                                     where (DebugMode.Instance.Active || forumAdapter.GetAuthorOfPost(post) != threadAuthor) &&
                                         postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
                                      select post;
 
