@@ -53,6 +53,7 @@
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="CachedPage.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
+    <Compile Include="DebugMode.cs" />
     <Compile Include="ForumCookies.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />
     <Compile Include="Interfaces\IPageProvider.cs" />
