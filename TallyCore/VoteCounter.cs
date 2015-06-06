@@ -194,6 +194,9 @@ namespace NetTally
             string postID = forumAdapter.GetIdOfPost(post);
             string postText = forumAdapter.GetTextOfPost(post);
 
+            if (DebugMode.Instance.Active)
+                postAuthor = postAuthor + "_" + postID;
+
             // Attempt to get vote information from the post.
             ProcessPostContents(postText, postAuthor, postID, quest);
         }
