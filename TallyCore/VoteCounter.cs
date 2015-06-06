@@ -438,7 +438,11 @@ namespace NetTally
             Match m = basePlanRegex.Match(lineContent);
             if (m.Success)
             {
-                return m.Groups["baseplan"].Value.Trim();
+                string planName = m.Groups["baseplan"].Value.Trim();
+
+                planName = Utility.PlanNameMarker + planName;
+
+                return planName;
             }
 
             throw new InvalidOperationException("These are not the lines for a base plan.");

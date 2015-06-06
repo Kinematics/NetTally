@@ -49,6 +49,7 @@ namespace NetTally
             return UnsafeCharsRegex.Replace(input, "");
         }
 
+        public static string PlanNameMarker { get; } = "\u25C8";
 
         /// <summary>
         /// Gets a user-friendly string description of an enum value.
@@ -266,7 +267,7 @@ namespace NetTally
             if (content.EndsWith("."))
                 content = content.Substring(0, content.Length - 2);
 
-            return content.Trim();
+            return Utility.PlanNameMarker + content.Trim();
         }
 
         /// <summary>
