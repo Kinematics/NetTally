@@ -515,9 +515,7 @@ namespace NetTally
                 }
 
                 // If a line refers to another voter or base plan, pull that voter's votes
-                string planName = VoteLine.GetVotePlanName(trimmedLine);
-
-                var referralVotes = FindVotesForVoter(planName);
+                var referralVotes = FindVotesForPlan(trimmedLine);
                 if (referralVotes.Count > 0)
                 {
                     // If we're using vote partitions, add each of the other voter's
@@ -589,17 +587,34 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Find all votes that a given voter is supporting.
+        /// Find all votes tied to a given vote line.
+        /// The "plan name" (possibly user name) is checked with the
+        /// standard and alternate extractions (adding a special marker character
+        /// depending on whether the word "plan" is used, and whether it's 
+        /// standard or alt) in order to look up votes that said (possible) voter
+        /// supports.
         /// </summary>
-        /// <param name="voter">The name of the voter.</param>
-        /// <returns>A list of all votes that that voter currently supports.</returns>
-        private List<string> FindVotesForVoter(string voter)
+        /// <param name="voteLine">The vote line to be checked.</param>
+        /// <returns>Returns a list of all votes supported by the user or plan
+        /// specified in the vote line, if found.  Otherwise returns an
+        /// empty list.</returns>
+        private List<string> FindVotesForPlan(string voteLine)
         {
-            var votes = from v in VotesWithSupporters
-                        where v.Value.Contains(voter)
-                        select v.Key;
+            string planName = VoteLine.GetVotePlanName(voteLine);
 
-            return votes.ToList();
+            var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
+
+            if (planVotes.Count() > 0)
+                return planVotes.Select(v => v.Key).ToList();
+
+            planName = VoteLine.GetAltVotePlanName(voteLine);
+
+            planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
+
+            if (planVotes.Count() > 0)
+                return planVotes.Select(v => v.Key).ToList();
+
+            return new List<string>();
         }
 
         /// <summary>
