@@ -49,19 +49,23 @@ namespace NetTally
             var voterChoices = ConvertVotesToVoters(task);
             var voterNonChoices = GetNonChoices(voterChoices, allVotes);
 
+            // 1st, 2nd and 3rd place results
             List<string> topChoices = new List<string>(3);
 
-            // 1st, 2nd and 3rd place results
             for (int i = 0; i < 3; i++)
             {
+                // Create copies, because the vars we pass to the calculation
+                // functions will be modified during the process.
                 var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
                 var voterNonChoicesCopy = voterNonChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
 
+                // The best result each time through the loop gets added to the result list...
                 string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices);
 
                 if (topChoice != string.Empty)
                     topChoices.Add(topChoice);
             
+                // ... and removed from the active choice list, for the next time through the loop.
                 RemoveChoice(topChoice, voterChoices);
             }
 
@@ -139,6 +143,7 @@ namespace NetTally
             Dictionary<string, List<string>> voterNonChoices,
             Dictionary<string, List<string>> originalVotersChoices)
         {
+            // Skip processing if there's nothing to count.
             if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
                 return string.Empty;
 
@@ -148,13 +153,24 @@ namespace NetTally
             while (true)
             {
                 // First see if any options has a majority of #1 votes
+                // Get a list of all top-choice votes, and how many votes for each option.
                 var firstChoices = CountFirstPlaceVotes(voterChoices);
 
-                var topChoice = firstChoices.OrderByDescending(a => a.Value).First();
+                // Of those, get the 'best' choice, which is the one with the
+                // most votes, or, in the case of a tie, the one with the highest
+                // ranking score.
+                var bestChoice = GetFirstChoice(firstChoices, originalVotersChoices);
 
-                if (IsMajority(topChoice.Value, voterChoices.Count) || OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
+                // If we have a majority selection, that's the winner.
+                if (IsMajority(firstChoices[bestChoice], voterChoices.Count))
                 {
-                    return topChoice.Key;
+                    return bestChoice;
+                }
+
+                // If we're out of other choices, or we've gone too many loops, use what we have.
+                if (OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
+                {
+                    return bestChoice;
                 }
 
                 // If no option has an absolute majority, find the most-disliked option
@@ -162,19 +178,36 @@ namespace NetTally
                 // round of checks.
                 var lastChoices = CountLastPlaceVotes(voterChoices, voterNonChoices);
 
+                // Of those in last place, get the choice with the most last place votes
+                // and, in the case of a tie, the lowest ranking score.
                 var lastChoice = GetLastChoice(lastChoices, originalVotersChoices);
 
+                // Remove the last place option before running another round
                 RemoveLastPlaceOption(lastChoice, voterChoices, voterNonChoices);
             }
         }
 
-        private static string GetLastChoice(Dictionary<string, int> lastChoices,
+        private static string GetFirstChoice(Dictionary<string, int> choices,
             Dictionary<string, List<string>> originalVotersChoices)
         {
-            int highestNumberOfChoices = lastChoices.Max(a => a.Value);
+            int highestNumberOfChoices = choices.Max(a => a.Value);
 
             // Get the list of all choices that have the same total (max) number of selections
-            var choicesWithMostVotes = lastChoices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
+            var choicesWithMostVotes = choices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
+
+            if (choicesWithMostVotes.Count() == 1)
+                return choicesWithMostVotes.First();
+
+            return GetHighestScoreOption(choicesWithMostVotes, originalVotersChoices);
+        }
+
+        private static string GetLastChoice(Dictionary<string, int> choices,
+            Dictionary<string, List<string>> originalVotersChoices)
+        {
+            int highestNumberOfChoices = choices.Max(a => a.Value);
+
+            // Get the list of all choices that have the same total (max) number of selections
+            var choicesWithMostVotes = choices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
 
             if (choicesWithMostVotes.Count() == 1)
                 return choicesWithMostVotes.First();
