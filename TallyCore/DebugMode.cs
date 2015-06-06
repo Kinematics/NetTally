@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NetTally
 {
@@ -25,6 +22,11 @@ namespace NetTally
 
         public bool Active { get; }
 
+        /// <summary>
+        /// If the user creates a file with the word "debug" in the filename, activate
+        /// debugmode for the program.
+        /// </summary>
+        /// <returns></returns>
         private bool CheckForDebugFile()
         {
             Regex r = new Regex(@"\bdebug\b");
@@ -32,6 +34,5 @@ namespace NetTally
 
             return files.Any(f => r.Match(f).Success);
         }
-
     }
 }
