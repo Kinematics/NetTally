@@ -58,10 +58,6 @@ namespace NetTally.Adapters
             }
         }
 
-        // Extract color attributes from span style.
-        readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
-
-
         #region Public interface functions
 
         // Functions for constructing URLs
@@ -134,7 +130,7 @@ namespace NetTally.Adapters
             if (title == null)
                 return string.Empty;
 
-            return CleanupPostString(title);
+            return Utility.CleanupWebString(title);
         }
 
         /// <summary>
@@ -324,10 +320,13 @@ namespace NetTally.Adapters
                 post = GetContentsOfPost(post);
 
             // Start recursing at the child blockquote node.
-            string postText = ExtractNodeText(post.Element("blockquote"));
+            var postNode = post.Element("blockquote");
 
-            // Clean up the extracted text before returning.
-            return CleanupPostString(postText);
+            // Predicate filtering out elements that we don't want to include
+            var exclusions = Utility.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
+
+            // Get the full post text.
+            return Utility.ExtractPostText(postNode, exclusions);
         }
 
         #endregion
@@ -596,123 +595,6 @@ namespace NetTally.Adapters
             throw new InvalidOperationException("Cannot get post threadmarker.  Does not appear to be a valid post.");
         }
 
-        #endregion
-
-        #region Text processing functions
-        /// <summary>
-        /// Extract the text of the provided HTML node.  Recurses into nested
-        /// divs.
-        /// </summary>
-        /// <param name="node">The node to pull text content from.</param>
-        /// <returns>A string containing the text of the post, with formatting
-        /// elements converted to BBCode tags.</returns>
-        private string ExtractNodeText(HtmlNode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException(nameof(node));
-
-            StringBuilder sb = new StringBuilder();
-
-            // Search the post for valid element types, and put them all together
-            // into a single string.
-            foreach (var childNode in node.ChildNodes)
-            {
-                string nodeClass = childNode.GetAttributeValue("class", "");
-
-                // Once we reach the end marker of the post, no more processing is needed.
-                if (nodeClass.Contains("messageTextEndMarker"))
-                    return sb.ToString();
-
-                // If we encounter a quote, skip past it
-                if (nodeClass.Contains("bbCodeQuote"))
-                    continue;
-
-                // A <br> element adds a newline.
-                // Usually redundant, but sometimes needed before we bail out on
-                // nodes without any inner text (such as <br/>).
-                if (childNode.Name == "br")
-                {
-                    sb.AppendLine("");
-                    continue;
-                }
-
-                // If the node doesn't contain any text, move to the next.
-                if (childNode.InnerText.Trim() == string.Empty)
-                    continue;
-
-                // Add BBCode markup in place of HTML format elements,
-                // while collecting the text in the post.
-                switch (childNode.Name)
-                {
-                    case "#text":
-                        sb.Append(childNode.InnerText);
-                        break;
-                    case "i":
-                        sb.Append("[i]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/i]");
-                        break;
-                    case "b":
-                        sb.Append("[b]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/b]");
-                        break;
-                    case "u":
-                        sb.Append("[u]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/u]");
-                        break;
-                    case "span":
-                        // Keep any COLOR styles; ignore anything else, but keep the content
-                        string spanStyle = childNode.GetAttributeValue("style", "");
-                        Match m = spanColorRegex.Match(spanStyle);
-                        if (m.Success)
-                        {
-                            sb.Append("[color=");
-                            sb.Append(m.Groups["color"].Value);
-                            sb.Append("]");
-                            sb.Append(childNode.InnerText);
-                            sb.Append("[/color]");
-                        }
-                        else
-                        {
-                            sb.Append(childNode.InnerText);
-                        }
-                        break;
-                    case "a":
-                        sb.Append("[url=\"");
-                        sb.Append(childNode.GetAttributeValue("href", ""));
-                        sb.Append("\"]");
-                        sb.Append(childNode.InnerText);
-                        sb.Append("[/url]");
-                        break;
-                    case "div":
-                        // Recurse into divs
-                        sb.Append(ExtractNodeText(childNode));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Clean up problematic bits of text in the extracted post string.
-        /// </summary>
-        /// <param name="postText">The text of the post.</param>
-        /// <returns>Returns a cleaned version of the post text.</returns>
-        private string CleanupPostString(string postText)
-        {
-            if (postText == null)
-                throw new ArgumentNullException(nameof(postText));
-
-            postText = postText.TrimStart();
-            postText = HtmlEntity.DeEntitize(postText);
-
-            return Utility.SafeString(postText);
-        }
         #endregion
     }
 }
