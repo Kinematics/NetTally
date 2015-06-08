@@ -63,7 +63,7 @@ namespace NetTally.Tests
         {
             string myVote = "[x] Vote for stuff";
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key);
         }
 
@@ -73,7 +73,7 @@ namespace NetTally.Tests
             string myVote = "[x] Vote for stuff";
             voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key);
         }
 
@@ -82,13 +82,13 @@ namespace NetTally.Tests
         {
             string myVote = "[x] Vote for stuff";
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key);
-            string key2 = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            string key2 = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key2);
 
             string myBoldVote = "[x] Vote for [b]stuff[/b] ";
-            string key3 = (string)privateVote.Invoke("GetVoteKey", myBoldVote, sampleQuest);
+            string key3 = (string)privateVote.Invoke("GetVoteKey", myBoldVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key3);
         }
 
@@ -98,9 +98,9 @@ namespace NetTally.Tests
             string myVote = "[x] Vote for stuff";
             voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me");
+            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me", VoteType.Vote);
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest);
+            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
             Assert.AreEqual(myVote, key);
         }
 
@@ -176,7 +176,7 @@ namespace NetTally.Tests
             voteCounter.VotesWithSupporters[vote1] = new HashSet<string>() { "me" };
             voteCounter.VotesWithSupporters[vote2] = new HashSet<string>() { "you" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("FindVotesForVoter", "me");
+            List<string> votes = (List<string>)privateVote.Invoke("FindVotesForVoter", "[x] me");
             Assert.AreEqual(1, votes.Count);
             Assert.IsTrue(votes.Contains(vote1));
         }
@@ -189,7 +189,7 @@ namespace NetTally.Tests
             voteCounter.VotesWithSupporters[vote1] = new HashSet<string>() { "me" };
             voteCounter.VotesWithSupporters[vote2] = new HashSet<string>() { "me", "you" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("FindVotesForVoter", "me");
+            List<string> votes = (List<string>)privateVote.Invoke("FindVotesForVoter", "[x] me");
             Assert.AreEqual(2, votes.Count);
             Assert.IsTrue(votes.Contains(vote1));
             Assert.IsTrue(votes.Contains(vote2));
@@ -203,7 +203,7 @@ namespace NetTally.Tests
             voteCounter.VotesWithSupporters[vote1] = new HashSet<string>() { "me", "you" };
             voteCounter.VotesWithSupporters[vote2] = new HashSet<string>() { "him" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me");
+            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me", VoteType.Vote);
             Assert.AreEqual(2, voteCounter.VotesWithSupporters.Count);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Keys.Contains(vote1));
             Assert.IsTrue(voteCounter.VotesWithSupporters.Keys.Contains(vote2));
@@ -221,7 +221,7 @@ namespace NetTally.Tests
             voteCounter.VotesWithSupporters[vote1] = new HashSet<string>() { "me" };
             voteCounter.VotesWithSupporters[vote2] = new HashSet<string>() { "you" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me");
+            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me", VoteType.Vote);
             Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Keys.Contains(vote2));
         }
@@ -234,7 +234,7 @@ namespace NetTally.Tests
             voteCounter.VotesWithSupporters[vote1] = new HashSet<string>() { "me" };
             voteCounter.VotesWithSupporters[vote2] = new HashSet<string>() { "me", "you" };
 
-            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me");
+            privateVote.Invoke("RemoveSupport", "me", VoteType.Vote);
             Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Keys.Contains(vote2));
             Assert.IsTrue(voteCounter.VotesWithSupporters[vote2].Count == 1);
