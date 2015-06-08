@@ -86,13 +86,21 @@ namespace NetTally
 
                 if (pagesToScan > 0)
                 {
+                    //var _urlList = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
+                    //               let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
+                    //               select new { url = forumAdapter.GetPageUrl(quest.ThreadName, pageNum), cacheMode = cacheMode, descrip = "Page " + pageNum.ToString() };
+
+                    //var results = from url in _urlList.AsParallel()
+                    //              select GetPage(url.url, url.descrip, url.cacheMode, token);
+
+
                     // Initiate tasks for all pages other than the first page (which we already loaded)
-                    var tasks = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
-                                let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
-                                select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pageNum), "Page " + pageNum.ToString(), cacheMode, token);
+                    var results = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
+                                  let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
+                                  select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pageNum), "Page " + pageNum.ToString(), cacheMode, token);
 
                     // Wait for all the tasks to be completed.
-                    HtmlDocument[] pageArray = await Task.WhenAll(tasks).ConfigureAwait(false);
+                    HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
 
                     // Add the results to our list of pages.
                     pages.AddRange(pageArray);
