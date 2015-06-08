@@ -13,7 +13,7 @@ namespace NetTally.Utility
     ///     [Code to be profiled]
     /// }
     /// </summary>
-    public class ProfileRegion : IDisposable
+    public class RegionProfiler : IDisposable
     {
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -21,10 +21,10 @@ namespace NetTally.Utility
         private string regionName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfileRegion"/> class.
+        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        public ProfileRegion(string name)
+        public RegionProfiler(string name)
         {
             regionName = name;
             stopwatch.Start();
@@ -33,11 +33,11 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfileRegion"/> class.
+        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="watermarkParam">The watermark param.</param>
-        public ProfileRegion(string name, TimeSpan watermark)
+        public RegionProfiler(string name, TimeSpan watermark)
             : this(name)
         {
             this.watermark = watermark;
@@ -45,9 +45,9 @@ namespace NetTally.Utility
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="ProfileRegion"/> is reclaimed by garbage collection.
+        /// <see cref="RegionProfiler"/> is reclaimed by garbage collection.
         /// </summary>
-        ~ProfileRegion()
+        ~RegionProfiler()
         {
             Dispose(false);
         }
@@ -72,7 +72,7 @@ namespace NetTally.Utility
             if (!disposed)
                 Debug.WriteLine(string.Concat("Region ", regionName, " not finalized by Dispose call!"));
 
-            string msg = string.Concat("End Profiling: ", stopwatch.Elapsed.TotalSeconds, " seconds in region ", regionName);
+            string msg = string.Concat("End Profiling: ", stopwatch.Elapsed.TotalMilliseconds, " milliseconds in region ", regionName);
 
             Debug.WriteLine(msg);
         }
