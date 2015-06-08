@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Merge Votes" Height="587.837" Width="828" MinWidth="600" MinHeight="400" ResizeMode="NoResize">
+        Title="Merge Votes" Height="587.837" Width="828" MinWidth="828" MinHeight="400" ResizeMode="NoResize">
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
         <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
@@ -15,11 +15,11 @@
 
     <Grid>
         <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                 ItemsSource="{Binding VoteCollectionView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"/>
+                 ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"/>
         <ListBox x:Name="votersFromListBox" Height="93" Width="360" Margin="10,412,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True" />
         <ListBox x:Name="votesToListBox" Height="345" Margin="450,36,10,0" VerticalAlignment="Top"
-                 ItemsSource="{Binding VoteCollectionView2}" SelectionChanged="votesToListBox_SelectionChanged"/>
+                 ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"/>
         <ListBox x:Name="votersToListBox" Height="93" Margin="450,412,10,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView2}" />
 
