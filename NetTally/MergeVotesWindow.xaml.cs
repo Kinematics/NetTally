@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -21,10 +22,14 @@ namespace NetTally
         public ICollectionView VoteCollectionView1 { get; }
         public ICollectionView VoteCollectionView2 { get; }
 
-        public ObservableCollection<string> Voters1 { get; }
-        public ObservableCollection<string> Voters2 { get; }
+        public ObservableCollection<string> VoterCollection { get; }
+        public ObservableCollection<string> VoterCollection1 { get; }
+        public ObservableCollection<string> VoterCollection2 { get; }
         public ICollectionView VoterView1 { get; }
         public ICollectionView VoterView2 { get; }
+
+        List<string> Voters { get; }
+        List<string> RankedVoters { get; }
 
         bool displayStandardVotes = true;
 
@@ -46,16 +51,28 @@ namespace NetTally
             ObservableVotes = new ObservableCollection<string>(voteCounter.GetVotesCollection(CurrentVoteType).
                 Keys.OrderBy(v => VoteLine.GetVoteContent(v), StringComparer.OrdinalIgnoreCase));
 
-            VoteCollectionView1 = new CollectionView(ObservableVotes);
-            VoteCollectionView2 = new CollectionView(ObservableVotes);
+            VoteCollectionView1 = new ListCollectionView(ObservableVotes);
+            VoteCollectionView2 = new ListCollectionView(ObservableVotes);
 
-            Voters1 = new ObservableCollection<string>();
-            Voters2 = new ObservableCollection<string>();
-            VoterView1 = new CollectionView(Voters1);
-            VoterView2 = new CollectionView(Voters2);
+
+
+            // Get the lists of all unique voters/ranked voters that we can show in the display.
+            Voters = voteCounter.VoterMessageId.Select(v => v.Key).Except(voteCounter.PlanNames).Distinct().OrderBy(v => v).ToList();
+            RankedVoters = voteCounter.RankedVoterMessageId.Select(v => v.Key).Distinct().OrderBy(v => v).ToList();
+
+            VoterCollection = new ObservableCollection<string>(Voters);
+            VoterView1 = new ListCollectionView(VoterCollection);
+            VoterView2 = new ListCollectionView(VoterCollection);
+            VoterView1.Filter = (a) => FilterVoterView(VoteCollectionView1, a.ToString());
+            VoterView2.Filter = (a) => FilterVoterView(VoteCollectionView2, a.ToString());
+
+            VoterView1.Refresh();
+            VoterView2.Refresh();
+
 
             this.DataContext = this;
         }
+
         #endregion
 
         #region Event handling
@@ -83,36 +100,37 @@ namespace NetTally
         {
             get
             {
-                // Can't merge if nothing is selected
-                if (votesFromListBox.SelectedIndex < 0)
-                    return false;
-                if (votesToListBox.SelectedIndex < 0)
-                    return false;
-
-                string fromVote = votesFromListBox.SelectedItem.ToString();
-                string toVote = votesToListBox.SelectedItem.ToString();
-
-                if (CurrentVoteType == VoteType.Rank)
+                using (var r = new Utility.RegionProfiler("VotesCanMerge"))
                 {
-                    // Don't allow merging if they're not the same rank.
-
-                    string markFrom = VoteLine.GetVoteMarker(fromVote);
-                    string markTo = VoteLine.GetVoteMarker(toVote);
-
-                    if (markFrom != markTo)
+                    // Can't merge if nothing is selected
+                    if (VoteCollectionView1.CurrentItem == null || VoteCollectionView2.CurrentItem == null)
                         return false;
 
-                    // Don't allow merging if they're not the same task.
+                    string fromVote = VoteCollectionView1.CurrentItem.ToString();
+                    string toVote = VoteCollectionView2.CurrentItem.ToString();
 
-                    string taskFrom = VoteLine.GetVoteTask(fromVote);
-                    string taskTo = VoteLine.GetVoteTask(toVote);
+                    if (CurrentVoteType == VoteType.Rank)
+                    {
+                        // Don't allow merging if they're not the same rank.
 
-                    if (taskFrom != taskTo)
-                        return false;
+                        string markFrom = VoteLine.GetVoteMarker(fromVote);
+                        string markTo = VoteLine.GetVoteMarker(toVote);
+
+                        if (markFrom != markTo)
+                            return false;
+
+                        // Don't allow merging if they're not the same task.
+
+                        string taskFrom = VoteLine.GetVoteTask(fromVote);
+                        string taskTo = VoteLine.GetVoteTask(toVote);
+
+                        if (taskFrom != taskTo)
+                            return false;
+                    }
+
+                    // Otherwise, allow merge if they're not the same
+                    return (fromVote != toVote);
                 }
-
-                // Otherwise, allow merge if they're not the same
-                return (fromVote != toVote);
             }
         }
 
@@ -171,15 +189,16 @@ namespace NetTally
             if (!VotesCanMerge)
                 return;
 
-            string fromVote = votesFromListBox.SelectedItem.ToString();
-            string toVote = votesToListBox.SelectedItem.ToString();
+            string fromVote = VoteCollectionView1.CurrentItem?.ToString();
+            string toVote = VoteCollectionView2.CurrentItem?.ToString();
 
             try
             {
                 if (voteCounter.Merge(fromVote, toVote, CurrentVoteType))
                 {
                     ObservableVotes.Remove(fromVote);
-                    UpdateVoters(votesToListBox, Voters2);
+                    VoterView1.Refresh();
+                    VoterView2.Refresh();
                 }
             }
             catch (Exception ex)
@@ -196,8 +215,8 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            VoterView1.Refresh();
             merge.IsEnabled = VotesCanMerge;
-            UpdateVoters(sender as ListBox, Voters1);
         }
 
         /// <summary>
@@ -208,40 +227,40 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            VoterView2.Refresh();
             merge.IsEnabled = VotesCanMerge;
-            UpdateVoters(sender as ListBox, Voters2);
         }
         #endregion
 
-
+        #region Utility functions
         /// <summary>
-        /// Update the collection that the voter list boxes are observing.
+        /// Filter to be used by a collection view to determine which voters should
+        /// be displayed in the voter list box, for each vote that is selected.
         /// </summary>
-        /// <param name="votesBox">The list box that we're checking the currently selected vote in.</param>
-        /// <param name="votersCollection">The voter collection being observed by the associated voter list box.</param>
-        private void UpdateVoters(ListBox votesBox, ObservableCollection<string> votersCollection)
+        /// <param name="voteView">The view of the main vote box.</param>
+        /// <param name="voterName">The name of the voter being checked.</param>
+        /// <returns>Returns true if that voter supports the currently selected
+        /// vote in the vote view.</returns>
+        private bool FilterVoterView(ICollectionView voteView, string voterName)
         {
-            if (votesBox == null || votersCollection == null)
-                return;
+            if (voteView.IsEmpty)
+                return false;
 
-            votersCollection.Clear();
+            if (voteView.CurrentItem == null)
+                return false;
 
-            if (votesBox.SelectedIndex < 0)
+            var votes = voteCounter.GetVotesCollection(CurrentVoteType);
+            HashSet<string> voterList;
+
+            if (votes.TryGetValue(voteView.CurrentItem.ToString(), out voterList))
             {
-                return;
+                if (voterList == null)
+                    return false;
+
+                return voterList.Contains(voterName);
             }
 
-            string vote = votesBox.SelectedItem.ToString();
-
-            var voters = voteCounter.GetVotesCollection(CurrentVoteType)[vote];
-
-            if (voters != null)
-            {
-                foreach (var voter in voters)
-                {
-                    votersCollection.Add(voter);
-                }
-            }
+            return false;
         }
 
         /// <summary>
@@ -278,5 +297,6 @@ namespace NetTally
             else
                 return task;
         }
+        #endregion
     }
 }
