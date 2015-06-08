@@ -517,7 +517,7 @@ namespace NetTally
                 }
 
                 // If a line refers to another voter or base plan, pull that voter's votes
-                var referralVotes = FindVotesForPlan(trimmedLine);
+                var referralVotes = FindVotesForVoter(trimmedLine);
                 if (referralVotes.Count > 0)
                 {
                     // If we're using vote partitions, add each of the other voter's
@@ -600,7 +600,7 @@ namespace NetTally
         /// <returns>Returns a list of all votes supported by the user or plan
         /// specified in the vote line, if found.  Otherwise returns an
         /// empty list.</returns>
-        private List<string> FindVotesForPlan(string voteLine)
+        private List<string> FindVotesForVoter(string voteLine)
         {
             string planName = VoteLine.GetVotePlanName(voteLine);
 
