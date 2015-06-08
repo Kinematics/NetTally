@@ -55,6 +55,7 @@
     <Compile Include="UnitTestQuest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VoteCounterTests.cs" />
+    <Compile Include="VoteLineTests.cs" />
     <Compile Include="WebPageProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
