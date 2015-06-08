@@ -174,6 +174,13 @@ namespace NetTally
                 {
                     while (result == null && tries < maxtries && token.IsCancellationRequested == false)
                     {
+                        if (tries > 0)
+                        {
+                            // If we have to retry loading the page, give it a short delay.
+                            await Task.Delay(TimeSpan.FromSeconds(4));
+                            OnStatusChanged("Retrying: " + shortDescription + "\n");
+                        }
+
                         using (response = await client.GetAsync(url, token).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
@@ -182,7 +189,6 @@ namespace NetTally
                             }
                             else
                             {
-                                OnStatusChanged("Retrying: " + shortDescription + "\n");
                                 tries++;
                             }
                         }
