@@ -158,7 +158,7 @@ namespace NetTally
             }
             finally
             {
-                cts.Dispose();
+                cts?.Dispose();
                 cts = null;
             }
         }
