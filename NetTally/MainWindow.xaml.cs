@@ -135,31 +135,28 @@ namespace NetTally
             if (QuestCollectionView.CurrentItem == null)
                 return;
 
-            try
+            using (cts = new CancellationTokenSource())
             {
-                cts = new CancellationTokenSource();
-                await tally.Run(QuestCollectionView.CurrentItem as IQuest, cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // got a cancel request somewhere
-            }
-            catch (Exception ex)
-            {
-                string exmsg = ex.Message;
-                var innerEx = ex.InnerException;
-                while (innerEx != null)
+                try
                 {
-                    exmsg = exmsg + "\n" + innerEx.Message;
-                    innerEx = innerEx.InnerException;
+                    await tally.Run(QuestCollectionView.CurrentItem as IQuest, cts.Token);
                 }
-                MessageBox.Show(exmsg, "Error");
-                cts.Cancel();
-            }
-            finally
-            {
-                cts?.Dispose();
-                cts = null;
+                catch (OperationCanceledException)
+                {
+                    // got a cancel request somewhere
+                }
+                catch (Exception ex)
+                {
+                    string exmsg = ex.Message;
+                    var innerEx = ex.InnerException;
+                    while (innerEx != null)
+                    {
+                        exmsg = exmsg + "\n" + innerEx.Message;
+                        innerEx = innerEx.InnerException;
+                    }
+                    MessageBox.Show(exmsg, "Error");
+                    cts.Cancel();
+                }
             }
         }
 
