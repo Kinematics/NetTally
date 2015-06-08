@@ -102,6 +102,11 @@ namespace NetTally
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
 
+                    if (pageArray.Any(p => p == null))
+                    {
+                        throw new Exception("Not all pages loaded.  Rerun tally.");
+                    }
+
                     // Add the results to our list of pages.
                     pages.AddRange(pageArray);
                 }
