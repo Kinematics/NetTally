@@ -7,10 +7,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
-namespace NetTally
+namespace NetTally.Utility
 {
 
-    public static class Utility
+    public static class Text
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
         // EG: \u200B, non-breaking space
@@ -187,7 +187,7 @@ namespace NetTally
 
             text = HtmlEntity.DeEntitize(text);
 
-            return Utility.SafeString(text);
+            return Utility.Text.SafeString(text);
         }
 
         /// <summary>

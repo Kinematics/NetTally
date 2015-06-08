@@ -443,7 +443,7 @@ namespace NetTally
             {
                 string planName = m.Groups["baseplan"].Value.Trim();
 
-                planName = Utility.PlanNameMarker + planName;
+                planName = Utility.Text.PlanNameMarker + planName;
 
                 return planName;
             }

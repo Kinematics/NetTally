@@ -137,7 +137,7 @@ namespace NetTally
             if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
             {
                 content = content.Substring(5);
-                content = Utility.PlanNameMarker + content;
+                content = Utility.Text.PlanNameMarker + content;
             }
 
             if (content.EndsWith("."))
@@ -164,7 +164,7 @@ namespace NetTally
             }
             else
             {
-                content = Utility.PlanNameMarker + content;
+                content = Utility.Text.PlanNameMarker + content;
             }
 
             if (content.EndsWith("."))

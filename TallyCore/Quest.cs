@@ -129,7 +129,7 @@ namespace NetTally
                 if (value == null)
                     throw new ArgumentNullException("DisplayName");
 
-                displayName = Utility.SafeString(value);
+                displayName = Utility.Text.SafeString(value);
                 OnPropertyChanged();
             }
         }
@@ -341,7 +341,7 @@ namespace NetTally
             if (m.Success)
                 url = m.Groups["base"].Value;
 
-            return Utility.SafeString(url);
+            return Utility.Text.SafeString(url);
         }
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace NetTally
                 if (value == null)
                     site = string.Empty;
                 else
-                    site = Utility.SafeString(value);
+                    site = Utility.Text.SafeString(value);
             }
         }
 
@@ -391,7 +391,7 @@ namespace NetTally
                 if (value == null)
                     throw new ArgumentNullException();
 
-                name = Utility.SafeString(value);
+                name = Utility.Text.SafeString(value);
                 OnPropertyChanged();
             }
         }

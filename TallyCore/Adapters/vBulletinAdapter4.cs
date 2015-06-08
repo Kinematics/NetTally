@@ -88,7 +88,7 @@ namespace NetTally.Adapters
             if (title == null)
                 return string.Empty;
 
-            return Utility.CleanupWebString(title);
+            return Utility.Text.CleanupWebString(title);
         }
 
         /// <summary>
@@ -266,10 +266,10 @@ namespace NetTally.Adapters
             HtmlNode postNode = postContents.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = Utility.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = Utility.Text.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            return Utility.ExtractPostText(postNode, exclusion);
+            return Utility.Text.ExtractPostText(postNode, exclusion);
         }
 
         #endregion
