@@ -473,7 +473,7 @@ namespace NetTally
         /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
         private void RemoveSupport(string voter, VoteType voteType)
         {
-            var votesDict = voteType == VoteType.Rank ? VotesWithSupporters : RankedVotesWithSupporters;
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
 
             List<string> emptyVotes = new List<string>();
 
@@ -679,7 +679,7 @@ namespace NetTally
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
         private string GetVoteKey(string vote, IQuest quest, VoteType voteType)
         {
-            var votesDict = voteType == VoteType.Rank ? VotesWithSupporters : RankedVotesWithSupporters;
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
 
             // If the vote already matches an existing key, we don't need to search again.
             if (votesDict.ContainsKey(vote))
