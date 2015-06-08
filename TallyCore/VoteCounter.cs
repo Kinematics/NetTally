@@ -266,7 +266,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest, VotesWithSupporters);
+                    string voteKey = GetVoteKey(votePartition, quest, VoteType.Plan);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(planName);
@@ -299,7 +299,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest, VotesWithSupporters);
+                    string voteKey = GetVoteKey(votePartition, quest, VoteType.Vote);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     VotesWithSupporters[voteKey].Add(postAuthor);
@@ -330,7 +330,7 @@ namespace NetTally
                 foreach (var votePartition in votePartitions)
                 {
                     // Find any existing vote that matches the current vote partition.
-                    string voteKey = GetVoteKey(votePartition, quest, RankedVotesWithSupporters);
+                    string voteKey = GetVoteKey(votePartition, quest, VoteType.Rank);
 
                     // Update the supporters list, and save this voter's post ID for linking.
                     RankedVotesWithSupporters[voteKey].Add(postAuthor);
@@ -677,8 +677,10 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to search for.</param>
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetVoteKey(string vote, IQuest quest, Dictionary<string, HashSet<string>> votesDict)
+        private string GetVoteKey(string vote, IQuest quest, VoteType voteType)
         {
+            var votesDict = voteType == VoteType.Rank ? VotesWithSupporters : RankedVotesWithSupporters;
+
             // If the vote already matches an existing key, we don't need to search again.
             if (votesDict.ContainsKey(vote))
             {
