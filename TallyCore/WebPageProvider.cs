@@ -201,7 +201,7 @@ namespace NetTally
                 }
                 catch (OperationCanceledException e)
                 {
-                    Debug.WriteLine(string.Format("Operation was cancelled in task {0}.", Task.CurrentId));
+                    Debug.WriteLine(string.Format("Operation was cancelled in task {0}.", Task.CurrentId.HasValue ? Task.CurrentId.Value : -1));
                     Debug.WriteLine(string.Format("Cancellation requested: {0}  at source: {1}", e.CancellationToken.IsCancellationRequested, e.Source));
 
                     if (token.IsCancellationRequested)
