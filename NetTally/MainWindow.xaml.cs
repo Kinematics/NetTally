@@ -147,15 +147,18 @@ namespace NetTally
                 }
                 catch (Exception ex)
                 {
-                    string exmsg = ex.Message;
-                    var innerEx = ex.InnerException;
-                    while (innerEx != null)
+                    if (cts.IsCancellationRequested == false)
                     {
-                        exmsg = exmsg + "\n" + innerEx.Message;
-                        innerEx = innerEx.InnerException;
+                        string exmsg = ex.Message;
+                        var innerEx = ex.InnerException;
+                        while (innerEx != null)
+                        {
+                            exmsg = exmsg + "\n" + innerEx.Message;
+                            innerEx = innerEx.InnerException;
+                        }
+                        MessageBox.Show(exmsg, "Error");
+                        cts.Cancel();
                     }
-                    MessageBox.Show(exmsg, "Error");
-                    cts.Cancel();
                 }
             }
         }
