@@ -252,7 +252,7 @@ namespace NetTally
                 string planName = GetPlanName(plan);
 
                 // Remove the post author from any other existing votes.
-                RemoveSupport(planName, VotesWithSupporters);
+                RemoveSupport(planName, VoteType.Plan);
                 // Add/update the plan's post ID to the tracking hashset.
                 VoterMessageId[planName] = postID;
                 PlanNames.Add(planName);
@@ -288,7 +288,7 @@ namespace NetTally
             if (vote != null)
             {
                 // Remove the post author from any other existing votes.
-                RemoveSupport(postAuthor, VotesWithSupporters);
+                RemoveSupport(postAuthor, VoteType.Vote);
                 // Add/update the post author's post ID to the tracking hashset.
                 VoterMessageId[postAuthor] = postID;
 
@@ -319,7 +319,7 @@ namespace NetTally
             var ranks = voteLinesGrouped.Where(v => v.Value == VoteType.Rank).Select(vs => vs.Key);
 
             // Remove the post author from any other existing votes.
-            RemoveSupport(postAuthor, RankedVotesWithSupporters);
+            RemoveSupport(postAuthor, VoteType.Rank);
 
             RankedVoterMessageId[postAuthor] = postID;
 
@@ -471,8 +471,10 @@ namespace NetTally
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
         /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
-        private void RemoveSupport(string voter, Dictionary<string, HashSet<string>> votesDict)
+        private void RemoveSupport(string voter, VoteType voteType)
         {
+            var votesDict = voteType == VoteType.Rank ? VotesWithSupporters : RankedVotesWithSupporters;
+
             List<string> emptyVotes = new List<string>();
 
             foreach (var vote in votesDict)
