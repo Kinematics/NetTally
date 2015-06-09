@@ -174,6 +174,16 @@ namespace NetTally
 
             return true;
         }
+
+        public bool Delete(string vote, VoteType voteType)
+        {
+            if (vote == null && vote == string.Empty)
+                return false;
+
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+
+            return votesDict.Remove(vote);
+        }
         #endregion
 
         #region Private support methods

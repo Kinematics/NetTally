@@ -212,6 +212,12 @@ namespace NetTally
             }
         }
 
+        private void delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (voteCounter.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+                ChangeVotesDisplayed();
+        }
+
         /// <summary>
         /// Update enabled state of merge button, and current list of voters, based on current vote selection
         /// for the list of votes to be merged from.
