@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 
@@ -196,6 +197,43 @@ namespace NetTally
             }
 
             return DisplayMode.Normal;
+        }
+    }
+
+
+    /// <summary>
+    /// Data binding conversion class to return the OR state of all the objects
+    /// passed in via the values array.
+    /// If the parameter provided is "Invert", it will return the negation of
+    /// the expected result.
+    /// </summary>
+    public class MultiStringCompareConverter : IMultiValueConverter
+    {
+        /// <summary>
+        /// Return a bool indicating if any bool values passed in the array are true.
+        /// </summary>
+        /// <param name="values">Collection of binding values.</param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter">Optional "Invert" to reverse the results.</param>
+        /// <param name="culture"></param>
+        /// <returns>Returns true if any bindings are true.</returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values == null)
+                return false;
+            if (values.Length == 0)
+                return false;
+            if (values.Any(v => v == null))
+                return false;
+
+            string first = values[0].ToString();
+
+            return values.All(v => v is string && (string)v == first);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException("MultiStringCompareConverter is a OneWay converter.");
         }
     }
 }
