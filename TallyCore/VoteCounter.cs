@@ -175,6 +175,12 @@ namespace NetTally
             return true;
         }
 
+        /// <summary>
+        /// Delete a vote from the vote list specified.
+        /// </summary>
+        /// <param name="vote">The vote to remove.</param>
+        /// <param name="voteType">The type of vote to remove.</param>
+        /// <returns>Returns true if a vote was removed.</returns>
         public bool Delete(string vote, VoteType voteType)
         {
             if (vote == null && vote == string.Empty)
@@ -182,7 +188,19 @@ namespace NetTally
 
             var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
 
-            return votesDict.Remove(vote);
+            bool removed = false;
+
+            if (votesDict.ContainsKey(vote))
+            {
+                var votersToTrim = votesDict[vote];
+
+                removed = votesDict.Remove(vote);
+
+                foreach (var voter in votersToTrim)
+                    TrimVoter(voter, voteType);
+            }
+
+            return removed;
         }
         #endregion
 
@@ -501,6 +519,23 @@ namespace NetTally
             foreach (var vote in emptyVotes)
             {
                 votesDict.Remove(vote);
+            }
+        }
+
+        /// <summary>
+        /// Will remove the specified voter from the voter ID list if there are no
+        /// votes that they are currently supporting.
+        /// </summary>
+        /// <param name="voter">The voter to trim.</param>
+        /// <param name="voteType">The type of vote to check.</param>
+        private void TrimVoter(string voter, VoteType voteType)
+        {
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votersDict = voteType == VoteType.Rank ? RankedVoterMessageId : VoterMessageId;
+
+            if (!votesDict.Values.Any(v => v.Contains(voter)))
+            {
+                votersDict.Remove(voter);
             }
         }
 
