@@ -13,7 +13,7 @@ namespace NetTally.Utility
         // Regex for colors in a span's style
         static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
         // Regex for strike-through in a span's style
-        static readonly Regex strikeSpanRegex = new Regex(@"text-decoration:\s*line-through");
+        static readonly Regex spanStrikeRegex = new Regex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Clean up problematic bits of text in the extracted HTML string.
@@ -155,7 +155,7 @@ namespace NetTally.Utility
                     string spanStyle = node.GetAttributeValue("style", "");
 
                     // Struck-through text is entirely skipped.
-                    if (strikeSpanRegex.Match(spanStyle).Success)
+                    if (spanStrikeStyleRegex.Match(spanStyle).Success)
                     {
                         return;
                     }
