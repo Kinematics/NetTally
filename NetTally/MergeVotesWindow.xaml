@@ -11,6 +11,7 @@
         <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
         <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
+        <local:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></local:MultiStringCompareConverter>
     </Window.Resources>
 
     <Grid>
@@ -58,6 +59,23 @@
                 </ToolTip>
             </RadioButton.ToolTip>
         </RadioButton>
+        <Button x:Name="delete" Content="⦔Delete⦓" HorizontalAlignment="Left" Margin="400,197,0,0" VerticalAlignment="Top"
+                Width="76" Height="35" RenderTransformOrigin="0.507,0.1" ToolTipService.ShowOnDisabled="True" Click="delete_Click">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay">
+                    <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Delete</TextBlock>
+                        <TextBlock>Delete the selected vote.  Select the same vote from both columns.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
 
         <Button x:Name="closeButton" Content="Close" Margin="718,516,10,10" IsCancel="True"/>
 
