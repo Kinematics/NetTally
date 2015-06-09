@@ -212,6 +212,11 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Delete the vote that has been selected in both list boxes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void delete_Click(object sender, RoutedEventArgs e)
         {
             if (voteCounter.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
