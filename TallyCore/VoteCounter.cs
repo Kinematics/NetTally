@@ -277,7 +277,7 @@ namespace NetTally
 
             foreach (var plan in plans)
             {
-                string planName = GetPlanName(plan);
+                string planName = GetBasePlanName(plan);
 
                 // Remove the post author from any other existing votes.
                 RemoveSupport(planName, VoteType.Plan);
@@ -461,7 +461,7 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the name of the base plan.</returns>
-        private string GetPlanName(List<string> planLines)
+        private string GetBasePlanName(List<string> planLines)
         {
             string firstLine = planLines.First();
             string lineContent = VoteLine.GetVoteContent(firstLine);
