@@ -213,11 +213,15 @@ namespace NetTally
         /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
-        /// <returns>Returns true if the vote marker is a digit.</returns>
+        /// <returns>Returns true if the vote marker is a digit, false if not.</returns>
         public static bool IsRankedVote(string voteLine)
         {
-            return char.IsDigit(VoteLine.GetVoteMarker(voteLine), 0);
-            //&& voteLine.StartsWith("-") == false;
+            string marker = VoteLine.GetVoteMarker(voteLine);
+
+            if (marker == string.Empty)
+                return false;
+
+            return char.IsDigit(marker, 0);
         }
     }
 }
