@@ -106,37 +106,34 @@ namespace NetTally
         {
             get
             {
-                using (var r = new Utility.RegionProfiler("VotesCanMerge"))
+                // Can't merge if nothing is selected
+                if (VoteView1.CurrentItem == null || VoteView2.CurrentItem == null)
+                    return false;
+
+                string fromVote = VoteView1.CurrentItem.ToString();
+                string toVote = VoteView2.CurrentItem.ToString();
+
+                if (CurrentVoteType == VoteType.Rank)
                 {
-                    // Can't merge if nothing is selected
-                    if (VoteView1.CurrentItem == null || VoteView2.CurrentItem == null)
+                    // Don't allow merging if they're not the same rank.
+
+                    string markFrom = VoteLine.GetVoteMarker(fromVote);
+                    string markTo = VoteLine.GetVoteMarker(toVote);
+
+                    if (markFrom != markTo)
                         return false;
 
-                    string fromVote = VoteView1.CurrentItem.ToString();
-                    string toVote = VoteView2.CurrentItem.ToString();
+                    // Don't allow merging if they're not the same task.
 
-                    if (CurrentVoteType == VoteType.Rank)
-                    {
-                        // Don't allow merging if they're not the same rank.
+                    string taskFrom = VoteLine.GetVoteTask(fromVote);
+                    string taskTo = VoteLine.GetVoteTask(toVote);
 
-                        string markFrom = VoteLine.GetVoteMarker(fromVote);
-                        string markTo = VoteLine.GetVoteMarker(toVote);
-
-                        if (markFrom != markTo)
-                            return false;
-
-                        // Don't allow merging if they're not the same task.
-
-                        string taskFrom = VoteLine.GetVoteTask(fromVote);
-                        string taskTo = VoteLine.GetVoteTask(toVote);
-
-                        if (taskFrom != taskTo)
-                            return false;
-                    }
-
-                    // Otherwise, allow merge if they're not the same
-                    return (fromVote != toVote);
+                    if (taskFrom != taskTo)
+                        return false;
                 }
+
+                // Otherwise, allow merge if they're not the same
+                return (fromVote != toVote);
             }
         }
 

@@ -155,7 +155,7 @@ namespace NetTally.Utility
                     string spanStyle = node.GetAttributeValue("style", "");
 
                     // Struck-through text is entirely skipped.
-                    if (spanStrikeStyleRegex.Match(spanStyle).Success)
+                    if (spanStrikeRegex.Match(spanStyle).Success)
                     {
                         return;
                     }
