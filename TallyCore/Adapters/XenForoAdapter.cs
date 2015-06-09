@@ -130,7 +130,7 @@ namespace NetTally.Adapters
             if (title == null)
                 return string.Empty;
 
-            return Utility.Text.CleanupWebString(title);
+            return Utility.PostText.CleanupWebString(title);
         }
 
         /// <summary>
@@ -323,10 +323,10 @@ namespace NetTally.Adapters
             var postNode = post.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusions = Utility.Text.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
+            var exclusions = Utility.PostText.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
 
             // Get the full post text.
-            return Utility.Text.ExtractPostText(postNode, exclusions);
+            return Utility.PostText.ExtractPostText(postNode, exclusions);
         }
 
         #endregion
