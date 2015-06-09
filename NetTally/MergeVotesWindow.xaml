@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Merge Votes" Height="587.837" Width="828" MinWidth="828" MinHeight="400" ResizeMode="NoResize">
+        Title="Merge Votes" Height="638.837" Width="884" MinWidth="828" MinHeight="400" ResizeMode="NoResize">
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
         <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
@@ -15,17 +15,16 @@
     </Window.Resources>
 
     <Grid>
-        <ListBox x:Name="votesFromListBox" Height="345" Width="360" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <ListBox x:Name="votesFromListBox" Height="367" Width="385" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"/>
-        <ListBox x:Name="votersFromListBox" Height="93" Width="360" Margin="10,412,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <ListBox x:Name="votersFromListBox" Height="111" Width="385" Margin="10,441,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True" />
-        <ListBox x:Name="votesToListBox" Height="345" Margin="450,36,10,0" VerticalAlignment="Top"
+        <ListBox x:Name="votesToListBox" Height="367" Margin="481,36,12,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"/>
-        <ListBox x:Name="votersToListBox" Height="93" Margin="450,412,10,0" VerticalAlignment="Top"
+        <ListBox x:Name="votersToListBox" Height="111" Margin="481,441,10,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView2}" />
-
-        <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="375,36,0,0" VerticalAlignment="Top" Width="70"
-                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False">
+        <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="400,41,0,0" VerticalAlignment="Top" Width="76"
+                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False" ToolTipService.ShowOnDisabled="True">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -35,8 +34,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        
-        <RadioButton x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="375,176,0,0" VerticalAlignment="Top"
+        <RadioButton x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="400,121,0,0" VerticalAlignment="Top"
                      IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}">
             <RadioButton.ToolTip>
                 <ToolTip>
@@ -47,7 +45,7 @@
                 </ToolTip>
             </RadioButton.ToolTip>
         </RadioButton>
-        <RadioButton x:Name="rankingRadio" Content="Rankings" HorizontalAlignment="Left" Margin="375,197,0,0" VerticalAlignment="Top"
+        <RadioButton x:Name="rankingRadio" Content="Rankings" HorizontalAlignment="Left" Margin="400,142,0,0" VerticalAlignment="Top"
                      IsEnabled="{Binding Path=HasRankedVotes, Mode=OneWay}"
                      IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}">
             <RadioButton.ToolTip>
@@ -77,12 +75,12 @@
             </Button.ToolTip>
         </Button>
 
-        <Button x:Name="closeButton" Content="Close" Margin="718,516,10,10" IsCancel="True"/>
+        <Button x:Name="closeButton" Content="Close" Margin="758,563,10,9" IsCancel="True"/>
 
         <Label x:Name="label1" Content="Votes (Merge From)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <Label x:Name="label2" Content="Votes (Merge To)" HorizontalAlignment="Left" Margin="450,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,386,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="450,386,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,415,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="481,415,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
