@@ -215,7 +215,13 @@ namespace NetTally
         private void delete_Click(object sender, RoutedEventArgs e)
         {
             if (voteCounter.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
-                ChangeVotesDisplayed();
+            {
+                VoteView1.Refresh();
+                VoteView2.Refresh();
+                VoteView1.MoveCurrentToPosition(-1);
+                VoteView2.MoveCurrentToFirst();
+
+            }
         }
 
         /// <summary>
