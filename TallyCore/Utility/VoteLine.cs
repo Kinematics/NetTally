@@ -6,7 +6,7 @@ namespace NetTally
     public static class VoteLine
     {
         // Regex to get the different parts of the vote.
-        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\s*\[(?<marker>[xX+✓✔1-9])\]\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?(?<content>.*)");
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\s*\[\s*(?<marker>[xX+✓✔1-9])\s*\]\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?(?<content>.*)");
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
@@ -216,7 +216,7 @@ namespace NetTally
         /// <returns>Returns true if the vote marker is a digit.</returns>
         public static bool IsRankedVote(string voteLine)
         {
-            return Char.IsDigit(VoteLine.GetVoteMarker(voteLine), 0);
+            return char.IsDigit(VoteLine.GetVoteMarker(voteLine), 0);
             //&& voteLine.StartsWith("-") == false;
         }
     }
