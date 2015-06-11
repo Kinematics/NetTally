@@ -210,6 +210,86 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Create a vote line composed of the provided components.
+        /// </summary>
+        /// <param name="prefix">The prefix for the line.</param>
+        /// <param name="marker">The marker for the line.</param>
+        /// <param name="task">The task the line should be grouped with.</param>
+        /// <param name="content">The contents of the vote.</param>
+        /// <returns>Returns a complete vote line.</returns>
+        public static string CreateVoteLine(string prefix, string marker, string task, string content)
+        {
+            if (prefix == null)
+                prefix = "";
+
+            if (marker == null || marker == string.Empty)
+                marker = "X";
+
+            if (task == null)
+                task = "";
+
+            if (content == null || content == string.Empty)
+                throw new ArgumentNullException(nameof(content));
+
+            string line;
+
+            if (task == string.Empty)
+                line = string.Format("{0}[{1}] {3}", prefix, marker, task, content);
+            else
+                line = string.Format("{0}[{1}][{2}] {3}", prefix, marker, task, content);
+
+            return line;
+        }
+
+        /// <summary>
+        /// Create a vote line composed of the provided components.
+        /// Parameters should be null for values that won't change.
+        /// </summary>
+        /// <param name="prefix">The prefix for the line.</param>
+        /// <param name="marker">The marker for the line.</param>
+        /// <param name="task">The task the line should be grouped with.</param>
+        /// <param name="content">The contents of the vote.</param>
+        /// <returns>Returns a complete vote line.</returns>
+        public static string ModifyVoteLine(string voteLine, string prefix, string marker, string task, string content)
+        {
+            if (voteLine == null || voteLine == string.Empty)
+                throw new ArgumentNullException(nameof(voteLine));
+
+            // If all parameters are null, the vote line doesn't change.
+            if (prefix == null && marker == null && task == null && content == null)
+                return voteLine;
+
+            string votePrefix;
+            string voteMarker;
+            string voteTask;
+            string voteContent;
+
+            // Use the original vote line value for any parameter that is null.
+            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent);
+
+            if (prefix == null)
+                prefix = votePrefix;
+
+            if (marker == null)
+                marker = voteMarker;
+
+            if (task == null)
+                task = voteTask;
+
+            if (content == null)
+                content = voteContent;
+
+            string modifiedLine;
+
+            if (task == string.Empty)
+                modifiedLine = string.Format("{0}[{1}] {3}", prefix, marker, task, content);
+            else
+                modifiedLine = string.Format("{0}[{1}][{2}] {3}", prefix, marker, task, content);
+
+            return modifiedLine;
+        }
+
+        /// <summary>
         /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
