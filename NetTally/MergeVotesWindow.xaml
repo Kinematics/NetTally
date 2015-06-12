@@ -12,17 +12,39 @@
         <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
         <local:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></local:MultiStringCompareConverter>
+
+
+        <ContextMenu x:Key="TaskContextMenu" x:Name="ContextMenuName">
+        </ContextMenu>
     </Window.Resources>
 
     <Grid>
         <ListBox x:Name="votesFromListBox" Height="367" Width="385" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                 ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"/>
+                 ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"
+                 ContextMenu="{StaticResource TaskContextMenu}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
         <ListBox x:Name="votersFromListBox" Height="111" Width="385" Margin="10,441,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True" />
+        
         <ListBox x:Name="votesToListBox" Height="367" Margin="481,36,12,0" VerticalAlignment="Top"
-                 ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"/>
+                 ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"
+                 ContextMenu="{StaticResource TaskContextMenu}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
         <ListBox x:Name="votersToListBox" Height="111" Margin="481,441,10,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView2}" />
+        
         <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="400,41,0,0" VerticalAlignment="Top" Width="76"
                 FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False" ToolTipService.ShowOnDisabled="True">
             <Button.ToolTip>
