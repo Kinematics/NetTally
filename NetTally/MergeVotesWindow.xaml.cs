@@ -32,6 +32,10 @@ namespace NetTally
         List<string> Tasks { get; } = new List<string>();
         ListBox newTaskBox = null;
 
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public MergeVotesWindow()
         {
             InitializeComponent();
