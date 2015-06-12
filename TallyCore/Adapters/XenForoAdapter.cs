@@ -382,7 +382,12 @@ namespace NetTally.Adapters
         /// <returns>The element containing the main page content.</returns>
         private HtmlNode GetPageContent(HtmlDocument page)
         {
-            return page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "content");
+            HtmlNode pageContent = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "content");
+
+            if (pageContent == null)
+                throw new InvalidOperationException("Cannot load page content.");
+
+            return pageContent;
         }
 
         /// <summary>
