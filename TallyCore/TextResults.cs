@@ -239,9 +239,9 @@ namespace NetTally
         /// <param name="voters">The list of voters.</param>
         private void AddCompactVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.First();
+            string firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
 
-            var remainder = voters.Skip(1).Where(vc => VoteCounter.PlanNames.Contains(vc) == false).OrderBy(v => v);
+            var remainder = voters.Where(v => v != firstVoter && VoteCounter.PlanNames.Contains(v) == false).OrderBy(v => v);
 
             sb.AppendFormat("({0}", GetVoterUrl(firstVoter, VoteCounter.VoterMessageId));
 
@@ -311,11 +311,11 @@ namespace NetTally
         /// <param name="voters">The set of voters being added.</param>
         private void AddVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.First();
+            string firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
 
             AddVoter(firstVoter);
 
-            var remainder = voters.Skip(1);
+            var remainder = voters.Where(v => v != firstVoter);
 
             var remainingPlans = remainder.Where(vc => VoteCounter.PlanNames.Contains(vc) == true);
 
