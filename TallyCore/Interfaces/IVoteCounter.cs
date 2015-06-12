@@ -23,5 +23,6 @@ namespace NetTally
         bool Rename(string oldVote, string newVote, VoteType voteType);
 
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
+        Dictionary<string, string> GetVotersCollection(VoteType voteType);
     }
 }

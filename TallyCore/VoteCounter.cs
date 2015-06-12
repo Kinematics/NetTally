@@ -90,6 +90,14 @@ namespace NetTally
                 return VotesWithSupporters;
         }
 
+        public Dictionary<string, string> GetVotersCollection(VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+                return RankedVoterMessageId;
+            else
+                return VoterMessageId;
+        }
+
         /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
