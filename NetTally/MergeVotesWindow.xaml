@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Merge Votes" Height="638.837" Width="884" MinWidth="828" MinHeight="400" ResizeMode="NoResize">
+        Title="Manage Votes" Height="638.837" Width="884" MinWidth="828" MinHeight="400" ResizeMode="NoResize">
     <Window.Resources>
         <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
         <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
