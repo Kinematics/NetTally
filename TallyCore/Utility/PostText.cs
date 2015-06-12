@@ -47,13 +47,11 @@ namespace NetTally.Utility
             if (exclude == null)
                 exclude = (n) => false;
 
-            StringBuilder sb = new StringBuilder();
-
             // Recurse into the child nodes of the main post node.
-            ExtractChildNodes(sb, node, exclude);
+            string postText = ExtractChildNodes(node, exclude);
 
             // Cleanup the results of the extraction.
-            return CleanupWebString(sb.ToString());
+            return CleanupWebString(postText);
         }
 
         /// <summary>
@@ -95,12 +93,16 @@ namespace NetTally.Utility
         /// <param name="node">The parent node.</param>
         /// <param name="exclude">A predicate that can be used to exclude specific
         /// sub-nodes from the end result.</param>
-        private static void ExtractChildNodes(StringBuilder sb, HtmlNode node, Predicate<HtmlNode> exclude)
+        private static string ExtractChildNodes(HtmlNode node, Predicate<HtmlNode> exclude)
         {
+            StringBuilder sb = new StringBuilder();
+
             foreach (var childNode in node.ChildNodes)
             {
                 ExtractNodeText(sb, childNode, exclude);
             }
+
+            return sb.ToString().Trim();
         }
 
         /// <summary>
@@ -138,17 +140,17 @@ namespace NetTally.Utility
             {
                 case "i":
                     sb.Append("[i]");
-                    ExtractChildNodes(sb, node, exclude);
+                    sb.Append(ExtractChildNodes(node, exclude));
                     sb.Append("[/i]");
                     break;
                 case "b":
                     sb.Append("[b]");
-                    ExtractChildNodes(sb, node, exclude);
+                    sb.Append(ExtractChildNodes(node, exclude));
                     sb.Append("[/b]");
                     break;
                 case "u":
                     sb.Append("[u]");
-                    ExtractChildNodes(sb, node, exclude);
+                    sb.Append(ExtractChildNodes(node, exclude));
                     sb.Append("[/u]");
                     break;
                 case "span":
@@ -166,19 +168,19 @@ namespace NetTally.Utility
                         if (m.Success)
                         {
                             sb.AppendFormat("[color={0}]", m.Groups["color"].Value);
-                            ExtractChildNodes(sb, node, exclude);
+                            sb.Append(ExtractChildNodes(node, exclude));
                             sb.Append("[/color]");
                         }
                         else
                         {
                             // Take anything else without including span style modifications.
-                            ExtractChildNodes(sb, node, exclude);
+                            sb.Append(ExtractChildNodes(node, exclude));
                         }
                     }
                     break;
                 case "a":
                     sb.AppendFormat("[url=\"{0}\"]", node.GetAttributeValue("href", ""));
-                    ExtractChildNodes(sb, node, exclude);
+                    sb.Append(ExtractChildNodes(node, exclude));
                     sb.Append("[/url]");
                     break;
                 case "img":
@@ -193,7 +195,7 @@ namespace NetTally.Utility
                     break;
                 case "div":
                     // Recurse into divs (typically spoilers).
-                    ExtractChildNodes(sb, node, exclude);
+                    sb.Append(ExtractChildNodes(node, exclude));
                     break;
                 default:
                     break;
