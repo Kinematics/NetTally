@@ -14,7 +14,7 @@ namespace NetTally
     /// <summary>
     /// Interaction logic for MergeVotesWindow.xaml
     /// </summary>
-    public partial class MergeVotesWindow : Window, INotifyPropertyChanged
+    public partial class ManageVotesWindow : Window, INotifyPropertyChanged
     {
         #region Constructor and variables
         public IVoteCounter voteCounter;
@@ -36,7 +36,7 @@ namespace NetTally
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MergeVotesWindow()
+        public ManageVotesWindow()
         {
             InitializeComponent();
         }
@@ -45,7 +45,7 @@ namespace NetTally
         /// Constructor.
         /// </summary>
         /// <param name="tally">The tally that is having votes merged.</param>
-        public MergeVotesWindow(Tally tally)
+        public ManageVotesWindow(Tally tally)
         {
             InitializeComponent();
 

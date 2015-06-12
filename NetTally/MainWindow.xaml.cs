@@ -253,7 +253,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            MergeVotesWindow mergeWindow = new MergeVotesWindow(tally)
+            ManageVotesWindow mergeWindow = new ManageVotesWindow(tally)
             {
                 ShowInTaskbar = false,               // don't show the dialog on the taskbar
                 Topmost = true,                      // ensure we're Always On Top
