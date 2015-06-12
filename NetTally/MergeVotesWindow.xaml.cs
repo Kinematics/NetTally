@@ -29,6 +29,8 @@ namespace NetTally
 
         bool displayStandardVotes = true;
 
+        List<string> Tasks { get; } = new List<string>();
+
         public MergeVotesWindow()
         {
             InitializeComponent();
@@ -92,6 +94,9 @@ namespace NetTally
             VoterView1.Refresh();
             VoterView2.Refresh();
 
+            // Populate the context menu with known tasks.
+            InitContextMenuTasks();
+            CreateContextMenu();
 
             // Set the data context for binding.
             DataContext = this;
@@ -269,6 +274,101 @@ namespace NetTally
         }
         #endregion
 
+        #region Context Menu events
+        private void newTask_Click(object sender, RoutedEventArgs e)
+        {
+            // Show the custom input box, and put focus on the text box.
+            InputBox.Visibility = Visibility.Visible;
+            InputTextBox.Focus();
+        }
+
+        private void YesButton_Click(object sender, RoutedEventArgs e)
+        {
+            AcceptInput();
+        }
+
+        private void NoButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelInput();
+        }
+
+        private void InputTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Enter:
+                    AcceptInput();
+                    break;
+                case System.Windows.Input.Key.Escape:
+                    CancelInput();
+                    e.Handled = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void AcceptInput()
+        {
+            // YesButton Clicked! Let's hide our InputBox and handle the input text.
+            InputBox.Visibility = Visibility.Collapsed;
+
+            // Do something with the Input
+            AddTaskToContextMenu(InputTextBox.Text);
+
+            // Clear InputBox.
+            InputTextBox.Text = String.Empty;
+        }
+
+        private void CancelInput()
+        {
+            // NoButton Clicked! Let's hide our InputBox.
+            InputBox.Visibility = Visibility.Collapsed;
+
+            // Clear InputBox.
+            InputTextBox.Text = String.Empty;
+        }
+
+        private void modifyTask_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem mi = sender as MenuItem;
+            if (mi != null)
+            {
+                ContextMenu cm = mi.Parent as ContextMenu;
+                if (cm != null)
+                {
+                    ListBox box = cm.PlacementTarget as ListBox;
+                    if (box != null)
+                    {
+                        string selectedVote = box.SelectedItem?.ToString();
+
+                        if (selectedVote != null)
+                        {
+                            string changedVote = "";
+
+                            if (mi.Header.ToString() == "Clear Task")
+                                changedVote = VoteLine.ReplaceTask(selectedVote, "");
+                            else
+                                changedVote = VoteLine.ReplaceTask(selectedVote, mi.Header.ToString());
+
+                            if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                            {
+                                if (!VoteCollection.Contains(changedVote))
+                                    VoteCollection.Add(changedVote);
+
+                                VoteView1.Refresh();
+                                VoteView2.Refresh();
+
+                                box.SelectedItem = changedVote;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
@@ -322,6 +422,117 @@ namespace NetTally
             VoteView1.MoveCurrentToFirst();
             VoteView2.MoveCurrentToFirst();
         }
+
         #endregion
+
+
+        #region Context Menu Utility
+
+        /// <summary>
+        /// Initialize the context menu with known tasks on window startup.
+        /// </summary>
+        private void InitContextMenuTasks()
+        {
+            var voteTasks = voteCounter.GetVotesCollection(CurrentVoteType).Keys.
+                Select(v => VoteLine.GetVoteTask(v)).Distinct().
+                Where(v => v != string.Empty).OrderBy(v => v);
+
+            Tasks.AddRange(voteTasks);
+        }
+
+        /// <summary>
+        /// Function to create a MenuItem object for the context menu containing the provided header value.
+        /// </summary>
+        /// <param name="name">The name of the menu item.</param>
+        /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
+        private MenuItem GetContextMenuItem(string name)
+        {
+            MenuItem mi = new MenuItem();
+            mi.Header = name;
+            mi.Click += modifyTask_Click;
+            mi.ToolTip = string.Format("Change the task for the selected item to '{0}'", mi.Header);
+            mi.Tag = "NamedTask";
+
+            return mi;
+        }
+
+        /// <summary>
+        /// Create the entries of the basic context menu.
+        /// </summary>
+        private void CreateContextMenu()
+        {
+            var pMenu = (ContextMenu)this.Resources["TaskContextMenu"];
+            if (pMenu != null)
+            {
+                pMenu.Items.Clear();
+
+                MenuItem newTask = new MenuItem();
+                newTask.Header = "New Task...";
+                newTask.Click += newTask_Click;
+                newTask.ToolTip = "Create a new task value.";
+                pMenu.Items.Add(newTask);
+
+                MenuItem clearTask = new MenuItem();
+                clearTask.Header = "Clear Task";
+                clearTask.Click += modifyTask_Click;
+                clearTask.ToolTip = "Clear the task from the currently selected vote.";
+                pMenu.Items.Add(clearTask);
+
+                pMenu.Items.Add(new Separator());
+
+                foreach (var task in Tasks)
+                {
+                    MenuItem mi = GetContextMenuItem(task);
+                    pMenu.Items.Add(mi);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Given a new task name, add a new MenuItem to the context menu.
+        /// </summary>
+        /// <param name="task">The name of the new context menu item.</param>
+        private void AddTaskToContextMenu(string task)
+        {
+            if (task == null || task == string.Empty)
+                return;
+
+            if (Tasks.Any(t => t == task))
+                return;
+
+            var pMenu = (ContextMenu)this.Resources["TaskContextMenu"];
+
+            int priorIndex = -1;
+
+            foreach (var menuItem in pMenu.Items)
+            {
+                MenuItem m = menuItem as MenuItem;
+
+                if (m != null)
+                {
+                    if ((string)(m.Tag) == "NamedTask")
+                    {
+                        if (string.Compare(m.Header.ToString(), task) < 0)
+                            priorIndex = pMenu.Items.IndexOf(menuItem);
+                    }
+                }
+            }
+
+            MenuItem mi = GetContextMenuItem(task);
+
+            if (priorIndex > 0)
+            {
+                pMenu.Items.Insert(priorIndex + 1, mi);
+            }
+            else
+            {
+                pMenu.Items.Add(mi);
+            }
+
+            Tasks.Add(task);
+        }
+
+        #endregion
+
     }
 }
