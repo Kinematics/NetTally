@@ -30,6 +30,7 @@ namespace NetTally
         bool displayStandardVotes = true;
 
         List<string> Tasks { get; } = new List<string>();
+        ListBox newTaskBox = null;
 
         public MergeVotesWindow()
         {
@@ -277,6 +278,16 @@ namespace NetTally
         #region Context Menu events
         private void newTask_Click(object sender, RoutedEventArgs e)
         {
+            MenuItem mi = sender as MenuItem;
+            if (mi != null)
+            {
+                ContextMenu cm = mi.Parent as ContextMenu;
+                if (cm != null)
+                {
+                    newTaskBox = cm.PlacementTarget as ListBox;
+                }
+            }
+
             // Show the custom input box, and put focus on the text box.
             InputBox.Visibility = Visibility.Visible;
             InputTextBox.Focus();
@@ -313,11 +324,36 @@ namespace NetTally
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
             InputBox.Visibility = Visibility.Collapsed;
 
-            // Do something with the Input
-            AddTaskToContextMenu(InputTextBox.Text);
+            string newTask = InputTextBox.Text;
 
             // Clear InputBox.
             InputTextBox.Text = String.Empty;
+
+            // Do something with the Input
+            AddTaskToContextMenu(newTask);
+
+            // Update the selected item of the list box
+
+            string selectedVote = newTaskBox?.SelectedItem?.ToString();
+
+            if (selectedVote != null)
+            {
+                string changedVote = VoteLine.ReplaceTask(selectedVote, newTask);
+
+                if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                {
+                    if (!VoteCollection.Contains(changedVote))
+                        VoteCollection.Add(changedVote);
+
+                    VoteView1.Refresh();
+                    VoteView2.Refresh();
+
+                    newTaskBox.SelectedItem = changedVote;
+                }
+
+            }
+
+            newTaskBox = null;
         }
 
         private void CancelInput()
@@ -327,6 +363,8 @@ namespace NetTally
 
             // Clear InputBox.
             InputTextBox.Text = String.Empty;
+
+            newTaskBox = null;
         }
 
         private void modifyTask_Click(object sender, RoutedEventArgs e)
