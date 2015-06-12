@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,15 +20,12 @@ namespace NetTally
         public IVoteCounter voteCounter;
 
         public ObservableCollection<string> VoteCollection { get; }
-        public ICollectionView VoteView1 { get; }
-        public ICollectionView VoteView2 { get; }
+        public ListCollectionView VoteView1 { get; }
+        public ListCollectionView VoteView2 { get; }
 
         public ObservableCollection<string> VoterCollection { get; }
-        public ICollectionView VoterView1 { get; }
-        public ICollectionView VoterView2 { get; }
-
-        List<string> Voters { get; }
-        List<string> Votes { get; }
+        public ListCollectionView VoterView1 { get; }
+        public ListCollectionView VoterView2 { get; }
 
         bool displayStandardVotes = true;
 
@@ -47,36 +45,56 @@ namespace NetTally
             voteCounter = tally.VoteCounter;
 
             // Gets the lists of all current votes and ranked votes that can be shown.
-            Votes = voteCounter.VotesWithSupporters.Keys
+            List<string> votes = voteCounter.VotesWithSupporters.Keys
                 .Concat(voteCounter.RankedVotesWithSupporters.Keys)
-                .Distinct().OrderBy(v => VoteLine.GetVoteTask(v) + " " + VoteLine.GetVoteContent(v), StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                .Distinct().ToList();
 
-            VoteCollection = new ObservableCollection<string>(Votes);
+            // Create a collection for the views to draw from.
+            VoteCollection = new ObservableCollection<string>(votes);
 
+            // Create filtered, sortable views into the collection for display in the window.
             VoteView1 = new ListCollectionView(VoteCollection);
             VoteView2 = new ListCollectionView(VoteCollection);
-            VoteView1.Filter = (a) => FilterVotes(a.ToString());
-            VoteView2.Filter = (a) => FilterVotes(a.ToString());
+
+            if (VoteView1.CanSort)
+            {
+                IComparer voteCompare = new Utility.CustomVoteSort();
+                VoteView1.CustomSort = voteCompare;
+                VoteView2.CustomSort = voteCompare;
+            }
+
+            if (VoteView1.CanFilter)
+            {
+                VoteView1.Filter = (a) => FilterVotes(a.ToString());
+                VoteView2.Filter = (a) => FilterVotes(a.ToString());
+            }
+
+            // Initialize starting selected positions
+            VoteView1.MoveCurrentToPosition(-1);
+            VoteView2.MoveCurrentToFirst();
 
 
             // Get the lists of all unique voters/ranked voters that we can show in the display.
-            Voters = voteCounter.VoterMessageId.Select(v => v.Key).Except(voteCounter.PlanNames)
+            List<string> voters = voteCounter.VoterMessageId.Select(v => v.Key).Except(voteCounter.PlanNames)
                 .Concat(voteCounter.RankedVoterMessageId.Select(v => v.Key))
                 .Distinct().OrderBy(v => v).ToList();
 
-            VoterCollection = new ObservableCollection<string>(Voters);
+            // Create a collection for the views to draw from.
+            VoterCollection = new ObservableCollection<string>(voters);
 
+            // Create filtered views for display in the window.
             VoterView1 = new ListCollectionView(VoterCollection);
             VoterView2 = new ListCollectionView(VoterCollection);
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
 
+            // Update the voters to match the votes.
             VoterView1.Refresh();
             VoterView2.Refresh();
 
 
-            this.DataContext = this;
+            // Set the data context for binding.
+            DataContext = this;
         }
 
         #endregion
