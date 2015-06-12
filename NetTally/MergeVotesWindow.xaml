@@ -100,7 +100,7 @@
         <Button x:Name="closeButton" Content="Close" Margin="758,563,10,9" IsCancel="True"/>
 
         <Label x:Name="label1" Content="Votes (Merge From)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label2" Content="Votes (Merge To)" HorizontalAlignment="Left" Margin="450,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label2" Content="Votes (Merge To)" HorizontalAlignment="Left" Margin="481,10,0,0" VerticalAlignment="Top"/>
         <Label x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,415,0,0" VerticalAlignment="Top"/>
         <Label x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="481,415,0,0" VerticalAlignment="Top"/>
 
