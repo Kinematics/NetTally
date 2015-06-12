@@ -324,6 +324,9 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Process acceptance of the new task text.
+        /// </summary>
         private void AcceptInput()
         {
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
@@ -361,6 +364,9 @@ namespace NetTally
             newTaskBox = null;
         }
 
+        /// <summary>
+        /// Process rejecting the new task text.
+        /// </summary>
         private void CancelInput()
         {
             // NoButton Clicked! Let's hide our InputBox.
