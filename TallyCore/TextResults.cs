@@ -121,7 +121,7 @@ namespace NetTally
                             if (userVotes > 0)
                             {
                                 AddCompactVoteNumber(userVotes);
-                                sb.AppendFormat("{0} : ", GetFirstLineOfVote(vote.Key));
+                                sb.AppendFormat("{0} : ", VoteLine.GetVoteContentFirstLine(vote.Key));
                                 AddCompactVoters(vote.Value);
                                 sb.AppendLine("");
                             }
@@ -165,22 +165,6 @@ namespace NetTally
         private int GetUserVoteCount(HashSet<string> voters)
         {
             return voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false);
-        }
-
-        /// <summary>
-        /// Gets the first line of the vote.
-        /// </summary>
-        /// <param name="vote">The entire vote.</param>
-        /// <returns>Returns the first line of the vote.</returns>
-        private string GetFirstLineOfVote(string vote)
-        {
-            string voteContent = VoteLine.GetVoteContent(vote);
-
-            var eol = voteContent.IndexOf("\r");
-            if (eol > 0)
-                voteContent = voteContent.Substring(eol);
-
-            return voteContent;
         }
 
         /// <summary>
