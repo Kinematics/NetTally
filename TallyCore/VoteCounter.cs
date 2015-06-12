@@ -202,6 +202,37 @@ namespace NetTally
 
             return removed;
         }
+
+        public bool Rename(string oldVote, string newVote, VoteType voteType)
+        {
+            if (oldVote == null)
+                throw new ArgumentNullException(nameof(oldVote));
+            if (newVote == null)
+                throw new ArgumentNullException(nameof(newVote));
+            if (oldVote == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(oldVote), "Vote string is empty.");
+            if (newVote == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(newVote), "Vote string is empty.");
+            if (oldVote == newVote)
+                return false;
+
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+
+            if (votesDict.ContainsKey(newVote))
+            {
+                return Merge(oldVote, newVote, voteType);
+            }
+
+            HashSet<string> votes;
+            if (votesDict.TryGetValue(oldVote, out votes))
+            {
+                votesDict.Remove(oldVote);
+                votesDict[newVote] = votes;
+                return true;
+            }
+
+            return false;
+        }
         #endregion
 
         #region Private support methods

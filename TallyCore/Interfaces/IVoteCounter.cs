@@ -20,6 +20,7 @@ namespace NetTally
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Delete(string vote, VoteType voteType);
+        bool Rename(string oldVote, string newVote, VoteType voteType);
 
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
     }
