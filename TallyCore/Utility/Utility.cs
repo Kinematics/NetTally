@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
 {
@@ -23,4 +26,35 @@ namespace NetTally.Utility
         public static string PlanNameMarker { get; } = "\u25C8";
 
     }
+
+    /// <summary>
+    /// Custom sorting class for sorting votes.
+    /// Sorts by Task+Content.
+    /// </summary>
+    public class CustomVoteSort : IComparer
+    {
+        public int Compare(object x, object y)
+        {
+            if (x == null)
+                throw new ArgumentNullException(nameof(x));
+            if (y == null)
+                throw new ArgumentNullException(nameof(y));
+
+            string xs = x as string;
+            if (xs == null)
+                throw new ArgumentException("Parameter x is not a string.");
+
+            string ys = y as string;
+            if (ys == null)
+                throw new ArgumentException("Parameter x is not a string.");
+
+            string compX = VoteLine.GetVoteTask(xs) + " " + VoteLine.GetVoteContent(xs);
+            string compY = VoteLine.GetVoteTask(ys) + " " + VoteLine.GetVoteContent(ys);
+
+            int result = string.Compare(compX, compY, CultureInfo.CurrentUICulture, CompareOptions.IgnoreCase);
+
+            return result;
+        }
+    }
+
 }
