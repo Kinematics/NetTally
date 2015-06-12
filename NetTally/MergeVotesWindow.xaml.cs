@@ -313,6 +313,7 @@ namespace NetTally
             {
                 case System.Windows.Input.Key.Enter:
                     AcceptInput();
+                    e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Escape:
                     CancelInput();
