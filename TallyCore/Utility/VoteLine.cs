@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NetTally
@@ -13,6 +14,8 @@ namespace NetTally
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
         // Regex to allow us to strip leading dashes from a per-line vote.
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
+        // Regex for separating out the task from the other portions of a vote line.
+        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(?<task>\[[^]\r\n]+\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
 
         /// <summary>
         /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
@@ -287,6 +290,38 @@ namespace NetTally
                 modifiedLine = string.Format("{0}[{1}][{2}] {3}", prefix, marker, task, content);
 
             return modifiedLine;
+        }
+
+        /// <summary>
+        /// Replace the task in a vote line without modifying any BBCode markup.
+        /// </summary>
+        /// <param name="voteLine">The original vote line.</param>
+        /// <param name="newTask">The new task to apply.
+        /// Null or an empty string removes any existing task.</param>
+        /// <returns>Returns the vote line with the task replaced, or the original
+        /// string if the original line couldn't be matched by the regex.</returns>
+        public static string ReplaceTask(string voteLine, string newTask)
+        {
+            Match m = taskRegex.Match(voteLine);
+            if (m.Success)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append(m.Groups["pre"]);
+
+                if (newTask != null && newTask != string.Empty)
+                {
+                    sb.AppendFormat("[{0}]", newTask);
+                }
+
+                sb.Append(" ");
+
+                sb.Append(m.Groups["remainder"]);
+
+                return sb.ToString();
+            }
+
+            return voteLine;
         }
 
         /// <summary>
