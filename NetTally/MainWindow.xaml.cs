@@ -94,9 +94,7 @@ namespace NetTally
             var assembly = Assembly.GetExecutingAssembly();
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-            MyTitle = string.Format("{0} - {1}",
-                product.Product,
-                version.InformationalVersion);
+            MyTitle = $"{product.Product} - {version.InformationalVersion}";
         }
 
         /// <summary>

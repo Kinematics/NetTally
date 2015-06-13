@@ -251,9 +251,9 @@ namespace NetTally
             string line;
 
             if (task == string.Empty)
-                line = string.Format("{0}[{1}] {3}", prefix, marker, task, content);
+                line = $"{prefix}[{marker}] {content}";
             else
-                line = string.Format("{0}[{1}][{2}] {3}", prefix, marker, task, content);
+                line = $"{prefix}[{marker}][{task}] {content}";
 
             return line;
         }
@@ -299,9 +299,9 @@ namespace NetTally
             string modifiedLine;
 
             if (task == string.Empty)
-                modifiedLine = string.Format("{0}[{1}] {3}", prefix, marker, task, content);
+                modifiedLine = $"{prefix}[{marker}] {content}";
             else
-                modifiedLine = string.Format("{0}[{1}][{2}] {3}", prefix, marker, task, content);
+                modifiedLine = $"{prefix}[{marker}][{task}] {content}";
 
             return modifiedLine;
         }

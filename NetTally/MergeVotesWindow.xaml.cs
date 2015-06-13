@@ -499,7 +499,7 @@ namespace NetTally
             MenuItem mi = new MenuItem();
             mi.Header = name;
             mi.Click += modifyTask_Click;
-            mi.ToolTip = string.Format("Change the task for the selected item to '{0}'", mi.Header);
+            mi.ToolTip = $"Change the task for the selected item to '{mi.Header}'";
             mi.Tag = "NamedTask";
 
             return mi;

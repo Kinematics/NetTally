@@ -149,7 +149,7 @@ namespace NetTally
                 var fa = await quest.GetForumAdapterAsync(token);
 
                 if (fa == null)
-                    throw new InvalidOperationException(string.Format("Unable to load a forum adapter for the quest thread:\n{0}", quest.ThreadName));
+                    throw new InvalidOperationException($"Unable to load a forum adapter for the quest thread:\n{quest.ThreadName}");
 
                 // Load pages from the website
                 loadedPages = await PageProvider.LoadPages(quest, token).ConfigureAwait(false);
