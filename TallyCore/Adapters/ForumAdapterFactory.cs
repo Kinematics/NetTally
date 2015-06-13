@@ -30,12 +30,7 @@ namespace NetTally
         /// <returns>Returns a forum adapter for the site the quest is on.</returns>
         public static async Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token)
         {
-            IForumAdapter adapter = GetExplicitAdapter(quest);
-
-            if (adapter == null)
-            {
-                adapter = await GetImplicitAdapter(quest, token);
-            }
+            IForumAdapter adapter = GetExplicitAdapter(quest) ?? await GetImplicitAdapter(quest, token);
 
             return adapter;
         }
@@ -101,16 +96,7 @@ namespace NetTally
         /// <returns>Returns true if it's a XenForo forum.</returns>
         private static bool CheckForXenForo(HtmlDocument page)
         {
-            if (page == null)
-                return false;
-
-            var html = page.DocumentNode.Element("html");
-            if (html != null)
-            {
-                return (html.Id == "XenForo");
-            }
-
-            return false;
+            return page?.DocumentNode.Element("html")?.Id == "XenForo";
         }
 
         /// <summary>
@@ -121,16 +107,7 @@ namespace NetTally
         /// <returns>Returns true if it's a XenForo forum.</returns>
         private static bool CheckForVBulletin5(HtmlDocument page)
         {
-            if (page == null)
-                return false;
-
-            var body = page.DocumentNode?.Element("html")?.Element("body");
-            if (body != null)
-            {
-                return (body.Id == "vb-page-body");
-            }
-
-            return false;
+            return page?.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
         }
 
         /// <summary>
@@ -141,16 +118,7 @@ namespace NetTally
         /// <returns>Returns true if it's a XenForo forum.</returns>
         private static bool CheckForVBulletin4(HtmlDocument page)
         {
-            if (page == null)
-                return false;
-
-            var html = page.DocumentNode?.Element("html");
-            if (html != null)
-            {
-                return (html.Id == "vbulletin_html");
-            }
-
-            return false;
+            return page?.DocumentNode.Element("html")?.Id == "vbulletin_html";
         }
 
         /// <summary>

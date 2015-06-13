@@ -20,6 +20,9 @@ namespace NetTally.Utility
         /// <returns>The input string with all unicode control characters (except cr/lf) removed.</returns>
         public static string SafeString(string input)
         {
+            if (input == null)
+                return "";
+
             return UnsafeCharsRegex.Replace(input, "");
         }
 

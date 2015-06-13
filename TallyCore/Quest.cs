@@ -372,10 +372,7 @@ namespace NetTally
             get { return site; }
             set
             {
-                if (value == null)
-                    site = string.Empty;
-                else
-                    site = Utility.Text.SafeString(value);
+                site = Utility.Text.SafeString(value);
             }
         }
 
