@@ -14,6 +14,7 @@
         <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
         <local:DisplayModeConverter x:Key="DisplayModeConverter"></local:DisplayModeConverter>
+        <local:PartitionModeConverter x:Key="PartitionModeConverter"></local:PartitionModeConverter>
     </Window.Resources>
 
     <Grid>
@@ -158,46 +159,19 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <CheckBox x:Name="partitionedVotes" Content="Partition Votes" Margin="318,45,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=CurrentItem.UseVotePartitions}" HorizontalAlignment="Left" Width="95"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
-                  Checked="partitionedVotes_CheckedChanged" Unchecked="partitionedVotes_CheckedChanged">
-            <CheckBox.ToolTip>
+        <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="161" Padding="8,6,4,3"
+                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=PartitionModes}"
+                  SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"  SelectionChanged="partitionMode_SelectionChanged"
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <ComboBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
-                        <TextBlock FontWeight="Bold">Partition Votes</TextBlock>
-                        <TextBlock>Break tallied votes up by line or by block.</TextBlock>
+                        <TextBlock FontWeight="Bold">Partition Mode</TextBlock>
+                        <TextBlock>Specify the partition mode to use during the tally.</TextBlock>
                     </StackPanel>
                 </ToolTip>
-            </CheckBox.ToolTip>
-        </CheckBox>
-        <StackPanel HorizontalAlignment="Left" Height="39" Margin="418,45,0,0" VerticalAlignment="Top" Width="87"
-                    IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
-            <RadioButton x:Name="partitionByLine" Content="By Line" HorizontalAlignment="Left" VerticalAlignment="Top"
-        		GroupName="PartitionType" IsChecked="{Binding Path=CurrentItem.PartitionByLine, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}"
-        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}" Checked="partitionByLine_CheckedChanged" Unchecked="partitionByLine_CheckedChanged">
-                <RadioButton.ToolTip>
-                    <ToolTip>
-                        <StackPanel>
-                            <TextBlock FontWeight="Bold">Partition By Line</TextBlock>
-                            <TextBlock>Tally each individual vote line.</TextBlock>
-                        </StackPanel>
-                    </ToolTip>
-                </RadioButton.ToolTip>
-            </RadioButton>
-            <RadioButton x:Name="partitionByBlock" Content="By Block" HorizontalAlignment="Left" VerticalAlignment="Top"
-        		GroupName="PartitionType" IsChecked="{Binding ElementName=partitionByLine, Path=IsChecked, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}"
-        		IsEnabled="{Binding IsChecked, ElementName=partitionedVotes}">
-                <RadioButton.ToolTip>
-                    <ToolTip>
-                        <StackPanel>
-                            <TextBlock FontWeight="Bold">Partition By Block</TextBlock>
-                            <TextBlock>Tally blocks of vote lines that begin with a non-indented line.</TextBlock>
-                        </StackPanel>
-                    </ToolTip>
-                </RadioButton.ToolTip>
-            </RadioButton>
-        </StackPanel>
+            </ComboBox.ToolTip>
+        </ComboBox>
         <CheckBox x:Name="useRankedVotes" Content="Allow Ranked Votes" HorizontalAlignment="Left" Margin="318,80,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=CurrentItem.AllowRankedVotes}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
@@ -210,10 +184,9 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <Button x:Name="openMergeVotesWindow" Content="Manage Votes..." Margin="510,45,0,0"
+        <Button x:Name="openMergeVotesWindow" Content="Manage Votes..." Margin="510,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="104"
                 Click="openMergeVotesWindow_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
-                Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="104">
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

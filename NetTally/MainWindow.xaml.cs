@@ -399,6 +399,10 @@ namespace NetTally
             tally.UpdateTally(CurrentlySelectedQuest());
         }
 
+        private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            tally.UpdateTally(CurrentlySelectedQuest());
+        }
         #endregion
 
         #region Utility support methods
@@ -467,5 +471,6 @@ namespace NetTally
         }
 
         #endregion
+
     }
 }
