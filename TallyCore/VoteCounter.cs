@@ -604,40 +604,43 @@ namespace NetTally
                 var referralVotes = FindVotesForVoter(trimmedLine);
                 if (referralVotes.Count > 0)
                 {
-                    // If we're using vote partitions, add each of the other voter's
-                    // votes to our partition list.  Otherwise, append them all onto
-                    // the currently being built string.
-                    if (quest.UseVotePartitions)
-                    {
-                        partitions.AddRange(referralVotes);
-                    }
-                    else
+                    // If we're not using vote partitions, append all lines onto the current vote string.
+                    // Otherwise, add each of the other voter's votes to our partition list.
+                    if (quest.PartitionMode == PartitionMode.None)
                     {
                         foreach (var v in referralVotes)
                             sb.Append(v);
+                    }
+                    else
+                    {
+                        partitions.AddRange(referralVotes);
                     }
 
                     // Go to the next vote line if we were successful in pulling a referral vote.
                     continue;
                 }
 
-                // For lines that don't refer to other voters, compile them into
-                // unit blocks if we're using vote partitions, or just add to the
-                // end of the total string if not.
-                if (quest.UseVotePartitions)
+                // For lines that don't refer to other voters, just keep adding the
+                // lines to the complete vote if we're not partitioning them, or
+                // compile them into unit blocks if we're using vote partitions.
+                if (quest.PartitionMode == PartitionMode.None)
                 {
-                    if (quest.PartitionByLine)
+                    sb.AppendLine(trimmedLine);
+                }
+                else
+                {
+                    if (quest.PartitionMode == PartitionMode.ByLine)
                     {
                         // If partitioning by line, every line gets added to the partitions list.
                         partitions.Add(trimmedLine+"\r\n");
                     }
                     else if (voteType == VoteType.Plan)
                     {
-                        // If partitioning a Base Plan by block, simply collate all lines together.
+                        // If partitioning a Base Plan by block or task, simply collate all lines together.
                         // The entire plan is considered a single block.
                         sb.AppendLine(trimmedLine);
                     }
-                    else
+                    else if (quest.PartitionMode == PartitionMode.ByBlock)
                     {
                         // If partitioning a vote by block, work on collecting chunks together.
                         if (sb.Length == 0)
@@ -655,10 +658,6 @@ namespace NetTally
                             sb.AppendLine(trimmedLine);
                         }
                     }
-                }
-                else
-                {
-                    sb.AppendLine(trimmedLine);
                 }
             }
 

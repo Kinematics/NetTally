@@ -44,7 +44,7 @@ namespace NetTally
             string cleaned = CleanVote(voteLine);
             cleaned = collapseRegex.Replace(cleaned, "");
             cleaned = cleaned.ToLower();
-            if (quest.UseVotePartitions && quest.PartitionByLine)
+            if (quest.PartitionMode == PartitionMode.ByLine)
                 cleaned = leadHyphenRegex.Replace(cleaned, "");
 
             return cleaned;
