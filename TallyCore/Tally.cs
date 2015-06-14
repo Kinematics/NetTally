@@ -100,8 +100,7 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Flag for whether to use spoiler blocks for voter lists in
-        /// the output display.
+        /// Enum of the type of display composition methodology to use for the output display.
         /// Recalculates the display if changed.
         /// </summary>
         public DisplayMode DisplayMode
