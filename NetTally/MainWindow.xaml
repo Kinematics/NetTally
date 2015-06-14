@@ -223,18 +223,6 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <CheckBox x:Name="useSpoilerForVoters" Content="Use Spoilers" HorizontalAlignment="Left" Margin="510,80,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=UseSpoilerForVoters}" Visibility="Hidden"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
-            <CheckBox.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Spoiler Voters</TextBlock>
-                        <TextBlock>Place list of voters for each vote in a spoiler block.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </CheckBox.ToolTip>
-        </CheckBox>
         <ComboBox x:Name="displayMode" Margin="510,80,0,0" VerticalAlignment="Top" Height="22"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
                   SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
