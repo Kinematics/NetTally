@@ -162,16 +162,14 @@ namespace NetTally
 
 
     /// <summary>
-    /// Data binding conversion class to convert the bool to either the same value,
-    /// or the inverse of the value, depending on the parameter value.
-    /// The 'parameter' parameter specifies whether to invert the boolean value.
-    /// Value of "Invert" will cause it to return the negation of the bool.
+    /// Data binding conversion class to convert a DisplayMode enum to
+    /// an index value or back.
     /// </summary>
     [ValueConversion(typeof(DisplayMode), typeof(int))]
     public class DisplayModeConverter : IValueConverter
     {
         /// <summary>
-        /// Convert from source (property bool) to target (control bool).
+        /// Convert from source (property enum) to target (control index).
         /// </summary>
         /// <returns>Returns whether the specified target control value should be on or off.</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -185,7 +183,7 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Convert from target (control bool) to source (property bool).
+        /// Convert from target (control index) to source (property enum).
         /// </summary>
         /// <returns>Returns what the source property value should be set to
         /// based on the target value.</returns>
