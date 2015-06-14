@@ -34,6 +34,21 @@ namespace NetTally
         Compact
     }
 
+    /// <summary>
+    /// Enum for various modes of constructing the final tally display.
+    /// </summary>
+    public enum PartitionMode
+    {
+        [Description("None")]
+        None,
+        [Description("By Line")]
+        ByLine,
+        [Description("By Block")]
+        ByBlock,
+        [Description("By Task")]
+        ByTask
+    }
+
     public static class Enumerations
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
