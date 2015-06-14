@@ -144,15 +144,28 @@ namespace NetTally
                     // These fields are obsolete, but we still want to read them from old config files.
                     Site = quest.Site,
                     Name = quest.Name,
+                    UseVotePartitions = quest.UseVotePartitions,
+                    PartitionByLine = quest.PartitionByLine,
 #pragma warning restore 0618
                     RawPostsPerPage = quest.PostsPerPage,
                     StartPost = quest.StartPost,
                     EndPost = quest.EndPost,
                     CheckForLastThreadmark = quest.CheckForLastThreadmark,
-                    UseVotePartitions = quest.UseVotePartitions,
-                    PartitionByLine = quest.PartitionByLine,
+                    PartitionMode = quest.PartitionMode,
                     AllowRankedVotes = quest.AllowRankedVotes
                 };
+
+                // Convert old partition options to new enum.
+                if (q.UseVotePartitions)
+                {
+                    if (q.PartitionByLine)
+                        q.PartitionMode = PartitionMode.ByLine;
+                    else
+                        q.PartitionMode = PartitionMode.ByBlock;
+
+                    q.UseVotePartitions = false;
+                }
+
                 questWrapper.QuestCollection.Add(q);
             }
         }
@@ -217,7 +230,7 @@ namespace NetTally
         public void Add(IQuest quest)
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.UseVotePartitions, quest.PartitionByLine, quest.AllowRankedVotes);
+                quest.CheckForLastThreadmark, quest.PartitionMode, quest.AllowRankedVotes);
             BaseAdd(questElement);
         }
 
@@ -234,7 +247,7 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            bool useVotePartitions, bool partitionByLine, bool allowRankedVotes)
+            PartitionMode partitionMode, bool allowRankedVotes)
         {
             //Site = site;
             //Name = name;
@@ -244,9 +257,11 @@ namespace NetTally
             StartPost = startPost;
             EndPost = endPost;
             CheckForLastThreadmark = checkForLastThreadmark;
-            UseVotePartitions = useVotePartitions;
-            PartitionByLine = partitionByLine;
+            PartitionMode = partitionMode;
             AllowRankedVotes = allowRankedVotes;
+
+            UseVotePartitions = false;
+            PartitionByLine = true;
         }
 
         public QuestElement()
@@ -329,6 +344,13 @@ namespace NetTally
         {
             get { return (bool)this["PartitionByLine"]; }
             set { this["PartitionByLine"] = value; }
+        }
+
+        [ConfigurationProperty("PartitionMode", DefaultValue = PartitionMode.None)]
+        public PartitionMode PartitionMode
+        {
+            get { return (PartitionMode)this["PartitionMode"]; }
+            set { this["PartitionMode"] = value; }
         }
 
         [ConfigurationProperty("AllowRankedVotes", DefaultValue = false)]
