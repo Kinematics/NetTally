@@ -57,12 +57,18 @@ namespace NetTally
         bool CheckForLastThreadmark { get; set; }
         /// <summary>
         /// Flag for whether to use vote partitions for this quest.
+        /// OBSOLETE
         /// </summary>
         bool UseVotePartitions { get; set; }
         /// <summary>
         /// Flag for whether vote partitions should be done by line or by block.
+        /// OBSOLETE
         /// </summary>
         bool PartitionByLine { get; set; }
+        /// <summary>
+        /// Enum for the type of partitioning to use when performing a tally.
+        /// </summary>
+        PartitionMode PartitionMode { get; set; }
 
         /// <summary>
         /// Flag for whether to count votes using preferential vote ranking.

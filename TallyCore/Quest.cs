@@ -51,6 +51,7 @@ namespace NetTally
         bool useVotePartitions = false;
         bool partitionByLine = true;
         bool allowRankedVotes = false;
+        PartitionMode partitionMode = PartitionMode.None;
         #endregion
 
         #region IQuest Properties
@@ -244,6 +245,21 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Enum for the type of partitioning to use when performing a tally.
+        /// </summary>
+        public PartitionMode PartitionMode
+        {
+            get { return partitionMode; }
+            set
+            {
+                partitionMode = value;
+                OnPropertyChanged();
+            }
+
+        }
+
 
         /// <summary>
         /// Flag for whether to try to override the provided starting post by
