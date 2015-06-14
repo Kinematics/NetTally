@@ -50,6 +50,8 @@ namespace NetTally
 
         public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
 
+        public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
+
         #region Startup/shutdown events
         /// <summary>
         /// Function that's run when the program first starts.
