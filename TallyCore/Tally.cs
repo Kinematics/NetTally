@@ -85,21 +85,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Flag for whether to use spoiler blocks for voter lists in
-        /// the output display.
-        /// Recalculates the display if changed.
-        /// </summary>
-        public bool UseSpoilerForVoters
-        {
-            get { return useSpoilerForVoters; }
-            set
-            {
-                useSpoilerForVoters = value;
-                ConstructResults(lastTallyQuest);
-            }
-        }
-
-        /// <summary>
         /// Enum of the type of display composition methodology to use for the output display.
         /// Recalculates the display if changed.
         /// </summary>
