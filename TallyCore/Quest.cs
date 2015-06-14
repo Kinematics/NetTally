@@ -257,7 +257,6 @@ namespace NetTally
                 partitionMode = value;
                 OnPropertyChanged();
             }
-
         }
 
 

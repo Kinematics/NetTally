@@ -39,14 +39,16 @@ namespace NetTally
     /// </summary>
     public enum PartitionMode
     {
-        [Description("None")]
+        [Description("No Partitioning")]
         None,
-        [Description("By Line")]
+        [Description("Partition By Line")]
         ByLine,
-        [Description("By Block")]
+        [Description("Partition By Block")]
         ByBlock,
-        [Description("By Task")]
-        ByTask
+        [Description("Partition By Task")]
+        ByTask,
+        [Description("Partition By Task/Block")]
+        ByTaskBlock
     }
 
     public static class Enumerations
