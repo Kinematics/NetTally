@@ -77,7 +77,6 @@ namespace NetTally
             QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
             Properties.Settings settings = new Properties.Settings();
-            tally.UseSpoilerForVoters = settings.UseSpoilerForVoters;
             tally.DisplayMode = wrapper.DisplayMode;
 
             // Set up data contexts
@@ -115,7 +114,6 @@ namespace NetTally
             NetTallyConfig.Save(tally, qcw);
 
             Properties.Settings settings = new Properties.Settings();
-            settings.UseSpoilerForVoters = tally.UseSpoilerForVoters;
             settings.Save();
         }
         #endregion
