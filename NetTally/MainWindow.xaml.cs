@@ -84,7 +84,6 @@ namespace NetTally
             // Set up data contexts
             DataContext = QuestCollectionView;
 
-            useSpoilerForVoters.DataContext = tally;
             resultsWindow.DataContext = tally;
             tallyButton.DataContext = tally;
             cancelTally.DataContext = tally;
