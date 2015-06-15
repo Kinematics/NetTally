@@ -13,7 +13,6 @@
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
         <local:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></local:MultiStringCompareConverter>
 
-
         <ContextMenu x:Key="TaskContextMenu" x:Name="ContextMenuName">
         </ContextMenu>
     </Window.Resources>
@@ -92,6 +91,18 @@
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Delete</TextBlock>
                         <TextBlock>Delete the selected vote.  Select the same vote from both columns.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="joinVoters" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="400,441,0,0" VerticalAlignment="Top" Width="76"
+                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="join_Click" ToolTipService.ShowOnDisabled="True"
+                IsEnabled="{Binding ElementName=votersFromListBox, Path=HasItems}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Join</TextBlock>
+                        <TextBlock>Have all voters from the list on the left support all votes of the voter selected on the right.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </Button.ToolTip>

@@ -238,6 +238,41 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Handler for the button to join voters.
+        /// All voters from the from list are adjusted to support all votes supported by the
+        /// voter selected in the to list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void join_Click(object sender, RoutedEventArgs e)
+        {
+            if (VoteView1.Count == 0)
+                return;
+
+            if (VoterView2.CurrentItem == null)
+                return;
+
+            List<string> fromVoters = votersFromListBox.Items.SourceCollection.OfType<string>().ToList();
+            string joinVoter = VoterView2.CurrentItem.ToString();
+
+            try
+            {
+                if (voteCounter.Join(fromVoters, joinVoter, CurrentVoteType))
+                {
+                    VoteView1.Refresh();
+                    VoteView2.Refresh();
+                    VoterView1.Refresh();
+                    VoterView2.Refresh();
+                    VoteView1.MoveCurrentToPosition(-1);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
         /// Delete the vote that has been selected in both list boxes.
         /// </summary>
         /// <param name="sender"></param>
