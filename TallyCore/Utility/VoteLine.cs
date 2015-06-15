@@ -17,7 +17,7 @@ namespace NetTally
         // Regex to allow us to strip leading dashes from a per-line vote.
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
         // Regex for separating out the task from the other portions of a vote line.
-        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(?<task>\[[^]\r\n]+\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
+        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
 
         /// <summary>
         /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
