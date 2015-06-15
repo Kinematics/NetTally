@@ -26,6 +26,9 @@ namespace NetTally.Utility
             return UnsafeCharsRegex.Replace(input, "");
         }
 
+        /// <summary>
+        /// Magic character (currently ◈) to flag a user name as a base plan.
+        /// </summary>
         public static string PlanNameMarker { get; } = "\u25C8";
 
     }
