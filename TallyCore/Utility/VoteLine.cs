@@ -112,9 +112,10 @@ namespace NetTally
 
         /// <summary>
         /// Get the content of the vote line.
+        /// Treats the entire vote as a single line.
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
-        /// <returns>Returns the content of the vote line.</returns>
+        /// <returns>Returns the content of the entire vote, after the first marker/task.</returns>
         public static string GetVoteContent(string voteLine)
         {
             string cleaned = CleanVote(voteLine);
@@ -127,6 +128,12 @@ namespace NetTally
             return string.Empty;
         }
 
+        /// <summary>
+        /// Get the content of the vote line.
+        /// Treats the vote as multiple separate lines, and only returns the content of the first line.
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns the content of the first vote line.</returns>
         public static string GetVoteContentFirstLine(string voteLine)
         {
             string cleaned = CleanVote(voteLine);
