@@ -128,15 +128,14 @@ namespace NetTally
                     var validPosts = from post in forumAdapter.GetPostsFromPage(page)
                                      where post != null
                                      let postNumber = forumAdapter.GetPostNumberOfPost(post)
-                                     where (DebugMode.Instance.Active || forumAdapter.GetAuthorOfPost(post) != threadAuthor) &&
-                                        postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
+                                     where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
                                      select post;
 
 
                     // Process each user post in the list.
                     foreach (var post in validPosts)
                     {
-                        ProcessPost(post, quest);
+                        ProcessPost(post, quest, threadAuthor);
                     }
                 }
             }
@@ -291,7 +290,7 @@ namespace NetTally
         /// <param name="post">The list item node containing the post.</param>
         /// <param name="startPost">The first post number of the thread to check.</param>
         /// <param name="endPost">The last post number of the thread to check.</param>
-        private void ProcessPost(HtmlNode post, IQuest quest)
+        private void ProcessPost(HtmlNode post, IQuest quest, string threadAuthor)
         {
             if (post == null)
                 return;
@@ -303,6 +302,8 @@ namespace NetTally
 
             if (DebugMode.Instance.Active)
                 postAuthor = postAuthor + "_" + postID;
+            else if (postAuthor == threadAuthor)
+                return;
 
             // Attempt to get vote information from the post.
             ProcessPostContents(postText, postAuthor, postID, quest);
