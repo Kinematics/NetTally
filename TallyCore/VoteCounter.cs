@@ -692,14 +692,18 @@ namespace NetTally
                     // If partitioning a vote by block, work on collecting chunks together.
                     if (sb.Length == 0)
                     {
+                        // Start a new block
                         sb.AppendLine(trimmedLine);
                     }
                     else if (VoteLine.CleanVote(trimmedLine).StartsWith("-"))
                     {
+                        // Sub-lines get added to an existing block
                         sb.AppendLine(trimmedLine);
                     }
                     else
                     {
+                        // New top-level lines indicate we should save the current
+                        // accumulation and start a new block.
                         partitions.Add(sb.ToString());
                         sb.Clear();
                         sb.AppendLine(trimmedLine);
@@ -707,7 +711,7 @@ namespace NetTally
                 }
                 else if (quest.PartitionMode == PartitionMode.ByTask)
                 {
-                    // Group lines by task
+                    // Create a new block each time we encounter a new task.
 
                     // If string builder is empty, start adding.
                     if (sb.Length == 0)
@@ -867,6 +871,8 @@ namespace NetTally
                                 sb.Clear();
                             }
 
+                            // Add a task header or task element to the current line when
+                            // starting a new block, if available.
                             if (taskHeader != string.Empty)
                             {
                                 sb.AppendLine(taskHeader);
