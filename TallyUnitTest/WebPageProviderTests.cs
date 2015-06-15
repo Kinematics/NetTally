@@ -15,7 +15,7 @@ namespace NetTally.Tests
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            forumAdapter = new SufficientVelocityAdapter();
+            forumAdapter = new XenForoAdapter();
             pageProvider = new WebPageProvider();
             privateWeb = new PrivateObject(pageProvider);
         }
