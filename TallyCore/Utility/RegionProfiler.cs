@@ -13,7 +13,7 @@ namespace NetTally.Utility
     ///     [Code to be profiled]
     /// }
     /// </summary>
-    public class RegionProfiler : IDisposable
+    public sealed class RegionProfiler : IDisposable
     {
         private Stopwatch stopwatch = new Stopwatch();
 
