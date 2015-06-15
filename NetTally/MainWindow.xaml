@@ -167,7 +167,7 @@
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Partition Mode</TextBlock>
-                        <TextBlock>Specify the partition mode to use during the tally.</TextBlock>
+                        <TextBlock>Specify the partition mode to use for constructing votes during the tally.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </ComboBox.ToolTip>

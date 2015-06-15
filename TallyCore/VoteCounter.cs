@@ -588,12 +588,21 @@ namespace NetTally
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
+            StringBuilder holding_sb = new StringBuilder();
+            string currentTask = "";
+            string taskHeader = "";
+            bool addedTopLevelLine = false;
+            string prefix;
+            string marker;
+            string task;
+            string content;
 
             // Work through the list of matched lines
             foreach (string line in lines)
             {
                 string trimmedLine = line.Trim();
 
+                // Ranked vote lines are all treated individually.
                 if (voteType == VoteType.Rank)
                 {
                     partitions.Add(trimmedLine + "\r\n");
@@ -627,43 +636,226 @@ namespace NetTally
                 {
                     sb.AppendLine(trimmedLine);
                 }
-                else
+                else if (quest.PartitionMode == PartitionMode.ByLine)
                 {
-                    if (quest.PartitionMode == PartitionMode.ByLine)
+                    // If partitioning by line, every line gets added to the partitions list.
+                    partitions.Add(trimmedLine + "\r\n");
+                }
+                else if (voteType == VoteType.Plan)
+                {
+                    // If partitioning a Base Plan by block or task, simply collate all lines together.
+                    // The entire plan is considered a single block.
+                    sb.AppendLine(trimmedLine);
+                }
+                else if (quest.PartitionMode == PartitionMode.ByBlock)
+                {
+                    // If partitioning a vote by block, work on collecting chunks together.
+                    if (sb.Length == 0)
                     {
-                        // If partitioning by line, every line gets added to the partitions list.
-                        partitions.Add(trimmedLine+"\r\n");
-                    }
-                    else if (voteType == VoteType.Plan)
-                    {
-                        // If partitioning a Base Plan by block or task, simply collate all lines together.
-                        // The entire plan is considered a single block.
                         sb.AppendLine(trimmedLine);
                     }
-                    else if (quest.PartitionMode == PartitionMode.ByBlock)
+                    else if (VoteLine.CleanVote(trimmedLine).StartsWith("-"))
                     {
-                        // If partitioning a vote by block, work on collecting chunks together.
-                        if (sb.Length == 0)
+                        sb.AppendLine(trimmedLine);
+                    }
+                    else
+                    {
+                        partitions.Add(sb.ToString());
+                        sb.Clear();
+                        sb.AppendLine(trimmedLine);
+                    }
+                }
+                else if (quest.PartitionMode == PartitionMode.ByTask)
+                {
+                    // Group lines by task
+
+                    // If string builder is empty, start adding.
+                    if (sb.Length == 0)
+                    {
+                        sb.AppendLine(trimmedLine);
+                    }
+                    else if (VoteLine.GetVoteTask(trimmedLine) != string.Empty)
+                    {
+                        // We've reached a new task block
+                        partitions.Add(sb.ToString());
+                        sb.Clear();
+                        sb.AppendLine(trimmedLine);
+                    }
+                    else
+                    {
+                        sb.AppendLine(trimmedLine);
+                    }
+                }
+                else if (quest.PartitionMode == PartitionMode.ByTaskBlock)
+                {
+                    // A blend of task and block breakdowns
+                    // Top-level elements are retained within the current block if
+                    // we're inside a task segment.
+                    // However top-level elements with sub-elements get their own partition even if a
+                    // new task wasn't on that line.
+                    // Applies task name to each sub-block encountered.
+
+                    // Get vote line components, since we'll be using them a bunch
+                    VoteLine.GetVoteComponents(trimmedLine, out prefix, out marker, out task, out content);
+
+
+                    if (task != string.Empty)
+                    {
+                        // We've started a new task block
+
+                        // Push all pending accumulations to the completed stacks
+                        if (holding_sb.Length > 0)
                         {
-                            sb.AppendLine(trimmedLine);
+                            sb.Append(holding_sb.ToString());
+                            holding_sb.Clear();
                         }
-                        else if (VoteLine.CleanVote(trimmedLine).StartsWith("-"))
-                        {
-                            sb.AppendLine(trimmedLine);
-                        }
-                        else
+
+                        if (sb.Length > 0)
                         {
                             partitions.Add(sb.ToString());
                             sb.Clear();
+                        }
+
+                        sb.AppendLine(trimmedLine);
+
+                        // Save details
+                        addedTopLevelLine = (prefix == string.Empty);
+                        currentTask = task;
+
+                        if (content == string.Empty)
+                            taskHeader = trimmedLine;
+                        else
+                            taskHeader = "";
+                    }
+                    else if (sb.Length == 0)
+                    {
+                        // If string builder is empty, start adding new stuff.
+                        sb.AppendLine(trimmedLine);
+
+                        // Save details
+                        addedTopLevelLine = (prefix == string.Empty);
+                        currentTask = task;
+
+                        // If the line is nothing but a task (no content), save this as a task header
+                        if (task != string.Empty && content == string.Empty)
+                            taskHeader = trimmedLine;
+                        else
+                            taskHeader = "";
+                    }
+                    else if (holding_sb.Length > 0)
+                    {
+                        // holding_sb holds the last top-level line, if any.
+
+                        // If we get another top-level line, just push through the stack
+                        if (prefix == string.Empty)
+                        {
+                            sb.Append(holding_sb.ToString());
+                            holding_sb.Clear();
+                            holding_sb.AppendLine(trimmedLine);
+                        }
+                        else
+                        {
+                            // If it's a sub-line, we started a new block
+                            if (sb.Length > 0)
+                            {
+                                // If the current sb has any actual content in it, add to the partitions
+                                if (VoteLine.GetVoteContent(sb.ToString()) != string.Empty)
+                                    partitions.Add(sb.ToString());
+
+                                sb.Clear();
+                            }
+
+                            if (taskHeader != string.Empty)
+                            {
+                                // If we have a defined task header, put it to the sb before we add
+                                // the holding string.
+                                sb.AppendLine(taskHeader);
+                                sb.Append(holding_sb.ToString());
+                            }
+                            else if (currentTask != string.Empty)
+                            {
+                                // If we don't have a task header, but do have an active task, apply
+                                // that to the holding string before adding it.
+                                string tasked_holding_line = VoteLine.ReplaceTask(holding_sb.ToString(), currentTask);
+                                sb.Append(tasked_holding_line);
+                            }
+                            else
+                            {
+                                // Otherwise, just add what we're holding
+                                sb.Append(holding_sb.ToString());
+                            }
+
+                            // Clear what we added
+                            holding_sb.Clear();
+
+                            // Add the incoming line
                             sb.AppendLine(trimmedLine);
+                            addedTopLevelLine = false;
+                        }
+                    }
+                    else
+                    {
+                        // Otherwise, we haven't stored any holding lines, but we -have- added
+                        // some lines to sb.
+
+                        // If we're adding a sub-level line, it always just gets added.
+                        if (prefix != string.Empty)
+                        {
+                            sb.AppendLine(trimmedLine);
+                            addedTopLevelLine = false;
+                        }
+
+                        // If we're adding a new top-level line, it gets added to the holding string
+                        // if the previous line was also top-level.
+                        
+                        else if (addedTopLevelLine)
+                        {
+                            holding_sb.AppendLine(trimmedLine);
+                        }
+
+                        // If we're adding a new top-level line, but the previous line was -not-
+                        // a top-level, that means we're starting a new block
+                        else
+                        {
+                            // If we're starting a new block, put the task header or current task
+                            // in place, if applicable.
+
+                            if (sb.Length > 0)
+                            {
+                                // Push anything in the current sb to the partitions
+                                partitions.Add(sb.ToString());
+                                sb.Clear();
+                            }
+
+                            if (taskHeader != string.Empty)
+                            {
+                                sb.AppendLine(taskHeader);
+                                sb.AppendLine(trimmedLine);
+                            }
+                            else if (currentTask != string.Empty)
+                            {
+                                sb.AppendLine(VoteLine.ReplaceTask(trimmedLine, currentTask));
+                            }
+                            else
+                            {
+                                sb.AppendLine(trimmedLine);
+                            }
+
+                            addedTopLevelLine = true;
                         }
                     }
                 }
             }
 
 
+            if (holding_sb.Length > 0)
+            {
+                sb.Append(holding_sb.ToString());
+            }
             if (sb.Length > 0)
+            {
                 partitions.Add(sb.ToString());
+            }
 
             // Make sure any BBCode formatting is cleaned up in each partition result.
             CloseFormattingTags(partitions);
