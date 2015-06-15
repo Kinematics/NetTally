@@ -10,7 +10,7 @@ namespace NetTally.Utility
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.
     /// </summary>
-    public class PostText
+    public static class PostText
     {
         #region Web/Post text extraction and cleanup
         // Regex for colors in a span's style
