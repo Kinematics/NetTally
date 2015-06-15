@@ -184,6 +184,46 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Merges voter support.
+        /// All of the list of provided voters are adjusted to support the same votes
+        /// as those supported by the voterToJoin.
+        /// </summary>
+        /// <param name="voters">List of voters that are being adjusted.</param>
+        /// <param name="voterToJoin">Voter that all specified voters will be joining.</param>
+        /// <param name="voteType">The type of vote being manipulated.</param>
+        /// <returns>Returns true if adjustments were made.</returns>
+        public bool Join(List<string> voters, string voterToJoin, VoteType voteType)
+        {
+            if (voters == null)
+                throw new ArgumentNullException(nameof(voters));
+            if (voterToJoin == null)
+                throw new ArgumentNullException(nameof(voterToJoin));
+            if (voterToJoin == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(voterToJoin), "Voter string is empty.");
+            if (voters.Count == 0)
+                return false;
+
+            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+
+            var joinVotersVotes = votesDict.Where(v => v.Value.Contains(voterToJoin));
+
+            foreach (string voter in voters)
+            {
+                if (voter != voterToJoin)
+                {
+                    RemoveSupport(voter, voteType);
+
+                    foreach (var vote in joinVotersVotes)
+                    {
+                        vote.Value.Add(voter);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Delete a vote from the vote list specified.
         /// </summary>
         /// <param name="vote">The vote to remove.</param>
