@@ -413,7 +413,9 @@ namespace NetTally
         private void PartitionByLine(List<string> partitions, StringBuilder sb, string line)
         {
             // If partitioning by line, every line gets added to the partitions list.
-            partitions.Add(line + "\r\n");
+            // Skip lines without any content.
+            if (VoteLine.GetVoteContent(line) != string.Empty)
+                partitions.Add(line + "\r\n");
         }
 
         /// <summary>
@@ -439,7 +441,10 @@ namespace NetTally
             {
                 // New top-level lines indicate we should save the current
                 // accumulation and start a new block.
-                partitions.Add(sb.ToString());
+                string currentAccumulation = sb.ToString();
+                // Skip blocks without any valid content
+                if (VoteLine.GetVoteContent(currentAccumulation) != string.Empty)
+                    partitions.Add(sb.ToString());
                 sb.Clear();
                 sb.AppendLine(line);
             }
