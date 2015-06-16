@@ -9,7 +9,8 @@ namespace NetTally
 {
     public class VoteCounter : IVoteCounter
     {
-        VoteConstructor voteConstructor;
+        readonly VoteConstructor voteConstructor;
+        readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
 
         /// <summary>
         /// Constructor
@@ -19,8 +20,7 @@ namespace NetTally
             voteConstructor = new VoteConstructor(this);
         }
 
-        #region Private variables
-
+        #region Public Interface
         /// <summary>
         /// Reset all tracking variables.
         /// </summary>
@@ -35,20 +35,6 @@ namespace NetTally
             Title = string.Empty;
         }
 
-
-        readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
-
-        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
-        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔]\s*\].*", RegexOptions.Multiline);
-        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex rankVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
-        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
-        #endregion
-
-        #region Public Interface
         public string Title { get; set; } = string.Empty;
 
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
