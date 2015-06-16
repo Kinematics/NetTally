@@ -31,64 +31,208 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
+        public void ResetTest()
+        {
+            //TODO
+
+            voteCounter.Reset();
+
+            Assert.AreEqual(0, voteCounter.VoterMessageId.Count);
+            Assert.AreEqual(0, voteCounter.VotesWithSupporters.Count);
+            Assert.AreEqual(0, voteCounter.RankedVoterMessageId.Count);
+            Assert.AreEqual(0, voteCounter.RankedVotesWithSupporters.Count);
+            Assert.AreEqual(0, voteCounter.PlanNames.Count);
+            Assert.AreEqual("", voteCounter.Title);
+        }
+
+        [TestMethod()]
         public void TallyVotesTest()
         {
-            var a = new VoteCounter();
-            Assert.AreEqual(0, a.VoterMessageId.Count);
-            Assert.AreEqual(0, a.VotesWithSupporters.Count);
-
-            privateVote.Invoke("Reset");
+            //TODO
         }
 
         [TestMethod()]
-        public void GetVoteKeyTest1()
+        public void GetVotesCollectionTest1()
         {
-            string myVote = "[x] Vote for stuff";
-
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key);
+            Assert.AreEqual(voteCounter.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Vote));
         }
 
         [TestMethod()]
-        public void GetVoteKeyTest2()
+        public void GetVotesCollectionTest2()
         {
-            string myVote = "[x] Vote for stuff";
-            voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
-
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key);
+            Assert.AreEqual(voteCounter.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Plan));
         }
 
         [TestMethod()]
-        public void GetVoteKeyTest3()
+        public void GetVotesCollectionTest3()
         {
-            string myVote = "[x] Vote for stuff";
-
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key);
-            string key2 = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key2);
-
-            string myBoldVote = "[x] Vote for [b]stuff[/b] ";
-            string key3 = (string)privateVote.Invoke("GetVoteKey", myBoldVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key3);
+            Assert.AreEqual(voteCounter.RankedVotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Rank));
         }
 
         [TestMethod()]
-        public void GetVoteKeyTest4()
+        public void GetVotersCollectionTest1()
         {
-            string myVote = "[x] Vote for stuff";
-            voteCounter.VotesWithSupporters[myVote] = new HashSet<string>() { "me" };
+            Assert.AreEqual(voteCounter.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Vote));
+        }
 
-            List<string> votes = (List<string>)privateVote.Invoke("RemoveSupport", "me", VoteType.Vote);
+        [TestMethod()]
+        public void GetVotersCollectionTest2()
+        {
+            Assert.AreEqual(voteCounter.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Plan));
+        }
 
-            string key = (string)privateVote.Invoke("GetVoteKey", myVote, sampleQuest, VoteType.Vote);
-            Assert.AreEqual(myVote, key);
+        [TestMethod()]
+        public void GetVotersCollectionTest3()
+        {
+            Assert.AreEqual(voteCounter.RankedVoterMessageId, voteCounter.GetVotersCollection(VoteType.Rank));
         }
 
 
+        [TestMethod()]
+        public void AddVoteSupportTest1()
+        {
+            string voteLine = "[x] First test";
+            string voter = "me";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
+        }
+
+        [TestMethod()]
+        public void AddVoteSupportTest2()
+        {
+            string voteLine = "[x] First test";
+            string voter = "me";
+            VoteType voteType = VoteType.Plan;
+
+            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
+        }
+
+        [TestMethod()]
+        public void AddVoteSupportTest3()
+        {
+            string voteLine = "[1] First test";
+            string voter = "me";
+            VoteType voteType = VoteType.Rank;
+
+            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
+        }
+
+        [TestMethod()]
+        public void AddVoteSupportTest4()
+        {
+            string voteLine = "[x] First test";
+            string voter1 = "me";
+            string voter2 = "me2";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter2));
+        }
+
+        [TestMethod()]
+        public void RemoveSupportTest1()
+        {
+            string voteLine = "[x] First test";
+            string voter = "me";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest);
+            voteCounter.RemoveSupport(voter, voteType);
+
+            Assert.AreEqual(0, voteCounter.VotesWithSupporters.Count);
+        }
+
+        [TestMethod()]
+        public void RemoveSupportTest2()
+        {
+            string voteLine = "[x] First test";
+            string voter1 = "me";
+            string voter2 = "me2";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest);
+
+            voteCounter.RemoveSupport(voter1, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter2));
+        }
+
+        [TestMethod()]
+        public void RemoveSupportTest3()
+        {
+            string voteLine = "[x] First test";
+            string voter1 = "me";
+            string voter2 = "me2";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest);
+
+            voteCounter.RemoveSupport("you", voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter2));
+        }
 
 
+        [TestMethod()]
+        public void AddVoteSupportTest5()
+        {
+            string vote1 = "[x] First test";
+            string voter1 = "me";
+            string vote2 = "[x] First [b]test[/b]";
+            string voter2 = "me2";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(vote1, voter1, voteType, sampleQuest);
+            voteCounter.AddVoteSupport(vote2, voter2, voteType, sampleQuest);
+
+            Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(vote1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).ContainsKey(vote2));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[vote1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[vote1].Contains(voter2));
+        }
+
+        [TestMethod()]
+        public void AddVoteSupportTest6()
+        {
+            string vote1 = "[x] First test";
+            string voter1 = "me";
+            string vote2 = "[x] First [b]test[/b]";
+            string voter2 = "me2";
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVoteSupport(vote1, voter1, voteType, sampleQuest);
+            voteCounter.RemoveSupport(voter1, voteType);
+            voteCounter.AddVoteSupport(vote2, voter2, voteType, sampleQuest);
+
+            Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(vote1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).ContainsKey(vote2));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType)[vote1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[vote1].Contains(voter2));
+        }
+
+        
         [TestMethod()]
         public void FindVotesForVoterTest1()
         {
@@ -117,7 +261,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void RemoveSupportTest1()
+        public void RemoveSupportTest4()
         {
             string vote1 = "[x] Vote for stuff 1";
             string vote2 = "[x] Vote for stuff 2";
@@ -135,7 +279,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void RemoveSupportTest2()
+        public void RemoveSupportTest5()
         {
             string vote1 = "[x] Vote for stuff 1";
             string vote2 = "[x] Vote for stuff 2";
@@ -148,7 +292,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void RemoveSupportTest3()
+        public void RemoveSupportTest6()
         {
             string vote1 = "[x] Vote for stuff 1";
             string vote2 = "[x] Vote for stuff 2";
