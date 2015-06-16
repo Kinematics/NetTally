@@ -51,7 +51,7 @@ namespace TallyUnitTest
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            IQuest quest = new Quest() { UseVotePartitions = false, PartitionByLine = true };
+            IQuest quest = new Quest() { PartitionMode = PartitionMode.None };
             string results = VoteLine.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
@@ -62,7 +62,7 @@ namespace TallyUnitTest
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "-[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            IQuest quest = new Quest() { UseVotePartitions = true, PartitionByLine = false };
+            IQuest quest = new Quest() { PartitionMode = PartitionMode.ByBlock };
             string results = VoteLine.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
@@ -73,7 +73,7 @@ namespace TallyUnitTest
             string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
-            IQuest quest = new Quest() { UseVotePartitions = true, PartitionByLine = true };
+            IQuest quest = new Quest() { PartitionMode = PartitionMode.ByLine };
             string results = VoteLine.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
