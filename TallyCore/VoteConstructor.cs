@@ -373,17 +373,41 @@ namespace NetTally
             }
             else if (quest.PartitionMode == PartitionMode.ByTask)
             {
-                string firstLine = referralVotes.First();
-                string task = VoteLine.GetVoteTask(firstLine);
-                if (task != string.Empty)
-                {
-                    currentTask = task;
-                    if (VoteLine.GetVoteContent(firstLine) == string.Empty)
-                        taskHeader = firstLine;
-                }
-
                 foreach (var v in referralVotes)
-                    sb.Append(v);
+                {
+                    string task = VoteLine.GetVoteTask(v);
+                    if (task == string.Empty)
+                    {
+                        // If there is no task associated with the referral element,
+                        // treat it like PartitionMode.None.
+                        sb.Append(v);
+                    }
+                    else
+                    {
+                        // If there is a task, store any existing sb values in the
+                        // partitions, and add the referral as a partition.
+                        if (sb.Length > 0)
+                        {
+                            partitions.Add(sb.ToString());
+                            sb.Clear();
+                        }
+
+                        currentTask = task;
+
+                        string firstLine = Utility.Text.FirstLine(v);
+                        string firstLineContent = VoteLine.GetVoteContentFirstLine(v);
+                        if (firstLineContent == string.Empty)
+                        {
+                            taskHeader = firstLine;
+                        }
+                        else
+                        {
+                            taskHeader = "";
+                        }
+
+                        partitions.Add(v);
+                    }
+                }
             }
             else
             {
