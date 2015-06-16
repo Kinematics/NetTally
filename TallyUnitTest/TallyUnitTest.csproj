@@ -54,6 +54,7 @@
     <Compile Include="ForumAdapterFactoryUnitTest.cs" />
     <Compile Include="UnitTestQuest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VoteConstructorTests.cs" />
     <Compile Include="VoteCounterTests.cs" />
     <Compile Include="VoteLineTests.cs" />
     <Compile Include="WebPageProviderTests.cs" />
