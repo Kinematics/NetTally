@@ -31,6 +31,19 @@ namespace NetTally.Utility
         /// </summary>
         public static string PlanNameMarker { get; } = "\u25C8";
 
+        /// <summary>
+        /// Get the first line (pre-EOL) of a potentially multi-line string.
+        /// </summary>
+        /// <param name="multiLine">The string to get the first line from.</param>
+        /// <returns>Returns the first line of the provided string.</returns>
+        public static string FirstLine(string multiLine)
+        {
+            int i = multiLine.IndexOf("\r");
+            if (i > 0)
+                return multiLine.Substring(i);
+            else
+                return multiLine;
+        }
     }
 
     /// <summary>
