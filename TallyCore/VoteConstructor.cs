@@ -280,7 +280,7 @@ namespace NetTally
                 else if ((referralVotes = VoteCounter.GetVotesFromReference(line)).Count > 0)
                 {
                     // If a line refers to another voter or base plan, pull that voter's votes
-                    PartitionReferrals(partitions, sb, referralVotes, quest);
+                    PartitionReferrals(partitions, sb, referralVotes, quest, ref taskHeader, ref currentTask);
                 }
                 else if (voteType == VoteType.Plan)
                 {
@@ -361,12 +361,27 @@ namespace NetTally
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="referralVotes">The list of all referenced votes.</param>
         /// <param name="quest">The quest being tallied.</param>
-        private void PartitionReferrals(List<string> partitions, StringBuilder sb, List<string> referralVotes, IQuest quest)
+        private void PartitionReferrals(List<string> partitions, StringBuilder sb, List<string> referralVotes, IQuest quest,
+            ref string taskHeader, ref string currentTask)
         {
             // If we're not using vote partitions, append all lines onto the current vote string.
             // Otherwise, add each of the other voter's votes to our partition list.
             if (quest.PartitionMode == PartitionMode.None)
             {
+                foreach (var v in referralVotes)
+                    sb.Append(v);
+            }
+            else if (quest.PartitionMode == PartitionMode.ByTask)
+            {
+                string firstLine = referralVotes.First();
+                string task = VoteLine.GetVoteTask(firstLine);
+                if (task != string.Empty)
+                {
+                    currentTask = task;
+                    if (VoteLine.GetVoteContent(firstLine) == string.Empty)
+                        taskHeader = firstLine;
+                }
+
                 foreach (var v in referralVotes)
                     sb.Append(v);
             }
