@@ -165,7 +165,7 @@ namespace NetTally
             }
 
             if (content.EndsWith("."))
-                content = content.Substring(0, content.Length - 2);
+                content = content.Substring(0, content.Length - 1);
 
             return content.Trim();
         }
