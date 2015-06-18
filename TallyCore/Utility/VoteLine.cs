@@ -18,6 +18,8 @@ namespace NetTally
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
         // Regex for separating out the task from the other portions of a vote line.
         static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
+        // Potential reference to another user's plan.
+        static readonly Regex referenceNameRegex = new Regex(@"^((?<label>pin|plan)\s*)?(?<reference>.+)", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
@@ -153,48 +155,30 @@ namespace NetTally
         /// if it doesn't.
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
+        /// <param name="alt">Flag to alternate whether having the content start
+        /// with the word "plan" should mark the output with the special character.
+        /// The default adds the character if the content does start with "plan".
+        /// Sending a value of true will add the character if the content does not start with "plan".</param>
         /// <returns>Returns a possible plan name from the vote line.</returns>
-        public static string GetVotePlanName(string voteLine)
+        public static string GetVoteReferenceName(string voteLine, bool alt = false)
         {
             string content = GetVoteContentFirstLine(voteLine);
 
-            if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+            Match m = referenceNameRegex.Match(content);
+            if (m.Success)
             {
-                content = content.Substring(5);
-                content = Utility.Text.PlanNameMarker + content;
+                string name = m.Groups["reference"].Value;
+
+                if (name.EndsWith("."))
+                    name = name.Substring(0, name.Length - 1);
+
+                if (alt ^ content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+                    name = Utility.Text.PlanNameMarker + name;
+
+                return name.Trim();
             }
 
-            if (content.EndsWith("."))
-                content = content.Substring(0, content.Length - 1);
-
-            return content.Trim();
-        }
-
-        /// <summary>
-        /// Get the name of a vote plan from the contents of a vote line.
-        /// Alternate version will mark the content with the plan name marker character
-        /// if the content does *not* start with the word "plan", but will not add the
-        /// character if it does.
-        /// </summary>
-        /// <param name="voteLine">The vote line being examined.</param>
-        /// <returns>Returns a possible plan name from the vote line.</returns>
-        public static string GetAltVotePlanName(string voteLine)
-        {
-            string content = GetVoteContentFirstLine(voteLine);
-
-            if (content.Length > 5 && content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
-            {
-                content = content.Substring(5);
-            }
-            else
-            {
-                content = Utility.Text.PlanNameMarker + content;
-            }
-
-            if (content.EndsWith("."))
-                content = content.Substring(0, content.Length - 2);
-
-            return content.Trim();
+            return content;
         }
 
         /// <summary>
