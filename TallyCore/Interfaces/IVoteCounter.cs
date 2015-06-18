@@ -29,5 +29,9 @@ namespace NetTally
         Dictionary<string, string> RankedVoterMessageId { get; }
 
         HashSet<string> PlanNames { get; }
+
+        List<PostComponents> VotePosts { get; }
+        List<PostComponents> FloatingReferences { get; }
+        bool HoldFloatingReferences { get; }
     }
 }

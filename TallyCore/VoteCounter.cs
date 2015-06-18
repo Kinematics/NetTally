@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -31,6 +32,7 @@ namespace NetTally
             RankedVotesWithSupporters.Clear();
             RankedVoterMessageId.Clear();
             PlanNames.Clear();
+            FloatingReferences.Clear();
             cleanVoteLookup.Clear();
             Title = string.Empty;
         }
@@ -46,6 +48,12 @@ namespace NetTally
         public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
         public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        public List<PostComponents> VotePosts { get; private set; } = new List<PostComponents>();
+
+        public List<PostComponents> FloatingReferences { get; } = new List<PostComponents>();
+
+        public bool HoldFloatingReferences { get; private set; }
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
@@ -84,28 +92,58 @@ namespace NetTally
             // Set the thread author for reference.
             string threadAuthor = forumAdapter.GetAuthorOfThread(pages.First());
 
-            foreach (var page in pages)
+            var posts = from page in pages
+                        where page != null
+                        from post in forumAdapter.GetPostsFromPage(page)
+                        where post != null
+                        let postNumber = forumAdapter.GetPostNumberOfPost(post)
+                        where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
+                        let postCom = GetPostComponents(post, quest)
+                        where postCom.IsVote && postCom.Author != threadAuthor
+                        select postCom;
+
+            VotePosts = posts.ToList();
+
+            // Process all votes, except floating references (votes solely for another username).
+            HoldFloatingReferences = true;
+
+            foreach (var post in VotePosts.OrderBy(p => p))
             {
-                if (page != null)
-                {
-                    if (Title == string.Empty)
-                        Title = forumAdapter.GetPageTitle(page);
-
-                    // Get a list of valid posts to process from all posts on the page.
-                    var validPosts = from post in forumAdapter.GetPostsFromPage(page)
-                                     where post != null
-                                     let postNumber = forumAdapter.GetPostNumberOfPost(post)
-                                     where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
-                                     select post;
-
-
-                    // Process each user post in the list.
-                    foreach (var post in validPosts)
-                    {
-                        ProcessPost(post, quest, threadAuthor);
-                    }
-                }
+                voteConstructor.ProcessPost(post, quest);
             }
+
+            // Process any floating references (votes solely for another username) that exist in the list.
+            HoldFloatingReferences = false;
+
+            // Verify that the floating references were the last vote made by each individual.
+            var finalReferences = FloatingReferences.Where(r => r == VotePosts.Where(v => v.Author == r.Author).OrderBy(o => o).Last());
+
+            foreach (var post in finalReferences)
+            {
+                voteConstructor.ProcessPost(post, quest);
+            }
+        }
+
+        /// <summary>
+        /// Extract the components from an HTML post, and store it in a PostComponents object.
+        /// </summary>
+        /// <param name="post">The post to be decomposed.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <returns>Returns the extracted post components.</returns>
+        public PostComponents GetPostComponents(HtmlNode post, IQuest quest)
+        {
+            if (post == null || quest == null)
+                return null;
+
+            IForumAdapter forumAdapter = quest.GetForumAdapter();
+            string postAuthor = forumAdapter.GetAuthorOfPost(post);
+            string postID = forumAdapter.GetIdOfPost(post);
+            string postText = forumAdapter.GetTextOfPost(post);
+
+            if (DebugMode.Instance.Active)
+                postAuthor = postAuthor + "_" + postID;
+
+            return new PostComponents(postAuthor, postID, postText);
         }
 
         /// <summary>
@@ -359,32 +397,6 @@ namespace NetTally
         #endregion
 
         #region Private support methods
-        /// <summary>
-        /// Function to process individual posts within the thread.
-        /// Updates the vote records maintained in the class.
-        /// </summary>
-        /// <param name="post">The list item node containing the post.</param>
-        /// <param name="quest">The quest this post is being tallied in.</param>
-        /// <param name="threadAuthor">The author of the thread this post is from.</param>
-        private void ProcessPost(HtmlNode post, IQuest quest, string threadAuthor)
-        {
-            if (post == null)
-                return;
-
-            IForumAdapter forumAdapter = quest.GetForumAdapter();
-            string postAuthor = forumAdapter.GetAuthorOfPost(post);
-            string postID = forumAdapter.GetIdOfPost(post);
-            string postText = forumAdapter.GetTextOfPost(post);
-
-            if (DebugMode.Instance.Active)
-                postAuthor = postAuthor + "_" + postID;
-            else if (postAuthor == threadAuthor)
-                return;
-
-            // Have the vote constructor process the post and update the local storage.
-            voteConstructor.ProcessPost(postText, postAuthor, postID, quest);
-        }
-
         /// <summary>
         /// Attempt to find any existing vote that matches with the vote we have,
         /// and can be used as a key in the VotesWithSupporters table.

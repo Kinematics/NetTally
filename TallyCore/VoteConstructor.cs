@@ -14,14 +14,10 @@ namespace NetTally
     {
         IVoteCounter VoteCounter { get; }
 
-        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
-        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex voteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔]\s*\].*", RegexOptions.Multiline);
-        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex rankVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
+        // Potential reference to another user's plan.
+        readonly Regex referenceNameRegex = new Regex(@"^(plan\s+)?(?<reference>.+)");
 
         readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
@@ -58,42 +54,22 @@ namespace NetTally
 
         #region Primary public functions
         /// <summary>
-        /// Examine the text of the post, determine if it contains any votes, put the vote
-        /// together, and update our vote and voter records.
+        /// Handle processing the vote portions of a post.
         /// </summary>
-        /// <param name="postText">The text of the post.</param>
-        /// <param name="postAuthor">The author of the post.</param>
-        /// <param name="postID">The ID of the post.</param>
-        /// <returns>Returns true if it processed any proposals, or false if not.</returns>
-        public bool ProcessPost(string postText, string postAuthor, string postID, IQuest quest)
+        /// <param name="post">The post to process.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        internal void ProcessPost(PostComponents post, IQuest quest)
         {
-            if (IsTallyPost(postText))
-                return false;
-
-            MatchCollection matches;
-
-            // Pull out actual vote lines from the post.
-            // Use the regex that allows [1-9] if we're allowing ranked votes
-            if (quest.AllowRankedVotes)
-                matches = rankVoteRegex.Matches(postText);
-            else
-                matches = voteRegex.Matches(postText);
-
-            if (matches.Count == 0)
-                return false;
-
-            // Pull the matched string out of the Match objects to make it easier to work with.
-            List<string> matchStrings = GetMatchStrings(matches);
+            if (!post.IsVote)
+                throw new ArgumentException("Post is not a valid vote.", nameof(post));
 
             // Separate the lines of the vote into their different types.
-            var groupedVoteLines = SeparateVoteTypes(matchStrings);
+            var groupedVoteLines = SeparateVoteTypes(post.VoteStrings);
 
             // Process each type separately
-            ProcessPlans(groupedVoteLines[VoteType.Plan], postID, quest);
-            ProcessVotes(groupedVoteLines[VoteType.Vote], postAuthor, postID, quest);
-            ProcessRanks(groupedVoteLines[VoteType.Rank], postAuthor, postID, quest);
-
-            return true;
+            ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest);
+            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest);
+            ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest);
         }
 
         /// <summary>
@@ -110,9 +86,6 @@ namespace NetTally
         /// the section of the post vote they correspond to (either plan or vote).</returns>
         public Dictionary<VoteType, List<List<string>>> SeparateVoteTypes(List<string> postLines)
         {
-            if (postLines == null || postLines.Count == 0)
-                throw new ArgumentNullException(nameof(postLines));
-
             // Create a list of string lists for each vote type
             Dictionary<VoteType, List<List<string>>> results = new Dictionary<VoteType, List<List<string>>>();
 
@@ -173,7 +146,7 @@ namespace NetTally
         /// <param name="voteLinesGrouped"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessPlans(List<List<string>> plansList, string postID, IQuest quest)
+        public void ProcessPlans(List<List<string>> plansList, PostComponents post, IQuest quest)
         {
             foreach (var plan in plansList)
             {
@@ -183,7 +156,7 @@ namespace NetTally
                 VoteCounter.RemoveSupport(planName, VoteType.Plan);
 
                 // Add/update the plan's post ID.
-                VoteCounter.AddVoterPostID(planName, postID, VoteType.Plan);
+                VoteCounter.AddVoterPostID(planName, post.ID, VoteType.Plan);
 
                 // Promote the plan one tier (excluding the line of the plan name itself) <<<< Do we want to remove this?
                 List<string> planLines = PromotePlanLines(plan);
@@ -206,17 +179,27 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessVotes(List<List<string>> votesList, string postAuthor, string postID, IQuest quest)
+        public void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest)
         {
             var vote = votesList.FirstOrDefault();
 
             if (vote != null)
             {
+                if (VoteCounter.HoldFloatingReferences)
+                {
+                    if (IsFloatingReference(vote))
+                    {
+                        VoteCounter.FloatingReferences.Add(post);
+                        return;
+                    }
+                }
+
+
                 // Remove the post author from any other existing votes.
-                VoteCounter.RemoveSupport(postAuthor, VoteType.Vote);
+                VoteCounter.RemoveSupport(post.Author, VoteType.Vote);
 
                 // Add/update the post author's post ID.
-                VoteCounter.AddVoterPostID(postAuthor, postID, VoteType.Vote);
+                VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Vote);
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
@@ -224,7 +207,7 @@ namespace NetTally
 
                 foreach (var votePartition in votePartitions)
                 {
-                    VoteCounter.AddVoteSupport(votePartition, postAuthor, VoteType.Vote, quest);
+                    VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote, quest);
                 }
             }
         }
@@ -236,17 +219,20 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessRanks(List<List<string>> ranksList, string postAuthor, string postID, IQuest quest)
+        public void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
         {
-            // Remove the post author from any other existing votes.
-            VoteCounter.RemoveSupport(postAuthor, VoteType.Rank);
-
-            // Add/update the post author's post ID.
-            VoteCounter.AddVoterPostID(postAuthor, postID, VoteType.Rank);
-
-            foreach (var line in ranksList)
+            if (quest.AllowRankedVotes)
             {
-                VoteCounter.AddVoteSupport(line.First(), postAuthor, VoteType.Rank, quest);
+                // Remove the post author from any other existing votes.
+                VoteCounter.RemoveSupport(post.Author, VoteType.Rank);
+
+                // Add/update the post author's post ID.
+                VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Rank);
+
+                foreach (var line in ranksList)
+                {
+                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank, quest);
+                }
             }
         }
 
@@ -678,29 +664,34 @@ namespace NetTally
 
         #region Utility
         /// <summary>
-        /// Determine if the provided post text is someone posting the results of a tally.
+        /// Determine if the list of vote lines provided can be considered a
+        /// floating reference vote.
         /// </summary>
-        /// <param name="postText">The text of the post to check.</param>
-        /// <returns>Returns true if the post contains tally results.</returns>
-        public bool IsTallyPost(string postText)
+        /// <param name="vote">A list of lines for a vote.</param>
+        /// <returns>Returns true if there is a single line that references
+        /// a known username (per the VoteCounter).</returns>
+        public bool IsFloatingReference(List<string> vote)
         {
-            // If the post contains the string "#####" at the start of the line for part of its text,
-            // it's a tally post.
-            string cleanText = VoteLine.CleanVote(postText);
-            return (tallyRegex.Matches(cleanText).Count > 0);
-        }
+            // Multiple vote lines cannot be floating references.
+            if (vote.Count != 1)
+                return false;
 
-        /// <summary>
-        /// Convert a collection of regex matches into a list of strings.
-        /// </summary>
-        /// <param name="matches">Collection of regex matches.</param>
-        /// <returns>Returns the list of strings corresponding to the matched values.</returns>
-        public List<string> GetMatchStrings(MatchCollection matches)
-        {
-            var strings = from Match m in matches
-                          select m.Value.Trim();
+            string voteLine = vote.First();
 
-            return strings.ToList();
+            // If the content spans multiple lines, it can't be a floating reference.
+            string content = VoteLine.GetVoteContentFirstLine(voteLine);
+
+            if (content != VoteLine.GetVoteContent(voteLine))
+                return false;
+
+            // If the content contains a name that exists in the voter list, it can be a floating reference.
+            Match m = referenceNameRegex.Match(content);
+            if (!m.Success)
+                return false;
+
+            string refName = m.Groups["reference"].Value;
+
+            return VoteCounter.VotePosts.Any(v => string.Compare(refName, v.Author, true) == 0);
         }
 
         /// <summary>
