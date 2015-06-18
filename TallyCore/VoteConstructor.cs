@@ -58,7 +58,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
-        internal void ProcessPost(PostComponents post, IQuest quest)
+        internal void ProcessPost(PostComponents post, IQuest quest, bool storeFloatingReferences)
         {
             if (!post.IsVote)
                 throw new ArgumentException("Post is not a valid vote.", nameof(post));
@@ -68,7 +68,7 @@ namespace NetTally
 
             // Process each type separately
             ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest);
-            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest);
+            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest, storeFloatingReferences);
             ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest);
         }
 
@@ -179,19 +179,16 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest)
+        public void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
         {
             var vote = votesList.FirstOrDefault();
 
             if (vote != null)
             {
-                if (VoteCounter.HoldFloatingReferences)
+                if (storeFloatingReferences && IsFloatingReference(vote))
                 {
-                    if (IsFloatingReference(vote))
-                    {
-                        VoteCounter.FloatingReferences.Add(post);
-                        return;
-                    }
+                    VoteCounter.FloatingReferences.Add(post);
+                    return;
                 }
 
 

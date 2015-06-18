@@ -53,8 +53,6 @@ namespace NetTally
 
         public List<PostComponents> FloatingReferences { get; } = new List<PostComponents>();
 
-        public bool HoldFloatingReferences { get; private set; }
-
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
         public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
@@ -105,22 +103,19 @@ namespace NetTally
             VotePosts = posts.ToList();
 
             // Process all votes, except floating references (votes solely for another username).
-            HoldFloatingReferences = true;
-
             foreach (var post in VotePosts.OrderBy(p => p))
             {
-                voteConstructor.ProcessPost(post, quest);
+                voteConstructor.ProcessPost(post, quest, true);
             }
 
             // Process any floating references (votes solely for another username) that exist in the list.
-            HoldFloatingReferences = false;
 
             // Verify that the floating references were the last vote made by each individual.
             var finalReferences = FloatingReferences.Where(r => r == VotePosts.Where(v => v.Author == r.Author).OrderBy(o => o).Last());
 
             foreach (var post in finalReferences)
             {
-                voteConstructor.ProcessPost(post, quest);
+                voteConstructor.ProcessPost(post, quest, false);
             }
         }
 

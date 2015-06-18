@@ -32,6 +32,5 @@ namespace NetTally
 
         List<PostComponents> VotePosts { get; }
         List<PostComponents> FloatingReferences { get; }
-        bool HoldFloatingReferences { get; }
     }
 }
