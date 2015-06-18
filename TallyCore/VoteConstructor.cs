@@ -17,7 +17,7 @@ namespace NetTally
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
-        readonly Regex referenceNameRegex = new Regex(@"^(plan\s+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        readonly Regex planNameRegex = new Regex(@"^(plan\s+)?(?<reference>.+)", RegexOptions.IgnoreCase);
 
         readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
@@ -678,14 +678,18 @@ namespace NetTally
 
             string voteLine = vote.First();
 
-            // If the content spans multiple lines, it can't be a floating reference.
             string content = VoteLine.GetVoteContentFirstLine(voteLine);
 
+            // If the content spans multiple lines, it can't be a floating reference.
             if (content != VoteLine.GetVoteContent(voteLine))
                 return false;
 
+            // Anything starting with "plan" is a fixed reference.
+            if (content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
             // If the content contains a name that exists in the voter list, it can be a floating reference.
-            Match m = referenceNameRegex.Match(content);
+            Match m = planNameRegex.Match(content);
             if (!m.Success)
                 return false;
 
