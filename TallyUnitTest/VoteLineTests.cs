@@ -175,11 +175,11 @@ namespace TallyUnitTest
         {
             string input = "[x] Kinematics";
             string expected = "Kinematics";
-            Assert.AreEqual(expected, VoteLine.GetVotePlanName(input));
+            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input));
 
             input = "[x] Plan Assault";
             expected = "\u25C8Assault";
-            Assert.AreEqual(expected, VoteLine.GetVotePlanName(input));
+            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input));
         }
 
         [TestMethod()]
@@ -187,11 +187,11 @@ namespace TallyUnitTest
         {
             string input = "[x] Kinematics";
             string expected = "\u25C8Kinematics";
-            Assert.AreEqual(expected, VoteLine.GetAltVotePlanName(input));
+            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input, true));
 
             input = "[x] Plan Assault";
             expected = "Assault";
-            Assert.AreEqual(expected, VoteLine.GetAltVotePlanName(input));
+            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input, true));
         }
 
         [TestMethod()]
