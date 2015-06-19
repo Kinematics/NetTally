@@ -106,6 +106,7 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
+        [ExpectedException(typeof(ArgumentException))]
         public void ProcessPostContentsTallyTest()
         {
             string testVote = @"[b]Vote Tally[/b]
@@ -124,6 +125,8 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents(author, postId, testVote);
 
             Assert.IsFalse(p.IsVote);
+
+            voteConstructor.ProcessPost(p, sampleQuest, false);
         }
 
 
