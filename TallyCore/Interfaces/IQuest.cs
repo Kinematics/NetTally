@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetTally
@@ -59,11 +60,13 @@ namespace NetTally
         /// Flag for whether to use vote partitions for this quest.
         /// OBSOLETE
         /// </summary>
+        [Obsolete("Use PartitionMode instead")]
         bool UseVotePartitions { get; set; }
         /// <summary>
         /// Flag for whether vote partitions should be done by line or by block.
         /// OBSOLETE
         /// </summary>
+        [Obsolete("Use PartitionMode instead")]
         bool PartitionByLine { get; set; }
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.

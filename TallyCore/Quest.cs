@@ -222,6 +222,7 @@ namespace NetTally
         /// <summary>
         /// Flag for whether to use vote partitioning when tallying votes.
         /// </summary>
+        [Obsolete("Use PartitionMode instead")]
         public bool UseVotePartitions
         {
             get { return useVotePartitions; }
@@ -236,6 +237,7 @@ namespace NetTally
         /// Flag for whether to use by-line or by-block partitioning,
         /// if partitioning votes during the tally.
         /// </summary>
+        [Obsolete("Use PartitionMode instead")]
         public bool PartitionByLine
         {
             get { return partitionByLine; }
