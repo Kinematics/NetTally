@@ -58,7 +58,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
-        internal void ProcessPost(PostComponents post, IQuest quest, bool storeFloatingReferences)
+        public void ProcessPost(PostComponents post, IQuest quest, bool storeFloatingReferences)
         {
             if (!post.IsVote)
                 throw new ArgumentException("Post is not a valid vote.", nameof(post));
