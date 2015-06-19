@@ -113,6 +113,7 @@ namespace NetTally
 
                     AddTaskLabel(taskGroup.Key);
 
+                    // Show each vote result in descending number of votes.
                     foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false)))
                     {
                         if (DisplayMode == DisplayMode.Compact)
@@ -239,7 +240,11 @@ namespace NetTally
         /// <param name="voters">The list of voters.</param>
         private void AddCompactVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
+            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
+                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
+
+            if (firstVoter == null)
+                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
 
             var remainder = voters.Where(v => v != firstVoter && VoteCounter.PlanNames.Contains(v) == false).OrderBy(v => v);
 
@@ -311,7 +316,11 @@ namespace NetTally
         /// <param name="voters">The set of voters being added.</param>
         private void AddVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
+            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
+                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
+
+            if (firstVoter == null)
+                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
 
             AddVoter(firstVoter);
 
