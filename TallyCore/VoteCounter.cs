@@ -72,6 +72,22 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Of the available Floating References, select only the last
+        /// one for each given author.
+        /// </summary>
+        public List<PostComponents> LastFloatingReferencePerAuthor
+        {
+            get
+            {
+                var lastRefPerAuthor = from r in FloatingReferences
+                                       group r by r.Author into rg
+                                       select rg.OrderBy(o => o).Last();
+
+                return lastRefPerAuthor.ToList();
+            }
+        }
+
+        /// <summary>
         /// Construct the votes Results from the provide list of HTML pages.
         /// </summary>
         /// <param name="pages"></param>
@@ -111,9 +127,8 @@ namespace NetTally
             // Process any floating references (votes solely for another username) that exist in the list.
 
             // Verify that the floating references were the last vote made by each individual.
-            var finalReferences = FloatingReferences.Where(r => r == VotePosts.Where(v => v.Author == r.Author).OrderBy(o => o).Last());
 
-            foreach (var post in finalReferences)
+            foreach (var post in LastFloatingReferencePerAuthor)
             {
                 voteConstructor.ProcessPost(post, quest, false);
             }
