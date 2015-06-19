@@ -27,6 +27,8 @@ namespace TallyUnitTest
         public void Initialize()
         {
             voteCounter.Reset();
+            sampleQuest.AllowRankedVotes = false;
+            sampleQuest.PartitionMode = PartitionMode.None;
         }
 
 
@@ -45,10 +47,16 @@ namespace TallyUnitTest
             string postId = "123456";
 
             sampleQuest.PartitionMode = PartitionMode.None;
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
+            //Assert.IsTrue(voteCounter.VotesWithSupporters.ContainsKey(testVote));
+            //Assert.IsTrue(voteCounter.VotesWithSupporters[testVote].Contains(author));
+            Assert.IsTrue(voteCounter.VoterMessageId.ContainsKey(author));
+            Assert.IsTrue(voteCounter.VoterMessageId[author] == postId);
         }
 
         [TestMethod()]
@@ -66,7 +74,9 @@ namespace TallyUnitTest
             string postId = "123456";
 
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
@@ -87,7 +97,9 @@ namespace TallyUnitTest
             string postId = "123456";
 
             sampleQuest.PartitionMode = PartitionMode.ByLine;
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
             Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
@@ -109,10 +121,9 @@ namespace TallyUnitTest
             string author = "Muramasa";
             string postId = "123456";
 
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p = new PostComponents(author, postId, testVote);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 0);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 0);
+            Assert.IsFalse(p.IsVote);
         }
 
 
@@ -130,12 +141,16 @@ namespace TallyUnitTest
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -157,12 +172,16 @@ namespace TallyUnitTest
 
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -184,12 +203,16 @@ namespace TallyUnitTest
 
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
@@ -211,13 +234,17 @@ namespace TallyUnitTest
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 2);
             Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 1));
@@ -239,13 +266,17 @@ namespace TallyUnitTest
 
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 4);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 3);
@@ -268,13 +299,17 @@ namespace TallyUnitTest
 
             string author = "Muramasa";
             string postId = "123456";
-            //voteConstructor.ProcessPost(testVote, author, postId, sampleQuest);
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest, false);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            //voteConstructor.ProcessPost(referralVote, refAuthor, refID, sampleQuest);
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+
+            voteConstructor.ProcessPost(p2, sampleQuest, false);
 
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 8);
             Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 7);
