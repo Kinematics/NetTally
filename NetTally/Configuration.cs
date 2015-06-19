@@ -155,6 +155,7 @@ namespace NetTally
                     AllowRankedVotes = quest.AllowRankedVotes
                 };
 
+#pragma warning disable 0618
                 // Convert old partition options to new enum.
                 if (q.UseVotePartitions)
                 {
@@ -165,6 +166,7 @@ namespace NetTally
 
                     q.UseVotePartitions = false;
                 }
+#pragma warning restore 0618
 
                 questWrapper.QuestCollection.Add(q);
             }
