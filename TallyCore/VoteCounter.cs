@@ -100,8 +100,13 @@ namespace NetTally
 
             Reset();
 
+            var firstPage = pages.First();
+
+            if (Title == string.Empty)
+                Title = forumAdapter.GetPageTitle(firstPage);
+
             // Set the thread author for reference.
-            string threadAuthor = forumAdapter.GetAuthorOfThread(pages.First());
+            string threadAuthor = forumAdapter.GetAuthorOfThread(firstPage);
 
             var posts = from page in pages
                         where page != null
