@@ -288,9 +288,12 @@ namespace NetTally
         /// </summary>
         private void AddLineBreak()
         {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.Streamlined)
+                sb.AppendLine("");
+
             //sb.AppendLine("[hr][/hr]");
             //sb.AppendLine("-------------------------------------------------------\r\n");
-            sb.AppendLine("\r\n———————————————————————————————————————————————————————\r\n");
+            sb.AppendLine("———————————————————————————————————————————————————————\r\n");
         }
 
         /// <summary>
