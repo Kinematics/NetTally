@@ -31,7 +31,9 @@ namespace NetTally
         [Description("Spoiler All")]
         SpoilerAll,
         [Description("Compact")]
-        Compact
+        Compact,
+        [Description("Streamlined")]
+        Streamlined
     }
 
     /// <summary>
