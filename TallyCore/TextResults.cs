@@ -102,7 +102,7 @@ namespace NetTally
             {
                 bool taskHasVotes = taskGroup.Any(task => GetUserVoteCount(task.Value) > 0);
 
-                if (taskHasVotes || DisplayMode != DisplayMode.Compact)
+                if (taskHasVotes || (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.Streamlined))
                 {
                     if (!firstTask)
                     {
@@ -110,43 +110,54 @@ namespace NetTally
                     }
 
                     firstTask = false;
+                    int userVoteCount = 0;
 
                     AddTaskLabel(taskGroup.Key);
 
                     // Show each vote result in descending number of votes.
                     foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false)))
                     {
-                        if (DisplayMode == DisplayMode.Compact)
+                        switch (DisplayMode)
                         {
-                            int userVotes = GetUserVoteCount(vote.Value);
-                            if (userVotes > 0)
-                            {
-                                AddCompactVoteNumber(userVotes);
-                                sb.AppendFormat("{0} : ", VoteLine.GetVoteContentFirstLine(vote.Key));
-                                AddCompactVoters(vote.Value);
+                            case DisplayMode.Compact:
+                                userVoteCount = GetUserVoteCount(vote.Value);
+                                if (userVoteCount > 0)
+                                {
+                                    AddCompactVoteNumber(userVoteCount);
+                                    sb.Append($"{VoteLine.GetVoteContentFirstLine(vote.Key)} : ");
+                                    AddCompactVoters(vote.Value);
+                                    sb.AppendLine("");
+                                }
+                                break;
+                            case DisplayMode.Streamlined:
+                                userVoteCount = GetUserVoteCount(vote.Value);
+                                if (userVoteCount > 0)
+                                {
+                                    AddCompactVoteNumber(userVoteCount);
+                                    sb.Append($"{VoteLine.GetVoteContentFirstLine(vote.Key)}");
+                                    sb.AppendLine("");
+                                }
+                                break;
+                            default:
+                                // print the entire vote
+                                sb.Append(vote.Key);
+
+                                AddVoteCount(vote.Value);
+
+                                if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                                {
+                                    AddSpoilerStart("Voters");
+                                }
+
+                                AddVoters(vote.Value);
+
+                                if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                                {
+                                    AddSpoilerEnd();
+                                }
+
                                 sb.AppendLine("");
-                            }
-                        }
-                        else
-                        {
-                            // print the entire vote
-                            sb.Append(vote.Key);
-
-                            AddVoteCount(vote.Value);
-
-                            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
-                            {
-                                AddSpoilerStart("Voters");
-                            }
-
-                            AddVoters(vote.Value);
-
-                            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
-                            {
-                                AddSpoilerEnd();
-                            }
-
-                            sb.AppendLine("");
+                                break;
                         }
                     }
                 }
