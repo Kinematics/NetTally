@@ -59,13 +59,13 @@ namespace NetTally
                     {
                         if (result.Key.Length > 0)
                         {
-                            sb.AppendFormat("{0}:\r\n", result.Key);
+                            sb.Append($"{result.Key}:\r\n");
                         }
 
                         int num = 1;
                         foreach (var entry in result.Value)
                         {
-                            sb.AppendFormat("[{0}] {1}\r\n", num++, entry);
+                            sb.Append($"[{num++}] {entry}\r\n");
                         }
 
                         sb.AppendLine("");
@@ -223,7 +223,7 @@ namespace NetTally
         /// <param name="label">The label for the spoiler tag.</param>
         private void AddSpoilerStart(string label)
         {
-            sb.AppendFormat("[spoiler={0}]\r\n", label);
+            sb.Append($"[spoiler={label}]\r\n");
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace NetTally
         private void AddCompactVoteNumber(int votes)
         {
             // Number of voters where the voter name is not a plan name (and is thus a user).
-            sb.AppendFormat("[{0}] ", votes);
+            sb.Append($"[{votes}] ");
         }
 
         /// <summary>
@@ -259,11 +259,11 @@ namespace NetTally
 
             var remainder = voters.Where(v => v != firstVoter && VoteCounter.PlanNames.Contains(v) == false).OrderBy(v => v);
 
-            sb.AppendFormat("({0}", GetVoterUrl(firstVoter, VoteCounter.VoterMessageId));
+            sb.Append($"({GetVoterUrl(firstVoter, VoteCounter.VoterMessageId)}");
 
             foreach (var voter in remainder)
             {
-                sb.AppendFormat(", {0}", GetVoterUrl(voter, VoteCounter.VoterMessageId));
+                sb.Append($", {GetVoterUrl(voter, VoteCounter.VoterMessageId)}");
             }
 
             sb.Append(")");
@@ -279,10 +279,8 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
-            sb.AppendFormat("[b]Vote Tally[/b] : {0}\r\n", VoteCounter.Title);
-            sb.AppendFormat("[color=transparent]##### {0} {1}[/color]\r\n\r\n",
-                product.Product,
-                version.InformationalVersion);
+            sb.Append($"[b]Vote Tally[/b] : {VoteCounter.Title}\r\n");
+            sb.Append($"[color=transparent]##### {product.Product} {version.InformationalVersion}[/color]\r\n\r\n");
         }
 
         /// <summary>
@@ -292,7 +290,7 @@ namespace NetTally
         {
             //sb.AppendLine("[hr][/hr]");
             //sb.AppendLine("-------------------------------------------------------\r\n");
-            sb.AppendLine("———————————————————————————————————————————————————————\r\n");
+            sb.AppendLine("\r\n———————————————————————————————————————————————————————\r\n");
         }
 
         /// <summary>
@@ -315,7 +313,7 @@ namespace NetTally
         {
             if (task.Length > 0)
             {
-                sb.AppendFormat("[b]Task: {0}[/b]\r\n\r\n", task);
+                sb.Append($"[b]Task: {task}[/b]\r\n\r\n");
             }
         }
 
@@ -379,8 +377,7 @@ namespace NetTally
             int totalVoterCount = VoteCounter.VoterMessageId.Count - VoteCounter.PlanNames.Count;
             if (totalVoterCount > 0)
             {
-                sb.AppendLine("");
-                sb.AppendFormat("Total No. of Voters: {0}\r\n", totalVoterCount);
+                sb.Append($"\r\nTotal No. of Voters: {totalVoterCount}\r\n");
             }
         }
 
@@ -412,7 +409,7 @@ namespace NetTally
         /// <returns>Returns a url'ized string for the voter's post.</returns>
         private void AddRankedSupporterEntry(string supporter, string marker)
         {
-            sb.AppendFormat("[{0}] ", marker);
+            sb.Append($"[{marker}] ");
             sb.AppendLine(GetVoterUrl(supporter, VoteCounter.RankedVoterMessageId));
         }
 
@@ -444,7 +441,7 @@ namespace NetTally
         /// <param name="winningChoice">The winning choice.</param>
         private void AddRankedWinner(string winningChoice)
         {
-            sb.AppendFormat("[b]Winner:[/b] {0}\r\n\r\n", winningChoice);
+            sb.Append($"[b]Winner:[/b] {winningChoice}\r\n\r\n");
         }
 
         /// <summary>
