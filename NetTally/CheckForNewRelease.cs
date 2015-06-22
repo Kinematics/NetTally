@@ -29,19 +29,34 @@ namespace NetTally
         /// Run a version check when constructing this class.
         /// Compare the current program version with the latest available version on Github.
         /// If the latest version is newer than the current version, update the NewRelease property.
+        /// Repeat the check once per hour, until a connection is made to the Github page,
+        /// and then once every two days until a new version is found.
         /// </summary>
         private async Task DoVersionCheck()
         {
-            Task<string> latestVersionTask = GetLatestVersion();
             string currentVersion = GetCurrentVersion();
 
-            string latestVersion = await latestVersionTask;
+            while (NewRelease == false)
+            {
+                string latestVersion = await GetLatestVersion().ConfigureAwait(false);
 
-            if (latestVersion == null)
-                return;
+                // If the attempt to determine the latest version fails, try again after an hour.
+                if (latestVersion == null || latestVersion == string.Empty)
+                {
+                    await Task.Delay(TimeSpan.FromHours(1)).ConfigureAwait(false);
+                    continue;
+                }
 
-            if (latestVersion.CompareTo(currentVersion) > 0)
-                NewRelease = true;
+                if (latestVersion.CompareTo(currentVersion) > 0)
+                    NewRelease = true;
+
+
+                if (NewRelease == false)
+                {
+                    // If no new release was found, try again in a couple days.
+                    await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
+                }
+            }
         }
 
         /// <summary>
@@ -88,6 +103,11 @@ namespace NetTally
             return releaseText;
         }
 
+        /// <summary>
+        /// Get the Github page that contains the latest release.
+        /// </summary>
+        /// <returns>Returns the HTML document for the requested page,
+        /// or null if it fails to load.</returns>
         private async Task<HtmlDocument> GetLatestReleasePage()
         {
             IPageProvider webPageProvider = new WebPageProvider();
