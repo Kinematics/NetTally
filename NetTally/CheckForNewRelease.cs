@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -13,6 +13,9 @@ namespace NetTally
     public class CheckForNewRelease : INotifyPropertyChanged
     {
         public bool newRelease = false;
+        static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
+        static readonly Regex numbers = new Regex(@"\d+");
+
 
         /// <summary>
         /// Constructor
@@ -47,9 +50,7 @@ namespace NetTally
                     continue;
                 }
 
-                if (latestVersion.CompareTo(currentVersion) > 0)
-                    NewRelease = true;
-
+                NewRelease = IsLatestVersionNewer(currentVersion, latestVersion);
 
                 if (NewRelease == false)
                 {
@@ -57,6 +58,44 @@ namespace NetTally
                     await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Compare two version strings to see which one is 'higher', given that
+        /// each dotted number increments individually, and may go from, say, 
+        /// 9 to 10 (eg: 1.1.9 to 1.1.10).
+        /// </summary>
+        /// <param name="currentVersion">The string for the current program version.</param>
+        /// <param name="latestVersion">The string for the latest program version.</param>
+        /// <returns>Returns true if the latestVersion value is 'higher' than the currentVersion.</returns>
+        private bool IsLatestVersionNewer(string currentVersion, string latestVersion)
+        {
+            if (currentVersion == null || latestVersion == null)
+                return false;
+
+            int currentVersionNumber;
+            int latestVersionNumber;
+
+            Match mCurrent = numbers.Match(currentVersion);
+            Match mLatest = numbers.Match(latestVersion);
+
+            while (mCurrent.Success && mLatest.Success)
+            {
+                if (int.TryParse(mCurrent.Value, out currentVersionNumber) &&
+                    int.TryParse(mLatest.Value, out latestVersionNumber))
+                {
+                    if (latestVersionNumber > currentVersionNumber)
+                        return true;
+                }
+
+                mCurrent = mCurrent.NextMatch();
+                mLatest = mLatest.NextMatch();
+            }
+
+            // If the above loop ended, but the latest version's match still has more
+            // valid number entries, that means it's 'higher' than the current version.
+            // EG: 1.1.9 vs 1.1.9.1
+            return mLatest.Success;
         }
 
         /// <summary>
@@ -88,19 +127,7 @@ namespace NetTally
             if (h1ReleaseTitle == null)
                 return string.Empty;
 
-            string releaseText = h1ReleaseTitle.InnerText.Trim();
-
-            if (releaseText.StartsWith("v"))
-                releaseText = releaseText.Substring(1);
-
-            int spaceIndex = releaseText.IndexOf(" ");
-
-            if (spaceIndex > 0)
-            {
-                releaseText = releaseText.Substring(0, spaceIndex);
-            }
-
-            return releaseText;
+            return GetVersionString(h1ReleaseTitle.InnerText);
         }
 
         /// <summary>
@@ -123,6 +150,23 @@ namespace NetTally
                 return null;
             }
         }
+
+        /// <summary>
+        /// Extract a version string from the provided string (text from web page).
+        /// </summary>
+        /// <param name="potentialVersion">Web page text that's expected to hold a version number.</param>
+        /// <returns>Returns the version as a string, if available.</returns>
+        public string GetVersionString(string potentialVersion)
+        {
+            Match m = potentialVersionRegex.Match(potentialVersion);
+            if (m.Success)
+            {
+                return m.Groups["version"].Value;
+            }
+
+            return "";
+        }
+
 
         #region Property event handling
         /// <summary>
