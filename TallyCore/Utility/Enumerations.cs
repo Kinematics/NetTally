@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 
 namespace NetTally
@@ -107,7 +105,11 @@ namespace NetTally
             return default(T);
         }
 
-
+        /// <summary>
+        /// Create a list of enums containing each of the enumerated values.
+        /// </summary>
+        /// <typeparam name="T">The enum type to create a list for.</typeparam>
+        /// <returns>Returns an IEnumerable list of enum values.</returns>
         public static IEnumerable<T> EnumToList<T>()
         {
             Type enumType = typeof(T);
@@ -127,11 +129,14 @@ namespace NetTally
             return list;
         }
 
+        /// <summary>
+        /// Create a list of the descriptions of each enum value of a given type.
+        /// </summary>
+        /// <typeparam name="T">The enum type to create a list for.</typeparam>
+        /// <returns>Returns a list of string descriptions for an enum type.</returns>
         public static IEnumerable<string> EnumDescriptionsList<T>()
         {
-            var enums = EnumToList<T>();
-
-            var enumDescrips = from Enum e in enums
+            var enumDescrips = from Enum e in EnumToList<T>()
                                select e.GetDescription();
 
             return enumDescrips;
