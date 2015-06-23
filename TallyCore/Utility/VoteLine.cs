@@ -316,7 +316,7 @@ namespace NetTally
 
                 if (newTask != null && newTask != string.Empty)
                 {
-                    sb.AppendFormat("[{0}]", newTask);
+                    sb.Append($"[{newTask}]");
                 }
 
                 sb.Append(" ");

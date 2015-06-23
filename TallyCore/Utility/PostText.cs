@@ -170,7 +170,7 @@ namespace NetTally.Utility
                         Match m = spanColorRegex.Match(spanStyle);
                         if (m.Success)
                         {
-                            sb.AppendFormat("[color={0}]", m.Groups["color"].Value);
+                            sb.Append($"[color={m.Groups["color"].Value}]");
                             sb.Append(ExtractChildNodes(node, exclude));
                             sb.Append("[/color]");
                         }
@@ -182,7 +182,7 @@ namespace NetTally.Utility
                     }
                     break;
                 case "a":
-                    sb.AppendFormat("[url=\"{0}\"]", node.GetAttributeValue("href", ""));
+                    sb.Append($"[url=\"{node.GetAttributeValue("href", "")}\"]");
                     sb.Append(ExtractChildNodes(node, exclude));
                     sb.Append("[/url]");
                     break;
@@ -193,7 +193,7 @@ namespace NetTally.Utility
 
                     if (srcUrl != string.Empty)
                     {
-                        sb.AppendFormat("[url=\"{0}\"]<Image>[/url]", srcUrl);
+                        sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
                     }
                     break;
                 case "div":
