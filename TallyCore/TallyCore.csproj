@@ -71,8 +71,10 @@
     <Compile Include="Utility\PostText.cs" />
     <Compile Include="Utility\RegionProfiler.cs" />
     <Compile Include="Utility\Utility.cs" />
-    <Compile Include="Utility\VoteLine.cs" />
-    <Compile Include="VoteConstructor.cs" />
+    <Compile Include="Votes\Vote.cs" />
+    <Compile Include="Votes\VoteLine.cs" />
+    <Compile Include="Votes\VoteString.cs" />
+    <Compile Include="Votes\VoteConstructor.cs" />
     <Compile Include="VoteCounter.cs" />
     <Compile Include="WebPageProvider.cs" />
   </ItemGroup>
