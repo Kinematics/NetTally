@@ -25,7 +25,7 @@ namespace NetTally
 
             // Handle each task separately
             var groupByTask = from vote in voteCounter.RankedVotesWithSupporters
-                              group vote by VoteLine.GetVoteTask(vote.Key) into g
+                              group vote by VoteString.GetVoteTask(vote.Key) into g
                               select g;
 
             Dictionary<string, List<string>> taskPreference = new Dictionary<string, List<string>>();
@@ -81,7 +81,7 @@ namespace NetTally
         private static List<string> GetVoteList(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
             var votes = from vote in task
-                        select VoteLine.GetVoteContent(vote.Key);
+                        select VoteString.GetVoteContent(vote.Key);
             return votes.ToList();
         }
 
@@ -93,7 +93,7 @@ namespace NetTally
         /// <returns>Returns a grouping of votes per user.</returns>
         private static Dictionary<string, List<string>> ConvertVotesToVoters(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
-            var ordered = task.OrderBy(a => VoteLine.GetVoteMarker(a.Key));
+            var ordered = task.OrderBy(a => VoteString.GetVoteMarker(a.Key));
 
             Dictionary<string, List<string>> voters = new Dictionary<string, List<string>>();
             List<string> votes;
@@ -108,7 +108,7 @@ namespace NetTally
                         voters[voter] = votes;
                     }
 
-                    votes.Add(VoteLine.GetVoteContent(vote.Key));
+                    votes.Add(VoteString.GetVoteContent(vote.Key));
                 }
             }
 

@@ -145,16 +145,16 @@ namespace NetTally
                 {
                     // Don't allow merging if they're not the same rank.
 
-                    string markFrom = VoteLine.GetVoteMarker(fromVote);
-                    string markTo = VoteLine.GetVoteMarker(toVote);
+                    string markFrom = VoteString.GetVoteMarker(fromVote);
+                    string markTo = VoteString.GetVoteMarker(toVote);
 
                     if (markFrom != markTo)
                         return false;
 
                     // Don't allow merging if they're not the same task.
 
-                    string taskFrom = VoteLine.GetVoteTask(fromVote);
-                    string taskTo = VoteLine.GetVoteTask(toVote);
+                    string taskFrom = VoteString.GetVoteTask(fromVote);
+                    string taskTo = VoteString.GetVoteTask(toVote);
 
                     if (taskFrom != taskTo)
                         return false;
@@ -381,7 +381,7 @@ namespace NetTally
 
             if (selectedVote != null)
             {
-                string changedVote = VoteLine.ReplaceTask(selectedVote, newTask);
+                string changedVote = VoteString.ReplaceTask(selectedVote, newTask);
 
                 if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                 {
@@ -431,9 +431,9 @@ namespace NetTally
                             string changedVote = "";
 
                             if (mi.Header.ToString() == "Clear Task")
-                                changedVote = VoteLine.ReplaceTask(selectedVote, "");
+                                changedVote = VoteString.ReplaceTask(selectedVote, "");
                             else
-                                changedVote = VoteLine.ReplaceTask(selectedVote, mi.Header.ToString());
+                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString());
 
                             if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                             {
@@ -518,7 +518,7 @@ namespace NetTally
         private void InitContextMenuTasks()
         {
             var voteTasks = voteCounter.GetVotesCollection(CurrentVoteType).Keys.
-                Select(v => VoteLine.GetVoteTask(v)).Distinct().
+                Select(v => VoteString.GetVoteTask(v)).Distinct().
                 Where(v => v != string.Empty).OrderBy(v => v);
 
             Tasks.AddRange(voteTasks);

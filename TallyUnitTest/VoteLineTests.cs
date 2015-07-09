@@ -28,20 +28,20 @@ namespace TallyUnitTest
 
             string e = "";
 
-            Assert.AreEqual(cleanLine1, VoteLine.CleanVote(cleanLine1));
-            Assert.AreEqual(cleanLine1, VoteLine.CleanVote(line1));
-            Assert.AreEqual(cleanLine1, VoteLine.CleanVote(line2));
-            Assert.AreEqual(cleanLine1, VoteLine.CleanVote(line3));
-            Assert.AreEqual(cleanLine1, VoteLine.CleanVote(line4));
+            Assert.AreEqual(cleanLine1, VoteString.CleanVote(cleanLine1));
+            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line1));
+            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line2));
+            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line3));
+            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line4));
 
-            Assert.AreEqual(cleanLine2, VoteLine.CleanVote(cleanLine2));
-            Assert.AreEqual(cleanLine2, VoteLine.CleanVote(line5));
-            Assert.AreEqual(cleanLine2, VoteLine.CleanVote(line6));
+            Assert.AreEqual(cleanLine2, VoteString.CleanVote(cleanLine2));
+            Assert.AreEqual(cleanLine2, VoteString.CleanVote(line5));
+            Assert.AreEqual(cleanLine2, VoteString.CleanVote(line6));
 
-            Assert.AreEqual(cleanLine3, VoteLine.CleanVote(cleanLine3));
-            Assert.AreEqual(cleanLine3, VoteLine.CleanVote(line7));
+            Assert.AreEqual(cleanLine3, VoteString.CleanVote(cleanLine3));
+            Assert.AreEqual(cleanLine3, VoteString.CleanVote(line7));
 
-            Assert.AreEqual(e, VoteLine.CleanVote(e));
+            Assert.AreEqual(e, VoteString.CleanVote(e));
         }
 
 
@@ -52,7 +52,7 @@ namespace TallyUnitTest
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.None };
-            string results = VoteLine.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
 
@@ -63,7 +63,7 @@ namespace TallyUnitTest
             string expected = "-[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.ByBlock };
-            string results = VoteLine.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
 
@@ -74,7 +74,7 @@ namespace TallyUnitTest
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.ByLine };
-            string results = VoteLine.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest);
             Assert.AreEqual(expected, results);
         }
         
@@ -84,8 +84,8 @@ namespace TallyUnitTest
             string line1 = "[x] Vote for stuff";
             string line2 = "-[x] Vote for stuff";
 
-            Assert.AreEqual("", VoteLine.GetVotePrefix(line1));
-            Assert.AreEqual("-", VoteLine.GetVotePrefix(line2));
+            Assert.AreEqual("", VoteString.GetVotePrefix(line1));
+            Assert.AreEqual("-", VoteString.GetVotePrefix(line2));
 
         }
 
@@ -98,32 +98,32 @@ namespace TallyUnitTest
             string line4 = "[✓][major] Vote for stuff";
             string line5 = "-[ ✔][ animal] Vote for stuff";
 
-            Assert.AreEqual("x", VoteLine.GetVoteMarker(line1));
-            Assert.AreEqual("X", VoteLine.GetVoteMarker(line2));
-            Assert.AreEqual("+", VoteLine.GetVoteMarker(line3));
-            Assert.AreEqual("✓", VoteLine.GetVoteMarker(line4));
-            Assert.AreEqual("✔", VoteLine.GetVoteMarker(line5));
+            Assert.AreEqual("x", VoteString.GetVoteMarker(line1));
+            Assert.AreEqual("X", VoteString.GetVoteMarker(line2));
+            Assert.AreEqual("+", VoteString.GetVoteMarker(line3));
+            Assert.AreEqual("✓", VoteString.GetVoteMarker(line4));
+            Assert.AreEqual("✔", VoteString.GetVoteMarker(line5));
 
             line1 = "[a] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[k] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[jk] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[xx] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[O] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[o] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[-] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[=] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[@] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[q] Vote for stuff";
-            Assert.AreEqual("", VoteLine.GetVoteMarker(line1));
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
         }
 
         [TestMethod()]
@@ -136,12 +136,12 @@ namespace TallyUnitTest
             string line5 = "[x][MINOR] Vote for stuff";
             string line6 = "[x][Trade Relations] Vote for stuff";
 
-            Assert.AreEqual("", VoteLine.GetVoteTask(line1));
-            Assert.AreEqual("", VoteLine.GetVoteTask(line2));
-            Assert.AreEqual("Major", VoteLine.GetVoteTask(line3));
-            Assert.AreEqual("Animal", VoteLine.GetVoteTask(line4));
-            Assert.AreEqual("Minor", VoteLine.GetVoteTask(line5));
-            Assert.AreEqual("Trade relations", VoteLine.GetVoteTask(line6));
+            Assert.AreEqual("", VoteString.GetVoteTask(line1));
+            Assert.AreEqual("", VoteString.GetVoteTask(line2));
+            Assert.AreEqual("Major", VoteString.GetVoteTask(line3));
+            Assert.AreEqual("Animal", VoteString.GetVoteTask(line4));
+            Assert.AreEqual("Minor", VoteString.GetVoteTask(line5));
+            Assert.AreEqual("Trade relations", VoteString.GetVoteTask(line6));
         }
 
         [TestMethod()]
@@ -150,23 +150,23 @@ namespace TallyUnitTest
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
             string expected = "We did agree to non-lethal. My most powerful stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
 
-            Assert.AreEqual(expected, VoteLine.GetVoteContent(input));
+            Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
             input = "[x] Vote for stuff";
             expected = "Vote for stuff";
-            Assert.AreEqual(expected, VoteLine.GetVoteContent(input));
+            Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
             input = "[x][major] Vote for stuff";
             expected = "Vote for stuff";
-            Assert.AreEqual(expected, VoteLine.GetVoteContent(input));
+            Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
             input = "-[x][ animal] Vote for stuff";
             expected = "Vote for stuff";
-            Assert.AreEqual(expected, VoteLine.GetVoteContent(input));
+            Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
             input = "[color=blue]-[x] Vote for stuff[/color]";
             expected = "Vote for stuff";
-            Assert.AreEqual(expected, VoteLine.GetVoteContent(input));
+            Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
         }
 
@@ -175,11 +175,11 @@ namespace TallyUnitTest
         {
             string input = "[x] Kinematics";
             string expected = "Kinematics";
-            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input));
+            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input));
 
             input = "[x] Plan Assault";
             expected = "\u25C8Assault";
-            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input));
+            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input));
         }
 
         [TestMethod()]
@@ -187,11 +187,11 @@ namespace TallyUnitTest
         {
             string input = "[x] Kinematics";
             string expected = "\u25C8Kinematics";
-            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input, true));
+            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input, true));
 
             input = "[x] Plan Assault";
             expected = "Assault";
-            Assert.AreEqual(expected, VoteLine.GetVoteReferenceName(input, true));
+            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input, true));
         }
 
         [TestMethod()]
@@ -203,7 +203,7 @@ namespace TallyUnitTest
             string task;
             string content;
 
-            VoteLine.GetVoteComponents(input, out prefix, out marker, out task, out content);
+            VoteString.GetVoteComponents(input, out prefix, out marker, out task, out content);
 
             Assert.AreEqual("-", prefix);
             Assert.AreEqual("x", marker);
@@ -215,46 +215,46 @@ namespace TallyUnitTest
         public void IsRankedVoteTest()
         {
             string test = "[1] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "[1][Animal] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "[2] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "[9] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "-[1] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "-- [1] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "-[1][Animal] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "-[1] [Animal] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "- [1] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
             test = "- [ 1] Cat";
-            Assert.IsTrue(VoteLine.IsRankedVote(test));
+            Assert.IsTrue(VoteString.IsRankedVote(test));
 
             test = "[x] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "-[x] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "- [x] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "- [X] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "- [+] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "[✓] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "[x][animal] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "-[x] [Animal] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "[10] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
             test = "[0] Cat";
-            Assert.IsFalse(VoteLine.IsRankedVote(test));
+            Assert.IsFalse(VoteString.IsRankedVote(test));
         }
 
     }

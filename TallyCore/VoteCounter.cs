@@ -389,7 +389,7 @@ namespace NetTally
         /// empty list.</returns>
         public List<string> GetVotesFromReference(string voteLine)
         {
-            string planName = VoteLine.GetVoteReferenceName(voteLine);
+            string planName = VoteString.GetVoteReferenceName(voteLine);
 
             var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
 
@@ -397,7 +397,7 @@ namespace NetTally
                 return planVotes.Select(v => v.Key).ToList();
 
             // Get alternate version.
-            planName = VoteLine.GetVoteReferenceName(voteLine, true);
+            planName = VoteString.GetVoteReferenceName(voteLine, true);
 
             planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
 
@@ -426,7 +426,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = VoteLine.MinimizeVote(vote, quest);
+            var minVote = VoteString.MinimizeVote(vote, quest);
 
             // If it matches a lookup value, return the lookup key
             string lookupVote;

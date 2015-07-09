@@ -63,7 +63,7 @@ namespace NetTally
         {
             // If the post contains the string "#####" at the start of the line for part of its text,
             // it's a tally post.
-            string cleanText = VoteLine.CleanVote(postText);
+            string cleanText = VoteString.CleanVote(postText);
             return (tallyRegex.Matches(cleanText).Count > 0);
         }
 

@@ -67,8 +67,8 @@ namespace NetTally.Utility
             if (ys == null)
                 throw new ArgumentException("Parameter x is not a string.");
 
-            string compX = VoteLine.GetVoteTask(xs) + " " + VoteLine.GetVoteContent(xs);
-            string compY = VoteLine.GetVoteTask(ys) + " " + VoteLine.GetVoteContent(ys);
+            string compX = VoteString.GetVoteTask(xs) + " " + VoteString.GetVoteContent(xs);
+            string compY = VoteString.GetVoteTask(ys) + " " + VoteString.GetVoteContent(ys);
 
             int result = string.Compare(compX, compY, CultureInfo.CurrentUICulture, CompareOptions.IgnoreCase);
 
@@ -76,4 +76,17 @@ namespace NetTally.Utility
         }
     }
 
+    public static class MathUtil
+    {
+        public static T BoundsCheck<T>(T? min, T value, T? max) where T: struct, IComparable<T>
+        {
+            if (min.HasValue && value.CompareTo(min.Value) < 0)
+                return min.Value;
+
+            if (max.HasValue && value.CompareTo(max.Value) > 0)
+                return max.Value;
+
+            return value;
+        }
+    }
 }

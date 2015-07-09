@@ -124,7 +124,7 @@ namespace NetTally
                                 if (userVoteCount > 0)
                                 {
                                     AddCompactVoteNumber(userVoteCount);
-                                    sb.Append($"{VoteLine.GetVoteContentFirstLine(vote.Key)} : ");
+                                    sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)} : ");
                                     AddCompactVoters(vote.Value);
                                     sb.AppendLine("");
                                 }
@@ -134,7 +134,7 @@ namespace NetTally
                                 if (userVoteCount > 0)
                                 {
                                     AddCompactVoteNumber(userVoteCount);
-                                    sb.Append($"{VoteLine.GetVoteContentFirstLine(vote.Key)}");
+                                    sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)}");
                                     sb.AppendLine("");
                                 }
                                 break;
@@ -205,7 +205,7 @@ namespace NetTally
         private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
         {
             var grouped = from v in votesWithSupporters
-                          group v by VoteLine.GetVoteTask(v.Key) into g
+                          group v by VoteString.GetVoteTask(v.Key) into g
                           orderby g.Key
                           select g;
 
@@ -423,8 +423,8 @@ namespace NetTally
         private void AddRankedOptions(string task)
         {
             var voteContents = VoteCounter.RankedVotesWithSupporters.
-                Where(v => VoteLine.GetVoteTask(v.Key) == task).
-                Select(v => VoteLine.GetVoteContent(v.Key));
+                Where(v => VoteString.GetVoteTask(v.Key) == task).
+                Select(v => VoteString.GetVoteContent(v.Key));
 
             HashSet<string> uniqueOptions = new HashSet<string>(voteContents, StringComparer.OrdinalIgnoreCase);
 
@@ -461,9 +461,9 @@ namespace NetTally
             string winningChoice = result.Value.First();
 
             var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
-                           where VoteLine.GetVoteTask(v.Key) == result.Key &&
-                                 VoteLine.GetVoteContent(v.Key) == winningChoice
-                           select new { marker = VoteLine.GetVoteMarker(v.Key), voters = v.Value };
+                           where VoteString.GetVoteTask(v.Key) == result.Key &&
+                                 VoteString.GetVoteContent(v.Key) == winningChoice
+                           select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
             var markerOrder = whoVoted.OrderBy(a => a.marker);
 

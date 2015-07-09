@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace NetTally
 {
-    public static class VoteLine
+    public static class VoteString
     {
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\s*\[\s*(?<marker>[xX+✓✔1-9])\s*\]\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?\s*(?<content>.*)");
@@ -336,7 +336,7 @@ namespace NetTally
         /// <returns>Returns true if the vote marker is a digit, false if not.</returns>
         public static bool IsRankedVote(string voteLine)
         {
-            string marker = VoteLine.GetVoteMarker(voteLine);
+            string marker = VoteString.GetVoteMarker(voteLine);
 
             if (marker == string.Empty)
                 return false;

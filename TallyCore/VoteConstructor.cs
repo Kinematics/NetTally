@@ -117,7 +117,7 @@ namespace NetTally
 
 
             // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => VoteLine.IsRankedVote(a) == false).ToList();
+            List<string> normalVote = postLines.TakeWhile(a => VoteString.IsRankedVote(a) == false).ToList();
 
             if (normalVote.Count > 0)
                 results[VoteType.Vote].Add(normalVote);
@@ -130,7 +130,7 @@ namespace NetTally
 
                 foreach (string line in rankLines)
                 {
-                    if (VoteLine.IsRankedVote(line))
+                    if (VoteString.IsRankedVote(line))
                     {
                         results[VoteType.Rank].Add(new List<string>(1) { line });
                     }
@@ -358,7 +358,7 @@ namespace NetTally
             {
                 foreach (var v in referralVotes)
                 {
-                    string task = VoteLine.GetVoteTask(v);
+                    string task = VoteString.GetVoteTask(v);
                     if (task == string.Empty)
                     {
                         // If there is no task associated with the referral element,
@@ -378,7 +378,7 @@ namespace NetTally
                         currentTask = task;
 
                         string firstLine = Utility.Text.FirstLine(v);
-                        string firstLineContent = VoteLine.GetVoteContentFirstLine(v);
+                        string firstLineContent = VoteString.GetVoteContentFirstLine(v);
                         if (firstLineContent == string.Empty)
                         {
                             taskHeader = firstLine;
@@ -421,7 +421,7 @@ namespace NetTally
         {
             // If partitioning by line, every line gets added to the partitions list.
             // Skip lines without any content.
-            if (VoteLine.GetVoteContent(line) != string.Empty)
+            if (VoteString.GetVoteContent(line) != string.Empty)
                 partitions.Add(line + "\r\n");
         }
 
@@ -439,7 +439,7 @@ namespace NetTally
                 // Start a new block
                 sb.AppendLine(line);
             }
-            else if (VoteLine.CleanVote(line).StartsWith("-"))
+            else if (VoteString.CleanVote(line).StartsWith("-"))
             {
                 // Sub-lines get added to an existing block
                 sb.AppendLine(line);
@@ -450,7 +450,7 @@ namespace NetTally
                 // accumulation and start a new block.
                 string currentAccumulation = sb.ToString();
                 // Skip blocks without any valid content
-                if (VoteLine.GetVoteContent(currentAccumulation) != string.Empty)
+                if (VoteString.GetVoteContent(currentAccumulation) != string.Empty)
                     partitions.Add(sb.ToString());
                 sb.Clear();
                 sb.AppendLine(line);
@@ -472,7 +472,7 @@ namespace NetTally
             {
                 sb.AppendLine(line);
             }
-            else if (VoteLine.GetVoteTask(line) != string.Empty)
+            else if (VoteString.GetVoteTask(line) != string.Empty)
             {
                 // We've reached a new task block
                 partitions.Add(sb.ToString());
@@ -507,7 +507,7 @@ namespace NetTally
             string content;
 
             // Get vote line components, since we'll be using them a bunch
-            VoteLine.GetVoteComponents(line, out prefix, out marker, out task, out content);
+            VoteString.GetVoteComponents(line, out prefix, out marker, out task, out content);
 
             if (task != string.Empty)
             {
@@ -569,7 +569,7 @@ namespace NetTally
                     if (sb.Length > 0)
                     {
                         // If the current sb has any actual content in it, add to the partitions
-                        if (VoteLine.GetVoteContent(sb.ToString()) != string.Empty)
+                        if (VoteString.GetVoteContent(sb.ToString()) != string.Empty)
                             partitions.Add(sb.ToString());
 
                         sb.Clear();
@@ -586,7 +586,7 @@ namespace NetTally
                     {
                         // If we don't have a task header, but do have an active task, apply
                         // that to the holding string before adding it.
-                        string tasked_holding_line = VoteLine.ReplaceTask(holding_sb.ToString(), currentTask);
+                        string tasked_holding_line = VoteString.ReplaceTask(holding_sb.ToString(), currentTask);
                         sb.Append(tasked_holding_line);
                     }
                     else
@@ -646,7 +646,7 @@ namespace NetTally
                     }
                     else if (currentTask != string.Empty)
                     {
-                        sb.AppendLine(VoteLine.ReplaceTask(line, currentTask));
+                        sb.AppendLine(VoteString.ReplaceTask(line, currentTask));
                     }
                     else
                     {
@@ -675,10 +675,10 @@ namespace NetTally
 
             string voteLine = vote.First();
 
-            string content = VoteLine.GetVoteContentFirstLine(voteLine);
+            string content = VoteString.GetVoteContentFirstLine(voteLine);
 
             // If the content spans multiple lines, it can't be a floating reference.
-            if (content != VoteLine.GetVoteContent(voteLine))
+            if (content != VoteString.GetVoteContent(voteLine))
                 return false;
 
             // Anything starting with "plan" is a fixed reference.
@@ -704,7 +704,7 @@ namespace NetTally
         public string GetBasePlanName(List<string> planLines)
         {
             string firstLine = planLines.First();
-            string lineContent = VoteLine.GetVoteContent(firstLine);
+            string lineContent = VoteString.GetVoteContent(firstLine);
 
             Match m = basePlanRegex.Match(lineContent);
             if (m.Success)
