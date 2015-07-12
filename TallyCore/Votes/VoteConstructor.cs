@@ -94,9 +94,19 @@ namespace NetTally
                 results[vType] = new List<List<string>>();
 
 
+            Match bpMatch = basePlanRegex.Match(postLines.First());
+
             // First put together all base plans
-            while (postLines.Count > 0 && basePlanRegex.Match(postLines.First()).Success)
+            while (postLines.Count > 0 && bpMatch.Success)
             {
+                // Make sure the plan doesn't already exist in the tracker.
+                // If it does, this counts as a repeat, and should be considered an attempt to 
+                // reference the original plan, rather than redefine it.
+                // As soon as this occurs, we should treat all further lines
+                // as regular vote lines, rather than additional potential plans.
+                if (VoteCounter.HasPlan(bpMatch.Groups["baseplan"].Value))
+                    break;
+
                 List<string> basePlan = new List<string>();
 
                 // Add the "Base Plan" line
