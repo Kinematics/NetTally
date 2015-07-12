@@ -19,7 +19,7 @@ namespace NetTally
         // Regex for separating out the task from the other portions of a vote line.
         static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?<task>(\w|\d)(\s*(\w|\d)+)*\??)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(plan\s+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
@@ -172,8 +172,8 @@ namespace NetTally
                 if (name.EndsWith("."))
                     name = name.Substring(0, name.Length - 1);
 
-                if (alt ^ content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
-                    name = Utility.Text.PlanNameMarker + name;
+                if (alt ^ m.Groups["label"].Success)
+                    name = $"{Utility.Text.PlanNameMarker}{name}";
 
                 return name.Trim();
             }
