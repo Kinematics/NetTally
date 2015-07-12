@@ -17,7 +17,7 @@ namespace NetTally
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
-        readonly Regex planNameRegex = new Regex(@"^(plan\s+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        readonly Regex planNameRegex = new Regex(@"^(?<label>base\s*plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
 
         readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
@@ -679,7 +679,7 @@ namespace NetTally
         /// a known username (per the VoteCounter).</returns>
         public bool IsFloatingReference(List<string> vote)
         {
-            // Multiple vote lines cannot be floating references.
+            // A vote with multiple vote lines cannot be floating references.
             if (vote.Count != 1)
                 return false;
 
@@ -691,15 +691,13 @@ namespace NetTally
             if (content != VoteString.GetVoteContent(voteLine))
                 return false;
 
-            // Anything starting with "plan" is a fixed reference.
-            if (content.StartsWith("plan ", StringComparison.OrdinalIgnoreCase))
+            // Anything starting with "plan" or "base plan" is a fixed reference.
+            // Though if the entire match fails, bail out as well.
+            Match m = planNameRegex.Match(content);
+            if (!m.Success || m.Groups["label"].Success)
                 return false;
 
             // If the content contains a name that exists in the voter list, it can be a floating reference.
-            Match m = planNameRegex.Match(content);
-            if (!m.Success)
-                return false;
-
             string refName = m.Groups["reference"].Value;
 
             return VoteCounter.VotePosts.Any(v => string.Compare(refName, v.Author, true) == 0);
