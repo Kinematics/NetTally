@@ -29,6 +29,7 @@ namespace NetTally
         Dictionary<string, string> RankedVoterMessageId { get; }
 
         HashSet<string> PlanNames { get; }
+        bool HasPlan(string planName);
 
         List<PostComponents> VotePosts { get; }
         List<PostComponents> FloatingReferences { get; }

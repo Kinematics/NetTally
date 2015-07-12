@@ -407,6 +407,22 @@ namespace NetTally
             return new List<string>();
         }
 
+        /// <summary>
+        /// Determine if the requested plan name exists in the current list of plans.
+        /// Applies the plan name marker character to the provided plan name, if it
+        /// doesn't already exist.
+        /// </summary>
+        /// <param name="planName">The name of the plan to check for.</param>
+        /// <returns>Returns whether the provided plan name exists in the current PlanNames hash set.</returns>
+        public bool HasPlan(string planName)
+        {
+            if (!planName.StartsWith(Utility.Text.PlanNameMarker))
+            {
+                planName = $"{Utility.Text.PlanNameMarker}{planName}";
+            }
+
+            return PlanNames.Contains(planName);
+        }
         #endregion
 
         #region Private support methods
