@@ -51,7 +51,7 @@ namespace NetTally.Utility
                 exclude = (n) => false;
 
             // Recurse into the child nodes of the main post node.
-            string postText = ExtractChildNodes(node, exclude);
+            string postText = ExtractPostTextString(node, exclude).ToString().Trim();
 
             // Cleanup the results of the extraction.
             return CleanupWebString(postText);
@@ -89,121 +89,101 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Extract the text of all child nodes of the provided node.
-        /// Allows recursive extraction of the post's text.
+        /// Extracts the text (recursively) from the specified node, and converts some elements into BBCode.
         /// </summary>
-        /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <param name="node">The parent node.</param>
         /// <param name="exclude">A predicate that can be used to exclude specific
         /// sub-nodes from the end result.</param>
-        private static string ExtractChildNodes(HtmlNode node, Predicate<HtmlNode> exclude)
+        /// <param name="sb">The stringbuilder where all results are concatenated.  Will create if not provided.</param>
+        /// <returns>Returns a predicate.</returns>
+        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb = null)
         {
-            StringBuilder sb = new StringBuilder();
+            if (sb == null)
+                sb = new StringBuilder();
 
-            foreach (var childNode in node.ChildNodes)
+            foreach (var child in node.ChildNodes)
             {
-                ExtractNodeText(sb, childNode, exclude);
-            }
+                if (exclude(child))
+                {
+                    continue;
+                }
 
-            return sb.ToString().Trim();
-        }
+                switch (child.Name)
+                {
+                    case "#text":
+                        sb.Append(child.InnerText);
+                        break;
+                    case "br":
+                        sb.Append("\r\n");
+                        break;
+                    case "i":
+                        sb.Append("[i]");
+                        ExtractPostTextString(child, exclude, sb);
+                        sb.Append("[/i]");
+                        break;
+                    case "b":
+                        sb.Append("[b]");
+                        ExtractPostTextString(child, exclude, sb);
+                        sb.Append("[/b]");
+                        break;
+                    case "u":
+                        sb.Append("[u]");
+                        ExtractPostTextString(child, exclude, sb);
+                        sb.Append("[/u]");
+                        break;
+                    case "span":
+                        string spanStyle = child.GetAttributeValue("style", "");
 
-        /// <summary>
-        /// Extracts the text from the specified node, and converts some elements into BBCode.
-        /// </summary>
-        /// <param name="sb">The stringbuilder where all results are concatenated.</param>
-        /// <param name="node">The parent node.</param>
-        /// <param name="exclude">A predicate that can be used to exclude specific
-        /// sub-nodes from the end result.</param>
-        private static void ExtractNodeText(StringBuilder sb, HtmlNode node, Predicate<HtmlNode> exclude)
-        {
-            // A raw text node is simply added as-is.
-            if (node.Name == "#text")
-            {
-                sb.Append(node.InnerText);
-                return;
-            }
-
-            // A <br> element adds a newline.  Sometimes redundant; sometimes necessary.
-            if (node.Name == "br")
-            {
-                sb.AppendLine("");
-                return;
-            }
-
-            // Check the predicate passed in for custom exclusion of nodes.
-            if (exclude(node))
-            {
-                return;
-            }
-
-            // Add BBCode markup in place of HTML format elements, while collecting the text in the post.
-            // All remaining elements (except img) recurse into nested nodes to get the actual text.
-            switch (node.Name)
-            {
-                case "i":
-                    sb.Append("[i]");
-                    sb.Append(ExtractChildNodes(node, exclude));
-                    sb.Append("[/i]");
-                    break;
-                case "b":
-                    sb.Append("[b]");
-                    sb.Append(ExtractChildNodes(node, exclude));
-                    sb.Append("[/b]");
-                    break;
-                case "u":
-                    sb.Append("[u]");
-                    sb.Append(ExtractChildNodes(node, exclude));
-                    sb.Append("[/u]");
-                    break;
-                case "span":
-                    string spanStyle = node.GetAttributeValue("style", "");
-
-                    // Struck-through text is entirely skipped.
-                    if (spanStrikeRegex.Match(spanStyle).Success)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        // Keep any COLOR styles.
-                        Match m = spanColorRegex.Match(spanStyle);
-                        if (m.Success)
+                        // Struck-through text is entirely skipped.
+                        if (spanStrikeRegex.Match(spanStyle).Success)
                         {
-                            sb.Append($"[color={m.Groups["color"].Value}]");
-                            sb.Append(ExtractChildNodes(node, exclude));
-                            sb.Append("[/color]");
+                            continue;
                         }
                         else
                         {
-                            // Take anything else without including span style modifications.
-                            sb.Append(ExtractChildNodes(node, exclude));
+                            // Keep any COLOR styles.
+                            Match m = spanColorRegex.Match(spanStyle);
+                            if (m.Success)
+                            {
+                                sb.Append($"[color={m.Groups["color"].Value}]");
+                                ExtractPostTextString(child, exclude, sb);
+                                sb.Append("[/color]");
+                            }
+                            else
+                            {
+                                // Take anything else without including span style modifications.
+                                ExtractPostTextString(child, exclude, sb);
+                            }
                         }
-                    }
-                    break;
-                case "a":
-                    sb.Append($"[url=\"{node.GetAttributeValue("href", "")}\"]");
-                    sb.Append(ExtractChildNodes(node, exclude));
-                    sb.Append("[/url]");
-                    break;
-                case "img":
-                    string srcUrl = node.GetAttributeValue("data-url", "");
-                    if (srcUrl == string.Empty)
-                        srcUrl = node.GetAttributeValue("src", "");
+                        break;
+                    case "a":
+                        sb.Append($"[url=\"{child.GetAttributeValue("href", "")}\"]");
+                        ExtractPostTextString(child, exclude, sb);
+                        sb.Append("[/url]");
+                        break;
+                    case "img":
+                        string srcUrl = child.GetAttributeValue("data-url", "");
+                        if (srcUrl == string.Empty)
+                            srcUrl = child.GetAttributeValue("src", "");
 
-                    if (srcUrl != string.Empty)
-                    {
-                        sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
-                    }
-                    break;
-                case "div":
-                    // Recurse into divs (typically spoilers).
-                    sb.Append(ExtractChildNodes(node, exclude));
-                    break;
-                default:
-                    break;
+                        if (srcUrl != string.Empty)
+                        {
+                            sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
+                        }
+                        break;
+                    case "div":
+                        // Recurse into divs (typically spoilers).
+                        ExtractPostTextString(child, exclude, sb);
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            return sb;
         }
+
+
         #endregion
 
     }
