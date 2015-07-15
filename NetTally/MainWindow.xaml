@@ -190,8 +190,8 @@
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
-                        <TextBlock FontWeight="Bold">Merge Votes</TextBlock>
-                        <TextBlock>Open the window to handle merging votes together.</TextBlock>
+                        <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
+                        <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </Button.ToolTip>
