@@ -133,6 +133,7 @@ namespace NetTally
                                 userVoteCount = GetUserVoteCount(vote.Value);
                                 if (userVoteCount > 0)
                                 {
+                                    sb.Append($"{VoteString.GetVotePrefix(vote.Key)}");
                                     AddCompactVoteNumber(userVoteCount);
                                     sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)}");
                                     sb.AppendLine("");
