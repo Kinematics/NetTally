@@ -9,6 +9,10 @@ namespace NetTally.Votes
 {
     public class VoteLine
     {
+        // Formatting markup may be preserved within the content of the vote, but will be ignored
+        // if it is outside the vote as a whole (eg: bolding the entire vote, vs individual words).
+
+        static readonly Regex prePostRegex = new Regex(@"");
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
@@ -19,24 +23,47 @@ namespace NetTally.Votes
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
 
 
-        public string Text { get; set; }
-        public string Prefix { get; set; }
-        public string Marker { get; set; }
-        public string Task { get; set; }
-        public string Content { get; set; }
+        public string Text { get; }
+        public string Prefix { get; }
+        public string Marker { get; }
+        public string Task { get; }
+        public string Content { get; }
 
-        public string CleanedText { get; set; }
-        public string MinimizedText { get; set; }
+        public string CleanedText { get; }
+        public string MinimizedText { get; }
         public bool MinimizeByLine { get; }
 
         public VoteLine(string voteLine, IQuest quest = null)
         {
             CleanedText = CleanText(voteLine);
-            GetVoteComponents();
+            string prefix, marker, task, content;
+            GetComponentsFromLine(voteLine, out prefix, out marker, out task, out content);
+
+            Prefix = prefix;
+            Marker = marker;
+            Task = task;
+            Content = content;
 
             MinimizeByLine = quest?.PartitionMode == PartitionMode.ByLine;
-            MinimizeVote();
+            MinimizedText = MinimizeVote();
         }
+
+        public VoteLine(string prefix, string marker, string task, string content)
+        {
+            Prefix = prefix;
+            Marker = marker;
+            Task = task;
+            Content = content;
+
+            Text = BuildText();
+            CleanedText = CleanText(Text);
+        }
+
+        private string BuildText()
+        {
+            return $"{Prefix}[{Marker}]" + (Task != string.Empty ? $"[{Task}]" : "") + $" {Content}";
+        }
+
 
 
         /// <summary>
@@ -51,25 +78,26 @@ namespace NetTally.Votes
         }
 
 
-        public void GetVoteComponents()
+
+        public void GetComponentsFromLine(string line, out string prefix, out string marker, out string task, out string content)
         {
             Match m = voteLineRegex.Match(CleanedText);
             if (m.Success)
             {
-                Prefix = m.Groups["prefix"].Value;
-                Marker = m.Groups["marker"].Value;
-                Content = m.Groups["content"].Value.Trim();
+                prefix = m.Groups["prefix"].Value;
+                marker = m.Groups["marker"].Value;
+                content = m.Groups["content"].Value.Trim();
 
-                Task = m.Groups["task"].Value.Trim();
+                task = m.Groups["task"].Value.Trim();
 
                 // A task name is composed of any number of characters or digits, with an optional ending question mark.
                 // The returned value will capitalize the first letter, and lowercase any following letters.
 
-                if (Task.Length == 1)
-                    Task = Task.ToUpper();
+                if (task.Length == 1)
+                    task = task.ToUpper();
 
-                if (Task.Length > 1)
-                    Task = char.ToUpper(Task[0]) + Task.Substring(1).ToLower();
+                if (task.Length > 1)
+                    task = char.ToUpper(task[0]) + task.Substring(1).ToLower();
             }
             else
             {
@@ -86,14 +114,14 @@ namespace NetTally.Votes
         /// <param name="voteLine">Original vote line to minimize.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns a minimized version of the vote string.</returns>
-        public void MinimizeVote()
+        public string MinimizeVote()
         {
             string collapsed = collapseRegex.Replace(CleanedText, "");
             collapsed = collapsed.ToLower();
             if (MinimizeByLine)
                 collapsed = leadHyphenRegex.Replace(collapsed, "");
 
-            MinimizedText = collapsed;
+            return collapsed;
         }
 
     }
