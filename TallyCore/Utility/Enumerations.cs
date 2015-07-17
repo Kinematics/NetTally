@@ -31,7 +31,9 @@ namespace NetTally
         [Description("Compact")]
         Compact,
         [Description("Streamlined")]
-        Streamlined
+        Streamlined,
+        [Description("Tabbed")]
+        Tabbed
     }
 
     /// <summary>

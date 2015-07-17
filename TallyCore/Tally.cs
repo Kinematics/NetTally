@@ -12,7 +12,7 @@ namespace NetTally
     {
         IPageProvider PageProvider { get; } = new WebPageProvider();
         public IVoteCounter VoteCounter { get; } = new VoteCounter();
-        public ITextResultsProvider TextResults { get; set; } = new TextResults();
+        public ITextResultsProvider TextResults { get; set; } = new TextResultsRevised();
 
         bool tallyIsRunning = false;
         string results = string.Empty;

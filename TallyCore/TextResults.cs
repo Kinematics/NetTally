@@ -507,4 +507,537 @@ namespace NetTally
 
         #endregion
     }
+
+
+
+
+
+
+
+    public class TextResultsRevised : ITextResultsProvider
+    {
+        IQuest Quest { get; set; }
+        DisplayMode DisplayMode { get; set; }
+        IVoteCounter VoteCounter { get; set; }
+        StringBuilder sb { get; set; }
+
+        public string BuildOutput(IQuest quest, IVoteCounter voteCounter, DisplayMode displayMode)
+        {
+            VoteCounter = voteCounter;
+            Quest = quest;
+            DisplayMode = displayMode;
+
+            sb = new StringBuilder();
+
+
+            if (DisplayMode == DisplayMode.SpoilerAll)
+                StartSpoiler("Tally Results");
+
+            AddHeader();
+
+            ConstructRankedOutput();
+            ConstructNormalOutput();
+
+            if (DisplayMode == DisplayMode.SpoilerAll)
+                EndSpoiler();
+
+            return sb.ToString();
+        }
+
+
+
+        /// <summary>
+        /// Construct the header text for the tally results.
+        /// </summary>
+        private void AddHeader()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+
+            sb.Append($"[b]Vote Tally[/b] : {VoteCounter.Title}\r\n");
+            sb.Append($"[color=transparent]##### {product.Product} {version.InformationalVersion}[/color]\r\n\r\n");
+        }
+
+        private void ConstructRankedOutput()
+        {
+            if (VoteCounter.HasRankedVotes)
+            {
+                // Get ranked results, and order them by task name
+                var results = RankVotes.Rank(VoteCounter).OrderBy(a => a.Key);
+
+                if (DisplayMode == DisplayMode.Tabbed)
+                    sb.Append("[tabs=Tally|100%]\r\n");
+
+                // output the ranking result
+                foreach (var result in results)
+                {
+                    if (DisplayMode == DisplayMode.Tabbed)
+                        sb.Append($"{{slide={result.Key}|center}}\r\n");
+
+                    if (DisplayMode == DisplayMode.Compact)
+                    {
+                        if (result.Key.Length > 0)
+                        {
+                            sb.Append($"{result.Key}:\r\n");
+                        }
+
+                        int num = 1;
+                        foreach (var entry in result.Value)
+                        {
+                            sb.Append($"[{num++}] {entry}\r\n");
+                        }
+
+                        sb.AppendLine("");
+                    }
+                    else
+                    {
+                        AddTaskLabel(result.Key);
+
+                        AddRankedOptions(result.Key);
+
+                        AddRankedWinner(result.Value.First());
+
+                        AddRankedVoters(result);
+
+                        AddRunnersUp(result.Value.Skip(1));
+
+                        sb.AppendLine("");
+                    }
+
+                    if (DisplayMode == DisplayMode.Tabbed)
+                        sb.Append("{/slide}\r\n");
+
+                }
+
+                if (DisplayMode == DisplayMode.Tabbed)
+                    sb.Append("[/tabs]\r\n");
+                else
+                    sb.AppendLine("");
+            }
+        }
+
+        private void ConstructNormalOutput()
+        {
+            var taskGroups = GroupVotesByTask(VoteCounter.VotesWithSupporters);
+
+            if (DisplayMode == DisplayMode.Tabbed)
+                sb.Append("[tabs=Tally|100%]\r\n");
+
+            foreach (var taskGroup in taskGroups)
+            {
+                // Compact and Streamlined don't display votes that have no user supporters
+                if (HasVotes(taskGroup) || (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.Streamlined))
+                {
+                    AddVotesForTask(taskGroup);
+                }
+
+                if (DisplayMode != DisplayMode.Tabbed && taskGroup != taskGroups.Last())
+                    AddLineBreak();
+            }
+
+            if (DisplayMode == DisplayMode.Tabbed)
+                sb.Append("[/tabs]\r\n");
+        }
+
+
+        private void AddVotesForTask(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
+        {
+            if (DisplayMode == DisplayMode.Tabbed)
+                sb.Append($"{{slide={task.Key}|center}}\r\n");
+            else
+                AddTaskLabel(task.Key);
+
+            int userVoteCount = 0;
+
+            // Show each vote result in descending number of votes.
+            foreach (var vote in task.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false)))
+            {
+                switch (DisplayMode)
+                {
+                    case DisplayMode.Compact:
+                        userVoteCount = GetUserVoteCount(vote.Value);
+                        if (userVoteCount > 0)
+                        {
+                            sb.Append($"[{userVoteCount}] ");
+                            sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)} : ");
+                            AddVoters(vote.Value, VoterDisplayMode.Sequence);
+                            sb.AppendLine("");
+                        }
+                        break;
+                    case DisplayMode.Streamlined:
+                        userVoteCount = GetUserVoteCount(vote.Value);
+                        if (userVoteCount > 0)
+                        {
+                            sb.Append($"{VoteString.GetVotePrefix(vote.Key)}");
+                            sb.Append($"[{userVoteCount}] ");
+                            sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)}");
+                            sb.AppendLine("");
+                        }
+                        break;
+                    default:
+                        // print the entire vote
+                        sb.Append(vote.Key);
+
+                        AddVoteCount(vote.Value);
+
+                        if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                            StartSpoiler("Voters");
+
+                        AddVoters(vote.Value, DisplayMode == DisplayMode.Tabbed ? VoterDisplayMode.Sequence : VoterDisplayMode.List);
+
+                        if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                            EndSpoiler();
+
+                        sb.AppendLine("");
+                        break;
+                }
+            }
+
+
+            if (DisplayMode == DisplayMode.Tabbed)
+                sb.Append("{/slide}\r\n");
+        }
+
+
+        #region Utility functions
+
+        /// <summary>
+        /// Add the opening BBCode tag for a spoiler, using the provided title.
+        /// </summary>
+        /// <param name="title">Title to name the spoiler block</param>
+        private void StartSpoiler(string title) => sb.Append($"[spoiler={title}]\r\n");
+
+        /// <summary>
+        /// Add the ending BBCode tag for a spoiler.
+        /// </summary>
+        private void EndSpoiler() => sb.Append($"[/spoiler]\r\n");
+
+        /// <summary>
+        /// Determine whether the specified collection of votes (within a specific task)
+        /// has any votes to display.
+        /// </summary>
+        /// <param name="task">A grouping of votes, by task.</param>
+        /// <returns>Returns true if there are any user votes within the task group.</returns>
+        private bool HasVotes(IGrouping<string, KeyValuePair<string, HashSet<string>>> task) =>
+            task.Any(t => GetUserVoteCount(t.Value) > 0);
+
+        /// <summary>
+        /// Get the number of voters that are users. Excludes plans.
+        /// </summary>
+        /// <param name="voters">The set of voters.</param>
+        /// <returns>A count of the number of users voting.</returns>
+        private int GetUserVoteCount(HashSet<string> voters) =>
+            voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false);
+
+        /// <summary>
+        /// Add a line break to the output.
+        /// </summary>
+        private void AddLineBreak()
+        {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.Streamlined)
+                sb.AppendLine("");
+
+            sb.AppendLine("———————————————————————————————————————————————————————\r\n");
+        }
+
+        /// <summary>
+        /// Add a task label line to the string builder.
+        /// </summary>
+        /// <param name="task">The name of the task.</param>
+        private void AddTaskLabel(string task)
+        {
+            if (task.Length > 0)
+            {
+                sb.Append($"[b]Task: {task}[/b]\r\n\r\n");
+            }
+        }
+
+
+        /// <summary>
+        /// Group votes together by task.
+        /// </summary>
+        /// <param name="votesWithSupporters">A collection of all votes.</param>
+        /// <returns>Returns votes grouped by task.</returns>
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> votesWithSupporters)
+        {
+            var grouped = from v in votesWithSupporters
+                          group v by VoteString.GetVoteTask(v.Key) into g
+                          orderby g.Key
+                          select g;
+
+            return grouped;
+        }
+
+        #endregion
+        
+
+        /// <summary>
+        /// Add all voters from the provided list of voters to the output string.
+        /// Plans are placed before users, and each group (after the first voter)
+        /// is alphabetized.
+        /// </summary>
+        /// <param name="voters">The set of voters being added.</param>
+        private void AddVoters(HashSet<string> voters, VoterDisplayMode mode)
+        {
+            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
+                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault() ??
+                voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
+
+            var remainder = voters.Where(v => v != firstVoter);
+
+            var remainingPlans = remainder.Where(vc => VoteCounter.PlanNames.Contains(vc) == true);
+            var remainingVoters = remainder.Except(remainingPlans);
+
+            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                StartSpoiler("Voters");
+
+            AddVoter(firstVoter);
+
+            foreach (var supporter in remainingPlans.OrderBy(v => v))
+            {
+                if (mode == VoterDisplayMode.List)
+                    sb.AppendLine();
+                else
+                    sb.Append(", ");
+
+                AddVoter(supporter);
+            }
+
+            foreach (var supporter in remainingVoters.OrderBy(v => v))
+            {
+                if (mode == VoterDisplayMode.List)
+                    sb.AppendLine();
+                else
+                    sb.Append(", ");
+
+                AddVoter(supporter);
+            }
+
+            if (mode == VoterDisplayMode.Sequence)
+                sb.AppendLine();
+
+            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+                EndSpoiler();
+        }
+
+
+
+        /// <summary>
+        /// Add an individual voter to the output.
+        /// Generate a line for a supporter (that's possibly a plan), including the
+        /// link to the original post that user voted in.
+        /// </summary>
+        /// <param name="voter">The name of the voter being added.</param>
+        private void AddVoter(string voter)
+        {
+            string tail = string.Empty;
+            if (VoteCounter.PlanNames.Contains(voter))
+            {
+                sb.Append("[b]Plan: ");
+                tail = "[/b]";
+            }
+
+            sb.Append(GetVoterUrl(voter, VoteCounter.VoterMessageId));
+        }
+
+        /// <summary>
+        /// Add an individual voter to the output.
+        /// Generate a line for a voter that ranked a vote with a specific value, including the
+        /// link to the original post that user voted in.
+        /// </summary>
+        /// <param name="voter">The name of the voter being added.</param>
+        /// <param name="marker">The rank that the voter rated the current vote.</param>
+        private void AddRankedVoter(string voter, string marker)
+        {
+            sb.Append($"[{marker}] ");
+            sb.AppendLine(GetVoterUrl(voter, VoteCounter.RankedVoterMessageId));
+        }
+
+        
+        /// <summary>
+        /// Adds a [url] entry to the provided string builder for the supporter,
+        /// within a given quest.
+        /// </summary>
+        /// <param name="voter">The supporter of a given plan.</param>
+        private string GetVoterUrl(string voter, Dictionary<string, string> idLookup)
+        {
+            StringBuilder lb = new StringBuilder();
+
+            lb.Append("[url=\"");
+            lb.Append(Quest.GetForumAdapter().GetPostUrlFromId(Quest.ThreadName, idLookup[voter]));
+            lb.Append("\"]");
+            lb.Append(voter);
+            lb.Append("[/url]");
+
+            return lb.ToString();
+        }
+
+        /// <summary>
+        /// Add the total number of user votes (not plan votes) to the output.
+        /// </summary>
+        /// <param name="voters">The set of voters voting for this item.</param>
+        private void AddVoteCount(HashSet<string> voters)
+        {
+            // Number of voters where the voter name is not a plan name (and is thus a user).
+            sb.Append("[b]No. of Votes: ");
+            sb.Append(voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
+            sb.AppendLine("[/b]");
+        }
+
+
+
+        /// <summary>
+        /// Add the list of options available for the given ranked task.
+        /// </summary>
+        /// <param name="task"></param>
+        private void AddRankedOptions(string task)
+        {
+            var voteContents = VoteCounter.RankedVotesWithSupporters.
+                Where(v => VoteString.GetVoteTask(v.Key) == task).
+                Select(v => VoteString.GetVoteContent(v.Key));
+
+            HashSet<string> uniqueOptions = new HashSet<string>(voteContents, StringComparer.OrdinalIgnoreCase);
+
+            sb.AppendLine("[b]Options:[/b]");
+
+            foreach (var option in uniqueOptions.OrderBy(a => a))
+            {
+                sb.AppendLine(option);
+            }
+
+            sb.AppendLine("");
+        }
+
+        /// <summary>
+        /// Add the winner of the runoff for the given task's options.
+        /// </summary>
+        /// <param name="winningChoice">The winning choice.</param>
+        private void AddRankedWinner(string winningChoice)
+        {
+            sb.Append($"[b]Winner:[/b] {winningChoice}\r\n\r\n");
+        }
+
+        /// <summary>
+        /// Add the list of voters who voted for the winning vote for the current task.
+        /// </summary>
+        /// <param name="result">The task and winning vote.</param>
+        private void AddRankedVoters(KeyValuePair<string, List<string>> result)
+        {
+            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+            {
+                StartSpoiler("Voters");
+            }
+
+            string winningChoice = result.Value.First();
+
+            var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
+                           where VoteString.GetVoteTask(v.Key) == result.Key &&
+                                 VoteString.GetVoteContent(v.Key) == winningChoice
+                           select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
+
+            var markerOrder = whoVoted.OrderBy(a => a.marker);
+
+            foreach (var mark in markerOrder)
+            {
+                var sortedVoters = mark.voters.OrderBy(a => a);
+                foreach (var voter in sortedVoters)
+                {
+                    AddRankedVoter(voter, mark.marker);
+                }
+            }
+
+            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+            {
+                EndSpoiler();
+            }
+
+            sb.AppendLine("");
+        }
+
+
+        /// <summary>
+        /// Add the top two runners-up in the tally.
+        /// </summary>
+        /// <param name="runnersUp">The list of runners-up, in order.</param>
+        private void AddRunnersUp(IEnumerable<string> runnersUp)
+        {
+            if (runnersUp.Count() > 0)
+            {
+                sb.AppendLine("Runners Up:");
+
+                foreach (var ranker in runnersUp)
+                {
+                    sb.AppendLine(ranker);
+                }
+
+                sb.AppendLine("");
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    public enum VoterDisplayMode
+    {
+        List,
+        Sequence
+    };
+
+
+    /// <summary>
+    /// A disposable Spoiler class to add open and close spoiler tags around
+    /// other constructed text.
+    /// </summary>
+    public sealed class Spoiler : IDisposable
+    {
+        StringBuilder Output { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Spoiler"/> class.
+        /// </summary>
+        /// <param name="title">The name.</param>
+        public Spoiler(StringBuilder sb, string title)
+        {
+            Output = sb;
+            Output?.Append($"[spoiler={title}]\r\n");
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Spoiler"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~Spoiler()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposed"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        public void Dispose(bool disposed)
+        {
+            if (!disposed)
+                Output?.Append($"[/spoiler]\r\n");
+        }
+    }
 }
