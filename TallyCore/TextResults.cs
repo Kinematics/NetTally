@@ -91,8 +91,7 @@ namespace NetTally
                     }
                 }
 
-                if (DisplayMode != DisplayMode.Compact)
-                    AddTotalRankedVoterCount();
+                AddTotalRankedVoterCount();
 
                 sb.AppendLine("");
             }
