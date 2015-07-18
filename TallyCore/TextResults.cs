@@ -76,11 +76,14 @@ namespace NetTally
 
                         AddRankedOptions(result.Key);
 
-                        AddRankedWinner(result.Value.First());
+                        string[] labels = new string[3] { "Winner", "First Runner Up", "Second Runner Up" };
+                        int index = 0;
+                        foreach (var winner in result.Value)
+                        {
+                            sb.Append($"[b]{labels[index++]}:[/b] {winner}\r\n");
 
-                        AddRankedVoters(result);
-
-                        AddRunnersUp(result.Value.Skip(1));
+                            AddRankedVoters(result.Key, winner);
+                        }
 
                         sb.AppendLine("");
                     }
@@ -467,18 +470,16 @@ namespace NetTally
         /// Add the list of voters who voted for the winning vote for the current task.
         /// </summary>
         /// <param name="result">The task and winning vote.</param>
-        private void AddRankedVoters(KeyValuePair<string, List<string>> result)
+        private void AddRankedVoters(string task, string choice)
         {
             if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
             {
                 AddSpoilerStart("Voters");
             }
 
-            string winningChoice = result.Value.First();
-
             var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
-                           where VoteString.GetVoteTask(v.Key) == result.Key &&
-                                 VoteString.GetVoteContent(v.Key) == winningChoice
+                           where VoteString.GetVoteTask(v.Key) == task &&
+                                 VoteString.GetVoteContent(v.Key) == choice
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
             var markerOrder = whoVoted.OrderBy(a => a.marker);
