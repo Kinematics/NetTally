@@ -86,6 +86,9 @@ namespace NetTally
                     }
                 }
 
+                if (DisplayMode != DisplayMode.Compact)
+                    AddTotalRankedVoterCount();
+
                 sb.AppendLine("");
             }
         }
@@ -382,6 +385,18 @@ namespace NetTally
             if (totalVoterCount > 0)
             {
                 sb.Append($"\r\nTotal No. of Voters: {totalVoterCount}\r\n");
+            }
+        }
+
+        /// <summary>
+        /// Add the the total number of ranked voters to the tally results.
+        /// </summary>
+        private void AddTotalRankedVoterCount()
+        {
+            int totalVoterCount = VoteCounter.RankedVoterMessageId.Count;
+            if (totalVoterCount > 0)
+            {
+                sb.Append($"Total No. of Voters: {totalVoterCount}\r\n\r\n");
             }
         }
 
