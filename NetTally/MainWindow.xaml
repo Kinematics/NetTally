@@ -93,6 +93,12 @@
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ValidPostsPerPage}"
                   SelectedItem="{Binding Path=CurrentItem.PostsPerPage}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
             <ComboBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -163,6 +169,12 @@
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=PartitionModes}"
                   SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"  SelectionChanged="partitionMode_SelectionChanged"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
             <ComboBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -200,6 +212,12 @@
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
                   SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" HorizontalAlignment="Left" Width="104" Padding="8,3,4,3">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
             <ComboBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
