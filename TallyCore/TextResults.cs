@@ -76,11 +76,13 @@ namespace NetTally
 
                         AddRankedOptions(result.Key);
 
-                        string[] labels = new string[3] { "Winner", "First Runner Up", "Second Runner Up" };
+                        string[] labels = new string[4] { "Winner", "First Runner Up", "Second Runner Up", "Other" };
                         int index = 0;
                         foreach (var winner in result.Value)
                         {
                             sb.Append($"[b]{labels[index++]}:[/b] {winner}\r\n");
+                            if (index > 3)
+                                index = 3;
 
                             AddRankedVoters(result.Key, winner);
                         }
