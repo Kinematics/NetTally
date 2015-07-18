@@ -55,7 +55,7 @@ namespace NetTally
                 // output the ranking result
                 foreach (var result in results)
                 {
-                    if (DisplayMode == DisplayMode.Compact)
+                    if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.Streamlined)
                     {
                         if (result.Key.Length > 0)
                         {
