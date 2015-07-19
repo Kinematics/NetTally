@@ -195,10 +195,20 @@ namespace NetTally
 
             if (vote != null)
             {
-                if (storeFloatingReferences && IsFloatingReference(vote))
+                if (storeFloatingReferences)
                 {
-                    VoteCounter.FloatingReferences.Add(post);
-                    return;
+                    if (IsFloatingReference(vote))
+                    {
+                        VoteCounter.FloatingReferences.Add(post);
+                        return;
+                    }
+
+                    PostComponents existingReference = GetFloatingReference(post.Author);
+
+                    if (existingReference != null)
+                    {
+                        VoteCounter.FloatingReferences.Remove(existingReference);
+                    }
                 }
 
 
@@ -701,6 +711,12 @@ namespace NetTally
             string refName = m.Groups["reference"].Value;
 
             return VoteCounter.VotePosts.Any(v => string.Compare(refName, v.Author, true) == 0);
+        }
+
+        private PostComponents GetFloatingReference(string author)
+        {
+            var existingReference = VoteCounter.FloatingReferences.FirstOrDefault(r => r.Author == author);
+            return existingReference;
         }
 
         /// <summary>
