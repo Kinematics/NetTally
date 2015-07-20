@@ -373,6 +373,9 @@ namespace NetTally
             {
                 votes.Remove(vote);
             }
+
+            var voterIDs = GetVotersCollection(voteType);
+            voterIDs.Remove(voter);
         }
 
         /// <summary>
