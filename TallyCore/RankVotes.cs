@@ -32,6 +32,8 @@ namespace NetTally
 
             foreach (var task in groupByTask)
             {
+                System.Diagnostics.Debug.WriteLine($"- Rank Task [{task.Key}]");
+
                 taskPreference[task.Key] = RankTask(task);
             }
 
@@ -54,6 +56,8 @@ namespace NetTally
 
             for (int i = 0; i < 4; i++)
             {
+                System.Diagnostics.Debug.WriteLine($"- Loop [{i}]");
+
                 // Create copies, because the vars we pass to the calculation
                 // functions will be modified during the process.
                 var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
@@ -380,6 +384,8 @@ namespace NetTally
         private static void RemoveLastPlaceOption(string bottomChoice, Dictionary<string, List<string>> voterList,
             Dictionary<string, List<string>> voterNonChoices)
         {
+            System.Diagnostics.Debug.WriteLine($"- Eliminate [{bottomChoice}]");
+
             foreach (var voter in voterList)
             {
                 if (voter.Value.Count > 1)
