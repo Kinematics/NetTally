@@ -473,17 +473,21 @@ namespace NetTally
         /// <param name="result">The task and winning vote.</param>
         private void AddRankedVoters(string task, string choice)
         {
-            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
-            {
-                AddSpoilerStart("Voters");
-            }
-
             var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
                            where VoteString.GetVoteTask(v.Key) == task &&
                                  VoteString.GetVoteContent(v.Key) == choice
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
             var markerOrder = whoVoted.OrderBy(a => a.marker);
+
+            int howManyVoted = whoVoted.Sum(a => a.voters.Count);
+
+            sb.Append($"Count: {howManyVoted}\r\n");
+
+            if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
+            {
+                AddSpoilerStart("Voters");
+            }
 
             foreach (var mark in markerOrder)
             {
