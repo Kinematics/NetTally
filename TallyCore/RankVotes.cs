@@ -60,7 +60,7 @@ namespace NetTally
                 var voterNonChoicesCopy = voterNonChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
 
                 // The best result each time through the loop gets added to the result list...
-                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices);
+                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices, allVotes);
 
                 if (topChoice != string.Empty)
                     topChoices.Add(topChoice);
@@ -141,7 +141,8 @@ namespace NetTally
         /// <returns>Returns the top voter choice for the task.</returns>
         private static string GetTopRank(Dictionary<string, List<string>> voterChoices,
             Dictionary<string, List<string>> voterNonChoices,
-            Dictionary<string, List<string>> originalVotersChoices)
+            Dictionary<string, List<string>> originalVotersChoices,
+            List<string> voteList)
         {
             // Skip processing if there's nothing to count.
             if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
@@ -176,17 +177,19 @@ namespace NetTally
                 // If no option has an absolute majority, find the most-disliked option
                 // and remove it from all voters' option lists, in preparation of another
                 // round of checks.
-                var lastChoices = CountLastPlaceVotes(voterChoices, voterNonChoices);
-
-                // Of those in last place, get the choice with the most last place votes
-                // and, in the case of a tie, the lowest ranking score.
-                var lastChoice = GetLastChoice(lastChoices, originalVotersChoices);
+                string lastChoice = GetLastChoice(voterChoices, voterNonChoices, voteList);
 
                 // Remove the last place option before running another round
                 RemoveLastPlaceOption(lastChoice, voterChoices, voterNonChoices);
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="choices"></param>
+        /// <param name="originalVotersChoices"></param>
+        /// <returns></returns>
         private static string GetFirstChoice(Dictionary<string, int> choices,
             Dictionary<string, List<string>> originalVotersChoices)
         {
@@ -201,19 +204,53 @@ namespace NetTally
             return GetHighestScoreOption(choicesWithMostVotes, originalVotersChoices);
         }
 
-        private static string GetLastChoice(Dictionary<string, int> choices,
-            Dictionary<string, List<string>> originalVotersChoices)
+        private static string GetLastChoice(Dictionary<string, List<string>> voterChoices,
+            Dictionary<string, List<string>> voterNonChoices, List<string> voteList)
         {
-            int highestNumberOfChoices = choices.Max(a => a.Value);
+            Dictionary<string, int> votesWeight = new Dictionary<string, int>();
+            var distinctVotes = voteList.Distinct();
+            int distinctCount = distinctVotes.Count();
 
-            // Get the list of all choices that have the same total (max) number of selections
-            var choicesWithMostVotes = choices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
+            int highestNumberOfChoices = voterChoices.Max(a => a.Value.Count);
+            int nonChoiceWeight = distinctCount > highestNumberOfChoices ? highestNumberOfChoices + 1 : distinctCount;
 
-            if (choicesWithMostVotes.Count() == 1)
-                return choicesWithMostVotes.First();
+            HashSet<string> lastPlaceList = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            return GetLowestScoreOption(choicesWithMostVotes, originalVotersChoices);
+            foreach (var vote in distinctVotes)
+            {
+                votesWeight[vote] = 0;
+            }
+
+            foreach (var voter in voterChoices)
+            {
+                int index = 1;
+                foreach (var vote in voter.Value)
+                {
+                    votesWeight[vote] += index++;
+                }
+
+                if (voterNonChoices[voter.Key].Count == 0 && voter.Value.Count > 0)
+                {
+                    lastPlaceList.Add(voter.Value.Last());
+                }
+            }
+
+            foreach (var voter in voterNonChoices)
+            {
+                foreach (var vote in voter.Value)
+                {
+                    votesWeight[vote] += nonChoiceWeight;
+
+                    lastPlaceList.Add(vote);
+                }
+            }
+
+            var least = votesWeight.Where(a => lastPlaceList.Contains(a.Key)).
+                OrderByDescending(a => a.Value).First().Key;
+
+            return least;
         }
+
 
         private static string GetHighestScoreOption(IEnumerable<string> choices,
             Dictionary<string, List<string>> originalVotersChoices)
@@ -261,10 +298,6 @@ namespace NetTally
             return score;
         }
 
-
-
-
-
         /// <summary>
         /// Count up the first choice options for all voters, and return a tally.
         /// </summary>
@@ -278,14 +311,17 @@ namespace NetTally
 
             foreach (var vote in voterList)
             {
-                string firstVote = vote.Value.First();
-
-                if (!voteCount.TryGetValue(firstVote, out count))
+                if (vote.Value.Count > 0)
                 {
-                    count = 0;
-                }
+                    string firstVote = vote.Value.First();
 
-                voteCount[firstVote] = ++count;
+                    if (!voteCount.TryGetValue(firstVote, out count))
+                    {
+                        count = 0;
+                    }
+
+                    voteCount[firstVote] = ++count;
+                }
             }
 
             return voteCount;
