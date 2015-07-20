@@ -238,7 +238,7 @@ namespace NetTally
         /// <param name="quest"></param>
         public void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
         {
-            if (quest.AllowRankedVotes)
+            if (quest.AllowRankedVotes && ranksList.Count > 0)
             {
                 // Remove the post author from any other existing votes.
                 VoteCounter.RemoveSupport(post.Author, VoteType.Rank);
