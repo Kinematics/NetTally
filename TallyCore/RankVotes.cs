@@ -49,10 +49,10 @@ namespace NetTally
             var voterChoices = ConvertVotesToVoters(task);
             var voterNonChoices = GetNonChoices(voterChoices, allVotes);
 
-            // 1st, 2nd and 3rd place results
+            // 1st, 2nd, 3rd, and 4th place results
             List<string> topChoices = new List<string>(3);
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 // Create copies, because the vars we pass to the calculation
                 // functions will be modified during the process.
