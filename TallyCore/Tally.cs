@@ -16,7 +16,6 @@ namespace NetTally
 
         bool tallyIsRunning = false;
         string results = string.Empty;
-        bool useSpoilerForVoters = false;
         DisplayMode displayMode = DisplayMode.Normal;
 
         IQuest lastTallyQuest = null;
