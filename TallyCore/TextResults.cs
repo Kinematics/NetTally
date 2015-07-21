@@ -222,8 +222,6 @@ namespace NetTally
 
         #endregion
 
-
-
         #region Functions for adding pieces of text to the output results.
         /// <summary>
         /// Add a starting spoiler tag.
@@ -478,24 +476,27 @@ namespace NetTally
                                  VoteString.GetVoteContent(v.Key) == choice
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
-            var markerOrder = whoVoted.OrderBy(a => a.marker);
-
-            int howManyVoted = whoVoted.Sum(a => a.voters.Count);
-
-            sb.Append($"Count: {howManyVoted}\r\n");
+            var whoDidNotVote = from v in VoteCounter.RankedVoterMessageId
+                                where whoVoted.Any(a => a.voters.Contains(v.Key)) == false
+                                select v.Key;
 
             if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
             {
                 AddSpoilerStart("Voters");
             }
 
-            foreach (var mark in markerOrder)
+            foreach (var mark in whoVoted.OrderBy(a => a.marker))
             {
                 var sortedVoters = mark.voters.OrderBy(a => a);
                 foreach (var voter in sortedVoters)
                 {
                     AddRankedVoter(voter, mark.marker);
                 }
+            }
+
+            foreach (var nonVoter in whoDidNotVote.OrderBy(a => a))
+            {
+                AddRankedVoter(nonVoter, "-");
             }
 
             if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
