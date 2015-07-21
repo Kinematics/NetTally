@@ -48,6 +48,12 @@
         <ComboBox x:Name="questList" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
                   ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding DisplayName}" />
