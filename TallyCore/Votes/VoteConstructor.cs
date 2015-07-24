@@ -123,6 +123,8 @@ namespace NetTally
                 }
 
                 postLines = postLines.Skip(basePlan.Count).ToList();
+
+                bpMatch = basePlanRegex.Match(postLines.First());
             }
 
 
