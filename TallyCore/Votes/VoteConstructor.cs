@@ -124,7 +124,8 @@ namespace NetTally
 
                 postLines = postLines.Skip(basePlan.Count).ToList();
 
-                bpMatch = basePlanRegex.Match(postLines.First());
+                if (postLines.Count > 0)
+                    bpMatch = basePlanRegex.Match(postLines.First());
             }
 
 
