@@ -44,6 +44,20 @@ namespace NetTally
 
         #region Top-level formatting logic
         /// <summary>
+        /// Construct the header text for the tally results.
+        /// </summary>
+        private void AddHeader()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+
+            sb.AppendLine($"[b]Vote Tally[/b] : {VoteCounter.Title}");
+            sb.AppendLine($"[color=transparent]##### {product.Product} {version.InformationalVersion}[/color]");
+            sb.AppendLine("");
+        }
+
+        /// <summary>
         /// Construct the output of ranked votes for the quest.
         /// </summary>
         private void ConstructRankedOutput()
@@ -230,7 +244,7 @@ namespace NetTally
         /// <param name="label">The label for the spoiler tag.</param>
         private void StartSpoiler(string label)
         {
-            sb.Append($"[spoiler={label}]\r\n");
+            sb.AppendLine($"[spoiler={label}]");
         }
 
         /// <summary>
@@ -276,19 +290,6 @@ namespace NetTally
             sb.Append(")");
         }
 
-
-        /// <summary>
-        /// Construct the header text for the tally results.
-        /// </summary>
-        private void AddHeader()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
-            sb.Append($"[b]Vote Tally[/b] : {VoteCounter.Title}\r\n");
-            sb.Append($"[color=transparent]##### {product.Product} {version.InformationalVersion}[/color]\r\n\r\n");
-        }
 
         /// <summary>
         /// Add a line break to the output.
