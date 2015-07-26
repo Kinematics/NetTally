@@ -13,21 +13,22 @@ namespace NetTally
     public class TextResults : ITextResultsProvider
     {
         IQuest Quest { get; set; }
-        DisplayMode DisplayMode { get; set; }
         IVoteCounter VoteCounter { get; set; }
+        DisplayMode DisplayMode { get; set; }
+
         StringBuilder sb { get; set; }
 
         public string BuildOutput(IQuest quest, IVoteCounter voteCounter, DisplayMode displayMode)
         {
-            VoteCounter = voteCounter;
             Quest = quest;
+            VoteCounter = voteCounter;
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
 
 
             if (DisplayMode == DisplayMode.SpoilerAll)
-                AddSpoilerStart("Tally Results");
+                StartSpoiler("Tally Results");
 
             AddHeader();
 
@@ -36,7 +37,7 @@ namespace NetTally
             ConstructNormalOutput();
 
             if (DisplayMode == DisplayMode.SpoilerAll)
-                AddSpoilerEnd();
+                EndSpoiler();
 
             return sb.ToString();
         }
@@ -154,14 +155,14 @@ namespace NetTally
 
                                 if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
                                 {
-                                    AddSpoilerStart("Voters");
+                                    StartSpoiler("Voters");
                                 }
 
                                 AddVoters(vote.Value);
 
                                 if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
                                 {
-                                    AddSpoilerEnd();
+                                    EndSpoiler();
                                 }
 
                                 sb.AppendLine("");
@@ -227,7 +228,7 @@ namespace NetTally
         /// Add a starting spoiler tag.
         /// </summary>
         /// <param name="label">The label for the spoiler tag.</param>
-        private void AddSpoilerStart(string label)
+        private void StartSpoiler(string label)
         {
             sb.Append($"[spoiler={label}]\r\n");
         }
@@ -235,7 +236,7 @@ namespace NetTally
         /// <summary>
         /// Add an ending spoiler tag.
         /// </summary>
-        private void AddSpoilerEnd()
+        private void EndSpoiler()
         {
             sb.AppendLine("[/spoiler]");
         }
@@ -482,7 +483,7 @@ namespace NetTally
 
             if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
             {
-                AddSpoilerStart("Voters");
+                StartSpoiler("Voters");
             }
 
             foreach (var mark in whoVoted.OrderBy(a => a.marker))
@@ -501,7 +502,7 @@ namespace NetTally
 
             if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
             {
-                AddSpoilerEnd();
+                EndSpoiler();
             }
 
             sb.AppendLine("");
