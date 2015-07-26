@@ -117,7 +117,7 @@ namespace NetTally
         /// </summary>
         private void ConstructNormalOutput()
         {
-            var groupedVotesWithSupporters = GroupVotes(VoteCounter.VotesWithSupporters);
+            var groupedVotesWithSupporters = GroupVotesByTask(VoteCounter.VotesWithSupporters);
             bool firstTask = true;
 
             foreach (var taskGroup in groupedVotesWithSupporters)
@@ -225,7 +225,7 @@ namespace NetTally
         /// </summary>
         /// <param name="votesWithSupporters">A collection of all votes.</param>
         /// <returns>Returns votes grouped by task.</returns>
-        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotes(Dictionary<string, HashSet<string>> votesWithSupporters)
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> votesWithSupporters)
         {
             var grouped = from v in votesWithSupporters
                           group v by VoteString.GetVoteTask(v.Key) into g
