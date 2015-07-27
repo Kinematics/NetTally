@@ -202,7 +202,7 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <Button x:Name="openMergeVotesWindow" Content="Manage Votes..." Margin="510,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="104"
+        <Button x:Name="openMergeVotesWindow" Content="Manage Votes..." Margin="484,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="130"
                 Click="openMergeVotesWindow_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <Button.ToolTip>
@@ -214,10 +214,10 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <ComboBox x:Name="displayMode" Margin="510,80,0,0" VerticalAlignment="Top" Height="22"
+        <ComboBox x:Name="displayMode" Margin="484,80,0,0" VerticalAlignment="Top" Height="22"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
                   SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" HorizontalAlignment="Left" Width="104" Padding="8,3,4,3">
+                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" HorizontalAlignment="Left" Width="130" Padding="8,3,4,3">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
