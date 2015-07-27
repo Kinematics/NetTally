@@ -30,8 +30,8 @@ namespace NetTally
         SpoilerAll,
         [Description("Compact")]
         Compact,
-        [Description("Streamlined")]
-        Streamlined
+        [Description("Compact, No Voters")]
+        CompactNoVoters
     }
 
     /// <summary>

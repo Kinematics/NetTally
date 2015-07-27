@@ -67,7 +67,7 @@ namespace NetTally
                 // output the ranking result
                 foreach (var result in results)
                 {
-                    if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.Streamlined)
+                    if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                     {
                         if (result.Key.Length > 0)
                         {
@@ -143,7 +143,7 @@ namespace NetTally
                                 AddCompactVote(vote, taskGroup.Key, userVoteCount);
                                 AddCompactVoters(vote.Value);
                                 break;
-                            case DisplayMode.Streamlined:
+                            case DisplayMode.CompactNoVoters:
                                 userVoteCount = GetUserVoteCount(vote.Value);
                                 AddCompactVote(vote, taskGroup.Key, userVoteCount);
                                 break;
@@ -368,7 +368,7 @@ namespace NetTally
         /// </summary>
         private void AddLineBreak()
         {
-            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.Streamlined)
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine("");
 
             //sb.AppendLine("[hr][/hr]");
