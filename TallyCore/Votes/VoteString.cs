@@ -258,7 +258,7 @@ namespace NetTally
         /// <param name="task">The task the line should be grouped with.</param>
         /// <param name="content">The contents of the vote.</param>
         /// <returns>Returns a complete vote line.</returns>
-        public static string ModifyVoteLine(string voteLine, string prefix, string marker, string task, string content)
+        public static string ModifyVoteLine(string voteLine, string prefix = null, string marker = null, string task = null, string content = null)
         {
             if (voteLine == null || voteLine == string.Empty)
                 throw new ArgumentNullException(nameof(voteLine));
