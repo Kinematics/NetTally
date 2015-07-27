@@ -306,16 +306,19 @@ namespace NetTally
                 return;
             }
 
-            // Short votes can be shown in their entirety
-            if (voteLines.Count < 3)
+
+            // Single-line votes are always shown.
+            if (voteLines.Count == 1)
             {
-                // Always show the first line
                 sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userVoteCount.ToString()));
+                return;
+            }
 
-                // Show the second line, if there is one
-                if (voteLines.Count > 1)
-                    sb.AppendLine(VoteString.ModifyVoteLine(voteLines.Last(), marker: userVoteCount.ToString()));
-
+            // Two-line votes can be shown if the second line is a sub-vote.
+            if (voteLines.Count == 2 && VoteString.GetVotePrefix(voteLines.Last()) != string.Empty)
+            {
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userVoteCount.ToString()));
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.Last(), marker: userVoteCount.ToString()));
                 return;
             }
 
