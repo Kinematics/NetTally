@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetTally
 {
@@ -117,14 +114,13 @@ namespace NetTally
         /// </summary>
         private void ConstructNormalOutput()
         {
-            var groupedVotesWithSupporters = GroupVotesByTask(VoteCounter.VotesWithSupporters);
+            var votesGroupedByTask = GroupVotesByTask(VoteCounter.VotesWithSupporters);
             bool firstTask = true;
+            int userVoteCount = 0;
 
-            foreach (var taskGroup in groupedVotesWithSupporters)
+            foreach (var taskGroup in votesGroupedByTask)
             {
-                bool taskHasVotes = taskGroup.Any(task => GetUserVoteCount(task.Value) > 0);
-
-                if (taskHasVotes || (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.Streamlined))
+                if (taskGroup.Count() > 0)
                 {
                     if (!firstTask)
                     {
@@ -132,66 +128,68 @@ namespace NetTally
                     }
 
                     firstTask = false;
-                    int userVoteCount = 0;
 
                     AddTaskLabel(taskGroup.Key);
 
-                    // Show each vote result in descending number of votes.
-                    foreach (var vote in taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false)))
+                    // Get all votes, ordered by a count of the user votes (ie: don't count plan references)
+                    var votes = taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
+
+                    foreach (var vote in votes)
                     {
                         switch (DisplayMode)
                         {
                             case DisplayMode.Compact:
                                 userVoteCount = GetUserVoteCount(vote.Value);
-                                if (userVoteCount > 0)
-                                {
-                                    AddCompactVoteNumber(userVoteCount);
-                                    sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)} : ");
-                                    AddCompactVoters(vote.Value);
-                                    sb.AppendLine("");
-                                }
+                                AddCompactVote(vote, taskGroup.Key, userVoteCount);
+                                AddCompactVoters(vote.Value);
                                 break;
                             case DisplayMode.Streamlined:
                                 userVoteCount = GetUserVoteCount(vote.Value);
-                                if (userVoteCount > 0)
-                                {
-                                    sb.Append($"{VoteString.GetVotePrefix(vote.Key)}");
-                                    AddCompactVoteNumber(userVoteCount);
-                                    sb.Append($"{VoteString.GetVoteContentFirstLine(vote.Key)}");
-                                    sb.AppendLine("");
-                                }
+                                AddCompactVote(vote, taskGroup.Key, userVoteCount);
                                 break;
                             default:
-                                // print the entire vote
+                                // Print the entire vote and vote count
                                 sb.Append(vote.Key);
-
                                 AddVoteCount(vote.Value);
 
+                                // Spoiler the voters if requested
                                 if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
                                 {
                                     StartSpoiler("Voters");
-                                }
-
-                                AddVoters(vote.Value);
-
-                                if (DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll)
-                                {
+                                    AddVoters(vote.Value);
                                     EndSpoiler();
+                                }
+                                else
+                                {
+                                    AddVoters(vote.Value);
                                 }
 
                                 sb.AppendLine("");
                                 break;
                         }
                     }
+
                 }
             }
 
-            if (DisplayMode != DisplayMode.Compact)
-                AddTotalVoterCount();
+            AddTotalVoterCount();
         }
+
+
         #endregion
 
-        #region Utility functions
+        #region Utility functions (no side effects)
+        /// <summary>
+        /// Split the text of a vote string into a list of individual lines.
+        /// </summary>
+        /// <param name="text">Text of a vote.</param>
+        /// <returns>Returns a list of lines from the vote.</returns>
+        private List<string> GetVoteLines(string text)
+        {
+            var split = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return new List<string>(split);
+        }
+
         /// <summary>
         /// Get the number of voters that are users, and exclude plans.
         /// </summary>
@@ -203,21 +201,47 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Adds a [url] entry to the provided string builder for the supporter,
-        /// within a given quest.
+        /// Get the URL that links to a voter's post, varying by vote type
+        /// </summary>
+        /// <param name="voter">The name of the voter to look up.</param>
+        /// <param name="voteType">The type of voter being queried.</param>
+        /// <returns>Returns the constructed URL that links to the post made by the voter.</returns>
+        private string GetVoterUrl(string voter, VoteType voteType)
+        {
+            Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
+            string url = Quest.GetForumAdapter().GetPostUrlFromId(Quest.ThreadName, idLookup[voter]);
+
+            return url;
+        }
+
+        /// <summary>
+        /// Provides the URL for a voter's post in BBCode format.
         /// </summary>
         /// <param name="voter">The supporter of a given plan.</param>
-        private string GetVoterUrl(string voter, Dictionary<string, string> idLookup)
+        /// <param name="voteType">The type of voter being queried.</param>
+        /// <returns>Returns the constructed BBCode URL that links to the post made by the voter.</returns>
+        private string GetVoterUrlCode(string voter, VoteType voteType)
         {
-            StringBuilder lb = new StringBuilder();
+            string url = GetVoterUrl(voter, voteType);
+            return $"[url=\"{url}\"]{voter}[/url]";
+        }
 
-            lb.Append("[url=\"");
-            lb.Append(Quest.GetForumAdapter().GetPostUrlFromId(Quest.ThreadName, idLookup[voter]));
-            lb.Append("\"]");
-            lb.Append(voter);
-            lb.Append("[/url]");
+        /// <summary>
+        /// Determine the 'first' voter for a given vote, out of the list of provided voters.
+        /// If there's a floating reference to an author, it uses that.  Otherwise it uses
+        /// the lowest message ID to determine who was first.
+        /// </summary>
+        /// <param name="voters">The list of voters to search.</param>
+        /// <returns>Returns the name of the 'first' voter.</returns>
+        private string GetFirstVoter(HashSet<string> voters)
+        {
+            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
+                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
 
-            return lb.ToString();
+            if (firstVoter == null)
+                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
+
+            return firstVoter;
         }
 
         /// <summary>
@@ -256,6 +280,55 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Add a vote in compact format to the output stringbuilder.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
+        /// <param name="task">The task the vote is associated with.</param>
+        /// <param name="userVoteCount">The voter count for the vote</param>
+        private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote, string task, int userVoteCount)
+        {
+            List<string> voteLines = GetVoteLines(vote.Key);
+
+            if (voteLines.Count == 0)
+                return;
+
+            string firstVoter = GetFirstVoter(vote.Value);
+
+            if (firstVoter.StartsWith(Utility.Text.PlanNameMarker))
+            {
+                string planName = firstVoter.Substring(1);
+                string planLink = GetVoterUrl(planName, VoteType.Plan);
+
+                sb.Append($"[{userVoteCount}]");
+                if (task != string.Empty)
+                    sb.Append($"[{task}]");
+                sb.Append($" Plan {planName} — {planLink}\r\n");
+                return;
+            }
+
+            // Short votes can be shown in their entirety
+            if (voteLines.Count < 3)
+            {
+                // Always show the first line
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userVoteCount.ToString()));
+
+                // Show the second line, if there is one
+                if (voteLines.Count > 1)
+                    sb.AppendLine(VoteString.ModifyVoteLine(voteLines.Last(), marker: userVoteCount.ToString()));
+
+                return;
+            }
+
+            // Longer votes get condensed down to a link to the original post (and named after the first voter)
+            string firstVoterLink = GetVoterUrl(firstVoter, VoteType.Vote);
+
+            sb.Append($"[{userVoteCount}]");
+            if (task != string.Empty)
+                sb.Append($"[{task}]");
+            sb.AppendLine($" Plan {firstVoter} — {firstVoterLink}");
+        }
+
+        /// <summary>
         /// Add a compact indicator of the number of votes for a proposal, placed in brackets.
         /// </summary>
         /// <param name="votes">The number of votes to report.</param>
@@ -280,16 +353,15 @@ namespace NetTally
 
             var remainder = voters.Where(v => v != firstVoter && VoteCounter.PlanNames.Contains(v) == false).OrderBy(v => v);
 
-            sb.Append($"({GetVoterUrl(firstVoter, VoteCounter.VoterMessageId)}");
+            sb.Append($"({GetVoterUrlCode(firstVoter, VoteType.Vote)}");
 
             foreach (var voter in remainder)
             {
-                sb.Append($", {GetVoterUrl(voter, VoteCounter.VoterMessageId)}");
+                sb.Append($", {GetVoterUrlCode(voter, VoteType.Vote)}");
             }
 
-            sb.Append(")");
+            sb.AppendLine(")");
         }
-
 
         /// <summary>
         /// Add a line break to the output.
@@ -419,7 +491,7 @@ namespace NetTally
                 tail = "[/b]";
             }
 
-            sb.Append(GetVoterUrl(supporter, VoteCounter.VoterMessageId));
+            sb.Append(GetVoterUrlCode(supporter, VoteType.Vote));
 
             sb.AppendLine(tail);
         }
@@ -433,7 +505,7 @@ namespace NetTally
         private void AddRankedSupporterEntry(string supporter, string marker)
         {
             sb.Append($"[{marker}] ");
-            sb.AppendLine(GetVoterUrl(supporter, VoteCounter.RankedVoterMessageId));
+            sb.AppendLine(GetVoterUrlCode(supporter, VoteType.Rank));
         }
 
         /// <summary>
@@ -508,7 +580,6 @@ namespace NetTally
 
             sb.AppendLine("");
         }
-
 
         /// <summary>
         /// Add the top two runners-up in the tally.
