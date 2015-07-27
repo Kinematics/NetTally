@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -122,7 +123,16 @@ namespace NetTally
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
-            get { return (DisplayMode)this["DisplayMode"]; }
+            get {
+                try
+                {
+                    return (DisplayMode)this["DisplayMode"];
+                }
+                catch (ConfigurationException)
+                {
+                    return DisplayMode.Normal;
+                }
+            }
             set { this["DisplayMode"] = value; }
         }
 
