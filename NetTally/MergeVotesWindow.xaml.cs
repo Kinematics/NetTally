@@ -100,7 +100,7 @@ namespace NetTally
             VoterView2.Refresh();
 
             // Populate the context menu with known tasks.
-            InitContextMenuTasks();
+            InitTasksFromVoteCounter();
             CreateContextMenu();
 
             // Set the data context for binding.
@@ -515,7 +515,7 @@ namespace NetTally
         /// <summary>
         /// Initialize the context menu with known tasks on window startup.
         /// </summary>
-        private void InitContextMenuTasks()
+        private void InitTasksFromVoteCounter()
         {
             var voteTasks = voteCounter.GetVotesCollection(CurrentVoteType).Keys.
                 Select(v => VoteString.GetVoteTask(v)).Distinct().
