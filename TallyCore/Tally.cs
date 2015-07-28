@@ -21,6 +21,8 @@ namespace NetTally
         IQuest lastTallyQuest = null;
         List<HtmlDocument> loadedPages = null;
 
+        public HashSet<string> ManualTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         public Tally()
             : this(null, null)
         {
@@ -125,6 +127,7 @@ namespace NetTally
 
                 TallyResults = string.Empty;
                 lastTallyQuest = quest;
+                ManualTasks.Clear();
 
                 var fa = await quest.GetForumAdapterAsync(token);
 
