@@ -29,7 +29,9 @@ namespace NetTally
 
         bool displayStandardVotes = true;
 
-        List<string> Tasks { get; } = new List<string>();
+        List<MenuItem> ContextMenuCommands = new List<MenuItem>();
+        List<MenuItem> ContextMenuTasks = new List<MenuItem>();
+
         ListBox newTaskBox = null;
 
 
@@ -100,8 +102,9 @@ namespace NetTally
             VoterView2.Refresh();
 
             // Populate the context menu with known tasks.
+            CreateContextMenuCommands();
             InitTasksFromVoteCounter();
-            CreateContextMenu();
+            UpdateContextMenu();
 
             // Set the data context for binding.
             DataContext = this;
@@ -509,9 +512,27 @@ namespace NetTally
         #endregion
 
         #region Context Menu Utility
+        /// <summary>
+        /// Create the basic command menu items for the context menu.
+        /// </summary>
+        private void CreateContextMenuCommands()
+        {
+            MenuItem newTask = new MenuItem();
+            newTask.Header = "New Task...";
+            newTask.Click += newTask_Click;
+            newTask.ToolTip = "Create a new task value.";
+
+            MenuItem clearTask = new MenuItem();
+            clearTask.Header = "Clear Task";
+            clearTask.Click += modifyTask_Click;
+            clearTask.ToolTip = "Clear the task from the currently selected vote.";
+
+            ContextMenuCommands.Add(newTask);
+            ContextMenuCommands.Add(clearTask);
+        }
 
         /// <summary>
-        /// Initialize the context menu with known tasks on window startup.
+        /// Populate the ContextMenuTasks list from known tasks on window load.
         /// </summary>
         private void InitTasksFromVoteCounter()
         {
@@ -519,7 +540,8 @@ namespace NetTally
                 Select(v => VoteString.GetVoteTask(v)).Distinct().
                 Where(v => v != string.Empty).OrderBy(v => v);
 
-            Tasks.AddRange(voteTasks);
+            foreach (var task in voteTasks)
+                ContextMenuTasks.Add(CreateContextMenuItem(task));
         }
 
         /// <summary>
@@ -539,80 +561,46 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Create the entries of the basic context menu.
+        /// Recreate the context menu when new menu items are added.
         /// </summary>
-        private void CreateContextMenu()
+        private void UpdateContextMenu()
         {
             var pMenu = (ContextMenu)this.Resources["TaskContextMenu"];
             if (pMenu != null)
             {
                 pMenu.Items.Clear();
 
-                MenuItem newTask = new MenuItem();
-                newTask.Header = "New Task...";
-                newTask.Click += newTask_Click;
-                newTask.ToolTip = "Create a new task value.";
-                pMenu.Items.Add(newTask);
-
-                MenuItem clearTask = new MenuItem();
-                clearTask.Header = "Clear Task";
-                clearTask.Click += modifyTask_Click;
-                clearTask.ToolTip = "Clear the task from the currently selected vote.";
-                pMenu.Items.Add(clearTask);
+                foreach (var header in ContextMenuCommands)
+                {
+                    pMenu.Items.Add(header);
+                }
 
                 pMenu.Items.Add(new Separator());
 
-                foreach (var task in Tasks)
+                foreach (var task in ContextMenuTasks.OrderBy(m => m.Header))
                 {
-                    MenuItem mi = CreateContextMenuItem(task);
-                    pMenu.Items.Add(mi);
+                    pMenu.Items.Add(task);
                 }
             }
         }
 
         /// <summary>
-        /// Given a new task name, add a new MenuItem to the context menu.
+        /// Given a new task name, create a new menu item and refresh the context menu.
         /// </summary>
-        /// <param name="task">The name of the new context menu item.</param>
+        /// <param name="task">The name of a new task.</param>
         private void AddTaskToContextMenu(string task)
         {
             if (task == null || task == string.Empty)
                 return;
 
-            if (Tasks.Any(t => t == task))
+            if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            var pMenu = (ContextMenu)this.Resources["TaskContextMenu"];
+            ContextMenuTasks.Add(CreateContextMenuItem(task));
 
-            int priorIndex = -1;
-
-            foreach (var menuItem in pMenu.Items)
-            {
-                MenuItem m = menuItem as MenuItem;
-
-                if (m != null)
-                {
-                    if ((string)(m.Tag) == "NamedTask")
-                    {
-                        if (string.Compare(m.Header.ToString(), task) < 0)
-                            priorIndex = pMenu.Items.IndexOf(menuItem);
-                    }
-                }
-            }
-
-            MenuItem mi = CreateContextMenuItem(task);
-
-            if (priorIndex > 0)
-            {
-                pMenu.Items.Insert(priorIndex + 1, mi);
-            }
-            else
-            {
-                pMenu.Items.Add(mi);
-            }
-
-            Tasks.Add(task);
+            UpdateContextMenu();
         }
+       
 
         #endregion
 
