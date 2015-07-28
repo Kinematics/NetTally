@@ -527,7 +527,7 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name of the menu item.</param>
         /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
-        private MenuItem GetContextMenuItem(string name)
+        private MenuItem CreateContextMenuItem(string name)
         {
             MenuItem mi = new MenuItem();
             mi.Header = name;
@@ -564,7 +564,7 @@ namespace NetTally
 
                 foreach (var task in Tasks)
                 {
-                    MenuItem mi = GetContextMenuItem(task);
+                    MenuItem mi = CreateContextMenuItem(task);
                     pMenu.Items.Add(mi);
                 }
             }
@@ -600,7 +600,7 @@ namespace NetTally
                 }
             }
 
-            MenuItem mi = GetContextMenuItem(task);
+            MenuItem mi = CreateContextMenuItem(task);
 
             if (priorIndex > 0)
             {
