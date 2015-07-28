@@ -17,7 +17,7 @@ namespace NetTally
     public partial class ManageVotesWindow : Window, INotifyPropertyChanged
     {
         #region Constructor and variables
-        public IVoteCounter voteCounter;
+        IVoteCounter VoteCounter { get; }
 
         public ObservableCollection<string> VoteCollection { get; }
         public ListCollectionView VoteView1 { get; }
@@ -49,11 +49,11 @@ namespace NetTally
         {
             InitializeComponent();
 
-            voteCounter = tally.VoteCounter;
+            VoteCounter = tally.VoteCounter;
 
             // Gets the lists of all current votes and ranked votes that can be shown.
-            List<string> votes = voteCounter.VotesWithSupporters.Keys
-                .Concat(voteCounter.RankedVotesWithSupporters.Keys)
+            List<string> votes = VoteCounter.VotesWithSupporters.Keys
+                .Concat(VoteCounter.RankedVotesWithSupporters.Keys)
                 .Distinct().ToList();
 
             // Create a collection for the views to draw from.
@@ -82,8 +82,8 @@ namespace NetTally
 
 
             // Get the lists of all unique voters/ranked voters that we can show in the display.
-            List<string> voters = voteCounter.VoterMessageId.Select(v => v.Key).Except(voteCounter.PlanNames)
-                .Concat(voteCounter.RankedVoterMessageId.Select(v => v.Key))
+            List<string> voters = VoteCounter.VoterMessageId.Select(v => v.Key).Except(VoteCounter.PlanNames)
+                .Concat(VoteCounter.RankedVoterMessageId.Select(v => v.Key))
                 .Distinct().OrderBy(v => v).ToList();
 
             // Create a collection for the views to draw from.
@@ -172,7 +172,7 @@ namespace NetTally
         {
             get
             {
-                return voteCounter.HasRankedVotes;
+                return VoteCounter.HasRankedVotes;
             }
         }
 
@@ -224,7 +224,7 @@ namespace NetTally
 
             try
             {
-                if (voteCounter.Merge(fromVote, toVote, CurrentVoteType))
+                if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
                 {
                     VoteCollection.Remove(fromVote);
                     VoterView1.Refresh();
@@ -257,7 +257,7 @@ namespace NetTally
 
             try
             {
-                if (voteCounter.Join(fromVoters, joinVoter, CurrentVoteType))
+                if (VoteCounter.Join(fromVoters, joinVoter, CurrentVoteType))
                 {
                     VoteView1.Refresh();
                     VoteView2.Refresh();
@@ -279,7 +279,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void delete_Click(object sender, RoutedEventArgs e)
         {
-            if (voteCounter.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+            if (VoteCounter.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
             {
                 VoteView1.Refresh();
                 VoteView2.Refresh();
@@ -383,7 +383,7 @@ namespace NetTally
             {
                 string changedVote = VoteString.ReplaceTask(selectedVote, newTask);
 
-                if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                 {
                     if (!VoteCollection.Contains(changedVote))
                         VoteCollection.Add(changedVote);
@@ -435,7 +435,7 @@ namespace NetTally
                             else
                                 changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString());
 
-                            if (voteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                            if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                             {
                                 if (!VoteCollection.Contains(changedVote))
                                     VoteCollection.Add(changedVote);
@@ -452,7 +452,6 @@ namespace NetTally
         }
         #endregion
 
-
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
@@ -462,7 +461,7 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         private bool FilterVotes(string vote)
         {
-            var votes = voteCounter.GetVotesCollection(CurrentVoteType);
+            var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
             return votes.ContainsKey(vote);
         }
 
@@ -482,7 +481,7 @@ namespace NetTally
             if (voteView.CurrentItem == null)
                 return false;
 
-            var votes = voteCounter.GetVotesCollection(CurrentVoteType);
+            var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
             HashSet<string> voterList;
 
             if (votes.TryGetValue(voteView.CurrentItem.ToString(), out voterList))
@@ -509,7 +508,6 @@ namespace NetTally
 
         #endregion
 
-
         #region Context Menu Utility
 
         /// <summary>
@@ -517,7 +515,7 @@ namespace NetTally
         /// </summary>
         private void InitTasksFromVoteCounter()
         {
-            var voteTasks = voteCounter.GetVotesCollection(CurrentVoteType).Keys.
+            var voteTasks = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.
                 Select(v => VoteString.GetVoteTask(v)).Distinct().
                 Where(v => v != string.Empty).OrderBy(v => v);
 
