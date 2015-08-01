@@ -576,8 +576,15 @@ namespace NetTally.Adapters
             if (url == null)
                 throw new ArgumentNullException(nameof(url));
 
+            // Format: https://forums.sufficientvelocity.com/posts/4062860/
             Regex postLinkRegex = new Regex(@"posts/(?<postId>\d+)/");
             var m = postLinkRegex.Match(url);
+            if (m.Success)
+                return m.Groups["postId"].Value;
+
+            // Format: https://forums.sufficientvelocity.com/threads/a-villain-in-a-world-of-heroes.18001/page-109#post-4062860
+            postLinkRegex = new Regex(@"/page-\d+#post-(?<postId>\d+)");
+            m = postLinkRegex.Match(url);
             if (m.Success)
                 return m.Groups["postId"].Value;
 
