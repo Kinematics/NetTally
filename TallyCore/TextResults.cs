@@ -174,8 +174,6 @@ namespace NetTally
 
             AddTotalVoterCount();
         }
-
-
         #endregion
 
         #region Utility functions (no side effects)
@@ -188,6 +186,21 @@ namespace NetTally
         {
             var split = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             return new List<string>(split);
+        }
+
+        /// <summary>
+        /// Group votes together by task.
+        /// </summary>
+        /// <param name="votesWithSupporters">A collection of all votes.</param>
+        /// <returns>Returns votes grouped by task.</returns>
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> votesWithSupporters)
+        {
+            var grouped = from v in votesWithSupporters
+                          group v by VoteString.GetVoteTask(v.Key) into g
+                          orderby g.Key
+                          select g;
+
+            return grouped;
         }
 
         /// <summary>
@@ -220,10 +233,28 @@ namespace NetTally
         /// <param name="voter">The supporter of a given plan.</param>
         /// <param name="voteType">The type of voter being queried.</param>
         /// <returns>Returns the constructed BBCode URL that links to the post made by the voter.</returns>
-        private string GetVoterUrlCode(string voter, VoteType voteType)
+        private string GetVoterUrlBBCode(string voter, VoteType voteType)
         {
             string url = GetVoterUrl(voter, voteType);
             return $"[url=\"{url}\"]{voter}[/url]";
+        }
+
+        /// <summary>
+        /// Given a list of voters, select the first one that counts as a 'real' vote
+        /// (ie: not reference votes).
+        /// </summary>
+        /// <param name="voters">The set of voters to check.</param>
+        /// <returns>Returns an IEnumerable containing the first voter.</returns>
+        private IEnumerable<string> GetFirstVoter(HashSet<string> voters)
+        {
+            var nonReferenceVoters = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author));
+
+            if (!nonReferenceVoters.Any())
+                nonReferenceVoters = voters;
+
+            var firstVoter = nonReferenceVoters.OrderBy(v => VoteCounter.VoterMessageId[v]).Take(1);
+
+            return firstVoter;
         }
 
         /// <summary>
@@ -233,32 +264,40 @@ namespace NetTally
         /// </summary>
         /// <param name="voters">The list of voters to search.</param>
         /// <returns>Returns the name of the 'first' voter.</returns>
-        private string GetFirstVoter(HashSet<string> voters)
+        private string GetFirstVoterName(HashSet<string> voters)
         {
-            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
-                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
-
-            if (firstVoter == null)
-                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
-
-            return firstVoter;
+            return GetFirstVoter(voters).First();
         }
 
         /// <summary>
-        /// Group votes together by task.
+        /// Given a list of voters, order the voters alphabetically, except for the
+        /// first voter, who is always placed first.
         /// </summary>
-        /// <param name="votesWithSupporters">A collection of all votes.</param>
-        /// <returns>Returns votes grouped by task.</returns>
-        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> votesWithSupporters)
+        /// <param name="voters">The set of voters to check.</param>
+        /// <returns>Returns an ordered enumeration of the voters.</returns>
+        private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            var grouped = from v in votesWithSupporters
-                          group v by VoteString.GetVoteTask(v.Key) into g
-                          orderby g.Key
-                          select g;
+            var firstVoter = GetFirstVoter(voters);
+            var otherVoters = voters.Except(firstVoter);
 
-            return grouped;
+            var orderedVoters = firstVoter.Concat(otherVoters.OrderBy(v => v));
+            return orderedVoters;
         }
 
+        /// <summary>
+        /// Given a list of voters, create a list of the corresponding URLs that
+        /// point to each voter's post, ordered alphabetically aside from the
+        /// first voter.
+        /// </summary>
+        /// <param name="voters">The set of voters to check.</param>
+        /// <returns>Returns an ordered enumeration of links to the voters' posts.</returns>
+        private IEnumerable<string> GetOrderedVoterUrlList(HashSet<string> voters)
+        {
+            var urls = from v in GetOrderedVoterList(voters)
+                       select GetVoterUrlBBCode(v, VoteType.Vote);
+
+            return urls;
+        }
         #endregion
 
         #region Functions for adding pieces of text to the output results.
@@ -292,17 +331,16 @@ namespace NetTally
             if (voteLines.Count == 0)
                 return;
 
-            string firstVoter = GetFirstVoter(vote.Value);
+            string firstVoter = GetFirstVoterName(vote.Value);
 
             if (firstVoter.StartsWith(Utility.Text.PlanNameMarker))
             {
-                string planName = firstVoter.Substring(1);
-                string planLink = GetVoterUrl(planName, VoteType.Plan);
+                string planLink = GetVoterUrl(firstVoter, VoteType.Plan);
 
                 sb.Append($"[{userVoteCount}]");
                 if (task != string.Empty)
                     sb.Append($"[{task}]");
-                sb.Append($" Plan {planName} — {planLink}\r\n");
+                sb.Append($" Plan: {firstVoter} — {planLink}\r\n");
                 return;
             }
 
@@ -348,22 +386,8 @@ namespace NetTally
         /// <param name="voters">The list of voters.</param>
         private void AddCompactVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
-                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
-
-            if (firstVoter == null)
-                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
-
-            var remainder = voters.Where(v => v != firstVoter && VoteCounter.PlanNames.Contains(v) == false).OrderBy(v => v);
-
-            sb.Append($"({GetVoterUrlCode(firstVoter, VoteType.Vote)}");
-
-            foreach (var voter in remainder)
-            {
-                sb.Append($", {GetVoterUrlCode(voter, VoteType.Vote)}");
-            }
-
-            sb.AppendLine(")");
+            var orderedVotersArray = GetOrderedVoterUrlList(voters).ToArray();
+            sb.AppendLine($"({string.Join(", ", orderedVotersArray)})");
         }
 
         /// <summary>
@@ -411,38 +435,31 @@ namespace NetTally
         /// <param name="voters">The set of voters being added.</param>
         private void AddVoters(HashSet<string> voters)
         {
-            string firstVoter = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author))
-                .OrderBy(v => VoteCounter.VoterMessageId[v]).FirstOrDefault();
+            var orderedVoters = GetOrderedVoterList(voters);
 
-            if (firstVoter == null)
-                firstVoter = voters.OrderBy(v => VoteCounter.VoterMessageId[v]).First();
-
-            AddVoter(firstVoter);
-
-            var remainder = voters.Where(v => v != firstVoter);
-
-            var remainingPlans = remainder.Where(vc => VoteCounter.PlanNames.Contains(vc) == true);
-
-            foreach (var supporter in remainingPlans.OrderBy(v => v))
+            foreach (var voter in orderedVoters)
             {
-                AddVoter(supporter);
-            }
-
-            var remainingVoters = remainder.Except(remainingPlans);
-
-            foreach (var supporter in remainingVoters.OrderBy(v => v))
-            {
-                AddVoter(supporter);
+                AddVoter(voter);
             }
         }
 
         /// <summary>
-        /// Add an individual voter to the output.
+        /// Generate a line for a voter (that's possibly a plan), including the
+        /// link to the original post that user voted in.
         /// </summary>
         /// <param name="voter">The name of the voter being added.</param>
         private void AddVoter(string voter)
         {
-            AddSupporterEntry(voter);
+            string tail = string.Empty;
+            if (VoteCounter.PlanNames.Contains(voter))
+            {
+                sb.Append("[b]Plan: ");
+                tail = "[/b]";
+            }
+
+            sb.Append(GetVoterUrlBBCode(voter, VoteType.Vote));
+
+            sb.AppendLine(tail);
         }
 
         /// <summary>
@@ -452,7 +469,8 @@ namespace NetTally
         /// <param name="marker">The rank that the voter rated the current vote.</param>
         private void AddRankedVoter(string voter, string marker)
         {
-            AddRankedSupporterEntry(voter, marker);
+            sb.Append($"[{marker}] ");
+            sb.AppendLine(GetVoterUrlBBCode(voter, VoteType.Rank));
         }
 
         /// <summary>
@@ -477,38 +495,6 @@ namespace NetTally
             {
                 sb.Append($"Total No. of Voters: {totalVoterCount}\r\n\r\n");
             }
-        }
-
-        /// <summary>
-        /// Generate a line for a supporter (that's possibly a plan), including the
-        /// link to the original post that user voted in.
-        /// </summary>
-        /// <param name="supporter">The supporter of a given plan.</param>
-        /// <returns>Returns a url'ized string for the voter's post.</returns>
-        private void AddSupporterEntry(string supporter)
-        {
-            string tail = string.Empty;
-            if (VoteCounter.PlanNames.Contains(supporter))
-            {
-                sb.Append("[b]Plan: ");
-                tail = "[/b]";
-            }
-
-            sb.Append(GetVoterUrlCode(supporter, VoteType.Vote));
-
-            sb.AppendLine(tail);
-        }
-
-        /// <summary>
-        /// Generate a line for a voter that ranked a vote with a specific value, including the
-        /// link to the original post that user voted in.
-        /// </summary>
-        /// <param name="supporter">The supporter of a given plan.</param>
-        /// <returns>Returns a url'ized string for the voter's post.</returns>
-        private void AddRankedSupporterEntry(string supporter, string marker)
-        {
-            sb.Append($"[{marker}] ");
-            sb.AppendLine(GetVoterUrlCode(supporter, VoteType.Rank));
         }
 
         /// <summary>
