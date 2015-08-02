@@ -240,6 +240,21 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Get the string providing the URL'ized form of the link to a voter's
+        /// plan, with the optional bolding and labeling of the line if it's a
+        /// reference to a base plan.
+        /// </summary>
+        /// <param name="voter">The voter we're constructing the line for.</param>
+        /// <returns>Returns a string that can be appended to the output.</returns>
+        private string GetNormalVoterLine(string voter)
+        {
+            if (VoteCounter.PlanNames.Contains(voter))
+                return $"[b]Plan: {GetVoterUrlBBCode(voter, VoteType.Vote)}[/b]";
+            else
+                return GetVoterUrlBBCode(voter, VoteType.Vote);
+        }
+
+        /// <summary>
         /// Given a list of voters, select the first one that counts as a 'real' vote
         /// (ie: not reference votes).
         /// </summary>
@@ -450,16 +465,7 @@ namespace NetTally
         /// <param name="voter">The name of the voter being added.</param>
         private void AddVoter(string voter)
         {
-            string tail = string.Empty;
-            if (VoteCounter.PlanNames.Contains(voter))
-            {
-                sb.Append("[b]Plan: ");
-                tail = "[/b]";
-            }
-
-            sb.Append(GetVoterUrlBBCode(voter, VoteType.Vote));
-
-            sb.AppendLine(tail);
+            sb.AppendLine(GetNormalVoterLine(voter));
         }
 
         /// <summary>
