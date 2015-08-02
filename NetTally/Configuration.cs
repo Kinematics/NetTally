@@ -62,11 +62,16 @@ namespace NetTally
                 return null;
 
             var versionDirectories = parent.EnumerateDirectories("*.*.*.*", SearchOption.TopDirectoryOnly);
-            if (versionDirectories.Count() == 0)
-                return null;
 
             // Get 'newest' directory that is not the one we expect to use
-            var latestDir = versionDirectories.OrderBy(d => NumSort(d)).Last(d => d.Name != dir.Name);
+            var latestDir = versionDirectories
+                .Where(d => d.Name != dir.Name)
+                .Where(d => d.EnumerateFiles().Where(de => de.Name == "user.config").Count() > 0)
+                .OrderBy(d => NumSort(d))
+                .LastOrDefault();
+
+            if (latestDir == null)
+                return null;
 
             var upgradeFile = Path.Combine(latestDir.FullName, defaultFile.Name);
 
