@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NetTally
 {
@@ -65,7 +66,7 @@ namespace NetTally
                 return null;
 
             // Get 'newest' directory that is not the one we expect to use
-            var latestDir = versionDirectories.OrderBy(d => d.Name).Last(d => d.Name != dir.Name);
+            var latestDir = versionDirectories.OrderBy(d => NumSort(d)).Last(d => d.Name != dir.Name);
 
             var upgradeFile = Path.Combine(latestDir.FullName, defaultFile.Name);
 
@@ -82,7 +83,34 @@ namespace NetTally
 
             return map;
         }
-        
+
+        /// <summary>
+        /// Provide a sortable number based on the version number of the provided directory.
+        /// </summary>
+        /// <param name="d">The name of a config directory: 1.2.3.4.</param>
+        /// <returns>Returns a numeric value evaluted as the combined numbers of the directory
+        /// name (up to a max of 256 per segment).</returns>
+        private static int NumSort(DirectoryInfo d)
+        {
+            // 1.2.3.4
+            Regex r = new Regex(@"(?<p1>\d+)\.(?<p2>\d+)\.(?<p3>\d+)\.(?<p4>\d+)");
+
+            Match m = r.Match(d.Name);
+            if (m.Success)
+            {
+                byte p1, p2, p3, p4;
+                if (byte.TryParse(m.Groups["p1"].Value, out p1) &&
+                    byte.TryParse(m.Groups["p2"].Value, out p2) &&
+                    byte.TryParse(m.Groups["p3"].Value, out p3) &&
+                    byte.TryParse(m.Groups["p4"].Value, out p4))
+                {
+                    int sortNumber = p1 << 24 | p2 << 16 | p3 << 8 | p4;
+                    return sortNumber;
+                }
+            }
+
+            return 0;
+        }
 
         public static void Save(Tally tally, QuestCollectionWrapper questsWrapper)
         {
