@@ -373,7 +373,7 @@ namespace NetTally
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
             InputBox.Visibility = Visibility.Collapsed;
 
-            string newTask = InputTextBox.Text;
+            string newTask = Utility.Text.SafeString(InputTextBox.Text).Trim();
 
             // Clear InputBox.
             InputTextBox.Text = String.Empty;
