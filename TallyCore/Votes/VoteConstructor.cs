@@ -294,7 +294,7 @@ namespace NetTally
                 }
                 else if (quest.PartitionMode == PartitionMode.None)
                 {
-                    ParitionByVote(partitions, sb, trimmedLine);
+                    PartitionByVote(partitions, sb, trimmedLine);
                 }
                 else if (quest.PartitionMode == PartitionMode.ByLine)
                 {
@@ -427,7 +427,7 @@ namespace NetTally
         /// <param name="partitions">The table of collected partitions.</param>
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="line">The vote line currently being examined.</param>
-        private void ParitionByVote(List<string> partitions, StringBuilder sb, string line)
+        private void PartitionByVote(List<string> partitions, StringBuilder sb, string line)
         {
             // If no partition mode, just stack all lines onto the string builder,
             // to be added together at the end.
