@@ -227,7 +227,7 @@ namespace NetTally
             {
                 if (voter != voterToJoin)
                 {
-                    RemoveSupport(voter, voteType);
+                    RemoveSupport(voter, voteType, deleteVoterFromCollection: false);
 
                     foreach (var vote in joinVotersVotes)
                     {
@@ -352,7 +352,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
         /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
-        public void RemoveSupport(string voter, VoteType voteType)
+        public void RemoveSupport(string voter, VoteType voteType, bool deleteVoterFromCollection = true)
         {
             var votes = GetVotesCollection(voteType);
 
@@ -374,8 +374,16 @@ namespace NetTally
                 votes.Remove(vote);
             }
 
-            var voterIDs = GetVotersCollection(voteType);
-            voterIDs.Remove(voter);
+            if (deleteVoterFromCollection)
+            {
+                var voterIDs = GetVotersCollection(voteType);
+                voterIDs.Remove(voter);
+            }
+        }
+
+        public void RemoveSupport(string voter, VoteType voteType)
+        {
+            RemoveSupport(voter, voteType, true);
         }
 
         /// <summary>
