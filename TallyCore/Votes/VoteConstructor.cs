@@ -355,9 +355,17 @@ namespace NetTally
             // If partitioning a Base Plan (other than By Line), simply collate all lines together.
             // The entire plan is considered a single block.
             if (quest.PartitionMode == PartitionMode.ByLine)
-                partitions.Add(line + "\r\n");
+            {
+                PartitionByLine(partitions, sb, line);
+            }
+            else if (quest.PartitionMode == PartitionMode.ByTask || quest.PartitionMode == PartitionMode.ByTaskBlock)
+            {
+                PartitionByTask(partitions, sb, line);
+            }
             else
+            {
                 sb.AppendLine(line);
+            }
         }
 
         /// <summary>
