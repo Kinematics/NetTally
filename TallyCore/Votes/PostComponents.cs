@@ -25,7 +25,8 @@ namespace NetTally
         readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly Regex allVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
-
+        // Nomination-style votes.  @username, one per line.
+        readonly Regex nominationRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*(?=[\r\n]|$)", RegexOptions.Multiline);
 
         /// <summary>
         /// Constructor
@@ -51,7 +52,17 @@ namespace NetTally
             MatchCollection matches = allVoteRegex.Matches(text);
 
             if (matches.Count > 0)
+            {
                 VoteStrings = GetMatchStrings(matches);
+            }
+            else
+            {
+                matches = nominationRegex.Matches(text);
+                if (matches.Count > 0)
+                {
+                    VoteStrings = GetNominationStrings(matches);
+                }
+            }
         }
 
         /// <summary>
@@ -76,6 +87,20 @@ namespace NetTally
         {
             var strings = from Match m in matches
                           select m.Value.Trim();
+
+            return strings.ToList();
+        }
+
+        /// <summary>
+        /// Convert the provided match results for user nominations into a list of
+        /// vote strings for ease of use.
+        /// </summary>
+        /// <param name="matches">A collection of regex matches.</param>
+        /// <returns>Returns the list of strings contained by the regex matches.</returns>
+        private List<string> GetNominationStrings(MatchCollection matches)
+        {
+            var strings = from Match m in matches
+                          select "[X] " + m.Value.Trim();
 
             return strings.ToList();
         }
