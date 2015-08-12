@@ -52,7 +52,7 @@ namespace TallyUnitTest
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.None };
-            string results = VoteString.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest.PartitionMode);
             Assert.AreEqual(expected, results);
         }
 
@@ -63,7 +63,7 @@ namespace TallyUnitTest
             string expected = "-[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.ByBlock };
-            string results = VoteString.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest.PartitionMode);
             Assert.AreEqual(expected, results);
         }
 
@@ -74,7 +74,7 @@ namespace TallyUnitTest
             string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
 
             IQuest quest = new Quest() { PartitionMode = PartitionMode.ByLine };
-            string results = VoteString.MinimizeVote(input, quest);
+            string results = VoteString.MinimizeVote(input, quest.PartitionMode);
             Assert.AreEqual(expected, results);
         }
         
