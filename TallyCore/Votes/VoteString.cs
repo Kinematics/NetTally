@@ -15,7 +15,7 @@ namespace NetTally
         // Regex to allow us to collapse a vote to a commonly comparable version.
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
         // Regex to allow us to strip leading dashes from a per-line vote.
-        static readonly Regex leadHyphenRegex = new Regex(@"^-+");
+        static readonly Regex leadHyphenRegex = new Regex(@"^[-\s]+");
         // Regex for separating out the task from the other portions of a vote line.
         static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?!url=)(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
