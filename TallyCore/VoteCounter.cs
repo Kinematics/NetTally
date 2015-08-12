@@ -453,7 +453,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = VoteString.MinimizeVote(vote, quest);
+            var minVote = VoteString.MinimizeVote(vote, quest.PartitionMode);
 
             // If it matches a lookup value, return the lookup key
             string lookupVote;
