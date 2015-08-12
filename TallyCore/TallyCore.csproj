@@ -68,6 +68,7 @@
     <Compile Include="TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Votes\PostComponents.cs" />
+    <Compile Include="Votes\PostLine.cs" />
     <Compile Include="Votes\PostText.cs" />
     <Compile Include="Utility\RegionProfiler.cs" />
     <Compile Include="Utility\Utility.cs" />
