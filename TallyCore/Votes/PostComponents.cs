@@ -27,6 +27,8 @@ namespace NetTally
         readonly Regex allVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
         // Nomination-style votes.  @username, one per line.
         readonly Regex nominationRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*(?=[\r\n]|$)", RegexOptions.Multiline);
+        // Regex to extract out all non-whitespace lines from a post's text.
+        readonly Regex allLinesRegex = new Regex(@"^\s*\S+[^\r\n]*(?=[\r\n]|$)", RegexOptions.Multiline);
 
         /// <summary>
         /// Constructor
@@ -60,7 +62,9 @@ namespace NetTally
                 matches = nominationRegex.Matches(text);
                 if (matches.Count > 0)
                 {
-                    VoteStrings = GetNominationStrings(matches);
+                    MatchCollection allLines = allLinesRegex.Matches(text);
+                    if (allLines.Count == matches.Count)
+                        VoteStrings = GetNominationStrings(matches);
                 }
             }
         }
