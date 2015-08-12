@@ -6,19 +6,6 @@ using System.Threading.Tasks;
 
 namespace NetTally
 {
-    public class PostLine
-    {
-        public string Original { get; }
-        public string Clean { get; }
-
-        public PostLine(string line)
-        {
-            Original = line;
-            Clean = VoteString.CleanVote(line);
-        }
-    }
-
-
     /// <summary>
     /// Class to hold an immutable rendition of a given post, including all of its
     /// vote-specific lines, for later comparison and re-use.
