@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace NetTally
 {
+    public class PostLine
+    {
+        public string Original { get; }
+        public string Clean { get; }
+
+        public PostLine(string line)
+        {
+            Original = line;
+            Clean = VoteString.CleanVote(line);
+        }
+    }
+
+
     /// <summary>
     /// Class to hold an immutable rendition of a given post, including all of its
     /// vote-specific lines, for later comparison and re-use.
@@ -16,19 +29,22 @@ namespace NetTally
         public string ID { get; }
         public string Text { get; }
         public int IDValue { get; }
+        public List<PostLine> PostLines { get; }
+        public List<PostLine> VoteLines { get; }
         public List<string> VoteStrings { get; }
 
         // Indicate whether this post contains a vote of any sort.
         public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
 
+        // Regex to extract out all individual lines from a post's text.
+        readonly Regex allLinesRegex = new Regex(@"^.+$", RegexOptions.Multiline);
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        readonly Regex tallyRegex = new Regex(@"^#####");
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex allVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
+        readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*[xX+✓✔1-9]\s*\]");
         // Nomination-style votes.  @username, one per line.
-        readonly Regex nominationRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*(?=[\r\n]|$)", RegexOptions.Multiline);
-        // Regex to extract out all non-whitespace lines from a post's text.
-        readonly Regex allLinesRegex = new Regex(@"^\s*\S+[^\r\n]*(?=[\r\n]|$)", RegexOptions.Multiline);
+        readonly Regex nominationLineRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]");
+
 
         /// <summary>
         /// Constructor
@@ -48,67 +64,72 @@ namespace NetTally
             else
                 IDValue = 0;
 
-            if (IsTallyPost(text))
+            PostLines = GetPostLines(text);
+
+            if (IsTallyPost())
                 return;
 
-            MatchCollection matches = allVoteRegex.Matches(text);
+            VoteLines = GetVoteLines();
 
-            if (matches.Count > 0)
+            VoteStrings = (from l in VoteLines
+                           select l.Original).ToList();
+        }
+
+
+        /// <summary>
+        /// Convert the provided match results into a list of post lines for ease of use.
+        /// </summary>
+        /// <param name="matches">A collection of regex matches.</param>
+        /// <returns>Returns the list of post lines contained by the regex matches.</returns>
+        public List<PostLine> GetPostLines(string text)
+        {
+            // Pull all individual lines
+            MatchCollection matches = allLinesRegex.Matches(text);
+
+            // Keep only non-whitespace lines (saved as a PostLine)
+            var lines = from Match m in matches
+                        let line = m.Value.Trim()
+                        where line != string.Empty
+                        select new PostLine(line);
+
+            return lines.ToList();
+        }
+
+        /// <summary>
+        /// Get all the vote lines out of the post lines in the post.
+        /// Nomination-style lines are selected if all post lines validate as nomination lines.
+        /// </summary>
+        /// <returns>Returns a list of all the PostLines in the post that are
+        /// valid vote lines.</returns>
+        public List<PostLine> GetVoteLines()
+        {
+            var lines = from l in PostLines
+                        where voteLineRegex.Match(l.Clean).Success
+                        select l;
+
+            if (!lines.Any())
             {
-                VoteStrings = GetMatchStrings(matches);
-            }
-            else
-            {
-                matches = nominationRegex.Matches(text);
-                if (matches.Count > 0)
+                if (PostLines.All(l => nominationLineRegex.Match(l.Clean).Success))
                 {
-                    MatchCollection allLines = allLinesRegex.Matches(text);
-                    if (allLines.Count == matches.Count)
-                        VoteStrings = GetNominationStrings(matches);
+                    lines = from l in PostLines
+                            select new PostLine("[X] " + l.Original);
                 }
             }
+
+            return lines.ToList();
         }
 
         /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
         /// </summary>
-        /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        public bool IsTallyPost(string postText)
+        public bool IsTallyPost()
         {
-            // If the post contains the string "#####" at the start of the line for part of its text,
-            // it's a tally post.
-            string cleanText = VoteString.CleanVote(postText);
-            return (tallyRegex.Matches(cleanText).Count > 0);
+            // A tally post is marked by the string "#####" at the start of a line.
+            // If the clean view of any of the post's lines matches the regex, it's a tally post.
+            return PostLines.Any(p => tallyRegex.Match(p.Clean).Success);
         }
-
-        /// <summary>
-        /// Convert the provided match results into a list of strings for ease of use.
-        /// </summary>
-        /// <param name="matches">A collection of regex matches.</param>
-        /// <returns>Returns the list of strings contained by the regex matches.</returns>
-        public List<string> GetMatchStrings(MatchCollection matches)
-        {
-            var strings = from Match m in matches
-                          select m.Value.Trim();
-
-            return strings.ToList();
-        }
-
-        /// <summary>
-        /// Convert the provided match results for user nominations into a list of
-        /// vote strings for ease of use.
-        /// </summary>
-        /// <param name="matches">A collection of regex matches.</param>
-        /// <returns>Returns the list of strings contained by the regex matches.</returns>
-        private List<string> GetNominationStrings(MatchCollection matches)
-        {
-            var strings = from Match m in matches
-                          select "[X] " + m.Value.Trim();
-
-            return strings.ToList();
-        }
-
+        
         /// <summary>
         /// IComparer function.
         /// </summary>
