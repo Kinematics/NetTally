@@ -73,5 +73,17 @@ namespace NetTally
         {
             return Compare(this, obj as Vote);
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var line in VoteLines)
+            {
+                sb.AppendLine(line.Original);
+            }
+
+            return sb.ToString();
+        }
     }
 }
