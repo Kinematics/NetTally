@@ -63,95 +63,107 @@ namespace NetTally
             if (!post.IsVote)
                 throw new ArgumentException("Post is not a valid vote.", nameof(post));
 
-            // Separate the lines of the vote into their different types.
-            var groupedVoteLines = SeparateVoteTypes(post.VoteStrings);
+            var votes = SeparateVoteTypes(post.VoteLines);
 
             // Process each type separately
-            ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest);
-            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest, storeFloatingReferences);
-            ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest);
+            ProcessPlans(votes.Where(v => v.VoteType == VoteType.Plan), post, quest);
+            ProcessVotes(votes.Where(v => v.VoteType == VoteType.Vote), post, quest, storeFloatingReferences);
+            ProcessRanks(votes.Where(v => v.VoteType == VoteType.Rank), post, quest);
         }
-
-        /// <summary>
-        /// Given a list of vote lines from a post, break it down into groups of lines,
-        /// based on vote type.
-        /// Type Plan: Base Plans come first, and must start with a [x] Base Plan: ~plan name~ line.
-        /// Type Vote: Normal votes come after that, and collect together all non-rank vote lines.
-        /// Type Rank: Rank votes come after that, and are treated independently, with each line as its own entry.
-        /// Any base plan lines after normal votes start are ignored.
-        /// Any normal vote lines after rank lines start are ignored.
-        /// </summary>
-        /// <param name="postLines">All the vote lines of the post.</param>
-        /// <returns>Returns a dict with lists of strings, each labeled according to
-        /// the section of the post vote they correspond to (either plan or vote).</returns>
-        public Dictionary<VoteType, List<List<string>>> SeparateVoteTypes(List<string> postLines)
+        
+        public List<Vote> SeparateVoteTypes(List<PostLine> voteLines)
         {
-            // Create a list of string lists for each vote type
-            Dictionary<VoteType, List<List<string>>> results = new Dictionary<VoteType, List<List<string>>>();
+            // The list of all votes from the provided list of lines
+            List<Vote> votes = new List<Vote>();
+            // Save all lines that will eventually add up to the normal vote
+            List<PostLine> normalVote = new List<PostLine>();
+            // Var for accumulating base plans
+            List<PostLine> basePlan = null;
 
-            // Make sure that the list exists for each vote type
-            foreach (VoteType vType in Enum.GetValues(typeof(VoteType)))
-                results[vType] = new List<List<string>>();
+            bool checkForBasePlans = true;
 
-
-            Match bpMatch = basePlanRegex.Match(postLines.First());
-
-            // First put together all base plans
-            while (postLines.Count > 0 && bpMatch.Success)
+            // Work through all the vote lines of the post
+            foreach (var line in voteLines)
             {
-                // Make sure the plan doesn't already exist in the tracker.
-                // If it does, this counts as a repeat, and should be considered an attempt to 
-                // reference the original plan, rather than redefine it.
-                // As soon as this occurs, we should treat all further lines
-                // as regular vote lines, rather than additional potential plans.
-                if (VoteCounter.HasPlan(bpMatch.Groups["baseplan"].Value))
-                    break;
-
-                List<string> basePlan = new List<string>();
-
-                // Add the "Base Plan" line
-                basePlan.Add(postLines.First());
-                // Add all sub-lines after that (-[x])
-                basePlan.AddRange(postLines.Skip(1).TakeWhile(a => a.StartsWith("-")));
-
-                // As long as the plan has component lines, add it to the grouping
-                // collection.  If it has no component lines, it gets ignored, but
-                // we keep trying to see if there are any more base plans.
-                if (basePlan.Count > 1)
+                // Process base plans until no more are found
+                if (checkForBasePlans)
                 {
-                    results[VoteType.Plan].Add(basePlan);
-                }
-
-                postLines = postLines.Skip(basePlan.Count).ToList();
-
-                if (postLines.Count > 0)
-                    bpMatch = basePlanRegex.Match(postLines.First());
-            }
-
-
-            // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => VoteString.IsRankedVote(a) == false).ToList();
-
-            if (normalVote.Count > 0)
-                results[VoteType.Vote].Add(normalVote);
-
-
-            // Then put together all rank vote lines, each as a separate entry.
-            if (postLines.Count > normalVote.Count)
-            {
-                var rankLines = postLines.Skip(normalVote.Count);
-
-                foreach (string line in rankLines)
-                {
-                    if (VoteString.IsRankedVote(line))
+                    // If no base plan currently defined, check to see if it's the start of a new base plan.
+                    if (basePlan == null)
                     {
-                        results[VoteType.Rank].Add(new List<string>(1) { line });
+                        Match m = basePlanRegex.Match(line.Clean);
+                        if (m.Success)
+                        {
+                            // If so, add the first line to a new base plan list and continue processing the post lines
+                            basePlan = new List<PostLine>();
+                            basePlan.Add(line);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        // If we've started a base plan, continue adding any lines that start with "-"
+                        if (line.Clean.StartsWith("-"))
+                        {
+                            basePlan.Add(line);
+                            continue;
+                        }
+                        else
+                        {
+                            // If we reached a new top-level vote line, save any existing base plan as long
+                            // as it has more than one line.
+                            if (basePlan.Count > 1)
+                                votes.Add(new Vote(basePlan, VoteType.Plan));
+
+                            // Check to see if we've reached the start of a new base plan
+                            Match m = basePlanRegex.Match(line.Clean);
+                            if (m.Success)
+                            {
+                                // If so, continue the process
+                                basePlan = new List<PostLine>();
+                                basePlan.Add(line);
+                                continue;
+                            }
+                            else
+                            {
+                                // Otherwise, null the base plan var and continue with normal processing.
+                                basePlan = null;
+                            }
+                        }
                     }
                 }
+
+                // If we've reached here, there are no more lines that can be considered base plans.
+                // Stop doing any checks for them.
+                checkForBasePlans = false;
+
+                // Rank vote lines get added as new votes individually, and immediately.
+                if (VoteString.IsRankedVote(line.Clean))
+                {
+                    votes.Add(new Vote(line, VoteType.Rank));
+                }
+                else
+                {
+                    // Anything else is stored in our normal vote list, to be added when we're done.
+                    normalVote.Add(line);
+                }
             }
 
-            return results;
+            // If there's any base plan that wasn't completed in the above loop, store it here.
+            if (basePlan != null && basePlan.Count > 1)
+            {
+                votes.Add(new Vote(basePlan, VoteType.Plan));
+            }
+
+            // If any normal vote was accumulated, add it here.
+            if (normalVote.Count > 0)
+            {
+                votes.Add(new Vote(normalVote, VoteType.Vote));
+            }
+
+            return votes;
         }
+
 
         /// <summary>
         /// Put any plans found in the grouped vote lines into the standard tracking sets.
@@ -159,7 +171,7 @@ namespace NetTally
         /// <param name="voteLinesGrouped"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessPlans(List<List<string>> plansList, PostComponents post, IQuest quest)
+        public void ProcessPlans(IEnumerable<Vote> plansList, PostComponents post, IQuest quest)
         {
             foreach (var plan in plansList)
             {
@@ -172,11 +184,11 @@ namespace NetTally
                 VoteCounter.AddVoterPostID(planName, post.ID, VoteType.Plan);
 
                 // Promote the plan one tier (excluding the line of the plan name itself) <<<< Do we want to remove this?
-                List<string> planLines = PromotePlanLines(plan);
+                Vote promotedPlan = PromotePlanLines(plan);
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
+                List<Vote> votePartitions = GetVotePartitions(promotedPlan, quest);
 
                 foreach (var votePartition in votePartitions)
                 {
@@ -192,7 +204,7 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
+        public void ProcessVotes(IEnumerable<Vote> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
         {
             var vote = votesList.FirstOrDefault();
 
@@ -200,7 +212,7 @@ namespace NetTally
             {
                 if (storeFloatingReferences)
                 {
-                    if (IsFloatingReference(vote))
+                    if (IsFloatingReference(vote.VoteLines))
                     {
                         VoteCounter.FloatingReferences.Add(post);
                         return;
@@ -223,7 +235,7 @@ namespace NetTally
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
+                List<Vote> votePartitions = GetVotePartitions(vote, quest);
 
                 foreach (var votePartition in votePartitions)
                 {
@@ -239,9 +251,9 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
+        public void ProcessRanks(IEnumerable<Vote> ranksList, PostComponents post, IQuest quest)
         {
-            if (quest.AllowRankedVotes && ranksList.Count > 0)
+            if (quest.AllowRankedVotes && ranksList.Any())
             {
                 // Remove the post author from any other existing votes.
                 VoteCounter.RemoveSupport(post.Author, VoteType.Rank);
@@ -249,9 +261,9 @@ namespace NetTally
                 // Add/update the post author's post ID.
                 VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Rank);
 
-                foreach (var line in ranksList)
+                foreach (var vote in ranksList)
                 {
-                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank, quest);
+                    VoteCounter.AddVoteSupport(vote.VoteLines, post.Author, VoteType.Rank, quest);
                 }
             }
         }
@@ -262,9 +274,9 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        public List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
+        public List<Vote> GetVotePartitions(Vote vote, IQuest quest)
         {
-            List<string> partitions = new List<string>();
+            List<Vote> partitions = new List<Vote>();
             StringBuilder sb = new StringBuilder();
             StringBuilder holding_sb = new StringBuilder();
             string currentTask = "";
@@ -273,44 +285,42 @@ namespace NetTally
             List<string> referralVotes;
 
             // Work through the list of matched lines
-            foreach (string line in lines)
+            foreach (var line in vote.VoteLines)
             {
-                string trimmedLine = line.Trim();
-
                 // Handle partitioning based on either vote type or partition mode.
 
-                if (voteType == VoteType.Rank)
+                if (vote.VoteType == VoteType.Rank)
                 {
-                    PartitionRanks(partitions, sb, trimmedLine);
+                    PartitionRanks(partitions, sb, line);
                 }
-                else if ((referralVotes = VoteCounter.GetVotesFromReference(line)).Count > 0)
+                else if ((referralVotes = VoteCounter.GetVotesFromReference(line.Clean)).Count > 0)
                 {
                     // If a line refers to another voter or base plan, pull that voter's votes
                     PartitionReferrals(partitions, sb, referralVotes, quest, ref taskHeader, ref currentTask);
                 }
-                else if (voteType == VoteType.Plan)
+                else if (vote.VoteType == VoteType.Plan)
                 {
-                    PartitionPlans(partitions, sb, trimmedLine, quest);
+                    PartitionPlans(partitions, sb, line, quest);
                 }
                 else if (quest.PartitionMode == PartitionMode.None)
                 {
-                    PartitionByVote(partitions, sb, trimmedLine);
+                    PartitionByVote(partitions, sb, line);
                 }
                 else if (quest.PartitionMode == PartitionMode.ByLine)
                 {
-                    PartitionByLine(partitions, sb, trimmedLine);
+                    PartitionByLine(partitions, sb, line);
                 }
                 else if (quest.PartitionMode == PartitionMode.ByBlock)
                 {
-                    PartitionByBlock(partitions, sb, trimmedLine);
+                    PartitionByBlock(partitions, sb, line);
                 }
                 else if (quest.PartitionMode == PartitionMode.ByTask)
                 {
-                    PartitionByTask(partitions, sb, trimmedLine);
+                    PartitionByTask(partitions, sb, line);
                 }
                 else if (quest.PartitionMode == PartitionMode.ByTaskBlock)
                 {
-                    PartitionByTaskBlock(partitions, sb, holding_sb, trimmedLine, ref addedTopLevelLine, ref taskHeader, ref currentTask);
+                    PartitionByTaskBlock(partitions, sb, holding_sb, line, ref addedTopLevelLine, ref taskHeader, ref currentTask);
                 }
             }
 
@@ -337,10 +347,10 @@ namespace NetTally
         /// <param name="partitions">The table of collected partitions.</param>
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionRanks(List<string> partitions, StringBuilder sb, string line)
+        private void PartitionRanks(List<Vote> partitions, StringBuilder sb, PostLine line)
         {
             // Ranked vote lines are all treated individually.
-            partitions.Add(line + "\r\n");
+            partitions.Add(new Vote(line, VoteType.Rank));
         }
 
         /// <summary>
@@ -350,7 +360,7 @@ namespace NetTally
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="line">The vote line currently being examined.</param>
         /// <param name="quest">The quest being tallied.</param>
-        private void PartitionPlans(List<string> partitions, StringBuilder sb, string line, IQuest quest)
+        private void PartitionPlans(List<Vote> partitions, StringBuilder sb, PostLine line, IQuest quest)
         {
             // If partitioning a Base Plan (other than By Line), simply collate all lines together.
             // The entire plan is considered a single block.
@@ -695,21 +705,21 @@ namespace NetTally
         /// Determine if the list of vote lines provided can be considered a
         /// floating reference vote.
         /// </summary>
-        /// <param name="vote">A list of lines for a vote.</param>
+        /// <param name="voteLines">A list of lines for a vote.</param>
         /// <returns>Returns true if there is a single line that references
         /// a known username (per the VoteCounter).</returns>
-        public bool IsFloatingReference(List<string> vote)
+        public bool IsFloatingReference(List<PostLine> voteLines)
         {
             // A vote with multiple vote lines cannot be floating references.
-            if (vote.Count != 1)
+            if (voteLines.Count != 1)
                 return false;
 
-            string voteLine = vote.First();
+            PostLine voteLine = voteLines.First();
 
-            string content = VoteString.GetVoteContentFirstLine(voteLine);
+            string content = VoteString.GetVoteContentFirstLine(voteLine.Clean);
 
             // If the content spans multiple lines, it can't be a floating reference.
-            if (content != VoteString.GetVoteContent(voteLine))
+            if (content != VoteString.GetVoteContent(voteLine.Clean))
                 return false;
 
             // Anything starting with "plan" or "base plan" is a fixed reference.
@@ -736,10 +746,10 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the name of the base plan.</returns>
-        public string GetBasePlanName(List<string> planLines)
+        public string GetBasePlanName(Vote vote)
         {
-            string firstLine = planLines.First();
-            string lineContent = VoteString.GetVoteContent(firstLine);
+            PostLine firstLine = vote.VoteLines.First();
+            string lineContent = VoteString.GetVoteContent(firstLine.Clean);
 
             Match m = basePlanRegex.Match(lineContent);
             if (m.Success)
@@ -757,14 +767,14 @@ namespace NetTally
         /// remove the line with the plan's name, and promote all other lines one level.
         /// Promotion = Turn a -[x] line to a [x] line.
         /// </summary>
-        /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
+        /// <param name="plan">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
-        public List<string> PromotePlanLines(List<string> planLines)
+        public Vote PromotePlanLines(Vote plan)
         {
-            var promotedLines = from p in planLines.Skip(1)
-                                select p.Substring(1);
+            var promotedLines = from p in plan.VoteLines.Skip(1)
+                                select new PostLine(p.Original.Substring(1));
 
-            return promotedLines.ToList();
+            return new Vote(promotedLines, VoteType.Plan);
         }
 
         /// <summary>
