@@ -14,7 +14,7 @@ namespace NetTally
         public PostLine(string line)
         {
             Original = line;
-            Clean = VoteString.CleanVote(line);
+            Clean = VoteString.CleanVote(line).Trim();
         }
     }
 }
