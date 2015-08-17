@@ -18,10 +18,10 @@ namespace NetTally
         public int IDValue { get; }
         public List<PostLine> PostLines { get; }
         public List<PostLine> VoteLines { get; }
-        public List<string> VoteStrings { get; }
+        //public List<string> VoteStrings { get; }
 
         // Indicate whether this post contains a vote of any sort.
-        public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
+        public bool IsVote => VoteLines != null && VoteLines.Count > 0;
 
         // Regex to extract out all individual lines from a post's text.
         readonly Regex allLinesRegex = new Regex(@"^.+$", RegexOptions.Multiline);
@@ -38,7 +38,7 @@ namespace NetTally
         /// </summary>
         /// <param name="author">The author of the post.</param>
         /// <param name="id">The ID (string) of the post.</param>
-        /// <param name="text">The text contents of the post.</param>
+        /// <param name="text">The raw text contents of the post.</param>
         public PostComponents(string author, string id, string text)
         {
             Author = author;
@@ -57,11 +57,7 @@ namespace NetTally
                 return;
 
             VoteLines = GetVoteLines();
-
-            VoteStrings = (from l in VoteLines
-                           select l.Original).ToList();
         }
-
 
         /// <summary>
         /// Convert the provided match results into a list of post lines for ease of use.
