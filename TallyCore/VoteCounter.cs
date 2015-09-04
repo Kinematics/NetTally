@@ -192,6 +192,22 @@ namespace NetTally
             if (!votesSet.TryGetValue(toVote, out toVoters))
                 throw new ArgumentException(nameof(toVote) + " does not exist.");
 
+            if (voteType == VoteType.Rank)
+            {
+                string markFrom = VoteString.GetVoteMarker(fromVote);
+                string markTo = VoteString.GetVoteMarker(toVote);
+
+                // If ranked votes are being merged, but of different ranks, the "to" vote will simply be a text change
+                if (markFrom != markTo)
+                {
+                    string toContent = VoteString.GetVoteContent(toVote);
+                    string revisedFrom = VoteString.ModifyVoteLine(fromVote, content: toContent);
+                    Rename(fromVote, revisedFrom, voteType);
+                    return true;
+                }
+            }
+
+
             toVoters.UnionWith(fromVoters);
 
             votesSet.Remove(fromVote);

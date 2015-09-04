@@ -225,9 +225,20 @@ namespace NetTally
 
             try
             {
+                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
                 if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
                 {
+                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+                    var votesDiff = votesAfter.Except(votesPrior);
+
                     VoteCollection.Remove(fromVote);
+                    if (votesDiff.Count() == 1)
+                    {
+                        VoteCollection.Add(votesDiff.First());
+                    }
+                        
+
                     VoterView1.Refresh();
                     VoterView2.Refresh();
                 }
