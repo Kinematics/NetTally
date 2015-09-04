@@ -150,12 +150,7 @@ namespace NetTally
                 if (CurrentVoteType == VoteType.Rank)
                 {
                     // Don't allow merging if they're not the same rank.
-
-                    string markFrom = VoteString.GetVoteMarker(fromVote);
-                    string markTo = VoteString.GetVoteMarker(toVote);
-
-                    if (markFrom != markTo)
-                        return false;
+                    // Changing: If they're not the same rank, the merge just changes the text of the "from" vote to the "to" vote
 
                     // Don't allow merging if they're not the same task.
 
