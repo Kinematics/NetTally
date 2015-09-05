@@ -506,7 +506,10 @@ namespace NetTally
                 return voterList.Contains(voterName);
             }
 
-            return false;
+
+            var condensedVoters = votes.Where(k => VoteString.CondenseRankVote(k.Key) == currentVote).Select(k => k.Value);
+
+            return condensedVoters.Any(h => h.Contains(voterName));
         }
 
         /// <summary>
