@@ -333,6 +333,39 @@ namespace NetTally
             return false;
         }
 
+
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="vote">The old vote object.</param>
+        /// <param name="revisedKey">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
+        {
+            if (revisedKey == null)
+                throw new ArgumentNullException(nameof(revisedKey));
+            if (revisedKey == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(revisedKey), "Vote string is empty.");
+            if (vote.Key == revisedKey)
+                return false;
+
+            var votesSet = GetVotesCollection(voteType);
+
+            HashSet<string> votes;
+            if (votesSet.TryGetValue(revisedKey, out votes))
+            {
+                votes.UnionWith(vote.Value);
+            }
+            else
+            {
+                votesSet[revisedKey] = vote.Value;
+            }
+
+            return true;
+        }
+
+
         /// <summary>
         /// Add a supporter to the supplied vote.
         /// Adds the vote to the vote list if it didn't already exist.
