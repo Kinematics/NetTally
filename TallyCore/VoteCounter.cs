@@ -247,9 +247,9 @@ namespace NetTally
             if (voters.Count == 0)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
-            var joinVotersVotes = votesDict.Where(v => v.Value.Contains(voterToJoin));
+            var joinVotersVotes = votesSet.Where(v => v.Value.Contains(voterToJoin));
 
             foreach (string voter in voters)
             {
@@ -278,15 +278,15 @@ namespace NetTally
             if (vote == null && vote == string.Empty)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
             bool removed = false;
 
-            if (votesDict.ContainsKey(vote))
+            if (votesSet.ContainsKey(vote))
             {
-                var votersToTrim = votesDict[vote];
+                var votersToTrim = votesSet[vote];
 
-                removed = votesDict.Remove(vote);
+                removed = votesSet.Remove(vote);
 
                 foreach (var voter in votersToTrim)
                     TrimVoter(voter, voteType);
@@ -315,18 +315,18 @@ namespace NetTally
             if (oldVote == newVote)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
-            if (votesDict.ContainsKey(newVote))
+            if (votesSet.ContainsKey(newVote))
             {
                 return Merge(oldVote, newVote, voteType);
             }
 
             HashSet<string> votes;
-            if (votesDict.TryGetValue(oldVote, out votes))
+            if (votesSet.TryGetValue(oldVote, out votes))
             {
-                votesDict.Remove(oldVote);
-                votesDict[newVote] = votes;
+                votesSet.Remove(oldVote);
+                votesSet[newVote] = votes;
                 return true;
             }
 
