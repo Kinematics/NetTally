@@ -474,8 +474,7 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         private bool FilterVotes(string vote)
         {
-            var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
-            return votes.ContainsKey(vote);
+            return VoteCounter.HasVote(vote, CurrentVoteType);
         }
 
         /// <summary>
