@@ -495,6 +495,32 @@ namespace NetTally
 
             return PlanNames.Contains(planName);
         }
+
+        public List<string> GetCondensedRankVotes()
+        {
+            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseRankVote(k)).Distinct().ToList();
+            return condensed;
+        }
+
+        public bool HasVote(string vote, VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+                return HasCondensedRankVote(vote);
+
+            var votes = GetVotesCollection(voteType);
+            return votes.ContainsKey(vote);
+        }
+
+        private bool HasCondensedRankVote(string rankVote)
+        {
+            foreach (var vote in RankedVotesWithSupporters)
+            {
+                if (VoteString.CondenseRankVote(vote.Key) == rankVote)
+                    return true;
+            }
+
+            return false;
+        }
         #endregion
 
         #region Private support methods
