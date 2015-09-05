@@ -181,17 +181,34 @@ namespace NetTally
 
             if (voteType == VoteType.Rank)
             {
-                string markFrom = VoteString.GetVoteMarker(fromVote);
-                string markTo = VoteString.GetVoteMarker(toVote);
+                List<KeyValuePair<string, HashSet<string>>> removedVotes = new List<KeyValuePair<string, HashSet<string>>>();
 
-                // If ranked votes are being merged, but of different ranks, the "to" vote will simply be a text change
-                if (markFrom != markTo)
+                bool merged = false;
+                foreach (var vote in votesSet)
                 {
-                    string toContent = VoteString.GetVoteContent(toVote);
-                    string revisedFrom = VoteString.ModifyVoteLine(fromVote, content: toContent);
-                    Rename(fromVote, revisedFrom, voteType);
-                    return true;
+                    if (VoteString.CondenseRankVote(vote.Key) == fromVote)
+                    {
+                        string toContent = VoteString.GetVoteContent(toVote, voteType);
+
+                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, content: toContent);
+
+                        if (Rename(vote, revisedKey, voteType))
+                        {
+                            removedVotes.Add(vote);
+                            merged = true;
+                        }
+                    }
                 }
+
+                if (merged)
+                {
+                    foreach (var removed in removedVotes)
+                    {
+                        votesSet.Remove(removed.Key);
+                    }
+                }
+
+                return merged;
             }
 
 
