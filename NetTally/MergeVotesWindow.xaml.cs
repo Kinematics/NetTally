@@ -155,8 +155,8 @@ namespace NetTally
 
                     // Don't allow merging if they're not the same task.
 
-                    string taskFrom = VoteString.GetVoteTask(fromVote);
-                    string taskTo = VoteString.GetVoteTask(toVote);
+                    string taskFrom = VoteString.GetVoteTask(fromVote, CurrentVoteType);
+                    string taskTo = VoteString.GetVoteTask(toVote, CurrentVoteType);
 
                     if (taskFrom != taskTo)
                         return false;
