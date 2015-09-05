@@ -70,7 +70,8 @@ namespace NetTally
 
             if (VoteView1.CanSort)
             {
-                IComparer voteCompare = new Utility.CustomVoteSort();
+                //IComparer voteCompare = new Utility.CustomVoteSort();
+                IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }
