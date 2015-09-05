@@ -34,5 +34,8 @@ namespace NetTally
         List<PostComponents> VotePosts { get; }
         List<PostComponents> FloatingReferences { get; }
         List<PostComponents> LastFloatingReferencePerAuthor { get; }
+
+        List<string> GetCondensedRankVotes();
+        bool HasVote(string vote, VoteType voteType);
     }
 }
