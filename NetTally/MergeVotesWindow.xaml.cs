@@ -58,7 +58,7 @@ namespace NetTally
 
             // Gets the lists of all current votes and ranked votes that can be shown.
             List<string> votes = VoteCounter.VotesWithSupporters.Keys
-                .Concat(VoteCounter.RankedVotesWithSupporters.Keys)
+                .Concat(VoteCounter.GetCondensedRankVotes())
                 .Distinct().ToList();
 
             // Create a collection for the views to draw from.
