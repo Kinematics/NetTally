@@ -493,10 +493,12 @@ namespace NetTally
             if (voteView.CurrentItem == null)
                 return false;
 
+            string currentVote = voteView.CurrentItem.ToString();
+
             var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
             HashSet<string> voterList;
 
-            if (votes.TryGetValue(voteView.CurrentItem.ToString(), out voterList))
+            if (votes.TryGetValue(currentVote, out voterList))
             {
                 if (voterList == null)
                     return false;
