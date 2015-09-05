@@ -177,20 +177,7 @@ namespace NetTally
             if (fromVote == toVote)
                 return false;
 
-            Dictionary<string, HashSet<string>> votesSet;
-
-            if (voteType == VoteType.Rank)
-                votesSet = RankedVotesWithSupporters;
-            else
-                votesSet = VotesWithSupporters;
-
-            HashSet<string> fromVoters;
-            HashSet<string> toVoters;
-
-            if (!votesSet.TryGetValue(fromVote, out fromVoters))
-                throw new ArgumentException(nameof(fromVote) + " does not exist.");
-            if (!votesSet.TryGetValue(toVote, out toVoters))
-                throw new ArgumentException(nameof(toVote) + " does not exist.");
+            var votesSet = GetVotesCollection(voteType);
 
             if (voteType == VoteType.Rank)
             {
@@ -207,6 +194,14 @@ namespace NetTally
                 }
             }
 
+
+            HashSet<string> fromVoters;
+            HashSet<string> toVoters;
+
+            if (!votesSet.TryGetValue(fromVote, out fromVoters))
+                throw new ArgumentException(nameof(fromVote) + " does not exist.");
+            if (!votesSet.TryGetValue(toVote, out toVoters))
+                throw new ArgumentException(nameof(toVote) + " does not exist.");
 
             toVoters.UnionWith(fromVoters);
 
