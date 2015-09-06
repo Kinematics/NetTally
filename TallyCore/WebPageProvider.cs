@@ -187,6 +187,10 @@ namespace NetTally
                             {
                                 result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                             }
+                            else if (response.StatusCode == HttpStatusCode.NotFound)
+                            {
+                                tries = maxtries;
+                            }
                             else
                             {
                                 tries++;
