@@ -583,7 +583,7 @@ namespace NetTally.Adapters
                 return m.Groups["postId"].Value;
 
             // Format: https://forums.sufficientvelocity.com/threads/a-villain-in-a-world-of-heroes.18001/page-109#post-4062860
-            postLinkRegex = new Regex(@"/page-\d+#post-(?<postId>\d+)");
+            postLinkRegex = new Regex(@"/(page-\d+)?#post-(?<postId>\d+)");
             m = postLinkRegex.Match(url);
             if (m.Success)
                 return m.Groups["postId"].Value;
