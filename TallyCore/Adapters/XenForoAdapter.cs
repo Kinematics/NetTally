@@ -525,7 +525,7 @@ namespace NetTally.Adapters
 
             Regex omakeRegex = new Regex(@"\bomake\b", RegexOptions.IgnoreCase);
 
-            // exclude any threadmark where the title starts with 'omake'
+            // exclude any threadmark where the title contains the word 'omake'
             var storyTMs = from t in tms
                            let threadmarkTitle = t.ChildNodes["a"]?.InnerText
                            let isOmake = (threadmarkTitle != null) && omakeRegex.Match(threadmarkTitle).Success
