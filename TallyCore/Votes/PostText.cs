@@ -166,6 +166,10 @@ namespace NetTally.Utility
                         if (srcUrl == string.Empty)
                             srcUrl = child.GetAttributeValue("src", "");
 
+                        // MCE sprite smilies do not use actual images, so don't include them.
+                        if (child.GetAttributeValue("class", "").Contains("mceSmilieSprite"))
+                            break;
+
                         if (srcUrl != string.Empty)
                         {
                             sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
