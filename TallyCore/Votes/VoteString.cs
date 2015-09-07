@@ -20,6 +20,8 @@ namespace NetTally
         static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?!url=)(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
         static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        // Regex for extracting parts of the simplified condensed rank votes.
+        static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
 
         /// <summary>
         /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
@@ -342,6 +344,69 @@ namespace NetTally
                 return false;
 
             return char.IsDigit(marker, 0);
+        }
+
+        /// <summary>
+        /// Function to condense a rank vote to just the task and content of the original vote, for
+        /// use in vote merging without needing to see all of the individual ranked votes.
+        /// </summary>
+        /// <param name="rankVote">The rank vote text.</param>
+        /// <returns>Returns the vote condensed to just the [] task plus
+        /// the vote content.  If there is no task, the [] is empty.</returns>
+        public static string CondenseRankVote(string rankVote)
+        {
+            string prefix;
+            string marker;
+            string task;
+            string content;
+
+            GetVoteComponents(rankVote, out prefix, out marker, out task, out content);
+
+            return $"[{task}] {content}";
+        }
+
+        /// <summary>
+        /// An alternative function to get the task out of a vote that will attempt to
+        /// use the condensed vote regex for rank votes.  If the vote type is not a ranked
+        /// vote, it uses the default method.
+        /// </summary>
+        /// <param name="voteLine">The vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns the task associated with this vote.</returns>
+        public static string GetVoteTask(string voteLine, VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+            {
+                Match m = condensedVoteRegex.Match(voteLine);
+                if (m.Success)
+                {
+                    return m.Groups["task"].Value;
+                }
+            }
+
+            return GetVoteTask(voteLine);
+        }
+
+        /// <summary>
+        /// An alternative function to get the content out of a vote that will attempt to
+        /// use the condensed vote regex for rank votes.  If the vote type is not a ranked
+        /// vote, it uses the default method.
+        /// </summary>
+        /// <param name="voteLine">The vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns the content of this vote.</returns>
+        public static string GetVoteContent(string voteLine, VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+            {
+                Match m = condensedVoteRegex.Match(voteLine);
+                if (m.Success)
+                {
+                    return m.Groups["content"].Value;
+                }
+            }
+
+            return GetVoteTask(voteLine);
         }
     }
 }

@@ -177,12 +177,40 @@ namespace NetTally
             if (fromVote == toVote)
                 return false;
 
-            Dictionary<string, HashSet<string>> votesSet;
+            var votesSet = GetVotesCollection(voteType);
 
             if (voteType == VoteType.Rank)
-                votesSet = RankedVotesWithSupporters;
-            else
-                votesSet = VotesWithSupporters;
+            {
+                List<KeyValuePair<string, HashSet<string>>> removedVotes = new List<KeyValuePair<string, HashSet<string>>>();
+
+                bool merged = false;
+                foreach (var vote in votesSet)
+                {
+                    if (VoteString.CondenseRankVote(vote.Key) == fromVote)
+                    {
+                        string toContent = VoteString.GetVoteContent(toVote, voteType);
+
+                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, content: toContent);
+
+                        if (Rename(vote, revisedKey, voteType))
+                        {
+                            removedVotes.Add(vote);
+                            merged = true;
+                        }
+                    }
+                }
+
+                if (merged)
+                {
+                    foreach (var removed in removedVotes)
+                    {
+                        votesSet.Remove(removed.Key);
+                    }
+                }
+
+                return merged;
+            }
+
 
             HashSet<string> fromVoters;
             HashSet<string> toVoters;
@@ -219,9 +247,9 @@ namespace NetTally
             if (voters.Count == 0)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
-            var joinVotersVotes = votesDict.Where(v => v.Value.Contains(voterToJoin));
+            var joinVotersVotes = votesSet.Where(v => v.Value.Contains(voterToJoin));
 
             foreach (string voter in voters)
             {
@@ -250,15 +278,15 @@ namespace NetTally
             if (vote == null && vote == string.Empty)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
             bool removed = false;
 
-            if (votesDict.ContainsKey(vote))
+            if (votesSet.ContainsKey(vote))
             {
-                var votersToTrim = votesDict[vote];
+                var votersToTrim = votesSet[vote];
 
-                removed = votesDict.Remove(vote);
+                removed = votesSet.Remove(vote);
 
                 foreach (var voter in votersToTrim)
                     TrimVoter(voter, voteType);
@@ -287,23 +315,56 @@ namespace NetTally
             if (oldVote == newVote)
                 return false;
 
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
+            var votesSet = GetVotesCollection(voteType);
 
-            if (votesDict.ContainsKey(newVote))
+            if (votesSet.ContainsKey(newVote))
             {
                 return Merge(oldVote, newVote, voteType);
             }
 
             HashSet<string> votes;
-            if (votesDict.TryGetValue(oldVote, out votes))
+            if (votesSet.TryGetValue(oldVote, out votes))
             {
-                votesDict.Remove(oldVote);
-                votesDict[newVote] = votes;
+                votesSet.Remove(oldVote);
+                votesSet[newVote] = votes;
                 return true;
             }
 
             return false;
         }
+
+
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="vote">The old vote object.</param>
+        /// <param name="revisedKey">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
+        {
+            if (revisedKey == null)
+                throw new ArgumentNullException(nameof(revisedKey));
+            if (revisedKey == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(revisedKey), "Vote string is empty.");
+            if (vote.Key == revisedKey)
+                return false;
+
+            var votesSet = GetVotesCollection(voteType);
+
+            HashSet<string> votes;
+            if (votesSet.TryGetValue(revisedKey, out votes))
+            {
+                votes.UnionWith(vote.Value);
+            }
+            else
+            {
+                votesSet[revisedKey] = vote.Value;
+            }
+
+            return true;
+        }
+
 
         /// <summary>
         /// Add a supporter to the supplied vote.
@@ -433,6 +494,32 @@ namespace NetTally
             }
 
             return PlanNames.Contains(planName);
+        }
+
+        public List<string> GetCondensedRankVotes()
+        {
+            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseRankVote(k)).Distinct().ToList();
+            return condensed;
+        }
+
+        public bool HasVote(string vote, VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+                return HasCondensedRankVote(vote);
+
+            var votes = GetVotesCollection(voteType);
+            return votes.ContainsKey(vote);
+        }
+
+        private bool HasCondensedRankVote(string rankVote)
+        {
+            foreach (var vote in RankedVotesWithSupporters)
+            {
+                if (VoteString.CondenseRankVote(vote.Key) == rankVote)
+                    return true;
+            }
+
+            return false;
         }
         #endregion
 

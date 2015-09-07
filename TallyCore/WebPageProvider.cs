@@ -86,14 +86,6 @@ namespace NetTally
 
                 if (pagesToScan > 0)
                 {
-                    //var _urlList = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
-                    //               let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
-                    //               select new { url = forumAdapter.GetPageUrl(quest.ThreadName, pageNum), cacheMode = cacheMode, descrip = "Page " + pageNum.ToString() };
-
-                    //var results = from url in _urlList.AsParallel()
-                    //              select GetPage(url.url, url.descrip, url.cacheMode, token);
-
-
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var results = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
                                   let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
@@ -112,7 +104,6 @@ namespace NetTally
                 }
 
                 lastPageLoadedFor[quest.ThreadName] = endPage;
-
 
                 return pages;
             }
@@ -186,6 +177,10 @@ namespace NetTally
                             if (response.IsSuccessStatusCode)
                             {
                                 result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            }
+                            else if (response.StatusCode == HttpStatusCode.NotFound)
+                            {
+                                tries = maxtries;
                             }
                             else
                             {

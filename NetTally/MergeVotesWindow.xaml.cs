@@ -58,7 +58,7 @@ namespace NetTally
 
             // Gets the lists of all current votes and ranked votes that can be shown.
             List<string> votes = VoteCounter.VotesWithSupporters.Keys
-                .Concat(VoteCounter.RankedVotesWithSupporters.Keys)
+                .Concat(VoteCounter.GetCondensedRankVotes())
                 .Distinct().ToList();
 
             // Create a collection for the views to draw from.
@@ -70,7 +70,8 @@ namespace NetTally
 
             if (VoteView1.CanSort)
             {
-                IComparer voteCompare = new Utility.CustomVoteSort();
+                //IComparer voteCompare = new Utility.CustomVoteSort();
+                IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }
@@ -150,17 +151,12 @@ namespace NetTally
                 if (CurrentVoteType == VoteType.Rank)
                 {
                     // Don't allow merging if they're not the same rank.
-
-                    string markFrom = VoteString.GetVoteMarker(fromVote);
-                    string markTo = VoteString.GetVoteMarker(toVote);
-
-                    if (markFrom != markTo)
-                        return false;
+                    // Changing: If they're not the same rank, the merge just changes the text of the "from" vote to the "to" vote
 
                     // Don't allow merging if they're not the same task.
 
-                    string taskFrom = VoteString.GetVoteTask(fromVote);
-                    string taskTo = VoteString.GetVoteTask(toVote);
+                    string taskFrom = VoteString.GetVoteTask(fromVote, CurrentVoteType);
+                    string taskTo = VoteString.GetVoteTask(toVote, CurrentVoteType);
 
                     if (taskFrom != taskTo)
                         return false;
@@ -230,9 +226,20 @@ namespace NetTally
 
             try
             {
+                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
                 if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
                 {
+                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+                    var votesDiff = votesAfter.Except(votesPrior);
+
                     VoteCollection.Remove(fromVote);
+                    if (votesDiff.Count() == 1)
+                    {
+                        VoteCollection.Add(votesDiff.First());
+                    }
+                        
+
                     VoterView1.Refresh();
                     VoterView2.Refresh();
                 }
@@ -467,8 +474,7 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         private bool FilterVotes(string vote)
         {
-            var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
-            return votes.ContainsKey(vote);
+            return VoteCounter.HasVote(vote, CurrentVoteType);
         }
 
         /// <summary>
@@ -487,10 +493,12 @@ namespace NetTally
             if (voteView.CurrentItem == null)
                 return false;
 
+            string currentVote = voteView.CurrentItem.ToString();
+
             var votes = VoteCounter.GetVotesCollection(CurrentVoteType);
             HashSet<string> voterList;
 
-            if (votes.TryGetValue(voteView.CurrentItem.ToString(), out voterList))
+            if (votes.TryGetValue(currentVote, out voterList))
             {
                 if (voterList == null)
                     return false;
@@ -498,7 +506,10 @@ namespace NetTally
                 return voterList.Contains(voterName);
             }
 
-            return false;
+
+            var condensedVoters = votes.Where(k => VoteString.CondenseRankVote(k.Key) == currentVote).Select(k => k.Value);
+
+            return condensedVoters.Any(h => h.Contains(voterName));
         }
 
         /// <summary>
