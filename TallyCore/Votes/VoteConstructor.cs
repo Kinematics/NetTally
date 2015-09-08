@@ -93,60 +93,57 @@ namespace NetTally
             foreach (VoteType vType in Enum.GetValues(typeof(VoteType)))
                 results[vType] = new List<List<string>>();
 
+            List<string> basePlan = null;
+            bool checkForBasePlans = true;
 
-            Match bpMatch = basePlanRegex.Match(postLines.First());
-
-            // First put together all base plans
-            while (postLines.Count > 0 && bpMatch.Success)
+            foreach (var line in postLines)
             {
-                // Make sure the plan doesn't already exist in the tracker.
-                // If it does, this counts as a repeat, and should be considered an attempt to 
-                // reference the original plan, rather than redefine it.
-                // As soon as this occurs, we should treat all further lines
-                // as regular vote lines, rather than additional potential plans.
-                if (VoteCounter.HasPlan(bpMatch.Groups["baseplan"].Value))
-                    break;
-
-                List<string> basePlan = new List<string>();
-
-                // Add the "Base Plan" line
-                basePlan.Add(postLines.First());
-                // Add all sub-lines after that (-[x])
-                basePlan.AddRange(postLines.Skip(1).TakeWhile(a => a.StartsWith("-")));
-
-                // As long as the plan has component lines, add it to the grouping
-                // collection.  If it has no component lines, it gets ignored, but
-                // we keep trying to see if there are any more base plans.
-                if (basePlan.Count > 1)
+                if (checkForBasePlans)
                 {
-                    results[VoteType.Plan].Add(basePlan);
+                    // If no base plan currently defined, or we're starting a new non-nested line,
+                    // check to see if it's the start of a new base plan.
+                    if ((basePlan == null) || !line.Trim().StartsWith("-"))
+                    {
+                        Match m = basePlanRegex.Match(line);
+                        if (m.Success)
+                        {
+                            // Make sure the plan doesn't already exist in the tracker.
+                            // If it does, this counts as a repeat, and should be considered an attempt to 
+                            // reference the original plan, rather than redefine it.
+                            // As soon as this occurs, we should treat all further lines
+                            // as regular vote lines, rather than additional potential plans.
+                            if (!VoteCounter.HasPlan(m.Groups["baseplan"].Value))
+                            {
+                                // If so, add the first line to a new base plan list and continue processing the post lines
+                                basePlan = new List<string>();
+                                basePlan.Add(line);
+                                results[VoteType.Plan].Add(basePlan);
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Otherwise add the nested line to the existing base plan
+                        basePlan.Add(line);
+                        continue;
+                    }
                 }
 
-                postLines = postLines.Skip(basePlan.Count).ToList();
+                checkForBasePlans = false;
 
-                if (postLines.Count > 0)
-                    bpMatch = basePlanRegex.Match(postLines.First());
-            }
-
-
-            // Then put together the normal vote
-            List<string> normalVote = postLines.TakeWhile(a => VoteString.IsRankedVote(a) == false).ToList();
-
-            if (normalVote.Count > 0)
-                results[VoteType.Vote].Add(normalVote);
-
-
-            // Then put together all rank vote lines, each as a separate entry.
-            if (postLines.Count > normalVote.Count)
-            {
-                var rankLines = postLines.Skip(normalVote.Count);
-
-                foreach (string line in rankLines)
+                if (VoteString.IsRankedVote(line))
                 {
-                    if (VoteString.IsRankedVote(line))
+                    results[VoteType.Rank].Add(new List<string>(1) { line });
+                }
+                else
+                {
+                    if (results[VoteType.Vote].Count == 0)
                     {
-                        results[VoteType.Rank].Add(new List<string>(1) { line });
+                        results[VoteType.Vote].Add(new List<string>());
                     }
+
+                    results[VoteType.Vote].First().Add(line);
                 }
             }
 
