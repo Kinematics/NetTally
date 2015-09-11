@@ -320,11 +320,12 @@ namespace NetTally
                 partitions.Add(sb.ToString());
             }
 
-            // Make sure any BBCode formatting is cleaned up in each partition result.
-            CloseFormattingTags(partitions);
+            // Clean up any BBCode issues (matching tags, remove duplicate tags, etc)
+            CleanUpBBCode(partitions);
 
             return partitions;
         }
+
         #endregion
 
         #region Vote construction based on partitioning modes.
@@ -765,6 +766,22 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Handle various forms of cleanup relating to BBCode in the vote partitions.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void CleanUpBBCode(List<string> partitions)
+        {
+            // Make sure any BBCode formatting tags are matched up in each partition result.
+            CloseFormattingTags(partitions);
+            // Remove newlines after BBCode tags
+            CompactBBCodeNewlines(partitions);
+            // Clean duplicate BBCode tags (eg: [b][b]stuff[/b][/b])
+            StripRedundantBBCode(partitions);
+            // If the entire string in a partition is bolded, remove the bolding.
+            UnboldLines(partitions);
+        }
+
+        /// <summary>
         /// Make sure each vote string in the provided list closes any opened BBCode formatting it uses,
         /// and that orphan closing tags are removed.
         /// </summary>
@@ -816,6 +833,101 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Check each partition string, and remove newlines that are immediately after any
+        /// BBCode opening tag.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void CompactBBCodeNewlines(List<string> partitions)
+        {
+            Regex openBBCodeNewlines = new Regex(@"(\[[biu]\])[\r\n]+");
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup1);
+            List<string> correctedPartitions = new List<string>();
+
+            foreach (string part in partitions)
+            {
+                correctedPartitions.Add(openBBCodeNewlines.Replace(part, me));
+            }
+            
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Check each partition string, and remove duplicate BBCode tags.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void StripRedundantBBCode(List<string> partitions)
+        {
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup1);
+            List<string> correctedPartitions = new List<string>();
+
+            string[] codes = { "b", "i", "u" };
+
+            foreach (string part in partitions)
+            {
+                string corrected = part;
+
+                foreach (string code in codes)
+                {
+                    Regex dupeStart = new Regex($@"(\[{code}\]){{2}}");
+                    Regex dupeEnd = new Regex($@"(\[/{code}\]){{2}}");
+
+                    Match mStart = dupeStart.Match(part);
+                    Match mEnd = dupeEnd.Match(part);
+
+                    if (mStart.Success && mEnd.Success)
+                    {
+                        corrected = dupeStart.Replace(corrected, me);
+                        corrected = dupeEnd.Replace(corrected, me);
+                    }
+                }
+
+                correctedPartitions.Add(corrected);
+            }
+
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Remove bold BBCode tags if they encompass the entire partition (vote) line.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void UnboldLines(List<string> partitions)
+        {
+            Regex openBBCodeNewlines = new Regex(@"^\[b\](.+)\[/b\](\r\n)$");
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup12);
+            List<string> correctedPartitions = new List<string>();
+
+            foreach (string part in partitions)
+            {
+                correctedPartitions.Add(openBBCodeNewlines.Replace(part, me));
+            }
+
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Return group 1 of a regex match.
+        /// </summary>
+        /// <param name="m">Match from a replacement check.</param>
+        /// <returns>Return group 1 of a regex match.</returns>
+        private string MatchEvaluatorGroup1(Match m)
+        {
+            return m.Groups[1].Value;
+        }
+
+        /// <summary>
+        /// Return groups 1 and 2 of a regex match.
+        /// </summary>
+        /// <param name="m">Match from a replacement check.</param>
+        /// <returns>Return groups 1 and 2 of a regex match.</returns>
+        private string MatchEvaluatorGroup12(Match m)
+        {
+            return m.Groups[1].Value + m.Groups[2].Value;
+        }
         #endregion
     }
 }
