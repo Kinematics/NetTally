@@ -388,7 +388,7 @@ namespace NetTally
 
             if (selectedVote != null)
             {
-                string changedVote = VoteString.ReplaceTask(selectedVote, newTask);
+                string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
 
                 if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                 {
@@ -438,9 +438,9 @@ namespace NetTally
                             string changedVote = "";
 
                             if (mi.Header.ToString() == "Clear Task")
-                                changedVote = VoteString.ReplaceTask(selectedVote, "");
+                                changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
                             else
-                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString());
+                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
 
                             if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
                             {
