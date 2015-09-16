@@ -332,6 +332,26 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Replace the task of a condensed vote, or pass it off to the general handler.
+        /// </summary>
+        /// <param name="voteLine">The original vote line.</param>
+        /// <param name="newTask">The new task to apply.</param>
+        /// <param name="voteType">The type of vote being modified.  Only handles Rank votes.</param>
+        /// <returns>Returns the vote line with the task modified.</returns>
+        public static string ReplaceTask(string voteLine, string newTask, VoteType voteType)
+        {
+            Match m = condensedVoteRegex.Match(voteLine);
+            if ((voteType == VoteType.Rank) && (m.Success))
+            {
+                return $"[{newTask ?? ""}] {m.Groups["content"].Value}";
+            }
+            else
+            {
+                return ReplaceTask(voteLine, newTask);
+            }
+        }
+
+        /// <summary>
         /// Get whether the vote line is a ranked vote line (ie: marker uses digits 1-9).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
