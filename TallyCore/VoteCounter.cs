@@ -209,8 +209,11 @@ namespace NetTally
 
             if (!votesSet.TryGetValue(fromVote, out fromVoters))
                 throw new ArgumentException(nameof(fromVote) + " does not exist.");
+
             if (!votesSet.TryGetValue(toVote, out toVoters))
-                throw new ArgumentException(nameof(toVote) + " does not exist.");
+            {
+                return Rename(fromVote, toVote, voteType);
+            }
 
             toVoters.UnionWith(fromVoters);
 
