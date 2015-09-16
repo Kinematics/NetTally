@@ -390,7 +390,7 @@ namespace NetTally
             {
                 string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
 
-                if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
                 {
                     if (!VoteCollection.Contains(changedVote))
                         VoteCollection.Add(changedVote);
@@ -442,7 +442,7 @@ namespace NetTally
                             else
                                 changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
 
-                            if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                            if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
                             {
                                 if (!VoteCollection.Contains(changedVote))
                                     VoteCollection.Add(changedVote);
