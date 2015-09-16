@@ -188,7 +188,8 @@ namespace NetTally
                     if (VoteString.CondenseRankVote(vote.Key) == fromVote)
                     {
                         string toContent = VoteString.GetVoteContent(toVote, voteType);
-                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, content: toContent);
+                        string toTask = VoteString.GetVoteTask(toVote, voteType);
+                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
 
                         mergedVotes.Add(vote, revisedKey);
                     }
