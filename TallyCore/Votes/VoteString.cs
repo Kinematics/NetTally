@@ -314,7 +314,7 @@ namespace NetTally
             {
                 StringBuilder sb = new StringBuilder();
 
-                sb.Append(m.Groups["pre"]);
+                sb.Append(m.Groups["pre"].Value);
 
                 if (newTask != null && newTask != string.Empty)
                 {
@@ -323,7 +323,7 @@ namespace NetTally
 
                 sb.Append(" ");
 
-                sb.Append(m.Groups["remainder"]);
+                sb.Append(m.Groups["remainder"].Value);
 
                 return sb.ToString();
             }
