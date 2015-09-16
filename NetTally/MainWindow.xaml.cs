@@ -41,10 +41,7 @@ namespace NetTally
             set { SetValue(MyTitleProperty, value); }
         }
 
-        private IQuest CurrentlySelectedQuest()
-        {
-            return QuestCollectionView.CurrentItem as IQuest;
-        }
+        private IQuest CurrentlySelectedQuest() => QuestCollectionView.CurrentItem as IQuest;
 
         public List<int> ValidPostsPerPage { get; } = new List<int>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 

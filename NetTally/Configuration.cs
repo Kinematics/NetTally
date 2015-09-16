@@ -236,10 +236,7 @@ namespace NetTally
 
         }
 
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new QuestElement();
-        }
+        protected override ConfigurationElement CreateNewElement() => new QuestElement();
 
         protected override object GetElementKey(ConfigurationElement element)
         {
@@ -251,10 +248,7 @@ namespace NetTally
             return qe.DisplayName;
         }
 
-        public new QuestElement this[string name]
-        {
-            get { return (QuestElement)base.BaseGet(name); }
-        }
+        public new QuestElement this[string name] => (QuestElement)BaseGet(name);
 
         public QuestElement this[int index]
         {

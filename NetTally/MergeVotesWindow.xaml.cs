@@ -170,13 +170,7 @@ namespace NetTally
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
-        public bool HasRankedVotes
-        {
-            get
-            {
-                return VoteCounter.HasRankedVotes;
-            }
-        }
+        public bool HasRankedVotes => VoteCounter.HasRankedVotes;
 
         /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
@@ -472,10 +466,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes(string vote)
-        {
-            return VoteCounter.HasVote(vote, CurrentVoteType);
-        }
+        private bool FilterVotes(string vote) => VoteCounter.HasVote(vote, CurrentVoteType);
 
         /// <summary>
         /// Filter to be used by a collection view to determine which voters should
