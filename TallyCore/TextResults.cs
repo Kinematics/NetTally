@@ -141,7 +141,9 @@ namespace NetTally
                             case DisplayMode.Compact:
                                 userVoteCount = GetUserVoteCount(vote.Value);
                                 AddCompactVote(vote, taskGroup.Key, userVoteCount);
-                                AddCompactVoters(vote.Value);
+                                StartSpoiler("Voters");
+                                AddVoters(vote.Value);
+                                EndSpoiler();
                                 break;
                             case DisplayMode.CompactNoVoters:
                                 userVoteCount = GetUserVoteCount(vote.Value);
