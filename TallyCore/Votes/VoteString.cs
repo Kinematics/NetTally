@@ -14,6 +14,10 @@ namespace NetTally
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
+        // Regex to allow us to convert a vote's smart quote marks to a commonly comparable version.
+        static readonly Regex quoteRegex = new Regex(@"[“”]");
+        // Regex to allow us to convert a vote's apostrophe variations to a commonly comparable version.
+        static readonly Regex aposRegex = new Regex(@"[ʼ‘’`]");
         // Regex to allow us to strip leading dashes from a per-line vote.
         static readonly Regex leadHyphenRegex = new Regex(@"^-+");
         // Regex for separating out the task from the other portions of a vote line.
@@ -37,7 +41,8 @@ namespace NetTally
         /// <summary>
         /// Collapse a vote to a minimized form, for comparison.
         /// All BBCode markup is removed, along with all spaces and periods,
-        /// and leading dashes when partitioning by line.  The text is then
+        /// and leading dashes when partitioning by line.  Smart quotes and
+        /// apostrophes are converted to basic versions.  The text is then
         /// lowercased.
         /// </summary>
         /// <param name="voteLine">Original vote line to minimize.</param>
@@ -47,6 +52,8 @@ namespace NetTally
         {
             string cleaned = CleanVote(voteLine);
             cleaned = collapseRegex.Replace(cleaned, "");
+            cleaned = quoteRegex.Replace(cleaned, "\"");
+            cleaned = aposRegex.Replace(cleaned, "'");
             cleaned = cleaned.ToLower();
             if (quest.PartitionMode == PartitionMode.ByLine)
                 cleaned = leadHyphenRegex.Replace(cleaned, "");
