@@ -14,10 +14,14 @@ namespace NetTally
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
+        // Regex to allow us to convert a vote's smart quote marks to a commonly comparable version.
+        static readonly Regex quoteRegex = new Regex(@"[“”]");
+        // Regex to allow us to convert a vote's apostrophe variations to a commonly comparable version.
+        static readonly Regex aposRegex = new Regex(@"[ʼ‘’`]");
         // Regex to allow us to strip leading dashes from a per-line vote.
         static readonly Regex leadHyphenRegex = new Regex(@"^[-\s]+");
         // Regex for separating out the task from the other portions of a vote line.
-        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?!url=)(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
+        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?!url=|color=|b\]|i\]|u\])(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
         static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
@@ -37,7 +41,8 @@ namespace NetTally
         /// <summary>
         /// Collapse a vote to a minimized form, for comparison.
         /// All BBCode markup is removed, along with all spaces and periods,
-        /// and leading dashes when partitioning by line.  The text is then
+        /// and leading dashes when partitioning by line.  Smart quotes and
+        /// apostrophes are converted to basic versions.  The text is then
         /// lowercased.
         /// </summary>
         /// <param name="voteLine">Original vote line to minimize.</param>
@@ -47,6 +52,8 @@ namespace NetTally
         {
             string cleaned = CleanVote(voteLine);
             cleaned = collapseRegex.Replace(cleaned, "");
+            cleaned = quoteRegex.Replace(cleaned, "\"");
+            cleaned = aposRegex.Replace(cleaned, "'");
             cleaned = cleaned.ToLower();
             if (partitionMode == PartitionMode.ByLine)
                 cleaned = leadHyphenRegex.Replace(cleaned, "");
@@ -314,7 +321,7 @@ namespace NetTally
             {
                 StringBuilder sb = new StringBuilder();
 
-                sb.Append(m.Groups["pre"]);
+                sb.Append(m.Groups["pre"].Value);
 
                 if (newTask != null && newTask != string.Empty)
                 {
@@ -323,12 +330,32 @@ namespace NetTally
 
                 sb.Append(" ");
 
-                sb.Append(m.Groups["remainder"]);
+                sb.Append(m.Groups["remainder"].Value);
 
                 return sb.ToString();
             }
 
             return voteLine;
+        }
+
+        /// <summary>
+        /// Replace the task of a condensed vote, or pass it off to the general handler.
+        /// </summary>
+        /// <param name="voteLine">The original vote line.</param>
+        /// <param name="newTask">The new task to apply.</param>
+        /// <param name="voteType">The type of vote being modified.  Only handles Rank votes.</param>
+        /// <returns>Returns the vote line with the task modified.</returns>
+        public static string ReplaceTask(string voteLine, string newTask, VoteType voteType)
+        {
+            Match m = condensedVoteRegex.Match(voteLine);
+            if ((voteType == VoteType.Rank) && (m.Success))
+            {
+                return $"[{newTask ?? ""}] {m.Groups["content"].Value}";
+            }
+            else
+            {
+                return ReplaceTask(voteLine, newTask);
+            }
         }
 
         /// <summary>

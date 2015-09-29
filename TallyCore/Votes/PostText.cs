@@ -98,6 +98,8 @@ namespace NetTally.Utility
         /// <returns>Returns a predicate.</returns>
         private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb = null)
         {
+            //char[] newlines = { '\r', '\n' };
+
             if (sb == null)
                 sb = new StringBuilder();
 
@@ -111,6 +113,7 @@ namespace NetTally.Utility
                 switch (child.Name)
                 {
                     case "#text":
+                        //sb.Append(child.InnerText.Trim(newlines));
                         sb.Append(child.InnerText);
                         break;
                     case "br":
@@ -165,6 +168,10 @@ namespace NetTally.Utility
                         string srcUrl = child.GetAttributeValue("data-url", "");
                         if (srcUrl == string.Empty)
                             srcUrl = child.GetAttributeValue("src", "");
+
+                        // MCE sprite smilies do not use actual images, so don't include them.
+                        if (child.GetAttributeValue("class", "").Contains("mceSmilieSprite"))
+                            break;
 
                         if (srcUrl != string.Empty)
                         {

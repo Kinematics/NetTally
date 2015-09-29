@@ -80,19 +80,31 @@ namespace NetTally
             // Var for accumulating base plans
             List<PostLine> basePlan = null;
 
+            List<string> basePlan = null;
             bool checkForBasePlans = true;
-
-            // Work through all the vote lines of the post
-            foreach (var line in voteLines)
+            foreach (var line in postLines)
             {
-                // Process base plans until no more are found
                 if (checkForBasePlans)
                 {
-                    // If no base plan currently defined, check to see if it's the start of a new base plan.
-                    if (basePlan == null)
+                    // If no base plan currently defined, or we're starting a new non-nested line,
+                    // check to see if it's the start of a new base plan.
+                    if ((basePlan == null) || !line.Trim().StartsWith("-"))
                     {
-                        Match m = basePlanRegex.Match(line.Clean);
+                        Match m = basePlanRegex.Match(line);
                         if (m.Success)
+                        {
+                            // Make sure the plan doesn't already exist in the tracker.
+                            // If it does, this counts as a repeat, and should be considered an attempt to 
+                            // reference the original plan, rather than redefine it.
+                            // As soon as this occurs, we should treat all further lines
+                            // as regular vote lines, rather than additional potential plans.
+                            if (!VoteCounter.HasPlan(m.Groups["baseplan"].Value))
+                            {
+                                // If so, add the first line to a new base plan list and continue processing the post lines
+                                basePlan = new List<string>();
+                                basePlan.Add(line);
+                                results[VoteType.Plan].Add(basePlan);
+                                continue;
                         {
                             // If so, add the first line to a new base plan list and continue processing the post lines
                             basePlan = new List<PostLine>();
@@ -114,7 +126,6 @@ namespace NetTally
                             // as it has more than one line.
                             if (basePlan.Count > 1)
                                 votes.Add(new Vote(basePlan, VoteType.Plan));
-
                             // Check to see if we've reached the start of a new base plan
                             Match m = basePlanRegex.Match(line.Clean);
                             if (m.Success)
@@ -139,7 +150,6 @@ namespace NetTally
 
                 // Rank vote lines get added as new votes individually, and immediately.
                 if (VoteString.IsRankedVote(line.Clean))
-                {
                     votes.Add(new Vote(line, VoteType.Rank));
                 }
                 else
@@ -147,6 +157,14 @@ namespace NetTally
                     // Anything else is stored in our normal vote list, to be added when we're done.
                     normalVote.Add(line);
                 }
+                else
+                {
+                    if (results[VoteType.Vote].Count == 0)
+                    {
+                        results[VoteType.Vote].Add(new List<string>());
+                    }
+
+                    results[VoteType.Vote].First().Add(line);
             }
 
             // If there's any base plan that wasn't completed in the above loop, store it here.
@@ -333,11 +351,12 @@ namespace NetTally
                 partitions.Add(sb.ToString());
             }
 
-            // Make sure any BBCode formatting is cleaned up in each partition result.
-            CloseFormattingTags(partitions);
+            // Clean up any BBCode issues (matching tags, remove duplicate tags, etc)
+            CleanUpBBCode(partitions);
 
             return partitions;
         }
+
         #endregion
 
         #region Vote construction based on partitioning modes.
@@ -778,6 +797,22 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Handle various forms of cleanup relating to BBCode in the vote partitions.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void CleanUpBBCode(List<string> partitions)
+        {
+            // Make sure any BBCode formatting tags are matched up in each partition result.
+            CloseFormattingTags(partitions);
+            // Remove newlines after BBCode tags
+            CompactBBCodeNewlines(partitions);
+            // Clean duplicate BBCode tags (eg: [b][b]stuff[/b][/b])
+            StripRedundantBBCode(partitions);
+            // If the entire string in a partition is bolded, remove the bolding.
+            UnboldLines(partitions);
+        }
+
+        /// <summary>
         /// Make sure each vote string in the provided list closes any opened BBCode formatting it uses,
         /// and that orphan closing tags are removed.
         /// </summary>
@@ -829,6 +864,101 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Check each partition string, and remove newlines that are immediately after any
+        /// BBCode opening tag.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void CompactBBCodeNewlines(List<string> partitions)
+        {
+            Regex openBBCodeNewlines = new Regex(@"(\[[biu]\])[\r\n]+");
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup1);
+            List<string> correctedPartitions = new List<string>();
+
+            foreach (string part in partitions)
+            {
+                correctedPartitions.Add(openBBCodeNewlines.Replace(part, me));
+            }
+            
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Check each partition string, and remove duplicate BBCode tags.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void StripRedundantBBCode(List<string> partitions)
+        {
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup1);
+            List<string> correctedPartitions = new List<string>();
+
+            string[] codes = { "b", "i", "u" };
+
+            foreach (string part in partitions)
+            {
+                string corrected = part;
+
+                foreach (string code in codes)
+                {
+                    Regex dupeStart = new Regex($@"(\[{code}\]){{2}}");
+                    Regex dupeEnd = new Regex($@"(\[/{code}\]){{2}}");
+
+                    Match mStart = dupeStart.Match(part);
+                    Match mEnd = dupeEnd.Match(part);
+
+                    if (mStart.Success && mEnd.Success)
+                    {
+                        corrected = dupeStart.Replace(corrected, me);
+                        corrected = dupeEnd.Replace(corrected, me);
+                    }
+                }
+
+                correctedPartitions.Add(corrected);
+            }
+
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Remove bold BBCode tags if they encompass the entire partition (vote) line.
+        /// </summary>
+        /// <param name="partitions">List of vote strings.</param>
+        private void UnboldLines(List<string> partitions)
+        {
+            Regex openBBCodeNewlines = new Regex(@"^\[b\](.+)\[/b\](\r\n)$");
+            MatchEvaluator me = new MatchEvaluator(MatchEvaluatorGroup12);
+            List<string> correctedPartitions = new List<string>();
+
+            foreach (string part in partitions)
+            {
+                correctedPartitions.Add(openBBCodeNewlines.Replace(part, me));
+            }
+
+            partitions.Clear();
+            partitions.AddRange(correctedPartitions);
+        }
+
+        /// <summary>
+        /// Return group 1 of a regex match.
+        /// </summary>
+        /// <param name="m">Match from a replacement check.</param>
+        /// <returns>Return group 1 of a regex match.</returns>
+        private string MatchEvaluatorGroup1(Match m)
+        {
+            return m.Groups[1].Value;
+        }
+
+        /// <summary>
+        /// Return groups 1 and 2 of a regex match.
+        /// </summary>
+        /// <param name="m">Match from a replacement check.</param>
+        /// <returns>Return groups 1 and 2 of a regex match.</returns>
+        private string MatchEvaluatorGroup12(Match m)
+        {
+            return m.Groups[1].Value + m.Groups[2].Value;
+        }
         #endregion
     }
 }

@@ -170,13 +170,7 @@ namespace NetTally
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
-        public bool HasRankedVotes
-        {
-            get
-            {
-                return VoteCounter.HasRankedVotes;
-            }
-        }
+        public bool HasRankedVotes => VoteCounter.HasRankedVotes;
 
         /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
@@ -394,9 +388,9 @@ namespace NetTally
 
             if (selectedVote != null)
             {
-                string changedVote = VoteString.ReplaceTask(selectedVote, newTask);
+                string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
 
-                if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
                 {
                     if (!VoteCollection.Contains(changedVote))
                         VoteCollection.Add(changedVote);
@@ -444,11 +438,11 @@ namespace NetTally
                             string changedVote = "";
 
                             if (mi.Header.ToString() == "Clear Task")
-                                changedVote = VoteString.ReplaceTask(selectedVote, "");
+                                changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
                             else
-                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString());
+                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
 
-                            if (VoteCounter.Rename(selectedVote, changedVote, CurrentVoteType))
+                            if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
                             {
                                 if (!VoteCollection.Contains(changedVote))
                                     VoteCollection.Add(changedVote);
@@ -472,10 +466,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes(string vote)
-        {
-            return VoteCounter.HasVote(vote, CurrentVoteType);
-        }
+        private bool FilterVotes(string vote) => VoteCounter.HasVote(vote, CurrentVoteType);
 
         /// <summary>
         /// Filter to be used by a collection view to determine which voters should

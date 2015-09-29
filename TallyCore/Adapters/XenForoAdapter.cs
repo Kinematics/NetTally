@@ -437,10 +437,13 @@ namespace NetTally.Adapters
             if (id == null)
                 throw new ArgumentNullException(nameof(id));
 
+            var postsList = GetPostsFromPage(page);
+
+            if (id == "")
+                return postsList.FirstOrDefault();
+
             if (!id.StartsWith("post-"))
                 id = "post-" + id;
-
-            var postsList = GetPostsFromPage(page);
 
             return postsList.FirstOrDefault(a => a.Id == id);
         }
@@ -525,7 +528,7 @@ namespace NetTally.Adapters
 
             Regex omakeRegex = new Regex(@"\bomake\b", RegexOptions.IgnoreCase);
 
-            // exclude any threadmark where the title starts with 'omake'
+            // exclude any threadmark where the title contains the word 'omake'
             var storyTMs = from t in tms
                            let threadmarkTitle = t.ChildNodes["a"]?.InnerText
                            let isOmake = (threadmarkTitle != null) && omakeRegex.Match(threadmarkTitle).Success
@@ -576,17 +579,27 @@ namespace NetTally.Adapters
             if (url == null)
                 throw new ArgumentNullException(nameof(url));
 
+            // For links directly to post ID
             // Format: https://forums.sufficientvelocity.com/posts/4062860/
             Regex postLinkRegex = new Regex(@"posts/(?<postId>\d+)/");
             var m = postLinkRegex.Match(url);
             if (m.Success)
                 return m.Groups["postId"].Value;
 
+            // For long-form links.  May not include page number if the post is on the first page of the thread.
             // Format: https://forums.sufficientvelocity.com/threads/a-villain-in-a-world-of-heroes.18001/page-109#post-4062860
+            // Format: https://forums.sufficientvelocity.com/threads/a-villain-in-a-world-of-heroes.18001/#post-4062860
             postLinkRegex = new Regex(@"/(page-\d+)?#post-(?<postId>\d+)");
             m = postLinkRegex.Match(url);
             if (m.Success)
                 return m.Groups["postId"].Value;
+
+            // Long form link for the very first post in the thread.
+            // Format: https://forums.sufficientvelocity.com/threads/a-villain-in-a-world-of-heroes.18001/
+            postLinkRegex = new Regex(@"/threads/[^\/]+/$");
+            m = postLinkRegex.Match(url);
+            if (m.Success)
+                return "";
 
             throw new ArgumentException("Unable to extract post ID from link:\n" + url, nameof(url));
         }

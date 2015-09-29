@@ -181,34 +181,26 @@ namespace NetTally
 
             if (voteType == VoteType.Rank)
             {
-                List<KeyValuePair<string, HashSet<string>>> removedVotes = new List<KeyValuePair<string, HashSet<string>>>();
+                Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
 
-                bool merged = false;
                 foreach (var vote in votesSet)
                 {
                     if (VoteString.CondenseRankVote(vote.Key) == fromVote)
                     {
                         string toContent = VoteString.GetVoteContent(toVote, voteType);
+                        string toTask = VoteString.GetVoteTask(toVote, voteType);
+                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
 
-                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, content: toContent);
-
-                        if (Rename(vote, revisedKey, voteType))
-                        {
-                            removedVotes.Add(vote);
-                            merged = true;
-                        }
+                        mergedVotes.Add(vote, revisedKey);
                     }
                 }
 
-                if (merged)
+                foreach (var merge in mergedVotes)
                 {
-                    foreach (var removed in removedVotes)
-                    {
-                        votesSet.Remove(removed.Key);
-                    }
+                    Rename(merge.Key, merge.Value, VoteType.Rank);
                 }
-
-                return merged;
+                
+                return mergedVotes.Count > 0;
             }
 
 
@@ -217,8 +209,11 @@ namespace NetTally
 
             if (!votesSet.TryGetValue(fromVote, out fromVoters))
                 throw new ArgumentException(nameof(fromVote) + " does not exist.");
+
             if (!votesSet.TryGetValue(toVote, out toVoters))
-                throw new ArgumentException(nameof(toVote) + " does not exist.");
+            {
+                return Rename(fromVote, toVote, voteType);
+            }
 
             toVoters.UnionWith(fromVoters);
 
@@ -333,7 +328,6 @@ namespace NetTally
             return false;
         }
 
-
         /// <summary>
         /// Rename a vote.
         /// </summary>
@@ -351,6 +345,7 @@ namespace NetTally
                 return false;
 
             var votesSet = GetVotesCollection(voteType);
+            string oldVoteKey = vote.Key;
 
             HashSet<string> votes;
             if (votesSet.TryGetValue(revisedKey, out votes))
@@ -362,9 +357,10 @@ namespace NetTally
                 votesSet[revisedKey] = vote.Value;
             }
 
+            votesSet.Remove(oldVoteKey);
+
             return true;
         }
-
 
         /// <summary>
         /// Add a supporter to the supplied vote.
