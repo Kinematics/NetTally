@@ -914,20 +914,14 @@ namespace NetTally
         /// </summary>
         /// <param name="m">Match from a replacement check.</param>
         /// <returns>Return group 1 of a regex match.</returns>
-        private string MatchEvaluatorGroup1(Match m)
-        {
-            return m.Groups[1].Value;
-        }
+        private string MatchEvaluatorGroup1(Match m) => m.Groups[1].Value;
 
         /// <summary>
         /// Return groups 1 and 2 of a regex match.
         /// </summary>
         /// <param name="m">Match from a replacement check.</param>
         /// <returns>Return groups 1 and 2 of a regex match.</returns>
-        private string MatchEvaluatorGroup12(Match m)
-        {
-            return m.Groups[1].Value + m.Groups[2].Value;
-        }
+        private string MatchEvaluatorGroup12(Match m) => m.Groups[1].Value + m.Groups[2].Value;
         #endregion
     }
 }
