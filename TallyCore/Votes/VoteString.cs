@@ -48,14 +48,14 @@ namespace NetTally
         /// <param name="voteLine">Original vote line to minimize.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns a minimized version of the vote string.</returns>
-        public static string MinimizeVote(string voteLine, IQuest quest)
+        public static string MinimizeVote(string voteLine, PartitionMode partitionMode)
         {
             string cleaned = CleanVote(voteLine);
             cleaned = collapseRegex.Replace(cleaned, "");
             cleaned = quoteRegex.Replace(cleaned, "\"");
             cleaned = aposRegex.Replace(cleaned, "'");
             cleaned = cleaned.ToLower();
-            if (quest.PartitionMode == PartitionMode.ByLine)
+            if (partitionMode == PartitionMode.ByLine)
                 cleaned = leadHyphenRegex.Replace(cleaned, "");
 
             return cleaned;

@@ -69,9 +69,10 @@ namespace NetTally
             var groupedVoteLines = SeparateVoteTypes(post.VoteStrings);
 
             // Process each type separately
-            ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest);
-            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest, storeFloatingReferences);
-            ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest);
+            ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest.PartitionMode);
+            ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest.PartitionMode, storeFloatingReferences);
+            if (quest.AllowRankedVotes)
+                ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest.PartitionMode);
         }
         #endregion
 
@@ -164,7 +165,7 @@ namespace NetTally
         /// <param name="voteLinesGrouped"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        private void ProcessPlans(List<List<string>> plansList, PostComponents post, IQuest quest)
+        private void ProcessPlans(List<List<string>> plansList, PostComponents post, PartitionMode partitionMode)
         {
             foreach (var plan in plansList)
             {
@@ -181,11 +182,11 @@ namespace NetTally
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(planLines, quest, VoteType.Plan);
+                List<string> votePartitions = GetVotePartitions(planLines, partitionMode, VoteType.Plan);
 
                 foreach (var votePartition in votePartitions)
                 {
-                    VoteCounter.AddVoteSupport(votePartition, planName, VoteType.Plan, quest);
+                    VoteCounter.AddVoteSupport(votePartition, planName, VoteType.Plan, partitionMode);
                 }
             }
         }
@@ -193,11 +194,11 @@ namespace NetTally
         /// <summary>
         /// Put any votes found in the grouped vote lines into the standard tracking sets.
         /// </summary>
-        /// <param name="voteLinesGrouped"></param>
-        /// <param name="postAuthor"></param>
-        /// <param name="postID"></param>
-        /// <param name="quest"></param>
-        private void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
+        /// <param name="votesList">List of votes (collections of strings)</param>
+        /// <param name="post">The components of the original post.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="storeFloatingReferences">Whether to store floating references.</param>
+        private void ProcessVotes(List<List<string>> votesList, PostComponents post, PartitionMode partitionMode, bool storeFloatingReferences)
         {
             var vote = votesList.FirstOrDefault();
 
@@ -228,11 +229,11 @@ namespace NetTally
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(vote, quest, VoteType.Vote);
+                List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote);
 
                 foreach (var votePartition in votePartitions)
                 {
-                    VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote, quest);
+                    VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote, partitionMode);
                 }
             }
         }
@@ -240,13 +241,12 @@ namespace NetTally
         /// <summary>
         /// Put any ranking votes found in the grouped vote lines into the standard tracking sets.
         /// </summary>
-        /// <param name="voteLinesGrouped"></param>
-        /// <param name="postAuthor"></param>
-        /// <param name="postID"></param>
-        /// <param name="quest"></param>
-        private void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
+        /// <param name="ranksList">A list of all rank votes in the post.</param>
+        /// <param name="post">The components of the original post.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        private void ProcessRanks(List<List<string>> ranksList, PostComponents post, PartitionMode partitionMode)
         {
-            if (quest.AllowRankedVotes && ranksList.Count > 0)
+            if (ranksList.Count > 0)
             {
                 // Remove the post author from any other existing votes.
                 VoteCounter.RemoveSupport(post.Author, VoteType.Rank);
@@ -256,7 +256,7 @@ namespace NetTally
 
                 foreach (var line in ranksList)
                 {
-                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank, quest);
+                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank, partitionMode);
                 }
             }
         }
@@ -267,7 +267,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -291,29 +291,29 @@ namespace NetTally
                 else if ((referralVotes = VoteCounter.GetVotesFromReference(line)).Count > 0)
                 {
                     // If a line refers to another voter or base plan, pull that voter's votes
-                    PartitionReferrals(partitions, sb, referralVotes, quest, ref taskHeader, ref currentTask);
+                    PartitionReferrals(partitions, sb, referralVotes, partitionMode, ref taskHeader, ref currentTask);
                 }
                 else if (voteType == VoteType.Plan)
                 {
-                    PartitionPlans(partitions, sb, trimmedLine, quest);
+                    PartitionPlans(partitions, sb, trimmedLine, partitionMode);
                 }
-                else if (quest.PartitionMode == PartitionMode.None)
+                else if (partitionMode == PartitionMode.None)
                 {
                     PartitionByVote(partitions, sb, trimmedLine);
                 }
-                else if (quest.PartitionMode == PartitionMode.ByLine)
+                else if (partitionMode == PartitionMode.ByLine)
                 {
                     PartitionByLine(partitions, sb, trimmedLine);
                 }
-                else if (quest.PartitionMode == PartitionMode.ByBlock)
+                else if (partitionMode == PartitionMode.ByBlock)
                 {
                     PartitionByBlock(partitions, sb, trimmedLine);
                 }
-                else if (quest.PartitionMode == PartitionMode.ByTask)
+                else if (partitionMode == PartitionMode.ByTask)
                 {
                     PartitionByTask(partitions, sb, trimmedLine);
                 }
-                else if (quest.PartitionMode == PartitionMode.ByTaskBlock)
+                else if (partitionMode == PartitionMode.ByTaskBlock)
                 {
                     PartitionByTaskBlock(partitions, sb, holding_sb, trimmedLine, ref addedTopLevelLine, ref taskHeader, ref currentTask);
                 }
@@ -355,16 +355,16 @@ namespace NetTally
         /// <param name="partitions">The table of collected partitions.</param>
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="line">The vote line currently being examined.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        private void PartitionPlans(List<string> partitions, StringBuilder sb, string line, IQuest quest)
+        /// <param name="partitionMode">The partition mode being used.</param>
+        private void PartitionPlans(List<string> partitions, StringBuilder sb, string line, PartitionMode partitionMode)
         {
             // If partitioning a Base Plan (other than By Line), simply collate all lines together.
             // The entire plan is considered a single block.
-            if (quest.PartitionMode == PartitionMode.ByLine)
+            if (partitionMode == PartitionMode.ByLine)
             {
                 PartitionByLine(partitions, sb, line);
             }
-            else if (quest.PartitionMode == PartitionMode.ByTask || quest.PartitionMode == PartitionMode.ByTaskBlock)
+            else if (partitionMode == PartitionMode.ByTask || partitionMode == PartitionMode.ByTaskBlock)
             {
                 PartitionByTask(partitions, sb, line);
             }
@@ -380,18 +380,20 @@ namespace NetTally
         /// <param name="partitions">The table of collected partitions.</param>
         /// <param name="sb">The ongoing constructed string.</param>
         /// <param name="referralVotes">The list of all referenced votes.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        private void PartitionReferrals(List<string> partitions, StringBuilder sb, List<string> referralVotes, IQuest quest,
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="taskHeader">The task header (may be extracted and returned).</param>
+        /// <param name="currentTask">The current task (may be extracted and returned).</param>
+        private void PartitionReferrals(List<string> partitions, StringBuilder sb, List<string> referralVotes, PartitionMode partitionMode,
             ref string taskHeader, ref string currentTask)
         {
             // If we're not using vote partitions, append all lines onto the current vote string.
             // Otherwise, add each of the other voter's votes to our partition list.
-            if (quest.PartitionMode == PartitionMode.None)
+            if (partitionMode == PartitionMode.None)
             {
                 foreach (var v in referralVotes)
                     sb.Append(v);
             }
-            else if (quest.PartitionMode == PartitionMode.ByTask)
+            else if (partitionMode == PartitionMode.ByTask)
             {
                 foreach (var v in referralVotes)
                 {
@@ -799,7 +801,7 @@ namespace NetTally
         /// and that orphan closing tags are removed.
         /// </summary>
         /// <param name="partitions">List of vote strings.</param>
-        private void CloseFormattingTags(List<string> partitions)
+        public void CloseFormattingTags(List<string> partitions)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
 

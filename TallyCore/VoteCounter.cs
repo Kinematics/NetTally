@@ -370,12 +370,12 @@ namespace NetTally
         /// <param name="voter">The voter supporting the vote.</param>
         /// <param name="voteType">The type of vote.</param>
         /// <param name="quest">The quest attached to the vote being adjusted.</param>
-        public void AddVoteSupport(string vote, string voter, VoteType voteType, IQuest quest)
+        public void AddVoteSupport(string vote, string voter, VoteType voteType, PartitionMode partitionMode)
         {
             var votes = GetVotesCollection(voteType);
 
             // Find any existing vote that matches the current vote partition.
-            string voteKey = GetVoteKey(vote, quest, voteType);
+            string voteKey = GetVoteKey(vote, partitionMode, voteType);
 
             // Make sure there's a hashset for the voter list available for the vote key.
             if (!votes.ContainsKey(voteKey))
@@ -526,7 +526,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to search for.</param>
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetVoteKey(string vote, IQuest quest, VoteType voteType)
+        private string GetVoteKey(string vote, PartitionMode partitionMode, VoteType voteType)
         {
             var votes = GetVotesCollection(voteType);
 
@@ -536,7 +536,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = VoteString.MinimizeVote(vote, quest);
+            var minVote = VoteString.MinimizeVote(vote, partitionMode);
 
             // If it matches a lookup value, return the lookup key
             string lookupVote;
