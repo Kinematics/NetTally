@@ -12,6 +12,7 @@ namespace NetTally
     /// </summary>
     public class VoteConstructor
     {
+        #region Constructor and vars
         IVoteCounter VoteCounter { get; }
 
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
@@ -51,8 +52,9 @@ namespace NetTally
             VoteCounter = voteCounter;
             SetupFormattingRegexes();
         }
+        #endregion
 
-        #region Primary public functions
+        #region Public functions
         /// <summary>
         /// Handle processing the vote portions of a post.
         /// </summary>
@@ -71,7 +73,9 @@ namespace NetTally
             ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest, storeFloatingReferences);
             ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest);
         }
+        #endregion
 
+        #region Private processing functions
         /// <summary>
         /// Given a list of vote lines from a post, break it down into groups of lines,
         /// based on vote type.
@@ -84,7 +88,7 @@ namespace NetTally
         /// <param name="postLines">All the vote lines of the post.</param>
         /// <returns>Returns a dict with lists of strings, each labeled according to
         /// the section of the post vote they correspond to (either plan or vote).</returns>
-        public Dictionary<VoteType, List<List<string>>> SeparateVoteTypes(List<string> postLines)
+        private Dictionary<VoteType, List<List<string>>> SeparateVoteTypes(List<string> postLines)
         {
             // Create a list of string lists for each vote type
             Dictionary<VoteType, List<List<string>>> results = new Dictionary<VoteType, List<List<string>>>();
@@ -156,7 +160,7 @@ namespace NetTally
         /// <param name="voteLinesGrouped"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessPlans(List<List<string>> plansList, PostComponents post, IQuest quest)
+        private void ProcessPlans(List<List<string>> plansList, PostComponents post, IQuest quest)
         {
             foreach (var plan in plansList)
             {
@@ -189,7 +193,7 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
+        private void ProcessVotes(List<List<string>> votesList, PostComponents post, IQuest quest, bool storeFloatingReferences)
         {
             var vote = votesList.FirstOrDefault();
 
@@ -236,7 +240,7 @@ namespace NetTally
         /// <param name="postAuthor"></param>
         /// <param name="postID"></param>
         /// <param name="quest"></param>
-        public void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
+        private void ProcessRanks(List<List<string>> ranksList, PostComponents post, IQuest quest)
         {
             if (quest.AllowRankedVotes && ranksList.Count > 0)
             {
@@ -259,7 +263,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        public List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, IQuest quest, VoteType voteType)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -696,7 +700,7 @@ namespace NetTally
         /// <param name="vote">A list of lines for a vote.</param>
         /// <returns>Returns true if there is a single line that references
         /// a known username (per the VoteCounter).</returns>
-        public bool IsFloatingReference(List<string> vote)
+        private bool IsFloatingReference(List<string> vote)
         {
             // A vote with multiple vote lines cannot be floating references.
             if (vote.Count != 1)
@@ -722,6 +726,11 @@ namespace NetTally
             return VoteCounter.VotePosts.Any(v => string.Compare(refName, v.Author, true) == 0);
         }
 
+        /// <summary>
+        /// Return the PostComponents of a post made by the requested author.
+        /// </summary>
+        /// <param name="author">Author of a post.</param>
+        /// <returns>Returns PostComponents if a floating reference post was found, or null if not found.</returns>
         private PostComponents GetFloatingReference(string author)
         {
             var existingReference = VoteCounter.FloatingReferences.FirstOrDefault(r => r.Author == author);
@@ -734,7 +743,7 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the name of the base plan.</returns>
-        public string GetBasePlanName(List<string> planLines)
+        private string GetBasePlanName(List<string> planLines)
         {
             string firstLine = planLines.First();
             string lineContent = VoteString.GetVoteContent(firstLine);
@@ -757,7 +766,7 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
-        public List<string> PromotePlanLines(List<string> planLines)
+        private List<string> PromotePlanLines(List<string> planLines)
         {
             var promotedLines = from p in planLines.Skip(1)
                                 select p.Substring(1);
@@ -786,7 +795,7 @@ namespace NetTally
         /// and that orphan closing tags are removed.
         /// </summary>
         /// <param name="partitions">List of vote strings.</param>
-        public void CloseFormattingTags(List<string> partitions)
+        private void CloseFormattingTags(List<string> partitions)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
 
