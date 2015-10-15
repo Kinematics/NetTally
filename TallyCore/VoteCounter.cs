@@ -457,20 +457,16 @@ namespace NetTally
         /// empty list.</returns>
         public List<string> GetVotesFromReference(string voteLine)
         {
-            string planName = VoteString.GetVoteReferenceName(voteLine);
+            var planNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
+            var usePlanName = planNames.FirstOrDefault(p => VotesWithSupporters.Where(v => v.Value.Contains(p)).Count() > 0);
 
-            if (planVotes.Count() > 0)
+            if (usePlanName != null)
+            {
+                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(usePlanName));
+
                 return planVotes.Select(v => v.Key).ToList();
-
-            // Get alternate version.
-            planName = VoteString.GetVoteReferenceName(voteLine, true);
-
-            planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
-
-            if (planVotes.Count() > 0)
-                return planVotes.Select(v => v.Key).ToList();
+            }
 
             return new List<string>();
         }

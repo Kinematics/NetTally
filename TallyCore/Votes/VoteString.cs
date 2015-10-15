@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace NetTally
@@ -158,36 +159,46 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get the name of a vote plan from the contents of a vote line.
-        /// Standard version will mark the content with the plan name marker character
-        /// if the content starts with the word "plan", but won't add the character
-        /// if it doesn't.
+        /// Get the potential names of vote plans from the contents of a vote line.
+        /// It takes the original, the original plus the plan marker, the original
+        /// with any trailing period stripped off, and that version plus the plan
+        /// marker character. The last two are optional, depending on any trailing
+        /// period.
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
-        /// <param name="alt">Flag to alternate whether having the content start
-        /// with the word "plan" should mark the output with the special character.
-        /// The default adds the character if the content does start with "plan".
-        /// Sending a value of true will add the character if the content does not start with "plan".</param>
-        /// <returns>Returns a possible plan name from the vote line.</returns>
-        public static string GetVoteReferenceName(string voteLine, bool alt = false)
+        /// <returns>Returns possible plan names from the vote line.</returns>
+        public static List<string> GetVoteReferenceNames(string voteLine)
         {
-            string content = GetVoteContentFirstLine(voteLine);
+            string contents = GetVoteContentFirstLine(voteLine);
+            List<string> results = new List<string>();
 
-            Match m = referenceNameRegex.Match(content);
+            Match m = referenceNameRegex.Match(contents);
             if (m.Success)
             {
                 string name = m.Groups["reference"].Value;
 
+                // [x] Plan Kinematics => Kinematics
+                // [x] Plan Boom. => Boom.
+                results.Add(name);
+
+                // [x] Plan Kinematics => ◈Kinematics
+                // [x] Plan Boom. => ◈Boom.
+                results.Add($"{Utility.Text.PlanNameMarker}{name}");
+
+                // [x] Plan Kinematics. => Kinematics
+                // [x] Plan Boom. => Boom
+                // [x] Plan Kinematics. => ◈Kinematics
+                // [x] Plan Boom. => ◈Boom
                 if (name.EndsWith("."))
+                {
                     name = name.Substring(0, name.Length - 1);
 
-                if (alt ^ m.Groups["label"].Success)
-                    name = $"{Utility.Text.PlanNameMarker}{name}";
-
-                return name.Trim();
+                    results.Add(name);
+                    results.Add($"{Utility.Text.PlanNameMarker}{name}");
+                }
             }
 
-            return content;
+            return results;
         }
 
         /// <summary>

@@ -171,27 +171,51 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
-        public void GetVotePlanNameTest()
+        public void GetVotePlanNameTest1()
         {
             string input = "[x] Kinematics";
-            string expected = "Kinematics";
-            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input));
-
-            input = "[x] Plan Assault";
-            expected = "\u25C8Assault";
-            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input));
+            string expected1 = "Kinematics";
+            string expected2 = "\u25C8Kinematics";
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected1));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected2));
         }
 
         [TestMethod()]
-        public void GetVoteAltPlanNameTest()
+        public void GetVotePlanNameTest2()
         {
-            string input = "[x] Kinematics";
-            string expected = "\u25C8Kinematics";
-            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input, true));
+            string input = "[x] Plan Assault";
+            string expected1 = "Assault";
+            string expected2 = "\u25C8Assault";
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected1));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected2));
+        }
 
-            input = "[x] Plan Assault";
-            expected = "Assault";
-            Assert.AreEqual(expected, VoteString.GetVoteReferenceName(input, true));
+        [TestMethod()]
+        public void GetVotePlanNameTest3()
+        {
+            string input = "[x] Kinematics.";
+            string expected1 = "Kinematics.";
+            string expected2 = "\u25C8Kinematics.";
+            string expected3 = "Kinematics";
+            string expected4 = "\u25C8Kinematics";
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected1));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected2));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected3));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected4));
+        }
+
+        [TestMethod()]
+        public void GetVotePlanNameTest4()
+        {
+            string input = "[x] Plan Assault.";
+            string expected1 = "Assault.";
+            string expected2 = "\u25C8Assault.";
+            string expected3 = "Assault";
+            string expected4 = "\u25C8Assault";
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected1));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected2));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected3));
+            Assert.IsTrue(VoteString.GetVoteReferenceNames(input).Contains(expected4));
         }
 
         [TestMethod()]
