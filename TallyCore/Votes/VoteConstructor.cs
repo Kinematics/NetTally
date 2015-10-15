@@ -118,7 +118,7 @@ namespace NetTally
                             // as regular vote lines, rather than additional potential plans.
                             if (!VoteCounter.HasPlan(m.Groups["baseplan"].Value))
                             {
-                                // If so, add the first line to a new base plan list and continue processing the post lines
+                                // If it's a new base plan, add the first line to a new base plan list and continue processing the post lines
                                 basePlan = new List<string>();
                                 basePlan.Add(line);
                                 results[VoteType.Plan].Add(basePlan);
@@ -134,14 +134,18 @@ namespace NetTally
                     }
                 }
 
+                // If we get to here, we've finished checking for base plans.
                 checkForBasePlans = false;
 
+                // Rank vote lines are added individually to the Rank results.
                 if (VoteString.IsRankedVote(line))
                 {
                     results[VoteType.Rank].Add(new List<string>(1) { line });
                 }
                 else
                 {
+                    // And if we get a regular vote line, create a new list to hold
+                    // all of the vote's lines and start adding them.
                     if (results[VoteType.Vote].Count == 0)
                     {
                         results[VoteType.Vote].Add(new List<string>());
