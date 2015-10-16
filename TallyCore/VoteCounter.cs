@@ -457,6 +457,8 @@ namespace NetTally
         /// empty list.</returns>
         public List<string> GetVotesFromReference(string voteLine)
         {
+            List<string> results = new List<string>();
+
             var planNames = VoteString.GetVoteReferenceNames(voteLine);
 
             var usePlanName = planNames.FirstOrDefault(p => VotesWithSupporters.Where(v => v.Value.Contains(p)).Count() > 0);
@@ -465,10 +467,10 @@ namespace NetTally
             {
                 var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(usePlanName));
 
-                return planVotes.Select(v => v.Key).ToList();
+                results.AddRange(planVotes.Select(v => v.Key));
             }
 
-            return new List<string>();
+            return results;
         }
 
         /// <summary>
