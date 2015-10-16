@@ -357,7 +357,9 @@ namespace NetTally
         {
             if (vote == null)
                 return null;
-            if (vote.Count == 0)
+            // An empty string list is ignored.
+            // A single line cannot be a plan.
+            if (vote.Count < 2)
                 return null;
 
             string firstLineContent = VoteString.GetVoteContent(vote.First());
