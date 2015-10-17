@@ -14,6 +14,7 @@ namespace NetTally
     {
         #region Constructor and vars
         IVoteCounter VoteCounter { get; }
+        readonly bool allowAutomaticPlans = false;
 
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
@@ -230,8 +231,10 @@ namespace NetTally
                 VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Vote);
 
                 // Automatically get any plan names, if named as such at the start of the vote.
-                string automaticPlanName = AutomaticPlan(vote);
-
+                string automaticPlanName = null;
+                // Currently disabled.
+                if (allowAutomaticPlans)
+                    automaticPlanName = AutomaticPlan(vote);
 
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
