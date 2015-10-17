@@ -52,11 +52,8 @@ namespace NetTally.Utility
         /// <returns>Returns the first line of the provided string.</returns>
         public static string FirstLine(string multiLine)
         {
-            int i = multiLine.IndexOf("\r");
-            if (i > 0)
-                return multiLine.Substring(i);
-            else
-                return multiLine;
+            var lines = GetStringLines(multiLine);
+            return lines.FirstOrDefault();
         }
     }
 
