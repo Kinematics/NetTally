@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
@@ -30,6 +32,18 @@ namespace NetTally.Utility
         /// Magic character (currently ◈) to flag a user name as a base plan.
         /// </summary>
         public static string PlanNameMarker { get; } = "\u25C8";
+
+        /// <summary>
+        /// Takes an input string that is potentially composed of multiple text lines,
+        /// and splits it up into a List of strings of one text line each.
+        /// </summary>
+        /// <param name="input">The input text.</param>
+        /// <returns>The list of all string lines in the input.</returns>
+        public static List<string> GetStringLines(string input)
+        {
+            string[] split = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return new List<string>(split);
+        }
 
         /// <summary>
         /// Get the first line (pre-EOL) of a potentially multi-line string.
