@@ -15,9 +15,38 @@
 
         <ContextMenu x:Key="TaskContextMenu" x:Name="ContextMenuName">
         </ContextMenu>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </Window.Resources>
 
     <Grid>
+        <TextBox x:Name="filterVotes1" HorizontalAlignment="Left" Height="23" Margin="155,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"
+                 Text="{Binding Path=Filter1String, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Filter 'From' Votes</TextBlock>
+                        <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+        <TextBox x:Name="filterVotes2" Height="23" Margin="626,10,12,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding Path=Filter2String, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Filter 'To' Votes</TextBlock>
+                        <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label x:Name="filterLabel1" Content="Filter Votes" HorizontalAlignment="Left" Margin="155,8,0,0" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding Path=IsFilter1Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+        <Label x:Name="filterLabel2" Content="Filter Votes" HorizontalAlignment="Left" Margin="626,8,0,0" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding Path=IsFilter2Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+
         <ListBox x:Name="votesFromListBox" Height="367" Width="385" Margin="10,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"
                  ContextMenu="{StaticResource TaskContextMenu}">
@@ -30,7 +59,7 @@
         </ListBox>
         <ListBox x:Name="votersFromListBox" Height="111" Width="385" Margin="10,441,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True" />
-        
+
         <ListBox x:Name="votesToListBox" Height="367" Margin="481,36,12,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"
                  ContextMenu="{StaticResource TaskContextMenu}">
@@ -43,7 +72,7 @@
         </ListBox>
         <ListBox x:Name="votersToListBox" Height="111" Margin="481,441,10,0" VerticalAlignment="Top"
                  ItemsSource="{Binding VoterView2}" />
-        
+
         <Button x:Name="merge" Content="⟹" HorizontalAlignment="Left" Height="35" Margin="400,41,0,0" VerticalAlignment="Top" Width="76"
                 FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False" ToolTipService.ShowOnDisabled="True">
             <Button.ToolTip>
@@ -136,5 +165,6 @@
                 </StackPanel>
             </Border>
         </Grid>
+
     </Grid>
 </Window>

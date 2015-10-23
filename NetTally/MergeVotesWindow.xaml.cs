@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -35,6 +36,9 @@ namespace NetTally
         HashSet<string> ManualTasks { get; }
 
         ListBox newTaskBox = null;
+
+        string filter1String;
+        string filter2String;
 
 
         /// <summary>
@@ -78,8 +82,8 @@ namespace NetTally
 
             if (VoteView1.CanFilter)
             {
-                VoteView1.Filter = (a) => FilterVotes(a.ToString());
-                VoteView2.Filter = (a) => FilterVotes(a.ToString());
+                VoteView1.Filter = (a) => FilterVotes1(a.ToString());
+                VoteView2.Filter = (a) => FilterVotes2(a.ToString());
             }
 
             // Initialize starting selected positions
@@ -112,6 +116,9 @@ namespace NetTally
 
             // Set the data context for binding.
             DataContext = this;
+
+            Filter1String = "";
+            Filter2String = "";
         }
 
         #endregion
@@ -202,6 +209,58 @@ namespace NetTally
                     return VoteType.Rank;
             }
         }
+
+        /// <summary>
+        /// Property for holding the string used to filter the 'from' votes.
+        /// </summary>
+        public string Filter1String
+        {
+            get
+            {
+                return filter1String;
+            }
+            set
+            {
+                filter1String = value;
+                OnPropertyChanged();
+
+                IsFilter1Empty = filter1String == string.Empty;
+                OnPropertyChanged("IsFilter1Empty");
+
+                VoteView1.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Property for holding the string used to filter the 'to' votes.
+        /// </summary>
+        public string Filter2String
+        {
+            get
+            {
+                return filter2String;
+            }
+            set
+            {
+                filter2String = value;
+                OnPropertyChanged();
+
+                IsFilter2Empty = filter2String == string.Empty;
+                OnPropertyChanged("IsFilter2Empty");
+
+                VoteView2.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Bool property for UI for if the first filter string is empty.
+        /// </summary>
+        public bool IsFilter1Empty { get; set; }
+
+        /// <summary>
+        /// Bool property for UI for if the second filter string is empty.
+        /// </summary>
+        public bool IsFilter2Empty { get; set; }
         #endregion
 
         #region Window events
@@ -462,11 +521,27 @@ namespace NetTally
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
-        /// be displayed in the main list box.
+        /// be displayed in the main (from) list box.
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes(string vote) => VoteCounter.HasVote(vote, CurrentVoteType);
+        private bool FilterVotes1(string vote)
+        {
+            return VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (Filter1String == null || Filter1String == string.Empty || CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0);
+        }
+
+        /// <summary>
+        /// Filter to be used by a collection view to determine which votes should
+        /// be displayed in the main (to) list box.
+        /// </summary>
+        /// <param name="vote">The vote to be checked.</param>
+        /// <returns>Returns true if the vote is valid for the current vote type.</returns>
+        private bool FilterVotes2(string vote)
+        {
+            return VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (Filter2String == null || Filter2String == string.Empty || CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0);
+        }
 
         /// <summary>
         /// Filter to be used by a collection view to determine which voters should
