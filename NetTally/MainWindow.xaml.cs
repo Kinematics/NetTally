@@ -249,9 +249,7 @@ namespace NetTally
         {
             ManageVotesWindow mergeWindow = new ManageVotesWindow(tally)
             {
-                ShowInTaskbar = false,               // don't show the dialog on the taskbar
-                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
-                Owner = Application.Current.MainWindow,
+                Owner = Application.Current.MainWindow
             };
 
             mergeWindow.ShowDialog();
