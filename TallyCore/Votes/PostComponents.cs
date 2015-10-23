@@ -24,7 +24,7 @@ namespace NetTally
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex voteLineRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\]");
+        readonly Regex voteLineRegex = new Regex(@"^-*\s*\[\s*[xX+✓✔1-9]\s*\]");
         // Nomination-style votes.  @username, one per line.
         readonly Regex nominationLineRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*$");
 
@@ -50,7 +50,7 @@ namespace NetTally
                 return;
 
             var lines = Utility.Text.GetStringLines(text);
-            var voteLines = lines.Where(a => voteLineRegex.Match(a).Success);
+            var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.CleanVote(a)).Success);
 
             if (voteLines.Any())
             {
