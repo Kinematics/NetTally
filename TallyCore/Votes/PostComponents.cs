@@ -24,11 +24,9 @@ namespace NetTally
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         readonly Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        readonly Regex allVoteRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\].*", RegexOptions.Multiline);
+        readonly Regex voteLineRegex = new Regex(@"^(\s|\[/?[ibu]\]|\[color[^]]+\])*-*\s*\[\s*[xX+✓✔1-9]\s*\]");
         // Nomination-style votes.  @username, one per line.
-        readonly Regex nominationRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*(?=[\r\n]|$)", RegexOptions.Multiline);
-        // Regex to extract out all non-whitespace lines from a post's text.
-        readonly Regex allLinesRegex = new Regex(@"^\s*\S+[^\r\n]*(?=[\r\n]|$)", RegexOptions.Multiline);
+        readonly Regex nominationLineRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*$");
 
         /// <summary>
         /// Constructor
@@ -51,21 +49,16 @@ namespace NetTally
             if (IsTallyPost(text))
                 return;
 
-            MatchCollection matches = allVoteRegex.Matches(text);
+            var lines = Utility.Text.GetStringLines(text);
+            var voteLines = lines.Where(a => voteLineRegex.Match(a).Success);
 
-            if (matches.Count > 0)
+            if (voteLines.Any())
             {
-                VoteStrings = GetMatchStrings(matches);
+                VoteStrings = voteLines.ToList();
             }
-            else
+            else if (lines.All(a => nominationLineRegex.Match(a).Success))
             {
-                matches = nominationRegex.Matches(text);
-                if (matches.Count > 0)
-                {
-                    MatchCollection allLines = allLinesRegex.Matches(text);
-                    if (allLines.Count == matches.Count)
-                        VoteStrings = GetNominationStrings(matches);
-                }
+                VoteStrings = lines.Select(a => "[X] " + a.Trim()).ToList();
             }
         }
 
@@ -80,33 +73,6 @@ namespace NetTally
             // it's a tally post.
             string cleanText = VoteString.CleanVote(postText);
             return (tallyRegex.Matches(cleanText).Count > 0);
-        }
-
-        /// <summary>
-        /// Convert the provided match results into a list of strings for ease of use.
-        /// </summary>
-        /// <param name="matches">A collection of regex matches.</param>
-        /// <returns>Returns the list of strings contained by the regex matches.</returns>
-        public List<string> GetMatchStrings(MatchCollection matches)
-        {
-            var strings = from Match m in matches
-                          select m.Value.Trim();
-
-            return strings.ToList();
-        }
-
-        /// <summary>
-        /// Convert the provided match results for user nominations into a list of
-        /// vote strings for ease of use.
-        /// </summary>
-        /// <param name="matches">A collection of regex matches.</param>
-        /// <returns>Returns the list of strings contained by the regex matches.</returns>
-        private List<string> GetNominationStrings(MatchCollection matches)
-        {
-            var strings = from Match m in matches
-                          select "[X] " + m.Value.Trim();
-
-            return strings.ToList();
         }
 
         /// <summary>
