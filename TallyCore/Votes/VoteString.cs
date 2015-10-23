@@ -25,6 +25,8 @@ namespace NetTally
         static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX+✓✔1-9]\])\s*(\[\s*(?!url=|color=|b\]|i\]|u\])(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
         static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        // Potential reference to another user's plan.
+        static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
 
@@ -172,10 +174,19 @@ namespace NetTally
             string contents = GetVoteContentFirstLine(voteLine);
             List<string> results = new List<string>();
 
-            Match m = referenceNameRegex.Match(contents);
-            if (m.Success)
+            Match m1 = linkedReferenceRegex.Match(contents);
+            if (m1.Success)
             {
-                string name = m.Groups["reference"].Value;
+                // (1: pre)(2: [url=stuff] (3: inside) [/url])(4: post)
+                string pattern = @"(.*?)(\[url=[^]]+\](.+?)\[/url\])(.*)";
+                string replacement = "$1$3$4";
+                contents = Regex.Replace(contents, pattern, replacement);
+            }
+
+            Match m2 = referenceNameRegex.Match(contents);
+            if (m2.Success)
+            {
+                string name = m2.Groups["reference"].Value;
 
                 // [x] Plan Kinematics => Kinematics
                 // [x] Plan Boom. => Boom.
