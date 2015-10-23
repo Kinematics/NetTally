@@ -75,7 +75,9 @@ namespace NetTally
             ProcessPlans(groupedVoteLines[VoteType.Plan], post, quest.PartitionMode);
             ProcessVotes(groupedVoteLines[VoteType.Vote], post, quest.PartitionMode, storeFloatingReferences);
             if (quest.AllowRankedVotes)
+            {
                 ProcessRanks(groupedVoteLines[VoteType.Rank], post, quest.PartitionMode);
+            }
         }
         #endregion
 
@@ -252,7 +254,52 @@ namespace NetTally
 
                     VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote, partitionMode);
                 }
+
+
+                // Solo references to other voters may copy over their rank votes as well.
+                string refName = GetPureRankReference(votePartitions);
+
+                if (refName != null)
+                {
+                    var refRanks = VoteCounter.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName));
+
+                    VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Rank);
+
+                    foreach (var refRank in refRanks)
+                    {
+                        VoteCounter.AddVoteSupport(refRank.Key, post.Author, VoteType.Rank, partitionMode);
+                    }
+                }
             }
+        }
+
+        /// <summary>
+        /// Get the name of a voter that is referenced if that is the only
+        /// reference in the vote.
+        /// </summary>
+        /// <param name="votePartitions">The standard vote partitions.</param>
+        /// <returns></returns>
+        private string GetPureRankReference(List<string> votePartitions)
+        {
+            if (votePartitions.Count == 1)
+            {
+                var partitionLines = Utility.Text.GetStringLines(votePartitions.First());
+
+                if (partitionLines.Count == 1)
+                {
+                    var refNames = VoteString.GetVoteReferenceNames(partitionLines.First());
+
+                    if (refNames.Count > 0)
+                    {
+                        var refName = refNames.FirstOrDefault(n => VoteCounter.RankedVoterMessageId.Keys.Contains(n));
+
+                        if (refName != null)
+                            return refName;
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
