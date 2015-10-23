@@ -221,7 +221,7 @@ namespace NetTally
             }
             set
             {
-                filter1String = value;
+                filter1String = Utility.Text.SafeString(value);
                 OnPropertyChanged();
 
                 IsFilter1Empty = filter1String == string.Empty;
@@ -242,7 +242,7 @@ namespace NetTally
             }
             set
             {
-                filter2String = value;
+                filter2String = Utility.Text.SafeString(value);
                 OnPropertyChanged();
 
                 IsFilter2Empty = filter2String == string.Empty;
