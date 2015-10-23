@@ -533,6 +533,11 @@ namespace NetTally
             }
             else
             {
+                if (sb.Length > 0)
+                {
+                    partitions.Add(sb.ToString());
+                    sb.Clear();
+                }
                 partitions.AddRange(referralVotes);
             }
         }
