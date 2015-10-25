@@ -106,22 +106,24 @@ namespace NetTally
         public static string GetVoteTask(string voteLine)
         {
             string cleaned = CleanVote(voteLine);
+            string task = "";
+
             Match m = voteLineRegex.Match(cleaned);
             if (m.Success)
             {
-                string task = m.Groups["task"].Value;
+                task = m.Groups["task"].Value;
 
                 // A task name is composed of any number of characters or digits, with an optional ending question mark.
                 // The returned value will capitalize the first letter, and lowercase any following letters.
 
-                if (task.Length == 1)
-                    return task.ToUpper();
+                //if (task.Length == 1)
+                //    return task.ToUpper();
 
-                if (task.Length > 1)
-                    return char.ToUpper(task[0]) + task.Substring(1).ToLower();
+                //if (task.Length > 1)
+                //    return char.ToUpper(task[0]) + task.Substring(1).ToLower();
             }
 
-            return string.Empty;
+            return task;
         }
 
         /// <summary>
@@ -224,6 +226,7 @@ namespace NetTally
         public static void GetVoteComponents(string voteLine, out string prefix, out string marker, out string task, out string content)
         {
             string cleaned = CleanVote(voteLine);
+
             Match m = voteLineRegex.Match(cleaned);
             if (m.Success)
             {
@@ -236,11 +239,11 @@ namespace NetTally
                 // A task name is composed of any number of characters or digits, with an optional ending question mark.
                 // The returned value will capitalize the first letter, and lowercase any following letters.
 
-                if (task.Length == 1)
-                    task = task.ToUpper();
+                //if (task.Length == 1)
+                //    task = task.ToUpper();
 
-                if (task.Length > 1)
-                    task = char.ToUpper(task[0]) + task.Substring(1).ToLower();
+                //if (task.Length > 1)
+                //    task = char.ToUpper(task[0]) + task.Substring(1).ToLower();
             }
             else
             {
