@@ -15,6 +15,8 @@ namespace NetTally
         readonly Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
+        static readonly SemaphoreSlim ss = new SemaphoreSlim(5);
+
         #region Event handlers
         /// <summary>
         /// Function to raise events when page load status has been updated.
@@ -140,88 +142,98 @@ namespace NetTally
 
             OnStatusChanged(url + "\n");
 
-            HtmlDocument htmldoc = new HtmlDocument();
+            // Limit to no more than 5 parallel requests
+            await ss.WaitAsync(token);
 
-            string result = null;
-            int maxtries = 5;
-            int tries = 0;
-            HttpClient client;
-            HttpResponseMessage response;
-
-            HttpClientHandler handler = new HttpClientHandler();
-            var cookies = ForumCookies.GetCookies(url);
-            if (cookies.Count > 0)
+            try
             {
-                CookieContainer cookieJar = new CookieContainer();
-                cookieJar.Add(cookies);
-                handler.CookieContainer = cookieJar;
-            }
+                HtmlDocument htmldoc = new HtmlDocument();
 
-            using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
-            {
-                client.Timeout = TimeSpan.FromSeconds(10);
+                string result = null;
+                int maxtries = 5;
+                int tries = 0;
+                HttpClient client;
+                HttpResponseMessage response;
 
-                try
+                HttpClientHandler handler = new HttpClientHandler();
+                var cookies = ForumCookies.GetCookies(url);
+                if (cookies.Count > 0)
                 {
-                    while (result == null && tries < maxtries && token.IsCancellationRequested == false)
-                    {
-                        if (tries > 0)
-                        {
-                            // If we have to retry loading the page, give it a short delay.
-                            await Task.Delay(TimeSpan.FromSeconds(4));
-                            OnStatusChanged("Retrying: " + shortDescription + "\n");
-                        }
+                    CookieContainer cookieJar = new CookieContainer();
+                    cookieJar.Add(cookies);
+                    handler.CookieContainer = cookieJar;
+                }
 
-                        using (response = await client.GetAsync(url, token).ConfigureAwait(false))
+                using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
+                {
+                    client.Timeout = TimeSpan.FromSeconds(10);
+
+                    try
+                    {
+                        while (result == null && tries < maxtries && token.IsCancellationRequested == false)
                         {
-                            if (response.IsSuccessStatusCode)
+                            if (tries > 0)
                             {
-                                result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                // If we have to retry loading the page, give it a short delay.
+                                await Task.Delay(TimeSpan.FromSeconds(4));
+                                OnStatusChanged("Retrying: " + shortDescription + "\n");
                             }
-                            else if (response.StatusCode == HttpStatusCode.NotFound)
+
+                            using (response = await client.GetAsync(url, token).ConfigureAwait(false))
                             {
-                                tries = maxtries;
-                            }
-                            else
-                            {
-                                tries++;
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                }
+                                else if (response.StatusCode == HttpStatusCode.NotFound)
+                                {
+                                    tries = maxtries;
+                                }
+                                else
+                                {
+                                    tries++;
+                                }
                             }
                         }
                     }
-                }
-                catch (HttpRequestException e)
-                {
-                    OnStatusChanged(shortDescription + ": " + e.Message);
-                    throw;
-                }
-                catch (OperationCanceledException e)
-                {
-                    Debug.WriteLine(string.Format("Operation was cancelled in task {0}.", Task.CurrentId.HasValue ? Task.CurrentId.Value : -1));
-                    Debug.WriteLine($"Cancellation requested: {e.CancellationToken.IsCancellationRequested}  at source: {e.Source}");
-
-                    if (token.IsCancellationRequested)
+                    catch (HttpRequestException e)
+                    {
+                        OnStatusChanged(shortDescription + ": " + e.Message);
                         throw;
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        Debug.WriteLine(string.Format("Operation was cancelled in task {0}.", Task.CurrentId.HasValue ? Task.CurrentId.Value : -1));
+                        Debug.WriteLine($"Cancellation requested: {e.CancellationToken.IsCancellationRequested}  at source: {e.Source}");
+
+                        if (token.IsCancellationRequested)
+                            throw;
+                    }
                 }
-            }
 
-            if (token.IsCancellationRequested)
+                if (token.IsCancellationRequested)
+                {
+                    return null;
+                }
+
+                if (result == null)
+                {
+                    OnStatusChanged("Failed to load: " + shortDescription + "\n");
+                    return null;
+                }
+
+                htmldoc.LoadHtml(result);
+
+                pageCache[url] = new CachedPage(htmldoc);
+
+                OnStatusChanged(shortDescription + " loaded!\n");
+
+                return htmldoc;
+            }
+            finally
             {
-                return null;
+                ss.Release();
             }
-
-            if (result == null)
-            {
-                OnStatusChanged("Failed to load: " + shortDescription + "\n");
-                return null;
-            }
-
-            htmldoc.LoadHtml(result);
-
-            pageCache[url] = new CachedPage(htmldoc);
-
-            OnStatusChanged(shortDescription + " loaded!\n");
-
-            return htmldoc;
         }
 
         #endregion
