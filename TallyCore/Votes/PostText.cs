@@ -98,8 +98,6 @@ namespace NetTally.Utility
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
         private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb = null)
         {
-            //char[] newlines = { '\r', '\n' };
-
             if (sb == null)
                 sb = new StringBuilder();
 
@@ -113,7 +111,6 @@ namespace NetTally.Utility
                 switch (child.Name)
                 {
                     case "#text":
-                        //sb.Append(child.InnerText.Trim(newlines));
                         sb.Append(child.InnerText);
                         break;
                     case "br":
