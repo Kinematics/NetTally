@@ -409,7 +409,7 @@ namespace NetTally
         {
             foreach (var voter in voterChoices)
             {
-                voter.Value.Remove(choice);
+                voter.Value.RemoveAll(a => a == choice);
             }
         }
 
