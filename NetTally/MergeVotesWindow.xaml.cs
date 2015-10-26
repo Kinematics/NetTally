@@ -289,7 +289,12 @@ namespace NetTally
                     VoteCollection.Remove(fromVote);
                     if (votesDiff.Count() == 1)
                     {
-                        VoteCollection.Add(votesDiff.First());
+                        string addVote = votesDiff.First();
+                        if (CurrentVoteType == VoteType.Rank)
+                            addVote = VoteString.CondenseRankVote(addVote);
+
+                        if (!VoteCollection.Contains(addVote))
+                            VoteCollection.Add(addVote);
                     }
                         
 
