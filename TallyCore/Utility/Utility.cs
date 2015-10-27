@@ -36,6 +36,7 @@ namespace NetTally.Utility
         /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
         /// and splits it up into a List of strings of one text line each.
+        /// Does not generate empty lines.
         /// </summary>
         /// <param name="input">The input text.</param>
         /// <returns>The list of all string lines in the input.</returns>
@@ -48,11 +49,11 @@ namespace NetTally.Utility
         /// <summary>
         /// Get the first line (pre-EOL) of a potentially multi-line string.
         /// </summary>
-        /// <param name="multiLine">The string to get the first line from.</param>
+        /// <param name="input">The string to get the first line from.</param>
         /// <returns>Returns the first line of the provided string.</returns>
-        public static string FirstLine(string multiLine)
+        public static string FirstLine(string input)
         {
-            var lines = GetStringLines(multiLine);
+            var lines = GetStringLines(input);
             return lines.FirstOrDefault();
         }
     }
