@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -56,6 +57,9 @@ namespace NetTally
         /// </summary>
         public MainWindow()
         {
+            // Set up an event handler for any otherwise unhandled exceptions in the code.
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
             InitializeComponent();
 
             // Set tally vars
@@ -92,6 +96,29 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
             MyTitle = $"{product.Product} - {version.InformationalVersion}";
+        }
+
+        /// <summary>
+        /// Unhandled exception handler.  If an unhandled exception crashes the program, save
+        /// the stack trace to a log file.
+        /// </summary>
+        /// <param name="sender">The AppDomain.</param>
+        /// <param name="e">The details of the unhandled exception.</param>
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = (Exception)e.ExceptionObject;
+            
+            // print out the exception stack trace to a log
+            string output = 
+                $"Message is: {ex.Message}\n\n" +
+                $"Stack Trace is:\n{ex.StackTrace}\n";
+
+            string tempFile = Path.GetTempFileName();
+
+            File.WriteAllText(tempFile, output);
+
+            // Let the user know where the temp file was written.
+            MessageBox.Show($"Error written to:\n{tempFile}", "Unhandled exception log written", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         /// <summary>
