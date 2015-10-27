@@ -15,6 +15,8 @@ namespace NetTally
         readonly Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
         readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
 
+        readonly int maxCacheEntries = 50;
+
         static readonly SemaphoreSlim ss = new SemaphoreSlim(5);
 
         #region Event handlers
@@ -29,7 +31,6 @@ namespace NetTally
         #endregion
 
         #region Public interface functions
-
         public event EventHandler<MessageEventArgs> StatusChanged;
 
         /// <summary>
@@ -93,6 +94,8 @@ namespace NetTally
                 }
 
                 lastPageLoadedFor[quest.ThreadName] = lastPageNumber;
+
+                ReviewCache();
 
                 return pages;
             }
@@ -225,5 +228,25 @@ namespace NetTally
 
         #endregion
 
+        #region Private assist functions
+        /// <summary>
+        /// Review cache to prevent its size from getting out of hand.
+        /// </summary>
+        private void ReviewCache()
+        {
+            if (pageCache.Count > maxCacheEntries)
+            {
+                var newestEntries = pageCache.OrderByDescending(p => p.Value.Timestamp).Take(maxCacheEntries);
+                var olderEntries = pageCache.Except(newestEntries).ToList();
+
+                foreach (var entry in olderEntries)
+                {
+                    pageCache.Remove(entry.Key);
+                }
+
+                GC.Collect();
+            }
+        }
+        #endregion
     }
 }
