@@ -138,10 +138,10 @@ namespace TallyUnitTest
 
             Assert.AreEqual("", VoteString.GetVoteTask(line1));
             Assert.AreEqual("", VoteString.GetVoteTask(line2));
-            Assert.AreEqual("Major", VoteString.GetVoteTask(line3));
-            Assert.AreEqual("Animal", VoteString.GetVoteTask(line4));
-            Assert.AreEqual("Minor", VoteString.GetVoteTask(line5));
-            Assert.AreEqual("Trade relations", VoteString.GetVoteTask(line6));
+            Assert.AreEqual("major", VoteString.GetVoteTask(line3));
+            Assert.AreEqual("animal", VoteString.GetVoteTask(line4));
+            Assert.AreEqual("MINOR", VoteString.GetVoteTask(line5));
+            Assert.AreEqual("Trade Relations", VoteString.GetVoteTask(line6));
         }
 
         [TestMethod()]
@@ -231,7 +231,7 @@ namespace TallyUnitTest
 
             Assert.AreEqual("-", prefix);
             Assert.AreEqual("x", marker);
-            Assert.AreEqual("Major", task);
+            Assert.AreEqual("MAJOR", task);
             Assert.AreEqual("Vote for stuff", content);
         }
 
