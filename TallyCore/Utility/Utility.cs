@@ -89,7 +89,7 @@ namespace NetTally.Utility
 
     public static class MathUtil
     {
-        public static T BoundsCheck<T>(T? min, T value, T? max) where T: struct, IComparable<T>
+        public static T Clamp<T>(T? min, T value, T? max) where T: struct, IComparable<T>
         {
             if (min.HasValue && value.CompareTo(min.Value) < 0)
                 return min.Value;
