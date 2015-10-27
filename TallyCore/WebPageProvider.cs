@@ -121,18 +121,12 @@ namespace NetTally
         /// <returns>An HtmlDocument for the specified page.</returns>
         public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token)
         {
-            // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
-            if (caching == Caching.UseCache && pageCache.ContainsKey(url))
+            if (caching == Caching.UseCache)
             {
-                var cache = pageCache[url];
-                var cacheAge = DateTime.Now - cache.Timestamp;
+                HtmlDocument page = GetCachedPage(url, shortDescription);
 
-                if (cacheAge.TotalMinutes < 30)
-                {
-                    if (cacheAge.TotalSeconds > 4)
-                        OnStatusChanged(shortDescription + " loaded from memory!\n");
-                    return cache.Doc;
-                }
+                if (page != null)
+                    return page;
             }
 
             OnStatusChanged(url + "\n");
@@ -229,6 +223,37 @@ namespace NetTally
             {
                 ss.Release();
             }
+        }
+
+
+        /// <summary>
+        /// Get the cached version of a page, if available.
+        /// </summary>
+        /// <param name="url">The URL of the page being requested.</param>
+        /// <param name="shortDescription">A short description of the page being requested.</param>
+        /// <returns>Returns the requested page if it's in the cache, and newer than 30 minutes old.</returns>
+        private HtmlDocument GetCachedPage(string url, string shortDescription)
+        {
+            CachedPage cache;
+
+            // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
+            if (pageCache.TryGetValue(url, out cache))
+            {
+                var cacheAge = DateTime.Now - cache.Timestamp;
+
+                if (cacheAge.TotalMinutes < 30)
+                {
+                    if (cacheAge.TotalSeconds > 4)
+                        OnStatusChanged(shortDescription + " loaded from memory!\n");
+
+                    return cache.Doc;
+                }
+
+                // Purge the cached page if it's older than 30 minutes.
+                pageCache.Remove(url);
+            }
+
+            return null;
         }
 
         #endregion
