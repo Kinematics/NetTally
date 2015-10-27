@@ -70,14 +70,19 @@ namespace NetTally
                 // First page is already loaded.
                 pages.Add(firstPage);
 
+                // Set parameters for which pages to try to load
                 int pagesToScan = lastPageNumber - firstPageNumber;
-                int lastPageLoaded = 0;
 
+                int? lastPageNumberLoaded = null;
+                if (lastPageLoadedFor.ContainsKey(quest.ThreadName))
+                    lastPageNumberLoaded = lastPageLoadedFor[quest.ThreadName];
+
+                // Initiate the async tasks to load the pages
                 if (pagesToScan > 0)
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var results = from pageNum in Enumerable.Range(firstPageNumber + 1, pagesToScan)
-                                  let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
+                                  let cacheMode = (lastPageNumberLoaded.HasValue && pageNum >= lastPageNumberLoaded) ? Caching.BypassCache : Caching.UseCache
                                   let pageUrl = quest.GetPageUrl(pageNum)
                                   select GetPage(pageUrl, $"Page {pageNum}", cacheMode, token);
 
