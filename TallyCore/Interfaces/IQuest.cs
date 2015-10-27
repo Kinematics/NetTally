@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace NetTally
 {
@@ -107,5 +108,25 @@ namespace NetTally
         /// <param name="token"></param>
         /// <returns></returns>
         Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token);
+
+
+        /// <summary>
+        /// Get the URL string for the provided page number of the quest thread.
+        /// </summary>
+        string GetPageUrl(int pageNumber);
+        /// <summary>
+        /// Converts a post number into a page number.
+        /// </summary>
+        int GetPageNumberOf(int postNumber);
+        /// <summary>
+        /// Get the first page number of the thread, where we should start reading, based on
+        /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
+        /// </summary>
+        Task<int> GetFirstPageNumber(IPageProvider pageProvider, CancellationToken token);
+        /// <summary>
+        /// Get the last page number of the thread, where we should stop reading, based on
+        /// current quest parameters and the provided web page.
+        /// </summary>
+        Task<int> GetLastPageNumber(HtmlDocument loadedPage, CancellationToken token);
     }
 }

@@ -50,32 +50,18 @@ namespace NetTally
         {
             try
             {
-                IForumAdapter forumAdapter = quest.GetForumAdapter();
+                // Determine the first and last page numbers to be loaded.
 
-                int startPost = await forumAdapter.GetStartingPostNumber(this, quest, token).ConfigureAwait(false);
+                int firstPageNumber = await quest.GetFirstPageNumber(this, token);
 
-                int startPage = forumAdapter.GetPageNumberFromPostNumber(quest, startPost);
-                int endPage = forumAdapter.GetPageNumberFromPostNumber(quest, quest.EndPost);
-
-                // Get the first page and extract the last page number of the thread from that (bypass the cache).
-                var firstPage = await GetPage(forumAdapter.GetPageUrl(quest.ThreadName, startPage),
-                    "Page " + startPage.ToString(), Caching.BypassCache, token).ConfigureAwait(false);
+                HtmlDocument firstPage = await GetPage(quest.GetPageUrl(firstPageNumber), $"Page {firstPageNumber}", Caching.BypassCache, token)
+                    .ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException("Unable to load web page.");
 
-                // Limit the end page based on the last page number of the thread.
-                if (quest.ReadToEndOfThread)
-                {
-                    try
-                    {
-                        endPage = forumAdapter.GetLastPageNumberOfThread(firstPage);
-                    }
-                    catch (Exception)
-                    {
-                        endPage = startPage;
-                    }
-                }
+                int lastPageNumber = await quest.GetLastPageNumber(firstPage, token);
+
 
                 // We will store the loaded pages in a new List.
                 List<HtmlDocument> pages = new List<HtmlDocument>();
@@ -83,29 +69,30 @@ namespace NetTally
                 // First page is already loaded.
                 pages.Add(firstPage);
 
-                int pagesToScan = endPage - startPage;
+                int pagesToScan = lastPageNumber - firstPageNumber;
                 int lastPageLoaded = 0;
 
                 if (pagesToScan > 0)
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
-                    var results = from pageNum in Enumerable.Range(startPage + 1, pagesToScan)
+                    var results = from pageNum in Enumerable.Range(firstPageNumber + 1, pagesToScan)
                                   let cacheMode = (lastPageLoadedFor.TryGetValue(quest.ThreadName, out lastPageLoaded) && pageNum >= lastPageLoaded) ? Caching.BypassCache : Caching.UseCache
-                                  select GetPage(forumAdapter.GetPageUrl(quest.ThreadName, pageNum), "Page " + pageNum.ToString(), cacheMode, token);
+                                  let pageUrl = quest.GetPageUrl(pageNum)
+                                  select GetPage(pageUrl, $"Page {pageNum}", cacheMode, token);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
 
                     if (pageArray.Any(p => p == null))
                     {
-                        throw new Exception("Not all pages loaded.  Rerun tally.");
+                        throw new ApplicationException("Not all pages loaded.  Rerun tally.");
                     }
 
                     // Add the results to our list of pages.
                     pages.AddRange(pageArray);
                 }
 
-                lastPageLoadedFor[quest.ThreadName] = endPage;
+                lastPageLoadedFor[quest.ThreadName] = lastPageNumber;
 
                 return pages;
             }
