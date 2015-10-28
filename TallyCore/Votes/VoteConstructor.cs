@@ -191,7 +191,7 @@ namespace NetTally
 
                 foreach (var votePartition in votePartitions)
                 {
-                    VoteCounter.AddVoteSupport(votePartition, planName, VoteType.Plan, partitionMode);
+                    VoteCounter.AddVoteSupport(votePartition, planName, VoteType.Plan);
                 }
             }
         }
@@ -249,10 +249,10 @@ namespace NetTally
                         // Add the plan's post ID.
                         VoteCounter.AddVoterPostID(automaticPlanName, post.ID, VoteType.Plan);
                         // Add the plan partition.
-                        VoteCounter.AddVoteSupport(votePartition, automaticPlanName, VoteType.Plan, partitionMode);
+                        VoteCounter.AddVoteSupport(votePartition, automaticPlanName, VoteType.Plan);
                     }
 
-                    VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote, partitionMode);
+                    VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote);
                 }
 
 
@@ -267,7 +267,7 @@ namespace NetTally
 
                     foreach (var refRank in refRanks)
                     {
-                        VoteCounter.AddVoteSupport(refRank.Key, post.Author, VoteType.Rank, partitionMode);
+                        VoteCounter.AddVoteSupport(refRank.Key, post.Author, VoteType.Rank);
                     }
                 }
             }
@@ -320,7 +320,7 @@ namespace NetTally
 
                 foreach (var line in ranksList)
                 {
-                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank, partitionMode);
+                    VoteCounter.AddVoteSupport(line.First(), post.Author, VoteType.Rank);
                 }
             }
         }
@@ -817,7 +817,7 @@ namespace NetTally
             if (vote.Count != 1)
                 return false;
 
-            string voteLine = vote.First();
+            string voteEntry = vote.First();
 
             var voteLines = Utility.Text.GetStringLines(voteEntry);
 
