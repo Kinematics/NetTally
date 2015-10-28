@@ -517,7 +517,7 @@ namespace NetTally
                         currentTask = task;
 
                         string firstLine = Utility.Text.FirstLine(v);
-                        string firstLineContent = VoteString.GetVoteContentFirstLine(v);
+                        string firstLineContent = VoteString.GetVoteContent(firstLine);
                         if (firstLineContent == string.Empty)
                         {
                             taskHeader = firstLine;
@@ -583,7 +583,7 @@ namespace NetTally
                 // Start a new block
                 sb.AppendLine(line);
             }
-            else if (VoteString.CleanVote(line).StartsWith("-"))
+            else if (VoteString.GetVotePrefix(line).StartsWith("-"))
             {
                 // Sub-lines get added to an existing block
                 sb.AppendLine(line);
@@ -819,11 +819,14 @@ namespace NetTally
 
             string voteLine = vote.First();
 
-            string content = VoteString.GetVoteContentFirstLine(voteLine);
+            var voteLines = Utility.Text.GetStringLines(voteEntry);
 
             // If the content spans multiple lines, it can't be a floating reference.
-            if (content != VoteString.GetVoteContent(voteLine))
+            if (voteLines.Count > 1)
                 return false;
+
+            // Get the content of the first line of the vote.
+            string content = VoteString.GetVoteContent(voteLines.First());
 
             // Anything starting with "plan" or "base plan" is a fixed reference.
             // Though if the entire match fails, bail out as well.

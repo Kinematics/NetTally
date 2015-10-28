@@ -95,7 +95,7 @@ namespace NetTally.Tests
             string voter = "me";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter, voteType);
 
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
@@ -108,7 +108,7 @@ namespace NetTally.Tests
             string voter = "me";
             VoteType voteType = VoteType.Plan;
 
-            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter, voteType);
 
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
@@ -121,7 +121,7 @@ namespace NetTally.Tests
             string voter = "me";
             VoteType voteType = VoteType.Rank;
 
-            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter, voteType);
 
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
@@ -135,8 +135,8 @@ namespace NetTally.Tests
             string voter2 = "me2";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest.PartitionMode);
-            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType);
 
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(voteLine));
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter1));
@@ -150,7 +150,7 @@ namespace NetTally.Tests
             string voter = "me";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(voteLine, voter, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter, voteType);
             voteCounter.RemoveSupport(voter, voteType);
 
             Assert.AreEqual(0, voteCounter.VotesWithSupporters.Count);
@@ -164,8 +164,8 @@ namespace NetTally.Tests
             string voter2 = "me2";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest.PartitionMode);
-            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType);
 
             voteCounter.RemoveSupport(voter1, voteType);
 
@@ -182,8 +182,8 @@ namespace NetTally.Tests
             string voter2 = "me2";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(voteLine, voter1, voteType, sampleQuest.PartitionMode);
-            voteCounter.AddVoteSupport(voteLine, voter2, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(voteLine, voter1, voteType);
+            voteCounter.AddVoteSupport(voteLine, voter2, voteType);
 
             voteCounter.RemoveSupport("you", voteType);
 
@@ -202,8 +202,8 @@ namespace NetTally.Tests
             string voter2 = "me2";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(vote1, voter1, voteType, sampleQuest.PartitionMode);
-            voteCounter.AddVoteSupport(vote2, voter2, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(vote1, voter1, voteType);
+            voteCounter.AddVoteSupport(vote2, voter2, voteType);
 
             Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(vote1));
@@ -221,9 +221,9 @@ namespace NetTally.Tests
             string voter2 = "me2";
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoteSupport(vote1, voter1, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(vote1, voter1, voteType);
             voteCounter.RemoveSupport(voter1, voteType);
-            voteCounter.AddVoteSupport(vote2, voter2, voteType, sampleQuest.PartitionMode);
+            voteCounter.AddVoteSupport(vote2, voter2, voteType);
 
             Assert.AreEqual(1, voteCounter.VotesWithSupporters.Count);
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).ContainsKey(vote1));

@@ -185,7 +185,7 @@ namespace NetTally
 
                 foreach (var vote in votesSet)
                 {
-                    if (VoteString.CondenseRankVote(vote.Key) == fromVote)
+                    if (VoteString.CondenseVote(vote.Key) == fromVote)
                     {
                         string toContent = VoteString.GetVoteContent(toVote, voteType);
                         string toTask = VoteString.GetVoteTask(toVote, voteType);
@@ -492,7 +492,7 @@ namespace NetTally
 
         public List<string> GetCondensedRankVotes()
         {
-            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseRankVote(k)).Distinct().ToList();
+            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
             return condensed;
         }
 
@@ -509,7 +509,7 @@ namespace NetTally
         {
             foreach (var vote in RankedVotesWithSupporters)
             {
-                if (VoteString.CondenseRankVote(vote.Key) == rankVote)
+                if (VoteString.CondenseVote(vote.Key) == rankVote)
                     return true;
             }
 
@@ -534,7 +534,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = VoteString.MinimizeVote(vote, partitionMode);
+            var minVote = VoteString.MinimizeVote(vote);
 
             // If it matches a lookup value, return the lookup key
             string lookupVote;

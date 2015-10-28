@@ -584,7 +584,7 @@ namespace NetTally
             }
 
 
-            var condensedVoters = votes.Where(k => VoteString.CondenseRankVote(k.Key) == currentVote).Select(k => k.Value);
+            var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == currentVote).Select(k => k.Value);
 
             return condensedVoters.Any(h => h.Contains(voterName));
         }
