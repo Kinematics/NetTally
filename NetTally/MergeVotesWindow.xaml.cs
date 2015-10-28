@@ -277,35 +277,7 @@ namespace NetTally
             string fromVote = VoteView1.CurrentItem?.ToString();
             string toVote = VoteView2.CurrentItem?.ToString();
 
-            try
-            {
-                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
-
-                if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
-                {
-                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
-                    var votesDiff = votesAfter.Except(votesPrior);
-
-                    VoteCollection.Remove(fromVote);
-                    if (votesDiff.Count() == 1)
-                    {
-                        string addVote = votesDiff.First();
-                        if (CurrentVoteType == VoteType.Rank)
-                            addVote = VoteString.CondenseRankVote(addVote);
-
-                        if (!VoteCollection.Contains(addVote))
-                            VoteCollection.Add(addVote);
-                    }
-                        
-
-                    VoterView1.Refresh();
-                    VoterView2.Refresh();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MergeVotes(fromVote, toVote);
         }
 
         /// <summary>
@@ -454,17 +426,9 @@ namespace NetTally
             {
                 string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
 
-                if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
-                {
-                    if (!VoteCollection.Contains(changedVote))
-                        VoteCollection.Add(changedVote);
+                MergeVotes(selectedVote, changedVote);
 
-                    VoteView1.Refresh();
-                    VoteView2.Refresh();
-
-                    newTaskBox.SelectedItem = changedVote;
-                }
-
+                newTaskBox.SelectedItem = changedVote;
             }
 
             newTaskBox = null;
@@ -506,16 +470,9 @@ namespace NetTally
                             else
                                 changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
 
-                            if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
-                            {
-                                if (!VoteCollection.Contains(changedVote))
-                                    VoteCollection.Add(changedVote);
+                            MergeVotes(selectedVote, changedVote);
 
-                                VoteView1.Refresh();
-                                VoteView2.Refresh();
-
-                                box.SelectedItem = changedVote;
-                            }
+                            box.SelectedItem = changedVote;
                         }
                     }
                 }
@@ -598,6 +555,46 @@ namespace NetTally
             VoteView2.Refresh();
             VoteView1.MoveCurrentToFirst();
             VoteView2.MoveCurrentToFirst();
+        }
+
+        /// <summary>
+        /// Handle busywork for merging votes together and updating the VotesCollection.
+        /// </summary>
+        /// <param name="fromVote">The vote being merged.</param>
+        /// <param name="toVote">The vote being merged into.</param>
+        private void MergeVotes(string fromVote, string toVote)
+        {
+            try
+            {
+                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
+                if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
+                {
+                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
+                    var removedVotes = votesPrior.Except(votesAfter);
+                    var addedVotes = votesAfter.Except(votesPrior);
+
+                    foreach (var vote in removedVotes)
+                    {
+                        VoteCollection.Remove(vote);
+                    }
+
+                    foreach (var vote in addedVotes)
+                    {
+                        string addVote = CurrentVoteType == VoteType.Rank ? VoteString.CondenseVote(vote) : vote;
+
+                        VoteCollection.Add(addVote);
+                    }
+
+                    VoterView1.Refresh();
+                    VoterView2.Refresh();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #endregion
