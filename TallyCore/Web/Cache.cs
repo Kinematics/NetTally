@@ -5,7 +5,7 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
-    public class Cache
+    public class WebCache
     {
         Dictionary<string, CachedPage> PageCache { get; }
         Dictionary<string, int> LastPageLoadedFor { get; }
@@ -17,7 +17,7 @@ namespace NetTally
         /// Allow specifying the max number of cache entries on creation.
         /// </summary>
         /// <param name="maxCacheEntries">Max number of entries the cache will retain.</param>
-        public Cache(int maxCacheEntries = 50)
+        public WebCache(int maxCacheEntries = 50)
         {
             MaxCacheEntries = maxCacheEntries;
 
