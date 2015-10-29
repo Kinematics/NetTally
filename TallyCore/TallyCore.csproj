@@ -67,6 +67,7 @@
     <Compile Include="Tally.cs" />
     <Compile Include="TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
+    <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
     <Compile Include="Votes\PostText.cs" />
     <Compile Include="Utility\RegionProfiler.cs" />
