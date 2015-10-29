@@ -52,7 +52,8 @@
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Utility\CachedPage.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
-    <Compile Include="ForumCookies.cs" />
+    <Compile Include="Web\WebCache.cs" />
+    <Compile Include="Web\ForumCookies.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />
     <Compile Include="Interfaces\IPageProvider.cs" />
     <Compile Include="Interfaces\IQuest.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Tally.cs" />
     <Compile Include="TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
+    <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
     <Compile Include="Votes\PostLine.cs" />
     <Compile Include="Votes\PostText.cs" />
@@ -77,7 +79,7 @@
     <Compile Include="Votes\VoteString.cs" />
     <Compile Include="Votes\VoteConstructor.cs" />
     <Compile Include="VoteCounter.cs" />
-    <Compile Include="WebPageProvider.cs" />
+    <Compile Include="Web\WebPageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -51,6 +51,15 @@ namespace NetTally
         ByTaskBlock
     }
 
+    /// <summary>
+    /// Enum for whether to use the cache when loading a web page.
+    /// </summary>
+    public enum Caching
+    {
+        UseCache,
+        BypassCache
+    }
+
     public static class Enumerations
     {
         /// <summary>
