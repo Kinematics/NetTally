@@ -12,12 +12,9 @@ namespace NetTally
 {
     public class WebPageProvider : IPageProvider
     {
-        readonly Dictionary<string, CachedPage> pageCache = new Dictionary<string, CachedPage>();
-        readonly Dictionary<string, int> lastPageLoadedFor = new Dictionary<string, int>();
+        WebCache Cache { get; } = new WebCache();
 
-        readonly int maxCacheEntries = 50;
-
-        static readonly SemaphoreSlim ss = new SemaphoreSlim(5);
+        readonly SemaphoreSlim ss = new SemaphoreSlim(5);
 
         #region Event handlers
         /// <summary>
@@ -38,8 +35,7 @@ namespace NetTally
         /// </summary>
         public void ClearPageCache()
         {
-            pageCache.Clear();
-            lastPageLoadedFor.Clear();
+            Cache.Clear();
         }
 
         /// <summary>
@@ -73,9 +69,7 @@ namespace NetTally
                 // Set parameters for which pages to try to load
                 int pagesToScan = lastPageNumber - firstPageNumber;
 
-                int? lastPageNumberLoaded = null;
-                if (lastPageLoadedFor.ContainsKey(quest.ThreadName))
-                    lastPageNumberLoaded = lastPageLoadedFor[quest.ThreadName];
+                int? lastPageNumberLoaded = Cache.GetLastPageLoaded(quest.ThreadName);
 
                 // Initiate the async tasks to load the pages
                 if (pagesToScan > 0)
@@ -98,9 +92,7 @@ namespace NetTally
                     pages.AddRange(pageArray);
                 }
 
-                lastPageLoadedFor[quest.ThreadName] = lastPageNumber;
-
-                ReviewCache();
+                Cache.Update(quest.ThreadName, lastPageNumber);
 
                 return pages;
             }
@@ -123,13 +115,16 @@ namespace NetTally
         {
             if (caching == Caching.UseCache)
             {
-                HtmlDocument page = GetCachedPage(url, shortDescription);
+                HtmlDocument page = Cache.Get(url);
 
                 if (page != null)
+                {
+                    OnStatusChanged($"{shortDescription} loaded from memory!\n");
                     return page;
+                }
             }
 
-            OnStatusChanged(url + "\n");
+            OnStatusChanged($"{url}\n");
 
             // Limit to no more than 5 parallel requests
             await ss.WaitAsync(token);
@@ -207,74 +202,21 @@ namespace NetTally
 
                 if (result == null)
                 {
-                    OnStatusChanged("Failed to load: " + shortDescription + "\n");
+                    OnStatusChanged($"Failed to load: {shortDescription}\n");
                     return null;
                 }
 
                 htmldoc.LoadHtml(result);
 
-                pageCache[url] = new CachedPage(htmldoc);
+                Cache.Add(url, htmldoc);
 
-                OnStatusChanged(shortDescription + " loaded!\n");
+                OnStatusChanged($"{shortDescription} loaded!\n");
 
                 return htmldoc;
             }
             finally
             {
                 ss.Release();
-            }
-        }
-
-
-        /// <summary>
-        /// Get the cached version of a page, if available.
-        /// </summary>
-        /// <param name="url">The URL of the page being requested.</param>
-        /// <param name="shortDescription">A short description of the page being requested.</param>
-        /// <returns>Returns the requested page if it's in the cache, and newer than 30 minutes old.</returns>
-        private HtmlDocument GetCachedPage(string url, string shortDescription)
-        {
-            CachedPage cache;
-
-            // Attempt to use the cached version of the page if it was loaded less than 30 minutes ago.
-            if (pageCache.TryGetValue(url, out cache))
-            {
-                var cacheAge = DateTime.Now - cache.Timestamp;
-
-                if (cacheAge.TotalMinutes < 30)
-                {
-                    if (cacheAge.TotalSeconds > 4)
-                        OnStatusChanged(shortDescription + " loaded from memory!\n");
-
-                    return cache.Doc;
-                }
-
-                // Purge the cached page if it's older than 30 minutes.
-                pageCache.Remove(url);
-            }
-
-            return null;
-        }
-
-        #endregion
-
-        #region Private assist functions
-        /// <summary>
-        /// Review cache to prevent its size from getting out of hand.
-        /// </summary>
-        private void ReviewCache()
-        {
-            if (pageCache.Count > maxCacheEntries)
-            {
-                var newestEntries = pageCache.OrderByDescending(p => p.Value.Timestamp).Take(maxCacheEntries);
-                var olderEntries = pageCache.Except(newestEntries).ToList();
-
-                foreach (var entry in olderEntries)
-                {
-                    pageCache.Remove(entry.Key);
-                }
-
-                GC.Collect();
             }
         }
         #endregion
