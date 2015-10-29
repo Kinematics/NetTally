@@ -9,7 +9,7 @@ using NetTally;
 namespace TallyUnitTest
 {
     [TestClass()]
-    public class VoteLineTests
+    public class VoteStringTests
     {
         [TestMethod()]
         public void NormalizeVoteTest()
