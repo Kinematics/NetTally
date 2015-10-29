@@ -10,7 +10,7 @@ namespace NetTally.Utility
         // Regex for control and formatting characters that we don't want to allow processing of.
         // EG: \u200B, non-breaking space
         // Do not remove CR/LF characters
-        public static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
+        static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
 
         /// <summary>
         /// Filter unsafe characters from the provided string.
