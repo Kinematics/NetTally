@@ -12,10 +12,12 @@ namespace NetTally
     /// </summary>
     public class PostComponents : IComparable, IComparer<PostComponents>
     {
+        public string OriginalAuthor { get; }
         public string Author { get; }
         public string ID { get; }
         public string Text { get; }
         public int IDValue { get; }
+        public int PostNumber { get; }
         public List<string> VoteStrings { get; }
 
         // Indicate whether this post contains a vote of any sort.
@@ -34,11 +36,18 @@ namespace NetTally
         /// <param name="author">The author of the post.</param>
         /// <param name="id">The ID (string) of the post.</param>
         /// <param name="text">The text contents of the post.</param>
-        public PostComponents(string author, string id, string text)
+        public PostComponents(string author, string id, string text, int postNumber = 0)
         {
-            Author = author;
+            OriginalAuthor = author;
             ID = id;
             Text = text;
+            PostNumber = postNumber;
+
+            if (DebugMode.Active)
+                Author = author + "_" + id;
+            else
+                Author = author;
+
 
             int idnum;
             if (int.TryParse(id, out idnum))
