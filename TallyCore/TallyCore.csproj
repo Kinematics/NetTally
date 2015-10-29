@@ -53,6 +53,8 @@
     <Compile Include="Utility\CachedPage.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Votes\PostExtractor.cs" />
+    <Compile Include="Votes\ThreadInfo.cs" />
+    <Compile Include="Votes\VoteCounter2.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
     <Compile Include="Interfaces\IForumAdapter.cs" />
