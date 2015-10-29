@@ -131,8 +131,6 @@ namespace NetTally
 
             try
             {
-                HtmlDocument htmldoc = new HtmlDocument();
-
                 string result = null;
                 int maxtries = 5;
                 int tries = 0;
@@ -206,6 +204,7 @@ namespace NetTally
                     return null;
                 }
 
+                HtmlDocument htmldoc = new HtmlDocument();
                 htmldoc.LoadHtml(result);
 
                 Cache.Add(url, htmldoc);
