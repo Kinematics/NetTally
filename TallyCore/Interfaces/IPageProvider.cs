@@ -6,13 +6,6 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
-    public enum Caching
-    {
-        UseCache,
-        BypassCache
-    }
-
-
     public interface IPageProvider
     {
         /// <summary>
