@@ -30,13 +30,6 @@ namespace NetTally
         Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token);
 
         /// <summary>
-        /// Calculate the page number that corresponds to the post number given.
-        /// </summary>
-        /// <param name="post">Post number.</param>
-        /// <returns>Page number.</returns>
-        int GetPageNumberFromPostNumber(IQuest quest, int postNumber);
-
-        /// <summary>
         /// Get the last page number of the thread, based on info available
         /// from the given page.
         /// </summary>

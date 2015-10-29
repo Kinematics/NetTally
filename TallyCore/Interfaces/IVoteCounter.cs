@@ -7,7 +7,7 @@ namespace NetTally
     {
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
         void Reset();
-        void AddVoteSupport(string vote, string voter, VoteType voteType, IQuest quest);
+        void AddVoteSupport(string vote, string voter, VoteType voteType);
         void RemoveSupport(string voter, VoteType voteType);
         void AddVoterPostID(string voter, string postID, VoteType voteType);
         bool Merge(string fromVote, string toVote, VoteType voteType);

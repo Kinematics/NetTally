@@ -185,7 +185,7 @@ namespace NetTally
 
                 foreach (var vote in votesSet)
                 {
-                    if (VoteString.CondenseRankVote(vote.Key) == fromVote)
+                    if (VoteString.CondenseVote(vote.Key) == fromVote)
                     {
                         string toContent = VoteString.GetVoteContent(toVote, voteType);
                         string toTask = VoteString.GetVoteTask(toVote, voteType);
@@ -370,12 +370,12 @@ namespace NetTally
         /// <param name="voter">The voter supporting the vote.</param>
         /// <param name="voteType">The type of vote.</param>
         /// <param name="quest">The quest attached to the vote being adjusted.</param>
-        public void AddVoteSupport(string vote, string voter, VoteType voteType, IQuest quest)
+        public void AddVoteSupport(string vote, string voter, VoteType voteType)
         {
             var votes = GetVotesCollection(voteType);
 
             // Find any existing vote that matches the current vote partition.
-            string voteKey = GetVoteKey(vote, quest, voteType);
+            string voteKey = GetVoteKey(vote, voteType);
 
             // Make sure there's a hashset for the voter list available for the vote key.
             if (!votes.ContainsKey(voteKey))
@@ -457,22 +457,20 @@ namespace NetTally
         /// empty list.</returns>
         public List<string> GetVotesFromReference(string voteLine)
         {
-            string planName = VoteString.GetVoteReferenceName(voteLine);
+            List<string> results = new List<string>();
 
-            var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
+            var planNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            if (planVotes.Count() > 0)
-                return planVotes.Select(v => v.Key).ToList();
+            var usePlanName = planNames.FirstOrDefault(p => VotesWithSupporters.Where(v => v.Value.Contains(p)).Count() > 0);
 
-            // Get alternate version.
-            planName = VoteString.GetVoteReferenceName(voteLine, true);
+            if (usePlanName != null)
+            {
+                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(usePlanName));
 
-            planVotes = VotesWithSupporters.Where(v => v.Value.Contains(planName));
+                results.AddRange(planVotes.Select(v => v.Key));
+            }
 
-            if (planVotes.Count() > 0)
-                return planVotes.Select(v => v.Key).ToList();
-
-            return new List<string>();
+            return results;
         }
 
         /// <summary>
@@ -494,7 +492,7 @@ namespace NetTally
 
         public List<string> GetCondensedRankVotes()
         {
-            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseRankVote(k)).Distinct().ToList();
+            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
             return condensed;
         }
 
@@ -511,7 +509,7 @@ namespace NetTally
         {
             foreach (var vote in RankedVotesWithSupporters)
             {
-                if (VoteString.CondenseRankVote(vote.Key) == rankVote)
+                if (VoteString.CondenseVote(vote.Key) == rankVote)
                     return true;
             }
 
@@ -526,7 +524,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to search for.</param>
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
-        private string GetVoteKey(string vote, IQuest quest, VoteType voteType)
+        private string GetVoteKey(string vote, VoteType voteType)
         {
             var votes = GetVotesCollection(voteType);
 
@@ -536,7 +534,7 @@ namespace NetTally
                 return vote;
             }
 
-            var minVote = VoteString.MinimizeVote(vote, quest.PartitionMode);
+            var minVote = VoteString.MinimizeVote(vote);
 
             // If it matches a lookup value, return the lookup key
             string lookupVote;

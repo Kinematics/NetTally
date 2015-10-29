@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
@@ -32,17 +34,27 @@ namespace NetTally.Utility
         public static string PlanNameMarker { get; } = "\u25C8";
 
         /// <summary>
+        /// Takes an input string that is potentially composed of multiple text lines,
+        /// and splits it up into a List of strings of one text line each.
+        /// Does not generate empty lines.
+        /// </summary>
+        /// <param name="input">The input text.</param>
+        /// <returns>The list of all string lines in the input.</returns>
+        public static List<string> GetStringLines(string input)
+        {
+            string[] split = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return new List<string>(split);
+        }
+
+        /// <summary>
         /// Get the first line (pre-EOL) of a potentially multi-line string.
         /// </summary>
-        /// <param name="multiLine">The string to get the first line from.</param>
+        /// <param name="input">The string to get the first line from.</param>
         /// <returns>Returns the first line of the provided string.</returns>
-        public static string FirstLine(string multiLine)
+        public static string FirstLine(string input)
         {
-            int i = multiLine.IndexOf("\r");
-            if (i > 0)
-                return multiLine.Substring(i);
-            else
-                return multiLine;
+            var lines = GetStringLines(input);
+            return lines.FirstOrDefault();
         }
     }
 
@@ -78,7 +90,7 @@ namespace NetTally.Utility
 
     public static class MathUtil
     {
-        public static T BoundsCheck<T>(T? min, T value, T? max) where T: struct, IComparable<T>
+        public static T Clamp<T>(T? min, T value, T? max) where T: struct, IComparable<T>
         {
             if (min.HasValue && value.CompareTo(min.Value) < 0)
                 return min.Value;

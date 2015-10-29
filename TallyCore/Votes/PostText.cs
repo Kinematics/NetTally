@@ -95,11 +95,9 @@ namespace NetTally.Utility
         /// <param name="exclude">A predicate that can be used to exclude specific
         /// sub-nodes from the end result.</param>
         /// <param name="sb">The stringbuilder where all results are concatenated.  Will create if not provided.</param>
-        /// <returns>Returns a predicate.</returns>
+        /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
         private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb = null)
         {
-            //char[] newlines = { '\r', '\n' };
-
             if (sb == null)
                 sb = new StringBuilder();
 
@@ -113,7 +111,6 @@ namespace NetTally.Utility
                 switch (child.Name)
                 {
                     case "#text":
-                        //sb.Append(child.InnerText.Trim(newlines));
                         sb.Append(child.InnerText);
                         break;
                     case "br":

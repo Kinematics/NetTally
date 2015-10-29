@@ -166,7 +166,7 @@
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Search For Threadmark</TextBlock>
-                        <TextBlock>Attempt to find the last threadmark of the thread, to use as the starting point for the tally.</TextBlock>
+                        <TextBlock>Attempt to run the tally from the last non-omake threadmark to the end of the thread.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </CheckBox.ToolTip>

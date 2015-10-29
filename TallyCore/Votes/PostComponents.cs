@@ -51,66 +51,33 @@ namespace NetTally
             else
                 IDValue = 0;
 
-            PostLines = GetPostLines(text);
-
-            if (IsTallyPost())
+            if (IsTallyPost(text))
                 return;
 
-            VoteLines = GetVoteLines();
-        }
+            var lines = Utility.Text.GetStringLines(text);
+            var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.CleanVote(a)).Success);
 
-        /// <summary>
-        /// Convert the provided match results into a list of post lines for ease of use.
-        /// </summary>
-        /// <param name="matches">A collection of regex matches.</param>
-        /// <returns>Returns the list of post lines contained by the regex matches.</returns>
-        public List<PostLine> GetPostLines(string text)
-        {
-            // Pull all individual lines
-            MatchCollection matches = allLinesRegex.Matches(text);
-
-            // Keep only non-whitespace lines (saved as a PostLine)
-            var lines = from Match m in matches
-                        let line = m.Value.Trim()
-                        where line != string.Empty
-                        select new PostLine(line);
-
-            return lines.ToList();
-        }
-
-        /// <summary>
-        /// Get all the vote lines out of the post lines in the post.
-        /// Nomination-style lines are selected if all post lines validate as nomination lines.
-        /// </summary>
-        /// <returns>Returns a list of all the PostLines in the post that are
-        /// valid vote lines.</returns>
-        public List<PostLine> GetVoteLines()
-        {
-            var lines = from l in PostLines
-                        where voteLineRegex.Match(l.Clean).Success
-                        select l;
-
-            if (!lines.Any())
+            if (voteLines.Any())
             {
-                if (PostLines.All(l => nominationLineRegex.Match(l.Clean).Success))
-                {
-                    lines = from l in PostLines
-                            select new PostLine("[X] " + l.Original);
-                }
+                VoteStrings = voteLines.ToList();
             }
-
-            return lines.ToList();
+            else if (lines.All(a => nominationLineRegex.Match(a).Success))
+            {
+                VoteStrings = lines.Select(a => "[X] " + a.Trim()).ToList();
+            }
         }
 
         /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
         /// </summary>
+        /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        public bool IsTallyPost()
+        public bool IsTallyPost(string postText)
         {
-            // A tally post is marked by the string "#####" at the start of a line.
-            // If the clean view of any of the post's lines matches the regex, it's a tally post.
-            return PostLines.Any(p => tallyRegex.Match(p.Clean).Success);
+            // If the post contains the string "#####" at the start of the line for part of its text,
+            // it's a tally post.
+            string cleanText = VoteString.CleanVote(postText);
+            return (tallyRegex.Matches(cleanText).Count > 0);
         }
         
         /// <summary>

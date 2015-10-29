@@ -134,14 +134,6 @@ namespace NetTally.Adapters
         }
 
         /// <summary>
-        /// Calculate the page number that corresponds to the post number given.
-        /// </summary>
-        /// <param name="quest">Quest that we're getting the page number for.</param>
-        /// <param name="post">Post number.</param>
-        /// <returns>Page number.</returns>
-        public int GetPageNumberFromPostNumber(IQuest quest, int postNumber) => ((postNumber - 1) / quest.PostsPerPage) + 1;
-
-        /// <summary>
         /// Check if the name of the thread is valid for inserting into a URL.
         /// </summary>
         /// <param name="name">The name of the quest/thread.</param>

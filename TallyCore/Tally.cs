@@ -135,7 +135,7 @@ namespace NetTally
                     throw new InvalidOperationException($"Unable to load a forum adapter for the quest thread:\n{quest.ThreadName}");
 
                 // Load pages from the website
-                loadedPages = await PageProvider.LoadPages(quest, token).ConfigureAwait(false);
+                loadedPages = await PageProvider.LoadQuestPages(quest, token).ConfigureAwait(false);
 
                 UpdateTally(quest);
             }

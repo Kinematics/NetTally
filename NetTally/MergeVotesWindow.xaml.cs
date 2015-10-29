@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -35,6 +36,9 @@ namespace NetTally
         HashSet<string> ManualTasks { get; }
 
         ListBox newTaskBox = null;
+
+        string filter1String;
+        string filter2String;
 
 
         /// <summary>
@@ -70,16 +74,16 @@ namespace NetTally
 
             if (VoteView1.CanSort)
             {
-                //IComparer voteCompare = new Utility.CustomVoteSort();
-                IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
+                IComparer voteCompare = new Utility.CustomVoteSort();
+                //IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }
 
             if (VoteView1.CanFilter)
             {
-                VoteView1.Filter = (a) => FilterVotes(a.ToString());
-                VoteView2.Filter = (a) => FilterVotes(a.ToString());
+                VoteView1.Filter = (a) => FilterVotes1(a.ToString());
+                VoteView2.Filter = (a) => FilterVotes2(a.ToString());
             }
 
             // Initialize starting selected positions
@@ -112,6 +116,9 @@ namespace NetTally
 
             // Set the data context for binding.
             DataContext = this;
+
+            Filter1String = "";
+            Filter2String = "";
         }
 
         #endregion
@@ -202,6 +209,58 @@ namespace NetTally
                     return VoteType.Rank;
             }
         }
+
+        /// <summary>
+        /// Property for holding the string used to filter the 'from' votes.
+        /// </summary>
+        public string Filter1String
+        {
+            get
+            {
+                return filter1String;
+            }
+            set
+            {
+                filter1String = Utility.Text.SafeString(value);
+                OnPropertyChanged();
+
+                IsFilter1Empty = filter1String == string.Empty;
+                OnPropertyChanged("IsFilter1Empty");
+
+                VoteView1.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Property for holding the string used to filter the 'to' votes.
+        /// </summary>
+        public string Filter2String
+        {
+            get
+            {
+                return filter2String;
+            }
+            set
+            {
+                filter2String = Utility.Text.SafeString(value);
+                OnPropertyChanged();
+
+                IsFilter2Empty = filter2String == string.Empty;
+                OnPropertyChanged("IsFilter2Empty");
+
+                VoteView2.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Bool property for UI for if the first filter string is empty.
+        /// </summary>
+        public bool IsFilter1Empty { get; set; }
+
+        /// <summary>
+        /// Bool property for UI for if the second filter string is empty.
+        /// </summary>
+        public bool IsFilter2Empty { get; set; }
         #endregion
 
         #region Window events
@@ -218,30 +277,7 @@ namespace NetTally
             string fromVote = VoteView1.CurrentItem?.ToString();
             string toVote = VoteView2.CurrentItem?.ToString();
 
-            try
-            {
-                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
-
-                if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
-                {
-                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
-                    var votesDiff = votesAfter.Except(votesPrior);
-
-                    VoteCollection.Remove(fromVote);
-                    if (votesDiff.Count() == 1)
-                    {
-                        VoteCollection.Add(votesDiff.First());
-                    }
-                        
-
-                    VoterView1.Refresh();
-                    VoterView2.Refresh();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MergeVotes(fromVote, toVote);
         }
 
         /// <summary>
@@ -390,17 +426,9 @@ namespace NetTally
             {
                 string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
 
-                if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
-                {
-                    if (!VoteCollection.Contains(changedVote))
-                        VoteCollection.Add(changedVote);
+                MergeVotes(selectedVote, changedVote);
 
-                    VoteView1.Refresh();
-                    VoteView2.Refresh();
-
-                    newTaskBox.SelectedItem = changedVote;
-                }
-
+                newTaskBox.SelectedItem = changedVote;
             }
 
             newTaskBox = null;
@@ -442,16 +470,9 @@ namespace NetTally
                             else
                                 changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
 
-                            if (VoteCounter.Merge(selectedVote, changedVote, CurrentVoteType))
-                            {
-                                if (!VoteCollection.Contains(changedVote))
-                                    VoteCollection.Add(changedVote);
+                            MergeVotes(selectedVote, changedVote);
 
-                                VoteView1.Refresh();
-                                VoteView2.Refresh();
-
-                                box.SelectedItem = changedVote;
-                            }
+                            box.SelectedItem = changedVote;
                         }
                     }
                 }
@@ -462,11 +483,33 @@ namespace NetTally
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
-        /// be displayed in the main list box.
+        /// be displayed in the main (from) list box.
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes(string vote) => VoteCounter.HasVote(vote, CurrentVoteType);
+        private bool FilterVotes1(string vote)
+        {
+            return VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (Filter1String == null || Filter1String == string.Empty ||
+                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0 ||
+                 (CurrentVoteType == VoteType.Vote &&
+                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0)));
+        }
+
+        /// <summary>
+        /// Filter to be used by a collection view to determine which votes should
+        /// be displayed in the main (to) list box.
+        /// </summary>
+        /// <param name="vote">The vote to be checked.</param>
+        /// <returns>Returns true if the vote is valid for the current vote type.</returns>
+        private bool FilterVotes2(string vote)
+        {
+            return VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (Filter2String == null || Filter2String == string.Empty ||
+                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0 ||
+                 (CurrentVoteType == VoteType.Vote &&
+                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0)));
+        }
 
         /// <summary>
         /// Filter to be used by a collection view to determine which voters should
@@ -498,7 +541,7 @@ namespace NetTally
             }
 
 
-            var condensedVoters = votes.Where(k => VoteString.CondenseRankVote(k.Key) == currentVote).Select(k => k.Value);
+            var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == currentVote).Select(k => k.Value);
 
             return condensedVoters.Any(h => h.Contains(voterName));
         }
@@ -512,6 +555,46 @@ namespace NetTally
             VoteView2.Refresh();
             VoteView1.MoveCurrentToFirst();
             VoteView2.MoveCurrentToFirst();
+        }
+
+        /// <summary>
+        /// Handle busywork for merging votes together and updating the VotesCollection.
+        /// </summary>
+        /// <param name="fromVote">The vote being merged.</param>
+        /// <param name="toVote">The vote being merged into.</param>
+        private void MergeVotes(string fromVote, string toVote)
+        {
+            try
+            {
+                var votesPrior = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
+                if (VoteCounter.Merge(fromVote, toVote, CurrentVoteType))
+                {
+                    var votesAfter = VoteCounter.GetVotesCollection(CurrentVoteType).Keys.ToList();
+
+                    var removedVotes = votesPrior.Except(votesAfter);
+                    var addedVotes = votesAfter.Except(votesPrior);
+
+                    foreach (var vote in removedVotes)
+                    {
+                        VoteCollection.Remove(vote);
+                    }
+
+                    foreach (var vote in addedVotes)
+                    {
+                        string addVote = CurrentVoteType == VoteType.Rank ? VoteString.CondenseVote(vote) : vote;
+
+                        VoteCollection.Add(addVote);
+                    }
+
+                    VoterView1.Refresh();
+                    VoterView2.Refresh();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #endregion

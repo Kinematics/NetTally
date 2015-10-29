@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace NetTally
 {
@@ -52,6 +53,78 @@ namespace NetTally
         bool partitionByLine = true;
         bool allowRankedVotes = false;
         PartitionMode partitionMode = PartitionMode.None;
+        #endregion
+
+        #region Page Stuff
+        /// <summary>
+        /// Get the URL string for the provided page number of the quest thread.
+        /// </summary>
+        /// <param name="pageNumber">The page number to get.</param>
+        /// <returns>Returns a URL of the forum thread for the apge number.</returns>
+        public string GetPageUrl(int pageNumber)
+        {
+            if (pageNumber < 1)
+                throw new ArgumentOutOfRangeException(nameof(pageNumber));
+
+            return forumAdapter?.GetPageUrl(ThreadName, pageNumber);
+        }
+
+        /// <summary>
+        /// Converts a post number into a page number.
+        /// </summary>
+        /// <param name="postNumber">The post number of the thread.</param>
+        /// <returns>Returns the page number of the thread that the post should be on.</returns>
+        public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
+
+        /// <summary>
+        /// Get the first page number of the thread, where we should start reading, based on
+        /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
+        /// </summary>
+        /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns the number of the first page we should start loading.</returns>
+        public async Task<int> GetFirstPageNumber(IPageProvider pageProvider, CancellationToken token)
+        {
+            if (pageProvider == null)
+                throw new ArgumentNullException(nameof(pageProvider));
+
+            IForumAdapter adapter = await GetForumAdapterAsync(token);
+
+            if (adapter == null)
+                throw new ApplicationException($"Unable to acquire a valid forum adapter for quest {DisplayName}.");
+
+            int startPostNumber = await adapter.GetStartingPostNumber(pageProvider, this, token);
+
+            return GetPageNumberOf(startPostNumber);
+        }
+
+        /// <summary>
+        /// Get the last page number of the thread, where we should stop reading, based on
+        /// current quest parameters and the provided web page.
+        /// </summary>
+        /// <param name="loadedPage">A page loaded from the thread, that we can check for page info.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns the last page number we should try to read for the tally.</returns>
+        public async Task<int> GetLastPageNumber(HtmlDocument loadedPage, CancellationToken token)
+        {
+            if (loadedPage == null)
+                throw new ArgumentNullException(nameof(loadedPage));
+
+            if (ReadToEndOfThread)
+            {
+                IForumAdapter adapter = await GetForumAdapterAsync(token);
+
+                if (adapter == null)
+                    throw new ApplicationException($"Unable to acquire a valid forum adapter for quest {DisplayName}.");
+
+                return adapter.GetLastPageNumberOfThread(loadedPage);
+            }
+            else
+            {
+                return GetPageNumberOf(EndPost);
+            }
+        }
+
         #endregion
 
         #region IQuest Properties
@@ -260,7 +333,6 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
-
 
         /// <summary>
         /// Flag for whether to try to override the provided starting post by
