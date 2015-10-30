@@ -38,4 +38,27 @@ namespace NetTally
         List<string> GetCondensedRankVotes();
         bool HasVote(string vote, VoteType voteType);
     }
+
+    public interface IVoteCounter2
+    {
+        void CountVotes(List<PostComponents> posts, IQuest quest, ThreadInfo threadInfo);
+        void Reset();
+
+        Dictionary<string, HashSet<string>> GetVotes(VoteType voteType);
+        Dictionary<string, string> GetVoters(VoteType voteType);
+
+        bool Add(string vote, VoteType voteType);
+        bool Delete(string vote, VoteType voteType);
+        bool Merge(string fromVote, string toVote, VoteType voteType);
+        bool Rename(string fromVote, string toVote, VoteType voteType);
+        bool Join(List<string> voters, string voterToJoin, VoteType voteType);
+        bool Unjoin(string voter, VoteType voteType);
+
+        void Support(string vote, string voter, VoteType voteType);
+        void Unsupport(string vote, string voter, VoteType voteType);
+
+        bool HasVote(string vote, VoteType voteType);
+
+        List<PostComponents> VotePosts { get; }
+    }
 }
