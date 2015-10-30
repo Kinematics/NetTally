@@ -1,23 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NetTally.Votes
+namespace NetTally
 {
     public class Vote
     {
-        public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
+        string _text = "";
 
-        public List<List<VoteLine>> VoteBlocks
+        public HashSet<string> Voters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public string Text { get { return _text; } private set { _text = value; Minimized = VoteString.MinimizeVote(value); } }
+        public string Minimized { get; private set; }
+        public VoteType Type { get; }
+
+        public Vote(string text, VoteType type)
         {
-            get
-            {
-                var a = from v in VoteLines
-                        select new List<VoteLine>() { v };
+            Text = text;
+            Type = type;
+        }
 
-                return a.ToList();
+        public bool AddSupport(string voter) => Voters.Add(voter);
+
+        public bool RemoveSupport(string voter) => Voters.Remove(voter);
+
+        public bool HasSupport() => Voters.Count > 0;
+
+        public void EditVote(string text)
+        {
+            Text = text;
+        }
+
+        public void MergeFrom(Vote vote)
+        {
+            foreach (var voter in vote.Voters)
+            {
+                Voters.Add(voter);
             }
         }
     }
