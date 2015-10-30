@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 
-namespace NetTally.Votes
+namespace NetTally
 {
     /// <summary>
     /// Class to contain the author and title of a forum thread.
