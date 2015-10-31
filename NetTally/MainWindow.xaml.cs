@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -57,45 +58,53 @@ namespace NetTally
         /// </summary>
         public MainWindow()
         {
-            // Set up an event handler for any otherwise unhandled exceptions in the code.
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            try
+            {
+                // Set up an event handler for any otherwise unhandled exceptions in the code.
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            InitializeComponent();
+                InitializeComponent();
 
-            // Set tally vars
-            tally = new Tally();
+                // Set tally vars
+                tally = new Tally();
 
-            questCollection = new QuestCollection();
+                questCollection = new QuestCollection();
 
-            QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null, DisplayMode.Normal);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null, DisplayMode.Normal);
 
-            NetTallyConfig.Load(tally, wrapper);
+                NetTallyConfig.Load(tally, wrapper);
 
-            // Set up view for binding
-            QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
-            // Sort the collection view
-            var sortDesc = new SortDescription("DisplayName", ListSortDirection.Ascending);
-            QuestCollectionView.SortDescriptions.Add(sortDesc);
-            // Set the current item
-            QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
+                // Set up view for binding
+                QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
+                // Sort the collection view
+                var sortDesc = new SortDescription("DisplayName", ListSortDirection.Ascending);
+                QuestCollectionView.SortDescriptions.Add(sortDesc);
+                // Set the current item
+                QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
-            Properties.Settings settings = new Properties.Settings();
-            tally.DisplayMode = wrapper.DisplayMode;
+                Properties.Settings settings = new Properties.Settings();
+                tally.DisplayMode = wrapper.DisplayMode;
 
-            // Set up data contexts
-            DataContext = QuestCollectionView;
+                // Set up data contexts
+                DataContext = QuestCollectionView;
 
-            resultsWindow.DataContext = tally;
-            tallyButton.DataContext = tally;
-            cancelTally.DataContext = tally;
-            displayMode.DataContext = tally;
-            newRelease.DataContext = checkForNewRelease;
+                resultsWindow.DataContext = tally;
+                tallyButton.DataContext = tally;
+                cancelTally.DataContext = tally;
+                displayMode.DataContext = tally;
+                newRelease.DataContext = checkForNewRelease;
 
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-            MyTitle = $"{product.Product} - {version.InformationalVersion}";
+                var assembly = Assembly.GetExecutingAssembly();
+                var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+                MyTitle = $"{product.Product} - {version.InformationalVersion}";
+            }
+            catch (Exception e)
+            {
+                string file = ErrorLog.Log(e);
+                MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in startup", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         /// <summary>
@@ -107,18 +116,10 @@ namespace NetTally
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = (Exception)e.ExceptionObject;
-            
-            // print out the exception stack trace to a log
-            string output = 
-                $"Message is: {ex.Message}\n\n" +
-                $"Stack Trace is:\n{ex.StackTrace}\n";
 
-            string tempFile = Path.GetTempFileName();
+            string file = ErrorLog.Log(ex);
 
-            File.WriteAllText(tempFile, output);
-
-            // Let the user know where the temp file was written.
-            MessageBox.Show($"Error written to:\n{tempFile}", "Unhandled exception log written", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         /// <summary>
@@ -128,18 +129,26 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            string selectedQuest = "";
-
-            if (CurrentlySelectedQuest() != null)
+            try
             {
-                selectedQuest = CurrentlySelectedQuest().ThreadName;
+                string selectedQuest = "";
+
+                if (CurrentlySelectedQuest() != null)
+                {
+                    selectedQuest = CurrentlySelectedQuest().ThreadName;
+                }
+
+                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
+                NetTallyConfig.Save(tally, qcw);
+
+                Properties.Settings settings = new Properties.Settings();
+                settings.Save();
             }
-
-            QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
-            NetTallyConfig.Save(tally, qcw);
-
-            Properties.Settings settings = new Properties.Settings();
-            settings.Save();
+            catch(Exception ex)
+            {
+                string file = ErrorLog.Log(ex);
+                MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in shutdown", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 
@@ -226,10 +235,21 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        private async void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             DoneEditing();
-            Clipboard.SetText(tally.TallyResults);
+
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    Clipboard.SetText(tally.TallyResults);
+                    return;
+                }
+                catch { }
+
+                await Task.Delay(15).ConfigureAwait(true);
+            }
         }
 
         /// <summary>

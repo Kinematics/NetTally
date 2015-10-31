@@ -3,6 +3,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace NetTally
 {
@@ -122,10 +123,18 @@ namespace NetTally
             if (config == null)
                 return;
 
-            QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
-            questConfig.Save(questsWrapper);
+            try
+            {
+                QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
+                questConfig.Save(questsWrapper);
 
-            config.Save(ConfigurationSaveMode.Minimal);
+                config.Save(ConfigurationSaveMode.Minimal);
+            }
+            catch (Exception e)
+            {
+                string file = ErrorLog.Log(e);
+                MessageBox.Show($"Log saved to:\n{file ?? "(unable to write log file)"}", "Error saving configuration file", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 
@@ -270,7 +279,7 @@ namespace NetTally
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.PartitionMode, quest.AllowRankedVotes);
-            BaseAdd(questElement);
+            BaseAdd(questElement, false);
         }
 
         public void Clear()
