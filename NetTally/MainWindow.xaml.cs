@@ -107,18 +107,10 @@ namespace NetTally
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = (Exception)e.ExceptionObject;
-            
-            // print out the exception stack trace to a log
-            string output = 
-                $"Message is: {ex.Message}\n\n" +
-                $"Stack Trace is:\n{ex.StackTrace}\n";
 
-            string tempFile = Path.GetTempFileName();
+            string file = ErrorLog.Log(ex);
 
-            File.WriteAllText(tempFile, output);
-
-            // Let the user know where the temp file was written.
-            MessageBox.Show($"Error written to:\n{tempFile}", "Unhandled exception log written", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error log written to:\n{file}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         /// <summary>
