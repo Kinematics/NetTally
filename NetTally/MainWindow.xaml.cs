@@ -111,7 +111,7 @@ namespace NetTally
 
             string file = ErrorLog.Log(ex);
 
-            MessageBox.Show($"Error log written to:\n{file}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error log written to:\n{file ?? "(unable to write log file)"}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         /// <summary>
