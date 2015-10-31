@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -218,10 +219,21 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        private async void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             DoneEditing();
-            Clipboard.SetText(tally.TallyResults);
+
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    Clipboard.SetText(tally.TallyResults);
+                    return;
+                }
+                catch { }
+
+                await Task.Delay(15).ConfigureAwait(true);
+            }
         }
 
         /// <summary>
