@@ -270,7 +270,7 @@ namespace NetTally
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.PartitionMode, quest.AllowRankedVotes);
-            BaseAdd(questElement);
+            BaseAdd(questElement, false);
         }
 
         public void Clear()
