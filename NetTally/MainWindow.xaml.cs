@@ -235,20 +235,27 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             DoneEditing();
 
-            for (int i = 0; i < 10; i++)
+            try
             {
+                Clipboard.SetText(tally.TallyResults);
+            }
+            catch (Exception ex1)
+            {
+                ErrorLog.Log("First clipboard failure", ex1);
+                //MessageBox.Show(ex1.Message, "Clipboard error 1", MessageBoxButton.OK, MessageBoxImage.Error);
                 try
                 {
-                    Clipboard.SetText(tally.TallyResults);
-                    return;
+                    Clipboard.SetDataObject(tally.TallyResults, false);
                 }
-                catch { }
-
-                await Task.Delay(15).ConfigureAwait(true);
+                catch (Exception ex2)
+                {
+                    ErrorLog.Log("Second clipboard failure", ex2);
+                    //MessageBox.Show(ex2.Message, "Clipboard error 2", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
