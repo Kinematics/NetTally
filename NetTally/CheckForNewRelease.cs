@@ -86,6 +86,8 @@ namespace NetTally
                 {
                     if (latestVersionNumber > currentVersionNumber)
                         return true;
+                    if (currentVersionNumber > latestVersionNumber)
+                        return false;
                 }
 
                 mCurrent = mCurrent.NextMatch();
