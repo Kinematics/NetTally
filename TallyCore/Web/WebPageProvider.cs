@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -13,8 +14,16 @@ namespace NetTally
     public class WebPageProvider : IPageProvider
     {
         WebCache Cache { get; } = new WebCache();
-
         readonly SemaphoreSlim ss = new SemaphoreSlim(5);
+        string UserAgent { get; }
+
+        public WebPageProvider()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+            UserAgent = $"{product.Product} ({version.InformationalVersion})";
+        }
 
         #region Event handlers
         /// <summary>
@@ -149,6 +158,7 @@ namespace NetTally
                 using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
                 {
                     client.Timeout = TimeSpan.FromSeconds(10);
+                    client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
 
                     try
                     {
