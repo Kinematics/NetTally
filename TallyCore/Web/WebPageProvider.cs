@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -13,6 +14,18 @@ namespace NetTally
 {
     public class WebPageProvider : IPageProvider
     {
+        private enum StatusType
+        {
+            None,
+            Requested,
+            Retry,
+            Error,
+            Failed,
+            Cancelled,
+            Cached,
+            Loaded
+        }
+
         WebCache Cache { get; } = new WebCache();
         readonly SemaphoreSlim ss = new SemaphoreSlim(5);
         string UserAgent { get; }
@@ -107,7 +120,7 @@ namespace NetTally
             }
             catch (OperationCanceledException)
             {
-                OnStatusChanged("Tally cancelled!\n");
+                UpdateStatus(StatusType.Cancelled);
                 throw;
             }
         }
@@ -128,12 +141,12 @@ namespace NetTally
 
                 if (page != null)
                 {
-                    OnStatusChanged($"{shortDescription} loaded from memory!\n");
+                    UpdateStatus(StatusType.Cached, shortDescription);
                     return page;
                 }
             }
 
-            OnStatusChanged($"{url}\n");
+            UpdateStatus(StatusType.Requested, url);
 
             // Limit to no more than 5 parallel requests
             await ss.WaitAsync(token);
@@ -168,7 +181,7 @@ namespace NetTally
                             {
                                 // If we have to retry loading the page, give it a short delay.
                                 await Task.Delay(TimeSpan.FromSeconds(4));
-                                OnStatusChanged("Retrying: " + shortDescription + "\n");
+                                UpdateStatus(StatusType.Retry, shortDescription);
                             }
 
                             using (response = await client.GetAsync(url, token).ConfigureAwait(false))
@@ -190,7 +203,7 @@ namespace NetTally
                     }
                     catch (HttpRequestException e)
                     {
-                        OnStatusChanged(shortDescription + ": " + e.Message);
+                        UpdateStatus(StatusType.Error, shortDescription, e);
                         throw;
                     }
                     catch (OperationCanceledException e)
@@ -210,7 +223,7 @@ namespace NetTally
 
                 if (result == null)
                 {
-                    OnStatusChanged($"Failed to load: {shortDescription}\n");
+                    UpdateStatus(StatusType.Failed, shortDescription);
                     return null;
                 }
 
@@ -219,13 +232,70 @@ namespace NetTally
 
                 Cache.Add(url, htmldoc);
 
-                OnStatusChanged($"{shortDescription} loaded!\n");
+                UpdateStatus(StatusType.Loaded, shortDescription);
 
                 return htmldoc;
             }
             finally
             {
                 ss.Release();
+            }
+        }
+
+        /// <summary>
+        /// Handle generating messages to send to OnStatusChanged handler.
+        /// </summary>
+        /// <param name="status">The type of status message being raised.</param>
+        /// <param name="details">The details that get inserted into the status message.</param>
+        /// <param name="e">The exception, for an error message.</param>
+        private void UpdateStatus(StatusType status, string details = null, Exception e = null)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (status == StatusType.Cancelled)
+            {
+                sb.Append("Tally cancelled!");
+            }
+            else
+            {
+                if (details?.Length > 0)
+                {
+                    switch (status)
+                    {
+                        case StatusType.Requested:
+                            sb.Append(details);
+                            break;
+                        case StatusType.Retry:
+                            sb.Append("Retrying: ");
+                            sb.Append(details);
+                            break;
+                        case StatusType.Error:
+                            sb.Append(details);
+                            sb.Append(" : ");
+                            sb.Append(e?.Message);
+                            break;
+                        case StatusType.Failed:
+                            sb.Append("Failed to load: ");
+                            sb.Append(details);
+                            break;
+                        case StatusType.Cached:
+                            sb.Append(details);
+                            sb.Append(" loaded from memory!");
+                            break;
+                        case StatusType.Loaded:
+                            sb.Append(details);
+                            sb.Append(" loaded!");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.Append("\n");
+                OnStatusChanged(sb.ToString());
             }
         }
         #endregion
