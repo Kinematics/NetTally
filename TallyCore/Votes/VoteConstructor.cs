@@ -14,7 +14,6 @@ namespace NetTally
     {
         #region Constructor and vars
         IVoteCounter VoteCounter { get; }
-        readonly bool allowAutomaticPlans = false;
 
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<baseplan>.+)", RegexOptions.IgnoreCase);
@@ -232,26 +231,12 @@ namespace NetTally
                 // Add/update the post author's post ID.
                 VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Vote);
 
-                // Automatically get any plan names, if named as such at the start of the vote.
-                string automaticPlanName = null;
-                // Currently disabled.
-                if (allowAutomaticPlans)
-                    automaticPlanName = AutomaticPlan(vote);
-
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
                 List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote);
 
                 foreach (var votePartition in votePartitions)
                 {
-                    if (automaticPlanName != null && automaticPlanName != string.Empty)
-                    {
-                        // Add the plan's post ID.
-                        VoteCounter.AddVoterPostID(automaticPlanName, post.ID, VoteType.Plan);
-                        // Add the plan partition.
-                        VoteCounter.AddVoteSupport(votePartition, automaticPlanName, VoteType.Plan);
-                    }
-
                     VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote);
                 }
 
@@ -396,42 +381,6 @@ namespace NetTally
             CleanUpBBCode(partitions);
 
             return partitions;
-        }
-
-        /// <summary>
-        /// Get a plan name automatically from a normal vote, if said plan name doesn't already exist.
-        /// </summary>
-        /// <param name="vote">The vote to check.</param>
-        /// <returns>Returns the plan name, if found, or null if not.</returns>
-        private string AutomaticPlan(List<string> vote)
-        {
-            if (vote == null)
-                return null;
-            // An empty string list is ignored.
-            // A single line cannot be a plan.
-            if (vote.Count < 2)
-                return null;
-
-            string firstLineContent = VoteString.GetVoteContent(vote.First());
-
-            if (firstLineContent == string.Empty)
-                return null;
-
-            Match m = planRegex.Match(firstLineContent);
-            if (m.Success)
-            {
-                string autoPlanName = Utility.Text.PlanNameMarker + m.Groups["planname"].Value;
-
-                if (VoteCounter.GetVotersCollection(VoteType.Plan).ContainsKey(autoPlanName))
-                    return null;
-
-                if (VoteCounter.HasPlan(autoPlanName))
-                    return null;
-
-                return autoPlanName;
-            }
-
-            return null;
         }
 
         #endregion
