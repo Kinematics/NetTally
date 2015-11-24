@@ -282,6 +282,12 @@ namespace NetTally
         public static List<string> GetVoteReferenceNames(string voteLine)
         {
             string contents = GetVoteContent(voteLine);
+
+            return GetVoteReferenceNamesFromContent(contents);
+        }
+
+        private static List<string> GetVoteReferenceNamesFromContent(string contents)
+        {
             List<string> results = new List<string>();
 
             Match m1 = linkedReferenceRegex.Match(contents);
@@ -321,6 +327,7 @@ namespace NetTally
 
             return results;
         }
+
 
 
         #region Creating and modifying votes
