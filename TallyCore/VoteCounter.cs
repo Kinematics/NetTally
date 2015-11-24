@@ -490,6 +490,12 @@ namespace NetTally
             return PlanNames.Contains(planName);
         }
 
+        public bool HasVoter(string voterName, VoteType voteType)
+        {
+            var voters = GetVotersCollection(voteType);
+            return voters.Keys.Contains(voterName);
+        }
+
         public List<string> GetCondensedRankVotes()
         {
             var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();

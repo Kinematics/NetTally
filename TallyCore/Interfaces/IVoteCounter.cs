@@ -37,5 +37,6 @@ namespace NetTally
 
         List<string> GetCondensedRankVotes();
         bool HasVote(string vote, VoteType voteType);
+        bool HasVoter(string voterName, VoteType voteType);
     }
 }
