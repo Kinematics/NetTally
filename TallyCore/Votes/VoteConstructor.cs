@@ -829,12 +829,19 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
-        private List<string> PromotePlanLines(List<string> planLines)
+        private List<string> PromotePlanLines(IEnumerable<string> planLines)
         {
-            var promotedLines = from p in planLines.Skip(1)
-                                select p.Substring(1);
+            if (planLines.All(a => a.Trim().StartsWith("-")))
+            {
+                var promotedLines = planLines.Select(a => a.Trim().Substring(1));
 
-            return promotedLines.ToList();
+                return promotedLines.ToList();
+            }
+            else
+            {
+                return planLines.ToList();
+            }
+
         }
 
         /// <summary>
