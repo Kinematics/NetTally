@@ -102,8 +102,8 @@ namespace NetTally
 
             var firstPage = pages.First();
 
-            if (Title == string.Empty)
-                Title = forumAdapter.GetPageTitle(firstPage);
+            // Use the title of the first page for the descriptive output.
+            Title = forumAdapter.GetPageTitle(firstPage);
 
             // Set the thread author for reference.
             string threadAuthor = forumAdapter.GetAuthorOfThread(firstPage);
