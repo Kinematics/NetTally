@@ -286,7 +286,7 @@ namespace NetTally
             return GetVoteReferenceNamesFromContent(contents);
         }
 
-        private static List<string> GetVoteReferenceNamesFromContent(string contents)
+        public static List<string> GetVoteReferenceNamesFromContent(string contents)
         {
             List<string> results = new List<string>();
 
