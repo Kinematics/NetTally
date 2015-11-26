@@ -17,6 +17,13 @@ namespace NetTally
         Rank
     }
 
+    public enum ReferenceType
+    {
+        Any,
+        Voter,
+        Plan
+    }
+
     /// <summary>
     /// Enum for various modes of constructing the final tally display.
     /// </summary>
