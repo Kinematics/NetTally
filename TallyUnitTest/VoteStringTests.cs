@@ -500,12 +500,12 @@ namespace TallyUnitTest
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
             input = "[1][Major] [b]Vote for stuff[/b]";
-            expected = "[Major] [b]Vote for stuff[/b]";
+            expected = "[Major] Vote for stuff";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
             input = "[b][1] Vote for stuff[/b]";
-            expected = "[] [b]Vote for stuff[/b]";
+            expected = "[] Vote for stuff";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
