@@ -290,14 +290,7 @@ namespace NetTally
         {
             List<string> results = new List<string>();
 
-            Match m1 = linkedReferenceRegex.Match(contents);
-            if (m1.Success)
-            {
-                // (1: pre)(2: [url=stuff] @?(3: inside) [/url])(4: post)
-                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
-                string replacement = "$1$3$4";
-                contents = Regex.Replace(contents, pattern, replacement);
-            }
+            contents = DeUrlContent(contents);
 
             Match m2 = referenceNameRegex.Match(contents);
             if (m2.Success)
