@@ -201,7 +201,7 @@ namespace NetTally
                 prefix = mms.Groups["prefix"].Value;
                 marker = mms.Groups["marker"].Value;
                 task = mms.Groups["task"].Value;
-                content = $"{mms.Groups["m1"].Value}{mms.Groups["m2"].Value}{mms.Groups["m3"].Value}{mms.Groups["m4"].Value}{mms.Groups["m5"].Value}{mms.Groups["m6"].Value}{mms.Groups["m7"].Value}{mms.Groups["content"].Value}";
+                content = $"{mms.Groups["m1"].Value}{mms.Groups["m2"].Value}{mms.Groups["m3"].Value}{mms.Groups["m4"].Value}{mms.Groups["m5"].Value}{mms.Groups["m6"].Value}{mms.Groups["m7"].Value}{mms.Groups["content"].Value}".Trim();
                 return;
             }
 
@@ -228,7 +228,7 @@ namespace NetTally
 
                         string no_task = $"{m3.Groups["m1"].Value}{m3.Groups["m2"].Value}{m3.Groups["m3"].Value}{m3.Groups["remainder"].Value.Trim()}";
 
-                        content = no_task;
+                        content = no_task.Trim();
 
                         return;
                     }
