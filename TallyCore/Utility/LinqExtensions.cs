@@ -67,7 +67,7 @@ namespace NetTally.Utility
         }
 
         public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentBySub<TSource, TKey>(this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
+            Func<TSource, TKey> keySelector, Func<TSource, TKey> nonNullKeySelector)
         {
             TKey last = default(TKey);
             bool haveLast = false;
@@ -93,10 +93,9 @@ namespace NetTally.Utility
                 else
                 {
                     list.Add(s);
-                    if (k != null)
-                        last = k;
-                    else
-                        last = default(TKey);
+                    if (k == null)
+                        k = nonNullKeySelector(s);
+                    last = k;
                     haveLast = true;
                 }
             }
