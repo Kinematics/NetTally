@@ -279,16 +279,19 @@ namespace NetTally
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
         /// <returns>Returns possible plan names from the vote line.</returns>
-        public static List<string> GetVoteReferenceNames(string voteLine)
+        public static Dictionary<ReferenceType, List<string>> GetVoteReferenceNames(string voteLine)
         {
             string contents = GetVoteContent(voteLine);
 
             return GetVoteReferenceNamesFromContent(contents);
         }
 
-        public static List<string> GetVoteReferenceNamesFromContent(string contents)
+        public static Dictionary<ReferenceType, List<string>> GetVoteReferenceNamesFromContent(string contents)
         {
-            List<string> results = new List<string>();
+            Dictionary<ReferenceType, List<string>> results = new Dictionary<ReferenceType, List<string>>();
+            results[ReferenceType.Any] = new List<string>();
+            results[ReferenceType.Plan] = new List<string>();
+            results[ReferenceType.Voter] = new List<string>();
 
             contents = DeUrlContent(contents);
 
@@ -296,14 +299,17 @@ namespace NetTally
             if (m2.Success)
             {
                 string name = m2.Groups["reference"].Value;
+                string pName = $"{Utility.Text.PlanNameMarker}{name}";
 
                 // [x] Plan Kinematics => Kinematics
                 // [x] Plan Boom. => Boom.
-                results.Add(name);
+                results[ReferenceType.Any].Add(name);
+                results[ReferenceType.Voter].Add(name);
 
                 // [x] Plan Kinematics => ◈Kinematics
                 // [x] Plan Boom. => ◈Boom.
-                results.Add($"{Utility.Text.PlanNameMarker}{name}");
+                results[ReferenceType.Any].Add(pName);
+                results[ReferenceType.Plan].Add(pName);
 
                 // [x] Plan Kinematics. => Kinematics
                 // [x] Plan Boom. => Boom
@@ -312,9 +318,12 @@ namespace NetTally
                 if (name.EndsWith("."))
                 {
                     name = name.Substring(0, name.Length - 1);
+                    pName = $"{Utility.Text.PlanNameMarker}{name}";
 
-                    results.Add(name);
-                    results.Add($"{Utility.Text.PlanNameMarker}{name}");
+                    results[ReferenceType.Any].Add(name);
+                    results[ReferenceType.Voter].Add(name);
+                    results[ReferenceType.Any].Add(pName);
+                    results[ReferenceType.Plan].Add(pName);
                 }
             }
 
