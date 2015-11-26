@@ -483,13 +483,18 @@ namespace NetTally
         {
             List<string> results = new List<string>();
 
-            var planNames = VoteString.GetVoteReferenceNames(voteLine);
+            var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            var usePlanName = planNames.FirstOrDefault(p => VotesWithSupporters.Where(v => v.Value.Contains(p)).Count() > 0);
+            string searchName = referenceNames[ReferenceType.Plan].FirstOrDefault(n => HasPlan(n));
 
-            if (usePlanName != null)
+            if (searchName == null)
             {
-                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(usePlanName));
+                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => HasVoter(n, VoteType.Vote));
+            }
+
+            if (searchName != null)
+            {
+                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(searchName));
 
                 results.AddRange(planVotes.Select(v => v.Key));
             }
