@@ -32,12 +32,16 @@ namespace NetTally
         HashSet<string> PlanNames { get; }
         bool HasPlan(string planName);
 
-        List<PostComponents> VotePosts { get; }
-        List<PostComponents> FloatingReferences { get; }
-        List<PostComponents> LastFloatingReferencePerAuthor { get; }
-
         List<string> GetCondensedRankVotes();
         bool HasVote(string vote, VoteType voteType);
         bool HasVoter(string voterName, VoteType voteType);
+
+
+        HashSet<string> ReferenceVoters { get; }
+        Dictionary<string, string> ReferenceVoterPosts { get; }
+        HashSet<string> ReferencePlanNames { get; }
+        Dictionary<string, List<string>> ReferencePlans { get; }
+
+        List<PostComponents> FutureReferences { get; }
     }
 }
