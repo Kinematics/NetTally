@@ -117,7 +117,9 @@ namespace NetTally
                                  where postCom.IsVote && postCom.Author != threadAuthor
                                  select postCom;
 
-            TallyPosts(quest, postsWithVotes.ToList());
+            List<PostComponents> postsList = postsWithVotes.ToList();
+
+            TallyPosts(quest, postsList);
         }
 
         /// <summary>
@@ -127,28 +129,34 @@ namespace NetTally
         /// <param name="posts">The list of PostComponents that define valid vote posts.</param>
         public void TallyPosts(IQuest quest, List<PostComponents> posts)
         {
-            VotePosts = posts;
-
-            ReferenceVoters.UnionWith(VotePosts.Select(v => v.Author));
-
-            VotePosts.ForEach(p => ReferenceVoterPosts[p.Author] = p.ID);
-
-            VotePosts.ForEach(p => voteConstructor.PreprocessPlans(p, quest));
-
-
-            // Process all votes, except floating references (votes solely for another username).
-            foreach (var post in VotePosts.OrderBy(p => p))
+            foreach (var post in posts)
             {
-                voteConstructor.ProcessPost(post, quest, true);
+                ReferenceVoters.Add(post.Author);
+                ReferenceVoterPosts[post.Author] = post.ID;
+                voteConstructor.PreprocessPlans(post, quest);
             }
 
-            // Process any floating references (votes solely for another username) that exist in the list.
+            var unprocessed = posts;
+            bool changed = true;
 
-            // Verify that the floating references were the last vote made by each individual.
-
-            foreach (var post in LastFloatingReferencePerAuthor)
+            while (unprocessed.Any() && changed == true)
             {
-                voteConstructor.ProcessPost(post, quest, false);
+                changed = false;
+
+                var processed = new List<PostComponents>();
+
+                foreach (var post in unprocessed)
+                {
+                    if (voteConstructor.ProcessPost(post, quest))
+                    {
+                        processed.Add(post);
+                        changed = true;
+                    }
+                }
+
+                unprocessed = unprocessed.Except(processed).ToList();
+
+                FutureReferences.Union(unprocessed);
             }
         }
 
