@@ -328,7 +328,28 @@ namespace NetTally
             return results;
         }
 
+        /// <summary>
+        /// Remove URL BBCode from a vote line's content.
+        /// </summary>
+        /// <param name="contents">The contents of a vote line.</param>
+        /// <returns>Returns the contents without any URL markup.</returns>
+        public static string DeUrlContent(string contents)
+        {
+            string result = contents;
 
+            Match m = linkedReferenceRegex.Match(contents);
+            while (m.Success)
+            {
+                // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
+                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
+                string replacement = "$1$3$4";
+                result = Regex.Replace(contents, pattern, replacement);
+
+                m = linkedReferenceRegex.Match(result);
+            }
+
+            return result;
+        }
 
         #region Creating and modifying votes
         /// <summary>
