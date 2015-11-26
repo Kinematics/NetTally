@@ -330,42 +330,27 @@ namespace NetTally
             {
                 // Exclude plan name marker references.
                 var refNames = VoteString.GetVoteReferenceNames(line);
-                var planNames = refNames.Where(r => r.StartsWith(Utility.Text.PlanNameMarker));
-                var voteNames = refNames.Where(r => !r.StartsWith(Utility.Text.PlanNameMarker));
 
                 // Any references to plans automatically work.
-                if (planNames.Any(p => VoteCounter.HasPlan(p)))
+                if (refNames[ReferenceType.Plan].Any(p => VoteCounter.HasPlan(p)))
                     continue;
 
-                string refVoter = null;
-
-                foreach (var name in voteNames)
-                {
-                    if (VoteCounter.ReferenceVoters.Contains(name) &&
-                        !VoteCounter.ReferencePlanNames.Contains(name))
-                    {
-                        refVoter = name;
-                        break;
-                    }
-                }
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n));
 
                 if (refVoter != null)
                 {
+                    // If there's no vote entry, it must necessarily be a future reference.
+                    if (!VoteCounter.HasVoter(refVoter, VoteType.Vote))
+                        return true;
+
+                    // Regex to check if there's a leading 'plan' notation
                     string contents = VoteString.GetVoteContent(line);
                     Match m = anyPlanRegex.Match(contents);
-                    if (m.Success)
-                    {
-                        // If it matches the anyPlan regex, it has 'plan' in the line, and thus we
-                        // only need to know if that voter has voted at all yet.
-                        if (!VoteCounter.HasVoter(refVoter, VoteType.Vote))
-                            return true;
-                    }
-                    else
+                    if (!m.Success)
                     {
                         // If it doesn't have a leading 'plan', we need to know whether the
                         // last vote the referenced voter made has been tallied.
-                        if (!VoteCounter.HasVoter(refVoter, VoteType.Vote) ||
-                            VoteCounter.VoterMessageId[refVoter] != VoteCounter.ReferenceVoterPosts[refVoter])
+                        if (VoteCounter.VoterMessageId[refVoter] != VoteCounter.ReferenceVoterPosts[refVoter])
                             return true;
                     }
                 }
@@ -450,13 +435,9 @@ namespace NetTally
                 {
                     var refNames = VoteString.GetVoteReferenceNames(partitionLines.First());
 
-                    if (refNames.Count > 0)
-                    {
-                        var refName = refNames.FirstOrDefault(n => VoteCounter.RankedVoterMessageId.Keys.Contains(n));
+                    var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.HasVoter(n, VoteType.Rank));
 
-                        if (refName != null)
-                            return refName;
-                    }
+                    return refVoter;
                 }
             }
 
