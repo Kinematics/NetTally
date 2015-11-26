@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace NetTally.Utility
+namespace NetTally
 {
     /// <summary>
     /// This class describes a profiled region that can be used to
