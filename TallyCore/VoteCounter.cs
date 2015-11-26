@@ -85,9 +85,10 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Construct the votes Results from the provide list of HTML pages.
+        /// Construct the votes Results from the provided list of HTML pages.
         /// </summary>
-        /// <param name="pages"></param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pages">The web pages that have been loaded for the quest.</param>
         public void TallyVotes(IQuest quest, List<HtmlDocument> pages)
         {
             if (pages == null)
@@ -108,17 +109,34 @@ namespace NetTally
             // Set the thread author for reference.
             string threadAuthor = forumAdapter.GetAuthorOfThread(firstPage);
 
-            var posts = from page in pages
-                        where page != null
-                        from post in forumAdapter.GetPostsFromPage(page)
-                        where post != null
-                        let postNumber = forumAdapter.GetPostNumberOfPost(post)
-                        where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
-                        let postCom = GetPostComponents(post, quest)
-                        where postCom.IsVote && postCom.Author != threadAuthor
-                        select postCom;
+            var postsWithVotes = from page in pages
+                                 where page != null
+                                 from post in forumAdapter.GetPostsFromPage(page)
+                                 where post != null
+                                 let postNumber = forumAdapter.GetPostNumberOfPost(post)
+                                 where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
+                                 let postCom = GetPostComponents(post, quest)
+                                 where postCom.IsVote && postCom.Author != threadAuthor
+                                 select postCom;
 
-            VotePosts = posts.ToList();
+            TallyPosts(quest, postsWithVotes.ToList());
+        }
+
+        /// <summary>
+        /// Construct the tally results based on the provided list of posts.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="posts">The list of PostComponents that define valid vote posts.</param>
+        public void TallyPosts(IQuest quest, List<PostComponents> posts)
+        {
+            VotePosts = posts;
+
+            ReferenceVoters.UnionWith(VotePosts.Select(v => v.Author));
+
+            VotePosts.ForEach(p => ReferenceVoterPosts[p.Author] = p.ID);
+
+            VotePosts.ForEach(p => voteConstructor.PreprocessPlans(p, quest));
+
 
             // Process all votes, except floating references (votes solely for another username).
             foreach (var post in VotePosts.OrderBy(p => p))

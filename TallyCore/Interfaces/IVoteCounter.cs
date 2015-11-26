@@ -6,6 +6,7 @@ namespace NetTally
     public interface IVoteCounter
     {
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
+        void TallyPosts(IQuest quest, List<PostComponents> posts);
         void Reset();
         void AddVoteSupport(string vote, string voter, VoteType voteType);
         void RemoveSupport(string voter, VoteType voteType);
