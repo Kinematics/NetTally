@@ -25,12 +25,6 @@ namespace NetTally.Tests
         public void ClearPageCacheTest()
         {
             pageProvider.ClearPageCache();
-
-            Dictionary<string, CachedPage> accessPageCache = (Dictionary<string, CachedPage>)privateWeb.GetField("pageCache");
-            Assert.IsTrue(accessPageCache.Count == 0);
-
-            Dictionary<string, int> accessLoadedPages = (Dictionary<string, int>)privateWeb.GetField("lastPageLoadedFor");
-            Assert.IsTrue(accessLoadedPages.Count == 0);
         }
 
         [TestMethod()]
