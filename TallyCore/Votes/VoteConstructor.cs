@@ -310,10 +310,13 @@ namespace NetTally
                 return null;
         }
 
-        private string NonNullSelectSubLines(string line)
-        {
-            return line ?? "Key";
-        }
+        /// <summary>
+        /// Supplementary function for line grouping, in the event that the first
+        /// line of the vote is indented (and thus would normally generate a null key).
+        /// </summary>
+        /// <param name="line">The line to generate a key for.</param>
+        /// <returns>Returns the line, or "Key", as the key for a line.</returns>
+        private string NonNullSelectSubLines(string line) => line ?? "Key";
 
         /// <summary>
         /// Determine if there are any references to future (unprocessed) votes
@@ -398,6 +401,13 @@ namespace NetTally
         #endregion
 
         #region Utility functions for processing ranked votes.
+        /// <summary>
+        /// Get the ranking lines from a post.
+        /// May pull either the direct values, if provided, or copy a referenced
+        /// users vote if available.
+        /// </summary>
+        /// <param name="voteStrings">The vote being checked.</param>
+        /// <returns>Returns any ranked vote lines in the vote.</returns>
         private List<string> GetRankingsFromPost(List<string> voteStrings)
         {
             // Get any explicit ranking votes from the post itself.
