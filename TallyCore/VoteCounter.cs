@@ -29,9 +29,15 @@ namespace NetTally
             RankedVotesWithSupporters.Clear();
             RankedVoterMessageId.Clear();
             PlanNames.Clear();
-            FloatingReferences.Clear();
             cleanVoteLookup.Clear();
             Title = string.Empty;
+
+            ReferenceVoters.Clear();
+            ReferenceVoterPosts.Clear();
+            ReferencePlanNames.Clear();
+            ReferencePlans.Clear();
+
+            FutureReferences.Clear();
         }
 
         public string Title { get; set; } = string.Empty;
@@ -44,11 +50,19 @@ namespace NetTally
 
         public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
+
+        public HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        public HashSet<string> ReferencePlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, List<string>> ReferencePlans { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+
         public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        public List<PostComponents> VotePosts { get; private set; } = new List<PostComponents>();
-
-        public List<PostComponents> FloatingReferences { get; } = new List<PostComponents>();
+        public List<PostComponents> FutureReferences { get; } = new List<PostComponents>();
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
@@ -66,22 +80,6 @@ namespace NetTally
                 return RankedVoterMessageId;
             else
                 return VoterMessageId;
-        }
-
-        /// <summary>
-        /// Of the available Floating References, select only the last
-        /// one for each given author.
-        /// </summary>
-        public List<PostComponents> LastFloatingReferencePerAuthor
-        {
-            get
-            {
-                var lastRefPerAuthor = from r in FloatingReferences
-                                       group r by r.Author into rg
-                                       select rg.OrderBy(o => o).Last();
-
-                return lastRefPerAuthor.ToList();
-            }
         }
 
         /// <summary>
