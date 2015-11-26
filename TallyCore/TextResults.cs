@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -264,14 +265,33 @@ namespace NetTally
         /// <returns>Returns an IEnumerable containing the first voter.</returns>
         private IEnumerable<string> GetFirstVoter(HashSet<string> voters)
         {
-            var nonReferenceVoters = voters.Except(VoteCounter.LastFloatingReferencePerAuthor.Select(p => p.Author));
+            var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
 
-            if (!nonReferenceVoters.Any())
-                nonReferenceVoters = voters;
+            if (planVoters.Any())
+            {
+                var firstPlan = planVoters.MinObject(v => VoteCounter.VoterMessageId[v]);
 
-            var firstVoter = nonReferenceVoters.OrderBy(v => VoteCounter.VoterMessageId[v]).Take(1);
+                return new List<string>() { firstPlan };
+            }
 
-            return firstVoter;
+            var nonFutureVoters = voters.Except(VoteCounter.FutureReferences.Select(p => p.Author));
+
+            if (nonFutureVoters.Any())
+            {
+                var firstBasicVoter = nonFutureVoters.MinObject(v => VoteCounter.VoterMessageId[v]);
+
+                return new List<string>() { firstBasicVoter };
+            }
+
+            if (voters.Any())
+            {
+                var firstAnyVoter = voters.MinObject(v => VoteCounter.VoterMessageId[v]);
+
+                return new List<string>() { firstAnyVoter };
+            }
+
+            return new List<string>();
+
         }
 
         /// <summary>
