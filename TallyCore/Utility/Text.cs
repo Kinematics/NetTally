@@ -59,7 +59,7 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static readonly IEqualityComparer<string> AgnosticStringComparer = new CustomStringComparer(CompareInfo.GetCompareInfo("en-US"),
+        public static readonly IEqualityComparer<string> AgnosticStringComparer = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
             CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
 
     }
