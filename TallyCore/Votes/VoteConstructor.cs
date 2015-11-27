@@ -21,7 +21,7 @@ namespace NetTally
         // Check for a plan reference.
         readonly Regex planRegex = new Regex(@"^plan(:|\s)+(?<planname>.+)", RegexOptions.IgnoreCase);
         // Check for a plan reference.
-        readonly Regex anyPlanRegex = new Regex(@"^(base\s*)?plan(:|\s)+(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+        readonly Regex anyPlanRegex = new Regex(@"^(base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
         readonly Regex anyPlanReference = new Regex(@"^((base\s*)?plan(:|\s)+)?(?<reference>.+)\.?$", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         readonly Regex planNameRegex = new Regex(@"^(?<label>base\s*plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
