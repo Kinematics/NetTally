@@ -9,6 +9,8 @@ namespace NetTally
     {
         readonly VoteConstructor voteConstructor;
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
+        readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
+
 
         /// <summary>
         /// Constructor
@@ -70,6 +72,7 @@ namespace NetTally
             FutureReferences.Clear();
 
             cleanVoteLookup.Clear();
+            cleanedKeys.Clear();
             DebugMode.Update();
         }
 
@@ -210,7 +213,7 @@ namespace NetTally
             // Add/update all segments of the provided vote
             foreach (var part in voteParts)
             {
-                string voteKey = GetVoteKey(part, voteType);
+                string voteKey = GetVoteKeyAg(part, voteType);
 
                 // Make sure there's a hashset for the voter list available for the vote key.
                 if (!votes.ContainsKey(voteKey))
@@ -472,6 +475,28 @@ namespace NetTally
 
             return vote;
         }
+
+        private string GetVoteKeyAg(string vote, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+
+            // If the vote already matches an existing key, we don't need to search again.
+            if (votes.ContainsKey(vote))
+                return vote;
+
+            // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
+            if (!cleanedKeys.ContainsKey(vote))
+                cleanedKeys[vote] = VoteString.CleanVote(vote);
+
+            // Find any vote that matches using an agnostic string comparison, that ignores
+            // case, spacing, and most punctuation.
+            string agVote = votes.Keys.FirstOrDefault(k => 
+                Utility.Text.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
+
+            // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
+            return agVote ?? vote;
+        }
+
 
         /// <summary>
         /// Remove the voter's support for any existing votes.
