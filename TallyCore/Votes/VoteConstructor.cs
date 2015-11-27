@@ -111,7 +111,10 @@ namespace NetTally
             // If it has a reference to a plan or voter that has not been processed yet,
             // delay processing.
             if (HasFutureReference(vote))
+            {
+                VoteCounter.FutureReferences.Add(post);
                 return false;
+            }
 
             // Process the actual vote.
             ProcessVote(vote, post, quest.PartitionMode);

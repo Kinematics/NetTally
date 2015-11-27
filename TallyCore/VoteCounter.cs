@@ -62,7 +62,7 @@ namespace NetTally
 
         public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        public List<PostComponents> FutureReferences { get; } = new List<PostComponents>();
+        public HashSet<PostComponents> FutureReferences { get; } = new HashSet<PostComponents>();
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
@@ -131,6 +131,12 @@ namespace NetTally
         /// <param name="posts">The list of PostComponents that define valid vote posts.</param>
         public void TallyPosts(IQuest quest, List<PostComponents> posts)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+            if (posts == null)
+                throw new ArgumentNullException(nameof(posts));
+
+            // Preprocessing
             foreach (var post in posts)
             {
                 ReferenceVoters.Add(post.Author);

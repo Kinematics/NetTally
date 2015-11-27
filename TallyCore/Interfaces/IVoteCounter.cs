@@ -36,6 +36,6 @@ namespace NetTally
         HashSet<string> ReferencePlanNames { get; }
         Dictionary<string, List<string>> ReferencePlans { get; }
 
-        List<PostComponents> FutureReferences { get; }
+        HashSet<PostComponents> FutureReferences { get; }
     }
 }
