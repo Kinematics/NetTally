@@ -129,9 +129,9 @@ namespace NetTally
                 lastTallyQuest = quest;
                 UserDefinedTasks.Clear();
 
-                var fa = await quest.GetForumAdapterAsync(token);
+                var adapter = await quest.GetForumAdapterAsync(token);
 
-                if (fa == null)
+                if (adapter == null)
                     throw new InvalidOperationException($"Unable to load a forum adapter for the quest thread:\n{quest.ThreadName}");
 
                 // Load pages from the website
