@@ -347,18 +347,18 @@ namespace NetTally
             if (oldVote == newVote)
                 return false;
 
-            var votesSet = GetVotesCollection(voteType);
+            var votes = GetVotesCollection(voteType);
 
-            if (votesSet.ContainsKey(newVote))
+            if (votes.ContainsKey(newVote))
             {
                 return Merge(oldVote, newVote, voteType);
             }
 
-            HashSet<string> votes;
-            if (votesSet.TryGetValue(oldVote, out votes))
+            HashSet<string> voters;
+            if (votes.TryGetValue(oldVote, out voters))
             {
-                votesSet.Remove(oldVote);
-                votesSet[newVote] = votes;
+                votes.Remove(oldVote);
+                votes[newVote] = voters;
                 return true;
             }
 
