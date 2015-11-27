@@ -19,15 +19,14 @@ namespace NetTally
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
         Dictionary<string, string> GetVotersCollection(VoteType voteType);
 
+        List<string> GetCondensedRankVotes();
         List<string> GetVotesFromReference(string voteLine);
 
         string Title { get; set; }
-        bool HasRankedVotes { get; }
-
         HashSet<string> PlanNames { get; }
-        bool HasPlan(string planName);
 
-        List<string> GetCondensedRankVotes();
+        bool HasRankedVotes { get; }
+        bool HasPlan(string planName);
         bool HasVote(string vote, VoteType voteType);
         bool HasVoter(string voterName, VoteType voteType);
 
