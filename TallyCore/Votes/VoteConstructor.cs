@@ -136,51 +136,18 @@ namespace NetTally
         private List<List<string>> GetPlansFromPost(List<string> postStrings)
         {
             List<List<string>> results = new List<List<string>>();
-            List<string> plan = null;
 
-            foreach (var line in postStrings)
+            var voteBlocks = postStrings.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+            foreach (var block in voteBlocks)
             {
-                string prefix = VoteString.GetVotePrefix(line);
-
-                // If there's no prefix on this vote line, we're starting a new block.
-                // If we had any open plans, close and save them.
-                // Then see if we need to start a new plan.
-                if (prefix == string.Empty)
+                if (block.Count() > 1)
                 {
-                    if (plan != null)
-                    {
-                        results.Add(plan);
-                        plan = null;
-                    }
+                    string planname = GetPlanName(block.Key);
 
-                    string planname = GetPlanName(line);
-
-                    if (planname != null)
-                    {
-                        // Make sure the plan doesn't already exist in the tracker.
-                        // If it does, this counts as a repeat, and should be considered an attempt
-                        // to reference the original plan, rather than redefine it.
-                        // As soon as this occurs, we should treat all further lines
-                        // as regular vote lines, rather than additional potential plans.
-                        if (!VoteCounter.HasPlan(planname))
-                        {
-                            // If it's a new base plan, add the first line to a new base plan list,
-                            // and add the newly created list to the results.
-                            plan = new List<string>() { line };
-                        }
-                    }
+                    if (planname != null && !VoteCounter.HasPlan(planname))
+                        results.Add(block.ToList());
                 }
-                else
-                {
-                    // If we have any open plan, add sub-vote lines to it.
-                    plan?.Add(line);
-                }
-            }
-
-            // If we reached the end of a vote with an active plan, make sure to save it.
-            if (plan != null)
-            {
-                results.Add(plan);
             }
 
             return results;
