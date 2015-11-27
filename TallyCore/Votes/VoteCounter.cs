@@ -329,44 +329,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="oldVote">The old vote text.</param>
-        /// <param name="newVote">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        public bool Rename(string oldVote, string newVote, VoteType voteType)
-        {
-            if (oldVote == null)
-                throw new ArgumentNullException(nameof(oldVote));
-            if (newVote == null)
-                throw new ArgumentNullException(nameof(newVote));
-            if (oldVote == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(oldVote), "Vote string is empty.");
-            if (newVote == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(newVote), "Vote string is empty.");
-            if (oldVote == newVote)
-                return false;
-
-            var votes = GetVotesCollection(voteType);
-
-            if (votes.ContainsKey(newVote))
-            {
-                return Merge(oldVote, newVote, voteType);
-            }
-
-            HashSet<string> voters;
-            if (votes.TryGetValue(oldVote, out voters))
-            {
-                votes.Remove(oldVote);
-                votes[newVote] = voters;
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Find all votes tied to a given vote line.
         /// The "plan name" (possibly user name) is checked with the
         /// standard and alternate extractions (adding a special marker character
@@ -593,24 +555,23 @@ namespace NetTally
         /// <returns>Returns true if there were any changes.</returns>
         private bool MergeVotes(string fromVote, string toVote)
         {
-            var votes = GetVotesCollection(VoteType.Vote);
+            return Rename(fromVote, toVote, VoteType.Vote);
+        }
 
-            HashSet<string> fromVoters;
-            HashSet<string> toVoters;
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="oldVote">The old vote text.</param>
+        /// <param name="newVote">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(string oldVote, string newVote, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
 
-            if (!votes.TryGetValue(fromVote, out fromVoters))
-                throw new ArgumentException(nameof(fromVote) + " does not exist.");
+            var oldVoteObj = votes.FirstOrDefault(v => v.Key == oldVote);
 
-            if (!votes.TryGetValue(toVote, out toVoters))
-            {
-                return Rename(fromVote, toVote, VoteType.Vote);
-            }
-
-            toVoters.UnionWith(fromVoters);
-
-            votes.Remove(fromVote);
-
-            return true;
+            return Rename(oldVoteObj, newVote, voteType);
         }
 
         /// <summary>
@@ -622,27 +583,27 @@ namespace NetTally
         /// <returns>Returns true if it renamed the vote.</returns>
         private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
         {
+            if ((string.IsNullOrEmpty(vote.Key)) || (vote.Value == null))
+                throw new ArgumentNullException(nameof(vote));
             if (revisedKey == null)
                 throw new ArgumentNullException(nameof(revisedKey));
             if (revisedKey == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(revisedKey), "Vote string is empty.");
+                throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
             if (vote.Key == revisedKey)
                 return false;
 
-            var votesSet = GetVotesCollection(voteType);
-            string oldVoteKey = vote.Key;
+            var votes = GetVotesCollection(voteType);
 
-            HashSet<string> votes;
-            if (votesSet.TryGetValue(revisedKey, out votes))
+            if (votes.ContainsKey(revisedKey))
             {
-                votes.UnionWith(vote.Value);
+                votes[revisedKey].UnionWith(vote.Value);
             }
             else
             {
-                votesSet[revisedKey] = vote.Value;
+                votes[revisedKey] = vote.Value;
             }
 
-            votesSet.Remove(oldVoteKey);
+            votes.Remove(vote.Key);
 
             return true;
         }

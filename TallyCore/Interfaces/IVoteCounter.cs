@@ -13,7 +13,6 @@ namespace NetTally
 
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
-        bool Rename(string oldVote, string newVote, VoteType voteType);
         bool Delete(string vote, VoteType voteType);
 
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
