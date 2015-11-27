@@ -411,7 +411,7 @@ namespace NetTally
         {
             if (!planName.StartsWith(Utility.Text.PlanNameMarker))
             {
-                planName = $"{Utility.Text.PlanNameMarker}{planName}";
+                planName = Utility.Text.PlanNameMarker + planName;
             }
 
             return PlanNames.Contains(planName);
