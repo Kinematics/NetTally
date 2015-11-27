@@ -259,7 +259,7 @@ namespace TallyUnitTest
             string expected1 = "Kinematics";
             string expected2 = "\u25C8Kinematics";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
@@ -271,7 +271,7 @@ namespace TallyUnitTest
             string expected1 = "Assault";
             string expected2 = "\u25C8Assault";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
@@ -285,7 +285,7 @@ namespace TallyUnitTest
             string expected3 = "Kinematics";
             string expected4 = "\u25C8Kinematics";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(4, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
@@ -301,7 +301,7 @@ namespace TallyUnitTest
             string expected3 = "Assault";
             string expected4 = "\u25C8Assault";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(4, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
@@ -316,7 +316,7 @@ namespace TallyUnitTest
             string expected1 = "Xryuran";
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
@@ -330,7 +330,7 @@ namespace TallyUnitTest
             string expected3 = "Xryuran";
             string expected4 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(4, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
@@ -344,7 +344,7 @@ namespace TallyUnitTest
             string expected1 = "Xryuran";
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
