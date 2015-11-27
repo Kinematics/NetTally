@@ -18,38 +18,8 @@ namespace NetTally
             voteConstructor = new VoteConstructor(this);
         }
 
-        #region Public Interface
-        /// <summary>
-        /// Reset all tracking variables.
-        /// </summary>
-        public void Reset()
-        {
-            VotesWithSupporters.Clear();
-            VoterMessageId.Clear();
-            RankedVotesWithSupporters.Clear();
-            RankedVoterMessageId.Clear();
-            PlanNames.Clear();
-            cleanVoteLookup.Clear();
-            Title = string.Empty;
-
-            ReferenceVoters.Clear();
-            ReferenceVoterPosts.Clear();
-            ReferencePlanNames.Clear();
-            ReferencePlans.Clear();
-
-            FutureReferences.Clear();
-        }
-
+        #region Public Interface Properties
         public string Title { get; set; } = string.Empty;
-
-        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
-
-        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-        public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>();
-
-        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
 
         public HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -59,13 +29,54 @@ namespace NetTally
 
         public Dictionary<string, List<string>> ReferencePlans { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
+        public HashSet<PostComponents> FutureReferences { get; } = new HashSet<PostComponents>();
 
         public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        public HashSet<PostComponents> FutureReferences { get; } = new HashSet<PostComponents>();
-
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
+        #endregion
+
+        #region Public Class Properties
+        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
+
+        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>();
+
+        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        #endregion
+
+        #region Public Interface Functions
+        /// <summary>
+        /// Reset all tracking variables.
+        /// </summary>
+        public void Reset()
+        {
+            Title = string.Empty;
+
+            VotesWithSupporters.Clear();
+            VoterMessageId.Clear();
+            RankedVotesWithSupporters.Clear();
+            RankedVoterMessageId.Clear();
+            PlanNames.Clear();
+
+            ReferenceVoters.Clear();
+            ReferenceVoterPosts.Clear();
+            ReferencePlanNames.Clear();
+            ReferencePlans.Clear();
+
+            FutureReferences.Clear();
+
+            cleanVoteLookup.Clear();
+        }
+
+        /// <summary>
+        /// Get the dictionary collection of votes for the requested vote type.
+        /// </summary>
+        /// <param name="voteType">The type of vote being requested.</param>
+        /// <returns>Returns a dictionary collection of the requested vote type.</returns>
         public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
         {
             if (voteType == VoteType.Rank)
@@ -74,6 +85,11 @@ namespace NetTally
                 return VotesWithSupporters;
         }
 
+        /// <summary>
+        /// Get the dictionary collection of voters and post IDs for the requested vote type.
+        /// </summary>
+        /// <param name="voteType">The type of vote being requested.</param>
+        /// <returns>Returns a dictionary collection of the requested voter type.</returns>
         public Dictionary<string, string> GetVotersCollection(VoteType voteType)
         {
             if (voteType == VoteType.Rank)
@@ -159,25 +175,59 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Extract the components from an HTML post, and store it in a PostComponents object.
+        /// Add a vote to the vote counter.
         /// </summary>
-        /// <param name="post">The post to be decomposed.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns the extracted post components.</returns>
-        public PostComponents GetPostComponents(HtmlNode post, IQuest quest)
+        /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
+        /// <param name="voter">The voter for this vote.</param>
+        /// <param name="postID">The post ID for this vote.</param>
+        /// <param name="voteType">The type of vote being added.</param>
+        public void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
         {
-            if (post == null || quest == null)
-                return null;
+            if (voteParts == null)
+                throw new ArgumentNullException(nameof(voteParts));
+            if (string.IsNullOrEmpty(voter))
+                throw new ArgumentNullException(nameof(voter));
+            if (string.IsNullOrEmpty(postID))
+                throw new ArgumentNullException(nameof(postID));
 
-            IForumAdapter forumAdapter = quest.GetForumAdapter();
-            string postAuthor = forumAdapter.GetAuthorOfPost(post);
-            string postID = forumAdapter.GetIdOfPost(post);
-            string postText = forumAdapter.GetTextOfPost(post);
+            var votes = GetVotesCollection(voteType);
+            var voters = GetVotersCollection(voteType);
 
-            if (DebugMode.Active)
-                postAuthor = postAuthor + "_" + postID;
+            // Store/update the post ID of the voter
+            voters[voter] = postID;
 
-            return new PostComponents(postAuthor, postID, postText);
+            // Track plan names
+            if (voteType == VoteType.Plan)
+                PlanNames.Add(voter);
+
+            // Remove the voter from any existing votes
+            foreach (var vote in votes)
+            {
+                vote.Value.Remove(voter);
+            }
+
+            // Add/update all segments of the provided vote
+            foreach (var part in voteParts)
+            {
+                string voteKey = GetVoteKey(part, voteType);
+
+                // Make sure there's a hashset for the voter list available for the vote key.
+                if (!votes.ContainsKey(voteKey))
+                {
+                    votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                }
+
+                // Update the supporters list.
+                votes[voteKey].Add(voter);
+            }
+
+            // Any votes that no longer have any support can be removed
+            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
+            foreach (var emptyVote in emptyVotes)
+            {
+                votes.Remove(emptyVote.Key);
+            }
+
         }
 
         /// <summary>
@@ -351,115 +401,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="vote">The old vote object.</param>
-        /// <param name="revisedKey">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
-        {
-            if (revisedKey == null)
-                throw new ArgumentNullException(nameof(revisedKey));
-            if (revisedKey == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(revisedKey), "Vote string is empty.");
-            if (vote.Key == revisedKey)
-                return false;
-
-            var votesSet = GetVotesCollection(voteType);
-            string oldVoteKey = vote.Key;
-
-            HashSet<string> votes;
-            if (votesSet.TryGetValue(revisedKey, out votes))
-            {
-                votes.UnionWith(vote.Value);
-            }
-            else
-            {
-                votesSet[revisedKey] = vote.Value;
-            }
-
-            votesSet.Remove(oldVoteKey);
-
-            return true;
-        }
-
-
-
-        public void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
-        {
-            if (voteParts == null)
-                throw new ArgumentNullException(nameof(voteParts));
-            if (string.IsNullOrEmpty(voter))
-                throw new ArgumentNullException(nameof(voter));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
-
-            var votes = GetVotesCollection(voteType);
-            var voters = GetVotersCollection(voteType);
-
-            // Store/update the post ID of the voter
-            voters[voter] = postID;
-
-            // Track plan names
-            if (voteType == VoteType.Plan)
-                PlanNames.Add(voter);
-
-            // Remove the voter from any existing votes
-            foreach (var vote in votes)
-            {
-                vote.Value.Remove(voter);
-            }
-
-            // Add/update all segments of the provided vote
-            foreach (var part in voteParts)
-            {
-                string voteKey = GetVoteKey(part, voteType);
-
-                // Make sure there's a hashset for the voter list available for the vote key.
-                if (!votes.ContainsKey(voteKey))
-                {
-                    votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                }
-
-                // Update the supporters list.
-                votes[voteKey].Add(voter);
-            }
-
-            // Any votes that no longer have any support can be removed
-            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
-            foreach (var emptyVote in emptyVotes)
-            {
-                votes.Remove(emptyVote.Key);
-            }
-
-        }
-
-        
-        /// <summary>
-        /// Remove the voter's support for any existing votes.
-        /// </summary>
-        /// <param name="voter">The voter name to check for.</param>
-        /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
-        private void RemoveSupport(string voter, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-
-            // Remove the voter from any existing votes
-            foreach (var vote in votes)
-            {
-                vote.Value.Remove(voter);
-            }
-
-            // Any votes that no longer have any support can be removed
-            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
-            foreach (var emptyVote in emptyVotes)
-            {
-                votes.Remove(emptyVote.Key);
-            }
-        }
-
-        /// <summary>
         /// Find all votes tied to a given vote line.
         /// The "plan name" (possibly user name) is checked with the
         /// standard and alternate extractions (adding a special marker character
@@ -511,18 +452,13 @@ namespace NetTally
             return PlanNames.Contains(planName);
         }
 
-        public bool HasVoter(string voterName, VoteType voteType)
-        {
-            var voters = GetVotersCollection(voteType);
-            return voters.Keys.Contains(voterName);
-        }
-
-        public List<string> GetCondensedRankVotes()
-        {
-            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
-            return condensed;
-        }
-
+        /// <summary>
+        /// Check to see whether the specified vote has been recorded.
+        /// Ranking votes are checked against their condensed forms.
+        /// </summary>
+        /// <param name="vote">The vote to check.</param>
+        /// <param name="voteType">The type of vote being checked.</param>
+        /// <returns>Returns true if found.</returns>
         public bool HasVote(string vote, VoteType voteType)
         {
             if (voteType == VoteType.Rank)
@@ -532,19 +468,52 @@ namespace NetTally
             return votes.ContainsKey(vote);
         }
 
-        private bool HasCondensedRankVote(string rankVote)
+        /// <summary>
+        /// Check to see whether the specified voter has been recorded.
+        /// </summary>
+        /// <param name="voterName">The voter to check for.</param>
+        /// <param name="voteType">The type of vote being checked.</param>
+        /// <returns>Returns true if found.</returns>
+        public bool HasVoter(string voterName, VoteType voteType)
         {
-            foreach (var vote in RankedVotesWithSupporters)
-            {
-                if (VoteString.CondenseVote(vote.Key) == rankVote)
-                    return true;
-            }
+            var voters = GetVotersCollection(voteType);
+            return voters.Keys.Contains(voterName);
+        }
 
-            return false;
+        /// <summary>
+        /// Gets a list of ranking votes in condensed form.
+        /// </summary>
+        /// <returns>Returns a list of ranking votes in condensed form.</returns>
+        public List<string> GetCondensedRankVotes()
+        {
+            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
+            return condensed;
         }
         #endregion
 
         #region Private support methods
+        /// <summary>
+        /// Extract the components from an HTML post, and store it in a PostComponents object.
+        /// </summary>
+        /// <param name="post">The post to be decomposed.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <returns>Returns the extracted post components.</returns>
+        private PostComponents GetPostComponents(HtmlNode post, IQuest quest)
+        {
+            if (post == null || quest == null)
+                return null;
+
+            IForumAdapter forumAdapter = quest.GetForumAdapter();
+            string postAuthor = forumAdapter.GetAuthorOfPost(post);
+            string postID = forumAdapter.GetIdOfPost(post);
+            string postText = forumAdapter.GetTextOfPost(post);
+
+            if (DebugMode.Active)
+                postAuthor = postAuthor + "_" + postID;
+
+            return new PostComponents(postAuthor, postID, postText);
+        }
+
         /// <summary>
         /// Attempt to find any existing vote that matches with the vote we have,
         /// and can be used as a key in the VotesWithSupporters table.
@@ -577,6 +546,29 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Remove the voter's support for any existing votes.
+        /// </summary>
+        /// <param name="voter">The voter name to check for.</param>
+        /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
+        private void RemoveSupport(string voter, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+
+            // Remove the voter from any existing votes
+            foreach (var vote in votes)
+            {
+                vote.Value.Remove(voter);
+            }
+
+            // Any votes that no longer have any support can be removed
+            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
+            foreach (var emptyVote in emptyVotes)
+            {
+                votes.Remove(emptyVote.Key);
+            }
+        }
+
+        /// <summary>
         /// Will remove the specified voter from the voter ID list if there are no
         /// votes that they are currently supporting.
         /// </summary>
@@ -591,6 +583,57 @@ namespace NetTally
             {
                 votersDict.Remove(voter);
             }
+        }
+
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="vote">The old vote object.</param>
+        /// <param name="revisedKey">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
+        {
+            if (revisedKey == null)
+                throw new ArgumentNullException(nameof(revisedKey));
+            if (revisedKey == string.Empty)
+                throw new ArgumentOutOfRangeException(nameof(revisedKey), "Vote string is empty.");
+            if (vote.Key == revisedKey)
+                return false;
+
+            var votesSet = GetVotesCollection(voteType);
+            string oldVoteKey = vote.Key;
+
+            HashSet<string> votes;
+            if (votesSet.TryGetValue(revisedKey, out votes))
+            {
+                votes.UnionWith(vote.Value);
+            }
+            else
+            {
+                votesSet[revisedKey] = vote.Value;
+            }
+
+            votesSet.Remove(oldVoteKey);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determines whether the provided vote string can be found in
+        /// condensed form in the rank votes.
+        /// </summary>
+        /// <param name="rankVote">The vote to check for.</param>
+        /// <returns>Returns true if found.</returns>
+        private bool HasCondensedRankVote(string rankVote)
+        {
+            foreach (var vote in RankedVotesWithSupporters)
+            {
+                if (VoteString.CondenseVote(vote.Key) == rankVote)
+                    return true;
+            }
+
+            return false;
         }
         #endregion
     }
