@@ -31,9 +31,6 @@ namespace NetTally
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
         readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
 
-        IEqualityComparer<string> comp = new CustomStringComparer(CompareInfo.GetCompareInfo("en-US"),
-            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase);
-
 
         /// <summary>
         /// Setup some dictionary lists for validating vote formatting.
@@ -244,7 +241,7 @@ namespace NetTally
                     string planName = GetPlanName(block.Key);
 
                     if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
-                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), comp))
+                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
                     {
                         // If it's a known plan, only pass through the reference.
                         vote.Add(block.Key);

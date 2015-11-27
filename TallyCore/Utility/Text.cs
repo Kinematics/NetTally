@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -53,5 +54,9 @@ namespace NetTally.Utility
             var lines = GetStringLines(input);
             return lines.FirstOrDefault();
         }
+
+        public static readonly IEqualityComparer<string> AgnosticStringComparer = new CustomStringComparer(CompareInfo.GetCompareInfo("en-US"),
+            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+
     }
 }
