@@ -147,24 +147,14 @@ namespace NetTally
             var unprocessed = posts;
             bool changed = true;
 
+            // Main processing
             while (unprocessed.Any() && changed == true)
             {
-                changed = false;
+                var processed = unprocessed.Where(p => voteConstructor.ProcessPost(p, quest) == true).ToList();
 
-                var processed = new List<PostComponents>();
-
-                foreach (var post in unprocessed)
-                {
-                    if (voteConstructor.ProcessPost(post, quest))
-                    {
-                        processed.Add(post);
-                        changed = true;
-                    }
-                }
+                changed = processed.Any();
 
                 unprocessed = unprocessed.Except(processed).ToList();
-
-                FutureReferences.Union(unprocessed);
             }
         }
 
