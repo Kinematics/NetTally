@@ -13,13 +13,15 @@ namespace NetTally.Tests
     public class VoteCounterTests
     {
         static IVoteCounter voteCounter;
+        static VoteCounter voteCounterRaw;
         static PrivateObject privateVote;
         static IQuest sampleQuest;
 
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            voteCounter = new VoteCounter();
+            voteCounterRaw = new VoteCounter();
+            voteCounter = voteCounterRaw;
             privateVote = new PrivateObject(voteCounter);
             sampleQuest = new Quest();
         }
@@ -55,37 +57,37 @@ namespace NetTally.Tests
         [TestMethod()]
         public void GetVotesCollectionTest1()
         {
-            Assert.AreEqual(voteCounter.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Vote));
+            Assert.AreEqual(voteCounterRaw.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Vote));
         }
 
         [TestMethod()]
         public void GetVotesCollectionTest2()
         {
-            Assert.AreEqual(voteCounter.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Plan));
+            Assert.AreEqual(voteCounterRaw.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Plan));
         }
 
         [TestMethod()]
         public void GetVotesCollectionTest3()
         {
-            Assert.AreEqual(voteCounter.RankedVotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Rank));
+            Assert.AreEqual(voteCounterRaw.RankedVotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Rank));
         }
 
         [TestMethod()]
         public void GetVotersCollectionTest1()
         {
-            Assert.AreEqual(voteCounter.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Vote));
+            Assert.AreEqual(voteCounterRaw.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Vote));
         }
 
         [TestMethod()]
         public void GetVotersCollectionTest2()
         {
-            Assert.AreEqual(voteCounter.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Plan));
+            Assert.AreEqual(voteCounterRaw.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Plan));
         }
 
         [TestMethod()]
         public void GetVotersCollectionTest3()
         {
-            Assert.AreEqual(voteCounter.RankedVoterMessageId, voteCounter.GetVotersCollection(VoteType.Rank));
+            Assert.AreEqual(voteCounterRaw.RankedVoterMessageId, voteCounter.GetVotersCollection(VoteType.Rank));
         }
         #endregion
 
