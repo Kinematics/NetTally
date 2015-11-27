@@ -70,6 +70,7 @@ namespace NetTally
             FutureReferences.Clear();
 
             cleanVoteLookup.Clear();
+            DebugMode.Update();
         }
 
         /// <summary>
