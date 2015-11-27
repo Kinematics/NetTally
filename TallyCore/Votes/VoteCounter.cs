@@ -474,7 +474,7 @@ namespace NetTally
             string postText = forumAdapter.GetTextOfPost(post);
 
             if (DebugMode.Active)
-                postAuthor = postAuthor + "_" + postID;
+                postAuthor = $"{postAuthor}_{postID}";
 
             return new PostComponents(postAuthor, postID, postText);
         }
