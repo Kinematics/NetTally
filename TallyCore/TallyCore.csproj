@@ -51,7 +51,6 @@
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
-    <Compile Include="Utility\CachedPage.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\WebCache.cs" />
