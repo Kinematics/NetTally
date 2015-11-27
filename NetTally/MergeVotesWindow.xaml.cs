@@ -33,7 +33,7 @@ namespace NetTally
         List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        HashSet<string> ManualTasks { get; }
+        HashSet<string> UserDefinedTasks { get; }
 
         ListBox newTaskBox = null;
 
@@ -58,7 +58,7 @@ namespace NetTally
             InitializeComponent();
 
             VoteCounter = tally.VoteCounter;
-            ManualTasks = tally.ManualTasks;
+            UserDefinedTasks = tally.UserDefinedTasks;
 
             // Gets the lists of all current votes and ranked votes that can be shown.
             var votesWithSupporters = VoteCounter.GetVotesCollection(VoteType.Vote);
@@ -630,7 +630,7 @@ namespace NetTally
         {
             var voteTasks = VoteCounter.GetVotesCollection(CurrentVoteType).Keys
                 .Select(v => VoteString.GetVoteTask(v))
-                .Concat(ManualTasks.ToList())
+                .Concat(UserDefinedTasks.ToList())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(v => v != string.Empty);
 
@@ -690,7 +690,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            ManualTasks.Add(task);
+            UserDefinedTasks.Add(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 
