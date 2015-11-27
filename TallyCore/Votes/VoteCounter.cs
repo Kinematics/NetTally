@@ -272,18 +272,21 @@ namespace NetTally
             if (voterToJoin == null)
                 throw new ArgumentNullException(nameof(voterToJoin));
             if (voterToJoin == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(voterToJoin), "Voter string is empty.");
+                throw new ArgumentException("No target voter provided.", nameof(voterToJoin));
             if (voters.Count == 0)
                 return false;
 
-            var votesSet = GetVotesCollection(voteType);
+            var votes = GetVotesCollection(voteType);
 
-            var joinVotersVotes = votesSet.Where(v => v.Value.Contains(voterToJoin));
+            var joinVotersVotes = votes.Where(v => v.Value.Contains(voterToJoin));
+
+            int count = 0;
 
             foreach (string voter in voters)
             {
                 if (voter != voterToJoin)
                 {
+                    count++;
                     RemoveSupport(voter, voteType);
 
                     foreach (var vote in joinVotersVotes)
@@ -293,7 +296,7 @@ namespace NetTally
                 }
             }
 
-            return true;
+            return count > 0;
         }
 
         /// <summary>
