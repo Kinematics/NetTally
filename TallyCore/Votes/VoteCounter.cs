@@ -542,12 +542,12 @@ namespace NetTally
         /// <param name="voteType">The type of vote to check.</param>
         private void TrimVoter(string voter, VoteType voteType)
         {
-            var votesDict = voteType == VoteType.Rank ? RankedVotesWithSupporters : VotesWithSupporters;
-            var votersDict = voteType == VoteType.Rank ? RankedVoterMessageId : VoterMessageId;
+            var votes = GetVotesCollection(voteType);
+            var voters = GetVotersCollection(voteType);
 
-            if (!votesDict.Values.Any(v => v.Contains(voter)))
+            if (!votes.Values.Any(v => v.Contains(voter)))
             {
-                votersDict.Remove(voter);
+                voters.Remove(voter);
             }
         }
 
