@@ -260,8 +260,8 @@ namespace TallyUnitTest
             string expected2 = "\u25C8Kinematics";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
         [TestMethod()]
@@ -272,8 +272,8 @@ namespace TallyUnitTest
             string expected2 = "\u25C8Assault";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
         [TestMethod()]
@@ -286,10 +286,10 @@ namespace TallyUnitTest
             string expected4 = "\u25C8Kinematics";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(4, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
-            Assert.IsTrue(result.Contains(expected3));
-            Assert.IsTrue(result.Contains(expected4));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected4));
         }
 
         [TestMethod()]
@@ -302,10 +302,10 @@ namespace TallyUnitTest
             string expected4 = "\u25C8Assault";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(4, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
-            Assert.IsTrue(result.Contains(expected3));
-            Assert.IsTrue(result.Contains(expected4));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected4));
             
         }
 
@@ -317,8 +317,8 @@ namespace TallyUnitTest
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
         [TestMethod()]
@@ -331,10 +331,10 @@ namespace TallyUnitTest
             string expected4 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(4, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
-            Assert.IsTrue(result.Contains(expected3));
-            Assert.IsTrue(result.Contains(expected4));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected3));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected4));
         }
 
         [TestMethod()]
@@ -345,8 +345,8 @@ namespace TallyUnitTest
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(expected1));
-            Assert.IsTrue(result.Contains(expected2));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));
+            Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
         [TestMethod()]
