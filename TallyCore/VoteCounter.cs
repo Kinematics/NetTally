@@ -89,15 +89,17 @@ namespace NetTally
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
         public void TallyVotes(IQuest quest, List<HtmlDocument> pages)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
             if (pages == null)
                 throw new ArgumentNullException(nameof(pages));
 
             if (pages.Count == 0)
                 return;
 
-            IForumAdapter forumAdapter = quest.GetForumAdapter();
-
             Reset();
+
+            IForumAdapter forumAdapter = quest.GetForumAdapter();
 
             var firstPage = pages.First();
 
