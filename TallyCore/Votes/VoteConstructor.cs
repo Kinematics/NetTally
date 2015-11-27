@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,6 +30,10 @@ namespace NetTally
         readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
         readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
+
+        IEqualityComparer<string> comp = new CustomStringComparer(CompareInfo.GetCompareInfo("en-US"),
+            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase);
+
 
         /// <summary>
         /// Setup some dictionary lists for validating vote formatting.
@@ -230,17 +235,20 @@ namespace NetTally
                 checkForBasePlans = false;
 
                 // Check if the block defines a plan.
-                if (GetPlanName(block.Key) != null)
+                if (block.Count() > 1)
                 {
                     // Replace known plans with just the plan key, if we can match with a reference plan.
-                    if (VoteCounter.ReferencePlans.Any(p => p.Value.SequenceEqual(block)))
+                    string planName = GetPlanName(block.Key);
+
+                    if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
+                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), comp))
                     {
                         // If it's a known plan, only pass through the reference.
                         vote.Add(block.Key);
                     }
                     else
                     {
-                        // If it's not a known reference plan, pass the whole thing through.
+                        // If it's not a plan, just pass it through.
                         vote.AddRange(block);
                     }
                 }
