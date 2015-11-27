@@ -227,15 +227,16 @@ namespace NetTally
             {
                 votes.Remove(emptyVote.Key);
             }
-
         }
 
         /// <summary>
         /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// Moves the voters from the from vote into the to vote list, and removes the 'from' vote's key.
         /// </summary>
         /// <param name="fromVote">Vote that is being merged.</param>
         /// <param name="toVote">Vote that is being merged into.</param>
+        /// <param name="voteType">The type of vote being merged.</param>
+        /// <returns>Returns true if there were any changes.</returns>
         public bool Merge(string fromVote, string toVote, VoteType voteType)
         {
             if (fromVote == null)
@@ -249,49 +250,10 @@ namespace NetTally
             if (fromVote == toVote)
                 return false;
 
-            var votesSet = GetVotesCollection(voteType);
-
             if (voteType == VoteType.Rank)
-            {
-                Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
-
-                foreach (var vote in votesSet)
-                {
-                    if (VoteString.CondenseVote(vote.Key) == fromVote)
-                    {
-                        string toContent = VoteString.GetVoteContent(toVote, voteType);
-                        string toTask = VoteString.GetVoteTask(toVote, voteType);
-                        string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
-
-                        mergedVotes.Add(vote, revisedKey);
-                    }
-                }
-
-                foreach (var merge in mergedVotes)
-                {
-                    Rename(merge.Key, merge.Value, VoteType.Rank);
-                }
-                
-                return mergedVotes.Count > 0;
-            }
-
-
-            HashSet<string> fromVoters;
-            HashSet<string> toVoters;
-
-            if (!votesSet.TryGetValue(fromVote, out fromVoters))
-                throw new ArgumentException(nameof(fromVote) + " does not exist.");
-
-            if (!votesSet.TryGetValue(toVote, out toVoters))
-            {
-                return Rename(fromVote, toVote, voteType);
-            }
-
-            toVoters.UnionWith(fromVoters);
-
-            votesSet.Remove(fromVote);
-
-            return true;
+                return MergeRanks(fromVote, toVote);
+            else
+                return MergeVotes(fromVote, toVote);
         }
 
         /// <summary>
@@ -583,6 +545,68 @@ namespace NetTally
             {
                 votersDict.Remove(voter);
             }
+        }
+
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        /// <returns>Returns true if there were any changes.</returns>
+        private bool MergeRanks(string fromVote, string toVote)
+        {
+            var votes = GetVotesCollection(VoteType.Rank);
+
+            Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
+
+            foreach (var vote in votes)
+            {
+                if (VoteString.CondenseVote(vote.Key) == fromVote)
+                {
+                    string toContent = VoteString.GetVoteContent(toVote, VoteType.Rank);
+                    string toTask = VoteString.GetVoteTask(toVote, VoteType.Rank);
+                    string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
+
+                    mergedVotes.Add(vote, revisedKey);
+                }
+            }
+
+            foreach (var merge in mergedVotes)
+            {
+                Rename(merge.Key, merge.Value, VoteType.Rank);
+            }
+
+            return mergedVotes.Count > 0;
+        }
+
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        /// <returns>Returns true if there were any changes.</returns>
+        private bool MergeVotes(string fromVote, string toVote)
+        {
+            var votes = GetVotesCollection(VoteType.Vote);
+
+            HashSet<string> fromVoters;
+            HashSet<string> toVoters;
+
+            if (!votes.TryGetValue(fromVote, out fromVoters))
+                throw new ArgumentException(nameof(fromVote) + " does not exist.");
+
+            if (!votes.TryGetValue(toVote, out toVoters))
+            {
+                return Rename(fromVote, toVote, VoteType.Vote);
+            }
+
+            toVoters.UnionWith(fromVoters);
+
+            votes.Remove(fromVote);
+
+            return true;
         }
 
         /// <summary>
