@@ -8,9 +8,9 @@ namespace NetTally
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
         void TallyPosts(IQuest quest, List<PostComponents> posts);
         void Reset();
-        void AddVoteSupport(string vote, string voter, VoteType voteType);
-        void RemoveSupport(string voter, VoteType voteType);
-        void AddVoterPostID(string voter, string postID, VoteType voteType);
+
+        void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
+
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
         bool Rename(string oldVote, string newVote, VoteType voteType);

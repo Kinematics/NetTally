@@ -274,7 +274,7 @@ namespace NetTally
             {
                 if (voter != voterToJoin)
                 {
-                    RemoveSupport(voter, voteType, deleteVoterFromCollection: false);
+                    RemoveSupport(voter, voteType);
 
                     foreach (var vote in joinVotersVotes)
                     {
@@ -386,85 +386,79 @@ namespace NetTally
             return true;
         }
 
-        /// <summary>
-        /// Add a supporter to the supplied vote.
-        /// Adds the vote to the vote list if it didn't already exist.
-        /// </summary>
-        /// <param name="vote">The vote being supported.</param>
-        /// <param name="voter">The voter supporting the vote.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <param name="quest">The quest attached to the vote being adjusted.</param>
-        public void AddVoteSupport(string vote, string voter, VoteType voteType)
+
+
+        public void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
         {
+            if (voteParts == null)
+                throw new ArgumentNullException(nameof(voteParts));
+            if (string.IsNullOrEmpty(voter))
+                throw new ArgumentNullException(nameof(voter));
+            if (string.IsNullOrEmpty(postID))
+                throw new ArgumentNullException(nameof(postID));
+
             var votes = GetVotesCollection(voteType);
-
-            // Find any existing vote that matches the current vote partition.
-            string voteKey = GetVoteKey(vote, voteType);
-
-            // Make sure there's a hashset for the voter list available for the vote key.
-            if (!votes.ContainsKey(voteKey))
-            {
-                votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            }
-
-            // Update the supporters list.
-            votes[voteKey].Add(voter);
-        }
-
-        /// <summary>
-        /// Add or update the supplied voter's post ID.
-        /// If the vote type is a plan, add the voter to the plan names list as well.
-        /// </summary>
-        /// <param name="voter">The voter.</param>
-        /// <param name="postID">The ID of their post.</param>
-        /// <param name="voteType">The type of vote.</param>
-        public void AddVoterPostID(string voter, string postID, VoteType voteType)
-        {
             var voters = GetVotersCollection(voteType);
 
+            // Store/update the post ID of the voter
             voters[voter] = postID;
 
+            // Track plan names
             if (voteType == VoteType.Plan)
                 PlanNames.Add(voter);
+
+            // Remove the voter from any existing votes
+            foreach (var vote in votes)
+            {
+                vote.Value.Remove(voter);
+            }
+
+            // Add/update all segments of the provided vote
+            foreach (var part in voteParts)
+            {
+                string voteKey = GetVoteKey(part, voteType);
+
+                // Make sure there's a hashset for the voter list available for the vote key.
+                if (!votes.ContainsKey(voteKey))
+                {
+                    votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                }
+
+                // Update the supporters list.
+                votes[voteKey].Add(voter);
+            }
+
+            // Any votes that no longer have any support can be removed
+            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
+            foreach (var emptyVote in emptyVotes)
+            {
+                votes.Remove(emptyVote.Key);
+            }
+
         }
 
+        
         /// <summary>
         /// Remove the voter's support for any existing votes.
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
         /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
-        public void RemoveSupport(string voter, VoteType voteType, bool deleteVoterFromCollection = true)
+        private void RemoveSupport(string voter, VoteType voteType)
         {
             var votes = GetVotesCollection(voteType);
 
-            List<string> emptyVotes = new List<string>();
-
+            // Remove the voter from any existing votes
             foreach (var vote in votes)
             {
-                if (vote.Value.Remove(voter))
-                {
-                    if (vote.Value.Count == 0)
-                    {
-                        emptyVotes.Add(vote.Key);
-                    }
-                }
+                vote.Value.Remove(voter);
             }
 
-            foreach (var vote in emptyVotes)
+            // Any votes that no longer have any support can be removed
+            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
+            foreach (var emptyVote in emptyVotes)
             {
-                votes.Remove(vote);
+                votes.Remove(emptyVote.Key);
             }
-
-            if (deleteVoterFromCollection)
-            {
-                var voterIDs = GetVotersCollection(voteType);
-                voterIDs.Remove(voter);
-            }
-        }
-
-        public void RemoveSupport(string voter, VoteType voteType)
-        {
-            RemoveSupport(voter, voteType, true);
         }
 
         /// <summary>
