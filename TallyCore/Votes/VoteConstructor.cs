@@ -186,19 +186,13 @@ namespace NetTally
 
                 if (!VoteCounter.HasPlan(planName))
                 {
-                    // Add/update the plan's post ID.
-                    VoteCounter.AddVoterPostID(planName, post.ID, VoteType.Plan);
-
                     List<string> planLines = PromotePlanLines(plan.Skip(1));
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
                     List<string> votePartitions = GetVotePartitions(planLines, partitionMode, VoteType.Plan);
 
-                    foreach (var votePartition in votePartitions)
-                    {
-                        VoteCounter.AddVoteSupport(votePartition, planName, VoteType.Plan);
-                    }
+                    VoteCounter.AddVote(votePartitions, planName, post.ID, VoteType.Plan);
                 }
             }
         }
@@ -334,20 +328,11 @@ namespace NetTally
         /// <param name="partitionMode">The partition mode being used.</param>
         private void ProcessVote(List<string> vote, PostComponents post, PartitionMode partitionMode)
         {
-            // Remove the post author from any other existing votes.
-            VoteCounter.RemoveSupport(post.Author, VoteType.Vote);
-
-            // Add/update the post author's post ID.
-            VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Vote);
-
             // Get the list of all vote partitions, built according to current preferences.
             // One of: By line, By block, or By post (ie: entire vote)
             List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote);
 
-            foreach (var votePartition in votePartitions)
-            {
-                VoteCounter.AddVoteSupport(votePartition, post.Author, VoteType.Vote);
-            }
+            VoteCounter.AddVote(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
 
         #endregion
@@ -421,16 +406,7 @@ namespace NetTally
         {
             if (ranksList.Count > 0)
             {
-                // Remove the post author from any other existing votes.
-                VoteCounter.RemoveSupport(post.Author, VoteType.Rank);
-
-                // Add/update the post author's post ID.
-                VoteCounter.AddVoterPostID(post.Author, post.ID, VoteType.Rank);
-
-                foreach (var line in ranksList)
-                {
-                    VoteCounter.AddVoteSupport(line, post.Author, VoteType.Rank);
-                }
+                VoteCounter.AddVote(ranksList, post.Author, post.ID, VoteType.Rank);
             }
         }
 
