@@ -94,18 +94,5 @@ namespace NetTally.Utility
             return obj.GetHashCode();
         }
     }
-
-    public static class MathUtil
-    {
-        public static T Clamp<T>(T? min, T value, T? max) where T: struct, IComparable<T>
-        {
-            if (min.HasValue && value.CompareTo(min.Value) < 0)
-                return min.Value;
-
-            if (max.HasValue && value.CompareTo(max.Value) > 0)
-                return max.Value;
-
-            return value;
-        }
-    }
+    
 }
