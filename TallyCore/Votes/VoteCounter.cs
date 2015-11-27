@@ -307,18 +307,18 @@ namespace NetTally
         /// <returns>Returns true if a vote was removed.</returns>
         public bool Delete(string vote, VoteType voteType)
         {
-            if (vote == null && vote == string.Empty)
+            if (vote == null || vote == string.Empty)
                 return false;
 
-            var votesSet = GetVotesCollection(voteType);
+            var votes = GetVotesCollection(voteType);
 
             bool removed = false;
 
-            if (votesSet.ContainsKey(vote))
+            if (votes.ContainsKey(vote))
             {
-                var votersToTrim = votesSet[vote];
+                var votersToTrim = votes[vote];
 
-                removed = votesSet.Remove(vote);
+                removed = votes.Remove(vote);
 
                 foreach (var voter in votersToTrim)
                     TrimVoter(voter, voteType);
