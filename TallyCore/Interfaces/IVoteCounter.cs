@@ -24,11 +24,6 @@ namespace NetTally
         string Title { get; set; }
         bool HasRankedVotes { get; }
 
-        Dictionary<string, HashSet<string>> VotesWithSupporters { get; }
-        Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; }
-        Dictionary<string, string> VoterMessageId { get; }
-        Dictionary<string, string> RankedVoterMessageId { get; }
-
         HashSet<string> PlanNames { get; }
         bool HasPlan(string planName);
 

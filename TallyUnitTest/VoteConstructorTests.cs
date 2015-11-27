@@ -11,7 +11,7 @@ namespace TallyUnitTest
     [TestClass()]
     public class VoteConstructorTests
     {
-        static VoteCounter voteCounter;
+        static IVoteCounter voteCounter;
         static IQuest sampleQuest;
         static VoteConstructor voteConstructor;
 
@@ -51,12 +51,14 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 1);
+            Assert.IsTrue(voters.Count == 1);
             //Assert.IsTrue(voteCounter.VotesWithSupporters.ContainsKey(testVote));
             //Assert.IsTrue(voteCounter.VotesWithSupporters[testVote].Contains(author));
-            Assert.IsTrue(voteCounter.VoterMessageId.ContainsKey(author));
-            Assert.IsTrue(voteCounter.VoterMessageId[author] == postId);
+            Assert.IsTrue(voters.ContainsKey(author));
+            Assert.IsTrue(voters[author] == postId);
         }
 
         [TestMethod()]
@@ -78,8 +80,10 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 3);
+            Assert.IsTrue(voters.Count == 1);
         }
 
         [TestMethod()]
@@ -101,8 +105,10 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 1);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 7);
+            Assert.IsTrue(voters.Count == 1);
         }
 
         [TestMethod()]
@@ -155,9 +161,11 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 1);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 1);
+            Assert.IsTrue(votes.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voters.Count == 2);
         }
 
         [TestMethod()]
@@ -186,9 +194,11 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 3);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 3);
+            Assert.IsTrue(votes.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voters.Count == 2);
         }
 
         [TestMethod()]
@@ -217,9 +227,11 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 7);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 2));
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 7);
+            Assert.IsTrue(votes.All(v => v.Value.Count == 2));
+            Assert.IsTrue(voters.Count == 2);
         }
 
 
@@ -249,9 +261,11 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 2);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.All(v => v.Value.Count == 1));
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 2);
+            Assert.IsTrue(votes.All(v => v.Value.Count == 1));
+            Assert.IsTrue(voters.Count == 2);
         }
 
         [TestMethod()]
@@ -281,10 +295,12 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 4);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 3);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 1) == 1);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 4);
+            Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 3);
+            Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
+            Assert.IsTrue(voters.Count == 2);
         }
 
         [TestMethod()]
@@ -314,10 +330,12 @@ namespace TallyUnitTest
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count == 8);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 2) == 7);
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Count(v => v.Value.Count == 1) == 1);
-            Assert.IsTrue(voteCounter.VoterMessageId.Count == 2);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            Assert.IsTrue(votes.Count == 8);
+            Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 7);
+            Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
+            Assert.IsTrue(voters.Count == 2);
         }
 
 

@@ -115,7 +115,8 @@ namespace NetTally
         /// </summary>
         private void ConstructNormalOutput()
         {
-            var votesGroupedByTask = GroupVotesByTask(VoteCounter.VotesWithSupporters);
+            var votesWithSupporters = VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votesGroupedByTask = GroupVotesByTask(votesWithSupporters);
             bool firstTask = true;
             int userVoteCount = 0;
 
@@ -266,10 +267,11 @@ namespace NetTally
         private IEnumerable<string> GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
+            var votersCollection = VoteCounter.GetVotersCollection(VoteType.Vote);
 
             if (planVoters.Any())
             {
-                var firstPlan = planVoters.MinObject(v => VoteCounter.VoterMessageId[v]);
+                var firstPlan = planVoters.MinObject(v => votersCollection[v]);
 
                 return new List<string>() { firstPlan };
             }
@@ -278,14 +280,14 @@ namespace NetTally
 
             if (nonFutureVoters.Any())
             {
-                var firstBasicVoter = nonFutureVoters.MinObject(v => VoteCounter.VoterMessageId[v]);
+                var firstBasicVoter = nonFutureVoters.MinObject(v => votersCollection[v]);
 
                 return new List<string>() { firstBasicVoter };
             }
 
             if (voters.Any())
             {
-                var firstAnyVoter = voters.MinObject(v => VoteCounter.VoterMessageId[v]);
+                var firstAnyVoter = voters.MinObject(v => votersCollection[v]);
 
                 return new List<string>() { firstAnyVoter };
             }
@@ -506,7 +508,8 @@ namespace NetTally
         /// </summary>
         private void AddTotalVoterCount()
         {
-            int totalVoterCount = VoteCounter.VoterMessageId.Count - VoteCounter.PlanNames.Count;
+            var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
+            int totalVoterCount = voters.Count - VoteCounter.PlanNames.Count;
             if (totalVoterCount > 0)
             {
                 sb.Append($"\r\nTotal No. of Voters: {totalVoterCount}\r\n");
@@ -518,7 +521,8 @@ namespace NetTally
         /// </summary>
         private void AddTotalRankedVoterCount()
         {
-            int totalVoterCount = VoteCounter.RankedVoterMessageId.Count;
+            var voters = VoteCounter.GetVotersCollection(VoteType.Rank);
+            int totalVoterCount = voters.Count;
             if (totalVoterCount > 0)
             {
                 sb.Append($"Total No. of Voters: {totalVoterCount}\r\n\r\n");
@@ -531,7 +535,8 @@ namespace NetTally
         /// <param name="task"></param>
         private void AddRankedOptions(string task)
         {
-            var voteContents = VoteCounter.RankedVotesWithSupporters.
+            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
+            var voteContents = votes.
                 Where(v => VoteString.GetVoteTask(v.Key) == task).
                 Select(v => VoteString.GetVoteContent(v.Key));
 
@@ -562,12 +567,15 @@ namespace NetTally
         /// <param name="result">The task and winning vote.</param>
         private void AddRankedVoters(string task, string choice)
         {
-            var whoVoted = from v in VoteCounter.RankedVotesWithSupporters
+            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
+            var voters = VoteCounter.GetVotersCollection(VoteType.Rank);
+
+            var whoVoted = from v in votes
                            where VoteString.GetVoteTask(v.Key) == task &&
                                  VoteString.GetVoteContent(v.Key) == choice
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
-            var whoDidNotVote = from v in VoteCounter.RankedVoterMessageId
+            var whoDidNotVote = from v in voters
                                 where whoVoted.Any(a => a.voters.Contains(v.Key)) == false
                                 select v.Key;
 

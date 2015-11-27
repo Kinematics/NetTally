@@ -37,10 +37,10 @@ namespace NetTally.Tests
 
             voteCounter.Reset();
 
-            Assert.AreEqual(0, voteCounter.VoterMessageId.Count);
-            Assert.AreEqual(0, voteCounter.VotesWithSupporters.Count);
-            Assert.AreEqual(0, voteCounter.RankedVoterMessageId.Count);
-            Assert.AreEqual(0, voteCounter.RankedVotesWithSupporters.Count);
+            Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Vote).Count);
+            Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Vote).Count);
+            Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Rank).Count);
+            Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Rank).Count);
             Assert.AreEqual(0, voteCounter.PlanNames.Count);
             Assert.AreEqual("", voteCounter.Title);
         }
@@ -143,11 +143,14 @@ namespace NetTally.Tests
 
             voteCounter.AddVote(vote, voter, postId, VoteType.Vote);
 
-            Assert.IsTrue(voteCounter.VotesWithSupporters.Keys.Contains(voteLine));
-            Assert.IsTrue(voteCounter.VotesWithSupporters[voteLine].Contains(voter));
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
 
-            Assert.IsTrue(voteCounter.VoterMessageId.ContainsKey(voter));
-            Assert.AreEqual(postId, voteCounter.VoterMessageId[voter]);
+            Assert.IsTrue(votes.Keys.Contains(voteLine));
+            Assert.IsTrue(votes[voteLine].Contains(voter));
+
+            Assert.IsTrue(voters.ContainsKey(voter));
+            Assert.AreEqual(postId, voters[voter]);
         }
 
         [TestMethod()]

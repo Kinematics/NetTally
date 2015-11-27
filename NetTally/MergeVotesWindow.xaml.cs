@@ -61,7 +61,8 @@ namespace NetTally
             ManualTasks = tally.ManualTasks;
 
             // Gets the lists of all current votes and ranked votes that can be shown.
-            List<string> votes = VoteCounter.VotesWithSupporters.Keys
+            var votesWithSupporters = VoteCounter.GetVotesCollection(VoteType.Vote);
+            List<string> votes = votesWithSupporters.Keys
                 .Concat(VoteCounter.GetCondensedRankVotes())
                 .Distinct().ToList();
 
@@ -91,9 +92,12 @@ namespace NetTally
             VoteView2.MoveCurrentToFirst();
 
 
+            var voteVoters = VoteCounter.GetVotersCollection(VoteType.Vote);
+            var rankVoters = VoteCounter.GetVotersCollection(VoteType.Rank);
+
             // Get the lists of all unique voters/ranked voters that we can show in the display.
-            List<string> voters = VoteCounter.VoterMessageId.Select(v => v.Key).Except(VoteCounter.PlanNames)
-                .Concat(VoteCounter.RankedVoterMessageId.Select(v => v.Key))
+            List<string> voters = voteVoters.Select(v => v.Key).Except(VoteCounter.PlanNames)
+                .Concat(rankVoters.Select(v => v.Key))
                 .Distinct().OrderBy(v => v).ToList();
 
             // Create a collection for the views to draw from.

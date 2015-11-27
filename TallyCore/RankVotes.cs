@@ -23,8 +23,10 @@ namespace NetTally
             if (voteCounter.HasRankedVotes == false)
                 throw new InvalidOperationException("There are no votes to rank.");
 
+            var votes = voteCounter.GetVotesCollection(VoteType.Rank);
+
             // Handle each task separately
-            var groupByTask = from vote in voteCounter.RankedVotesWithSupporters
+            var groupByTask = from vote in votes
                               group vote by VoteString.GetVoteTask(vote.Key) into g
                               select g;
 

@@ -295,6 +295,8 @@ namespace NetTally
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
         private bool HasFutureReference(List<string> vote)
         {
+            var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
+
             foreach (var line in vote)
             {
                 // Exclude plan name marker references.
@@ -319,7 +321,7 @@ namespace NetTally
                     {
                         // If it doesn't have a leading 'plan', we need to know whether the
                         // last vote the referenced voter made has been tallied.
-                        if (VoteCounter.VoterMessageId[refVoter] != VoteCounter.ReferenceVoterPosts[refVoter])
+                        if (voters[refVoter] != VoteCounter.ReferenceVoterPosts[refVoter])
                             return true;
                     }
                 }
