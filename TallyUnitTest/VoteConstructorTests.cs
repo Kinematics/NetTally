@@ -32,7 +32,7 @@ namespace NetTally
         }
 
 
-
+        #region Process Posts
         [TestMethod()]
         public void ProcessPostContentsWholeTest()
         {
@@ -337,8 +337,9 @@ namespace NetTally
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
             Assert.IsTrue(voters.Count == 2);
         }
+        #endregion
 
-
+        #region Formatting
         [TestMethod()]
         public void CloseFormattingTagsTest()
         {
@@ -399,6 +400,154 @@ namespace NetTally
             Assert.IsFalse(partitions.Contains(line7b));
             Assert.IsFalse(partitions.Contains(line8a));
         }
+        #endregion
 
+        #region Partitioning
+        [TestMethod()]
+        public void TestPartitionNone()
+        {
+            string testVote =
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run";
+            List<string> expected = new List<string>() { testVote };
+
+            sampleQuest.PartitionMode = PartitionMode.None;
+            string author = "Me";
+            string postId = "123456";
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
+        }
+
+        [TestMethod()]
+        public void TestPartitionLine()
+        {
+            string testVote =
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run";
+
+            List<string> expected = new List<string>(4)
+            {
+                "[X][Action] Plan One",
+                "-[X] Ambush",
+                "-[X][Decision] Kill",
+                "-[X] Run"
+            };
+
+            sampleQuest.PartitionMode = PartitionMode.ByLine;
+            string author = "Me";
+            string postId = "123456";
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
+        }
+
+        [TestMethod()]
+        public void TestPartitionBlock()
+        {
+            string testVote =
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run
+[X] Plan Two
+-[X] Report";
+
+            List<string> expected = new List<string>(2)
+            {
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run",
+@"[X] Plan Two
+-[X] Report"
+            };
+
+            sampleQuest.PartitionMode = PartitionMode.ByBlock;
+            string author = "Me";
+            string postId = "123456";
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
+        }
+
+
+        [TestMethod()]
+        public void TestPartitionTask()
+        {
+            string testVote =
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run
+[X] Plan Two
+-[X] Report";
+
+            List<string> expected = new List<string>(2)
+            {
+@"[X][Action] Plan One
+-[X] Ambush",
+@"-[X][Decision] Kill
+-[X] Run
+[X] Plan Two
+-[X] Report"
+            };
+
+            sampleQuest.PartitionMode = PartitionMode.ByTask;
+            string author = "Me";
+            string postId = "123456";
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
+        }
+
+        [TestMethod()]
+        public void TestPartitionTaskBlock()
+        {
+            string testVote =
+@"[X][Action] Plan One
+-[X] Ambush
+-[X][Decision] Kill
+-[X] Run
+[X] Plan Two
+-[X] Report";
+
+            List<string> expected = new List<string>(3)
+            {
+@"[X][Action] Plan One
+-[X] Ambush",
+@"-[X][Decision] Kill
+-[X] Run",
+@"[X][Decision] Plan Two
+-[X] Report"
+            };
+
+            sampleQuest.PartitionMode = PartitionMode.ByTaskBlock;
+            string author = "Me";
+            string postId = "123456";
+            PostComponents p1 = new PostComponents(author, postId, testVote);
+
+            voteConstructor.ProcessPost(p1, sampleQuest);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
+        }
+        #endregion
     }
 }
