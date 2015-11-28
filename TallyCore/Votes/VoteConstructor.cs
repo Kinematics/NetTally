@@ -18,7 +18,7 @@ namespace NetTally
         IVoteCounter VoteCounter { get; }
 
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        readonly Regex basePlanRegex = new Regex(@"base\s*plan(:|\s)+(?<planname>.+)", RegexOptions.IgnoreCase);
+        readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
         // Check for a plan reference.
         readonly Regex planRegex = new Regex(@"^plan(:|\s)+(?<planname>.+)", RegexOptions.IgnoreCase);
         // Check for a plan reference.
@@ -191,7 +191,7 @@ namespace NetTally
 
                 if (!VoteCounter.HasPlan(planName))
                 {
-                    List<string> planLines = PromotePlanLines(plan.Skip(1));
+                    List<string> planLines = PromotePlanLines(plan, partitionMode);
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
@@ -916,17 +916,46 @@ namespace NetTally
         /// </summary>
         /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
         /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
-        private List<string> PromotePlanLines(IEnumerable<string> planLines)
+        private List<string> PromotePlanLines(IEnumerable<string> planLines, PartitionMode partitionMode)
         {
-            if (planLines.All(a => a.Trim().StartsWith("-")))
+            if (planLines == null)
+                throw new ArgumentNullException(nameof(planLines));
+            if (!planLines.Any())
+                return new List<string>();
+
+            string firstLine = planLines.First();
+            var remainder = planLines.Skip(1);
+
+            // If we're not doing any partitioning, or partitioning by block (where plans
+            // are kept intact), do not promote the lines, but do make sure that the leading
+            // line with the plan name is "Plan X" instead of "Base Plan X".
+            if (partitionMode == PartitionMode.None || partitionMode == PartitionMode.ByBlock)
             {
-                var promotedLines = planLines.Select(a => a.Trim().Substring(1));
+                string nameContent = VoteString.GetVoteContent(firstLine, VoteType.Plan);
+
+                Match m = basePlanRegex.Match(nameContent);
+                if (m.Success)
+                {
+                    nameContent = $"Plan{m.Groups[1]}{m.Groups["planname"]}";
+
+                    firstLine = VoteString.ModifyVoteLine(firstLine, content: nameContent);
+                }
+
+                List<string> results = new List<string>(planLines.Count()) { firstLine };
+                results.AddRange(remainder);
+
+                return results;
+            }
+
+            if (remainder.All(a => a.Trim().StartsWith("-")))
+            {
+                var promotedLines = remainder.Select(a => a.Trim().Substring(1).Trim());
 
                 return promotedLines.ToList();
             }
             else
             {
-                return planLines.ToList();
+                return remainder.ToList();
             }
         }
         #endregion
