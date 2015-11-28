@@ -343,8 +343,13 @@ namespace NetTally
         /// <returns>Returns a list of all votes supported by the user or plan
         /// specified in the vote line, if found.  Otherwise returns an
         /// empty list.</returns>
-        public List<string> GetVotesFromReference(string voteLine)
+        public List<string> GetVotesFromReference(string voteLine, string author)
         {
+            if (voteLine == null)
+                throw new ArgumentNullException(nameof(voteLine));
+            if (author == null)
+                throw new ArgumentNullException(nameof(author));
+
             List<string> results = new List<string>();
 
             var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
@@ -353,7 +358,7 @@ namespace NetTally
 
             if (searchName == null)
             {
-                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => HasVoter(n, VoteType.Vote));
+                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => n != author && HasVoter(n, VoteType.Vote));
             }
 
             if (searchName != null)

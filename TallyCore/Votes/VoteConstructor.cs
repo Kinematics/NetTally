@@ -107,7 +107,7 @@ namespace NetTally
 
             // If it has a reference to a plan or voter that has not been processed yet,
             // delay processing.
-            if (HasFutureReference(vote))
+            if (HasFutureReference(vote, post.Author))
             {
                 VoteCounter.FutureReferences.Add(post);
                 return false;
@@ -119,7 +119,7 @@ namespace NetTally
             // Handle ranking votes, if applicable.
             if (quest.AllowRankedVotes)
             {
-                var rankings = GetRankingsFromPost(post.VoteStrings);
+                var rankings = GetRankingsFromPost(post.VoteStrings, post.Author);
 
                 if (rankings.Count > 0)
                     ProcessRankings(rankings, post, quest.PartitionMode);
@@ -195,7 +195,7 @@ namespace NetTally
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(planLines, partitionMode, VoteType.Plan);
+                    List<string> votePartitions = GetVotePartitions(planLines, partitionMode, VoteType.Plan, post.Author);
 
                     VoteCounter.AddVote(votePartitions, planName, post.ID, VoteType.Plan);
                 }
@@ -293,7 +293,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">List of lines for the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(List<string> vote)
+        private bool HasFutureReference(List<string> vote, string author)
         {
             var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
 
@@ -308,7 +308,7 @@ namespace NetTally
 
                 string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n));
 
-                if (refVoter != null)
+                if (refVoter != null && refVoter != author)
                 {
                     // If there's no vote entry, it must necessarily be a future reference.
                     if (!VoteCounter.HasVoter(refVoter, VoteType.Vote))
@@ -340,7 +340,7 @@ namespace NetTally
         {
             // Get the list of all vote partitions, built according to current preferences.
             // One of: By line, By block, or By post (ie: entire vote)
-            List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote);
+            List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote, post.Author);
 
             VoteCounter.AddVote(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
@@ -355,7 +355,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The vote being checked.</param>
         /// <returns>Returns any ranked vote lines in the vote.</returns>
-        private List<string> GetRankingsFromPost(List<string> voteStrings)
+        private List<string> GetRankingsFromPost(List<string> voteStrings, string author)
         {
             // Get any explicit ranking votes from the post itself.
             var direct = voteStrings.Where(line => VoteString.IsRankedVote(line));
@@ -365,7 +365,7 @@ namespace NetTally
 
             // If there were no explicit rankings, see if there's a reference to
             // another voter as the only line of this vote.
-            string refName = GetPureRankReference(voteStrings);
+            string refName = GetPureRankReference(voteStrings, author);
 
             if (refName != null)
             {
@@ -387,17 +387,17 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The standard vote partitions.</param>
         /// <returns></returns>
-        private string GetPureRankReference(List<string> voteStrings)
+        private string GetPureRankReference(List<string> voteStrings, string author)
         {
             if (voteStrings.Count == 1)
             {
-                var partitionLines = Utility.Text.GetStringLines(voteStrings.First());
+                var partitionLines = Text.GetStringLines(voteStrings.First());
 
                 if (partitionLines.Count == 1)
                 {
                     var refNames = VoteString.GetVoteReferenceNames(partitionLines.First());
 
-                    var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.HasVoter(n, VoteType.Rank));
+                    var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != author && VoteCounter.HasVoter(n, VoteType.Rank));
 
                     return refVoter;
                 }
@@ -429,7 +429,7 @@ namespace NetTally
         /// </summary>
         /// <param name="lines">List of valid vote lines.</param>
         /// <returns>List of the combined partitions.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -450,7 +450,7 @@ namespace NetTally
                 {
                     PartitionRanks(partitions, sb, trimmedLine);
                 }
-                else if ((referralVotes = VoteCounter.GetVotesFromReference(line)).Count > 0)
+                else if ((referralVotes = VoteCounter.GetVotesFromReference(line, author)).Count > 0)
                 {
                     // If a line refers to another voter or base plan, pull that voter's votes
                     PartitionReferrals(partitions, sb, referralVotes, partitionMode, ref taskHeader, ref currentTask);

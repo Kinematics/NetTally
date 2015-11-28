@@ -19,7 +19,7 @@ namespace NetTally
         Dictionary<string, string> GetVotersCollection(VoteType voteType);
 
         List<string> GetCondensedRankVotes();
-        List<string> GetVotesFromReference(string voteLine);
+        List<string> GetVotesFromReference(string voteLine, string author);
 
         string Title { get; set; }
         HashSet<string> PlanNames { get; }

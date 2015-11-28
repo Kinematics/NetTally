@@ -488,7 +488,7 @@ namespace NetTally.Tests
             voteCounter.AddVote(vote1, voter1, postId1, voteType);
             voteCounter.AddVote(vote2, voter2, postId2, voteType);
 
-            var votes = voteCounter.GetVotesFromReference("[x] me");
+            var votes = voteCounter.GetVotesFromReference("[x] me", "Him");
             Assert.AreEqual(1, votes.Count);
             Assert.IsTrue(votes.Contains(voteLine1));
         }
@@ -509,7 +509,7 @@ namespace NetTally.Tests
             voteCounter.AddVote(vote1, voter1, postId1, voteType);
             voteCounter.AddVote(vote2, voter2, postId2, voteType);
 
-            var votes = voteCounter.GetVotesFromReference("[x] you");
+            var votes = voteCounter.GetVotesFromReference("[x] you", "Him");
             Assert.AreEqual(2, votes.Count);
             Assert.IsTrue(votes.Contains(voteLine1));
             Assert.IsTrue(votes.Contains(voteLine2));
