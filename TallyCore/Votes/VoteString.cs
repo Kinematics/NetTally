@@ -69,9 +69,10 @@ namespace NetTally
         /// <returns>Returns a normalized vote line with BBCode removed.</returns>
         public static string CleanVote(string line)
         {
-            string cleaned = NormalizeVote(line);
+            //string cleaned = NormalizeVote(line);
+
             // Need to trim the result because removing markup may reveal new whitespace.
-            cleaned = markupRegex.Replace(cleaned, "").Trim();
+            string cleaned = markupRegex.Replace(line, "").Trim();
 
             return cleaned;
         }
@@ -193,7 +194,7 @@ namespace NetTally
         /// <param name="content">The content of the vote line.</param>
         public static void GetVoteComponents(string line, out string prefix, out string marker, out string task, out string content)
         {
-            line = NormalizeVote(line);
+            //line = NormalizeVote(line);
 
             Match mms = getPartsRegex.Match(line);
             if (mms.Success)
