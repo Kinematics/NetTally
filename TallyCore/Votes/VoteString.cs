@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -46,7 +47,25 @@ namespace NetTally
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
 
 
+        static readonly Regex precontentRegex = new Regex(@"^([\s-]*)\[[xX+✓✔1-9]\]\s*(\[(?!url=)[^]]+\])?");
 
+        static readonly Regex openBBCodeRegex = new Regex(@"\[(b|i|u|color=[^]]+)\]");
+        static readonly Regex closeBBCodeRegex = new Regex(@"\[/(b|i|u|color)\]");
+
+        static readonly Dictionary<string, string> bbCodeClosingMatches = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["[/b]"] = "[b]",
+            ["[/i]"] = "[i]",
+            ["[/u]"] = "[u]",
+            ["[/color]"] = "[color=",
+        };
+        static readonly Dictionary<string, string> bbCodeClosingRegexes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["[/b]"] = @"\[/b\]",
+            ["[/i]"] = @"\[/i\]",
+            ["[/u]"] = @"[/u]",
+            ["[/color]"] = @"\[/color\]",
+        };
 
         /// <summary>
         /// Convert problematic characters to normalized versions so that comparisons can work.
@@ -75,6 +94,59 @@ namespace NetTally
             string cleaned = markupRegex.Replace(line, "").Trim();
 
             return cleaned;
+        }
+
+        public static string CleanVoteLineBBCode(string line)
+        {
+            Match m;
+            string clean = line;
+
+            m = precontentRegex.Match(line);
+            while (m.Success == false)
+            {
+                string cleaned = markupRegex.Replace(clean, "", 1);
+
+                if (cleaned != clean)
+                {
+                    clean = cleaned;
+                    m = precontentRegex.Match(clean);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            var opens = openBBCodeRegex.Matches(clean);
+            var closes = closeBBCodeRegex.Matches(clean);
+
+            if (closes.Count > opens.Count)
+            {
+                // Closings without openings should be removed.
+
+                List<Match> opensList = new List<Match>(opens.OfType<Match>());
+
+                List<Match> unopened = new List<Match>();
+
+                for (int i = 0; i < closes.Count; i++)
+                {
+                    var opener = bbCodeClosingMatches[closes[i].Value];
+
+                    if (!opensList.Any(o => o.Value.StartsWith(opener)))
+                        unopened.Add(closes[i]);
+                }
+
+                foreach (var u in unopened)
+                {
+                    clean = Regex.Replace(clean, bbCodeClosingRegexes[u.Value], "", RegexOptions.None);
+                }
+            }
+            else if (closes.Count < opens.Count)
+            {
+                // Openings without closings need the closings added.
+            }
+
+            return clean;
         }
 
         /// <summary>

@@ -86,6 +86,49 @@ namespace TallyUnitTest
             Assert.AreEqual(e, VoteString.CleanVote(e));
         }
 
+        [TestMethod()]
+        public void CleanVoteTest2()
+        {
+            string line1 = "[b][x] Vote for stuff[/b]";
+            string line2 = "[color=blue][x] Vote for stuff[/color]";
+            string line3 = "[b][x] Vote for stuff";
+            string line4 = "[color=blue][b][x] Vote for stuff[/b]";
+            string line5 = "[b]-[x] Vote for stuff";
+            string line6 = "[color=blue]-[x] Vote for “stuff”[/color]";
+            string line7 = "[color=blue][x][main] Vote for stuff[/color]";
+            string line8 = "[x] [b]Vote for stuff";
+
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line2));
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line3));
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line4));
+            Assert.AreEqual("-[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line5));
+            Assert.AreEqual("-[x] Vote for “stuff”", VoteString.CleanVoteLineBBCode(line6));
+            Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
+            //Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
+        }
+
+
+        [TestMethod()]
+        public void CleanVoteTest3()
+        {
+            string line1 = "[[b]x] Vote for stuff[/b]";
+            string line2 = "[x] [color=blue]Vote for stuff[/color]";
+            string line3 = "[x] Vote [b]for[/b] stuff";
+            string line4 = "[color=blue][x] [b]Vote for stuff[/b]";
+            string line5 = "-[x] [url=http://link]Vote for stuff[/url]";
+            string line6 = "-[x] Vote for [color=blue]“stuff”[/color]";
+            string line7 = "[color=blue][x][/color][main] Vote for stuff";
+
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
+            Assert.AreEqual("[x] [color=blue]Vote for stuff[/color]", VoteString.CleanVoteLineBBCode(line2));
+            Assert.AreEqual("[x] Vote [b]for[/b] stuff", VoteString.CleanVoteLineBBCode(line3));
+            Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line4));
+            Assert.AreEqual("-[x] [url=http://link]Vote for stuff[/url]", VoteString.CleanVoteLineBBCode(line5));
+            Assert.AreEqual("-[x] Vote for [color=blue]“stuff”[/color]", VoteString.CleanVoteLineBBCode(line6));
+            Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
+        }
+
 
         [TestMethod()]
         public void MinimizeVoteTest()
