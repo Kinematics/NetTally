@@ -12,9 +12,9 @@ namespace NetTally.Tests
     [TestClass()]
     public class VoteCounterTests
     {
+        #region Setup
         static IVoteCounter voteCounter;
         static VoteCounter voteCounterRaw;
-        static PrivateObject privateVote;
         static IQuest sampleQuest;
 
         [ClassInitialize()]
@@ -22,7 +22,6 @@ namespace NetTally.Tests
         {
             voteCounterRaw = new VoteCounter();
             voteCounter = voteCounterRaw;
-            privateVote = new PrivateObject(voteCounter);
             sampleQuest = new Quest();
         }
 
@@ -31,26 +30,26 @@ namespace NetTally.Tests
         {
             voteCounter.Reset();
         }
+        #endregion
 
         [TestMethod()]
         public void ResetTest()
         {
-            //TODO
-
             voteCounter.Reset();
 
             Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Vote).Count);
             Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Vote).Count);
             Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Rank).Count);
             Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Rank).Count);
+
+            Assert.AreEqual(0, voteCounter.ReferencePlanNames.Count);
+            Assert.AreEqual(0, voteCounter.ReferencePlans.Count);
+            Assert.AreEqual(0, voteCounter.ReferenceVoters.Count);
+            Assert.AreEqual(0, voteCounter.ReferenceVoterPosts.Count);
+            Assert.AreEqual(0, voteCounter.FutureReferences.Count);
+
             Assert.AreEqual(0, voteCounter.PlanNames.Count);
             Assert.AreEqual("", voteCounter.Title);
-        }
-
-        [TestMethod()]
-        public void TallyVotesTest()
-        {
-            //TODO
         }
 
         #region Get vote collections
@@ -134,19 +133,20 @@ namespace NetTally.Tests
         }
         #endregion
 
-
+        #region Add Votes
         [TestMethod()]
-        public void AddVoteTest1()
+        public void AddVoteTypeVoteTest()
         {
             string voteLine = "[x] First test";
             string voter = "me";
             string postId = "1";
             List<string> vote = new List<string>() { voteLine };
+            VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVote(vote, voter, postId, VoteType.Vote);
+            voteCounter.AddVote(vote, voter, postId, voteType);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(voteType);
+            var voters = voteCounter.GetVotersCollection(voteType);
 
             Assert.IsTrue(votes.Keys.Contains(voteLine));
             Assert.IsTrue(votes[voteLine].Contains(voter));
@@ -156,28 +156,32 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void AddVoteTest2()
+        public void AddPlanTypeVoteTest()
         {
             string voteLine = "[x] First test";
             string voter = "me";
+            string planname = "◈PlanPlan";
             string postId = "1";
             List<string> vote = new List<string>() { voteLine };
             VoteType voteType = VoteType.Plan;
 
-            voteCounter.AddVote(vote, "◈PlanPlan", postId, VoteType.Plan);
+            voteCounter.AddVote(vote, planname, postId, voteType);
             voteCounter.AddVote(vote, voter, postId, VoteType.Vote);
 
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine));
             Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(planname));
 
             Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(planname));
             Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[voter]);
+            Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[planname]);
 
             Assert.IsTrue(voteCounter.HasPlan("PlanPlan"));
         }
 
         [TestMethod()]
-        public void AddVoteTest3()
+        public void AddRankTypeVoteTest()
         {
             string voteLine = "[1] First test";
             string voter = "me";
@@ -247,7 +251,203 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void AddVoteReplaceTest1()
+        public void AddVoteVariantTest1()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[x] [b]First[/b] test";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest2()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[x] first TEST";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            //Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest3()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[x] First  test";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest4()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "-[x] First test";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest5()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[b][x] First test[/b]";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest6()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[x] First test.";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteVariantTest7()
+        {
+            string voteLine1 = "[x] First test";
+            string voteLine2 = "[x] First t'est.";
+            string voter1 = "me";
+            string postId1 = "1";
+            string voter2 = "you";
+            string postId2 = "2";
+            List<string> vote1 = new List<string>() { voteLine1 };
+            List<string> vote2 = new List<string>() { voteLine2 };
+            VoteType voteType = VoteType.Vote;
+
+            voteCounter.AddVote(vote1, voter1, postId1, voteType);
+            voteCounter.AddVote(vote2, voter2, postId2, voteType);
+
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
+            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
+            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
+
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
+            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
+            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
+            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+        }
+
+        [TestMethod()]
+        public void AddVoteReplacementTest1()
         {
             string voteLine1 = "[x] First test";
             string voteLine2 = "[x] Second test";
@@ -269,9 +469,9 @@ namespace NetTally.Tests
             Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter1]);
         }
 
+        #endregion
 
 
-        
         [TestMethod()]
         public void FindVotesForVoterTest1()
         {
@@ -313,6 +513,12 @@ namespace NetTally.Tests
             Assert.AreEqual(2, votes.Count);
             Assert.IsTrue(votes.Contains(voteLine1));
             Assert.IsTrue(votes.Contains(voteLine2));
+        }
+
+        [TestMethod()]
+        public void TallyVotesTest()
+        {
+            //TODO
         }
 
 
