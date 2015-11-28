@@ -52,12 +52,13 @@ namespace TallyUnitTest
 
 
         [TestMethod()]
-        public void CleanVoteTest()
+        public void CleanVoteTest1()
         {
             string cleanLine1 = "[x] Vote for stuff";
             string cleanLine2 = "-[x] Vote for stuff";
             string cleanLine3 = "[x][main] Vote for stuff";
             string cleanLine4 = "-[x] Vote for \"stuff\"";
+            string cleanLine5 = "-[x] Vote for “stuff”";
 
             string line1 = "[b][x] Vote for stuff[/b]";
             string line2 = "[color=blue][x] Vote for stuff[/color]";
@@ -77,7 +78,7 @@ namespace TallyUnitTest
 
             Assert.AreEqual(cleanLine2, VoteString.CleanVote(cleanLine2));
             Assert.AreEqual(cleanLine2, VoteString.CleanVote(line5));
-            Assert.AreEqual(cleanLine4, VoteString.CleanVote(line6));
+            Assert.AreEqual(cleanLine5, VoteString.CleanVote(line6));
 
             Assert.AreEqual(cleanLine3, VoteString.CleanVote(cleanLine3));
             Assert.AreEqual(cleanLine3, VoteString.CleanVote(line7));
