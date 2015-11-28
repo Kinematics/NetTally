@@ -39,13 +39,13 @@ namespace TallyUnitTest
 
             string e = "";
 
-            Assert.AreEqual(normLine1, VoteString.CleanVote(line1));
-            Assert.AreEqual(normLine2, VoteString.CleanVote(line2));
-            Assert.AreEqual(normLine3, VoteString.CleanVote(line3));
-            Assert.AreEqual(normLine4, VoteString.CleanVote(line4));
-            Assert.AreEqual(normLine5, VoteString.CleanVote(line5));
-            Assert.AreEqual(normLine6, VoteString.CleanVote(line6));
-            Assert.AreEqual(normLine7, VoteString.CleanVote(line7));
+            Assert.AreEqual(normLine1, VoteString.NormalizeVote(line1));
+            Assert.AreEqual(normLine2, VoteString.NormalizeVote(line2));
+            Assert.AreEqual(normLine3, VoteString.NormalizeVote(line3));
+            Assert.AreEqual(normLine4, VoteString.NormalizeVote(line4));
+            Assert.AreEqual(normLine5, VoteString.NormalizeVote(line5));
+            Assert.AreEqual(normLine6, VoteString.NormalizeVote(line6));
+            Assert.AreEqual(normLine7, VoteString.NormalizeVote(line7));
 
             Assert.AreEqual(e, VoteString.CleanVote(e));
         }
