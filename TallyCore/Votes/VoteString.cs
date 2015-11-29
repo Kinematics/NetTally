@@ -83,19 +83,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Removes all BBCode from the vote line, for various comparison and analysis uses.
-        /// </summary>
-        /// <param name="line">The vote line to clean up.</param>
-        /// <returns>Returns a normalized vote line with BBCode removed.</returns>
-        public static string CleanVote(string line)
-        {
-            // Need to trim the result because removing markup may reveal new whitespace.
-            string cleaned = markupRegex.Replace(line, "").Trim();
-
-            return cleaned;
-        }
-
-        /// <summary>
         /// Remove BBCode markup from a text string.
         /// </summary>
         /// <param name="text">The text to clean up.</param>
