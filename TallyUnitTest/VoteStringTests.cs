@@ -131,36 +131,6 @@ namespace TallyUnitTest
             Assert.AreEqual("[x][main] [b][b]Vote[/b] for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
         }
 
-
-        [TestMethod()]
-        public void MinimizeVoteTest()
-        {
-            string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
-            string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
-
-            string results = VoteString.MinimizeVote(input);
-            Assert.AreEqual(expected, results);
-        }
-
-        [TestMethod()]
-        public void MinimizeBlockTest()
-        {
-            string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
-            string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
-
-            string results = VoteString.MinimizeVote(input);
-            Assert.AreEqual(expected, results);
-        }
-
-        [TestMethod()]
-        public void MinimizeLineTest()
-        {
-            string input = "-[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
-            string expected = "[x]wedidagreetonon-lethalmymostpowerfulstuffeitherknockspeopleoutorkillsthemwithouthavingtofightatalleverythingelsei'velearnedtodosofarfeelslikeawitchbarrier,anditrynottousethatsinceitfreakseveryoneout";
-
-            string results = VoteString.MinimizeVote(input);
-            Assert.AreEqual(expected, results);
-        }
         
         [TestMethod()]
         public void GetVotePrefixTest()
@@ -179,16 +149,17 @@ namespace TallyUnitTest
         {
             string line1 = "[x] Vote for stuff";
             string line2 = "-[X] Vote for stuff";
-            string line3 = "-[+] Vote for stuff";
-            string line4 = "[✓][major] Vote for stuff";
-            string line5 = "-[ ✔][ animal] Vote for stuff";
+            string line3 = "[✓][major] Vote for stuff";
+            string line4 = "-[ ✔][ animal] Vote for stuff";
 
             Assert.AreEqual("x", VoteString.GetVoteMarker(line1));
             Assert.AreEqual("X", VoteString.GetVoteMarker(line2));
-            Assert.AreEqual("+", VoteString.GetVoteMarker(line3));
-            Assert.AreEqual("✓", VoteString.GetVoteMarker(line4));
-            Assert.AreEqual("✔", VoteString.GetVoteMarker(line5));
+            Assert.AreEqual("✓", VoteString.GetVoteMarker(line3));
+            Assert.AreEqual("✔", VoteString.GetVoteMarker(line4));
 
+            // + is no longer valid
+            line1 = "-[+] Vote for stuff";
+            Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[a] Vote for stuff";
             Assert.AreEqual("", VoteString.GetVoteMarker(line1));
             line1 = "[k] Vote for stuff";
@@ -255,7 +226,7 @@ namespace TallyUnitTest
         public void GetVoteContentTest()
         {
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
-            string expected = "We did agree to non-lethal. My most powerful stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
+            string expected = "We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
 
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
@@ -271,8 +242,9 @@ namespace TallyUnitTest
             expected = "Vote for stuff";
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
+            // Invalid line.  Leading BBCode should have already been removed.
             input = "[color=blue]-[x] Vote for stuff[/color]";
-            expected = "Vote for stuff";
+            expected = "";
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
         }
@@ -546,12 +518,13 @@ namespace TallyUnitTest
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
             input = "[1][Major] [b]Vote for stuff[/b]";
-            expected = "[Major] Vote for stuff";
+            expected = "[Major] [b]Vote for stuff[/b]";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
+            // Shouldn't be able to generate this working string anymore:
             input = "[b][1] Vote for stuff[/b]";
-            expected = "[] Vote for stuff";
+            expected = "[] ";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
