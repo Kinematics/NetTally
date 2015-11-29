@@ -18,6 +18,8 @@ namespace NetTally
 
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
+        // Single line version of the vote line regex.
+        static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Regex to allow us to collapse a vote to a commonly comparable version.
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
         // Regex to allow us to convert a vote's smart quote marks to a commonly comparable version.
@@ -293,16 +295,20 @@ namespace NetTally
         /// <param name="marker">The marker for the vote line.</param>
         /// <param name="task">The task (if any) for the vote line.</param>
         /// <param name="content">The content of the vote line.</param>
-        public static void GetVoteComponents(string line, out string prefix, out string marker, out string task, out string content)
+        public static void GetVoteComponents(string line, out string prefix, out string marker, out string task, out string content, bool SingleLine = false)
         {
-            Match m = voteLineRegex.Match(line);
+            Match m;
+            if (SingleLine)
+                m = voteLineRegexSingleLine.Match(line);
+            else
+                m = voteLineRegex.Match(line);
 
             if (m.Success)
             {
                 prefix = m.Groups[VoteComponents.Prefix].Value.Replace(" ", string.Empty);
                 marker = m.Groups[VoteComponents.Marker].Value;
                 task = m.Groups[VoteComponents.Task]?.Value.Trim() ?? "";
-                content = m.Groups[VoteComponents.Content].Value.Trim();
+                content = m.Groups[VoteComponents.Content].Value;
 
                 return;
             }
@@ -448,7 +454,7 @@ namespace NetTally
         /// <param name="task">The task the line should be grouped with.</param>
         /// <param name="content">The contents of the vote.</param>
         /// <returns>Returns a complete vote line.</returns>
-        public static string ModifyVoteLine(string voteLine, string prefix = null, string marker = null, string task = null, string content = null)
+        public static string ModifyVoteLine(string voteLine, string prefix = null, string marker = null, string task = null, string content = null, bool SingleLine = false)
         {
             if (string.IsNullOrEmpty(voteLine))
                 throw new ArgumentNullException(nameof(voteLine));
@@ -463,7 +469,7 @@ namespace NetTally
             string voteContent;
 
             // Use the original vote line value for any parameter that is null.
-            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent);
+            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, SingleLine: SingleLine);
 
             prefix = prefix ?? votePrefix;
             marker = marker ?? voteMarker;
@@ -501,7 +507,7 @@ namespace NetTally
                 }
             }
 
-            return ModifyVoteLine(voteLine, task: newTask ?? "");
+            return ModifyVoteLine(voteLine, task: newTask ?? "", SingleLine: true);
         }
         #endregion
 
