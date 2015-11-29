@@ -26,7 +26,7 @@ namespace NetTally
         static readonly Regex getPartsRegex = new Regex($@"^(?<m1>{markups})(?<prefix>-*)(?<m2>{markups})\[\s*(?<m3>{markups})\s*(?<marker>[xX✓✔1-9])\s*(?<m4>{markups})\s*\]\s*(?<m5>{markups})\s*(\[\s*(?<m6>{markups})\s*(?!url=)(?<task>[^\[\]]+)\s*(?<m7>{markups})\s*\])?\s*(?<content>.*)");
 
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
-        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\s*\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?!url=)(?<task>[^]]*?)\s*\])?\s*(?<content>.*)");
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
