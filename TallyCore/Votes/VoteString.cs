@@ -287,56 +287,25 @@ namespace NetTally
         /// Function to get all of the individual components of the vote line at once, including
         /// embedded BBCode (applied only to the content).
         /// </summary>
-        /// <param name="line">The vote line to analyze.</param>
+        /// <param name="line">The vote line to analyze.  Line must have already
+        /// been processed by CleanVoteLineBBCode</param>
         /// <param name="prefix">The prefix (if any) for the vote line.</param>
         /// <param name="marker">The marker for the vote line.</param>
         /// <param name="task">The task (if any) for the vote line.</param>
         /// <param name="content">The content of the vote line.</param>
         public static void GetVoteComponents(string line, out string prefix, out string marker, out string task, out string content)
         {
-            //line = NormalizeVote(line);
+            Match m = voteLineRegex.Match(line);
 
-            Match mms = getPartsRegex.Match(line);
-            if (mms.Success)
+            if (m.Success)
             {
-                prefix = mms.Groups["prefix"].Value;
-                marker = mms.Groups["marker"].Value;
-                task = mms.Groups["task"].Value;
-                content = $"{mms.Groups["m1"].Value}{mms.Groups["m2"].Value}{mms.Groups["m3"].Value}{mms.Groups["m4"].Value}{mms.Groups["m5"].Value}{mms.Groups["m6"].Value}{mms.Groups["m7"].Value}{mms.Groups["content"].Value}".Trim();
-                return;
+                prefix = m.Groups[VoteComponents.Prefix].Value.Replace(" ", string.Empty);
+                marker = m.Groups[VoteComponents.Marker].Value;
+                task = m.Groups[VoteComponents.Task]?.Value.Trim() ?? "";
+                content = m.Groups[VoteComponents.Content].Value.Trim();
             }
-
-            Match m1 = getPrefixRegex.Match(line);
-            if (m1.Success)
-            {
-                prefix = m1.Groups["prefix"].Value;
-
-                string no_prefix = $"{m1.Groups["m1"].Value}{m1.Groups["remainder"].Value.Trim()}";
-
-                Match m2 = getMarkerRegex.Match(no_prefix);
-
-                if (m2.Success)
-                {
-                    marker = m2.Groups["marker"].Value;
-
-                    string no_marker = $"{m2.Groups["m1"].Value}{m2.Groups["m2"].Value}{m2.Groups["m3"].Value}{m2.Groups["remainder"].Value.Trim()}";
-
-                    Match m3 = getTaskRegex.Match(no_marker);
-
-                    if (m3.Success)
-                    {
-                        task = m3.Groups["task"].Value;
-
-                        string no_task = $"{m3.Groups["m1"].Value}{m3.Groups["m2"].Value}{m3.Groups["m3"].Value}{m3.Groups["remainder"].Value.Trim()}";
-
-                        content = no_task.Trim();
-
-                        return;
-                    }
-                }
-            }
-
-            throw new InvalidOperationException("Unable to parse vote line.");
+            
+            throw new InvalidOperationException("Unable to parse components for vote line:\n"+line);
         }
         #endregion
 
