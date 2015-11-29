@@ -192,8 +192,7 @@ namespace NetTally
         /// <returns>Returns the requested element of the vote line, or an empty string if not found.</returns>
         private static string GetVoteElement(string line, string element)
         {
-            string cleanLine = CleanVote(line);
-            Match m = voteLineRegex.Match(cleanLine);
+            Match m = voteLineRegex.Match(line);
             if (m.Success)
             {
                 return m.Groups[element]?.Value.Trim() ?? "";
@@ -210,8 +209,7 @@ namespace NetTally
         /// <returns>Returns the requested element of the vote line, or an empty string if not found.</returns>
         private static string GetCondensedVoteElement(string line, string element)
         {
-            string cleanLine = CleanVote(line);
-            Match m = condensedVoteRegex.Match(cleanLine);
+            Match m = condensedVoteRegex.Match(line);
             if (m.Success)
             {
                 return m.Groups[element]?.Value.Trim() ?? "";
