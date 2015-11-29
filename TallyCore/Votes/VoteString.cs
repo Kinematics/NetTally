@@ -499,26 +499,7 @@ namespace NetTally
                 }
             }
 
-            Match m = taskRegex.Match(voteLine);
-            if (m.Success)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                sb.Append(m.Groups["pre"].Value);
-
-                if (newTask != null && newTask != string.Empty)
-                {
-                    sb.Append($"[{newTask}]");
-                }
-
-                sb.Append(" ");
-
-                sb.Append(m.Groups["remainder"].Value);
-
-                return sb.ToString();
-            }
-
-            return voteLine;
+            return ModifyVoteLine(voteLine, task: newTask ?? "");
         }
         #endregion
 
