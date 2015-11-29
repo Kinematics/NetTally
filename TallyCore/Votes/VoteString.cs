@@ -47,7 +47,7 @@ namespace NetTally
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
 
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
-        static readonly Regex precontentRegex = new Regex(@"^([\s-]*)\[[xX+✓✔1-9]\]\s*((\[(?!/?[bui]|/?color=?|url=)[^]]*\])|(?!\[/([bui]|color)\]))");
+        static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[[xX+✓✔1-9]\](?!\s*\[/(?:[bui]|color)\])(?!(?:\s*\[(?:[bui]|color=[^]]+)\])+\s*\[(?![bui]|color=[^]]+|url=[^]]+)[^]]+\])");
 
         // Regex for any opening BBCode tag.
         static readonly Regex openBBCodeRegex = new Regex(@"\[(b|i|u|color=[^]]+)\]");
