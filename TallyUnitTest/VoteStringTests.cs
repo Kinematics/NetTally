@@ -105,7 +105,7 @@ namespace TallyUnitTest
             Assert.AreEqual("-[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line5));
             Assert.AreEqual("-[x] Vote for “stuff”", VoteString.CleanVoteLineBBCode(line6));
             Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            //Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
         }
 
 
@@ -119,6 +119,7 @@ namespace TallyUnitTest
             string line5 = "-[x] [url=http://link]Vote for stuff[/url]";
             string line6 = "-[x] Vote for [color=blue]“stuff”[/color]";
             string line7 = "[color=blue][x][/color][main] Vote for stuff";
+            string line8 = "[color=blue][x][/color][main] [b][b]Vote[/b] for stuff";
 
             Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
             Assert.AreEqual("[x] [color=blue]Vote for stuff[/color]", VoteString.CleanVoteLineBBCode(line2));
@@ -127,6 +128,7 @@ namespace TallyUnitTest
             Assert.AreEqual("-[x] [url=http://link]Vote for stuff[/url]", VoteString.CleanVoteLineBBCode(line5));
             Assert.AreEqual("-[x] Vote for [color=blue]“stuff”[/color]", VoteString.CleanVoteLineBBCode(line6));
             Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
+            Assert.AreEqual("[x][main] [b][b]Vote[/b] for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
         }
 
 

@@ -46,26 +46,24 @@ namespace NetTally
         // Regex for extracting parts of the simplified condensed rank votes.
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
 
+        // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
+        static readonly Regex precontentRegex = new Regex(@"^([\s-]*)\[[xX+✓✔1-9]\]\s*((\[(?!/?[bui]|/?color=?|url=)[^]]*\])|(?!\[/([bui]|color)\]))");
 
-        static readonly Regex precontentRegex = new Regex(@"^([\s-]*)\[[xX+✓✔1-9]\]\s*(\[(?!url=)[^]]+\])?");
-
+        // Regex for any opening BBCode tag.
         static readonly Regex openBBCodeRegex = new Regex(@"\[(b|i|u|color=[^]]+)\]");
+        // Regex for any closing BBCode tag.
         static readonly Regex closeBBCodeRegex = new Regex(@"\[/(b|i|u|color)\]");
+        // Regex to extract a tag from a BBCode element.
+        static readonly Regex tagRegex = new Regex(@"\[/?(?<tag>[biu](?=\])|(?<=/)color(?=\])|color(?==[^]]+))(=[^]]+)?\]");
+        // Regexes for the indicated closing tags.
+        static readonly Dictionary<string, Regex> closeTagRegexes = new Dictionary<string, Regex>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["b"] = new Regex(@"\[/b\]"),
+            ["i"] = new Regex(@"\[/i\]"),
+            ["u"] = new Regex(@"\[/u\]"),
+            ["color"] = new Regex(@"\[/color\]"),
+        };
 
-        static readonly Dictionary<string, string> bbCodeClosingMatches = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["[/b]"] = "[b]",
-            ["[/i]"] = "[i]",
-            ["[/u]"] = "[u]",
-            ["[/color]"] = "[color=",
-        };
-        static readonly Dictionary<string, string> bbCodeClosingRegexes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["[/b]"] = @"\[/b\]",
-            ["[/i]"] = @"\[/i\]",
-            ["[/u]"] = @"[/u]",
-            ["[/color]"] = @"\[/color\]",
-        };
 
         /// <summary>
         /// Convert problematic characters to normalized versions so that comparisons can work.
@@ -96,6 +94,12 @@ namespace NetTally
             return cleaned;
         }
 
+        /// <summary>
+        /// Remove BBCode from the precontent area of a vote line, while leaving it in the content area.
+        /// Unmatched tags are either removed (for extra ending tags) or closed (for extra opening tags).
+        /// </summary>
+        /// <param name="line">A vote line.</param>
+        /// <returns>Returns the vote line cleaned up of BBCode.</returns>
         public static string CleanVoteLineBBCode(string line)
         {
             Match m;
@@ -120,33 +124,59 @@ namespace NetTally
             var opens = openBBCodeRegex.Matches(clean);
             var closes = closeBBCodeRegex.Matches(clean);
 
-            if (closes.Count > opens.Count)
+            var openGroups = opens.OfType<Match>().GroupBy(a => GetTag(a.Value));
+            var closeGroups = closes.OfType<Match>().GroupBy(a => GetTag(a.Value));
+
+            foreach (var tag in closeGroups)
             {
-                // Closings without openings should be removed.
-
-                List<Match> opensList = new List<Match>(opens.OfType<Match>());
-
-                List<Match> unopened = new List<Match>();
-
-                for (int i = 0; i < closes.Count; i++)
+                var matchingOpen = openGroups.FirstOrDefault(a => a.Key == tag.Key);
+                // If there are no matching opens for the closing tag, remove all instances of the closing tag.
+                if (matchingOpen == null)
                 {
-                    var opener = bbCodeClosingMatches[closes[i].Value];
-
-                    if (!opensList.Any(o => o.Value.StartsWith(opener)))
-                        unopened.Add(closes[i]);
+                    clean = closeTagRegexes[tag.Key].Replace(clean, "", tag.Count());
                 }
-
-                foreach (var u in unopened)
+                else
                 {
-                    clean = Regex.Replace(clean, bbCodeClosingRegexes[u.Value], "", RegexOptions.None);
+                    // Otherwise remove as many additional close tags as are found.
+                    int diff = tag.Count() - matchingOpen.Count();
+
+                    if (diff > 0)
+                    {
+                        clean = closeTagRegexes[tag.Key].Replace(clean, "", diff);
+                    }
                 }
             }
-            else if (closes.Count < opens.Count)
+
+            foreach (var tag in openGroups)
             {
-                // Openings without closings need the closings added.
+                var matchingClose = closeGroups.FirstOrDefault(a => a.Key == tag.Key);
+
+                int? diff = tag.Count() - matchingClose?.Count();
+                string closeTag = $"[/{tag.Key}]";
+
+                int num = diff.HasValue ? diff.Value : tag.Count();
+
+                for (int i = 0; i < num; i++)
+                {
+                    clean += closeTag;
+                }
             }
 
             return clean;
+        }
+
+        /// <summary>
+        /// Tags a BBCode opening or closing tag element, and extracts the tag from it.
+        /// </summary>
+        /// <param name="input">A BBCode markup element.</param>
+        /// <returns>Returns the BBCode tag from the element.</returns>
+        private static string GetTag(string input)
+        {
+            Match m = tagRegex.Match(input);
+            if (m.Success)
+                return m.Groups["tag"].Value;
+
+            return string.Empty;
         }
 
         /// <summary>
