@@ -95,7 +95,35 @@ namespace NetTally
             return cleaned;
         }
 
+        /// <summary>
+        /// Remove BBCode markup from a text string.
+        /// </summary>
+        /// <param name="text">The text to clean up.</param>
+        /// <returns>Returns the text without any BBCode markup.</returns>
         public static string RemoveBBCode(string text) => markupRegex.Replace(text, "").Trim();
+
+        /// <summary>
+        /// Remove URL BBCode from a vote line's content.
+        /// </summary>
+        /// <param name="contents">The contents of a vote line.</param>
+        /// <returns>Returns the contents without any URL markup.</returns>
+        public static string DeUrlContent(string contents)
+        {
+            string result = contents;
+
+            Match m = linkedReferenceRegex.Match(contents);
+            while (m.Success)
+            {
+                // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
+                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
+                string replacement = "$1$3$4";
+                result = Regex.Replace(contents, pattern, replacement);
+
+                m = linkedReferenceRegex.Match(result);
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Remove BBCode from the precontent area of a vote line, while leaving it in the content area.
@@ -417,28 +445,6 @@ namespace NetTally
             return results;
         }
 
-        /// <summary>
-        /// Remove URL BBCode from a vote line's content.
-        /// </summary>
-        /// <param name="contents">The contents of a vote line.</param>
-        /// <returns>Returns the contents without any URL markup.</returns>
-        public static string DeUrlContent(string contents)
-        {
-            string result = contents;
-
-            Match m = linkedReferenceRegex.Match(contents);
-            while (m.Success)
-            {
-                // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
-                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
-                string replacement = "$1$3$4";
-                result = Regex.Replace(contents, pattern, replacement);
-
-                m = linkedReferenceRegex.Match(result);
-            }
-
-            return result;
-        }
         #endregion
 
         #region Creating and modifying votes
