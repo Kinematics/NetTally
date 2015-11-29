@@ -16,19 +16,8 @@ namespace NetTally
             public static string Content { get; } = "content";
         }
 
-
-        static string markup = @"(\[/?[ibu]\]|\[color[^]]*\]|\[/color\])*";
-        static string markups = $@"({markup}\s*)*";
-        static readonly Regex getPrefixRegex = new Regex($@"^(?<m1>({markup}\s*)*)(?<prefix>-*)\s*(?={markup}\[\s*{markup}\s*[xX✓✔1-9])(?<remainder>.*)");
-        static readonly Regex getMarkerRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)(\[\s*(?<m2>({markup}\s*)*)(?<marker>[xX✓✔1-9])\s*(?<m3>({markup}\s*)*)\])(?<remainder>.*)");
-        static readonly Regex getTaskRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)\s*(\[\s*(?<m2>({markup}\s*)*)(?!url=)(?<task>[^\[\]]+)\s*(?<m3>({markup}\s*)*)\])?\s*(?<remainder>.*)");
-
-        static readonly Regex getPartsRegex = new Regex($@"^(?<m1>{markups})(?<prefix>-*)(?<m2>{markups})\[\s*(?<m3>{markups})\s*(?<marker>[xX✓✔1-9])\s*(?<m4>{markups})\s*\]\s*(?<m5>{markups})\s*(\[\s*(?<m6>{markups})\s*(?!url=)(?<task>[^\[\]]+)\s*(?<m7>{markups})\s*\])?\s*(?<content>.*)");
-
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
-        // Regex to match any markup that we'll want to remove during comparisons.
-        static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to allow us to collapse a vote to a commonly comparable version.
         static readonly Regex collapseRegex = new Regex(@"\s|\.");
         // Regex to allow us to convert a vote's smart quote marks to a commonly comparable version.
@@ -45,6 +34,19 @@ namespace NetTally
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
+
+        #region BBCode regexes
+        // Regex to match any markup that we'll want to remove during comparisons.
+        static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
+
+        static string markup = @"(\[/?[ibu]\]|\[color[^]]*\]|\[/color\])*";
+        static string markups = $@"({markup}\s*)*";
+        static readonly Regex getPrefixRegex = new Regex($@"^(?<m1>({markup}\s*)*)(?<prefix>-*)\s*(?={markup}\[\s*{markup}\s*[xX✓✔1-9])(?<remainder>.*)");
+        static readonly Regex getMarkerRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)(\[\s*(?<m2>({markup}\s*)*)(?<marker>[xX✓✔1-9])\s*(?<m3>({markup}\s*)*)\])(?<remainder>.*)");
+        static readonly Regex getTaskRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)\s*(\[\s*(?<m2>({markup}\s*)*)(?!url=)(?<task>[^\[\]]+)\s*(?<m3>({markup}\s*)*)\])?\s*(?<remainder>.*)");
+
+        static readonly Regex getPartsRegex = new Regex($@"^(?<m1>{markups})(?<prefix>-*)(?<m2>{markups})\[\s*(?<m3>{markups})\s*(?<marker>[xX✓✔1-9])\s*(?<m4>{markups})\s*\]\s*(?<m5>{markups})\s*(\[\s*(?<m6>{markups})\s*(?!url=)(?<task>[^\[\]]+)\s*(?<m7>{markups})\s*\])?\s*(?<content>.*)");
+
 
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
         static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[[xX✓✔1-9]\](?!\s*\[/(?:[bui]|color)\])(?!(?:\s*\[(?:[bui]|color=[^]]+)\])+\s*\[(?![bui]|color=[^]]+|url=[^]]+)[^]]+\])");
@@ -63,8 +65,9 @@ namespace NetTally
             ["u"] = new Regex(@"\[/u\]"),
             ["color"] = new Regex(@"\[/color\]"),
         };
+        #endregion
 
-
+        #region Cleanup functions
         /// <summary>
         /// Convert problematic characters to normalized versions so that comparisons can work.
         /// </summary>
@@ -86,13 +89,13 @@ namespace NetTally
         /// <returns>Returns a normalized vote line with BBCode removed.</returns>
         public static string CleanVote(string line)
         {
-            //string cleaned = NormalizeVote(line);
-
             // Need to trim the result because removing markup may reveal new whitespace.
             string cleaned = markupRegex.Replace(line, "").Trim();
 
             return cleaned;
         }
+
+        public static string RemoveBBCode(string text) => markupRegex.Replace(text, "").Trim();
 
         /// <summary>
         /// Remove BBCode from the precontent area of a vote line, while leaving it in the content area.
@@ -198,7 +201,9 @@ namespace NetTally
 
             return minimized;
         }
-        
+        #endregion
+
+        #region 'Get' functions
         /// <summary>
         /// Get the requested element out of the cleaned version of the vote line.
         /// </summary>
@@ -340,9 +345,9 @@ namespace NetTally
 
             throw new InvalidOperationException("Unable to parse vote line.");
         }
+        #endregion
 
-
-
+        #region Misc functions
         /// <summary>
         /// Function to condense a rank vote to just the task and content of the original vote, for
         /// use in vote merging without needing to see all of the individual ranked votes.
@@ -455,6 +460,7 @@ namespace NetTally
 
             return result;
         }
+        #endregion
 
         #region Creating and modifying votes
         /// <summary>
