@@ -319,8 +319,9 @@ namespace NetTally
         /// the vote content.  If there is no task, the [] is empty.</returns>
         public static string CondenseVote(string rankVote)
         {
-            string task = GetVoteTask(rankVote);
-            string content = GetVoteContent(rankVote);
+            string prefix, marker, task, content;
+
+            GetVoteComponents(rankVote, out prefix, out marker, out task, out content);
 
             return $"[{task}] {content}";
         }
