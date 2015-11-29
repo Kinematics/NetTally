@@ -47,18 +47,17 @@ namespace TallyUnitTest
             Assert.AreEqual(normLine6, VoteString.NormalizeVote(line6));
             Assert.AreEqual(normLine7, VoteString.NormalizeVote(line7));
 
-            Assert.AreEqual(e, VoteString.CleanVote(e));
+            Assert.AreEqual(e, VoteString.NormalizeVote(e));
         }
 
 
         [TestMethod()]
-        public void CleanVoteTest1()
+        public void RemoveBBCodeTest()
         {
             string cleanLine1 = "[x] Vote for stuff";
             string cleanLine2 = "-[x] Vote for stuff";
             string cleanLine3 = "[x][main] Vote for stuff";
-            string cleanLine4 = "-[x] Vote for \"stuff\"";
-            string cleanLine5 = "-[x] Vote for “stuff”";
+            string cleanLine4 = "-[x] Vote for “stuff”";
 
             string line1 = "[b][x] Vote for stuff[/b]";
             string line2 = "[color=blue][x] Vote for stuff[/color]";
@@ -70,24 +69,24 @@ namespace TallyUnitTest
 
             string e = "";
 
-            Assert.AreEqual(cleanLine1, VoteString.CleanVote(cleanLine1));
-            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line1));
-            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line2));
-            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line3));
-            Assert.AreEqual(cleanLine1, VoteString.CleanVote(line4));
+            Assert.AreEqual(e, VoteString.RemoveBBCode(e));
 
-            Assert.AreEqual(cleanLine2, VoteString.CleanVote(cleanLine2));
-            Assert.AreEqual(cleanLine2, VoteString.CleanVote(line5));
-            Assert.AreEqual(cleanLine5, VoteString.CleanVote(line6));
+            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(cleanLine1));
+            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line1));
+            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line2));
+            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line3));
+            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line4));
 
-            Assert.AreEqual(cleanLine3, VoteString.CleanVote(cleanLine3));
-            Assert.AreEqual(cleanLine3, VoteString.CleanVote(line7));
+            Assert.AreEqual(cleanLine2, VoteString.RemoveBBCode(cleanLine2));
+            Assert.AreEqual(cleanLine2, VoteString.RemoveBBCode(line5));
+            Assert.AreEqual(cleanLine4, VoteString.RemoveBBCode(line6));
 
-            Assert.AreEqual(e, VoteString.CleanVote(e));
+            Assert.AreEqual(cleanLine3, VoteString.RemoveBBCode(cleanLine3));
+            Assert.AreEqual(cleanLine3, VoteString.RemoveBBCode(line7));
         }
 
         [TestMethod()]
-        public void CleanVoteTest2()
+        public void CleanVoteTest1()
         {
             string line1 = "[b][x] Vote for stuff[/b]";
             string line2 = "[color=blue][x] Vote for stuff[/color]";
@@ -110,7 +109,7 @@ namespace TallyUnitTest
 
 
         [TestMethod()]
-        public void CleanVoteTest3()
+        public void CleanVoteTest2()
         {
             string line1 = "[[b]x] Vote for stuff[/b]";
             string line2 = "[x] [color=blue]Vote for stuff[/color]";
