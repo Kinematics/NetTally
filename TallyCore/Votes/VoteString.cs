@@ -181,26 +181,6 @@ namespace NetTally
 
             return string.Empty;
         }
-
-        /// <summary>
-        /// Collapse a vote to a minimized form, for comparison on keys.
-        /// All BBCode markup is removed, along with all spaces and periods,
-        /// and leading dashes when partitioning by line.  Smart quotes and
-        /// apostrophes are converted to basic versions.  The text is then
-        /// lowercased.
-        /// </summary>
-        /// <param name="voteLine">Original vote line to minimize.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns a minimized version of the vote string.</returns>
-        public static string MinimizeVote(string voteLine)
-        {
-            string minimized = CleanVote(voteLine);
-            minimized = collapseRegex.Replace(minimized, "");
-            minimized = minimized.ToLower();
-            minimized = leadHyphenRegex.Replace(minimized, "");
-
-            return minimized;
-        }
         #endregion
 
         #region 'Get' functions
