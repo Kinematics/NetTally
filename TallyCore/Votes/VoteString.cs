@@ -303,6 +303,8 @@ namespace NetTally
                 marker = m.Groups[VoteComponents.Marker].Value;
                 task = m.Groups[VoteComponents.Task]?.Value.Trim() ?? "";
                 content = m.Groups[VoteComponents.Content].Value.Trim();
+
+                return;
             }
             
             throw new InvalidOperationException("Unable to parse components for vote line:\n"+line);
