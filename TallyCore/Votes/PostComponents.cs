@@ -50,7 +50,7 @@ namespace NetTally
                 return;
 
             var lines = Utility.Text.GetStringLines(text);
-            var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.CleanVote(a)).Success);
+            var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.RemoveBBCode(a)).Success);
 
             if (voteLines.Any())
             {
@@ -71,7 +71,7 @@ namespace NetTally
         {
             // If the post contains the string "#####" at the start of the line for part of its text,
             // it's a tally post.
-            string cleanText = VoteString.CleanVote(postText);
+            string cleanText = VoteString.RemoveBBCode(postText);
             return (tallyRegex.Matches(cleanText).Count > 0);
         }
 
