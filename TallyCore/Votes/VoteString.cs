@@ -424,7 +424,7 @@ namespace NetTally
             if (task == null)
                 task = "";
 
-            if (content == null || content == string.Empty)
+            if (string.IsNullOrEmpty(content))
                 throw new ArgumentNullException(nameof(content));
 
             string line;
@@ -448,7 +448,7 @@ namespace NetTally
         /// <returns>Returns a complete vote line.</returns>
         public static string ModifyVoteLine(string voteLine, string prefix = null, string marker = null, string task = null, string content = null)
         {
-            if (voteLine == null || voteLine == string.Empty)
+            if (string.IsNullOrEmpty(voteLine))
                 throw new ArgumentNullException(nameof(voteLine));
 
             // If all parameters are null, the vote line doesn't change.
