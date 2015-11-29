@@ -213,7 +213,7 @@ namespace NetTally
             // Add/update all segments of the provided vote
             foreach (var part in voteParts)
             {
-                string voteKey = GetVoteKeyAg(part, voteType);
+                string voteKey = GetVoteKey(part, voteType);
 
                 // Make sure there's a hashset for the voter list available for the vote key.
                 if (!votes.ContainsKey(voteKey))
@@ -462,36 +462,11 @@ namespace NetTally
 
             // If the vote already matches an existing key, we don't need to search again.
             if (votes.ContainsKey(vote))
-            {
-                return vote;
-            }
-
-            var minVote = VoteString.MinimizeVote(vote);
-
-            // If it matches a lookup value, return the lookup key
-            string lookupVote;
-            if (cleanVoteLookup.TryGetValue(minVote, out lookupVote))
-            {
-                return lookupVote;
-            }
-
-            // If it's not in the lookup table, add it.
-            cleanVoteLookup[minVote] = vote;
-
-            return vote;
-        }
-
-        private string GetVoteKeyAg(string vote, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-
-            // If the vote already matches an existing key, we don't need to search again.
-            if (votes.ContainsKey(vote))
                 return vote;
 
             // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
             if (!cleanedKeys.ContainsKey(vote))
-                cleanedKeys[vote] = VoteString.CleanVote(vote);
+                cleanedKeys[vote] = VoteString.RemoveBBCode(vote);
 
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
