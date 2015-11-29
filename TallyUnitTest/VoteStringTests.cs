@@ -418,6 +418,7 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest4()
         {
             string input = "[color=blue]-[x][MAJOR] Vote for stuff[/color]";
@@ -435,6 +436,7 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest5()
         {
             string input = "-[[b]x][MAJOR] Vote for stuff[/b]";
@@ -499,7 +501,7 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
-        public void CondenseVoteTest()
+        public void CondenseVoteTest1()
         {
             string input = "[x] Vote for stuff";
             string expected = "[] Vote for stuff";
@@ -521,13 +523,18 @@ namespace TallyUnitTest
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void CondenseVoteTest2()
+        {
             // Shouldn't be able to generate this working string anymore:
-            input = "[b][1] Vote for stuff[/b]";
-            expected = "[] ";
+            string input = "[b][1] Vote for stuff[/b]";
+            string expected = "[] ";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
         }
-
     }
 }
