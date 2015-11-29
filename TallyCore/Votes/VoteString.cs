@@ -379,6 +379,7 @@ namespace NetTally
             results[ReferenceType.Plan] = new List<string>();
             results[ReferenceType.Voter] = new List<string>();
 
+            contents = RemoveBBCode(contents);
             contents = DeUrlContent(contents);
 
             Match m2 = referenceNameRegex.Match(contents);
