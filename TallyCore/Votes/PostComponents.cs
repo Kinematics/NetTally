@@ -54,7 +54,7 @@ namespace NetTally
 
             if (voteLines.Any())
             {
-                VoteStrings = voteLines.ToList();
+                VoteStrings = voteLines.Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
             }
             else if (lines.All(a => nominationLineRegex.Match(a).Success))
             {
