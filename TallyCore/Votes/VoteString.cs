@@ -262,10 +262,12 @@ namespace NetTally
         /// <param name="marker">The marker for the vote line.</param>
         /// <param name="task">The task (if any) for the vote line.</param>
         /// <param name="content">The content of the vote line.</param>
-        public static void GetVoteComponents(string line, out string prefix, out string marker, out string task, out string content, bool SingleLine = false)
+        public static void GetVoteComponents(string line,
+            out string prefix, out string marker, out string task, out string content,
+            bool ByPartition = false)
         {
             Match m;
-            if (SingleLine)
+            if (ByPartition)
                 m = voteLineRegexSingleLine.Match(line);
             else
                 m = voteLineRegex.Match(line);
@@ -421,7 +423,9 @@ namespace NetTally
         /// <param name="task">The task the line should be grouped with.</param>
         /// <param name="content">The contents of the vote.</param>
         /// <returns>Returns a complete vote line.</returns>
-        public static string ModifyVoteLine(string voteLine, string prefix = null, string marker = null, string task = null, string content = null, bool SingleLine = false)
+        public static string ModifyVoteLine(string voteLine,
+            string prefix = null, string marker = null, string task = null, string content = null,
+            bool ByPartition = false)
         {
             if (string.IsNullOrEmpty(voteLine))
                 throw new ArgumentNullException(nameof(voteLine));
@@ -436,7 +440,7 @@ namespace NetTally
             string voteContent;
 
             // Use the original vote line value for any parameter that is null.
-            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, SingleLine: SingleLine);
+            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, ByPartition: ByPartition);
 
             prefix = prefix ?? votePrefix;
             marker = marker ?? voteMarker;
@@ -474,7 +478,7 @@ namespace NetTally
                 }
             }
 
-            return ModifyVoteLine(voteLine, task: newTask ?? "", SingleLine: true);
+            return ModifyVoteLine(voteLine, task: newTask ?? "", ByPartition: true);
         }
         #endregion
 
