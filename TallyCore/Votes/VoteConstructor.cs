@@ -225,7 +225,7 @@ namespace NetTally
                 // Skip past base plan blocks at the start
                 if (checkForBasePlans)
                 {
-                    if (GetPlanName(block.Key, basePlan: true) != null)
+                    if (block.Count() > 1 && GetPlanName(block.Key, basePlan: true) != null)
                         continue;
                 }
 
