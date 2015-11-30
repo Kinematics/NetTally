@@ -20,16 +20,6 @@ namespace NetTally
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
-        // Regex to allow us to collapse a vote to a commonly comparable version.
-        static readonly Regex collapseRegex = new Regex(@"\s|\.");
-        // Regex to allow us to convert a vote's smart quote marks to a commonly comparable version.
-        static readonly Regex quoteRegex = new Regex(@"[“”]");
-        // Regex to allow us to convert a vote's apostrophe variations to a commonly comparable version.
-        static readonly Regex aposRegex = new Regex(@"[ʼ‘’`]");
-        // Regex to allow us to strip leading dashes from a per-line vote.
-        static readonly Regex leadHyphenRegex = new Regex(@"^-+");
-        // Regex for separating out the task from the other portions of a vote line.
-        static readonly Regex taskRegex = new Regex(@"^(?<pre>.*?\[[xX✓✔1-9]\])\s*(\[\s*(?!url=|color=|b\]|i\]|u\])(?<task>[^]]*?)\s*\])?\s*(?<remainder>.+)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
         static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
@@ -40,15 +30,6 @@ namespace NetTally
         #region BBCode regexes
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
-
-        static string markup = @"(\[/?[ibu]\]|\[color[^]]*\]|\[/color\])*";
-        static string markups = $@"({markup}\s*)*";
-        static readonly Regex getPrefixRegex = new Regex($@"^(?<m1>({markup}\s*)*)(?<prefix>-*)\s*(?={markup}\[\s*{markup}\s*[xX✓✔1-9])(?<remainder>.*)");
-        static readonly Regex getMarkerRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)(\[\s*(?<m2>({markup}\s*)*)(?<marker>[xX✓✔1-9])\s*(?<m3>({markup}\s*)*)\])(?<remainder>.*)");
-        static readonly Regex getTaskRegex = new Regex($@"^\s*(?<m1>({markup}\s*)*)\s*(\[\s*(?<m2>({markup}\s*)*)(?!url=)(?<task>[^\[\]]+)\s*(?<m3>({markup}\s*)*)\])?\s*(?<remainder>.*)");
-
-        static readonly Regex getPartsRegex = new Regex($@"^(?<m1>{markups})(?<prefix>-*)(?<m2>{markups})\[\s*(?<m3>{markups})\s*(?<marker>[xX✓✔1-9])\s*(?<m4>{markups})\s*\]\s*(?<m5>{markups})\s*(\[\s*(?<m6>{markups})\s*(?!url=)(?<task>[^\[\]]+)\s*(?<m7>{markups})\s*\])?\s*(?<content>.*)");
-
 
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
         static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[[xX✓✔1-9]\](?!\s*\[/(?:[bui]|color)\])(?!(?:\s*\[(?:[bui]|color=[^]]+)\])+\s*\[(?![bui]|color=[^]]+|url=[^]]+)[^]]+\])");
