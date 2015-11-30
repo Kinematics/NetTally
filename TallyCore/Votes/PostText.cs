@@ -14,7 +14,7 @@ namespace NetTally.Utility
     {
         #region Web/Post text extraction and cleanup
         // Regex for colors in a span's style
-        static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
+        static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase);
         // Regex for strike-through in a span's style
         static readonly Regex spanStrikeRegex = new Regex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase);
 
