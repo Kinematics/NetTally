@@ -12,46 +12,6 @@ namespace TallyUnitTest
     public class VoteStringTests
     {
         [TestMethod()]
-        public void NormalizeVoteTest()
-        {
-            string line1 = "[x] Vote for stuff";
-            string normLine1 = "[x] Vote for stuff";
-
-            string line2 = "[x] Vote for \"stuff\"";
-            string normLine2 = "[x] Vote for \"stuff\"";
-
-            string line3 = "[x] Vote for “stuff”";
-            string normLine3 = "[x] Vote for \"stuff\"";
-
-            string line4 = "[x] Don't vote for stuff";
-            string normLine4 = "[x] Don't vote for stuff";
-
-            string line5 = "[x] Donʼt vote for stuff";
-            string normLine5 = "[x] Don't vote for stuff";
-
-            string line6 = "[x] Don`t vote for stuff";
-            string normLine6 = "[x] Don't vote for stuff";
-
-            string line7 = @"[x] Vote for “stuff”
-[x] Vote for more “stuff”";
-            string normLine7 = @"[x] Vote for ""stuff""
-[x] Vote for more ""stuff""";
-
-            string e = "";
-
-            Assert.AreEqual(normLine1, VoteString.NormalizeVote(line1));
-            Assert.AreEqual(normLine2, VoteString.NormalizeVote(line2));
-            Assert.AreEqual(normLine3, VoteString.NormalizeVote(line3));
-            Assert.AreEqual(normLine4, VoteString.NormalizeVote(line4));
-            Assert.AreEqual(normLine5, VoteString.NormalizeVote(line5));
-            Assert.AreEqual(normLine6, VoteString.NormalizeVote(line6));
-            Assert.AreEqual(normLine7, VoteString.NormalizeVote(line7));
-
-            Assert.AreEqual(e, VoteString.NormalizeVote(e));
-        }
-
-
-        [TestMethod()]
         public void RemoveBBCodeTest()
         {
             string cleanLine1 = "[x] Vote for stuff";

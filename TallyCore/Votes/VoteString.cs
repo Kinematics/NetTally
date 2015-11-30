@@ -52,20 +52,6 @@ namespace NetTally
 
         #region Cleanup functions
         /// <summary>
-        /// Convert problematic characters to normalized versions so that comparisons can work.
-        /// </summary>
-        /// <param name="line">The vote line to normalize.</param>
-        /// <returns>Returns the vote with punctuation normalized.</returns>
-        public static string NormalizeVote(string line)
-        {
-            string normal = line;
-            normal = quoteRegex.Replace(normal, "\"");
-            normal = aposRegex.Replace(normal, "'");
-
-            return normal;
-        }
-
-        /// <summary>
         /// Remove BBCode markup from a text string.
         /// </summary>
         /// <param name="text">The text to clean up.</param>
