@@ -209,7 +209,7 @@ namespace NetTally
         /// </summary>
         /// <param name="line">The vote line being examined.</param>
         /// <returns>Returns the prefix of the vote line.</returns>
-        public static string GetVotePrefix(string line) => GetVoteElement(line, VoteComponents.Prefix);
+        public static string GetVotePrefix(string line) => GetVoteElement(line, VoteComponents.Prefix).Replace(" ", string.Empty);
 
         /// <summary>
         /// Get the marker of the vote line.
