@@ -16,6 +16,7 @@ namespace NetTally
             public static string Content { get; } = "content";
         }
 
+        #region Vote regexes
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
         // Single line version of the vote line regex.
@@ -26,6 +27,7 @@ namespace NetTally
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
+        #endregion
 
         #region BBCode regexes
         // Regex to match any markup that we'll want to remove during comparisons.

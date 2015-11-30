@@ -18,12 +18,7 @@ namespace NetTally
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
         // Check for a plan reference.
-        readonly Regex planRegex = new Regex(@"^plan(:|\s)+(?<planname>.+)", RegexOptions.IgnoreCase);
-        // Check for a plan reference.
         readonly Regex anyPlanRegex = new Regex(@"^(base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
-        readonly Regex anyPlanReference = new Regex(@"^((base\s*)?plan(:|\s)+)?(?<reference>.+)\.?$", RegexOptions.IgnoreCase);
-        // Potential reference to another user's plan.
-        readonly Regex planNameRegex = new Regex(@"^(?<label>base\s*plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
 
         readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
         readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
@@ -489,7 +484,7 @@ namespace NetTally
             }
 
             // Clean up any BBCode issues (matching tags, remove duplicate tags, etc)
-            CleanUpBBCode(partitions);
+            //CleanUpBBCode(partitions);
 
             return partitions;
         }
