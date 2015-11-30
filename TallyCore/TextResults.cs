@@ -50,7 +50,11 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
-            sb.AppendLine($"[b]Vote Tally[/b] : {VoteCounter.Title}");
+            if (DebugMode.Active)
+                sb.Append($"[b]Vote Tally (DEBUG)[/b] : ");
+            else
+                sb.Append($"[b]Vote Tally[/b] : ");
+            sb.AppendLine(VoteCounter.Title);
             sb.AppendLine($"[color=transparent]##### {product.Product} {version.InformationalVersion}[/color]");
             sb.AppendLine("");
         }
