@@ -103,6 +103,10 @@ namespace NetTally
             // Get the lines of the post that correspond to the vote.
             var vote = GetVoteFromPost(post.VoteStrings);
 
+            // A 0 count vote means the post only contained base plans.  Done.
+            if (vote.Count == 0)
+                return true;
+
             // If it has a reference to a plan or voter that has not been processed yet,
             // delay processing.
             if (HasFutureReference(vote, post.Author))
