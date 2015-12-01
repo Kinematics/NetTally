@@ -48,7 +48,7 @@ namespace NetTally.Utility
         }
 
         // Compares strings with the CompareOptions specified in the constructor.
-        int IComparer<string>.Compare(string x, string y)
+        public int Compare(string x, string y)
         {
             if (x == y) return 0;
             if (x == null) return -1;
@@ -57,6 +57,12 @@ namespace NetTally.Utility
             return myComp.Compare(x, y, myOptions);
         }
 
+        public bool Equals(string x, string y) => this.Compare(x, y) == 0;
+
+        public int GetHashCode(string obj) => obj.GetHashCode();
+
+
+        // Compares strings with the CompareOptions specified in the constructor.
         int IComparer.Compare(object x, object y)
         {
             if (x == y) return 0;
@@ -70,29 +76,10 @@ namespace NetTally.Utility
             throw new ArgumentException("x and y should be strings.");
         }
 
-        bool IEqualityComparer.Equals(object x, object y)
-        {
-            return ((IComparer)this).Compare(x, y) == 0;
-        }
+        bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
 
-        bool IEqualityComparer<string>.Equals(string x, string y)
-        {
-            return ((IComparer<string>)this).Compare(x, y) == 0;
-        }
+        int IEqualityComparer.GetHashCode(object obj) => (obj as string)?.GetHashCode() ?? 0;
 
-        int IEqualityComparer.GetHashCode(object obj)
-        {
-            string str = obj as string;
-            if (str != null)
-                return str.GetHashCode();
-            else
-                return 0;
-        }
-
-        int IEqualityComparer<string>.GetHashCode(string obj)
-        {
-            return obj.GetHashCode();
-        }
     }
     
 }
