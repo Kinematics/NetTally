@@ -14,7 +14,7 @@ namespace NetTally.Utility
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TSource>)this).GetEnumerator();
 
-        IEnumerator<TSource> IEnumerable<TSource>.GetEnumerator()
+        public IEnumerator<TSource> GetEnumerator()
         {
             foreach (var s in GroupList)
                 yield return s;
