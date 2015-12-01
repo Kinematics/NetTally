@@ -450,7 +450,18 @@ namespace NetTally
             if (DebugMode.Active)
                 postAuthor = $"{postAuthor}_{postID}";
 
-            return new PostComponents(postAuthor, postID, postText);
+            PostComponents comps;
+
+            try
+            {
+                comps = new PostComponents(postAuthor, postID, postText);
+            }
+            catch
+            {
+                comps = null;
+            }
+
+            return comps;
         }
 
         /// <summary>
