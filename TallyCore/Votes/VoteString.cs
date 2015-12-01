@@ -151,7 +151,7 @@ namespace NetTally
                 }
             }
 
-            return clean;
+            return clean.Trim();
         }
 
         /// <summary>
