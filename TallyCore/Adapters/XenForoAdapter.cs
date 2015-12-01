@@ -31,9 +31,10 @@ namespace NetTally.Adapters
             // Thread = "http://forums.sufficientvelocity.com/threads/"
             // Posts  = "http://forums.sufficientvelocity.com/posts/"
 
-            ForumUrl = GetBaseSite(site);
-            ThreadsUrl = ForumUrl + "threads/";
-            PostsUrl = ForumUrl + "posts/";
+            string siteUrl = GetBaseSite(site);
+            ForumUrl = siteUrl;
+            ThreadsUrl = siteUrl + "threads/";
+            PostsUrl = siteUrl + "posts/";
         }
 
         private string GetBaseSite(string site)
