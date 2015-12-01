@@ -136,7 +136,7 @@ namespace NetTally
                                  let postNumber = forumAdapter.GetPostNumberOfPost(post)
                                  where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
                                  let postCom = GetPostComponents(post, quest)
-                                 where postCom.IsVote && postCom.Author != threadAuthor
+                                 where postCom != null && postCom.IsVote && postCom.Author != threadAuthor
                                  select postCom;
 
             List<PostComponents> postsList = postsWithVotes.ToList();
