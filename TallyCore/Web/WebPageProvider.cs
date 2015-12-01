@@ -29,6 +29,7 @@ namespace NetTally
         WebCache Cache { get; } = new WebCache();
         readonly SemaphoreSlim ss = new SemaphoreSlim(5);
         string UserAgent { get; }
+        bool _disposed = false;
 
         public WebPageProvider()
         {
@@ -36,6 +37,30 @@ namespace NetTally
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
             UserAgent = $"{product.Product} ({version.InformationalVersion})";
+        }
+
+        ~WebPageProvider()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true); //I am calling you from Dispose, it's safe
+            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
+        }
+
+        protected virtual void Dispose(Boolean itIsSafeToAlsoFreeManagedObjects)
+        {
+            if (_disposed)
+                return;
+
+            if (itIsSafeToAlsoFreeManagedObjects)
+            {
+                ss.Dispose();
+            }
+
+            _disposed = true;
         }
 
         #region Event handlers

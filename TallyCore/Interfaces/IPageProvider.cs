@@ -6,7 +6,7 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
-    public interface IPageProvider
+    public interface IPageProvider : IDisposable
     {
         /// <summary>
         /// Asynchronously load pages for the specified quest.
