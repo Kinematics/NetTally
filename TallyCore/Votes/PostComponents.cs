@@ -36,6 +36,13 @@ namespace NetTally
         /// <param name="text">The text contents of the post.</param>
         public PostComponents(string author, string id, string text)
         {
+            if (string.IsNullOrEmpty(author))
+                throw new ArgumentNullException(nameof(author));
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException(nameof(id));
+            if (string.IsNullOrEmpty(text))
+                throw new ArgumentNullException(nameof(text));
+
             Author = author;
             ID = id;
             Text = text;
