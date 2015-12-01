@@ -26,7 +26,7 @@ namespace NetTally
             Loaded
         }
 
-        WebCache Cache { get; } = new WebCache();
+        WebCache Cache { get; } = WebCache.Instance;
         readonly SemaphoreSlim ss = new SemaphoreSlim(5);
         string UserAgent { get; }
         bool _disposed = false;

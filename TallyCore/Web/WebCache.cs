@@ -24,24 +24,24 @@ namespace NetTally
     /// </summary>
     public class WebCache
     {
-        Dictionary<string, CachedPage> PageCache { get; }
-        Dictionary<string, int> LastPageLoadedFor { get; }
+        #region Lazy singleton creation
+        private static readonly Lazy<WebCache> lazy = new Lazy<WebCache>(() => new WebCache());
 
-        int MaxCacheEntries { get; }
+        public static WebCache Instance => lazy.Value;
 
-        /// <summary>
-        /// Constructor.
-        /// Allow specifying the max number of cache entries on creation.
-        /// </summary>
-        /// <param name="maxCacheEntries">Max number of entries the cache will retain.</param>
-        public WebCache(int maxCacheEntries = 50)
+        private WebCache()
         {
-            MaxCacheEntries = maxCacheEntries;
-
-            PageCache = new Dictionary<string, CachedPage>();
-            LastPageLoadedFor = new Dictionary<string, int>();
         }
+        #endregion
 
+        #region Local storage
+        const int MaxCacheEntries = 50;
+
+        Dictionary<string, CachedPage> PageCache { get; } = new Dictionary<string, CachedPage>(MaxCacheEntries);
+        Dictionary<string, int> LastPageLoadedFor { get; } = new Dictionary<string, int>();
+        #endregion
+
+        #region Public functions
         /// <summary>
         /// Clear the current cache.
         /// </summary>
@@ -111,7 +111,9 @@ namespace NetTally
 
             return null;
         }
+        #endregion
 
+        #region Private functions
         /// <summary>
         /// Clean the cache to prevent it from growing too large.
         /// </summary>
@@ -130,5 +132,6 @@ namespace NetTally
                 GC.Collect();
             }
         }
+        #endregion
     }
 }
