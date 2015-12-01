@@ -22,7 +22,7 @@ namespace NetTally
     /// <summary>
     /// Class to handle caching web content.
     /// </summary>
-    public class WebCache
+    public sealed class WebCache
     {
         #region Lazy singleton creation
         private static readonly Lazy<WebCache> lazy = new Lazy<WebCache>(() => new WebCache());
