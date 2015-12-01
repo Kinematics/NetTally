@@ -12,12 +12,12 @@ namespace NetTally.Utility
     /// </summary>
     public static class PostText
     {
-        #region Web/Post text extraction and cleanup
         // Regex for colors in a span's style
         static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase);
         // Regex for strike-through in a span's style
         static readonly Regex spanStrikeRegex = new Regex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase);
 
+        #region Public Functions
         /// <summary>
         /// Clean up problematic bits of text in the extracted HTML string.
         /// </summary>
@@ -88,6 +88,9 @@ namespace NetTally.Utility
 
         }
 
+        #endregion
+
+        #region Private Support Functions
         /// <summary>
         /// Extracts the text (recursively) from the specified node, and converts some elements into BBCode.
         /// </summary>
@@ -186,9 +189,6 @@ namespace NetTally.Utility
 
             return sb;
         }
-
-
         #endregion
-
     }
 }
