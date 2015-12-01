@@ -19,8 +19,10 @@ namespace NetTally
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
+        bool _disposed = false;
+
         // Collections for holding quests
         public ICollectionView QuestCollectionView { get; }
         QuestCollection questCollection;
@@ -106,6 +108,31 @@ namespace NetTally
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in startup", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        ~MainWindow()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true); //I am calling you from Dispose, it's safe
+            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
+        }
+
+        protected virtual void Dispose(Boolean itIsSafeToAlsoFreeManagedObjects)
+        {
+            if (_disposed)
+                return;
+
+            if (itIsSafeToAlsoFreeManagedObjects)
+            {
+                tally.Dispose();
+            }
+
+            _disposed = true;
+        }
+
 
         /// <summary>
         /// Unhandled exception handler.  If an unhandled exception crashes the program, save
