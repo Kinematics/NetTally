@@ -8,8 +8,9 @@ using HtmlAgilityPack;
 
 namespace NetTally
 {
-    public class Tally : INotifyPropertyChanged
+    public class Tally : INotifyPropertyChanged, IDisposable
     {
+        bool _disposed = false;
         IPageProvider PageProvider { get; } = new WebPageProvider();
         public IVoteCounter VoteCounter { get; } = new VoteCounter();
         public ITextResultsProvider TextResults { get; set; } = new TextResults();
@@ -38,6 +39,31 @@ namespace NetTally
 
             PageProvider.StatusChanged += PageProvider_StatusChanged;
         }
+
+        ~Tally()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true); //I am calling you from Dispose, it's safe
+            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
+        }
+
+        protected virtual void Dispose(Boolean itIsSafeToAlsoFreeManagedObjects)
+        {
+            if (_disposed)
+                return;
+
+            if (itIsSafeToAlsoFreeManagedObjects)
+            {
+                PageProvider.Dispose();
+            }
+
+            _disposed = true;
+        }
+
 
         #region Event handling
         /// <summary>
