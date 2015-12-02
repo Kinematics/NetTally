@@ -110,9 +110,6 @@ namespace NetTally
         /// <param name="obj"></param>
         /// <returns>Returns a negative value if this is 'before' y, 0 if they're equal, and
         /// a positive value if this is 'after' y.</returns>
-        public int CompareTo(object obj)
-        {
-            return Compare(this, obj as PostComponents);
-        }
+        public int CompareTo(object obj) => Compare(this, obj as PostComponents);
     }
 }

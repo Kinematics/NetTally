@@ -94,10 +94,7 @@ namespace NetTally
         /// </summary>
         /// <param name="page">Page to check.</param>
         /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForXenForo(HtmlDocument page)
-        {
-            return page?.DocumentNode.Element("html")?.Id == "XenForo";
-        }
+        private static bool CheckForXenForo(HtmlDocument page) => page?.DocumentNode.Element("html")?.Id == "XenForo";
 
         /// <summary>
         /// Determine if the provided page has the signature indicating that it
@@ -105,10 +102,7 @@ namespace NetTally
         /// </summary>
         /// <param name="page">Page to check.</param>
         /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForVBulletin5(HtmlDocument page)
-        {
-            return page?.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
-        }
+        private static bool CheckForVBulletin5(HtmlDocument page) => page?.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
 
         /// <summary>
         /// Determine if the provided page has the signature indicating that it
@@ -116,10 +110,7 @@ namespace NetTally
         /// </summary>
         /// <param name="page">Page to check.</param>
         /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForVBulletin4(HtmlDocument page)
-        {
-            return page?.DocumentNode.Element("html")?.Id == "vbulletin_html";
-        }
+        private static bool CheckForVBulletin4(HtmlDocument page) => page?.DocumentNode.Element("html")?.Id == "vbulletin_html";
 
         /// <summary>
         /// Determine if the provided page has the signature indicating that it

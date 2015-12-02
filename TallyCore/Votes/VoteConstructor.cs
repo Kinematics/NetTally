@@ -714,7 +714,7 @@ namespace NetTally
         {
             string planname = GetPlanName(voteLine);
             if (planname != null)
-                return Utility.Text.PlanNameMarker + planname;
+                return Text.PlanNameMarker + planname;
 
             return null;
         }

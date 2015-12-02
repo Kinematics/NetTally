@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NetTally
 {
@@ -435,10 +432,7 @@ namespace NetTally
         /// <param name="voters">Number of voters being checked.</param>
         /// <param name="totalVoters">Total number of voters.</param>
         /// <returns>Returns true if the number of voters qualifies as a majority.</returns>
-        private static bool IsMajority(int voters, int totalVoters)
-        {
-            return ((double)voters / (double)totalVoters) > 0.5;
-        }
+        private static bool IsMajority(int voters, int totalVoters) => ((double)voters / totalVoters) > 0.5;
 
     }
 }

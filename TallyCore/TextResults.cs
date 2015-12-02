@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Reflection;
 using NetTally.Utility;
 
@@ -216,10 +215,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voters">The set of voters.</param>
         /// <returns>A count of the number of users voting.</returns>
-        private int GetUserVoteCount(HashSet<string> voters)
-        {
-            return voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false);
-        }
+        private int GetUserVoteCount(HashSet<string> voters) => voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false);
 
         /// <summary>
         /// Get the URL that links to a voter's post, varying by vote type
@@ -307,10 +303,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voters">The list of voters to search.</param>
         /// <returns>Returns the name of the 'first' voter.</returns>
-        private string GetFirstVoterName(HashSet<string> voters)
-        {
-            return GetFirstVoter(voters).First();
-        }
+        private string GetFirstVoterName(HashSet<string> voters) => GetFirstVoter(voters).First();
 
         /// <summary>
         /// Given a list of voters, order the voters alphabetically, except for the

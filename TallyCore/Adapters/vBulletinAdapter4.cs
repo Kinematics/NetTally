@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,14 +107,11 @@ namespace NetTally.Adapters
 
         /// <summary>
         /// Get the author of the thread.
+        /// -- vBulletin does not provide thread author information
         /// </summary>
         /// <param name="page">The page to search.</param>
         /// <returns>Returns the thread author.</returns>
-        public string GetAuthorOfThread(HtmlDocument page)
-        {
-            // vBulletin does not provide thread author information
-            return string.Empty;
-        }
+        public string GetAuthorOfThread(HtmlDocument page) => string.Empty;
 
         /// <summary>
         /// Get the last page number of the thread, based on info available

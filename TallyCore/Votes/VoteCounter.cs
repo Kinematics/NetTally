@@ -491,7 +491,6 @@ namespace NetTally
             return agVote ?? vote;
         }
 
-
         /// <summary>
         /// Remove the voter's support for any existing votes.
         /// </summary>
@@ -572,10 +571,7 @@ namespace NetTally
         /// <param name="fromVote">Vote that is being merged.</param>
         /// <param name="toVote">Vote that is being merged into.</param>
         /// <returns>Returns true if there were any changes.</returns>
-        private bool MergeVotes(string fromVote, string toVote)
-        {
-            return Rename(fromVote, toVote, VoteType.Vote);
-        }
+        private bool MergeVotes(string fromVote, string toVote) => Rename(fromVote, toVote, VoteType.Vote);
 
         /// <summary>
         /// Rename a vote.
