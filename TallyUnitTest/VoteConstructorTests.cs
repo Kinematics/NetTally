@@ -339,69 +339,6 @@ namespace NetTally
         }
         #endregion
 
-        #region Formatting
-        [TestMethod()]
-        public void CloseFormattingTagsTest()
-        {
-            List<string> partitions = new List<string>();
-
-            string line1 = "[x] Vote for stuff 1\r\n";
-            string line2 = "[x] Vote for stuff 2\r\n";
-            string line2a = "[x] Vote for [b]stuff[/b] 2\r\n";
-            string line3 = "[x] Vote for stuff 3\r\n";
-            string line3a = "[color=blue][x] Vote for stuff 3[/color]\r\n";
-            string line4 = "[x] Vote for stuff 4\r\n";
-            string line4a = "[color=blue][x] Vote for stuff 4\r\n";
-            string line4b = "[color=blue][x] Vote for stuff 4[/color]\r\n";
-            string line5 = "[x] Vote for stuff 5\r\n";
-            string line5a = "[color=blue][b][x] Vote for stuff 5[/color]\r\n";
-            string line5b = "[color=blue][b][x] Vote for stuff 5[/color][/b]\r\n";
-
-            string line6 = "[x] Vote for stuff 6\r\n";
-            string line6a = "[x] Vote for stuff 6[/b]\r\n";
-            string line7 = "[x] [b]Vote[/b] for stuff 7\r\n";
-            string line7a = "[x] [b]Vote[/b] for stuff 7[/b]\r\n";
-            string line7b = "[b][x] [b]Vote[/b] for stuff 7[/b]\r\n";
-            string line7c = "[x] [b]Vote for stuff 7[/b]\r\n";
-            string line8 = "[x] [i]Vote[/i] for stuff 8\r\n";
-            string line8a = "[x] [i]Vote[/i] for stuff 8[/color]\r\n";
-
-
-            partitions.Add(line1);
-            partitions.Add(line2a);
-            partitions.Add(line3a);
-            partitions.Add(line4a);
-            partitions.Add(line5a);
-            partitions.Add(line6a);
-            partitions.Add(line7a);
-            partitions.Add(line8a);
-
-            voteConstructor.CloseFormattingTags(partitions);
-
-            Assert.AreEqual(8, partitions.Count);
-            Assert.IsTrue(partitions.Contains(line1));
-            Assert.IsTrue(partitions.Contains(line2a));
-            Assert.IsTrue(partitions.Contains(line3a));
-            Assert.IsTrue(partitions.Contains(line4b));
-            Assert.IsTrue(partitions.Contains(line5b));
-            Assert.IsTrue(partitions.Contains(line6));
-            Assert.IsTrue(partitions.Contains(line7c));
-            Assert.IsTrue(partitions.Contains(line8));
-
-            Assert.IsFalse(partitions.Contains(line2));
-            Assert.IsFalse(partitions.Contains(line3));
-            Assert.IsFalse(partitions.Contains(line4));
-            Assert.IsFalse(partitions.Contains(line4a));
-            Assert.IsFalse(partitions.Contains(line5));
-            Assert.IsFalse(partitions.Contains(line5a));
-            Assert.IsFalse(partitions.Contains(line6a));
-            Assert.IsFalse(partitions.Contains(line7));
-            Assert.IsFalse(partitions.Contains(line7a));
-            Assert.IsFalse(partitions.Contains(line7b));
-            Assert.IsFalse(partitions.Contains(line8a));
-        }
-        #endregion
-
         #region Partitioning
         [TestMethod()]
         public void TestPartitionNone()
