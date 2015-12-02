@@ -642,6 +642,7 @@ namespace NetTally
         /// All BBCode is removed from the line, including URLs (such as @username markup).
         /// </summary>
         /// <param name="voteLine">The vote line being examined.  Cannot be null.</param>
+        /// <param name="basePlan">Flag whether the vote line must be a "base plan", rather than any plan.</param>
         /// <returns>Returns the plan name, if found, or null if not.</returns>
         private string GetPlanName(string voteLine, bool basePlan = false)
         {
