@@ -9,8 +9,8 @@ namespace NetTally.Utility
 {
     public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
     {
-        public TKey Key { get; set; }
-        private List<TSource> GroupList { get; set; }
+        public TKey Key { get; }
+        private List<TSource> GroupList { get; }
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TSource>)this).GetEnumerator();
 
