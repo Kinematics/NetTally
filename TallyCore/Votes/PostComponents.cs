@@ -19,6 +19,7 @@ namespace NetTally
         public List<string> VoteStrings { get; }
         public List<IGrouping<string, string>> BasePlans { get; private set; }
         public List<string> VoteLines { get; private set; }
+        public List<string> RankLines { get; private set; }
 
         // Indicate whether this post contains a vote of any sort.
         public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
@@ -117,13 +118,14 @@ namespace NetTally
 
         /// <summary>
         /// Takes the full vote string list of the vote and breaks it
-        /// into base plans and regular vote lines.
+        /// into base plans, regular vote lines, and ranked vote lines.
+        /// Store in the local object properties.
         /// </summary>
         /// <param name="voteStrings">The list of all the lines in the vote post.</param>
         private void SeparateVoteStrings(List<string> voteStrings)
         {
             BasePlans = new List<IGrouping<string, string>>();
-            VoteLines = new List<string>();
+            List<string> consolidatedLines = new List<string>();
 
             var voteBlocks = voteStrings.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
             bool addBasePlans = true;
@@ -140,7 +142,18 @@ namespace NetTally
                 }
                 addBasePlans = false;
 
-                VoteLines.AddRange(block.ToList());
+                consolidatedLines.AddRange(block.ToList());
+            }
+
+            RankLines = new List<string>();
+            VoteLines = new List<string>();
+
+            foreach (var line in consolidatedLines)
+            {
+                if (VoteString.IsRankedVote(line))
+                    RankLines.Add(line);
+                else
+                    VoteLines.Add(line);
             }
         }
 
