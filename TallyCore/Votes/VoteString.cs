@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -27,6 +27,12 @@ namespace NetTally
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
         static readonly Regex condensedVoteRegex = new Regex(@"^\[(?<task>[^]]*)\]\s*(?<content>.+)");
+
+        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+        static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        // Check for a plan reference.
+        static readonly Regex anyPlanRegex = new Regex(@"^(base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+
         #endregion
 
         #region BBCode regexes
@@ -380,6 +386,54 @@ namespace NetTally
 
             return results;
         }
+
+
+        /// <summary>
+        /// Get the plan name from a vote line, if the vote line is formatted to define a plan.
+        /// All BBCode is removed from the line, including URLs (such as @username markup).
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.  Cannot be null.</param>
+        /// <param name="basePlan">Flag whether the vote line must be a "base plan", rather than any plan.</param>
+        /// <returns>Returns the plan name, if found, or null if not.</returns>
+        public static string GetPlanName(string voteLine, bool basePlan = false)
+        {
+            if (voteLine == null)
+                throw new ArgumentNullException(nameof(voteLine));
+
+            string lineContent = GetVoteContent(voteLine);
+            string simpleContent = DeUrlContent(lineContent);
+
+            Match m;
+
+            if (basePlan)
+                m = basePlanRegex.Match(simpleContent);
+            else
+                m = anyPlanRegex.Match(simpleContent);
+
+            if (m.Success)
+            {
+                return m.Groups["planname"].Value.Trim();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the plan name from the provided vote line, and mark it with the plan name character
+        /// marker if found.
+        /// If no valid plan name is found, returns null.
+        /// </summary>
+        /// <param name="voteLine">The vote line being examined.</param>
+        /// <returns>Returns the modified plan name, if found, or null if not.</returns>
+        public static string GetMarkedPlanName(string voteLine)
+        {
+            string planname = GetPlanName(voteLine);
+            if (planname != null)
+                return Text.PlanNameMarker + planname;
+
+            return null;
+        }
+
 
         #endregion
 

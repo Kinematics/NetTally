@@ -145,7 +145,7 @@ namespace NetTally
             {
                 if (block.Count() > 1)
                 {
-                    string planname = GetPlanName(block.Key);
+                    string planname = VoteString.GetPlanName(block.Key);
 
                     if (planname != null && !VoteCounter.HasPlan(planname))
                         results.Add(block.ToList());
@@ -163,7 +163,7 @@ namespace NetTally
         {
             foreach (var plan in plans)
             {
-                string planName = GetPlanName(plan.First());
+                string planName = VoteString.GetPlanName(plan.First());
 
                 if (!VoteCounter.ReferencePlanNames.Contains(planName))
                 {
@@ -184,7 +184,7 @@ namespace NetTally
         {
             foreach (var plan in plans)
             {
-                string planName = GetMarkedPlanName(plan.First());
+                string planName = VoteString.GetMarkedPlanName(plan.First());
 
                 if (!VoteCounter.HasPlan(planName))
                 {
@@ -224,7 +224,7 @@ namespace NetTally
                 // Skip past base plan blocks at the start
                 if (checkForBasePlans)
                 {
-                    if (block.Count() > 1 && GetPlanName(block.Key, basePlan: true) != null)
+                    if (block.Count() > 1 && VoteString.GetPlanName(block.Key, basePlan: true) != null)
                         continue;
                 }
 
@@ -235,7 +235,7 @@ namespace NetTally
                 if (block.Count() > 1)
                 {
                     // Replace known plans with just the plan key, if we can match with a reference plan.
-                    string planName = GetPlanName(block.Key);
+                    string planName = VoteString.GetPlanName(block.Key);
 
                     if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
                         VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
@@ -672,52 +672,6 @@ namespace NetTally
         #endregion
 
         #region Functions dealing with plan names.
-
-        /// <summary>
-        /// Get the plan name from a vote line, if the vote line is formatted to define a plan.
-        /// All BBCode is removed from the line, including URLs (such as @username markup).
-        /// </summary>
-        /// <param name="voteLine">The vote line being examined.  Cannot be null.</param>
-        /// <param name="basePlan">Flag whether the vote line must be a "base plan", rather than any plan.</param>
-        /// <returns>Returns the plan name, if found, or null if not.</returns>
-        private string GetPlanName(string voteLine, bool basePlan = false)
-        {
-            if (voteLine == null)
-                throw new ArgumentNullException(nameof(voteLine));
-
-            string lineContent = VoteString.GetVoteContent(voteLine);
-            string simpleContent = VoteString.DeUrlContent(lineContent);
-
-            Match m;
-
-            if (basePlan)
-                m = basePlanRegex.Match(simpleContent);
-            else
-                m = anyPlanRegex.Match(simpleContent);
-
-            if (m.Success)
-            {
-                return m.Groups["planname"].Value.Trim();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get the plan name from the provided vote line, and mark it with the plan name character
-        /// marker if found.
-        /// If no valid plan name is found, returns null.
-        /// </summary>
-        /// <param name="voteLine">The vote line being examined.</param>
-        /// <returns>Returns the modified plan name, if found, or null if not.</returns>
-        private string GetMarkedPlanName(string voteLine)
-        {
-            string planname = GetPlanName(voteLine);
-            if (planname != null)
-                return Text.PlanNameMarker + planname;
-
-            return null;
-        }
 
         /// <summary>
         /// If all sub-lines of a provided group of lines are indented (have a prefix),
