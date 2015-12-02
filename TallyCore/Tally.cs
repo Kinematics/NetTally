@@ -164,7 +164,14 @@ namespace NetTally
                 // Load pages from the website
                 loadedPages = await PageProvider.LoadQuestPages(quest, token).ConfigureAwait(false);
 
-                UpdateTally(quest);
+                if (loadedPages != null && loadedPages.Count > 0)
+                {
+                    // Tally the votes from the loaded pages.
+                    VoteCounter.TallyVotes(quest, loadedPages);
+
+                    // Compose the final result string from the compiled votes.
+                    ConstructResults(quest);
+                }
             }
             catch (Exception)
             {
@@ -190,7 +197,7 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    VoteCounter.TallyVotes(lastTallyQuest, loadedPages);
+                    VoteCounter.TallyPosts(lastTallyQuest);
 
                     // Compose the final result string from the compiled votes.
                     ConstructResults(lastTallyQuest);
