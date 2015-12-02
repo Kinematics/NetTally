@@ -160,7 +160,7 @@ namespace NetTally
                     // One of: By line, By block, or By post (ie: entire vote)
                     var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
 
-                    VoteCounter.AddVote(votePartitions, planName, post.ID, VoteType.Plan);
+                    VoteCounter.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
                 }
             }
         }
@@ -291,7 +291,7 @@ namespace NetTally
             // One of: By line, By block, or By post (ie: entire vote)
             List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote, post.Author);
 
-            VoteCounter.AddVote(votePartitions, post.Author, post.ID, VoteType.Vote);
+            VoteCounter.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
 
         #endregion
@@ -358,7 +358,7 @@ namespace NetTally
         {
             if (ranksList.Count > 0)
             {
-                VoteCounter.AddVote(ranksList, post.Author, post.ID, VoteType.Rank);
+                VoteCounter.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
             }
         }
 

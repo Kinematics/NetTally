@@ -185,7 +185,7 @@ namespace NetTally
         /// <param name="voter">The voter for this vote.</param>
         /// <param name="postID">The post ID for this vote.</param>
         /// <param name="voteType">The type of vote being added.</param>
-        public void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
+        public void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
         {
             if (voteParts == null)
                 throw new ArgumentNullException(nameof(voteParts));

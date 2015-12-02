@@ -10,7 +10,7 @@ namespace NetTally
         List<PostComponents> PostsList { get; }
         void Reset();
 
-        void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
+        void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
 
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
