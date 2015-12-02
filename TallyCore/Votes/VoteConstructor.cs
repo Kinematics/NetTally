@@ -955,6 +955,60 @@ namespace NetTally
                 return remainder.ToList();
             }
         }
+
+        /// <summary>
+        /// If all sub-lines of a provided group of lines are indented (have a prefix),
+        /// then 'promote' them up a tier (remove one level of the prefix) while discarding
+        /// the initial line.
+        /// </summary>
+        /// <param name="lines">A list of strings to examine/promote.</param>
+        /// <returns>Returns the strings without the initial line, and with the
+        /// remaining lines reduced by one indent level.</returns>
+        private IEnumerable<string> PromoteLines(IEnumerable<string> lines)
+        {
+            if (lines == null)
+                throw new ArgumentNullException(nameof(lines));
+
+            var remainder = lines.Skip(1);
+
+            if (remainder.All(l => VoteString.GetVotePrefix(l) != string.Empty))
+            {
+                return remainder.Select(l => l.Substring(1).Trim());
+            }
+
+            return remainder;
+        }
+
+        /// <summary>
+        /// Takes a list of string lines and, if the first line contains a plan
+        /// name using "Base Plan", convert it to a version that only uses "Plan".
+        /// </summary>
+        /// <param name="lines">A list of lines defining a plan.</param>
+        /// <returns>Returns the list of lines, with the assurance that
+        /// any plan name starts with just "Plan".</returns>
+        private IEnumerable<string> PromotePlanName(IEnumerable<string> lines)
+        {
+            string firstLine = lines.First();
+            var remainder = lines.Skip(1);
+
+            string nameContent = VoteString.GetVoteContent(firstLine, VoteType.Plan);
+
+            Match m = basePlanRegex.Match(nameContent);
+            if (m.Success)
+            {
+                nameContent = $"Plan{m.Groups[1]}{m.Groups["planname"]}";
+
+                firstLine = VoteString.ModifyVoteLine(firstLine, content: nameContent);
+
+                List<string> results = new List<string>(lines.Count()) { firstLine };
+                results.AddRange(remainder);
+
+                return results;
+            }
+
+            return lines;
+        }
+
         #endregion
 
         #region Functions dealing with BBCode
