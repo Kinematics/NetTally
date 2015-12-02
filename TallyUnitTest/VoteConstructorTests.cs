@@ -497,9 +497,9 @@ namespace NetTally
 
             List<string> expected = new List<string>(3)
             {
-@"[X] Ambush",
-@"[X] [Decision] Kill",
-@"[X] Run",
+@"[X][Action] Ambush",
+@"[X][Decision] Kill",
+@"[X][Action] Run",
 @"[X] Report"
             };
 
