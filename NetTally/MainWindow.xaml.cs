@@ -46,7 +46,7 @@ namespace NetTally
             set { SetValue(MyTitleProperty, value); }
         }
 
-        private IQuest CurrentlySelectedQuest() => QuestCollectionView.CurrentItem as IQuest;
+        private IQuest CurrentlySelectedQuest => QuestCollectionView.CurrentItem as IQuest;
 
         public List<int> ValidPostsPerPage { get; } = new List<int>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
@@ -162,9 +162,9 @@ namespace NetTally
             {
                 string selectedQuest = "";
 
-                if (CurrentlySelectedQuest() != null)
+                if (CurrentlySelectedQuest != null)
                 {
-                    selectedQuest = CurrentlySelectedQuest().ThreadName;
+                    selectedQuest = CurrentlySelectedQuest.ThreadName;
                 }
 
                 QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
@@ -337,7 +337,7 @@ namespace NetTally
 
             mergeWindow.ShowDialog();
 
-            tally.ConstructResults(CurrentlySelectedQuest());
+            tally.ConstructResults(CurrentlySelectedQuest);
         }
 
         /// <summary>
@@ -463,7 +463,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            tally.UpdateTally(CurrentlySelectedQuest());
+            tally.UpdateTally(CurrentlySelectedQuest);
         }
         #endregion
 
