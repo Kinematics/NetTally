@@ -20,27 +20,6 @@ namespace NetTally
         // Check for a plan reference.
         readonly Regex anyPlanRegex = new Regex(@"^(base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
 
-        readonly List<string> formattingTags = new List<string>() { "color", "b", "i", "u" };
-        readonly Dictionary<string, Regex> rxStart = new Dictionary<string, Regex>();
-        readonly Dictionary<string, Regex> rxEnd = new Dictionary<string, Regex>();
-
-
-        /// <summary>
-        /// Setup some dictionary lists for validating vote formatting.
-        /// </summary>
-        private void SetupFormattingRegexes()
-        {
-            foreach (var tag in formattingTags)
-            {
-                if (tag == "color")
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"=([^]]*)\]"));
-                else
-                    rxStart[tag] = new Regex(string.Concat(@"\[", tag, @"\]"));
-
-                rxEnd[tag] = new Regex(string.Concat(@"\[/", tag, @"\]"));
-            }
-        }
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -51,7 +30,6 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(voteCounter));
 
             VoteCounter = voteCounter;
-            SetupFormattingRegexes();
         }
         #endregion
 
