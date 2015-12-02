@@ -188,11 +188,11 @@ namespace NetTally
 
                 if (!VoteCounter.HasPlan(planName))
                 {
-                    var planLines = PromotePlanName(plan);
+                    var nPlan = NormalizePlanName(plan);
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
-                    List<string> votePartitions = GetVotePartitions(planLines, partitionMode, VoteType.Plan, post.Author);
+                    var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
 
                     VoteCounter.AddVote(votePartitions, planName, post.ID, VoteType.Plan);
                 }
@@ -703,7 +703,7 @@ namespace NetTally
         /// <param name="lines">A list of lines defining a plan.</param>
         /// <returns>Returns the list of lines, with the assurance that
         /// any plan name starts with just "Plan".</returns>
-        private IEnumerable<string> PromotePlanName(IEnumerable<string> lines)
+        private IEnumerable<string> NormalizePlanName(IEnumerable<string> lines)
         {
             string firstLine = lines.First();
             var remainder = lines.Skip(1);
