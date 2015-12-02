@@ -198,7 +198,7 @@ namespace NetTally
             {
                 try
                 {
-                    await tally.Run(QuestCollectionView.CurrentItem as IQuest, cts.Token);
+                    await tally.Run(CurrentlySelectedQuest, cts.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -319,7 +319,7 @@ namespace NetTally
         private void removeQuestButton_Click(object sender, RoutedEventArgs e)
         {
             DoneEditing();
-            questCollection.Remove(QuestCollectionView.CurrentItem as IQuest);
+            questCollection.Remove(CurrentlySelectedQuest);
             QuestCollectionView.Refresh();
         }
 
@@ -427,7 +427,7 @@ namespace NetTally
             else if (e.Key == Key.Escape)
             {
                 // Restore original name if we escape.
-                IQuest quest = QuestCollectionView.CurrentItem as IQuest;
+                IQuest quest = CurrentlySelectedQuest;
                 if (quest != null)
                     quest.DisplayName = editingName;
                 DoneEditingQuestName();
@@ -449,7 +449,7 @@ namespace NetTally
             else if (e.Key == Key.Escape)
             {
                 // Restore original name if we escape.
-                IQuest quest = QuestCollectionView.CurrentItem as IQuest;
+                IQuest quest = CurrentlySelectedQuest;
                 if (quest != null)
                     quest.Site = editingName;
                 DoneEditingQuestSite();
