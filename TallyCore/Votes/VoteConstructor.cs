@@ -188,7 +188,7 @@ namespace NetTally
 
                 if (!VoteCounter.HasPlan(planName))
                 {
-                    List<string> planLines = PromotePlanLines(plan, partitionMode);
+                    var planLines = PromotePlanName(plan);
 
                     // Get the list of all vote partitions, built according to current preferences.
                     // One of: By line, By block, or By post (ie: entire vote)
@@ -421,441 +421,217 @@ namespace NetTally
 
         #region Partitioning handling
         /// <summary>
-        /// Given a list of vote lines, combine them into a single string entity,
-        /// or multiple blocks of strings if we're using vote partitions.
+        /// Gets the partitions of a vote based on partition mode and vote type.
         /// </summary>
-        /// <param name="lines">List of valid vote lines.</param>
-        /// <returns>List of the combined partitions.</returns>
+        /// <param name="lines">The lines of a vote.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="voteType">The vote type being partitioned.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns a list of partitions, representing the pieces of the vote.</returns>
         private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
+        {
+            if (lines == null)
+                throw new ArgumentNullException(nameof(lines));
+            if (string.IsNullOrEmpty(author))
+                throw new ArgumentNullException(nameof(author));
+            if (!lines.Any())
+                return new List<string>();
+
+            switch (voteType)
+            {
+                case VoteType.Rank:
+                    return GetVotePartitionsFromRank(lines, partitionMode, author);
+                case VoteType.Plan:
+                    return GetVotePartitionsFromPlan(lines, partitionMode, author);
+                case VoteType.Vote:
+                    return GetVotePartitionsFromVote(lines, partitionMode, author);
+                default:
+                    throw new ArgumentException($"Unknown vote type: {voteType}");
+            }
+        }
+
+        /// <summary>
+        /// Get the partitions of a ranked vote.
+        /// </summary>
+        /// <param name="lines">The lines of a ranked vote.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns the vote broken into rank partitions.</returns>
+        private List<string> GetVotePartitionsFromRank(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        {
+            // Ranked votes only ever have one line of content.
+            // Add CRLF to the end, and return that as a list.
+            var partitions = lines.Select(a => a + "\r\n");
+
+            return new List<string>(partitions);
+        }
+
+        /// <summary>
+        /// Gets the vote partitions of a plan.
+        /// </summary>
+        /// <param name="lines">The lines of a vote plan.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns the vote partitioned appropriately.</returns>
+        private List<string> GetVotePartitionsFromPlan(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        {
+            switch (partitionMode)
+            {
+                case PartitionMode.None:
+                    // No partitioning; no special treatment
+                    return PartitionByNone(lines, author);
+                case PartitionMode.ByLine:
+                    // When partitioning by line, promote the plan first
+                    return PartitionByLine(PromoteLines(lines), author);
+                case PartitionMode.ByBlock:
+                    // When partitioning by block, plans are kept whole
+                    return PartitionByNone(lines, author);
+                case PartitionMode.ByPlanBlock:
+                    // When partitioning by PlanBlock, the plan is partitioned by block after promotion
+                    return PartitionByBlock(PromoteLines(lines), author);
+                default:
+                    throw new ArgumentException($"Unknown partition mode: {partitionMode}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the partitions of a vote.
+        /// </summary>
+        /// <param name="lines">The lines of a vote.</param>
+        /// <param name="partitionMode">The partition mode being used.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns the vote, partitioned according to the requested mode.</returns>
+        private List<string> GetVotePartitionsFromVote(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        {
+            switch (partitionMode)
+            {
+                case PartitionMode.None:
+                    // No partitioning
+                    return PartitionByNone(lines, author);
+                case PartitionMode.ByLine:
+                    // Partition by line
+                    return PartitionByLine(lines, author);
+                case PartitionMode.ByBlock:
+                    // Partition by block; no special treatment at the vote level
+                    return PartitionByBlock(lines, author);
+                case PartitionMode.ByPlanBlock:
+                    // Plan/Block partitioning means the plan is partitioned by block.
+                    // The vote is also partitioned by block.
+                    return PartitionByBlock(lines, author);
+                default:
+                    throw new ArgumentException($"Unknown partition mode: {partitionMode}");
+            }
+        }
+
+        /// <summary>
+        /// Convert the provided lines into a non-partitioned form.
+        /// All individual strings are converted into CRLF-terminated portions of a string.
+        /// Referral votes are inlined.
+        /// </summary>
+        /// <param name="lines">The lines of a vote.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns a non-partitioned version of the vote.</returns>
+        private List<string> PartitionByNone(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
-            StringBuilder holding_sb = new StringBuilder();
-            string currentTask = "";
-            string taskHeader = "";
-            bool addedTopLevelLine = false;
-            List<string> referralVotes;
 
-            // Work through the list of matched lines
             foreach (string line in lines)
             {
-                string trimmedLine = line.Trim();
+                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
-                // Handle partitioning based on either vote type or partition mode.
-
-                if (voteType == VoteType.Rank)
+                if (referralVotes.Count > 0)
                 {
-                    PartitionRanks(partitions, sb, trimmedLine);
+                    foreach (var referral in referralVotes)
+                        sb.Append(referral);
                 }
-                else if ((referralVotes = VoteCounter.GetVotesFromReference(line, author)).Count > 0)
+                else
                 {
-                    // If a line refers to another voter or base plan, pull that voter's votes
-                    PartitionReferrals(partitions, sb, referralVotes, partitionMode, ref taskHeader, ref currentTask);
-                }
-                else if (voteType == VoteType.Plan)
-                {
-                    PartitionPlans(partitions, sb, trimmedLine, partitionMode);
-                }
-                else if (partitionMode == PartitionMode.None)
-                {
-                    PartitionByVote(partitions, sb, trimmedLine);
-                }
-                else if (partitionMode == PartitionMode.ByLine)
-                {
-                    PartitionByLine(partitions, sb, trimmedLine);
-                }
-                else if (partitionMode == PartitionMode.ByBlock)
-                {
-                    PartitionByBlock(partitions, sb, trimmedLine);
-                }
-                else if (partitionMode == PartitionMode.ByTask)
-                {
-                    PartitionByTask(partitions, sb, trimmedLine);
-                }
-                else if (partitionMode == PartitionMode.ByTaskBlock)
-                {
-                    PartitionByTaskBlock(partitions, sb, holding_sb, trimmedLine, ref addedTopLevelLine, ref taskHeader, ref currentTask);
+                    sb.AppendLine(line);
                 }
             }
 
-            if (holding_sb.Length > 0)
-            {
-                sb.Append(holding_sb.ToString());
-            }
             if (sb.Length > 0)
-            {
                 partitions.Add(sb.ToString());
-            }
-
-            // Clean up any BBCode issues (matching tags, remove duplicate tags, etc)
-            //CleanUpBBCode(partitions);
 
             return partitions;
         }
 
         /// <summary>
-        /// Add to the partition construction if we're working on a rank vote.
+        /// Partition the provided vote into individual partitions, by line.
+        /// Referral votes are added as their own partitioned form.
         /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionRanks(List<string> partitions, StringBuilder sb, string line)
+        /// <param name="lines">The lines of a vote.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns a the vote partitioned by line.</returns>
+        private List<string> PartitionByLine(IEnumerable<string> lines, string author)
         {
-            // Ranked vote lines are all treated individually.
-            partitions.Add(line + "\r\n");
-        }
+            List<string> partitions = new List<string>();
 
-        /// <summary>
-        /// Add to the partition construction if we're working on a vote plan.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        /// <param name="partitionMode">The partition mode being used.</param>
-        private void PartitionPlans(List<string> partitions, StringBuilder sb, string line, PartitionMode partitionMode)
-        {
-            // If partitioning a Base Plan (other than By Line), simply collate all lines together.
-            // The entire plan is considered a single block.
-            if (partitionMode == PartitionMode.ByLine)
+            foreach (string line in lines)
             {
-                PartitionByLine(partitions, sb, line);
-            }
-            else if (partitionMode == PartitionMode.ByTask || partitionMode == PartitionMode.ByTaskBlock)
-            {
-                PartitionByTask(partitions, sb, line);
-            }
-            else
-            {
-                sb.AppendLine(line);
-            }
-        }
+                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
-        /// <summary>
-        /// Add to the partition construction if the line found reference vote referrals.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="referralVotes">The list of all referenced votes.</param>
-        /// <param name="partitionMode">The partition mode being used.</param>
-        /// <param name="taskHeader">The task header (may be extracted and returned).</param>
-        /// <param name="currentTask">The current task (may be extracted and returned).</param>
-        private void PartitionReferrals(List<string> partitions, StringBuilder sb, List<string> referralVotes, PartitionMode partitionMode,
-            ref string taskHeader, ref string currentTask)
-        {
-            // If we're not using vote partitions, append all lines onto the current vote string.
-            // Otherwise, add each of the other voter's votes to our partition list.
-            if (partitionMode == PartitionMode.None)
-            {
-                foreach (var v in referralVotes)
-                    sb.Append(v);
-            }
-            else if (partitionMode == PartitionMode.ByTask)
-            {
-                foreach (var v in referralVotes)
+                if (referralVotes.Count > 0)
                 {
-                    string task = VoteString.GetVoteTask(v);
-                    if (task == string.Empty)
-                    {
-                        // If there is no task associated with the referral element,
-                        // treat it like PartitionMode.None.
-                        sb.Append(v);
-                    }
-                    else
-                    {
-                        // If there is a task, store any existing sb values in the
-                        // partitions, and add the referral as a partition.
-                        if (sb.Length > 0)
-                        {
-                            partitions.Add(sb.ToString());
-                            sb.Clear();
-                        }
-
-                        currentTask = task;
-
-                        string firstLine = Utility.Text.FirstLine(v);
-                        string firstLineContent = VoteString.GetVoteContent(firstLine);
-                        if (firstLineContent == string.Empty)
-                        {
-                            taskHeader = firstLine;
-                        }
-                        else
-                        {
-                            taskHeader = "";
-                        }
-
-                        partitions.Add(v);
-                    }
-                }
-            }
-            else
-            {
-                if (sb.Length > 0)
-                {
-                    partitions.Add(sb.ToString());
-                    sb.Clear();
-                }
-                partitions.AddRange(referralVotes);
-            }
-        }
-
-        /// <summary>
-        /// Add to the partition construction if the vote is not being partitioned.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionByVote(List<string> partitions, StringBuilder sb, string line)
-        {
-            // If no partition mode, just stack all lines onto the string builder,
-            // to be added together at the end.
-            sb.AppendLine(line);
-        }
-
-        /// <summary>
-        /// Add to the partition construction if the vote is being partitioned by line.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionByLine(List<string> partitions, StringBuilder sb, string line)
-        {
-            // If partitioning by line, every line gets added to the partitions list.
-            // Skip lines without any content.
-            if (VoteString.GetVoteContent(line) != string.Empty)
-                partitions.Add(line + "\r\n");
-        }
-
-        /// <summary>
-        /// Add to the partition construction if the vote is being partitioned by block.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionByBlock(List<string> partitions, StringBuilder sb, string line)
-        {
-            // If partitioning a vote by block, work on collecting chunks together.
-            if (sb.Length == 0)
-            {
-                // Start a new block
-                sb.AppendLine(line);
-            }
-            else if (VoteString.GetVotePrefix(line).StartsWith("-"))
-            {
-                // Sub-lines get added to an existing block
-                sb.AppendLine(line);
-            }
-            else
-            {
-                // New top-level lines indicate we should save the current
-                // accumulation and start a new block.
-                string currentAccumulation = sb.ToString();
-                // Skip blocks without any valid content
-                if (VoteString.GetVoteContent(currentAccumulation) != string.Empty)
-                    partitions.Add(sb.ToString());
-                sb.Clear();
-                sb.AppendLine(line);
-            }
-        }
-
-        /// <summary>
-        /// Add to the partition construction if the vote is being partitioned by task.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionByTask(List<string> partitions, StringBuilder sb, string line)
-        {
-            // Create a new block each time we encounter a new task.
-
-            // If string builder is empty, start adding.
-            if (sb.Length == 0)
-            {
-                sb.AppendLine(line);
-            }
-            else if (VoteString.GetVoteTask(line) != string.Empty)
-            {
-                // We've reached a new task block
-                partitions.Add(sb.ToString());
-                sb.Clear();
-                sb.AppendLine(line);
-            }
-            else
-            {
-                sb.AppendLine(line);
-            }
-        }
-
-        /// <summary>
-        /// Add to the partition construction if the vote is being partitioned by task and block.
-        /// </summary>
-        /// <param name="partitions">The table of collected partitions.</param>
-        /// <param name="sb">The ongoing constructed string.</param>
-        /// <param name="line">The vote line currently being examined.</param>
-        private void PartitionByTaskBlock(List<string> partitions, StringBuilder sb, StringBuilder holding_sb,
-            string line, ref bool addedTopLevelLine, ref string taskHeader, ref string currentTask)
-        {
-            // A blend of task and block breakdowns
-            // Top-level elements are retained within the current block if
-            // we're inside a task segment.
-            // However top-level elements with sub-elements get their own partition even if a
-            // new task wasn't on that line.
-            // Applies task name to each sub-block encountered.
-
-            string prefix;
-            string marker;
-            string task;
-            string content;
-
-            // Get vote line components, since we'll be using them a bunch
-            VoteString.GetVoteComponents(line, out prefix, out marker, out task, out content);
-
-            if (task != string.Empty)
-            {
-                // We've started a new task block
-
-                // Push all pending accumulations to the completed stacks
-                if (holding_sb.Length > 0)
-                {
-                    sb.Append(holding_sb.ToString());
-                    holding_sb.Clear();
-                }
-
-                if (sb.Length > 0)
-                {
-                    partitions.Add(sb.ToString());
-                    sb.Clear();
-                }
-
-                sb.AppendLine(line);
-
-                // Save details
-                addedTopLevelLine = (prefix == string.Empty);
-                currentTask = task;
-
-                if (content == string.Empty)
-                    taskHeader = line;
-                else
-                    taskHeader = "";
-            }
-            else if (sb.Length == 0)
-            {
-                // If string builder is empty, start adding new stuff.
-                sb.AppendLine(line);
-
-                // Save details
-                addedTopLevelLine = (prefix == string.Empty);
-                currentTask = task;
-
-                // If the line is nothing but a task (no content), save this as a task header
-                if (task != string.Empty && content == string.Empty)
-                    taskHeader = line;
-                else
-                    taskHeader = "";
-            }
-            else if (holding_sb.Length > 0)
-            {
-                // holding_sb holds the last top-level line, if any.
-
-                // If we get another top-level line, just push through the stack
-                if (prefix == string.Empty)
-                {
-                    sb.Append(holding_sb.ToString());
-                    holding_sb.Clear();
-                    holding_sb.AppendLine(line);
+                    foreach (var referral in referralVotes)
+                        partitions.Add(referral);
                 }
                 else
                 {
-                    // If it's a sub-line, we started a new block
+                    partitions.Add(line + "\r\n");
+                }
+            }
+
+            return partitions;
+        }
+
+        /// <summary>
+        /// Partition the provided vote into individual partitions, by block.
+        /// Referral votes are added as their own partitioned form.
+        /// </summary>
+        /// <param name="lines">The lines of a vote.</param>
+        /// <param name="author">The author of the post.</param>
+        /// <returns>Returns a the vote partitioned by block.</returns>
+        private List<string> PartitionByBlock(IEnumerable<string> lines, string author)
+        {
+            List<string> partitions = new List<string>();
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string line in lines)
+            {
+                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
+
+                if (referralVotes.Count > 0)
+                {
                     if (sb.Length > 0)
                     {
-                        // If the current sb has any actual content in it, add to the partitions
-                        if (VoteString.GetVoteContent(sb.ToString()) != string.Empty)
-                            partitions.Add(sb.ToString());
-
-                        sb.Clear();
-                    }
-
-                    if (taskHeader != string.Empty)
-                    {
-                        // If we have a defined task header, put it to the sb before we add
-                        // the holding string.
-                        sb.AppendLine(taskHeader);
-                        sb.Append(holding_sb.ToString());
-                    }
-                    else if (currentTask != string.Empty)
-                    {
-                        // If we don't have a task header, but do have an active task, apply
-                        // that to the holding string before adding it.
-                        string tasked_holding_line = VoteString.ReplaceTask(holding_sb.ToString(), currentTask);
-                        sb.Append(tasked_holding_line);
-                    }
-                    else
-                    {
-                        // Otherwise, just add what we're holding
-                        sb.Append(holding_sb.ToString());
-                    }
-
-                    // Clear what we added
-                    holding_sb.Clear();
-
-                    // Add the incoming line
-                    sb.AppendLine(line);
-                    addedTopLevelLine = false;
-                }
-            }
-            else
-            {
-                // Otherwise, we haven't stored any holding lines, but we -have- added
-                // some lines to sb.
-
-                // If we're adding a sub-level line, it always just gets added.
-                if (prefix != string.Empty)
-                {
-                    sb.AppendLine(line);
-                    addedTopLevelLine = false;
-                }
-
-                // If we're adding a new top-level line, it gets added to the holding string
-                // if the previous line was also top-level.
-
-                else if (addedTopLevelLine)
-                {
-                    holding_sb.AppendLine(line);
-                }
-
-                // If we're adding a new top-level line, but the previous line was -not-
-                // a top-level, that means we're starting a new block
-                else
-                {
-                    // If we're starting a new block, put the task header or current task
-                    // in place, if applicable.
-
-                    if (sb.Length > 0)
-                    {
-                        // Push anything in the current sb to the partitions
                         partitions.Add(sb.ToString());
                         sb.Clear();
                     }
 
-                    // Add a task header or task element to the current line when
-                    // starting a new block, if available.
-                    if (taskHeader != string.Empty)
+                    foreach (var referral in referralVotes)
+                        partitions.Add(referral);
+                }
+                else
+                {
+                    string prefix = VoteString.GetVotePrefix(line);
+
+                    // If we encountered a new top-level vote line, store any existing stringbuilder contents.
+                    if (prefix == string.Empty && sb.Length > 0)
                     {
-                        sb.AppendLine(taskHeader);
-                        sb.AppendLine(line);
-                    }
-                    else if (currentTask != string.Empty)
-                    {
-                        sb.AppendLine(VoteString.ReplaceTask(line, currentTask));
-                    }
-                    else
-                    {
-                        sb.AppendLine(line);
+                        partitions.Add(sb.ToString());
+                        sb.Clear();
                     }
 
-                    addedTopLevelLine = true;
+                    sb.AppendLine(line);
                 }
             }
+
+            if (sb.Length > 0)
+                partitions.Add(sb.ToString());
+
+            return partitions;
         }
         #endregion
 
@@ -904,56 +680,6 @@ namespace NetTally
                 return Utility.Text.PlanNameMarker + planname;
 
             return null;
-        }
-
-        /// <summary>
-        /// Given a list of lines that corresponds to a base plan as part of a user's post,
-        /// remove the line with the plan's name, and promote all other lines one level.
-        /// Promotion = Turn a -[x] line to a [x] line.
-        /// </summary>
-        /// <param name="planLines">Vote lines that start with a Base Plan name.</param>
-        /// <returns>Returns the plan's vote lines as if they were their own vote.</returns>
-        private List<string> PromotePlanLines(IEnumerable<string> planLines, PartitionMode partitionMode)
-        {
-            if (planLines == null)
-                throw new ArgumentNullException(nameof(planLines));
-            if (!planLines.Any())
-                return new List<string>();
-
-            string firstLine = planLines.First();
-            var remainder = planLines.Skip(1);
-
-            // If we're not doing any partitioning, or partitioning by block (where plans
-            // are kept intact), do not promote the lines, but do make sure that the leading
-            // line with the plan name is "Plan X" instead of "Base Plan X".
-            if (partitionMode == PartitionMode.None || partitionMode == PartitionMode.ByBlock)
-            {
-                string nameContent = VoteString.GetVoteContent(firstLine, VoteType.Plan);
-
-                Match m = basePlanRegex.Match(nameContent);
-                if (m.Success)
-                {
-                    nameContent = $"Plan{m.Groups[1]}{m.Groups["planname"]}";
-
-                    firstLine = VoteString.ModifyVoteLine(firstLine, content: nameContent);
-                }
-
-                List<string> results = new List<string>(planLines.Count()) { firstLine };
-                results.AddRange(remainder);
-
-                return results;
-            }
-
-            if (remainder.All(a => a.Trim().StartsWith("-")))
-            {
-                var promotedLines = remainder.Select(a => a.Trim().Substring(1).Trim());
-
-                return promotedLines.ToList();
-            }
-            else
-            {
-                return remainder.ToList();
-            }
         }
 
         /// <summary>
