@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Adapters.Utility;
 
 namespace NetTally.Adapters
 {
@@ -131,7 +130,7 @@ namespace NetTally.Adapters
             if (title == null)
                 return string.Empty;
 
-            return Utility.PostText.CleanupWebString(title);
+            return PostText.CleanupWebString(title);
         }
 
         /// <summary>
@@ -316,10 +315,10 @@ namespace NetTally.Adapters
             var postNode = post.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusions = Utility.PostText.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
+            var exclusions = PostText.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
 
             // Get the full post text.
-            return Utility.PostText.ExtractPostText(postNode, exclusions);
+            return PostText.ExtractPostText(postNode, exclusions);
         }
 
         #endregion

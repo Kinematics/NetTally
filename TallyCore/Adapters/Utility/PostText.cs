@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
-namespace NetTally.Utility
+namespace NetTally.Adapters.Utility
 {
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.

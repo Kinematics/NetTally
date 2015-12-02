@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Adapters.Utility;
 
 namespace NetTally.Adapters
 {
@@ -87,7 +88,7 @@ namespace NetTally.Adapters
             if (title == null)
                 return string.Empty;
 
-            return Utility.PostText.CleanupWebString(title);
+            return PostText.CleanupWebString(title);
         }
 
         /// <summary>
@@ -254,10 +255,10 @@ namespace NetTally.Adapters
             HtmlNode postNode = postContents.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = Utility.PostText.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            return Utility.PostText.ExtractPostText(postNode, exclusion);
+            return PostText.ExtractPostText(postNode, exclusion);
         }
 
         #endregion

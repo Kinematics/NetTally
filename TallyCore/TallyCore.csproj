@@ -71,7 +71,7 @@
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
-    <Compile Include="Votes\PostText.cs" />
+    <Compile Include="Adapters\Utility\PostText.cs" />
     <Compile Include="Utility\RegionProfiler.cs" />
     <Compile Include="Utility\Utility.cs" />
     <Compile Include="Votes\Vote.cs" />
