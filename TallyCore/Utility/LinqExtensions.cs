@@ -108,6 +108,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <typeparam name="T">The type of object the list contains.</typeparam>
         /// <param name="self">The list.</param>
+        /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is less than another.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
         public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer = null) where U : IComparable<U>
@@ -152,6 +153,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <typeparam name="T">The type of object the list contains.</typeparam>
         /// <param name="self">The list.</param>
+        /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is greater than another.</param>
         /// <returns>Returns the object that has the highest 'value'.</returns>
         public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer = null) where U : IComparable<U>
