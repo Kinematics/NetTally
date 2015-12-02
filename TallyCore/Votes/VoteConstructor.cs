@@ -487,8 +487,13 @@ namespace NetTally
                     // When partitioning by block, plans are kept whole
                     return PartitionByNone(lines, author);
                 case PartitionMode.ByPlanBlock:
-                    // When partitioning by PlanBlock, the plan is partitioned by block after promotion
-                    return PartitionByBlock(PromoteLines(lines), author);
+                    // When partitioning by PlanBlock, the plan is partitioned by block after promotion.
+                    // Make sure to preserve the task from the main line on the resulting blocks.
+                    string planTask = VoteString.GetVoteTask(lines.First());
+                    var blocks = PartitionByBlock(PromoteLines(lines), author);
+                    if (planTask != string.Empty)
+                        blocks = ApplyTaskToBlocks(blocks, planTask);
+                    return blocks;
                 default:
                     throw new ArgumentException($"Unknown partition mode: {partitionMode}");
             }
@@ -632,6 +637,38 @@ namespace NetTally
                 partitions.Add(sb.ToString());
 
             return partitions;
+        }
+
+        /// <summary>
+        /// Add the specified task to all the provided blocks, if they don't
+        /// already have a task.
+        /// </summary>
+        /// <param name="blocks">A list of vote blocks.</param>
+        /// <param name="planTask">A task name to apply.</param>
+        /// <returns>Returns the vote blocks with the task applied.</returns>
+        private List<string> ApplyTaskToBlocks(List<string> blocks, string planTask)
+        {
+            if (blocks == null)
+                throw new ArgumentNullException(nameof(blocks));
+            if (string.IsNullOrEmpty(planTask))
+                throw new ArgumentNullException(nameof(planTask));
+
+            List<string> results = new List<string>();
+
+            foreach (var block in blocks)
+            {
+                if (VoteString.GetVoteTask(block) == string.Empty)
+                {
+                    string rep = VoteString.ModifyVoteLine(block, task: planTask, ByPartition: true);
+                    results.Add(rep);
+                }
+                else
+                {
+                    results.Add(block);
+                }
+            }
+
+            return results;
         }
         #endregion
 
