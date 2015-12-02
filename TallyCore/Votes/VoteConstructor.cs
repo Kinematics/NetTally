@@ -68,17 +68,11 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = GetPlansFromPost(post.VoteStrings);
+            var plans = post.GetAllPlans();
 
-            // Any plans with only a single line attached to the name are invalid (possibly normal vote references).
-            var validPlans = plans.Where(p => p.Count > 1);
+            StorePlans(plans);
 
-            if (validPlans.Any())
-            {
-                StorePlans(validPlans);
-
-                ProcessPlans(validPlans, post, quest.PartitionMode);
-            }
+            ProcessPlans(plans, post, quest.PartitionMode);
         }
 
         /// <summary>
