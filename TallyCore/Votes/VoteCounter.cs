@@ -10,6 +10,7 @@ namespace NetTally
         readonly VoteConstructor voteConstructor;
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
+        List<PostComponents> PostsList { get; set; }
 
 
         /// <summary>
@@ -56,8 +57,6 @@ namespace NetTally
         /// </summary>
         public void Reset()
         {
-            Title = string.Empty;
-
             VotesWithSupporters.Clear();
             VoterMessageId.Clear();
             RankedVotesWithSupporters.Clear();
@@ -73,7 +72,6 @@ namespace NetTally
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
-            DebugMode.Update();
         }
 
         /// <summary>
@@ -117,7 +115,7 @@ namespace NetTally
             if (pages.Count == 0)
                 return;
 
-            Reset();
+            DebugMode.Update();
 
             IForumAdapter forumAdapter = quest.GetForumAdapter();
 
@@ -139,32 +137,34 @@ namespace NetTally
                                  where postCom != null && postCom.IsVote && postCom.Author != threadAuthor
                                  select postCom;
 
-            List<PostComponents> postsList = postsWithVotes.ToList();
+            PostsList = postsWithVotes.ToList();
 
-            TallyPosts(quest, postsList);
+            TallyPosts(quest);
         }
 
         /// <summary>
         /// Construct the tally results based on the provided list of posts.
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
-        /// <param name="posts">The list of PostComponents that define valid vote posts.</param>
-        public void TallyPosts(IQuest quest, List<PostComponents> posts)
+        /// <param name="PostsList">The list of PostComponents that define valid vote posts.</param>
+        public void TallyPosts(IQuest quest)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
-            if (posts == null)
-                throw new ArgumentNullException(nameof(posts));
+            if (PostsList == null)
+                return;
+
+            Reset();
 
             // Preprocessing
-            foreach (var post in posts)
+            foreach (var post in PostsList)
             {
                 ReferenceVoters.Add(post.Author);
                 ReferenceVoterPosts[post.Author] = post.ID;
                 voteConstructor.PreprocessPlans(post, quest);
             }
 
-            var unprocessed = posts;
+            var unprocessed = PostsList;
             bool changed = true;
 
             // Main processing
