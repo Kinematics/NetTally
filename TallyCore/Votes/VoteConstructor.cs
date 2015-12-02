@@ -104,7 +104,7 @@ namespace NetTally
 
             // If it has a reference to a plan or voter that has not been processed yet,
             // delay processing.
-            if (HasFutureReference(vote, post.Author))
+            if (HasFutureReference(vote, post))
             {
                 VoteCounter.FutureReferences.Add(post);
                 return false;
@@ -290,7 +290,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">List of lines for the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(List<string> vote, string author)
+        private bool HasFutureReference(List<string> vote, PostComponents post)
         {
             var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
 
@@ -305,7 +305,7 @@ namespace NetTally
 
                 string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n));
 
-                if (refVoter != null && refVoter != author)
+                if (refVoter != null && refVoter != post.Author)
                 {
                     // If there's no vote entry, it must necessarily be a future reference.
                     if (!VoteCounter.HasVoter(refVoter, VoteType.Vote))
