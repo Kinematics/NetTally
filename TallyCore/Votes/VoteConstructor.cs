@@ -122,34 +122,6 @@ namespace NetTally
 
         #region Utility functions for processing plans.
         /// <summary>
-        /// Given the lines of a vote, extract all base plans and auto-plans from them.
-        /// A plan is a block that starts with a line saying, "Plan" or "Base Plan".
-        /// There is no necessary ordering for plan blocks vs other vote lines.
-        /// </summary>
-        /// <param name="postStrings">The lines of the vote.</param>
-        /// <returns>Returns a list of any found plans, with each plan being
-        /// the list of vote lines that make it up.</returns>
-        private List<List<string>> GetPlansFromPost(List<string> postStrings)
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            var voteBlocks = postStrings.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-            foreach (var block in voteBlocks)
-            {
-                if (block.Count() > 1)
-                {
-                    string planname = VoteString.GetPlanName(block.Key);
-
-                    if (planname != null && !VoteCounter.HasPlan(planname))
-                        results.Add(block.ToList());
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
         /// Store original plan name and contents in reference containers.
         /// </summary>
         /// <param name="plans">A list of valid plans.</param>
@@ -233,64 +205,6 @@ namespace NetTally
                     // Single lines can be added normally
                     vote.AddRange(block);
                     //vote.Add(block.Key);
-                }
-            }
-
-            return vote;
-        }
-
-        /// <summary>
-        /// Get the contents of the vote from the lines of the entire post.
-        /// Does not include base plans or ranked votes, and condenses
-        /// known auto-votes into a simple reference.
-        /// </summary>
-        /// <param name="voteStrings">The contents of the post.</param>
-        /// <returns>Returns just the vote portion of the post.</returns>
-        private List<string> GetVoteFromPost(List<string> voteStrings)
-        {
-            List<string> vote = new List<string>();
-            bool checkForBasePlans = true;
-
-            // Remove ranked vote lines beforehand.
-            var nonRankedLines = voteStrings.Where(s => !VoteString.IsRankedVote(s));
-
-            // Then group everything leftover into blocks
-            var voteBlocks = nonRankedLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-            foreach (var block in voteBlocks)
-            {
-                // Skip past base plan blocks at the start
-                if (checkForBasePlans)
-                {
-                    if (block.Count() > 1 && VoteString.GetPlanName(block.Key, basePlan: true) != null)
-                        continue;
-                }
-
-                // If we get here, we're done checking for base plans.
-                checkForBasePlans = false;
-
-                // Check if the block defines a plan.
-                if (block.Count() > 1)
-                {
-                    // Replace known plans with just the plan key, if we can match with a reference plan.
-                    string planName = VoteString.GetPlanName(block.Key);
-
-                    if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
-                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
-                    {
-                        // If it's a known plan, only pass through the reference.
-                        vote.Add(block.Key);
-                    }
-                    else
-                    {
-                        // If it's not a plan, just pass it through.
-                        vote.AddRange(block);
-                    }
-                }
-                else
-                {
-                    // If it's not a plan, just pass it through.
-                    vote.AddRange(block);
                 }
             }
 
