@@ -616,8 +616,7 @@ namespace NetTally
         }
         #endregion
 
-        #region Functions dealing with plan names.
-
+        #region Functions dealing with plan formatting.
         /// <summary>
         /// If all sub-lines of a provided group of lines are indented (have a prefix),
         /// then 'promote' them up a tier (remove one level of the prefix) while discarding
@@ -670,7 +669,6 @@ namespace NetTally
 
             return lines;
         }
-
         #endregion
     }
 }
