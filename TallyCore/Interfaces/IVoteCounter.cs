@@ -7,6 +7,7 @@ namespace NetTally
     {
         void TallyVotes(IQuest quest, List<HtmlDocument> pages);
         void TallyPosts(IQuest quest);
+        List<PostComponents> PostsList { get; }
         void Reset();
 
         void AddVote(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);

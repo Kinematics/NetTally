@@ -10,7 +10,7 @@ namespace NetTally
         readonly VoteConstructor voteConstructor;
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
-        List<PostComponents> PostsList { get; set; }
+        public List<PostComponents> PostsList { get; private set; }
 
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace NetTally
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
-            if (PostsList == null)
+            if (PostsList == null || PostsList.Count == 0)
                 return;
 
             Reset();
