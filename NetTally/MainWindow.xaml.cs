@@ -46,13 +46,13 @@ namespace NetTally
             set { SetValue(MyTitleProperty, value); }
         }
 
-        private IQuest CurrentlySelectedQuest => QuestCollectionView.CurrentItem as IQuest;
-
         public List<int> ValidPostsPerPage { get; } = new List<int>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
         public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
 
         public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
+
+        private IQuest CurrentlySelectedQuest => QuestCollectionView.CurrentItem as IQuest;
         #endregion
 
         #region Startup/shutdown events
@@ -228,6 +228,16 @@ namespace NetTally
         }
 
         /// <summary>
+        /// When changing partition mode, update based on the currently collected tally info.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            tally.UpdateTally(CurrentlySelectedQuest);
+        }
+
+        /// <summary>
         /// Clear the page cache so that subsequent tally requests load the pages from the network
         /// rather than from the cache.
         /// </summary>
@@ -347,7 +357,7 @@ namespace NetTally
         }
         #endregion
 
-        #region Behavior events
+        #region Events to support editing thread names
         /// <summary>
         /// If either start post or end post text boxes get focus, select the entire
         /// contents so that they're easy to replace.
@@ -449,16 +459,6 @@ namespace NetTally
                     quest.Site = editingName;
                 DoneEditingQuestSite();
             }
-        }
-
-        /// <summary>
-        /// When changing partition mode, update based on the currently collected tally info.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            tally.UpdateTally(CurrentlySelectedQuest);
         }
         #endregion
 
