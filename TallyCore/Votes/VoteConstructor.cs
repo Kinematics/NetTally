@@ -68,7 +68,7 @@ namespace NetTally
                 throw new ArgumentException("Post is not a valid vote.");
 
             // Get the lines of the post that correspond to the vote.
-            var vote = GetCompressedVote(post);
+            var vote = GetWorkingVote(post);
 
             // If the vote has content, deal with it
             if (vote.Count > 0)
@@ -152,7 +152,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post we're getting the vote from.</param>
         /// <returns>Returns the vote with plans compressed.</returns>
-        private List<string> GetCompressedVote(PostComponents post)
+        private List<string> GetWorkingVote(PostComponents post)
         {
             List<string> vote = new List<string>();
 
