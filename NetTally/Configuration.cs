@@ -397,7 +397,17 @@ namespace NetTally
         [ConfigurationProperty("PartitionMode", DefaultValue = PartitionMode.None)]
         public PartitionMode PartitionMode
         {
-            get { return (PartitionMode)this["PartitionMode"]; }
+            get
+            {
+                try
+                {
+                    return (PartitionMode)this["PartitionMode"];
+                }
+                catch (ConfigurationException)
+                {
+                    return PartitionMode.None;
+                }
+            }
             set { this["PartitionMode"] = value; }
         }
 
