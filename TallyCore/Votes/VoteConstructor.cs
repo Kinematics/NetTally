@@ -92,20 +92,20 @@ namespace NetTally
             // Get the lines of the post that correspond to the vote.
             var vote = GetFilteredVote(post);
 
-            // A 0 count vote means the post only contained base plans.  Done.
-            if (vote.Count == 0)
-                return true;
-
-            // If it has a reference to a plan or voter that has not been processed yet,
-            // delay processing.
-            if (HasFutureReference(vote, post))
+            // If the vote has content, deal with it
+            if (vote.Count > 0)
             {
-                VoteCounter.FutureReferences.Add(post);
-                return false;
-            }
+                // If it has a reference to a plan or voter that has not been processed yet,
+                // delay processing.
+                if (HasFutureReference(vote, post))
+                {
+                    VoteCounter.FutureReferences.Add(post);
+                    return false;
+                }
 
-            // Process the actual vote.
-            ProcessVote(vote, post, quest.PartitionMode);
+                // Process the actual vote.
+                ProcessVote(vote, post, quest.PartitionMode);
+            }
 
             // Handle ranking votes, if applicable.
             if (quest.AllowRankedVotes)
