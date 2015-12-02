@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -16,6 +17,8 @@ namespace NetTally
         public string Text { get; }
         public int IDValue { get; }
         public List<string> VoteStrings { get; }
+        public List<IGrouping<string, string>> BasePlans { get; private set; }
+        public List<string> VoteLines { get; private set; }
 
         // Indicate whether this post contains a vote of any sort.
         public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
@@ -61,10 +64,14 @@ namespace NetTally
             if (voteLines.Any())
             {
                 VoteStrings = voteLines.Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
+
+                SeparateVoteStrings(VoteStrings);
             }
             else if (lines.All(a => nominationLineRegex.Match(a).Success))
             {
                 VoteStrings = lines.Select(a => "[X] " + a.Trim()).ToList();
+
+                SeparateVoteStrings(VoteStrings);
             }
         }
 
@@ -110,5 +117,61 @@ namespace NetTally
         /// <returns>Returns a negative value if this is 'before' y, 0 if they're equal, and
         /// a positive value if this is 'after' y.</returns>
         public int CompareTo(object obj) => Compare(this, obj as PostComponents);
+
+        #region Private utility construction functions
+        /// <summary>
+        /// Takes the full vote string list of the vote and breaks it
+        /// into base plans and regular vote lines.
+        /// </summary>
+        /// <param name="voteStrings">The list of all the lines in the vote post.</param>
+        private void SeparateVoteStrings(List<string> voteStrings)
+        {
+            BasePlans = new List<IGrouping<string, string>>();
+            VoteLines = new List<string>();
+
+            var voteBlocks = voteStrings.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+            bool addBasePlans = true;
+
+            foreach (var block in voteBlocks)
+            {
+                if (addBasePlans)
+                {
+                    if (block.Count() > 1 && VoteString.GetPlanName(block.Key, basePlan: true) != null)
+                    {
+                        BasePlans.Add(block);
+                        continue;
+                    }
+                }
+                addBasePlans = false;
+
+                VoteLines.AddRange(block.ToList());
+            }
+        }
+
+        /// <summary>
+        /// Utility function to determine whether adjacent lines should
+        /// be grouped together.
+        /// Creates a grouping key for the provided line.
+        /// </summary>
+        /// <param name="line">The line to check.</param>
+        /// <returns>Returns the line as the key if it's not a sub-vote line.
+        /// Otherwise returns null.</returns>
+        private string SelectSubLines(string line)
+        {
+            string prefix = VoteString.GetVotePrefix(line);
+            if (string.IsNullOrEmpty(prefix))
+                return line;
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Supplementary function for line grouping, in the event that the first
+        /// line of the vote is indented (and thus would normally generate a null key).
+        /// </summary>
+        /// <param name="line">The line to generate a key for.</param>
+        /// <returns>Returns the line, or "Key", as the key for a line.</returns>
+        private string NonNullSelectSubLines(string line) => line ?? "Key";
+        #endregion
     }
 }
