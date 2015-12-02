@@ -481,10 +481,11 @@ namespace NetTally
                     // No partitioning; no special treatment
                     return PartitionByNone(lines, author);
                 case PartitionMode.ByLine:
-                    // When partitioning by line, promote the plan first
+                    // When partitioning by line, promote the plan first.
+                    // The label line can be discarded, and the others treated as less indented.
                     return PartitionByLine(PromoteLines(lines), author);
                 case PartitionMode.ByBlock:
-                    // When partitioning by block, plans are kept whole
+                    // When partitioning by block, plans are kept whole.  No partitioning here.
                     return PartitionByNone(lines, author);
                 case PartitionMode.ByPlanBlock:
                     // When partitioning by PlanBlock, the plan is partitioned by block after promotion.
@@ -579,8 +580,7 @@ namespace NetTally
 
                 if (referralVotes.Count > 0)
                 {
-                    foreach (var referral in referralVotes)
-                        partitions.Add(referral);
+                    partitions.AddRange(referralVotes);
                 }
                 else
                 {
@@ -615,8 +615,7 @@ namespace NetTally
                         sb.Clear();
                     }
 
-                    foreach (var referral in referralVotes)
-                        partitions.Add(referral);
+                    partitions.AddRange(referralVotes);
                 }
                 else
                 {
