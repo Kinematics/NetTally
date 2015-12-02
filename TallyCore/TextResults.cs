@@ -264,46 +264,30 @@ namespace NetTally
         /// </summary>
         /// <param name="voters">The set of voters to check.</param>
         /// <returns>Returns an IEnumerable containing the first voter.</returns>
-        private IEnumerable<string> GetFirstVoter(HashSet<string> voters)
+        private string GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
             var votersCollection = VoteCounter.GetVotersCollection(VoteType.Vote);
 
             if (planVoters.Any())
             {
-                var firstPlan = planVoters.MinObject(v => votersCollection[v]);
-
-                return new List<string>() { firstPlan };
+                return planVoters.MinObject(v => votersCollection[v]);
             }
 
             var nonFutureVoters = voters.Except(VoteCounter.FutureReferences.Select(p => p.Author));
 
             if (nonFutureVoters.Any())
             {
-                var firstBasicVoter = nonFutureVoters.MinObject(v => votersCollection[v]);
-
-                return new List<string>() { firstBasicVoter };
+                return nonFutureVoters.MinObject(v => votersCollection[v]);
             }
 
             if (voters.Any())
             {
-                var firstAnyVoter = voters.MinObject(v => votersCollection[v]);
-
-                return new List<string>() { firstAnyVoter };
+                return voters.MinObject(v => votersCollection[v]);
             }
 
-            return new List<string>();
-
+            return null;
         }
-
-        /// <summary>
-        /// Determine the 'first' voter for a given vote, out of the list of provided voters.
-        /// If there's a floating reference to an author, it uses that.  Otherwise it uses
-        /// the lowest message ID to determine who was first.
-        /// </summary>
-        /// <param name="voters">The list of voters to search.</param>
-        /// <returns>Returns the name of the 'first' voter.</returns>
-        private string GetFirstVoterName(HashSet<string> voters) => GetFirstVoter(voters).First();
 
         /// <summary>
         /// Given a list of voters, order the voters alphabetically, except for the
@@ -313,10 +297,10 @@ namespace NetTally
         /// <returns>Returns an ordered enumeration of the voters.</returns>
         private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            var firstVoter = GetFirstVoter(voters);
-            var otherVoters = voters.Except(firstVoter);
+            var voterList = new List<string>() { GetFirstVoter(voters) };
+            var otherVoters = voters.Except(voterList);
 
-            var orderedVoters = firstVoter.Concat(otherVoters.OrderBy(v => v));
+            var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
             return orderedVoters;
         }
 
@@ -367,7 +351,7 @@ namespace NetTally
             if (voteLines.Count == 0)
                 return;
 
-            string firstVoter = GetFirstVoterName(vote.Value);
+            string firstVoter = GetFirstVoter(vote.Value);
 
             if (firstVoter.StartsWith(Utility.Text.PlanNameMarker))
             {
