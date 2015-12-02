@@ -90,7 +90,7 @@ namespace NetTally
                 throw new ArgumentException("Post is not a valid vote.");
 
             // Get the lines of the post that correspond to the vote.
-            var vote = GetVoteFromPost(post.VoteStrings);
+            var vote = GetFilteredVote(post);
 
             // A 0 count vote means the post only contained base plans.  Done.
             if (vote.Count == 0)
@@ -110,7 +110,7 @@ namespace NetTally
             // Handle ranking votes, if applicable.
             if (quest.AllowRankedVotes)
             {
-                var rankings = GetRankingsFromPost(post.VoteStrings, post.Author);
+                var rankings = GetRankingsFromPost(post);
 
                 if (rankings.Count > 0)
                     ProcessRankings(rankings, post, quest.PartitionMode);
@@ -195,6 +195,43 @@ namespace NetTally
         #endregion
 
         #region Utility functions for processing votes.
+        private List<string> GetFilteredVote(PostComponents post)
+        {
+            List<string> vote = new List<string>();
+
+            var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+            foreach (var block in voteBlocks)
+            {
+                // Multi-line blocks might be a plan.  Check.
+                if (block.Count() > 1)
+                {
+                    // See if the block key marks a known plan.
+                    string planName = VoteString.GetPlanName(block.Key);
+
+                    if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
+                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
+                    {
+                        // Replace known plans with just the plan key.  They'll be expanded later.
+                        vote.Add(block.Key);
+                    }
+                    else
+                    {
+                        // If it's not a known plan, pass everything through.
+                        vote.AddRange(block);
+                    }
+                }
+                else
+                {
+                    // Single lines can be added normally
+                    vote.AddRange(block);
+                    //vote.Add(block.Key);
+                }
+            }
+
+            return vote;
+        }
+
         /// <summary>
         /// Get the contents of the vote from the lines of the entire post.
         /// Does not include base plans or ranked votes, and condenses
@@ -346,17 +383,15 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The vote being checked.</param>
         /// <returns>Returns any ranked vote lines in the vote.</returns>
-        private List<string> GetRankingsFromPost(List<string> voteStrings, string author)
+        private List<string> GetRankingsFromPost(PostComponents post)
         {
-            // Get any explicit ranking votes from the post itself.
-            var direct = voteStrings.Where(line => VoteString.IsRankedVote(line));
-
-            if (direct.Any())
-                return direct.ToList();
+            // If there are any explicit rank vote lines, return those.
+            if (post.RankLines.Any())
+                return post.RankLines;
 
             // If there were no explicit rankings, see if there's a reference to
             // another voter as the only line of this vote.
-            string refName = GetPureRankReference(voteStrings, author);
+            string refName = GetPureRankReference(post);
 
             if (refName != null)
             {
@@ -378,20 +413,15 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The standard vote partitions.</param>
         /// <returns></returns>
-        private string GetPureRankReference(List<string> voteStrings, string author)
+        private string GetPureRankReference(PostComponents post)
         {
-            if (voteStrings.Count == 1)
+            if (post.VoteLines.Count == 1)
             {
-                var partitionLines = Text.GetStringLines(voteStrings.First());
+                var refNames = VoteString.GetVoteReferenceNames(post.VoteLines.First());
 
-                if (partitionLines.Count == 1)
-                {
-                    var refNames = VoteString.GetVoteReferenceNames(partitionLines.First());
+                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.HasVoter(n, VoteType.Rank));
 
-                    var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != author && VoteCounter.HasVoter(n, VoteType.Rank));
-
-                    return refVoter;
-                }
+                return refVoter;
             }
 
             return null;
