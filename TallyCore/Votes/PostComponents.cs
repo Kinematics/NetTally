@@ -76,6 +76,33 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Get all plans from the current post.
+        /// </summary>
+        /// <returns></returns>
+        public List<List<string>> GetAllPlans()
+        {
+            List<List<string>> results = new List<List<string>>();
+
+            results.AddRange(BasePlans.Select(a => a.ToList()));
+
+            var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+            foreach (var block in voteBlocks)
+            {
+                if (block.Count() > 1)
+                {
+                    string planname = VoteString.GetPlanName(block.Key);
+
+                    if (planname != null)
+                        results.Add(block.ToList());
+                }
+            }
+
+            return results;
+        }
+
+        #region Private utility construction functions
+        /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
         /// </summary>
         /// <param name="postText">The text of the post to check.</param>
