@@ -150,10 +150,11 @@ namespace NetTally
             try
             {
                 TallyIsRunning = true;
-
                 TallyResults = string.Empty;
+
+                if (lastTallyQuest?.DisplayName != quest.DisplayName)
+                    UserDefinedTasks.Clear();
                 lastTallyQuest = quest;
-                UserDefinedTasks.Clear();
 
                 var adapter = await quest.GetForumAdapterAsync(token);
 
