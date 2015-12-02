@@ -21,6 +21,7 @@ namespace NetTally
     /// </summary>
     public partial class MainWindow : Window, IDisposable
     {
+        #region Fields and Properties
         bool _disposed = false;
 
         // Collections for holding quests
@@ -52,6 +53,7 @@ namespace NetTally
         public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
 
         public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
+        #endregion
 
         #region Startup/shutdown events
         /// <summary>
@@ -454,27 +456,11 @@ namespace NetTally
             }
         }
 
-
         /// <summary>
-        /// If the option to partition votes is changed, retally the results.
+        /// When changing partition mode, update based on the currently collected tally info.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void partitionedVotes_CheckedChanged(object sender, RoutedEventArgs e)
-        {
-            tally.UpdateTally(CurrentlySelectedQuest());
-        }
-
-        /// <summary>
-        /// If the partition type is changed, retally the results.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void partitionByLine_CheckedChanged(object sender, RoutedEventArgs e)
-        {
-            tally.UpdateTally(CurrentlySelectedQuest());
-        }
-
         private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             tally.UpdateTally(CurrentlySelectedQuest());
