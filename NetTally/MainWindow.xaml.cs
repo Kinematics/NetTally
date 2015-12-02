@@ -160,12 +160,7 @@ namespace NetTally
         {
             try
             {
-                string selectedQuest = "";
-
-                if (CurrentlySelectedQuest != null)
-                {
-                    selectedQuest = CurrentlySelectedQuest.ThreadName;
-                }
+                string selectedQuest = CurrentlySelectedQuest?.ThreadName ?? "";
 
                 QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
                 NetTallyConfig.Save(tally, qcw);
@@ -191,7 +186,7 @@ namespace NetTally
         {
             DoneEditing();
 
-            if (QuestCollectionView.CurrentItem == null)
+            if (CurrentlySelectedQuest == null)
                 return;
 
             using (cts = new CancellationTokenSource())
