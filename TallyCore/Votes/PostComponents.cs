@@ -116,37 +116,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// IComparer function.
-        /// </summary>
-        /// <param name="x">The first object being compared.</param>
-        /// <param name="y">The second object being compared.</param>
-        /// <returns>Returns a negative value if x is 'before' y, 0 if they're equal, and
-        /// a positive value if x is 'after' y.</returns>
-        public int Compare(PostComponents x, PostComponents y)
-        {
-            if (x == null && y == null)
-                return 0;
-            if (x == null)
-                return -1;
-            if (y == null)
-                return 1;
-
-            if (x.IDValue == 0 || y.IDValue == 0)
-                return string.Compare(x.ID, y.ID);
-
-            return x.IDValue - y.IDValue;
-        }
-
-        /// <summary>
-        /// IComparable function.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns>Returns a negative value if this is 'before' y, 0 if they're equal, and
-        /// a positive value if this is 'after' y.</returns>
-        public int CompareTo(object obj) => Compare(this, obj as PostComponents);
-
-        #region Private utility construction functions
-        /// <summary>
         /// Takes the full vote string list of the vote and breaks it
         /// into base plans and regular vote lines.
         /// </summary>
@@ -199,6 +168,38 @@ namespace NetTally
         /// <param name="line">The line to generate a key for.</param>
         /// <returns>Returns the line, or "Key", as the key for a line.</returns>
         private string NonNullSelectSubLines(string line) => line ?? "Key";
+        #endregion
+
+        #region Compare Interface Functions
+        /// <summary>
+        /// IComparer function.
+        /// </summary>
+        /// <param name="x">The first object being compared.</param>
+        /// <param name="y">The second object being compared.</param>
+        /// <returns>Returns a negative value if x is 'before' y, 0 if they're equal, and
+        /// a positive value if x is 'after' y.</returns>
+        public int Compare(PostComponents x, PostComponents y)
+        {
+            if (x == null && y == null)
+                return 0;
+            if (x == null)
+                return -1;
+            if (y == null)
+                return 1;
+
+            if (x.IDValue == 0 || y.IDValue == 0)
+                return string.Compare(x.ID, y.ID);
+
+            return x.IDValue - y.IDValue;
+        }
+
+        /// <summary>
+        /// IComparable function.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>Returns a negative value if this is 'before' y, 0 if they're equal, and
+        /// a positive value if this is 'after' y.</returns>
+        public int CompareTo(object obj) => Compare(this, obj as PostComponents);
         #endregion
     }
 }
