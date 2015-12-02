@@ -484,41 +484,8 @@ namespace NetTally
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
 
-
         [TestMethod()]
-        public void TestPartitionTask()
-        {
-            string testVote =
-@"[X][Action] Plan One
--[X] Ambush
--[X][Decision] Kill
--[X] Run
-[X] Plan Two
--[X] Report";
-
-            List<string> expected = new List<string>(2)
-            {
-@"[X][Action] Plan One
--[X] Ambush",
-@"-[X][Decision] Kill
--[X] Run
-[X] Plan Two
--[X] Report"
-            };
-
-            sampleQuest.PartitionMode = PartitionMode.ByTask;
-            string author = "Me";
-            string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-
-            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
-        }
-
-        [TestMethod()]
-        public void TestPartitionTaskBlock()
+        public void TestPartitionPlanBlock()
         {
             string testVote =
 @"[X][Action] Plan One
@@ -530,19 +497,18 @@ namespace NetTally
 
             List<string> expected = new List<string>(3)
             {
-@"[X][Action] Plan One
--[X] Ambush",
-@"-[X][Decision] Kill
--[X] Run",
-@"[X][Decision] Plan Two
--[X] Report"
+@"[X] Ambush",
+@"[X] [Decision] Kill",
+@"[X] Run",
+@"[X] Report"
             };
 
-            sampleQuest.PartitionMode = PartitionMode.ByTaskBlock;
+            sampleQuest.PartitionMode = PartitionMode.ByPlanBlock;
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
 
+            voteConstructor.PreprocessPlans(p1, sampleQuest);
             voteConstructor.ProcessPost(p1, sampleQuest);
             var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 
