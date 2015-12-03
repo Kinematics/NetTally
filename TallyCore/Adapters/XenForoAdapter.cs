@@ -449,13 +449,10 @@ namespace NetTally.Adapters
         /// <returns>Returns true if the node appears to be a legitimate post.</returns>
         private bool IsPost(HtmlNode post)
         {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
             // A post is a <li> node:
-            // <li id = "post-2948970" class="message " data-author="Fanhunter696">
+            // <li id="post-2948970" class="message " data-author="Fanhunter696">
 
-            return post.Name == "li" && post.GetAttributeValue("class", "").Contains("message") && post.Id.StartsWith("post-");
+            return post != null && post.Name == "li" && post.Id.StartsWith("post-");
         }
 
         /// <summary>
