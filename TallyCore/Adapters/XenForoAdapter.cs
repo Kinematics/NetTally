@@ -257,23 +257,20 @@ namespace NetTally.Adapters
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
+            if (!IsPost(post))
+                throw new InvalidOperationException("Not a valid post");
 
-            if (IsPost(post))
-            {
-                // Post content structure is like this:
-                // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
+            // Post content structure is like this:
+            // post > div.primaryContent > div.messageMeta > div.publicControls > a.postNumber
 
-                var anchor = post.Descendants("a").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("postNumber"))?.InnerText;
+            var primContent = post.Elements("div").Last();
+            var msgMeta = primContent.Elements("div").First(e => e.GetAttributeValue("class", "").Contains("messageMeta"));
+            var pubControls = msgMeta.Elements("div").First(e => e.GetAttributeValue("class", "").Contains("publicControls"));
+            var permalink = pubControls.Elements("a").First(e => e.GetAttributeValue("title", "") == "Permalink");
+            // Text format of the post number is #1234.  Remove the leading #
+            var number = permalink.InnerText.Substring(1);
 
-                // Text format of the post number is #1234.  Remove the leading #
-                var postNumText = anchor?.Substring(1);
-
-                int postNum = 0;
-                if (int.TryParse(postNumText, out postNum))
-                    return postNum;
-            }
-
-            throw new InvalidOperationException("Unable to extract a post number from the post.");
+            return int.Parse(number);
         }
 
         /// <summary>
