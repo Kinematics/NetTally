@@ -415,7 +415,6 @@ namespace NetTally
             EditActions();
         }
 
-
         /// <summary>
         /// When modifying the quest name, hitting enter will complete the entry,
         /// and hitting escape will cancel the edits.
@@ -462,7 +461,7 @@ namespace NetTally
         }
         #endregion
 
-        #region Utility support methods
+        #region Edit and edit cleanup methods
 
         /// <summary>
         /// The sequence of edit actions performed when either hitting F2 or the Edit Name button.
@@ -483,7 +482,9 @@ namespace NetTally
             }
         }
 
-
+        /// <summary>
+        /// Adjust window so that we can edit the quest name.
+        /// </summary>
         private void EditQuestName()
         {
             DoneEditingQuestSite();
@@ -495,6 +496,9 @@ namespace NetTally
             editQuestName.Focus();
         }
 
+        /// <summary>
+        /// Adjust window so that we can edit the quest thread.
+        /// </summary>
         private void EditQuestThread()
         {
             DoneEditingQuestName();
@@ -506,27 +510,60 @@ namespace NetTally
             editQuestThread.Focus();
         }
 
+        /// <summary>
+        /// Call when we want to cleanup all editing in progress.
+        /// </summary>
         private void DoneEditing()
         {
-            DoneEditingQuestName();
-            DoneEditingQuestSite();
+            RunCleanup(CleanupQuestName, CleanupQuestSite);
         }
 
+        /// <summary>
+        /// Call when we want to cleanup after editing the quest name.
+        /// </summary>
         private void DoneEditingQuestName()
         {
-            editQuestName.Visibility = Visibility.Hidden;
-            editDescriptorCanvas.Visibility = Visibility.Hidden;
-            QuestCollectionView.Refresh();
+            RunCleanup(CleanupQuestName);
         }
 
+        /// <summary>
+        /// Call when we want to cleanup after editing the quest thread.
+        /// </summary>
         private void DoneEditingQuestSite()
+        {
+            RunCleanup(CleanupQuestSite);
+        }
+
+        /// <summary>
+        /// Cleanup code specific to cleaning up after editing the quest name.
+        /// </summary>
+        private void CleanupQuestName()
+        {
+            editQuestName.Visibility = Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Cleanup code specific to cleaning up after editing the quest thread.
+        /// </summary>
+        private void CleanupQuestSite()
         {
             editNameButton.Content = "Edit Name";
             editQuestThread.Visibility = Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Overall cleanup handling, which runs any provided actions before refreshing the view.
+        /// </summary>
+        private void RunCleanup(params Action[] actions)
+        {
+            foreach (Action action in actions)
+            {
+                action();
+            }
+
             editDescriptorCanvas.Visibility = Visibility.Hidden;
             QuestCollectionView.Refresh();
         }
-
         #endregion
 
     }
