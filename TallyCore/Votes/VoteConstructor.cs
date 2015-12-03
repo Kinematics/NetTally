@@ -457,10 +457,11 @@ namespace NetTally
                     // The label line can be discarded, and the others treated as less indented.
                     return PartitionByLine(PromoteLines(lines), author);
                 case PartitionMode.ByBlock:
-                    // When partitioning by block, plans are kept whole.  No partitioning here.
+                    // Normal block partitioning means we don't partition plans.
+                    // They will end up as a single block for the regular vote to consume.
                     return PartitionByNone(lines, author);
-                case PartitionMode.ByPlanBlock:
-                    // When partitioning by PlanBlock, the plan is partitioned by block after promotion.
+                case PartitionMode.ByBlockAll:
+                    // When partitioning by BlockAll, any plans are themselves partitioned by block (after promotion).
                     // Make sure to preserve the task from the main line on the resulting blocks.
                     string planTask = VoteString.GetVoteTask(lines.First());
                     var blocks = PartitionByBlock(PromoteLines(lines), author);
@@ -490,11 +491,10 @@ namespace NetTally
                     // Partition by line
                     return PartitionByLine(lines, author);
                 case PartitionMode.ByBlock:
-                    // Partition by block; no special treatment at the vote level
+                    // Partition by block.  Plans are considered single blocks.
                     return PartitionByBlock(lines, author);
-                case PartitionMode.ByPlanBlock:
-                    // Plan/Block partitioning means the plan is partitioned by block.
-                    // The vote is also partitioned by block.
+                case PartitionMode.ByBlockAll:
+                    // BlockAll partitioning means any plans are partitioned by block as well.
                     return PartitionByBlock(lines, author);
                 default:
                     throw new ArgumentException($"Unknown partition mode: {partitionMode}");

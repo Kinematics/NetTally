@@ -438,7 +438,7 @@ namespace NetTally
 @"[X] Report"
             };
 
-            sampleQuest.PartitionMode = PartitionMode.ByPlanBlock;
+            sampleQuest.PartitionMode = PartitionMode.ByBlockAll;
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
