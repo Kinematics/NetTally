@@ -439,7 +439,6 @@ namespace NetTally
             return null;
         }
 
-
         #endregion
 
         #region Creating and modifying votes

@@ -1,12 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NetTally;
+using NetTally.Utility;
 
-namespace TallyUnitTest
+namespace NetTally
 {
     [TestClass()]
     public class VoteStringTests
@@ -97,10 +93,14 @@ namespace TallyUnitTest
             string line1 = "[x] Vote for stuff";
             string line2 = "-[x] Vote for stuff";
             string line3 = "---[x] Vote for stuff";
+            string line4 = "- [x] Vote for stuff";
+            string line5 = "- - -[x] Vote for stuff";
 
             Assert.AreEqual("", VoteString.GetVotePrefix(line1));
             Assert.AreEqual("-", VoteString.GetVotePrefix(line2));
             Assert.AreEqual("---", VoteString.GetVotePrefix(line3));
+            Assert.AreEqual("-", VoteString.GetVotePrefix(line4));
+            Assert.AreEqual("---", VoteString.GetVotePrefix(line5));
         }
 
         [TestMethod()]
@@ -151,6 +151,7 @@ namespace TallyUnitTest
             string line5 = "[x][MINOR] Vote for stuff";
             string line6 = "[x][Trade Relations] Vote for stuff";
             string line7 = "[x] [url=http://google.com]<image>[/url]";
+            string line8 = "[x] [b]Vote for stuff[/b]";
 
             Assert.AreEqual("", VoteString.GetVoteTask(line1));
             Assert.AreEqual("", VoteString.GetVoteTask(line2));
@@ -159,6 +160,7 @@ namespace TallyUnitTest
             Assert.AreEqual("MINOR", VoteString.GetVoteTask(line5));
             Assert.AreEqual("Trade Relations", VoteString.GetVoteTask(line6));
             Assert.AreEqual("", VoteString.GetVoteTask(line7));
+            Assert.AreEqual("", VoteString.GetVoteTask(line8));
         }
 
         [TestMethod()]
@@ -494,7 +496,76 @@ namespace TallyUnitTest
             string expected = "[] ";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
-
         }
+
+        [TestMethod()]
+        public void GetPlanNameTest1()
+        {
+            string input = "[X] Kinematics";
+
+            Assert.AreEqual(null, VoteString.GetPlanName(input));
+            Assert.AreEqual(null, VoteString.GetPlanName(input, true));
+            Assert.AreEqual(null, VoteString.GetPlanName(input, false));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest2()
+        {
+            string input = "[X] Plan Kinematics";
+
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input));
+            Assert.AreEqual(null, VoteString.GetPlanName(input, true));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest3()
+        {
+            string input = "[X] Base Plan Kinematics";
+
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, true));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest4()
+        {
+            string input = "[X] Base Plan : Kinematics";
+
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, true));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest5()
+        {
+            string input = "[X] Plan: Kinematics";
+
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input));
+            Assert.AreEqual(null, VoteString.GetPlanName(input, true));
+            Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest6()
+        {
+            string input = "[X] Plan: Kinematics";
+            string expect = Text.PlanNameMarker + "Kinematics";
+
+            Assert.AreEqual(expect, VoteString.GetMarkedPlanName(input));
+        }
+
+        [TestMethod()]
+        public void GetPlanNameTest7()
+        {
+            string input = "[X] Kinematics";
+            string expect = Text.PlanNameMarker + "Kinematics";
+
+            Assert.AreEqual(null, VoteString.GetMarkedPlanName(input));
+        }
+
+
     }
 }
