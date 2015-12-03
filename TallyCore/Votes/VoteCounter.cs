@@ -167,6 +167,7 @@ namespace NetTally
             foreach (var post in PostsList)
             {
                 post.WorkingVote = voteConstructor.GetWorkingVote(post);
+                post.Processed = false;
             }
 
             var unprocessed = PostsList;

@@ -91,6 +91,7 @@ namespace NetTally
                     ProcessRankings(rankings, post, quest.PartitionMode);
             }
 
+            post.Processed = true;
             return true;
         }
         #endregion
