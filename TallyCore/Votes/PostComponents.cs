@@ -47,7 +47,7 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(author));
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
-            if (string.IsNullOrEmpty(text))
+            if (text == null)
                 throw new ArgumentNullException(nameof(text));
 
             Author = author;
