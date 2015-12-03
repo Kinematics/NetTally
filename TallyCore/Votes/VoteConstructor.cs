@@ -152,6 +152,9 @@ namespace NetTally
         {
             List<string> vote = new List<string>();
 
+            if (!post.IsVote)
+                return vote;
+
             // First determine if any base plans are copies of an original definition, or being defined in this post.
             // If they're just copies, then embed them in the working vote.
 
