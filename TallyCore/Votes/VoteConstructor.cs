@@ -67,22 +67,19 @@ namespace NetTally
             if (!post.IsVote)
                 throw new ArgumentException("Post is not a valid vote.");
 
-            // Get the lines of the post that correspond to the vote.
-            var vote = GetWorkingVote(post);
-
             // If the vote has content, deal with it
-            if (vote.Count > 0)
+            if (post.WorkingVote != null && post.WorkingVote.Count > 0)
             {
                 // If it has a reference to a plan or voter that has not been processed yet,
                 // delay processing.
-                if (HasFutureReference(vote, post))
+                if (HasFutureReference(post))
                 {
                     VoteCounter.FutureReferences.Add(post);
                     return false;
                 }
 
                 // Process the actual vote.
-                ProcessVote(vote, post, quest.PartitionMode);
+                ProcessVote(post, quest.PartitionMode);
             }
 
             // Handle ranking votes, if applicable.
@@ -251,11 +248,11 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">List of lines for the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(List<string> vote, PostComponents post)
+        private bool HasFutureReference(PostComponents post)
         {
             var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
 
-            foreach (var line in vote)
+            foreach (var line in post.WorkingVote)
             {
                 // Exclude plan name marker references.
                 var refNames = VoteString.GetVoteReferenceNames(line);
@@ -294,11 +291,11 @@ namespace NetTally
         /// <param name="vote">The vote to process.</param>
         /// <param name="post">The post it was derived from.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
-        private void ProcessVote(List<string> vote, PostComponents post, PartitionMode partitionMode)
+        private void ProcessVote(PostComponents post, PartitionMode partitionMode)
         {
             // Get the list of all vote partitions, built according to current preferences.
             // One of: By line, By block, or By post (ie: entire vote)
-            List<string> votePartitions = GetVotePartitions(vote, partitionMode, VoteType.Vote, post.Author);
+            List<string> votePartitions = GetVotePartitions(post.WorkingVote, partitionMode, VoteType.Vote, post.Author);
 
             VoteCounter.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
