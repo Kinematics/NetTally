@@ -171,16 +171,28 @@ namespace NetTally
             }
 
             var unprocessed = PostsList;
-            bool changed = true;
 
-            // Main processing
-            while (unprocessed.Any() && changed == true)
+            // Loop as long as there are any more to process.
+            while (unprocessed.Any())
             {
+                // Get the list of the ones that were processed.
                 var processed = unprocessed.Where(p => voteConstructor.ProcessPost(p, quest) == true).ToList();
 
-                changed = processed.Any();
-
-                unprocessed = unprocessed.Except(processed).ToList();
+                // As long as some got processed, remove those from the unprocessed list
+                // and let the loop run again.
+                if (processed.Any())
+                {
+                    unprocessed = unprocessed.Except(processed).ToList();
+                }
+                else
+                {
+                    // If none got processed (and there must be at least some waiting on processing),
+                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                    foreach (var p in unprocessed)
+                    {
+                        p.ForceProcess = true;
+                    }
+                }
             }
         }
 
