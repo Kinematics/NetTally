@@ -351,20 +351,6 @@ namespace NetTally
             if (voteLines.Count == 0)
                 return;
 
-            string firstVoter = GetFirstVoter(vote.Value);
-
-            if (firstVoter.StartsWith(Utility.Text.PlanNameMarker))
-            {
-                string planLink = GetVoterUrl(firstVoter, VoteType.Plan);
-
-                sb.Append($"[{userVoteCount}]");
-                if (task != string.Empty)
-                    sb.Append($"[{task}]");
-                sb.Append($" Plan: {firstVoter} — {planLink}\r\n");
-                return;
-            }
-
-
             // Single-line votes are always shown.
             if (voteLines.Count == 1)
             {
@@ -380,13 +366,26 @@ namespace NetTally
                 return;
             }
 
+
             // Longer votes get condensed down to a link to the original post (and named after the first voter)
-            string firstVoterLink = GetVoterUrl(firstVoter, VoteType.Vote);
+            string firstVoter = GetFirstVoter(vote.Value);
 
             sb.Append($"[{userVoteCount}]");
             if (task != string.Empty)
                 sb.Append($"[{task}]");
-            sb.AppendLine($" Plan {firstVoter} — {firstVoterLink}");
+
+            string link;
+
+            if (firstVoter.StartsWith(Text.PlanNameMarker))
+            {
+                link = GetVoterUrl(firstVoter, VoteType.Plan);
+            }
+            else
+            {
+                link = GetVoterUrl(firstVoter, VoteType.Vote);
+            }
+
+            sb.Append($" Plan: {firstVoter} — {link}\r\n");
         }
 
         /// <summary>
