@@ -23,6 +23,7 @@ namespace NetTally
 
         public List<string> WorkingVote { get; set; }
         public bool Processed { get; set; }
+        public bool ForceProcess { get; set; }
 
         // Indicate whether this post contains a vote of any sort.
         public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
