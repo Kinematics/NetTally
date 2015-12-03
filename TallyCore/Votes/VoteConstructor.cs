@@ -156,6 +156,37 @@ namespace NetTally
         {
             List<string> vote = new List<string>();
 
+            // First determine if any base plans are copies of an original definition, or being defined in this post.
+            // If they're just copies, then embed them in the working vote.
+
+            if (post.BasePlans.Any())
+            {
+                var voters = VoteCounter.GetVotersCollection(VoteType.Plan);
+                bool checkPlan = true;
+                string planName;
+
+                foreach (var bPlan in post.BasePlans)
+                {
+                    planName = VoteString.GetMarkedPlanName(bPlan.Key);
+                    if (planName == null)
+                        continue;
+
+                    // As long as we keep finding base plans that are defined in this post, keep skipping.
+                    if (checkPlan)
+                    {
+                        if (VoteCounter.HasPlan(planName) && voters[planName] == post.ID)
+                            continue;
+                    }
+
+                    checkPlan = false;
+
+                    // If we reach here, any further plans are copy/pastes of defined plans, and should
+                    // have the key added to the working vote.
+                    vote.Add(bPlan.Key);
+                }
+            }
+
+            // Break the remainder of the vote into blocks so that we can compare vs auto-plans.
             var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
 
             foreach (var block in voteBlocks)
