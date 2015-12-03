@@ -46,6 +46,7 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.None;
             PostComponents p = new PostComponents(author, postId, testVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
@@ -75,6 +76,7 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
             PostComponents p = new PostComponents(author, postId, testVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
@@ -100,6 +102,7 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByLine;
             PostComponents p = new PostComponents(author, postId, testVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
@@ -127,6 +130,7 @@ namespace NetTally.Tests
             string postId = "123456";
 
             PostComponents p = new PostComponents(author, postId, testVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             Assert.IsFalse(p.IsVote);
 
@@ -149,6 +153,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -156,6 +161,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -182,6 +188,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -189,6 +196,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -215,6 +223,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -222,6 +231,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -248,6 +258,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -256,6 +267,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -282,6 +294,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -290,6 +303,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -317,6 +331,7 @@ namespace NetTally.Tests
             string author = "Muramasa";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
 
@@ -325,6 +340,7 @@ namespace NetTally.Tests
             string refAuthor = "Gerbil";
             string refID = "123457";
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
+            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
@@ -352,6 +368,7 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
             var votes = voteCounter.GetVotesCollection(VoteType.Vote);
@@ -380,6 +397,7 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
             var votes = voteCounter.GetVotesCollection(VoteType.Vote);
@@ -412,6 +430,7 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
             var votes = voteCounter.GetVotesCollection(VoteType.Vote);
@@ -442,8 +461,9 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-
             voteConstructor.PreprocessPlans(p1, sampleQuest);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+
             voteConstructor.ProcessPost(p1, sampleQuest);
             var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 

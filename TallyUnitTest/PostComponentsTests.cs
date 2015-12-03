@@ -58,12 +58,12 @@ namespace TallyUnitTest
         }
 
         [TestMethod()]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction6()
         {
             //string msg = @"What do you think they'll be doing now?";
 
             PostComponents p = new PostComponents(author, id, "");
+            Assert.IsFalse(p.IsVote);
         }
         #endregion
 
