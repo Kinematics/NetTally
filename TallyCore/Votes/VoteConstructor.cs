@@ -251,6 +251,10 @@ namespace NetTally
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
         private bool HasFutureReference(PostComponents post)
         {
+            // If we decide it has to be forced, ignore all checks in here.
+            if (post.ForceProcess)
+                return false;
+
             var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
 
             foreach (var line in post.WorkingVote)
@@ -282,7 +286,7 @@ namespace NetTally
                     }
 
                     // If the reference name included 'plan', then we use what's available at the time of this post.
-                    // 'plan' indicates it's a pinned reference.
+                    // 'plan' indicates it's a pinned reference, and is stored in the Label slot if found.
                     if (refNames[ReferenceType.Label].Any())
                     {
                         // If we've processed a vote for the ref voter, that's what will be used.
