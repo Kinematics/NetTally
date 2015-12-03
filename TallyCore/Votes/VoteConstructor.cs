@@ -465,9 +465,7 @@ namespace NetTally
                     // Make sure to preserve the task from the main line on the resulting blocks.
                     string planTask = VoteString.GetVoteTask(lines.First());
                     var blocks = PartitionByBlock(PromoteLines(lines), author);
-                    if (planTask != string.Empty)
-                        blocks = ApplyTaskToBlocks(blocks, planTask);
-                    return blocks;
+                    return ApplyTaskToBlocks(blocks, planTask);
                 default:
                     throw new ArgumentException($"Unknown partition mode: {partitionMode}");
             }
@@ -615,14 +613,14 @@ namespace NetTally
         /// already have a task.
         /// </summary>
         /// <param name="blocks">A list of vote blocks.</param>
-        /// <param name="planTask">A task name to apply.</param>
+        /// <param name="planTask">A task name to apply.  If no name is provided, no changes are made.</param>
         /// <returns>Returns the vote blocks with the task applied.</returns>
         private List<string> ApplyTaskToBlocks(List<string> blocks, string planTask)
         {
             if (blocks == null)
                 throw new ArgumentNullException(nameof(blocks));
             if (string.IsNullOrEmpty(planTask))
-                throw new ArgumentNullException(nameof(planTask));
+                return blocks;
 
             List<string> results = new List<string>();
 
