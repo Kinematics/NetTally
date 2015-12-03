@@ -21,6 +21,8 @@ namespace NetTally
         public List<string> VoteLines { get; private set; }
         public List<string> RankLines { get; private set; }
 
+        public List<string> WorkingVote { get; set; }
+
         // Indicate whether this post contains a vote of any sort.
         public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
 

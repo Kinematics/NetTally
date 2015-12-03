@@ -164,6 +164,11 @@ namespace NetTally
                 voteConstructor.PreprocessPlans(post, quest);
             }
 
+            foreach (var post in PostsList)
+            {
+                post.WorkingVote = voteConstructor.GetWorkingVote(post);
+            }
+
             var unprocessed = PostsList;
             bool changed = true;
 

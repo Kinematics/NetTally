@@ -152,7 +152,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post we're getting the vote from.</param>
         /// <returns>Returns the vote with plans compressed.</returns>
-        private List<string> GetWorkingVote(PostComponents post)
+        public List<string> GetWorkingVote(PostComponents post)
         {
             List<string> vote = new List<string>();
 
