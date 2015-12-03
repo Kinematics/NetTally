@@ -348,6 +348,7 @@ namespace NetTally
             results[ReferenceType.Any] = new List<string>();
             results[ReferenceType.Plan] = new List<string>();
             results[ReferenceType.Voter] = new List<string>();
+            results[ReferenceType.Label] = new List<string>();
 
             contents = RemoveBBCode(contents);
             contents = DeUrlContent(contents);
@@ -355,8 +356,12 @@ namespace NetTally
             Match m2 = referenceNameRegex.Match(contents);
             if (m2.Success)
             {
+                string label = m2.Groups["label"].Value;
+                if (!string.IsNullOrEmpty(label))
+                    results[ReferenceType.Label].Add(label);
+
                 string name = m2.Groups["reference"].Value;
-                string pName = $"{Utility.Text.PlanNameMarker}{name}";
+                string pName = $"{Text.PlanNameMarker}{name}";
 
                 // [x] Plan Kinematics => Kinematics
                 // [x] Plan Boom. => Boom.
@@ -375,7 +380,7 @@ namespace NetTally
                 if (name.EndsWith("."))
                 {
                     name = name.Substring(0, name.Length - 1);
-                    pName = $"{Utility.Text.PlanNameMarker}{name}";
+                    pName = $"{Text.PlanNameMarker}{name}";
 
                     results[ReferenceType.Any].Add(name);
                     results[ReferenceType.Voter].Add(name);

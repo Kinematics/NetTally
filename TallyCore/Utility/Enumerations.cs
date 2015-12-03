@@ -19,9 +19,10 @@ namespace NetTally
 
     public enum ReferenceType
     {
+        Label,
         Any,
         Voter,
-        Plan
+        Plan,
     }
 
     /// <summary>
