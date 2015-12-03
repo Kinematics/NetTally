@@ -22,18 +22,6 @@ namespace NetTally
 
 
         /// <summary>
-        /// The web site that the quest is on.
-        /// OBSOLETE
-        /// </summary>
-        string Site { get; set; }
-        /// <summary>
-        /// The name of the quest (ie: the name of the thread in the URL).
-        /// OBSOLETE
-        /// </summary>
-        string Name { get; set; }
-
-
-        /// <summary>
         /// Starting post to start tallying from.
         /// </summary>
         int StartPost { get; set; }
@@ -57,18 +45,6 @@ namespace NetTally
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
-        /// <summary>
-        /// Flag for whether to use vote partitions for this quest.
-        /// OBSOLETE
-        /// </summary>
-        [Obsolete("Use PartitionMode instead")]
-        bool UseVotePartitions { get; set; }
-        /// <summary>
-        /// Flag for whether vote partitions should be done by line or by block.
-        /// OBSOLETE
-        /// </summary>
-        [Obsolete("Use PartitionMode instead")]
-        bool PartitionByLine { get; set; }
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>

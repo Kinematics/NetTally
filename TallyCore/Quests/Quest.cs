@@ -49,8 +49,6 @@ namespace NetTally
         int endPost = 0;
 
         bool checkForLastThreadmark = false;
-        bool useVotePartitions = false;
-        bool partitionByLine = true;
         bool allowRankedVotes = false;
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
@@ -293,35 +291,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Flag for whether to use vote partitioning when tallying votes.
-        /// </summary>
-        [Obsolete("Use PartitionMode instead")]
-        public bool UseVotePartitions
-        {
-            get { return useVotePartitions; }
-            set
-            {
-                useVotePartitions = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Flag for whether to use by-line or by-block partitioning,
-        /// if partitioning votes during the tally.
-        /// </summary>
-        [Obsolete("Use PartitionMode instead")]
-        public bool PartitionByLine
-        {
-            get { return partitionByLine; }
-            set
-            {
-                partitionByLine = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
         public PartitionMode PartitionMode
@@ -443,70 +412,6 @@ namespace NetTally
                 return ThreadName;
             else
                 return DisplayName;
-        }
-        #endregion
-
-        #region Obsolete Properties
-
-        public const string NewEntryName = "New Entry";
-        string site = string.Empty;
-        string name = NewEntryName;
-
-        /// <summary>
-        /// The name of the web site that the thread is located on.
-        /// </summary>
-        [Obsolete("Superceded by ThreadName")]
-        public string Site
-        {
-            get { return site; }
-            set
-            {
-                site = Utility.Text.SafeString(value);
-            }
-        }
-
-        /// <summary>
-        /// The name of the quest thread.
-        /// </summary>
-        [Obsolete("Superceded by DisplayName")]
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException();
-
-                name = Utility.Text.SafeString(value);
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Function to clean up a user-entered name that may contain a web URL.
-        /// Example:
-        /// http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518
-        /// Becomes:
-        /// awake-already-homura-nge-pmmm-fusion-quest.11111
-        /// </summary>
-        /// <returns>Returns just the thread name.</returns>
-        [Obsolete("Name is now obsolete")]
-        string CleanThreadName(string name)
-        {
-            Regex urlRegex = new Regex(@"^((?<siteName>https?://[^/]+/)(threads/|forums?/)?)?(?<questName>[^/#]+)");
-
-            var m = urlRegex.Match(name);
-            if (m.Success)
-            {
-                string siteName = m.Groups["siteName"]?.Value;
-
-                if (siteName != null && siteName != string.Empty)
-                    Site = siteName;
-
-                return m.Groups["questName"].Value;
-            }
-
-            return name;
         }
         #endregion
     }

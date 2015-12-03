@@ -192,13 +192,6 @@ namespace NetTally
                 {
                     DisplayName = quest.DisplayName,
                     ThreadName = quest.ThreadName,
-#pragma warning disable 0618
-                    // These fields are obsolete, but we still want to read them from old config files.
-                    Site = quest.Site,
-                    Name = quest.Name,
-                    UseVotePartitions = quest.UseVotePartitions,
-                    PartitionByLine = quest.PartitionByLine,
-#pragma warning restore 0618
                     RawPostsPerPage = quest.PostsPerPage,
                     StartPost = quest.StartPost,
                     EndPost = quest.EndPost,
@@ -206,19 +199,6 @@ namespace NetTally
                     PartitionMode = quest.PartitionMode,
                     AllowRankedVotes = quest.AllowRankedVotes
                 };
-
-#pragma warning disable 0618
-                // Convert old partition options to new enum.
-                if (q.UseVotePartitions)
-                {
-                    if (q.PartitionByLine)
-                        q.PartitionMode = PartitionMode.ByLine;
-                    else
-                        q.PartitionMode = PartitionMode.ByBlock;
-
-                    q.UseVotePartitions = false;
-                }
-#pragma warning restore 0618
 
                 questWrapper.QuestCollection.Add(q);
             }
@@ -252,8 +232,6 @@ namespace NetTally
             QuestElement qe = element as QuestElement;
             if (qe.ThreadName != "")
                 return qe.ThreadName;
-            if (qe.Site != "" || qe.Name != "")
-                return qe.Site + qe.Name;
             return qe.DisplayName;
         }
 
@@ -297,8 +275,6 @@ namespace NetTally
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
             PartitionMode partitionMode, bool allowRankedVotes)
         {
-            //Site = site;
-            //Name = name;
             ThreadName = threadName;
             DisplayName = displayName;
             PostsPerPage = postsPerPage;
@@ -307,9 +283,6 @@ namespace NetTally
             CheckForLastThreadmark = checkForLastThreadmark;
             PartitionMode = partitionMode;
             AllowRankedVotes = allowRankedVotes;
-
-            UseVotePartitions = false;
-            PartitionByLine = true;
         }
 
         public QuestElement()
@@ -319,15 +292,7 @@ namespace NetTally
         [ConfigurationProperty("ThreadName", DefaultValue = "", IsKey = true)]
         public string ThreadName
         {
-            get
-            {
-                string prop = (string)this["ThreadName"];
-                if ((prop == null) || (prop == string.Empty))
-                {
-                    prop = Site + Name;
-                }
-                return prop;
-            }
+            get { return (string)this["ThreadName"]; }
             set { this["ThreadName"] = value; }
         }
 
@@ -336,20 +301,6 @@ namespace NetTally
         {
             get { return (string)this["DisplayName"]; }
             set { this["DisplayName"] = value; }
-        }
-
-        [ConfigurationProperty("Site", DefaultValue = "")]
-        public string Site
-        {
-            get { return (string)this["Site"]; }
-            set { this["Site"] = value; }
-        }
-
-        [ConfigurationProperty("Name", DefaultValue = "")]
-        public string Name
-        {
-            get { return (string)this["Name"]; }
-            set { this["Name"] = value; }
         }
 
         [ConfigurationProperty("PostsPerPage", DefaultValue = 0)]
@@ -378,20 +329,6 @@ namespace NetTally
         {
             get { return (bool)this["CheckForLastThreadmark"]; }
             set { this["CheckForLastThreadmark"] = value; }
-        }
-
-        [ConfigurationProperty("UseVotePartitions", DefaultValue = false)]
-        public bool UseVotePartitions
-        {
-            get { return (bool)this["UseVotePartitions"]; }
-            set { this["UseVotePartitions"] = value; }
-        }
-
-        [ConfigurationProperty("PartitionByLine", DefaultValue = true)]
-        public bool PartitionByLine
-        {
-            get { return (bool)this["PartitionByLine"]; }
-            set { this["PartitionByLine"] = value; }
         }
 
         [ConfigurationProperty("PartitionMode", DefaultValue = PartitionMode.None)]

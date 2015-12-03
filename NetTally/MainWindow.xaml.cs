@@ -455,7 +455,7 @@ namespace NetTally
                 // Restore original name if we escape.
                 IQuest quest = CurrentlySelectedQuest;
                 if (quest != null)
-                    quest.Site = editingName;
+                    quest.ThreadName = editingName;
                 DoneEditingQuestSite();
             }
         }

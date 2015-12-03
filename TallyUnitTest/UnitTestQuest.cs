@@ -27,10 +27,6 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestDefaultObject()
         {
-            // Obsolete
-            Assert.AreEqual(Quest.NewEntryName, a.Name);
-            Assert.AreEqual("", a.Site);
-
             // Normal
             Assert.AreEqual(Quest.NewThreadEntry, a.ThreadName);
             Assert.AreEqual("fake-thread", a.DisplayName);
@@ -40,8 +36,6 @@ namespace TallyUnitTest
             Assert.AreEqual(1, a.StartPost);
             Assert.AreEqual(0, a.EndPost);
             Assert.AreEqual(true, a.ReadToEndOfThread);
-            Assert.AreEqual(false, a.UseVotePartitions);
-            Assert.AreEqual(true, a.PartitionByLine);
             Assert.AreEqual(false, a.CheckForLastThreadmark);
             Assert.AreEqual(0, a.ThreadmarkPost);
             Assert.AreEqual(1, a.FirstTallyPost);
@@ -134,83 +128,6 @@ namespace TallyUnitTest
 
         #endregion
 
-        #region Name and Site (Obsolete)
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestSetNameToNull()
-        {
-            a.Name = null;
-        }
-
-        [TestMethod]
-        public void TestSetName()
-        {
-            string testName = "Sample.Name";
-
-            a.Name = testName;
-
-            Assert.AreEqual(testName, a.Name);
-        }
-
-        [TestMethod]
-        public void TestCleanName()
-        {
-            string testName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
-            //string expectedName = "awake-already-homura-nge-pmmm-fusion-quest.11111";
-
-            a.Name = testName;
-            Assert.AreEqual(testName, a.Name);
-
-            testName = "awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
-
-            a.Name = testName;
-            Assert.AreEqual(testName, a.Name);
-
-            testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111";
-
-            a.Name = testName;
-            Assert.AreEqual(testName, a.Name);
-
-            testName = "http://forums.sufficientvelocity.com/threads/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
-
-            a.Name = testName;
-            Assert.AreEqual(testName, a.Name);
-
-            // This will fail the regex filter, so should just give back the original.
-            testName = "/awake-already-homura-nge-pmmm-fusion-quest.11111/page-34#post-2943518";
-
-            a.Name = testName;
-            Assert.AreEqual(testName, a.Name);
-        }
-
-        [TestMethod]
-        public void TestSetSiteToNull()
-        {
-            a.Site = null;
-
-            Assert.AreEqual(string.Empty, a.Site);
-        }
-
-
-        [TestMethod]
-        public void TestSetSiteToEmpty()
-        {
-            a.Site = string.Empty;
-
-            Assert.AreEqual(string.Empty, a.Site);
-        }
-
-        [TestMethod]
-        public void TestSetSite()
-        {
-            string testName = "http://forums.sufficientvelocity.com/";
-
-            a.Site = testName;
-
-            Assert.AreEqual(testName, a.Site);
-        }
-        #endregion
-
         #region StartPost
         [TestMethod]
         public void TestSetStart()
@@ -293,20 +210,6 @@ namespace TallyUnitTest
         }
 
         [TestMethod]
-        public void TestUseVotePartitions()
-        {
-            a.UseVotePartitions = true;
-            Assert.AreEqual(true, a.UseVotePartitions);
-        }
-
-        [TestMethod]
-        public void TestPartitionByLine()
-        {
-            a.PartitionByLine = false;
-            Assert.AreEqual(false, a.PartitionByLine);
-        }
-
-        [TestMethod]
         public void TestCheckForLastThreadmark()
         {
             a.CheckForLastThreadmark = true;
@@ -348,11 +251,6 @@ namespace TallyUnitTest
             var adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
             adapter = adapterTask.Result;
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
-
-            a.Site = "http://forums.spacebattles.com/";
-            adapterTask = a.GetForumAdapterAsync(System.Threading.CancellationToken.None);
-            adapter = adapterTask.Result;
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
         #endregion
 
@@ -361,11 +259,6 @@ namespace TallyUnitTest
         public void TestEventRaising()
         {
             a.PropertyChanged += A_PropertyChanged;
-
-            propertiesRaised.Clear();
-
-            a.Name = "awake-already-homura-nge-pmmm-fusion-quest.11111";
-            Assert.IsTrue(propertiesRaised.Contains("Name"));
 
             propertiesRaised.Clear();
 
@@ -386,16 +279,6 @@ namespace TallyUnitTest
 
             a.ThreadName = "http://www.example.com";
             Assert.IsTrue(propertiesRaised.Contains("ThreadName"));
-
-            propertiesRaised.Clear();
-
-            a.UseVotePartitions = true;
-            Assert.IsTrue(propertiesRaised.Contains("UseVotePartitions"));
-
-            propertiesRaised.Clear();
-
-            a.PartitionByLine = false;
-            Assert.IsTrue(propertiesRaised.Contains("PartitionByLine"));
 
             propertiesRaised.Clear();
 

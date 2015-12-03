@@ -44,8 +44,7 @@ namespace NetTally
         protected override void InsertItem(int index, IQuest item)
         {
             var dupes = from q in this
-                        where q.ThreadName == item.ThreadName && 
-                            (q.Site == item.Site || (q.Site == string.Empty && item.Site == defaultSite) || (q.Site == defaultSite && item.Site == string.Empty))
+                        where q.ThreadName == item.ThreadName
                         select q;
 
             if (dupes.Any())

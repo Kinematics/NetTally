@@ -21,7 +21,7 @@ namespace NetTally.Tests
         public void TestSufficientVelocity()
         {
             IQuest quest = new Quest();
-            quest.Site = "http://forums.sufficientvelocity.com/";
+            quest.ThreadName = "http://forums.sufficientvelocity.com/";
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
