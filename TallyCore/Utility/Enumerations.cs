@@ -53,7 +53,7 @@ namespace NetTally
         ByLine,
         [Description("Partition By Block")]
         ByBlock,
-        [Description("Partition By Plan Block")]
+        [Description("Partition By Block (All)")]
         ByPlanBlock,
     }
 
