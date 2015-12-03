@@ -266,20 +266,38 @@ namespace NetTally
 
                 if (refVoter != null && refVoter != post.Author)
                 {
-                    // If there's no vote entry, it must necessarily be a future reference.
-                    if (!VoteCounter.HasVoter(refVoter, VoteType.Vote))
-                        return true;
+                    var refVoterPosts = VoteCounter.PostsList.Where(p => p.Author == refVoter).ToList();
 
-                    // Regex to check if there's a leading 'plan' notation
-                    string contents = VoteString.GetVoteContent(line);
-                    Match m = anyPlanRegex.Match(contents);
-                    if (!m.Success)
+                    // If ref voter has no posts (how did we get here?), can't be a future reference.
+                    if (!refVoterPosts.Any())
+                        return false;
+
+                    // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
+                    // then this can't be treated as a future reference.
+                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVote.Count > 0);
+
+                    if (!refWorkingVotes.Any())
                     {
-                        // If it doesn't have a leading 'plan', we need to know whether the
-                        // last vote the referenced voter made has been tallied.
-                        if (voters[refVoter] != VoteCounter.ReferenceVoterPosts[refVoter])
-                            return true;
+                        return false;
                     }
+
+                    // If the reference name included 'plan', then we use what's available at the time of this post.
+                    // 'plan' indicates it's a pinned reference.
+                    if (refNames[ReferenceType.Label].Any())
+                    {
+                        // If we've processed a vote for the ref voter, that's what will be used.
+                        if (VoteCounter.HasVoter(refVoter, VoteType.Vote))
+                            return false;
+                    }
+
+                    // If there's no 'plan' label, then we need to verify that the last vote that the
+                    // ref voter made (has a working vote) was processed.
+                    // If it's been processed, then we're OK to let this vote through.
+                    if (refWorkingVotes.Last().Processed)
+                        return false;
+
+                    // If none of the conditions above are met, then consider this a future reference.
+                    return true;
                 }
             }
 
