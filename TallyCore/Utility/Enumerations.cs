@@ -49,11 +49,11 @@ namespace NetTally
     {
         [Description("No Partitioning")]
         None,
-        [Description("Partition All By Line")]
+        [Description("Partition By Line")]
         ByLine,
-        [Description("Partition Vote By Block")]
+        [Description("Partition By Block")]
         ByBlock,
-        [Description("Partition All By Block")]
+        [Description("Partition (Plans) By Block")]
         ByBlockAll,
     }
 
