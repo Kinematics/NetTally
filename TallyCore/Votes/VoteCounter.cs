@@ -164,10 +164,10 @@ namespace NetTally
                 voteConstructor.PreprocessPlans(post, quest);
             }
 
+            // Once all the plans are in place, set the working votes for each post.
             foreach (var post in PostsList)
             {
-                post.WorkingVote = voteConstructor.GetWorkingVote(post);
-                post.Processed = false;
+                post.SetWorkingVote(voteConstructor.GetWorkingVote);
             }
 
             var unprocessed = PostsList;

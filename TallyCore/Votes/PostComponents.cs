@@ -21,7 +21,7 @@ namespace NetTally
         public List<string> VoteLines { get; private set; }
         public List<string> RankLines { get; private set; }
 
-        public List<string> WorkingVote { get; set; }
+        public List<string> WorkingVote { get; private set; }
         public bool Processed { get; set; }
         public bool ForceProcess { get; set; }
 
@@ -104,6 +104,18 @@ namespace NetTally
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Set the WorkingVote list from a call to the supplied function.
+        /// Reset Processed and ForceProcess flags.
+        /// </summary>
+        /// <param name="fn">A function that will generate a string list from the post components.</param>
+        public void SetWorkingVote(Func<PostComponents, List<string>> fn)
+        {
+            WorkingVote = fn(this);
+            Processed = false;
+            ForceProcess = false;
         }
 
         #region Private utility construction functions
