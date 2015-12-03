@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Tests
 {
     [TestClass()]
     public class VoteConstructorTests

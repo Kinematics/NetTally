@@ -2,7 +2,7 @@
 using System;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Tests
 {
     [TestClass()]
     public class VoteStringTests
