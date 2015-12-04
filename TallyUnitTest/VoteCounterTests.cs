@@ -518,5 +518,49 @@ namespace NetTally.Tests
             Assert.IsTrue(voteCounter.HasVote("[x] Vote for something\r\n", VoteType.Vote));
         }
 
+        //[TestMethod()]
+        public void TimingMethod()
+        {
+            const int postCount = 100;
+            string[] voters = new string[postCount];
+            string[] postIDs = new string[postCount];
+
+            for (int i = 0; i < postCount; i++)
+            {
+                voters[i] = $"user{i+1}";
+                postIDs[i] = $"{i+1}";
+            }
+
+            var posts1 = from n in Enumerable.Range(0, postCount)
+                        select new PostComponents(voters[n], postIDs[n], "[X] A vote for something or other that may go on for a little while before deciding.");
+
+            List<PostComponents> postList = new List<PostComponents>();
+
+            const int loopCount = 100;
+
+            using (var rp = new RegionProfiler("Test Loops addrange"))
+            {
+                for (int i = 0; i < loopCount; i++)
+                {
+                    var posts = from n in Enumerable.Range(0, postCount)
+                                select new PostComponents(voters[n], postIDs[n], "[X] A vote for something or other that may go on for a little while before deciding.");
+                    postList.Clear();
+                    postList.AddRange(posts);
+                }
+            }
+
+            postList.Clear();
+
+            using (var rp = new RegionProfiler("Test Loops tolist"))
+            {
+                for (int i = 0; i < loopCount; i++)
+                {
+                    var posts = from n in Enumerable.Range(0, postCount)
+                                select new PostComponents(voters[n], postIDs[n], "[X] A vote for something or other that may go on for a little while before deciding.");
+                    postList = posts.ToList();
+                }
+            }
+        }
+
     }
 }
