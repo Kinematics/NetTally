@@ -291,7 +291,7 @@
         <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
+        <TextBlock x:Name="wikiLink" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
                 Wiki Help
             </Hyperlink>
