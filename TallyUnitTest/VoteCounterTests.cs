@@ -25,6 +25,7 @@ namespace NetTally.Tests
         public void Initialize()
         {
             voteCounter.Reset();
+            voteCounter.PostsList.Clear();
         }
         #endregion
 
@@ -503,7 +504,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod()]
-        public void TestNameReference()
+        public void NameReferenceTest()
         {
             // Check for non-case sensitivity in referencing other voters.
             PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
