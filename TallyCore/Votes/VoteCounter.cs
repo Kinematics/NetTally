@@ -10,7 +10,7 @@ namespace NetTally
         readonly VoteConstructor voteConstructor;
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
-        public List<PostComponents> PostsList { get; } = new List<PostComponents>();
+        public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
 
 
         /// <summary>
@@ -137,8 +137,7 @@ namespace NetTally
                                  where postCom != null && postCom.IsVote && postCom.Author != threadAuthor
                                  select postCom;
 
-            PostsList.Clear();
-            PostsList.AddRange(postsWithVotes);
+            PostsList = postsWithVotes.ToList();
 
             TallyPosts(quest);
         }
