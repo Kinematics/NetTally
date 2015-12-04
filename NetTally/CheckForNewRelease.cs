@@ -12,165 +12,20 @@ namespace NetTally
 {
     public class CheckForNewRelease : INotifyPropertyChanged
     {
-        public bool newRelease = false;
+        bool newRelease = false;
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
         static readonly Regex numbers = new Regex(@"\d+");
-
 
         /// <summary>
         /// Constructor
         /// </summary>
         public CheckForNewRelease()
         {
-            // Disable warning about needing to use 'await' on an async method.
-#pragma warning disable 4014
-            DoVersionCheck();
-#pragma warning restore 4014
+            // Make sure main window is notified of the initial value of false.
+            NewRelease = newRelease;
         }
 
-        /// <summary>
-        /// Run a version check when constructing this class.
-        /// Compare the current program version with the latest available version on Github.
-        /// If the latest version is newer than the current version, update the NewRelease property.
-        /// Repeat the check once per hour, until a connection is made to the Github page,
-        /// and then once every two days until a new version is found.
-        /// </summary>
-        private async Task DoVersionCheck()
-        {
-            string currentVersion = GetCurrentVersion();
-
-            while (NewRelease == false)
-            {
-                string latestVersion = await GetLatestVersion().ConfigureAwait(false);
-
-                // If the attempt to determine the latest version fails, try again after an hour.
-                if (latestVersion == null || latestVersion == string.Empty)
-                {
-                    await Task.Delay(TimeSpan.FromHours(1)).ConfigureAwait(false);
-                    continue;
-                }
-
-                NewRelease = IsLatestVersionNewer(currentVersion, latestVersion);
-
-                if (NewRelease == false)
-                {
-                    // If no new release was found, try again in a couple days.
-                    await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Compare two version strings to see which one is 'higher', given that
-        /// each dotted number increments individually, and may go from, say, 
-        /// 9 to 10 (eg: 1.1.9 to 1.1.10).
-        /// </summary>
-        /// <param name="currentVersion">The string for the current program version.</param>
-        /// <param name="latestVersion">The string for the latest program version.</param>
-        /// <returns>Returns true if the latestVersion value is 'higher' than the currentVersion.</returns>
-        private bool IsLatestVersionNewer(string currentVersion, string latestVersion)
-        {
-            if (currentVersion == null || latestVersion == null)
-                return false;
-
-            int currentVersionNumber;
-            int latestVersionNumber;
-
-            Match mCurrent = numbers.Match(currentVersion);
-            Match mLatest = numbers.Match(latestVersion);
-
-            while (mCurrent.Success && mLatest.Success)
-            {
-                if (int.TryParse(mCurrent.Value, out currentVersionNumber) &&
-                    int.TryParse(mLatest.Value, out latestVersionNumber))
-                {
-                    if (latestVersionNumber > currentVersionNumber)
-                        return true;
-                    if (currentVersionNumber > latestVersionNumber)
-                        return false;
-                }
-
-                mCurrent = mCurrent.NextMatch();
-                mLatest = mLatest.NextMatch();
-            }
-
-            // If the above loop ended, but the latest version's match still has more
-            // valid number entries, that means it's 'higher' than the current version.
-            // EG: 1.1.9 vs 1.1.9.1
-            return mLatest.Success;
-        }
-
-        /// <summary>
-        /// Get the current program version information, to compare with the latest version info.
-        /// </summary>
-        /// <returns>Returns the current version string.</returns>
-        private string GetCurrentVersion()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
-            return version.InformationalVersion.Trim();
-        }
-
-        /// <summary>
-        /// Examine the web page for the latest release, to get the version number of the latest release.
-        /// </summary>
-        /// <returns>Returns the latest version string.</returns>
-        private async Task<string> GetLatestVersion()
-        {
-            HtmlDocument htmldoc = await GetLatestReleasePage();
-
-            if (htmldoc == null)
-                return string.Empty;
-
-            var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1").FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
-
-            if (h1ReleaseTitle == null)
-                return string.Empty;
-
-            return GetVersionString(h1ReleaseTitle.InnerText);
-        }
-
-        /// <summary>
-        /// Get the Github page that contains the latest release.
-        /// </summary>
-        /// <returns>Returns the HTML document for the requested page,
-        /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument> GetLatestReleasePage()
-        {
-            IPageProvider webPageProvider = new WebPageProvider();
-
-            string url = "https://github.com/Kinematics/NetTally/releases/latest";
-
-            try
-            {
-                return await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Extract a version string from the provided string (text from web page).
-        /// </summary>
-        /// <param name="potentialVersion">Web page text that's expected to hold a version number.</param>
-        /// <returns>Returns the version as a string, if available.</returns>
-        public string GetVersionString(string potentialVersion)
-        {
-            Match m = potentialVersionRegex.Match(potentialVersion);
-            if (m.Success)
-            {
-                return m.Groups["version"].Value;
-            }
-
-            return "";
-        }
-
-
-        #region Property event handling
+        #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -190,12 +45,183 @@ namespace NetTally
         /// </summary>
         public bool NewRelease
         {
-            get { return newRelease; }
+            get
+            {
+                return newRelease;
+            }
             set
             {
                 newRelease = value;
                 OnPropertyChanged();
             }
+        }
+        #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Do the version check update.
+        /// </summary>
+        public void Update()
+        {
+            // Store result in a task, but don't await it.
+            var result = DoVersionCheck();
+        }
+        #endregion
+
+        #region Private version checking methods
+        /// <summary>
+        /// Check to see if there's a newer release than the currently running version.
+        /// If a newer version is found, the NewRelease property is set to true.
+        /// If no newer version is found, it sets up a request to re-run this function in 2 days time.
+        /// </summary>
+        /// <returns>Returns nothing.  Just runs async.</returns>
+        private async Task DoVersionCheck()
+        {
+            try
+            {
+                Version currentVersion = GetCurrentVersion();
+                Version latestVersion = await GetLatestVersion().ConfigureAwait(false);
+
+                if (currentVersion == null || latestVersion == null)
+                    return;
+
+                bool newer = latestVersion.CompareTo(currentVersion) > 0;
+
+                if (newer)
+                {
+                    NewRelease = newer;
+                }
+                else
+                {
+                    var delay = DelayedAction(DoVersionCheck);
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorLog.Log(e);
+            }
+        }
+
+        /// <summary>
+        /// Utility function to run an async function after a delay.
+        /// Delay is set to 2 days.
+        /// </summary>
+        /// <param name="action">The function to run.</param>
+        /// <returns>Returns nothing.  Just runs async.</returns>
+        private async Task DelayedAction(Func<Task> action)
+        {
+            await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
+            var result = action();
+        }
+
+        /// <summary>
+        /// Get the current program version information, to compare with the latest version info.
+        /// </summary>
+        /// <returns>Returns the current version.</returns>
+        private Version GetCurrentVersion()
+        {
+            Version currentVersion = null;
+
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var fileVersion = (AssemblyFileVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute));
+
+                currentVersion = new Version(fileVersion.Version);
+            }
+            catch (Exception e)
+            {
+                ErrorLog.Log(e);
+            }
+
+            return currentVersion;
+        }
+
+        /// <summary>
+        /// Get the current program version information, to compare with the latest version info.
+        /// </summary>
+        /// <returns>Returns the current version string.</returns>
+        private async Task<Version> GetLatestVersion()
+        {
+            Version latestVersion = null;
+
+            try
+            {
+                string latestVersionString = await GetLatestVersionString().ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(latestVersionString))
+                    latestVersion = new Version(latestVersionString);
+            }
+            catch (Exception e)
+            {
+                ErrorLog.Log(e);
+            }
+
+            return latestVersion;
+        }
+
+        /// <summary>
+        /// Examine the releases web page for the latest release, to get 
+        /// the version number of the latest release.
+        /// </summary>
+        /// <returns>Returns the latest version string.</returns>
+        private async Task<string> GetLatestVersionString()
+        {
+            try
+            {
+                HtmlDocument htmldoc = await GetLatestReleasePage().ConfigureAwait(false);
+
+                if (htmldoc == null)
+                    return string.Empty;
+
+                var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
+
+                if (h1ReleaseTitle == null)
+                    return string.Empty;
+
+                return GetVersionString(h1ReleaseTitle.InnerText);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get the Github page that contains the latest release.
+        /// </summary>
+        /// <returns>Returns the HTML document for the requested page,
+        /// or null if it fails to load.</returns>
+        private async Task<HtmlDocument> GetLatestReleasePage()
+        {
+            IPageProvider webPageProvider = new WebPageProvider();
+
+            string url = "https://github.com/Kinematics/NetTally/releases/latest";
+
+            try
+            {
+                return await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Extract a version string from the provided string (text from web page).
+        /// </summary>
+        /// <param name="potentialVersion">Web page text that's expected to hold a version number.</param>
+        /// <returns>Returns the version as a string, if available.</returns>
+        private string GetVersionString(string potentialVersion)
+        {
+            Match m = potentialVersionRegex.Match(potentialVersion);
+            if (m.Success)
+            {
+                return m.Groups["version"].Value;
+            }
+
+            return "";
         }
         #endregion
     }
