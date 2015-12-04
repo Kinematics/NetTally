@@ -67,7 +67,15 @@ namespace NetTally
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+                DebugMode.Update();
+
+                if (DebugMode.Active)
+                    ErrorLog.Log("Preparing to initialize components.");
+
                 InitializeComponent();
+
+                if (DebugMode.Active)
+                    ErrorLog.Log("Completed initializing components.");
 
                 // Set tally vars
                 tally = new Tally();
@@ -76,7 +84,13 @@ namespace NetTally
 
                 QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null, DisplayMode.Normal);
 
+                if (DebugMode.Active)
+                    ErrorLog.Log("Preparing to load config.");
+
                 NetTallyConfig.Load(tally, wrapper);
+
+                if (DebugMode.Active)
+                    ErrorLog.Log("Completed loading config.");
 
                 // Set up view for binding
                 QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
@@ -103,6 +117,9 @@ namespace NetTally
                 var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
                 var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
                 MyTitle = $"{product.Product} - {version.InformationalVersion}";
+
+                if (DebugMode.Active)
+                    ErrorLog.Log("Completed main window construction.");
             }
             catch (Exception e)
             {
