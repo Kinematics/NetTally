@@ -502,6 +502,20 @@ namespace NetTally.Tests
             //TODO
         }
 
+        [TestMethod()]
+        public void TestNameReference()
+        {
+            // Check for non-case sensitivity in referencing other voters.
+            PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
+            PostComponents p2 = new PostComponents("Mini", "12345", "[x] beyogi");
+            voteCounter.PostsList.Add(p1);
+            voteCounter.PostsList.Add(p2);
+            voteCounter.TallyPosts(sampleQuest);
+
+            Assert.AreEqual(2, voteCounter.GetVotersCollection(VoteType.Vote).Count);
+            Assert.AreEqual(1, voteCounter.GetVotesCollection(VoteType.Vote).Count);
+            Assert.IsTrue(voteCounter.HasVote("[x] Vote for something\r\n", VoteType.Vote));
+        }
 
     }
 }
