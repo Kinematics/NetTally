@@ -21,8 +21,6 @@ namespace NetTally
         /// </summary>
         public CheckForNewRelease()
         {
-            // Make sure main window is notified of the initial value of false.
-            NewRelease = newRelease;
         }
 
         #region Property event handling.  Notify the main window when this value changes.
