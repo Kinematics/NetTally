@@ -169,20 +169,22 @@ namespace NetTally
             {
                 HtmlDocument htmldoc = await GetLatestReleasePage().ConfigureAwait(false);
 
-                if (htmldoc == null)
-                    return string.Empty;
+                if (htmldoc != null)
+                {
+                    var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
 
-                var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
-
-                if (h1ReleaseTitle == null)
-                    return string.Empty;
-
-                return GetVersionString(h1ReleaseTitle.InnerText);
+                    if (h1ReleaseTitle != null)
+                    {
+                        return GetVersionString(h1ReleaseTitle.InnerText);
+                    }
+                }
             }
-            catch
+            catch (Exception e)
             {
-                return string.Empty;
+                ErrorLog.Log(e);
             }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -192,18 +194,21 @@ namespace NetTally
         /// or null if it fails to load.</returns>
         private async Task<HtmlDocument> GetLatestReleasePage()
         {
-            IPageProvider webPageProvider = new WebPageProvider();
-
+            HtmlDocument doc = null;
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
             try
             {
-                return await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None).ConfigureAwait(false);
+                IPageProvider webPageProvider = new WebPageProvider();
+
+                doc = await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None).ConfigureAwait(false);
             }
-            catch
+            catch (Exception e)
             {
-                return null;
+                ErrorLog.Log(e);
             }
+
+            return doc;
         }
 
         /// <summary>
