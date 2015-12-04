@@ -41,11 +41,11 @@ namespace NetTally
         #endregion
 
         #region Public Class Properties
-        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -434,7 +434,7 @@ namespace NetTally
         public bool HasVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
-            return voters.Keys.Contains(voterName);
+            return voters.ContainsKey(voterName);
         }
 
         /// <summary>
