@@ -36,16 +36,6 @@ namespace NetTally
 
         CheckForNewRelease checkForNewRelease;
 
-        // Using a DependencyProperty as the backing store for MyTitle.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MyTitleProperty =
-            DependencyProperty.Register("MyTitle", typeof(string), typeof(MainWindow), new UIPropertyMetadata(null));
-
-        public string MyTitle
-        {
-            get { return (string)GetValue(MyTitleProperty); }
-            set { SetValue(MyTitleProperty, value); }
-        }
-
         public List<int> ValidPostsPerPage { get; } = new List<int>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
         public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
@@ -76,6 +66,8 @@ namespace NetTally
 
                 if (DebugMode.Active)
                     ErrorLog.Log("Completed initializing components.");
+
+                this.Title = GetWindowTitle();
 
                 // Set tally vars
                 tally = new Tally();
@@ -115,12 +107,6 @@ namespace NetTally
                 newRelease.DataContext = checkForNewRelease;
                 checkForNewRelease.Update();
 
-
-                var assembly = Assembly.GetExecutingAssembly();
-                var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-                MyTitle = $"{product.Product} - {version.InformationalVersion}";
-
                 if (DebugMode.Active)
                     ErrorLog.Log("Completed main window construction.");
 
@@ -155,7 +141,6 @@ namespace NetTally
 
             _disposed = true;
         }
-
 
         /// <summary>
         /// Unhandled exception handler.  If an unhandled exception crashes the program, save
@@ -194,6 +179,19 @@ namespace NetTally
                 string file = ErrorLog.Log(ex);
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in shutdown", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Get the title to be used for the main window, showing the program name and version number.
+        /// </summary>
+        /// <returns>Returns the program name and version number as a string.</returns>
+        private string GetWindowTitle()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+
+            return $"{product.Product} - {version.InformationalVersion}";
         }
         #endregion
 
