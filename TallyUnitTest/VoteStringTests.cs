@@ -60,7 +60,7 @@ namespace NetTally.Tests
             Assert.AreEqual("-[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line5));
             Assert.AreEqual("-[x] Vote for “stuff”", VoteString.CleanVoteLineBBCode(line6));
             Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line8));
         }
 
 
@@ -83,7 +83,7 @@ namespace NetTally.Tests
             Assert.AreEqual("-[x] [url=http://link]Vote for stuff[/url]", VoteString.CleanVoteLineBBCode(line5));
             Assert.AreEqual("-[x] Vote for [color=blue]“stuff”[/color]", VoteString.CleanVoteLineBBCode(line6));
             Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            Assert.AreEqual("[x][main] [b][b]Vote[/b] for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual("[x][main] [b]Vote[/b] for stuff", VoteString.CleanVoteLineBBCode(line8));
         }
 
         [TestMethod()]
