@@ -86,7 +86,19 @@ namespace NetTally.Tests
             Assert.AreEqual("[x][main] [b][b]Vote[/b] for stuff[/b]", VoteString.CleanVoteLineBBCode(line8));
         }
 
-        
+        [TestMethod()]
+        public void CleanVoteTest3()
+        {
+            string line1      = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string cleanLine1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [i][color=#ebebeb]years[/color][/i], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+
+            string out1 = VoteString.CleanVoteLineBBCode(cleanLine1);
+            string out2 = VoteString.CleanVoteLineBBCode(line1);
+
+            Assert.AreEqual(cleanLine1, out1);
+            Assert.AreEqual(cleanLine1, out2);
+        }
+
         [TestMethod()]
         public void GetVotePrefixTest()
         {
