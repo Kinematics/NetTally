@@ -103,9 +103,9 @@ namespace NetTally.Tests
         //[TestMethod()]
         public void TimeCleanVoteTest3()
         {
-            string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            //string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
             string line2 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color]years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string line3 = "[X] - Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            //string line3 = "[X] - Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
             string line = line2;
 
             const int loopCount = 1000;
