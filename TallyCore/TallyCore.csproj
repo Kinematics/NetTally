@@ -55,11 +55,11 @@
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
-    <Compile Include="Interfaces\IForumAdapter.cs" />
-    <Compile Include="Interfaces\IPageProvider.cs" />
-    <Compile Include="Interfaces\IQuest.cs" />
-    <Compile Include="Interfaces\ITextResultsProvider.cs" />
-    <Compile Include="Interfaces\IVoteCounter.cs" />
+    <Compile Include="Adapters\IForumAdapter.cs" />
+    <Compile Include="Web\IPageProvider.cs" />
+    <Compile Include="Quests\IQuest.cs" />
+    <Compile Include="Output\ITextResultsProvider.cs" />
+    <Compile Include="Votes\IVoteCounter.cs" />
     <Compile Include="Utility\DebugMode.cs" />
     <Compile Include="Utility\MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,7 +67,7 @@
     <Compile Include="Quests\QuestCollection.cs" />
     <Compile Include="Votes\RankVotes.cs" />
     <Compile Include="Tally.cs" />
-    <Compile Include="TextResults.cs" />
+    <Compile Include="Output\TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
