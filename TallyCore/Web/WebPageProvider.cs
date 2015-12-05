@@ -26,8 +26,10 @@ namespace NetTally
             Loaded
         }
 
+        const int maxSimultaneousConnections = 5;
+
         WebCache Cache { get; } = WebCache.Instance;
-        readonly SemaphoreSlim ss = new SemaphoreSlim(5);
+        readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
         string UserAgent { get; }
         bool _disposed = false;
 
