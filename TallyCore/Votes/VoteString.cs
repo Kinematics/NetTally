@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
 
@@ -42,20 +43,14 @@ namespace NetTally
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
         static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[[xX✓✔1-9]\](?!\s*\[/(?:[bui]|color)\])(?!(?:\s*\[(?:[bui]|color=[^]]+)\])+\s*\[(?![bui]|color=[^]]+|url=[^]]+)[^]]+\])");
 
+        // Regex for any opening or closing BBCode tag.
+        static readonly Regex allBBCodeRegex = new Regex(@"(\[(?:/)?(?:b|i|u|color)(?(?<=\[color)=[^]]+)\])");
         // Regex for any opening BBCode tag.
-        static readonly Regex openBBCodeRegex = new Regex(@"\[(b|i|u|color=[^]]+)\]");
+        static readonly Regex openBBCodeRegex = new Regex(@"^\[(b|i|u|color)(?(?<=\[color)=[^]]+)\]");
         // Regex for any closing BBCode tag.
-        static readonly Regex closeBBCodeRegex = new Regex(@"\[/(b|i|u|color)\]");
-        // Regex to extract a tag from a BBCode element.
-        static readonly Regex tagRegex = new Regex(@"\[/?(?<tag>[biu](?=\])|(?<=/)color(?=\])|color(?==[^]]+))(=[^]]+)?\]");
-        // Regexes for the indicated closing tags.
-        static readonly Dictionary<string, Regex> closeTagRegexes = new Dictionary<string, Regex>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["b"] = new Regex(@"\[/b\]"),
-            ["i"] = new Regex(@"\[/i\]"),
-            ["u"] = new Regex(@"\[/u\]"),
-            ["color"] = new Regex(@"\[/color\]"),
-        };
+        static readonly Regex closeBBCodeRegex = new Regex(@"^\[/(b|i|u|color)\]");
+
+        static readonly Dictionary<string, int> countTags = new Dictionary<string, int>() {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
         #endregion
 
         #region Cleanup functions
@@ -97,18 +92,32 @@ namespace NetTally
         /// <returns>Returns the vote line cleaned up of BBCode.</returns>
         public static string CleanVoteLineBBCode(string line)
         {
-            Match m;
-            string clean = line;
+            line = StripPrecontentBBCode(line);
 
-            m = precontentRegex.Match(line);
+            line = NormalizeContentBBCode(line);
+
+            return line;
+        }
+
+        /// <summary>
+        /// Remove all BBCode tags from the pre-content portion of a vote line.
+        /// </summary>
+        /// <param name="line">The vote line to modify.</param>
+        /// <returns>Returns the vote line without any BBCode in the pre-content area.</returns>
+        private static string StripPrecontentBBCode(string line)
+        {
+            // Remove BBCode markup one at a time, until we get a clear check
+            // across the entire precontent area.  Any BBCode in the content
+            // area is left alone.
+            Match m = precontentRegex.Match(line);
             while (m.Success == false)
             {
-                string cleaned = markupRegex.Replace(clean, "", 1);
+                string cleaned = markupRegex.Replace(line, "", 1);
 
-                if (cleaned != clean)
+                if (cleaned != line)
                 {
-                    clean = cleaned;
-                    m = precontentRegex.Match(clean);
+                    line = cleaned;
+                    m = precontentRegex.Match(line);
                 }
                 else
                 {
@@ -116,62 +125,121 @@ namespace NetTally
                 }
             }
 
-            var opens = openBBCodeRegex.Matches(clean);
-            var closes = closeBBCodeRegex.Matches(clean);
-
-            var openGroups = opens.OfType<Match>().GroupBy(a => GetTag(a.Value));
-            var closeGroups = closes.OfType<Match>().GroupBy(a => GetTag(a.Value));
-
-            foreach (var tag in closeGroups)
-            {
-                var matchingOpen = openGroups.FirstOrDefault(a => a.Key == tag.Key);
-                // If there are no matching opens for the closing tag, remove all instances of the closing tag.
-                if (matchingOpen == null)
-                {
-                    clean = closeTagRegexes[tag.Key].Replace(clean, "", tag.Count());
-                }
-                else
-                {
-                    // Otherwise remove as many additional close tags as are found.
-                    int diff = tag.Count() - matchingOpen.Count();
-
-                    if (diff > 0)
-                    {
-                        clean = closeTagRegexes[tag.Key].Replace(clean, "", diff);
-                    }
-                }
-            }
-
-            foreach (var tag in openGroups)
-            {
-                var matchingClose = closeGroups.FirstOrDefault(a => a.Key == tag.Key);
-
-                int? diff = tag.Count() - matchingClose?.Count();
-                string closeTag = $"[/{tag.Key}]";
-
-                int num = diff.HasValue ? diff.Value : tag.Count();
-
-                for (int i = 0; i < num; i++)
-                {
-                    clean += closeTag;
-                }
-            }
-
-            return clean.Trim();
+            return line;
         }
 
         /// <summary>
-        /// Tags a BBCode opening or closing tag element, and extracts the tag from it.
+        /// Make sure all BBCode tags have appropriate matching start/end tags.
+        /// Any tags that don't have a proper match are removed.  This includes having
+        /// a close tag before any opening tag (even if there's another open tag later on),
+        /// or an open tag that's not followed by an end tag (even if there was an end tag
+        /// earlier on).
         /// </summary>
-        /// <param name="input">A BBCode markup element.</param>
-        /// <returns>Returns the BBCode tag from the element.</returns>
-        private static string GetTag(string input)
+        /// <param name="line">The vote line to modify.</param>
+        /// <returns>Returns a normalized version of the vote line, with proper matching BBCode tags.</returns>
+        private static string NormalizeContentBBCode(string line)
         {
-            Match m = tagRegex.Match(input);
-            if (m.Success)
-                return m.Groups["tag"].Value;
+            var lineSplit = allBBCodeRegex.Split(line);
+            
+            // If there were no BBCode tags, just return the original line.
+            if (lineSplit.Length == 1)
+                return line;
 
-            return string.Empty;
+            // Run matches for opens and closes on all line splits, so we don't have to do it again later.
+            Match[] openMatches = new Match[lineSplit.Length];
+            Match[] closeMatches = new Match[lineSplit.Length];
+
+            for (int i = 0; i < lineSplit.Length; i++)
+            {
+                openMatches[i] = openBBCodeRegex.Match(lineSplit[i]);
+                closeMatches[i] = closeBBCodeRegex.Match(lineSplit[i]);
+            }
+
+            // Rebuild the result
+            StringBuilder sb = new StringBuilder(line.Length);
+            string tag;
+
+            // Reset counts
+            countTags["b"] = 0;
+            countTags["i"] = 0;
+            countTags["u"] = 0;
+            countTags["color"] = 0;
+
+
+            for (int i = 0; i < lineSplit.Length; i++)
+            {
+                // Skip blank entries from the split
+                if (lineSplit[i] == string.Empty)
+                    continue;
+
+                if (openMatches[i].Success)
+                {
+                    tag = openMatches[i].Groups[1].Value;
+
+                    for (int j = i + 1; j < lineSplit.Length; j++)
+                    {
+                        if (lineSplit[j] == string.Empty)
+                            continue;
+
+                        if (closeMatches[j].Success && closeMatches[j].Groups[1].Value == tag)
+                        {
+                            if (countTags[tag] > 0)
+                            {
+                                countTags[tag]--;
+                            }
+                            else
+                            {
+                                // We've found a matching open tag.  Add this close tag and end the loop.
+                                sb.Append(lineSplit[i]);
+                                break;
+                            }
+                        }
+                        else if (openMatches[j].Success && openMatches[j].Groups[1].Value == tag)
+                        {
+                            countTags[tag]++;
+                        }
+                    }
+
+                    countTags[tag] = 0;
+                }
+                else if (closeMatches[i].Success)
+                {
+                    tag = closeMatches[i].Groups[1].Value;
+
+                    for (int j = i - 1; j >= 0; j--)
+                    {
+                        if (lineSplit[j] == string.Empty)
+                            continue;
+
+                        if (openMatches[j].Success && openMatches[j].Groups[1].Value == tag)
+                        {
+                            if (countTags[tag] > 0)
+                            {
+                                countTags[tag]--;
+                            }
+                            else
+                            {
+                                // We've found a matching open tag.  Add this close tag and end the loop.
+                                sb.Append(lineSplit[i]);
+                                break;
+                            }
+                        }
+                        else if (closeMatches[j].Success && closeMatches[j].Groups[1].Value == tag)
+                        {
+                            countTags[tag]++;
+                        }
+                    }
+
+                    countTags[tag] = 0;
+                }
+                else
+                {
+                    // This isn't a BBCode tag, so just add it to the pile.
+                    sb.Append(lineSplit[i]);
+                }
+            }
+
+            return sb.ToString();
         }
         #endregion
 
