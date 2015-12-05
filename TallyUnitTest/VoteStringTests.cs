@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Text.RegularExpressions;
 using NetTally.Utility;
 
 namespace NetTally.Tests
@@ -97,6 +98,41 @@ namespace NetTally.Tests
 
             Assert.AreEqual(cleanLine1, out1);
             Assert.AreEqual(cleanLine1, out2);
+        }
+
+        //[TestMethod()]
+        public void TimeCleanVoteTest3()
+        {
+            string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line2 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color]years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line3 = "[X] - Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line = line2;
+
+            const int loopCount = 1000;
+            string result;
+
+            string[] lines = new string[loopCount];
+
+            for (int i = 0; i < loopCount; i++)
+            {
+                lines[i] = $"{line}{i + 1}";
+            }
+
+            // Make sure the JIT has compiled the functions being tested, including the profiler
+            using (var rp = new RegionProfiler("Prime the compiler"))
+            {
+                result = VoteString.CleanVoteLineBBCode(lines[0]);
+                result = VoteString.CleanVoteLineBBCode(lines[1]);
+                result = VoteString.CleanVoteLineBBCode(lines[2]);
+            }
+
+            using (var rp = new RegionProfiler("clean bbcode"))
+            {
+                for (int i = 0; i < loopCount; i++)
+                {
+                    result = VoteString.CleanVoteLineBBCode(lines[i]);
+                }
+            }
         }
 
         [TestMethod()]
