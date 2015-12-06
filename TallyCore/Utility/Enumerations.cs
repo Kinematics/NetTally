@@ -25,6 +25,12 @@ namespace NetTally
         Plan,
     }
 
+    public enum PageType
+    {
+        Thread,
+        Threadmarks,
+    }
+
     /// <summary>
     /// Enum for various modes of constructing the final tally display.
     /// </summary>
