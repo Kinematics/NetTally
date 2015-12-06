@@ -118,25 +118,21 @@ namespace NetTally
 
             DebugMode.Update();
 
-            IForumAdapter forumAdapter = quest.GetForumAdapter();
-
             var firstPage = pages.First();
 
             // Use the title of the first page for the descriptive output.
-            Title = forumAdapter.GetPageTitle(firstPage);
-
-            // Set the thread author for reference.
-            string threadAuthor = forumAdapter.GetAuthorOfThread(firstPage);
+            ThreadInfo threadInfo = quest.ForumAdapter.GetThreadInfo(firstPage);
+            Title = threadInfo.Title;
 
             var postsWithVotes = from page in pages
                                  where page != null
-                                 from post in forumAdapter.GetPostsFromPage(page)
-                                 where post != null
-                                 let postNumber = forumAdapter.GetPostNumberOfPost(post)
-                                 where postNumber >= quest.FirstTallyPost && (quest.ReadToEndOfThread || postNumber <= quest.EndPost)
-                                 let postCom = GetPostComponents(post, quest)
-                                 where postCom != null && postCom.IsVote && postCom.Author != threadAuthor
-                                 select postCom;
+                                 from post in quest.ForumAdapter.GetPosts(page)
+                                 where post != null && post.IsVote && post.Author != threadInfo.Author &&
+                                    ((quest.ThreadmarkPost == 0 && post.Number >= quest.StartPost) ||
+                                     (quest.ThreadmarkPost == 1 && post.Number >= 1) ||
+                                     (quest.ThreadmarkPost > 1 && post.IDValue >= quest.ThreadmarkPost)) &&
+                                    (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
+                                 select post;
 
             PostsList = postsWithVotes.ToList();
 
@@ -450,39 +446,6 @@ namespace NetTally
         #endregion
 
         #region Private support methods
-        /// <summary>
-        /// Extract the components from an HTML post, and store it in a PostComponents object.
-        /// </summary>
-        /// <param name="post">The post to be decomposed.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns the extracted post components.</returns>
-        private PostComponents GetPostComponents(HtmlNode post, IQuest quest)
-        {
-            if (post == null || quest == null)
-                return null;
-
-            IForumAdapter forumAdapter = quest.GetForumAdapter();
-            string postAuthor = forumAdapter.GetAuthorOfPost(post);
-            string postID = forumAdapter.GetIdOfPost(post);
-            string postText = forumAdapter.GetTextOfPost(post);
-
-            if (DebugMode.Active)
-                postAuthor = $"{postAuthor}_{postID}";
-
-            PostComponents comps;
-
-            try
-            {
-                comps = new PostComponents(postAuthor, postID, postText);
-            }
-            catch
-            {
-                comps = null;
-            }
-
-            return comps;
-        }
-
         /// <summary>
         /// Attempt to find any existing vote that matches with the vote we have,
         /// and can be used as a key in the VotesWithSupporters table.

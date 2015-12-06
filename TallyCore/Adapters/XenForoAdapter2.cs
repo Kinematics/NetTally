@@ -37,7 +37,7 @@ namespace NetTally.Adapters
             }
             set
             {
-                if (site.AbsoluteUri != value.AbsoluteUri)
+                if (site == null || site.AbsoluteUri != value.AbsoluteUri)
                 {
                     site = value;
                     UpdateSiteData();
@@ -175,17 +175,15 @@ namespace NetTally.Adapters
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
             HtmlNode doc = page.DocumentNode;
-            HtmlNode node;
 
             HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
 
             if (pageContent == null)
                 throw new InvalidOperationException("Cannot find content on page.");
 
-            node = pageContent.Element("form");
-            node = node?.Element("ol");
+            HtmlNode node = pageContent.Element("ol");
 
-            if (node == null)
+            if (node == null || node.Id != "messageList")
                 return new List<PostComponents>();
 
             var posts = from li in node.Elements("li")
@@ -209,8 +207,6 @@ namespace NetTally.Adapters
                 throw new ArgumentNullException(nameof(quest));
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
-
-            quest.ThreadmarkPost = 0;
 
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
@@ -267,7 +263,7 @@ namespace NetTally.Adapters
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
-            var body = doc.Element("body");
+            var body = doc.Element("html").Element("body");
 
             var node = body.ChildNodes.First(n => n.Id == "headerMover");
             node = node.ChildNodes.First(n => n.Id == "content");
@@ -332,7 +328,13 @@ namespace NetTally.Adapters
             string postNumber = node.InnerText.Substring(1);
             number = Int32.Parse(postNumber);
 
-            PostComponents post = new PostComponents(author, id, text, number);
+            PostComponents post;
+            try {
+                post = new PostComponents(author, id, text, number);
+            }
+            catch {
+                post = null;
+            }
 
             return post;
         }

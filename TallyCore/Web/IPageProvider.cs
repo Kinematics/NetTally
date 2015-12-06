@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using HtmlAgilityPack;
@@ -8,14 +7,6 @@ namespace NetTally
 {
     public interface IPageProvider : IDisposable
     {
-        /// <summary>
-        /// Asynchronously load pages for the specified quest.
-        /// </summary>
-        /// <param name="quest">The quest object describing which pages to load.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<HtmlDocument>> LoadQuestPages(IQuest quest, CancellationToken token);
-
         /// <summary>
         /// Asynchronously load a specific page.
         /// </summary>

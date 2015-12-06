@@ -226,7 +226,7 @@ namespace NetTally
         private string GetVoterUrl(string voter, VoteType voteType)
         {
             Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
-            string url = Quest.GetForumAdapter().GetPostUrlFromId(Quest.ThreadName, idLookup[voter]);
+            string url = Quest.ForumAdapter.GetPermalinkForId(idLookup[voter]);
 
             return url;
         }

@@ -156,13 +156,10 @@ namespace NetTally
                     UserDefinedTasks.Clear();
                 lastTallyQuest = quest;
 
-                var adapter = await quest.GetForumAdapterAsync(token);
-
-                if (adapter == null)
-                    throw new InvalidOperationException($"Unable to load a forum adapter for the quest thread:\n{quest.ThreadName}");
+                await quest.InitForumAdapter(token);
 
                 // Load pages from the website
-                loadedPages = await PageProvider.LoadQuestPages(quest, token).ConfigureAwait(false);
+                loadedPages = await quest.LoadQuestPages(PageProvider, token).ConfigureAwait(false);
 
                 if (loadedPages != null && loadedPages.Count > 0)
                 {

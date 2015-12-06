@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
@@ -39,7 +41,10 @@ namespace NetTally
 
         public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
 
-        IForumAdapter forumAdapter = null;
+        IForumAdapter _forumAdapter = null;
+
+        public IForumAdapter2 ForumAdapter { get; private set; } = null;
+
 
         string threadName = NewThreadEntry;
         string displayName = string.Empty;
@@ -65,7 +70,7 @@ namespace NetTally
             if (pageNumber < 1)
                 throw new ArgumentOutOfRangeException(nameof(pageNumber));
 
-            return forumAdapter?.GetPageUrl(ThreadName, pageNumber);
+            return _forumAdapter?.GetPageUrl(ThreadName, pageNumber);
         }
 
         /// <summary>
@@ -82,78 +87,42 @@ namespace NetTally
         /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the number of the first page we should start loading.</returns>
-        public async Task<int> GetFirstPageNumber(IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
         {
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
 
-            IForumAdapter adapter = await GetForumAdapterAsync(token);
+            var startInfo = await ForumAdapter.GetStartingPostNumber(this, pageProvider, token);
 
-            if (adapter == null)
-                throw new ApplicationException($"Unable to acquire a valid forum adapter for quest {DisplayName}.");
-
-            int startPostNumber = await adapter.GetStartingPostNumber(pageProvider, this, token);
-
-            return GetPageNumberOf(startPostNumber);
-        }
-
-        /// <summary>
-        /// Get the last page number of the thread, where we should stop reading, based on
-        /// current quest parameters and the provided web page.
-        /// </summary>
-        /// <param name="loadedPage">A page loaded from the thread, that we can check for page info.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns the last page number we should try to read for the tally.</returns>
-        public async Task<int> GetLastPageNumber(HtmlDocument loadedPage, CancellationToken token)
-        {
-            if (loadedPage == null)
-                throw new ArgumentNullException(nameof(loadedPage));
-
-            if (ReadToEndOfThread)
-            {
-                IForumAdapter adapter = await GetForumAdapterAsync(token);
-
-                if (adapter == null)
-                    throw new ApplicationException($"Unable to acquire a valid forum adapter for quest {DisplayName}.");
-
-                return adapter.GetLastPageNumberOfThread(loadedPage);
-            }
-            else
-            {
-                return GetPageNumberOf(EndPost);
-            }
+            return startInfo;
         }
 
         #endregion
 
         #region IQuest Properties
         /// <summary>
+        /// Gets the expected forum adapter for this quest.
+        /// </summary>
+        /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
+        public async Task InitForumAdapter() => await InitForumAdapter(CancellationToken.None);
+
+        /// <summary>
         /// Gets the expected forum adapter for this quest, with option to cancel.
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
-        public async Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token)
+        public async Task InitForumAdapter(CancellationToken token)
         {
-            if (forumAdapter == null)
+            if (ForumAdapter == null)
             {
-                forumAdapter = await ForumAdapterFactory.GetAdapter(this, token).ConfigureAwait(false);
-                if (postsPerPage == 0)
-                    PostsPerPage = forumAdapter.DefaultPostsPerPage;
-            }
-            return forumAdapter;
-        }
+                ForumAdapter = await ForumAdapterFactory2.GetAdapter(this, token).ConfigureAwait(false);
 
-        /// <summary>
-        /// Gets the expected forum adapter for this quest.
-        /// </summary>
-        /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
-        public IForumAdapter GetForumAdapter()
-        {
-            if (forumAdapter == null)
-            {
-                forumAdapter = ForumAdapterFactory.GetAdapter(this);
+                if (ForumAdapter == null)
+                    throw new InvalidOperationException();
+
+                if (postsPerPage == 0)
+                    PostsPerPage = ForumAdapter.DefaultPostsPerPage;
             }
-            return forumAdapter;
         }
 
         /// <summary>
@@ -233,7 +202,7 @@ namespace NetTally
             {
                 if (postsPerPage == 0)
                 {
-                    var ppp = GetForumAdapter()?.DefaultPostsPerPage;
+                    var ppp = ForumAdapter?.DefaultPostsPerPage;
                     if (ppp.HasValue)
                     {
                         postsPerPage = ppp.Value;
@@ -363,11 +332,11 @@ namespace NetTally
         /// </summary>
         private void UpdateForumAdapter()
         {
-            var prevForumAdapter = forumAdapter;
+            var prevForumAdapter = _forumAdapter;
 
-            forumAdapter = ForumAdapterFactory.GetAdapter(this);
+            _forumAdapter = ForumAdapterFactory.GetAdapter(this);
 
-            if (prevForumAdapter != null && prevForumAdapter != forumAdapter)
+            if (prevForumAdapter != null && prevForumAdapter != _forumAdapter)
                 UpdatePostsPerPage();
         }
 
@@ -376,7 +345,7 @@ namespace NetTally
         /// </summary>
         private void UpdatePostsPerPage()
         {
-            var ppp = forumAdapter?.DefaultPostsPerPage;
+            var ppp = _forumAdapter?.DefaultPostsPerPage;
 
             if (ppp.HasValue)
             {
@@ -415,5 +384,75 @@ namespace NetTally
                 return DisplayName;
         }
         #endregion
+
+
+        /// <summary>
+        /// Load the pages for the given quest asynchronously.
+        /// </summary>
+        /// <param name="quest">Quest object containing query parameters.</param>
+        /// <returns>Returns a list of web pages as HTML Documents.</returns>
+        public async Task<List<HtmlDocument>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token)
+        {
+            try
+            {
+                var startInfo = await GetStartInfo(pageProvider, token);
+
+                int firstPageNumber = 0;
+                if (startInfo.ByNumber)
+                    firstPageNumber = GetPageNumberOf(startInfo.Number);
+                else
+                    firstPageNumber = startInfo.Page;
+
+                if (startInfo.Number == 1)
+                    ThreadmarkPost = 1;
+                else if (!startInfo.ByNumber)
+                    ThreadmarkPost = startInfo.ID;
+                else
+                    ThreadmarkPost = 0;
+
+                HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber),
+                    $"Page {firstPageNumber}", Caching.BypassCache, token).ConfigureAwait(false);
+
+                if (firstPage == null)
+                    throw new InvalidOperationException("Unable to load web page.");
+
+                // We will store the loaded pages in a new List.
+                List<HtmlDocument> pages = new List<HtmlDocument>();
+                pages.Add(firstPage);
+
+                ThreadInfo threadInfo = ForumAdapter.GetThreadInfo(firstPage);
+
+                // Set parameters for which pages to try to load
+                int pagesToScan = threadInfo.Pages - firstPageNumber;
+
+                // Initiate the async tasks to load the pages
+                if (pagesToScan > 0)
+                {
+                    // Initiate tasks for all pages other than the first page (which we already loaded)
+                    var results = from pageNum in Enumerable.Range(firstPageNumber + 1, pagesToScan)
+                                  let cacheMode = pageNum == threadInfo.Pages ? Caching.BypassCache : Caching.UseCache
+                                  let pageUrl = ForumAdapter.GetUrlForPage(pageNum)
+                                  select pageProvider.GetPage(pageUrl, $"Page {pageNum}", cacheMode, token);
+
+                    // Wait for all the tasks to be completed.
+                    HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
+
+                    if (pageArray.Any(p => p == null))
+                    {
+                        throw new ApplicationException("Not all pages loaded.  Rerun tally.");
+                    }
+
+                    // Add the results to our list of pages.
+                    pages.AddRange(pageArray);
+                }
+
+                return pages;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+        }
+
     }
 }

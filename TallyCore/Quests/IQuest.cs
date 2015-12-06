@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -76,7 +77,7 @@ namespace NetTally
         /// quest is for.
         /// </summary>
         /// <returns></returns>
-        IForumAdapter GetForumAdapter();
+        Task InitForumAdapter();
 
         /// <summary>
         /// Get the forum adapter needed to read results from the web site this
@@ -84,13 +85,10 @@ namespace NetTally
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token);
+        Task InitForumAdapter(CancellationToken token);
 
+        IForumAdapter2 ForumAdapter { get; }
 
-        /// <summary>
-        /// Get the URL string for the provided page number of the quest thread.
-        /// </summary>
-        string GetPageUrl(int pageNumber);
         /// <summary>
         /// Converts a post number into a page number.
         /// </summary>
@@ -99,11 +97,14 @@ namespace NetTally
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
         /// </summary>
-        Task<int> GetFirstPageNumber(IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token);
+
         /// <summary>
-        /// Get the last page number of the thread, where we should stop reading, based on
-        /// current quest parameters and the provided web page.
+        /// Asynchronously load pages for the specified quest.
         /// </summary>
-        Task<int> GetLastPageNumber(HtmlDocument loadedPage, CancellationToken token);
+        /// <param name="pageProvider">The page provider to use to load the pages.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
+        Task<List<HtmlDocument>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token);
     }
 }
