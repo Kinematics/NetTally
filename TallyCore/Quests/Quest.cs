@@ -106,7 +106,7 @@ namespace NetTally
         {
             if (ForumAdapter == null)
             {
-                ForumAdapter = await ForumAdapterFactory2.GetAdapter(this, token).ConfigureAwait(false);
+                ForumAdapter = await ForumAdapterFactory.GetAdapter(this, token).ConfigureAwait(false);
 
                 if (ForumAdapter == null)
                     throw new InvalidOperationException($"No forum adapter found for quest thread:\n{ThreadName}");

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetTally.Adapters
 {
-    public static class ForumAdapterFactory2
+    public static class ForumAdapterFactory
     {
         #region Public functions
         public async static Task<IForumAdapter2> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None);
