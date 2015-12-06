@@ -356,5 +356,21 @@ namespace NetTally.Adapters
         }
 
         #endregion
+
+        #region Detection
+        /// <summary>
+        /// Static detection of whether the provided web page is a XenForo forum thread.
+        /// </summary>
+        /// <param name="page">Web page to examine.</param>
+        /// <returns>Returns true if it's detected as a XenForo page.  Otherwise, false.</returns>
+        public static bool CanHandlePage(HtmlDocument page)
+        {
+            if (page == null)
+                return false;
+
+            return (page.DocumentNode.Element("html")?.Id == "XenForo");
+        }
+        #endregion
+
     }
 }
