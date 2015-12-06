@@ -9,10 +9,28 @@ using NetTally.Adapters.Utility;
 
 namespace NetTally.Adapters
 {
+    /// <summary>
+    /// Class for extracting data from XenForo forum threads.
+    /// </summary>
     public class XenForoAdapter2 : IForumAdapter2
     {
-        Uri site;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">The URI of the thread this adapter will be handling.</param>
+        public XenForoAdapter2(Uri site)
+        {
+            Site = site;
+        }
 
+        #region Site properties
+        Uri site;
+        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)threads/(?<thread>[^/]+\.\d+(?=/|$))");
+
+        /// <summary>
+        /// Property for the site this adapter is handling.
+        /// Can be changed if the quest thread details are changed.
+        /// </summary>
         public Uri Site {
             get
             {
@@ -28,6 +46,9 @@ namespace NetTally.Adapters
             }
         }
 
+        /// <summary>
+        /// When the Site value changes, update the base site and thread name values appropriately.
+        /// </summary>
         private void UpdateSiteData()
         {
             Match m = siteRegex.Match(site.AbsoluteUri);
@@ -48,13 +69,7 @@ namespace NetTally.Adapters
         string ThreadBaseUrl => $"{BaseSite}threads/{ThreadName}/";
         string PostsBaseUrl => $"{BaseSite}posts/";
         string ThreadmarksUrl => $"{ThreadBaseUrl}threadmarks";
-
-        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)threads/(?<thread>[^/]+\.\d+(?=/|$))");
-
-        public XenForoAdapter2(Uri site)
-        {
-            Site = site;
-        }
+        #endregion
 
         #region Public Interface
         /// <summary>
