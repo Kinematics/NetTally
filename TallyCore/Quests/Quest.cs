@@ -109,7 +109,7 @@ namespace NetTally
                 ForumAdapter = await ForumAdapterFactory2.GetAdapter(this, token).ConfigureAwait(false);
 
                 if (ForumAdapter == null)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"No forum adapter found for quest thread:\n{ThreadName}");
 
                 if (postsPerPage == 0)
                     PostsPerPage = ForumAdapter.DefaultPostsPerPage;
@@ -119,17 +119,20 @@ namespace NetTally
         /// <summary>
         /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
         /// </summary>
-        private async void UpdateForumAdapter(object stateInfo)
+        private void UpdateForumAdapter()
         {
-            var prevForumAdapter = ForumAdapter;
-            var prevHost = ForumAdapter?.Site?.Host;
+            if (ForumAdapter == null)
+                return;
 
-            await InitForumAdapter().ConfigureAwait(false);
-
-            ForumAdapter.Site = new Uri(ThreadName);
-
-            if (prevHost == null || prevHost != ForumAdapter?.Site?.Host)
-                UpdatePostsPerPage();
+            try
+            {
+                ForumAdapter.Site = new Uri(ThreadName);
+            }
+            catch
+            {
+                ForumAdapter = null;
+                PostsPerPage = 0;
+            }
         }
 
         /// <summary>
@@ -172,7 +175,7 @@ namespace NetTally
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
 
-                ThreadPool.QueueUserWorkItem(new WaitCallback(UpdateForumAdapter));
+                UpdateForumAdapter();
             }
         }
 
