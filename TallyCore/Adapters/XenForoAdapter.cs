@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Adapters.Utility;
 
 namespace NetTally.Adapters
 {
