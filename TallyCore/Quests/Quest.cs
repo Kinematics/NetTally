@@ -41,8 +41,6 @@ namespace NetTally
 
         public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
 
-        IForumAdapter _forumAdapter = null;
-
         public IForumAdapter2 ForumAdapter { get; private set; } = null;
 
 
@@ -60,19 +58,6 @@ namespace NetTally
         #endregion
 
         #region Page Stuff
-        /// <summary>
-        /// Get the URL string for the provided page number of the quest thread.
-        /// </summary>
-        /// <param name="pageNumber">The page number to get.</param>
-        /// <returns>Returns a URL of the forum thread for the apge number.</returns>
-        public string GetPageUrl(int pageNumber)
-        {
-            if (pageNumber < 1)
-                throw new ArgumentOutOfRangeException(nameof(pageNumber));
-
-            return _forumAdapter?.GetPageUrl(ThreadName, pageNumber);
-        }
-
         /// <summary>
         /// Converts a post number into a page number.
         /// </summary>
@@ -146,7 +131,7 @@ namespace NetTally
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
 
-                UpdateForumAdapter();
+                ThreadPool.QueueUserWorkItem(new WaitCallback(UpdateForumAdapter));
             }
         }
 
@@ -330,13 +315,16 @@ namespace NetTally
         /// <summary>
         /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
         /// </summary>
-        private void UpdateForumAdapter()
+        private async void UpdateForumAdapter(object stateInfo)
         {
-            var prevForumAdapter = _forumAdapter;
+            var prevForumAdapter = ForumAdapter;
+            var prevHost = ForumAdapter?.Site?.Host;
 
-            _forumAdapter = ForumAdapterFactory.GetAdapter(this);
+            await InitForumAdapter().ConfigureAwait(false);
 
-            if (prevForumAdapter != null && prevForumAdapter != _forumAdapter)
+            ForumAdapter.Site = new Uri(ThreadName);
+
+            if (prevHost == null || prevHost != ForumAdapter?.Site?.Host)
                 UpdatePostsPerPage();
         }
 
@@ -345,7 +333,7 @@ namespace NetTally
         /// </summary>
         private void UpdatePostsPerPage()
         {
-            var ppp = _forumAdapter?.DefaultPostsPerPage;
+            var ppp = ForumAdapter?.DefaultPostsPerPage;
 
             if (ppp.HasValue)
             {
