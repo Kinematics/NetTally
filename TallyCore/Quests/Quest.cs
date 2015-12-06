@@ -134,23 +134,6 @@ namespace NetTally
                 PostsPerPage = 0;
             }
         }
-
-        /// <summary>
-        /// Update the posts per page if the forum adapter was modified.
-        /// </summary>
-        private void UpdatePostsPerPage()
-        {
-            var ppp = ForumAdapter?.DefaultPostsPerPage;
-
-            if (ppp.HasValue)
-            {
-                PostsPerPage = ppp.Value;
-            }
-            else
-            {
-                PostsPerPage = 0;
-            }
-        }
         #endregion
 
         #region Descriptive/Tally Properties
