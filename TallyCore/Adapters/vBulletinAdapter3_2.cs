@@ -238,7 +238,11 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            var head = page.DocumentNode.Element("html")?.Element("head");
+            var html = page.DocumentNode.Element("html");
+            if (!string.IsNullOrEmpty(html.Id))
+                return false;
+
+            var head = html.Element("head");
             if (head != null)
             {
                 var generator = head.Elements("meta").FirstOrDefault(a => a.GetAttributeValue("name", "") == "generator");
