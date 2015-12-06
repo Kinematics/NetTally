@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,20 +8,26 @@ namespace NetTally.Adapters
 {
     public static class ForumAdapterFactory2
     {
+        #region Public functions
         public async static Task<IForumAdapter2> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None);
 
         public async static Task<IForumAdapter2> GetAdapter(IQuest quest, CancellationToken token)
         {
+            if (!Uri.IsWellFormedUriString(quest.ThreadName, UriKind.Absolute))
+                throw new InvalidOperationException($"Thread is not valid:\n{quest.ThreadName}\n\nPlease enter a valid URL.");
+
             Uri uri = new Uri(quest.ThreadName);
 
-            IForumAdapter2 fa = GetKnownForumAdapter(uri);
+            IForumAdapter2 adapter = GetKnownForumAdapter(uri);
 
-            if (fa == null)
-                fa = await GetUnknownForumAdapter(uri, token);
+            if (adapter == null)
+                adapter = await GetUnknownForumAdapter(uri, token);
 
-            return fa;
+            return adapter;
         }
+        #endregion
 
+        #region Private methods
         private static IForumAdapter2 GetKnownForumAdapter(Uri uri)
         {
             switch (uri.Host)
@@ -49,6 +53,9 @@ namespace NetTally.Adapters
                 var page = await webPageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
 
                 if (page == null)
+                    return null;
+
+                if (token.IsCancellationRequested)
                     return null;
 
                 //if (XenForoAdapter2.CanHandlePage(page))
@@ -104,5 +111,6 @@ namespace NetTally.Adapters
 
             return null;
         }
+        #endregion
     }
 }
