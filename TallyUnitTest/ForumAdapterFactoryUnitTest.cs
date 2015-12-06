@@ -12,9 +12,9 @@ namespace NetTally.Tests
         public void TestDefault()
         {
             IQuest quest = new Quest();
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            var adapter = ForumAdapterFactory2.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
         }
 
         [TestMethod]
@@ -22,9 +22,9 @@ namespace NetTally.Tests
         {
             IQuest quest = new Quest();
             quest.ThreadName = "http://forums.sufficientvelocity.com/";
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            var adapter = ForumAdapterFactory2.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
         }
 
         [TestMethod]
@@ -32,9 +32,9 @@ namespace NetTally.Tests
         {
             IQuest quest = new Quest();
             quest.ThreadName = "http://forums.spacebattles.com/";
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            var adapter = ForumAdapterFactory2.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
         }
     }
 }
