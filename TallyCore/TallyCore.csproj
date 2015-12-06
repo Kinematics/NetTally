@@ -47,11 +47,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\IForumAdapter2.cs" />
+    <Compile Include="Adapters\Utility\ThreadInfo.cs" />
     <Compile Include="Adapters\vBulletinAdapter3.cs" />
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
+    <Compile Include="Adapters\XenForoAdapter2.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
