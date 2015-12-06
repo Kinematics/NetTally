@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
-namespace NetTally
+namespace NetTally.Adapters
 {
     /// <summary>
     /// Interface for classes that can be used to extract data from forum threads in
