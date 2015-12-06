@@ -24,7 +24,7 @@ namespace NetTally.Adapters
 
         #region Site properties
         Uri site;
-        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)threads/(?<thread>[^/]+\.\d+(?=/|$))");
+        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)((?<base>https?://[^/]+/([^/]+/)*)threads/)?(?<thread>[^/]+\.\d+(?=/|$))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
@@ -53,7 +53,12 @@ namespace NetTally.Adapters
             Match m = siteRegex.Match(site.AbsoluteUri);
             if (m.Success)
             {
-                BaseSite = m.Groups["base"].Value;
+                // Default to SV if no host information is provided in the Uri.
+                if (m.Groups["base"].Success)
+                    BaseSite = m.Groups["base"].Value;
+                else
+                    BaseSite = "https://forums.sufficientvelocity.com/";
+
                 ThreadName = m.Groups["thread"].Value;
             }
             else
