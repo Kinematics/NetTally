@@ -57,34 +57,40 @@ namespace NetTally
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
 
-        #region Page Stuff
+        #region Obsolete, but still referenced
         /// <summary>
-        /// Converts a post number into a page number.
+        /// Gets the web site name from the thread URL.
         /// </summary>
-        /// <param name="postNumber">The post number of the thread.</param>
-        /// <returns>Returns the page number of the thread that the post should be on.</returns>
-        public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
-
-        /// <summary>
-        /// Get the first page number of the thread, where we should start reading, based on
-        /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
-        /// </summary>
-        /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns the number of the first page we should start loading.</returns>
-        public async Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
+        public string SiteName
         {
-            if (pageProvider == null)
-                throw new ArgumentNullException(nameof(pageProvider));
+            get
+            {
+                Match m = siteRegex.Match(threadName);
+                if (m.Success)
+                    return m.Groups["siteName"].Value;
 
-            var startInfo = await ForumAdapter.GetStartingPostNumber(this, pageProvider, token);
+                // Default site if no site given in thread name.
+                return "http://forums.sufficientvelocity.com/";
+            }
+        }
 
-            return startInfo;
+        /// <summary>
+        /// Return either the StartPost or the ThreadmarkPost, depending on config.
+        /// </summary>
+        public int FirstTallyPost
+        {
+            get
+            {
+                if (CheckForLastThreadmark && ThreadmarkPost > 0)
+                    return ThreadmarkPost;
+                else
+                    return StartPost;
+            }
         }
 
         #endregion
 
-        #region IQuest Properties
+        #region Initialization and Updating
         /// <summary>
         /// Gets the expected forum adapter for this quest.
         /// </summary>
@@ -110,6 +116,41 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
+        /// </summary>
+        private async void UpdateForumAdapter(object stateInfo)
+        {
+            var prevForumAdapter = ForumAdapter;
+            var prevHost = ForumAdapter?.Site?.Host;
+
+            await InitForumAdapter().ConfigureAwait(false);
+
+            ForumAdapter.Site = new Uri(ThreadName);
+
+            if (prevHost == null || prevHost != ForumAdapter?.Site?.Host)
+                UpdatePostsPerPage();
+        }
+
+        /// <summary>
+        /// Update the posts per page if the forum adapter was modified.
+        /// </summary>
+        private void UpdatePostsPerPage()
+        {
+            var ppp = ForumAdapter?.DefaultPostsPerPage;
+
+            if (ppp.HasValue)
+            {
+                PostsPerPage = ppp.Value;
+            }
+            else
+            {
+                PostsPerPage = 0;
+            }
+        }
+        #endregion
+
+        #region Descriptive/Tally Properties
         /// <summary>
         /// Gets the full thread URL for the quest.
         /// </summary>
@@ -162,21 +203,60 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Gets the web site name from the thread URL.
+        /// Flag for whether to count votes using preferential vote ranking.
         /// </summary>
-        public string SiteName
+        public bool AllowRankedVotes
         {
-            get
+            get { return allowRankedVotes; }
+            set
             {
-                Match m = siteRegex.Match(threadName);
-                if (m.Success)
-                    return m.Groups["siteName"].Value;
-
-                // Default site if no site given in thread name.
-                return "http://forums.sufficientvelocity.com/";
+                allowRankedVotes = value;
+                OnPropertyChanged();
             }
         }
 
+        /// <summary>
+        /// Enum for the type of partitioning to use when performing a tally.
+        /// </summary>
+        public PartitionMode PartitionMode
+        {
+            get { return partitionMode; }
+            set
+            {
+                partitionMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Clean page anchors and page numbers from the provided thread URL.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public string CleanPageNumbers(string url)
+        {
+            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
+            Match m = pageNumberRegex.Match(url);
+            if (m.Success)
+                url = m.Groups["base"].Value;
+
+            return Utility.Text.SafeString(url);
+        }
+
+        /// <summary>
+        /// Override ToString for class.
+        /// </summary>
+        /// <returns>Returns a string representing the current object.</returns>
+        public override string ToString()
+        {
+            if (displayName == string.Empty)
+                return ThreadName;
+            else
+                return DisplayName;
+        }
+        #endregion
+
+        #region Page Loading
         /// <summary>
         /// The number of posts per page for this forum thread.
         /// Auto-detect value if current field value is 0.
@@ -246,19 +326,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Enum for the type of partitioning to use when performing a tally.
-        /// </summary>
-        public PartitionMode PartitionMode
-        {
-            get { return partitionMode; }
-            set
-            {
-                partitionMode = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
         /// Flag for whether to try to override the provided starting post by
         /// looking for the last threadmark.
         /// </summary>
@@ -279,100 +346,33 @@ namespace NetTally
         public bool ReadToEndOfThread => EndPost < 1 || ThreadmarkPost > 0;
 
         /// <summary>
+        /// Converts a post number into a page number.
+        /// </summary>
+        /// <param name="postNumber">The post number of the thread.</param>
+        /// <returns>Returns the page number of the thread that the post should be on.</returns>
+        public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
+
+        /// <summary>
+        /// Get the first page number of the thread, where we should start reading, based on
+        /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
+        /// </summary>
+        /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns the number of the first page we should start loading.</returns>
+        public async Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
+        {
+            if (pageProvider == null)
+                throw new ArgumentNullException(nameof(pageProvider));
+
+            var startInfo = await ForumAdapter.GetStartingPostNumber(this, pageProvider, token);
+
+            return startInfo;
+        }
+
+        /// <summary>
         /// Property to store any found threadmark post number.
         /// </summary>
         public int ThreadmarkPost { get; set; } = 0;
-
-        /// <summary>
-        /// Return either the StartPost or the ThreadmarkPost, depending on config.
-        /// </summary>
-        public int FirstTallyPost
-        {
-            get
-            {
-                if (CheckForLastThreadmark && ThreadmarkPost > 0)
-                    return ThreadmarkPost;
-                else
-                    return StartPost;
-            }
-        }
-
-        /// <summary>
-        /// Flag for whether to count votes using preferential vote ranking.
-        /// </summary>
-        public bool AllowRankedVotes
-        {
-            get { return allowRankedVotes; }
-            set
-            {
-                allowRankedVotes = value;
-                OnPropertyChanged();
-            }
-        }
-        #endregion
-
-        #region Utility functions
-        /// <summary>
-        /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
-        /// </summary>
-        private async void UpdateForumAdapter(object stateInfo)
-        {
-            var prevForumAdapter = ForumAdapter;
-            var prevHost = ForumAdapter?.Site?.Host;
-
-            await InitForumAdapter().ConfigureAwait(false);
-
-            ForumAdapter.Site = new Uri(ThreadName);
-
-            if (prevHost == null || prevHost != ForumAdapter?.Site?.Host)
-                UpdatePostsPerPage();
-        }
-
-        /// <summary>
-        /// Update the posts per page if the forum adapter was modified.
-        /// </summary>
-        private void UpdatePostsPerPage()
-        {
-            var ppp = ForumAdapter?.DefaultPostsPerPage;
-
-            if (ppp.HasValue)
-            {
-                PostsPerPage = ppp.Value;
-            }
-            else
-            {
-                PostsPerPage = 0;
-            }
-        }
-
-        /// <summary>
-        /// Clean page anchors and page numbers from the provided thread URL.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public string CleanPageNumbers(string url)
-        {
-            Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
-            Match m = pageNumberRegex.Match(url);
-            if (m.Success)
-                url = m.Groups["base"].Value;
-
-            return Utility.Text.SafeString(url);
-        }
-
-        /// <summary>
-        /// Override ToString for class.
-        /// </summary>
-        /// <returns>Returns a string representing the current object.</returns>
-        public override string ToString()
-        {
-            if (displayName == string.Empty)
-                return ThreadName;
-            else
-                return DisplayName;
-        }
-        #endregion
-
 
         /// <summary>
         /// Load the pages for the given quest asynchronously.
@@ -441,6 +441,6 @@ namespace NetTally
                 throw;
             }
         }
-
+        #endregion
     }
 }
