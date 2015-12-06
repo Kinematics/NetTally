@@ -27,7 +27,7 @@ namespace NetTally.Adapters.Utility
         public static string CleanupWebString(string text)
         {
             if (text == null)
-                throw new ArgumentNullException(nameof(text));
+                return string.Empty;
 
             text = text.TrimStart();
 
