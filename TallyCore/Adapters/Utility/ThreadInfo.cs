@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NetTally.Adapters
 {
@@ -30,35 +26,6 @@ namespace NetTally.Adapters
             Title = title;
             Author = author;
             Pages = pages;
-        }
-    }
-
-    public static class ThreadmarkFilter
-    {
-        static readonly Regex omakeRegex = new Regex(@"\bomake\b", RegexOptions.IgnoreCase);
-
-        public static bool Filter(string title)
-        {
-            if (string.IsNullOrEmpty(title))
-                return false;
-
-            return omakeRegex.Match(title).Success;
-        }
-    }
-
-    public class ThreadStartValue
-    {
-        public bool ByNumber { get; }
-        public int Number { get; }
-        public int Page { get; }
-        public int ID { get; }
-
-        public ThreadStartValue(bool byNumber, int number = 0, int page = 0, int id = 0)
-        {
-            ByNumber = byNumber;
-            Number = number;
-            Page = page;
-            ID = id;
         }
     }
 }
