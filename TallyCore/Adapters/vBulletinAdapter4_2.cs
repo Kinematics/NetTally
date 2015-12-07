@@ -105,7 +105,6 @@ namespace NetTally.Adapters
             int pages;
 
             HtmlNode doc = page.DocumentNode;
-            HtmlNode node;
 
             // Find the page title
             title = doc.Element("html").Element("head").Element("title")?.InnerText;
@@ -185,9 +184,12 @@ namespace NetTally.Adapters
 
             if (postDetails != null)
             {
+                // Author
                 HtmlNode userinfo = postDetails.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "userinfo");
                 author = userinfo?.Elements("a").FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains("username")).InnerText;
 
+
+                // Text
                 string postMessageId = "post_message_" + id;
 
                 HtmlNode message = postDetails.Descendants("div").FirstOrDefault(a => a.Id == postMessageId)?.Element("blockquote");
