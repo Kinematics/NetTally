@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Adapters\IForumAdapter2.cs" />
+    <Compile Include="Adapters\Utility\ExtendHtmlNode.cs" />
     <Compile Include="Adapters\Utility\ThreadInfo.cs" />
     <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
     <Compile Include="Adapters\Utility\ThreadStartValue.cs" />
