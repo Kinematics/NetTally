@@ -9,18 +9,32 @@ namespace NetTally.Adapters
 {
     public static class ExtendHtmlNode
     {
-        public static HtmlNode GetChildNodeWithClass(this HtmlNode node, string htmlClass, string childName = null)
+        public static HtmlNode GetChildWithClass(this HtmlNode node, string element, string @class)
         {
-            if (string.IsNullOrEmpty(htmlClass))
-                throw new ArgumentNullException(nameof(htmlClass));
+            if (string.IsNullOrEmpty(@class))
+                throw new ArgumentNullException(nameof(@class));
 
             IEnumerable<HtmlNode> children;
-            if (string.IsNullOrEmpty(childName))
+            if (string.IsNullOrEmpty(element))
                 children = node.ChildNodes;
             else
-                children = node.Elements(childName);
+                children = node.Elements(element);
 
-            return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(htmlClass));
+            return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(@class));
+        }
+
+        public static HtmlNode GetDescendantNodeWithClass(this HtmlNode node, string element, string @class)
+        {
+            if (string.IsNullOrEmpty(@class))
+                throw new ArgumentNullException(nameof(@class));
+
+            IEnumerable<HtmlNode> children;
+            if (string.IsNullOrEmpty(element))
+                children = node.Descendants();
+            else
+                children = node.Descendants(element);
+
+            return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(@class));
         }
     }
 }
