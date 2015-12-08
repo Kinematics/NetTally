@@ -155,33 +155,32 @@ namespace NetTally.Adapters
             int pages;
 
             HtmlNode doc = page.DocumentNode;
-            HtmlNode node;
 
             // Find the page title
-            title = doc.Element("html")?.Element("head")?.Element("title")?.InnerText;
-            title = PostText.CleanupWebString(title);
+            title = PostText.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
 
+            // Find a common parent for other data
             HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
 
             if (pageContent == null)
                 throw new InvalidOperationException("Cannot find content on page.");
 
             // Find the thread author
-            node = pageContent?.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "") == "titleBar");
+            HtmlNode titleBar = pageContent.GetChildWithClass("titleBar");
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
-            if (node == null)
+            if (titleBar == null)
                 throw new InvalidOperationException("Not a valid thread page.");
 
-            node = node?.ChildNodes.FirstOrDefault(n => n.Id == "pageDescription");
-            node = node?.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "") == "username");
+            var pageDesc = titleBar.ChildNodes.FirstOrDefault(n => n.Id == "pageDescription");
+            var authorNode = pageDesc?.GetChildWithClass("username");
 
-            author = PostText.CleanupWebString(node?.InnerText);
+            author = PostText.CleanupWebString(authorNode?.InnerText);
 
             // Find the number of pages in the thread
-            node = pageContent?.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "") == "pageNavLinkGroup");
-            node = node?.ChildNodes.FirstOrDefault(n => n.GetAttributeValue("class", "") == "PageNav");
-            string lastPage = node?.GetAttributeValue("data-last", "");
+            var pageNavLinkGroup = pageContent.GetChildWithClass("pageNavLinkGroup");
+            var pageNav = pageNavLinkGroup?.GetChildWithClass("PageNav");
+            string lastPage = pageNav?.GetAttributeValue("data-last", "");
 
             if (string.IsNullOrEmpty(lastPage))
             {
@@ -192,6 +191,7 @@ namespace NetTally.Adapters
                 pages = Int32.Parse(lastPage);
             }
 
+            // Create a ThreadInfo object to hold the acquired information.
             ThreadInfo info = new ThreadInfo(title, author, pages);
 
             return info;
@@ -247,11 +247,14 @@ namespace NetTally.Adapters
 
             var threadmarks = GetThreadmarksList(threadmarkPage);
 
+            // If there aren't any threadmarks, fall back on the normal start post.
             if (!threadmarks.Any())
                 return new ThreadStartValue(true, quest.StartPost);
 
+            // Threadmarks have already been filtered, so just pick the last one.
             var lastThreadmark = threadmarks.Last();
 
+            // And extract the start point from the URL provided.
             string threadmarkHref = lastThreadmark.GetAttributeValue("href", "");
 
             Regex tmFragment = new Regex(@"/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
@@ -279,7 +282,6 @@ namespace NetTally.Adapters
             else
                 return new ThreadStartValue(false, 0, page, post);
         }
-
         #endregion
 
         #region Support functions
@@ -337,26 +339,29 @@ namespace NetTally.Adapters
                 author = $"{author}_{id}";
 
             // Get the primary content of the list item
-            HtmlNode primaryContent = li.ChildNodes.First(n => n.GetAttributeValue("class", "").Contains("primaryContent"));
+            HtmlNode primaryContent = li.GetChildWithClass("primaryContent");
 
             // On one branch, we can get the post text
-            HtmlNode node = primaryContent.ChildNodes.First(n => n.GetAttributeValue("class", "").Contains("messageContent"));
-            node = node.Element("article").Element("blockquote");
+            HtmlNode messageContent = li.GetChildWithClass("messageContent");
+            HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
             var exclusions = PostText.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
 
             // Get the full post text.
-            text = PostText.ExtractPostText(node, exclusions);
+            text = PostText.ExtractPostText(postBlock, exclusions);
 
             // On another branch of the primary content, we can get the post number.
-            node = primaryContent.ChildNodes.First(n => n.GetAttributeValue("class", "").Contains("messageMeta"));
-            node = node.ChildNodes.First(n => n.GetAttributeValue("class", "").Contains("publicControls"));
-            node = node.ChildNodes.First(n => n.GetAttributeValue("class", "").Contains("postNumber"));
+            HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
+            HtmlNode publicControls = primaryContent.GetChildWithClass("publicControls");
+            HtmlNode postNumber = primaryContent.GetChildWithClass("postNumber");
 
+            string postNumberText = postNumber.InnerText;
             // Skip the leading # character.
-            string postNumber = node.InnerText.Substring(1);
-            number = Int32.Parse(postNumber);
+            if (postNumberText.StartsWith("#"))
+                postNumberText = postNumberText.Substring(1);
+
+            number = int.Parse(postNumberText);
 
             PostComponents post;
             try {
@@ -385,7 +390,7 @@ namespace NetTally.Adapters
             {
                 var content = GetPageContent(doc, PageType.Threadmarks);
 
-                var section = content.Elements("div").First(n => n.GetAttributeValue("class", "").Contains("section"));
+                var section = content.GetChildWithClass("div", "section");
 
                 var ol = section.Element("ol");
 
@@ -414,7 +419,7 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            return (page.DocumentNode.Element("html")?.Id == "XenForo");
+            return (page.DocumentNode.Element("html").Id == "XenForo");
         }
         #endregion
 
