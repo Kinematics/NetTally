@@ -130,7 +130,7 @@ namespace NetTally
                                  where post != null && post.IsVote && post.Author != threadInfo.Author &&
                                     ((quest.ThreadmarkPost == 0 && post.Number >= quest.StartPost) ||
                                      (quest.ThreadmarkPost == 1 && post.Number >= 1) ||
-                                     (quest.ThreadmarkPost > 1 && post.IDValue >= quest.ThreadmarkPost)) &&
+                                     (quest.ThreadmarkPost > 1 && post.IDValue > quest.ThreadmarkPost)) &&
                                     (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
                                  select post;
 
