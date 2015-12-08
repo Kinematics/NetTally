@@ -342,7 +342,7 @@ namespace NetTally.Adapters
             HtmlNode primaryContent = li.GetChildWithClass("primaryContent");
 
             // On one branch, we can get the post text
-            HtmlNode messageContent = li.GetChildWithClass("messageContent");
+            HtmlNode messageContent = primaryContent.GetChildWithClass("messageContent");
             HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
@@ -353,8 +353,8 @@ namespace NetTally.Adapters
 
             // On another branch of the primary content, we can get the post number.
             HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
-            HtmlNode publicControls = primaryContent.GetChildWithClass("publicControls");
-            HtmlNode postNumber = primaryContent.GetChildWithClass("postNumber");
+            HtmlNode publicControls = messageMeta.GetChildWithClass("publicControls");
+            HtmlNode postNumber = publicControls.GetChildWithClass("postNumber");
 
             string postNumberText = postNumber.InnerText;
             // Skip the leading # character.
