@@ -416,7 +416,6 @@ namespace NetTally.Adapters
 
             return new List<HtmlNode>();
         }
-
         #endregion
 
         #region Detection
