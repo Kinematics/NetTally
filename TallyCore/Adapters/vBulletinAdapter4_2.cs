@@ -10,13 +10,16 @@ namespace NetTally.Adapters
 {
     public class vBulletinAdapter4_2 : IForumAdapter2
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">The URI of the thread this adapter will be handling.</param>
         public vBulletinAdapter4_2(Uri uri)
         {
             Site = uri;
         }
 
-        public int DefaultPostsPerPage => 20;
-
+        #region Site properties
         Uri site;
         static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)showthread.php\?(?<thread>[^&/]+))");
 
@@ -88,21 +91,53 @@ namespace NetTally.Adapters
         string ThreadBaseUrl => $"{BaseSite}showthread.php?{ThreadName}";
         string PostsBaseUrl => $"{ThreadBaseUrl}&p=";
         string PageBaseUrl => $"{ThreadBaseUrl}/page";
+        #endregion
 
+        #region Public interface
+        /// <summary>
+        /// Get the default number of posts per page for this forum type.
+        /// </summary>
+        public int DefaultPostsPerPage => 20;
+
+        /// <summary>
+        /// Generate a URL to access the specified page of the adapter's thread.
+        /// </summary>
+        /// <param name="page">The page of the thread that is being loaded.</param>
+        /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
         public string GetUrlForPage(int page) => $"{PageBaseUrl}{page}";
 
+        /// <summary>
+        /// Generate a URL to access the specified post of the adapter's thread.
+        /// </summary>
+        /// <param name="postId">The permalink ID of the post being requested.</param>
+        /// <returns>Returns a URL formatted to load the requested post.</returns>
         public string GetPermalinkForId(string postId) => $"{PostsBaseUrl}{postId}";
 
+        /// <summary>
+        /// Get the starting post number, to begin tallying from.
+        /// Since vBulletin doesn't have threadmarks, this will always be whatever
+        /// is specified as the start post for the quest.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns data indicating where to begin tallying the thread.</returns>
         public Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
             Task.FromResult(new ThreadStartValue(true, quest.StartPost));
 
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
-            string title, author;
-            int pages;
+            string title;
+            string author = string.Empty; // vBulletin doesn't show thread authors
+            int pages = 1;
 
             HtmlNode doc = page.DocumentNode;
 
@@ -110,10 +145,7 @@ namespace NetTally.Adapters
             title = doc.Element("html").Element("head").Element("title")?.InnerText;
             title = PostText.CleanupWebString(title);
 
-            author = string.Empty;
-
-            pages = 1;
-
+            // Get the number of pages from the navigation elements
             var paginationTop = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "pagination_top");
 
             var paginationForm = paginationTop.Element("form");
@@ -141,6 +173,11 @@ namespace NetTally.Adapters
             return info;
         }
 
+        /// <summary>
+        /// Get a list of posts from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
             var body = page.DocumentNode.Element("html")?.Element("body");
@@ -155,7 +192,14 @@ namespace NetTally.Adapters
 
             return posts;
         }
+        #endregion
 
+        #region Utility
+        /// <summary>
+        /// Get a completed post from the provided HTML list item node.
+        /// </summary>
+        /// <param name="postDiv">List item node that contains the post.</param>
+        /// <returns>Returns a post object with required information.</returns>
         private PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
@@ -169,15 +213,13 @@ namespace NetTally.Adapters
             // ID
             id = li.Id.Substring("post_".Length);
 
-            HtmlNode node;
-
             // Number
-            node = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "posthead");
-            node = node?.Elements("span").FirstOrDefault(n => n.GetAttributeValue("class", "") == "nodecontrols");
-            node = node?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount"));
+            HtmlNode postHead = li.GetChildWithClass("div", "posthead");
+            HtmlNode nodeControls = postHead?.GetChildWithClass("nodecontrols");
+            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount"));
 
-            if (node != null)
-                number = int.Parse(node.GetAttributeValue("name", "0"));
+            if (postCount != null)
+                number = int.Parse(postCount.GetAttributeValue("name", "0"));
 
 
             HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
@@ -185,9 +227,9 @@ namespace NetTally.Adapters
             if (postDetails != null)
             {
                 // Author
-                HtmlNode userinfo = postDetails.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "userinfo");
-                author = userinfo?.Elements("a").FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains("username")).InnerText;
-
+                HtmlNode userinfo = postDetails.GetChildWithClass("div", "userinfo");
+                HtmlNode username = userinfo?.GetChildWithClass("a", "username");
+                author = PostText.CleanupWebString(username?.InnerText);
 
                 // Text
                 string postMessageId = "post_message_" + id;
@@ -213,6 +255,7 @@ namespace NetTally.Adapters
 
             return post;
         }
+        #endregion
 
         #region Detection
         /// <summary>
