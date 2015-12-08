@@ -10,13 +10,16 @@ namespace NetTally.Adapters
 {
     public class vBulletinAdapter5_2 : IForumAdapter2
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">The URI of the thread this adapter will be handling.</param>
         public vBulletinAdapter5_2(Uri uri)
         {
             Site = uri;
         }
 
-        public int DefaultPostsPerPage => 20;
-
+        #region Site properties
         Uri site;
         static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)(?<thread>\d+-[^&?#]+))");
 
@@ -88,38 +91,65 @@ namespace NetTally.Adapters
         string ThreadBaseUrl => $"{BaseSite}{ThreadName}";
         string PostsBaseUrl => $"{ThreadBaseUrl}?p=";
         string PageBaseUrl => $"{ThreadBaseUrl}/page";
+        #endregion
 
+        #region Public interface
+        /// <summary>
+        /// Get the default number of posts per page for this forum type.
+        /// </summary>
+        public int DefaultPostsPerPage => 20;
 
+        /// <summary>
+        /// Generate a URL to access the specified page of the adapter's thread.
+        /// </summary>
+        /// <param name="page">The page of the thread that is being loaded.</param>
+        /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
         public string GetUrlForPage(int page) => $"{PageBaseUrl}{page}";
 
+        /// <summary>
+        /// Generate a URL to access the specified post of the adapter's thread.
+        /// </summary>
+        /// <param name="postId">The permalink ID of the post being requested.</param>
+        /// <returns>Returns a URL formatted to load the requested post.</returns>
         public string GetPermalinkForId(string postId) => $"{PostsBaseUrl}{postId}";
 
+        /// <summary>
+        /// Get the starting post number, to begin tallying from.
+        /// Since vBulletin doesn't have threadmarks, this will always be whatever
+        /// is specified as the start post for the quest.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns data indicating where to begin tallying the thread.</returns>
         public Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
             Task.FromResult(new ThreadStartValue(true, quest.StartPost));
 
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
-            string title, author;
-            int pages;
+            string title;
+            string author = string.Empty; // vBulletin doesn't show the thread author
+            int pages = 1;
 
-            HtmlNode doc = page.DocumentNode;
+            HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = doc.Element("html").Element("head").Element("title")?.InnerText;
+            title = doc.Element("head").Element("title")?.InnerText;
             title = PostText.CleanupWebString(title);
 
-            author = string.Empty;
+            var threadViewTab = doc.Element("body")?.Descendants("div").FirstOrDefault(a => a.Id == "thread-view-tab");
 
-            pages = 1;
+            var pageNavControls = threadViewTab?.GetDescendantWithClass("div", "pagenav-controls");
 
-            var threadViewTab = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "thread-view-tab");
-
-            var pageNavControls = threadViewTab?.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pagenav-controls"));
-
-            var pageTotalSpan = pageNavControls?.Descendants("span").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pagetotal"));
+            var pageTotalSpan = pageNavControls?.GetDescendantWithClass("span", "pagetotal");
 
             if (pageTotalSpan != null)
                 pages = int.Parse(pageTotalSpan.InnerText);
@@ -129,6 +159,11 @@ namespace NetTally.Adapters
             return info;
         }
 
+        /// <summary>
+        /// Get a list of posts from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
             var postList = page.DocumentNode.GetDescendantWithClass("u", "conversation-list");
@@ -137,11 +172,19 @@ namespace NetTally.Adapters
                 return new List<PostComponents>();
 
             var posts = from p in postList.Elements("li")
+                        where p.GetAttributeValue("data-node-id", "") != string.Empty
                         select GetPost(p);
 
             return posts;
         }
+        #endregion
 
+        #region Utility
+        /// <summary>
+        /// Get a completed post from the provided HTML div node.
+        /// </summary>
+        /// <param name="postDiv">Div node that contains the post.</param>
+        /// <returns>Returns a post object with required information.</returns>
         private PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
@@ -163,7 +206,7 @@ namespace NetTally.Adapters
             var authorNode = postAuthorNode?.GetDescendantWithClass("div", "author");
 
             if (authorNode != null)
-                author = authorNode.InnerText;
+                author = PostText.CleanupWebString(authorNode.InnerText);
 
             var contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
@@ -201,7 +244,7 @@ namespace NetTally.Adapters
 
             return post;
         }
-
+        #endregion
 
         #region Detection
         /// <summary>
@@ -214,7 +257,7 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            return page.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
+            return page.DocumentNode.Element("html").Element("body")?.Id == "vb-page-body";
         }
         #endregion
 
