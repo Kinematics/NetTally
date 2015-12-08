@@ -72,7 +72,6 @@
     <Compile Include="CheckForNewRelease.cs" />
     <Compile Include="CollectionWrappers.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="ErrorLog.cs" />
     <Compile Include="MergeVotesWindow.xaml.cs">
       <DependentUpon>MergeVotesWindow.xaml</DependentUpon>
     </Compile>
