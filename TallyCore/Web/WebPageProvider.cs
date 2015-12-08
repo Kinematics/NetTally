@@ -94,8 +94,9 @@ namespace NetTally
         /// <param name="pageNum">The page number in the thread to load.</param>
         /// <param name="caching">Whether to use or bypass the cache.</param>
         /// <param name="token">Cancellation token for the function.</param>
+        /// <param name="shouldCache">Indicate whether the result of this page load should be cached.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token, bool shouldCache = true)
         {
             if (caching == Caching.UseCache)
             {
@@ -192,7 +193,8 @@ namespace NetTally
                 HtmlDocument htmldoc = new HtmlDocument();
                 htmldoc.LoadHtml(result);
 
-                Cache.Add(url, htmldoc);
+                if (shouldCache)
+                    Cache.Add(url, htmldoc);
 
                 UpdateStatus(StatusType.Loaded, shortDescription);
 
