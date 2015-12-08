@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Adapters\IForumAdapter.cs" />
+    <Compile Include="Adapters\NodeBBAdapter.cs" />
+    <Compile Include="Adapters\phpBBAdapter.cs" />
     <Compile Include="Adapters\Utility\ExtendHtmlNode.cs" />
     <Compile Include="Adapters\Utility\ThreadInfo.cs" />
     <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
