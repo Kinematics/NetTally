@@ -131,7 +131,7 @@ namespace NetTally.Adapters
 
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var postList = page.DocumentNode.GetDescendantNodeWithClass("u", "conversation-list");
+            var postList = page.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
             if (postList == null)
                 return new List<PostComponents>();
@@ -160,15 +160,15 @@ namespace NetTally.Adapters
 
             // Author
             var postAuthorNode = li.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "author");
-            var authorNode = postAuthorNode?.GetDescendantNodeWithClass("div", "author");
+            var authorNode = postAuthorNode?.GetDescendantWithClass("div", "author");
 
             if (authorNode != null)
                 author = authorNode.InnerText;
 
-            var contentArea = li.GetDescendantNodeWithClass("div", "b-post__content");
+            var contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
             // Number
-            var postCountAnchor = contentArea.GetDescendantNodeWithClass("a", "b-post__count");
+            var postCountAnchor = contentArea.GetDescendantWithClass("a", "b-post__count");
 
             if (postCountAnchor != null)
             {

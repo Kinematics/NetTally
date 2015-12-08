@@ -33,6 +33,14 @@ namespace NetTally.Adapters
         }
 
         /// <summary>
+        /// Overloaded version to not require specifying the element name.
+        /// </summary>
+        /// <param name="node">The object the extension method is being used on.</param>
+        /// <param name="@class">The name of the class to search for.  Must be provided.</param>
+        /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        public static HtmlNode GetChildWithClass(this HtmlNode node, string @class) => node.GetChildWithClass(null, @class);
+
+        /// <summary>
         /// Get the single HTML node result for searching for any descendant element
         /// that has the specified class attribute.
         /// </summary>
@@ -41,7 +49,7 @@ namespace NetTally.Adapters
         /// If it's null or empty, any element will work.</param>
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode GetDescendantNodeWithClass(this HtmlNode node, string element, string @class)
+        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string element, string @class)
         {
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
@@ -54,5 +62,14 @@ namespace NetTally.Adapters
 
             return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(@class));
         }
+
+        /// <summary>
+        /// Overloaded version to not require specifying the element name.
+        /// </summary>
+        /// <param name="node">The object the extension method is being used on.</param>
+        /// <param name="@class">The name of the class to search for.  Must be provided.</param>
+        /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string @class) => node.GetDescendantWithClass(null, @class);
+
     }
 }
