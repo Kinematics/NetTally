@@ -10,6 +10,10 @@ namespace NetTally.Adapters
 {
     public class vBulletinAdapter3_2 : IForumAdapter2
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">URI for the thread to manage.</param>
         public vBulletinAdapter3_2(Uri site)
         {
             Site = site;
@@ -89,34 +93,57 @@ namespace NetTally.Adapters
         string PostsBaseUrl => $"{BaseSite}showthread.php?p=";
         #endregion
 
+        #region Public interface
+        /// <summary>
+        /// Get the default number of posts per page for this forum type.
+        /// </summary>
         public int DefaultPostsPerPage => 20;
 
-        #region Public interface
+        /// <summary>
+        /// Generate a URL to access the specified page of the adapter's thread.
+        /// </summary>
+        /// <param name="page">The page of the thread that is being loaded.</param>
+        /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
         public string GetUrlForPage(int page) => $"{ThreadBaseUrl}&page={page}";
 
+        /// <summary>
+        /// Generate a URL to access the specified post of the adapter's thread.
+        /// </summary>
+        /// <param name="postId">The permalink ID of the post being requested.</param>
+        /// <returns>Returns a URL formatted to load the requested post.</returns>
         public string GetPermalinkForId(string postId) => $"{PostsBaseUrl}{postId}";
 
+        /// <summary>
+        /// Get the starting post number, to begin tallying from.
+        /// Since vBulletin doesn't have threadmarks, this will always be whatever
+        /// is specified as the start post for the quest.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns data indicating where to begin tallying the thread.</returns>
         public Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
             Task.FromResult(new ThreadStartValue(true, quest.StartPost));
 
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
-            string title, author;
-            int pages;
+            string title;
+            string author = string.Empty; // vBulletin doesn't show thread authors
+            int pages = 1;
 
             HtmlNode doc = page.DocumentNode;
 
             // Find the page title
-            title = doc.Element("html")?.Element("head")?.Element("title")?.InnerText;
+            title = doc.Element("html").Element("head")?.Element("title")?.InnerText;
             title = PostText.CleanupWebString(title);
-
-            author = string.Empty;
-
-
-            pages = 1;
 
             // If there's no pagenav div, that means there's no navigation to alternate pages,
             // which means there's only one page in the thread.
@@ -143,9 +170,14 @@ namespace NetTally.Adapters
             return info;
         }
 
+        /// <summary>
+        /// Get a list of posts from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var divs = page.DocumentNode.Element("html")?.Element("body")?.Elements("div");
+            var divs = page.DocumentNode.Element("html").Element("body")?.Elements("div");
             var postlist = divs?.FirstOrDefault(a => a.Id == "posts");
 
             if (postlist == null)
@@ -159,6 +191,11 @@ namespace NetTally.Adapters
         #endregion
 
         #region Utility
+        /// <summary>
+        /// Get a completed post from the provided HTML div node.
+        /// </summary>
+        /// <param name="postDiv">Div node that contains the post.</param>
+        /// <returns>Returns a post object with required information.</returns>
         private PostComponents GetPost(HtmlNode postDiv)
         {
             if (postDiv == null)
@@ -184,6 +221,7 @@ namespace NetTally.Adapters
             {
                 author = authorAnchor.InnerText;
 
+                // ??
                 if (authorAnchor.Element("span") != null)
                 {
                     author = authorAnchor.Element("span").InnerText;
@@ -203,8 +241,6 @@ namespace NetTally.Adapters
             string postMessageId = "post_message_" + id;
 
             var postContents = postTable.Descendants("div").FirstOrDefault(a => a.Id == postMessageId);
-
-
 
             // Predicate filtering out elements that we don't want to include
             var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
