@@ -61,7 +61,6 @@
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
-    <Compile Include="Adapters\IForumAdapter.cs" />
     <Compile Include="Web\IPageProvider.cs" />
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
