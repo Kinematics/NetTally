@@ -85,14 +85,8 @@ namespace NetTally.Adapters
                     if (token.IsCancellationRequested)
                         return null;
 
-                    // Manual checks against known classes. Skipping to do automatic checks.
-                    //if (XenForoAdapter2.CanHandlePage(page))
-                    //    return new XenForoAdapter2(uri);
-
-                    //if (vBulletinAdapter3_2.CanHandlePage(page))
-                    //    return new vBulletinAdapter3_2(uri);
-
-
+                    // Do automatic checks against any class in this library that implements
+                    // IForumAdapter, and the static method, "CanHandlePage".
                     const string detectMethodName = "CanHandlePage";
 
                     Type ti = typeof(IForumAdapter2);
@@ -106,9 +100,12 @@ namespace NetTally.Adapters
                     {
                         try
                         {
+                            // Check the class for a static member named "CanHandlePage"
                             var detectMethodArray = adapterClass.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Public,
                                 Type.FilterName, detectMethodName);
 
+                            // If it finds any such methods, check the class against the currently loaded page to
+                            // see if this the correct adapter to return.
                             if (detectMethodArray.Any())
                             {
                                 bool result = (bool)adapterClass.InvokeMember(detectMethodName,
