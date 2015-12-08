@@ -125,7 +125,7 @@ namespace NetTally.Adapters
                         }
                         catch (Exception e)
                         {
-                            { }
+                            ErrorLog.Log(e);
                         }
                     }
 
