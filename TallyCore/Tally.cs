@@ -20,7 +20,6 @@ namespace NetTally
         DisplayMode displayMode = DisplayMode.Normal;
 
         IQuest lastTallyQuest = null;
-        List<HtmlDocument> loadedPages = null;
 
         public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -149,6 +148,8 @@ namespace NetTally
         {
             try
             {
+                List<HtmlDocument> loadedPages = null;
+
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
 
@@ -173,8 +174,6 @@ namespace NetTally
             catch (Exception)
             {
                 lastTallyQuest = null;
-                loadedPages?.Clear();
-                loadedPages = null;
                 throw;
             }
             finally
@@ -191,14 +190,11 @@ namespace NetTally
         {
             if (lastTallyQuest != null && changedQuest == lastTallyQuest)
             {
-                if (loadedPages != null && loadedPages.Count > 0)
-                {
-                    // Tally the votes from the loaded pages.
-                    VoteCounter.TallyPosts(lastTallyQuest);
+                // Tally the votes from the loaded pages.
+                VoteCounter.TallyPosts(lastTallyQuest);
 
-                    // Compose the final result string from the compiled votes.
-                    ConstructResults(lastTallyQuest);
-                }
+                // Compose the final result string from the compiled votes.
+                ConstructResults(lastTallyQuest);
             }
         }
 
