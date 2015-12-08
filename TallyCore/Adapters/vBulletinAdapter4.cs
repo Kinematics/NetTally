@@ -8,13 +8,13 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public class vBulletinAdapter4_2 : IForumAdapter2
+    public class vBulletinAdapter4 : IForumAdapter2
     {
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="site">The URI of the thread this adapter will be handling.</param>
-        public vBulletinAdapter4_2(Uri uri)
+        public vBulletinAdapter4(Uri uri)
         {
             Site = uri;
         }
