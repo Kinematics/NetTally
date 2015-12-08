@@ -87,7 +87,7 @@ namespace NetTally
         /// <returns></returns>
         Task InitForumAdapter(CancellationToken token);
 
-        IForumAdapter2 ForumAdapter { get; }
+        IForumAdapter ForumAdapter { get; }
 
         /// <summary>
         /// Converts a post number into a page number.

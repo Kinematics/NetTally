@@ -6,7 +6,7 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public interface IForumAdapter2
+    public interface IForumAdapter
     {
         // General meta-info
 

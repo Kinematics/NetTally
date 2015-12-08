@@ -41,7 +41,7 @@ namespace NetTally
 
         public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
 
-        public IForumAdapter2 ForumAdapter { get; private set; } = null;
+        public IForumAdapter ForumAdapter { get; private set; } = null;
 
 
         string threadName = NewThreadEntry;

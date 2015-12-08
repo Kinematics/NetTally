@@ -14,7 +14,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async static Task<IForumAdapter2> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None);
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None);
 
         /// <summary>
         /// Function to generate an appropriate forum adapter for the specified quest.
@@ -23,7 +23,7 @@ namespace NetTally.Adapters
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an appropriate forum adapter for the quest, if found. Otherwise, null.</returns>
-        public async static Task<IForumAdapter2> GetAdapter(IQuest quest, CancellationToken token)
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -33,7 +33,7 @@ namespace NetTally.Adapters
 
             Uri uri = new Uri(quest.ThreadName);
 
-            IForumAdapter2 adapter = GetKnownForumAdapter(uri);
+            IForumAdapter adapter = GetKnownForumAdapter(uri);
 
             if (adapter == null)
                 adapter = await GetUnknownForumAdapter(uri, token);
@@ -49,7 +49,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="uri">The URI for the forum thread.</param>
         /// <returns>Returns a forum adapter for certain known forums. Otherwise, null.</returns>
-        private static IForumAdapter2 GetKnownForumAdapter(Uri uri)
+        private static IForumAdapter GetKnownForumAdapter(Uri uri)
         {
             switch (uri.Host)
             {
@@ -71,7 +71,7 @@ namespace NetTally.Adapters
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a forum adapter for the forum thread if one can be determined.
         /// Otherwise, null.</returns>
-        private async static Task<IForumAdapter2> GetUnknownForumAdapter(Uri uri, CancellationToken token)
+        private async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token)
         {
             using (IPageProvider webPageProvider = new WebPageProvider())
             {
@@ -89,7 +89,7 @@ namespace NetTally.Adapters
                     // IForumAdapter, and the static method, "CanHandlePage".
                     const string detectMethodName = "CanHandlePage";
 
-                    Type ti = typeof(IForumAdapter2);
+                    Type ti = typeof(IForumAdapter);
 
                     // Get the list of all adapter classes built off of the IForumAdapter interface.
                     var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
@@ -114,7 +114,7 @@ namespace NetTally.Adapters
 
                                 if (result)
                                 {
-                                    var adapter = (IForumAdapter2)Activator.CreateInstance(adapterClass, new object[] { uri });
+                                    var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
 
                                     return adapter;
                                 }

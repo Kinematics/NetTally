@@ -8,7 +8,7 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public class vBulletinAdapter4 : IForumAdapter2
+    public class vBulletinAdapter4 : IForumAdapter
     {
         /// <summary>
         /// Constructor
