@@ -123,7 +123,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>
         /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
-        public string GetUrlForPage(int page)
+        public string GetUrlForPage(int page, int postsPerPage)
         {
             if (page < 1)
                 throw new ArgumentOutOfRangeException(nameof(page), page, "Invalid page number.");

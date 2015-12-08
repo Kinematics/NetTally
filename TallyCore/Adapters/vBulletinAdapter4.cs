@@ -104,7 +104,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>
         /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
-        public string GetUrlForPage(int page) => $"{PageBaseUrl}{page}";
+        public string GetUrlForPage(int page, int postsPerPage) => $"{PageBaseUrl}{page}";
 
         /// <summary>
         /// Generate a URL to access the specified post of the adapter's thread.

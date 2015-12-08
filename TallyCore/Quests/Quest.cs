@@ -399,7 +399,7 @@ namespace NetTally
                 // then we need to load the first page to find out how many pages there are in the thread.
                 if (ReadToEndOfThread)
                 {
-                    HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber),
+                    HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber, PostsPerPage),
                         $"Page {firstPageNumber}", Caching.BypassCache, token).ConfigureAwait(false);
 
                     if (firstPage == null)
@@ -429,7 +429,7 @@ namespace NetTally
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
                     var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
-                                  let pageUrl = ForumAdapter.GetUrlForPage(pageNum)
+                                  let pageUrl = ForumAdapter.GetUrlForPage(pageNum, PostsPerPage)
                                   let shouldCache = !(pageNum == lastPageNumber)
                                   select pageProvider.GetPage(pageUrl, $"Page {pageNum}", Caching.UseCache, token, shouldCache);
 
