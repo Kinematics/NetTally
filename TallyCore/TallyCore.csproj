@@ -59,7 +59,6 @@
     <Compile Include="Adapters\vBulletinAdapter4_2.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\vBulletinAdapter5_2.cs" />
-    <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Adapters\XenForoAdapter2.cs" />
     <Compile Include="Utility\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
