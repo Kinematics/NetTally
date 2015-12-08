@@ -339,6 +339,11 @@ namespace NetTally
         public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
 
         /// <summary>
+        /// Property to store any found threadmark post number.
+        /// </summary>
+        public int ThreadmarkPost { get; set; } = 0;
+
+        /// <summary>
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
         /// </summary>
@@ -354,11 +359,6 @@ namespace NetTally
 
             return startInfo;
         }
-
-        /// <summary>
-        /// Property to store any found threadmark post number.
-        /// </summary>
-        public int ThreadmarkPost { get; set; } = 0;
 
         /// <summary>
         /// Load the pages for the given quest asynchronously.
