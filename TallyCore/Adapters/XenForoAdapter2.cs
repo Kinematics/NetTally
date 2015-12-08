@@ -312,8 +312,19 @@ namespace NetTally.Adapters
                     break;
             }
 
-            node = node.Element("div");
-            node = node.ChildNodes.First(n => n.GetAttributeValue("class", "") == "pageContent");
+            // Some XenForo sites insert a "pageWidth" div between content and pageContent, to allow
+            // themed setting of the page width.  We want to skip that.
+            //
+            // We can do so by searching for the descendant with the appropriate class, since
+            // the node recursion should be fast (ie: only one div per child level until we
+            // reach pageContent).
+
+            node = node.GetDescendantWithClass("pageContent");
+
+            //if (node.ChildNodes.Count == 1 && node.FirstChild.GetAttributeValue("class", "") == "pageWidth")
+            //    node = node.Element("div");
+
+            //node = node.GetChildWithClass("pageContent");
 
             return node;
         }
