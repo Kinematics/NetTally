@@ -367,8 +367,12 @@ namespace NetTally
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
         public async Task<List<HtmlDocument>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token)
         {
+            // We will store the loaded pages in a new List.
+            List<HtmlDocument> pages = new List<HtmlDocument>();
+
             try
             {
+                // Figure out what page to start from
                 var startInfo = await GetStartInfo(pageProvider, token);
 
                 int firstPageNumber = 0;
@@ -377,6 +381,9 @@ namespace NetTally
                 else
                     firstPageNumber = startInfo.Page;
 
+                // Keep track of whether we used threadmarks to figure out the
+                // first post.  If we did, we'll re-use this number when filtering
+                // for valid posts.
                 if (startInfo.Number == 1)
                     ThreadmarkPost = 1;
                 else if (!startInfo.ByNumber)
@@ -384,35 +391,47 @@ namespace NetTally
                 else
                     ThreadmarkPost = 0;
 
-                HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber),
-                    $"Page {firstPageNumber}", Caching.BypassCache, token).ConfigureAwait(false);
-
-                if (firstPage == null)
-                    throw new InvalidOperationException("Unable to load web page.");
-
-                // We will store the loaded pages in a new List.
-                List<HtmlDocument> pages = new List<HtmlDocument>();
-                pages.Add(firstPage);
-
-                ThreadInfo threadInfo = ForumAdapter.GetThreadInfo(firstPage);
-
-                // Set parameters for which pages to try to load
+                // Var for what we determine the last page number will be
                 int lastPageNumber = 0;
-                if (ReadToEndOfThread)
-                    lastPageNumber = threadInfo.Pages;
-                else
-                    lastPageNumber = GetPageNumberOf(EndPost);
+                int pagesToScan = 0;
 
-                int pagesToScan = lastPageNumber - firstPageNumber;
+                // If we're reading to the end of the thread (end post 0, or based on a threadmark),
+                // then we need to load the first page to find out how many pages there are in the thread.
+                if (ReadToEndOfThread)
+                {
+                    HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber),
+                        $"Page {firstPageNumber}", Caching.BypassCache, token).ConfigureAwait(false);
+
+                    if (firstPage == null)
+                        throw new InvalidOperationException("Unable to load web page.");
+
+                    pages.Add(firstPage);
+
+                    ThreadInfo threadInfo = ForumAdapter.GetThreadInfo(firstPage);
+                    lastPageNumber = threadInfo.Pages;
+
+                    // Get the number of pages remaining to load
+                    pagesToScan = lastPageNumber - firstPageNumber;
+                    // Increment the first page number to fix where we're starting.
+                    firstPageNumber++;
+                }
+                else
+                {
+                    // If we're not reading to the end of the thread, just calculate
+                    // what the last page number will be.  Pages to scan will be the
+                    // difference in pages +1.
+                    lastPageNumber = GetPageNumberOf(EndPost);
+                    pagesToScan = lastPageNumber - firstPageNumber + 1;
+                }
 
                 // Initiate the async tasks to load the pages
                 if (pagesToScan > 0)
                 {
                     // Initiate tasks for all pages other than the first page (which we already loaded)
-                    var results = from pageNum in Enumerable.Range(firstPageNumber + 1, pagesToScan)
-                                  let cacheMode = pageNum == threadInfo.Pages ? Caching.BypassCache : Caching.UseCache
+                    var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
                                   let pageUrl = ForumAdapter.GetUrlForPage(pageNum)
-                                  select pageProvider.GetPage(pageUrl, $"Page {pageNum}", cacheMode, token);
+                                  let shouldCache = !(pageNum == lastPageNumber)
+                                  select pageProvider.GetPage(pageUrl, $"Page {pageNum}", Caching.UseCache, token, shouldCache);
 
                     // Wait for all the tasks to be completed.
                     HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
