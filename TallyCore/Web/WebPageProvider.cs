@@ -24,11 +24,13 @@ namespace NetTally
             Loaded
         }
 
+        // Maximum number of simultaneous connections allowed, to guard against hammering the server.
         const int maxSimultaneousConnections = 5;
+        readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
 
         WebCache Cache { get; } = WebCache.Instance;
-        readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
         string UserAgent { get; }
+
         bool _disposed = false;
 
         public WebPageProvider()
@@ -98,6 +100,10 @@ namespace NetTally
         /// <returns>An HtmlDocument for the specified page.</returns>
         public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token, bool shouldCache = true)
         {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
+
             if (caching == Caching.UseCache)
             {
                 HtmlDocument page = Cache.Get(url);
@@ -121,15 +127,7 @@ namespace NetTally
                 int tries = 0;
                 HttpClient client;
                 HttpResponseMessage response;
-
-                HttpClientHandler handler = new HttpClientHandler();
-                var cookies = ForumCookies.GetCookies(url);
-                if (cookies.Count > 0)
-                {
-                    CookieContainer cookieJar = new CookieContainer();
-                    cookieJar.Add(cookies);
-                    handler.CookieContainer = cookieJar;
-                }
+                HttpClientHandler handler = GetHandler(url);
 
                 using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
                 {
@@ -204,6 +202,29 @@ namespace NetTally
             {
                 ss.Release();
             }
+        }
+        #endregion
+
+        #region Private support functions
+        /// <summary>
+        /// Get an HTTP client handler object for a given URL.
+        /// Insert any needed cookies.
+        /// </summary>
+        /// <param name="url">The URL for the client handler to service.</param>
+        /// <returns>Returns a client handler, with cookies if needed.</returns>
+        private HttpClientHandler GetHandler(string url)
+        {
+            HttpClientHandler handler = new HttpClientHandler();
+
+            CookieCollection cookies = ForumCookies.GetCookies(url);
+            if (cookies.Count > 0)
+            {
+                CookieContainer cookieJar = new CookieContainer();
+                cookieJar.Add(cookies);
+                handler.CookieContainer = cookieJar;
+            }
+
+            return handler;
         }
 
         /// <summary>
