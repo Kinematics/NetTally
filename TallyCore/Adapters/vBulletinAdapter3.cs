@@ -139,19 +139,18 @@ namespace NetTally.Adapters
             string author = string.Empty; // vBulletin doesn't show thread authors
             int pages = 1;
 
-            HtmlNode doc = page.DocumentNode;
+            HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = doc.Element("html").Element("head")?.Element("title")?.InnerText;
-            title = PostText.CleanupWebString(title);
+            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // If there's no pagenav div, that means there's no navigation to alternate pages,
             // which means there's only one page in the thread.
-            var pageNavDiv = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "") == "pagenav");
+            var pageNavDiv = doc.GetDescendantWithClass("div", "pagenav");
 
             if (pageNavDiv != null)
             {
-                var vbMenuControl = pageNavDiv.Descendants("td").FirstOrDefault(a => a.GetAttributeValue("class", "") == "vbmenu_control");
+                var vbMenuControl = pageNavDiv.GetDescendantWithClass("td", "vbmenu_control");
 
                 if (vbMenuControl != null)
                 {
