@@ -397,7 +397,13 @@ namespace NetTally
                 ThreadInfo threadInfo = ForumAdapter.GetThreadInfo(firstPage);
 
                 // Set parameters for which pages to try to load
-                int pagesToScan = threadInfo.Pages - firstPageNumber;
+                int lastPageNumber = 0;
+                if (ReadToEndOfThread)
+                    lastPageNumber = threadInfo.Pages;
+                else
+                    lastPageNumber = GetPageNumberOf(EndPost);
+
+                int pagesToScan = lastPageNumber - firstPageNumber;
 
                 // Initiate the async tasks to load the pages
                 if (pagesToScan > 0)
