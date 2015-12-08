@@ -53,7 +53,7 @@
     <Compile Include="Adapters\Utility\ThreadInfo.cs" />
     <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
     <Compile Include="Adapters\Utility\ThreadStartValue.cs" />
-    <Compile Include="Adapters\vBulletinAdapter3_2.cs" />
+    <Compile Include="Adapters\vBulletinAdapter3.cs" />
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter4_2.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
