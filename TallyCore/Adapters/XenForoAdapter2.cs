@@ -243,7 +243,7 @@ namespace NetTally.Adapters
                 return new ThreadStartValue(true, quest.StartPost);
 
             // Attempt to get the starting post number from threadmarks, if that option is checked.
-            var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token).ConfigureAwait(false);
+            var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksList(threadmarkPage);
 
