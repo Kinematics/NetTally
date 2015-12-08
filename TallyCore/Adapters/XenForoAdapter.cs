@@ -11,13 +11,13 @@ namespace NetTally.Adapters
     /// <summary>
     /// Class for extracting data from XenForo forum threads.
     /// </summary>
-    public class XenForoAdapter2 : IForumAdapter2
+    public class XenForoAdapter : IForumAdapter2
     {
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="site">The URI of the thread this adapter will be handling.</param>
-        public XenForoAdapter2(Uri site)
+        public XenForoAdapter(Uri site)
         {
             Site = site;
         }

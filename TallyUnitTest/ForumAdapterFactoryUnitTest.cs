@@ -14,7 +14,7 @@ namespace NetTally.Tests
             IQuest quest = new Quest();
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
         [TestMethod]
@@ -24,7 +24,7 @@ namespace NetTally.Tests
             quest.ThreadName = "http://forums.sufficientvelocity.com/";
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace NetTally.Tests
             quest.ThreadName = "http://forums.spacebattles.com/";
             var adapter = ForumAdapterFactory.GetAdapter(quest);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
     }
 }

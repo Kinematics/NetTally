@@ -57,7 +57,7 @@ namespace NetTally.Adapters
                 case "forums.sufficientvelocity.com":
                 case "forums.spacebattles.com":
                 case "forum.questionablequesting.com":
-                    return new XenForoAdapter2(uri);
+                    return new XenForoAdapter(uri);
                 default:
                     return null;
             }
