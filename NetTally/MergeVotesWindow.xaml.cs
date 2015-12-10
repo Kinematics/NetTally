@@ -401,8 +401,6 @@ namespace NetTally
                     CancelInput();
                     e.Handled = true;
                     break;
-                default:
-                    break;
             }
         }
 

@@ -183,8 +183,6 @@ namespace NetTally.Adapters
                         // Recurse into divs (typically spoilers).
                         ExtractPostTextString(child, exclude, sb);
                         break;
-                    default:
-                        break;
                 }
             }
 

@@ -271,8 +271,6 @@ namespace NetTally
                             sb.Append(details);
                             sb.Append(" loaded!");
                             break;
-                        default:
-                            break;
                     }
                 }
             }
