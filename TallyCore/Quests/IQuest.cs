@@ -38,6 +38,7 @@ namespace NetTally
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
@@ -59,26 +60,31 @@ namespace NetTally
         int ThreadmarkPost { get; set; }
 
         /// <summary>
-        /// Get the forum adapter needed to read results from the web site this
-        /// quest is for.
+        /// Initialize the forum adapter needed to read results from the web site this quest is for.
+        /// Runs async, but doesn't need a cancellation token.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns nothing.</returns>
         Task InitForumAdapter();
 
         /// <summary>
-        /// Get the forum adapter needed to read results from the web site this
-        /// quest is for.  Allow it to run async so that it can load web pages.
+        /// Initialize the forum adapter needed to read results from the web site this quest is for.
+        /// Runs async, with a cancellation token.
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns nothing.</returns>
         Task InitForumAdapter(CancellationToken token);
 
+        /// <summary>
+        /// Get the forum adapter being used by this quest.
+        /// Must be initialized first.
+        /// </summary>
         IForumAdapter ForumAdapter { get; }
 
         /// <summary>
         /// Converts a post number into a page number.
         /// </summary>
         int GetPageNumberOf(int postNumber);
+
         /// <summary>
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
