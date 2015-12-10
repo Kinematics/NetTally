@@ -39,7 +39,7 @@ namespace NetTally
         static readonly Regex siteRegex = new Regex(@"^(?<siteName>https?://[^/]+/)");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
 
-        public const string NewThreadEntry = "http://forums.sufficientvelocity.com/threads/fake-thread";
+        public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
 
         public IForumAdapter ForumAdapter { get; private set; } = null;
 
