@@ -523,7 +523,7 @@ namespace NetTally
             if (prefix == null)
                 prefix = "";
 
-            if (marker == null || marker == string.Empty)
+            if (string.IsNullOrEmpty(marker))
                 marker = "X";
 
             if (task == null)

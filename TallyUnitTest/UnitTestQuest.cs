@@ -10,10 +10,10 @@ namespace TallyUnitTest
     [TestClass]
     public class UnitTestQuest
     {
-// Disable obsolete warnings for fields that we're still testing
+        // Disable obsolete warnings for fields that we're still testing
 #pragma warning disable 0618
 
-        static List<string> propertiesRaised = new List<string>();
+        static readonly List<string> propertiesRaised = new List<string>();
         Quest a;
 
         [TestInitialize()]

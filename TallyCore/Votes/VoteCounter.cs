@@ -329,7 +329,7 @@ namespace NetTally
         /// <returns>Returns true if a vote was removed.</returns>
         public bool Delete(string vote, VoteType voteType)
         {
-            if (vote == null || vote == string.Empty)
+            if (string.IsNullOrEmpty(vote))
                 return false;
 
             var votes = GetVotesCollection(voteType);
