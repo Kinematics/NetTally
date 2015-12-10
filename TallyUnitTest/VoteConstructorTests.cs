@@ -362,7 +362,7 @@ namespace NetTally.Tests
 -[X] Ambush
 -[X][Decision] Kill
 -[X] Run";
-            List<string> expected = new List<string>() { testVote };
+            List<string> expected = new List<string> { testVote };
 
             sampleQuest.PartitionMode = PartitionMode.None;
             string author = "Me";

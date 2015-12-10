@@ -297,7 +297,7 @@ namespace NetTally
         /// <returns>Returns an ordered enumeration of the voters.</returns>
         private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            var voterList = new List<string>() { GetFirstVoter(voters) };
+            var voterList = new List<string> { GetFirstVoter(voters) };
             var otherVoters = voters.Except(voterList);
 
             var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));

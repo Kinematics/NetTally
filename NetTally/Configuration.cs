@@ -188,7 +188,7 @@ namespace NetTally
 
             foreach (QuestElement quest in Quests)
             {
-                IQuest q = new Quest()
+                IQuest q = new Quest
                 {
                     DisplayName = quest.DisplayName,
                     ThreadName = quest.ThreadName,

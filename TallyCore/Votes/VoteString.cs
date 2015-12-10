@@ -50,7 +50,7 @@ namespace NetTally
         // Regex for any closing BBCode tag.
         static readonly Regex closeBBCodeRegex = new Regex(@"^\[/(b|i|u|color)\]");
 
-        static readonly Dictionary<string, int> countTags = new Dictionary<string, int>() {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
+        static readonly Dictionary<string, int> countTags = new Dictionary<string, int> {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
         #endregion
 
         #region Cleanup functions

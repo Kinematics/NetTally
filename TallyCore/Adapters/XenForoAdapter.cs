@@ -357,7 +357,7 @@ namespace NetTally.Adapters
             HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusions = PostText.GetClassesExclusionPredicate(new List<string>() { "bbCodeQuote", "messageTextEndMarker" });
+            var exclusions = PostText.GetClassesExclusionPredicate(new List<string> { "bbCodeQuote", "messageTextEndMarker" });
 
             // Get the full post text.
             text = PostText.ExtractPostText(postBlock, exclusions);

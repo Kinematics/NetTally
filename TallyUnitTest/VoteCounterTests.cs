@@ -137,7 +137,7 @@ namespace NetTally.Tests
             string voteLine = "[x] First test";
             string voter = "me";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote, voter, postId, voteType);
@@ -159,7 +159,7 @@ namespace NetTally.Tests
             string voter = "me";
             string planname = "◈PlanPlan";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Plan;
 
             voteCounter.AddVotes(vote, planname, postId, voteType);
@@ -183,7 +183,7 @@ namespace NetTally.Tests
             string voteLine = "[1] First test";
             string voter = "me";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Rank;
 
             voteCounter.AddVotes(vote, voter, postId, voteType);
@@ -203,7 +203,7 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote, voter1, postId1, voteType);
@@ -228,8 +228,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -255,8 +255,8 @@ namespace NetTally.Tests
             string voter1 = "me";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -279,8 +279,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { line1 };
-            List<string> vote2 = new List<string>() { line2 };
+            List<string> vote1 = new List<string> { line1 };
+            List<string> vote2 = new List<string> { line2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -304,8 +304,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { line1 };
-            List<string> vote2 = new List<string>() { line2 };
+            List<string> vote1 = new List<string> { line1 };
+            List<string> vote2 = new List<string> { line2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -463,8 +463,8 @@ namespace NetTally.Tests
             string voter2 = "you";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -484,8 +484,8 @@ namespace NetTally.Tests
             string voter2 = "you";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine1, voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine1, voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
