@@ -684,7 +684,7 @@ namespace NetTally
         /// <param name="task">The name of a new task.</param>
         private void AddTaskToContextMenu(string task)
         {
-            if (task == null || task == string.Empty)
+            if (string.IsNullOrEmpty(task))
                 return;
 
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
