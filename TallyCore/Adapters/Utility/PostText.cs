@@ -84,7 +84,7 @@ namespace NetTally.Adapters
             {
                 string nodeClass = n.GetAttributeValue("class", "");
 
-                return classNames.Any(c => nodeClass.Contains(c));
+                return classNames.Any(nodeClass.Contains);
             };
 
         }

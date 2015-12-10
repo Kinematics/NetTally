@@ -372,7 +372,7 @@ namespace NetTally
 
             var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            string searchName = referenceNames[ReferenceType.Plan].FirstOrDefault(n => HasPlan(n));
+            string searchName = referenceNames[ReferenceType.Plan].FirstOrDefault(HasPlan);
 
             if (searchName == null)
             {
