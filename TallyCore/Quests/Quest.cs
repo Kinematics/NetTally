@@ -59,22 +59,6 @@ namespace NetTally
 
         #region Obsolete, but still referenced
         /// <summary>
-        /// Gets the web site name from the thread URL.
-        /// </summary>
-        public string SiteName
-        {
-            get
-            {
-                Match m = siteRegex.Match(threadName);
-                if (m.Success)
-                    return m.Groups["siteName"].Value;
-
-                // Default site if no site given in thread name.
-                return "http://forums.sufficientvelocity.com/";
-            }
-        }
-
-        /// <summary>
         /// Return either the StartPost or the ThreadmarkPost, depending on config.
         /// </summary>
         public int FirstTallyPost

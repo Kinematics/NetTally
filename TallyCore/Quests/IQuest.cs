@@ -17,10 +17,6 @@ namespace NetTally
         /// The display name that the user can select.
         /// </summary>
         string DisplayName { get; set; }
-        /// <summary>
-        /// The base site name that can be used to get the forum adapter.
-        /// </summary>
-        string SiteName { get; }
 
 
         /// <summary>

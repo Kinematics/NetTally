@@ -27,7 +27,6 @@ namespace TallyUnitTest
             // Normal
             Assert.AreEqual(Quest.NewThreadEntry, a.ThreadName);
             Assert.AreEqual("fake-thread", a.DisplayName);
-            Assert.AreEqual("http://forums.sufficientvelocity.com/", a.SiteName);
             Assert.AreEqual(25, a.PostsPerPage);
             Assert.AreEqual(1, a.StartPost);
             Assert.AreEqual(0, a.EndPost);
@@ -89,16 +88,6 @@ namespace TallyUnitTest
             Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", a.ThreadName);
             a.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#post288335";
             Assert.AreEqual("http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread", a.ThreadName);
-        }
-
-        [TestMethod]
-        public void TestSiteName()
-        {
-            Assert.AreEqual("http://forums.sufficientvelocity.com/", a.SiteName);
-            a.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#poast288335";
-            Assert.AreEqual("http://www.fandompost.com/", a.SiteName);
-            a.ThreadName = "renascence-a-homura-quest.10402";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/", a.SiteName);
         }
 
         [TestMethod]
