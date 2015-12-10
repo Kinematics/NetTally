@@ -60,9 +60,7 @@ namespace NetTally
         /// <returns>Returns true if all bindings are true.</returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            bool pass = true;
-            if (parameter != null && parameter.Equals("Invert"))
-                pass = false;
+            bool pass = (parameter == null || !parameter.Equals("Invert"));
 
             foreach (object value in values)
             {
@@ -98,9 +96,7 @@ namespace NetTally
         /// <returns>Returns true if any bindings are true.</returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            bool pass = true;
-            if (parameter != null && parameter.Equals("Invert"))
-                pass = false;
+            bool pass = (parameter == null || !parameter.Equals("Invert"));
 
             foreach (object value in values)
             {
