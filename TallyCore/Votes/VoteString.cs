@@ -76,7 +76,7 @@ namespace NetTally
                 // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
                 string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
                 string replacement = "$1$3$4";
-                result = Regex.Replace(contents, pattern, replacement);
+                result = Regex.Replace(result, pattern, replacement);
 
                 m = linkedReferenceRegex.Match(result);
             }
