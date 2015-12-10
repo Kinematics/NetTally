@@ -2,13 +2,11 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
-using NetTally.Adapters;
 
-namespace TallyUnitTest
+namespace NetTally.Tests
 {
     [TestClass]
-    public class UnitTestQuest
+    public class QuestTests
     {
         static readonly List<string> propertiesRaised = new List<string>();
         IQuest a;

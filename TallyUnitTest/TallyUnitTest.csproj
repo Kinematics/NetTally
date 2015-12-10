@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="ForumAdapterFactoryUnitTest.cs" />
     <Compile Include="PostComponentsTests.cs" />
-    <Compile Include="UnitTestQuest.cs" />
+    <Compile Include="QuestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VoteConstructorTests.cs" />
     <Compile Include="VoteCounterTests.cs" />
