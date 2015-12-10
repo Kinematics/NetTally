@@ -44,9 +44,9 @@ namespace TallyUnitTest
         {
             a.DisplayName = "Test Display";
             Assert.AreEqual("Test Display", a.ToString());
-            // If display name is empty, fall back to the thread name
+            // If display name is empty, fall back to the thread name.  Since we haven't specified, it's the NewThreadEntry value.
             a.DisplayName = "";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/fake-thread", a.ToString());
+            Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
         }
         #endregion
 
@@ -54,11 +54,14 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestDisplayName()
         {
-            Assert.AreEqual("fake-thread", a.DisplayName);
+            Assert.AreEqual("fake-thread.00000", a.DisplayName);
+
             a.DisplayName = "testing-thread";
             Assert.AreEqual("testing-thread", a.DisplayName);
+
             a.DisplayName = "";
-            Assert.AreEqual("fake-thread", a.DisplayName);
+            Assert.AreEqual("fake-thread.00000", a.DisplayName);
+
             a.ThreadName = "http://forums.sufficientvelocity.com/";
             Assert.AreEqual("forums.sufficientvelocity.com", a.DisplayName);
             a.DisplayName = "/";
