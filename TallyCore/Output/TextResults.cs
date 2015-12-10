@@ -92,7 +92,7 @@ namespace NetTally
 
                         AddRankedOptions(result.Key);
 
-                        string[] labels = new string[5] { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+                        string[] labels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
                         int index = 0;
                         foreach (var winner in result.Value)
                         {
