@@ -284,13 +284,13 @@ namespace NetTally.Adapters
         }
         #endregion
 
-        #region Support functions
+        #region Static support functions
         /// <summary>
         /// Find the pageContent div contained in the top-level document node.
         /// </summary>
         /// <param name="doc">A base document node.</param>
         /// <returns>Returns the node that holds the page content, if found.</returns>
-        private HtmlNode GetPageContent(HtmlNode doc, PageType pageType)
+        private static HtmlNode GetPageContent(HtmlNode doc, PageType pageType)
         {
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
@@ -334,7 +334,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li)
+        private static PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -393,7 +393,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page to load threadmarks from.</param>
         /// <returns>Returns a list of 'a' node elements containing threadmark information.</returns>
-        private IEnumerable<HtmlNode> GetThreadmarksList(HtmlDocument page)
+        private static IEnumerable<HtmlNode> GetThreadmarksList(HtmlDocument page)
         {
             var doc = page.DocumentNode;
 
