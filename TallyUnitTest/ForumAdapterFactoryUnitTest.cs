@@ -34,7 +34,6 @@ namespace NetTally.Tests
         public async Task SufficientVelocity()
         {
             IQuest quest = new Quest();
-            // Invalid thread name
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
             IForumAdapter adapter = await ForumAdapterFactory.GetAdapter(quest);
 
