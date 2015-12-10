@@ -148,10 +148,8 @@ namespace NetTally
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException("ThreadName");
-                if (value == string.Empty)
-                    throw new ArgumentOutOfRangeException("ThreadName", "Thread name cannot be empty.");
+                if (string.IsNullOrEmpty(value))
+                    throw new ArgumentNullException(nameof(value), "Thread name cannot be empty.");
 
                 threadName = CleanPageNumbers(value);
 
