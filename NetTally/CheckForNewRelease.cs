@@ -16,13 +16,6 @@ namespace NetTally
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
         static readonly Regex numbers = new Regex(@"\d+");
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public CheckForNewRelease()
-        {
-        }
-
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
         /// Event for INotifyPropertyChanged.

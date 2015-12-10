@@ -220,11 +220,6 @@ namespace NetTally
     /// </summary>
     public class QuestElementCollection : ConfigurationElementCollection
     {
-        public QuestElementCollection()
-        {
-
-        }
-
         protected override ConfigurationElement CreateNewElement() => new QuestElement();
 
         protected override object GetElementKey(ConfigurationElement element)
