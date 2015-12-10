@@ -36,11 +36,6 @@ namespace NetTally
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }
-        /// <summary>
-        /// Get the number of posts per page for this forum thread.
-        /// Raw value, without attempt at auto-fill.
-        /// </summary>
-        int RawPostsPerPage { get; set; }
 
         /// <summary>
         /// Flag for whether to try to override the provided starting post by

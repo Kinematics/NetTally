@@ -267,16 +267,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get the number of posts per page for this forum thread.
-        /// Raw value, without attempt at auto-fill.
-        /// </summary>
-        public int RawPostsPerPage
-        {
-            get { return postsPerPage; }
-            set { postsPerPage = value; }
-        }
-
-        /// <summary>
         /// The number of the post to start looking for votes in.
         /// Not valid below 1.
         /// </summary>

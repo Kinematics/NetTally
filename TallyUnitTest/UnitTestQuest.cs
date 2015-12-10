@@ -31,7 +31,6 @@ namespace TallyUnitTest
             Assert.AreEqual(Quest.NewThreadEntry, a.ThreadName);
             Assert.AreEqual("fake-thread", a.DisplayName);
             Assert.AreEqual("http://forums.sufficientvelocity.com/", a.SiteName);
-            Assert.AreEqual(0, a.RawPostsPerPage);
             Assert.AreEqual(25, a.PostsPerPage);
             Assert.AreEqual(1, a.StartPost);
             Assert.AreEqual(0, a.EndPost);
