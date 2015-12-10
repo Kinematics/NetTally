@@ -14,7 +14,15 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async static Task<IForumAdapter> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None);
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None, null);
+
+        /// <summary>
+        /// Overload to get an adapter for a quest without specifying a cancellation token.
+        /// </summary>
+        /// <param name="quest">The quest to get the adapter for.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a forum adapter for the quest.</returns>
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token) => await GetAdapter(quest, CancellationToken.None, null);
 
         /// <summary>
         /// Function to generate an appropriate forum adapter for the specified quest.
@@ -22,8 +30,9 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <param name="token">Cancellation token.</param>
+        /// <param name="pageProvider">The page provider to use if we need to query the web.</param>
         /// <returns>Returns an appropriate forum adapter for the quest, if found. Otherwise, null.</returns>
-        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token)
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token, IPageProvider pageProvider)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -36,7 +45,7 @@ namespace NetTally.Adapters
             IForumAdapter adapter = GetKnownForumAdapter(uri);
 
             if (adapter == null)
-                adapter = await GetUnknownForumAdapter(uri, token);
+                adapter = await GetUnknownForumAdapter(uri, token, pageProvider);
 
             return adapter;
         }
@@ -49,7 +58,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="uri">The URI for the forum thread.</param>
         /// <returns>Returns a forum adapter for certain known forums. Otherwise, null.</returns>
-        private static IForumAdapter GetKnownForumAdapter(Uri uri)
+        static IForumAdapter GetKnownForumAdapter(Uri uri)
         {
             switch (uri.Host)
             {
@@ -71,13 +80,18 @@ namespace NetTally.Adapters
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a forum adapter for the forum thread if one can be determined.
         /// Otherwise, null.</returns>
-        private async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token)
+        async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token, IPageProvider pageProvider)
         {
-            using (IPageProvider webPageProvider = new WebPageProvider())
+            bool localPageProvider = pageProvider == null;
+
+            try
             {
+                if (localPageProvider)
+                    pageProvider = new WebPageProvider();
+
                 try
                 {
-                    var page = await webPageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
+                    var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
 
                     if (page == null)
                         return null;
@@ -93,8 +107,8 @@ namespace NetTally.Adapters
 
                     // Get the list of all adapter classes built off of the IForumAdapter interface.
                     var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
-                                      where (!t.IsInterface && ti.IsAssignableFrom(t))
-                                      select t;
+                                        where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                        select t;
 
                     foreach (var adapterClass in adapterList)
                     {
@@ -129,6 +143,11 @@ namespace NetTally.Adapters
                 }
                 catch (OperationCanceledException)
                 { }
+            }
+            finally
+            {
+                if (localPageProvider)
+                    pageProvider?.Dispose();
             }
 
             // If nothing was found, return null.
