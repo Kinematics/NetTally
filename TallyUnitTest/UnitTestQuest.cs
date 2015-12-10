@@ -113,7 +113,7 @@ namespace TallyUnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TestEmptyThreadName()
         {
             a.ThreadName = "";
