@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.Adapters;
@@ -9,30 +10,30 @@ namespace NetTally.Tests
     public class ForumAdapterFactoryUnitTest
     {
         [TestMethod]
-        public void TestDefault()
+        public async Task TestDefault()
         {
             IQuest quest = new Quest();
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            IForumAdapter adapter = await ForumAdapterFactory.GetAdapter(quest);
 
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
         [TestMethod]
-        public void TestSufficientVelocity()
+        public async Task TestSufficientVelocity()
         {
             IQuest quest = new Quest();
             quest.ThreadName = "http://forums.sufficientvelocity.com/";
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            IForumAdapter adapter = await ForumAdapterFactory.GetAdapter(quest);
 
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
         [TestMethod]
-        public void TestSpaceBattles()
+        public async Task TestSpaceBattles()
         {
             IQuest quest = new Quest();
             quest.ThreadName = "http://forums.spacebattles.com/";
-            var adapter = ForumAdapterFactory.GetAdapter(quest);
+            IForumAdapter adapter = await ForumAdapterFactory.GetAdapter(quest);
 
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
