@@ -24,17 +24,18 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestDefaultObject()
         {
-            // Normal
             Assert.AreEqual(Quest.NewThreadEntry, a.ThreadName);
-            Assert.AreEqual("fake-thread", a.DisplayName);
-            Assert.AreEqual(25, a.PostsPerPage);
+            Assert.AreEqual("fake-thread.00000", a.DisplayName);
+            Assert.AreEqual(0, a.PostsPerPage);
             Assert.AreEqual(1, a.StartPost);
             Assert.AreEqual(0, a.EndPost);
             Assert.AreEqual(true, a.ReadToEndOfThread);
             Assert.AreEqual(false, a.CheckForLastThreadmark);
+            Assert.AreEqual(false, a.AllowRankedVotes);
             Assert.AreEqual(0, a.ThreadmarkPost);
+            Assert.AreEqual(PartitionMode.None, a.PartitionMode);
+            Assert.IsNull(a.ForumAdapter);
 
-            //Assert.IsInstanceOfType(a.GetForumAdapter(), typeof(XenForoAdapter));
             Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
         }
 
