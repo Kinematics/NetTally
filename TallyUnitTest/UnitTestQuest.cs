@@ -10,9 +10,6 @@ namespace TallyUnitTest
     [TestClass]
     public class UnitTestQuest
     {
-        // Disable obsolete warnings for fields that we're still testing
-#pragma warning disable 0618
-
         static readonly List<string> propertiesRaised = new List<string>();
         Quest a;
 
@@ -291,6 +288,5 @@ namespace TallyUnitTest
         }
         #endregion
 
-#pragma warning restore 0618
     }
 }
