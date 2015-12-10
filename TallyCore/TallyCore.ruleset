@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Rules for TallyCore" Description="Code analysis rules for TallyCore.csproj." ToolsVersion="14.0">
+  <IncludeAll Action="Warning" />
+  <Rules AnalyzerId="RefactoringEssentials" RuleNamespace="RefactoringEssentials">
+    <Rule Id="RECS0071" Action="None" />
+    <Rule Id="RECS0091" Action="None" />
+  </Rules>
+</RuleSet>
