@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -7,7 +7,7 @@ using NetTally.Adapters;
 
 namespace NetTally
 {
-    public interface IQuest
+    public interface IQuest : INotifyPropertyChanged
     {
         /// <summary>
         /// The name of the thread to be queried.

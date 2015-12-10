@@ -17,7 +17,7 @@ namespace NetTally
     /// ending posts that are being used to construct a tally.
     /// </summary>
     [DataContract(Name ="Quest")]
-    public class Quest : IQuest, INotifyPropertyChanged
+    public class Quest : IQuest
     {
         #region IPropertyChanged interface implementation
         /// <summary>
