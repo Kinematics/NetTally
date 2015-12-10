@@ -33,7 +33,6 @@ namespace TallyUnitTest
             Assert.AreEqual(true, a.ReadToEndOfThread);
             Assert.AreEqual(false, a.CheckForLastThreadmark);
             Assert.AreEqual(0, a.ThreadmarkPost);
-            Assert.AreEqual(1, a.FirstTallyPost);
 
             //Assert.IsInstanceOfType(a.GetForumAdapter(), typeof(XenForoAdapter));
             Assert.AreEqual(Quest.NewThreadEntry, a.ToString());
@@ -200,29 +199,6 @@ namespace TallyUnitTest
             a.CheckForLastThreadmark = true;
             Assert.AreEqual(true, a.CheckForLastThreadmark);
         }
-        #endregion
-
-        #region Other Properties
-        [TestMethod]
-        public void TestFirstTallyPost()
-        {
-            a.StartPost = 448;
-
-            Assert.AreEqual(448, a.FirstTallyPost);
-
-            a.CheckForLastThreadmark = true;
-
-            Assert.AreEqual(448, a.FirstTallyPost);
-
-            a.ThreadmarkPost = 517;
-
-            Assert.AreEqual(517, a.FirstTallyPost);
-
-            a.CheckForLastThreadmark = false;
-
-            Assert.AreEqual(448, a.FirstTallyPost);
-        }
-
         #endregion
 
         #region ForumAdapters

@@ -57,23 +57,6 @@ namespace NetTally
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
 
-        #region Obsolete, but still referenced
-        /// <summary>
-        /// Return either the StartPost or the ThreadmarkPost, depending on config.
-        /// </summary>
-        public int FirstTallyPost
-        {
-            get
-            {
-                if (CheckForLastThreadmark && ThreadmarkPost > 0)
-                    return ThreadmarkPost;
-                else
-                    return StartPost;
-            }
-        }
-
-        #endregion
-
         #region Initialization and Updating
         /// <summary>
         /// Gets the expected forum adapter for this quest.
