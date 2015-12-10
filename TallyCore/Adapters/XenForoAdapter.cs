@@ -70,7 +70,7 @@ namespace NetTally.Adapters
         /// <summary>
         /// When the Site value changes, update the base site and thread name values appropriately.
         /// </summary>
-        private void UpdateSiteData()
+        void UpdateSiteData()
         {
             if (site == null)
                 throw new InvalidOperationException("Site value is null.");
