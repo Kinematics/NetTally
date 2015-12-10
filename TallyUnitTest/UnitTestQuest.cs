@@ -11,7 +11,7 @@ namespace TallyUnitTest
     public class UnitTestQuest
     {
         static readonly List<string> propertiesRaised = new List<string>();
-        Quest a;
+        IQuest a;
 
         [TestInitialize()]
         public void Initialize()
@@ -254,7 +254,11 @@ namespace TallyUnitTest
         [TestMethod]
         public void TestEventRaising()
         {
-            a.PropertyChanged += A_PropertyChanged;
+            INotifyPropertyChanged pc = a as INotifyPropertyChanged;
+
+            Assert.IsNotNull(pc);
+
+            pc.PropertyChanged += A_PropertyChanged;
 
             propertiesRaised.Clear();
 
@@ -282,7 +286,7 @@ namespace TallyUnitTest
             Assert.IsTrue(propertiesRaised.Contains("CheckForLastThreadmark"));
         }
 
-        private void A_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void A_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             propertiesRaised.Add(e.PropertyName);
         }
