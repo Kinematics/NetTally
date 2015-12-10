@@ -21,7 +21,7 @@ namespace NetTally.Adapters
 
         #region Site properties
         Uri site;
-        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)showthread.php\?(?<thread>[^&/]+))");
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)showthread.php\?(?<thread>[^&/]+)");
 
         /// <summary>
         /// Property for the site this adapter is handling.

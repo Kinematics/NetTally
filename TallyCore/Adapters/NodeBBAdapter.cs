@@ -22,7 +22,7 @@ namespace NetTally.Adapters
         #region Site properties
         Uri site;
         // Example: https://community.nodebb.org/topic/180/who-is-using-nodebb?page=2
-        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)(?<base>https?://[^/]+/([^/]+/)*)(?<thread>[^?]+(?=?|$))");
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)(?<thread>[^?]+(?=\?|$))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
