@@ -216,7 +216,7 @@ namespace NetTally.Adapters
             if (postCountAnchor != null)
             {
                 string postNumText = postCountAnchor.InnerText;
-                if (postNumText.StartsWith("#"))
+                if (postNumText.StartsWith("#", StringComparison.Ordinal))
                     postNumText = postNumText.Substring(1);
 
                 number = int.Parse(postNumText);

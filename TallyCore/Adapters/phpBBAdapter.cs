@@ -251,7 +251,7 @@ namespace NetTally.Adapters
             // Get the full post text.  Two different layout variants.
             var content = postbody.GetChildWithClass("div", "content");
             if (content == null)
-                content = postbody.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content"));
+                content = postbody.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
 
             text = PostText.ExtractPostText(content, n => false);
 

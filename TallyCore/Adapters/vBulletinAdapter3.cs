@@ -205,7 +205,7 @@ namespace NetTally.Adapters
             string text;
             int number = 0;
 
-            var postTable = postDiv.Descendants("table").FirstOrDefault(a => a.Id.StartsWith("post"));
+            var postTable = postDiv.Descendants("table").FirstOrDefault(a => a.Id.StartsWith("post", StringComparison.Ordinal));
 
             if (postTable == null)
                 return null;
@@ -283,7 +283,7 @@ namespace NetTally.Adapters
                 var generator = head.Elements("meta").FirstOrDefault(a => a.GetAttributeValue("name", "") == "generator");
                 if (generator != null)
                 {
-                    if (generator.GetAttributeValue("content", "").StartsWith("vBulletin"))
+                    if (generator.GetAttributeValue("content", "").StartsWith("vBulletin", StringComparison.Ordinal))
                         return true;
                 }
             }

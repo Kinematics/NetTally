@@ -445,7 +445,7 @@ namespace NetTally
                 // [x] Plan Boom. => Boom
                 // [x] Plan Kinematics. => ◈Kinematics
                 // [x] Plan Boom. => ◈Boom
-                if (name.EndsWith("."))
+                if (name.EndsWith(".", StringComparison.Ordinal))
                 {
                     name = name.Substring(0, name.Length - 1);
                     pName = $"{Text.PlanNameMarker}{name}";

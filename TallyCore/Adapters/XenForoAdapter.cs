@@ -369,7 +369,7 @@ namespace NetTally.Adapters
 
             string postNumberText = postNumber.InnerText;
             // Skip the leading # character.
-            if (postNumberText.StartsWith("#"))
+            if (postNumberText.StartsWith("#", StringComparison.Ordinal))
                 postNumberText = postNumberText.Substring(1);
 
             number = int.Parse(postNumberText);

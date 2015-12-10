@@ -219,7 +219,7 @@ namespace NetTally
                 return 1;
 
             if (x.IDValue == 0 || y.IDValue == 0)
-                return string.Compare(x.ID, y.ID);
+                return string.Compare(x.ID, y.ID, StringComparison.Ordinal);
 
             return x.IDValue - y.IDValue;
         }

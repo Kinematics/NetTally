@@ -187,7 +187,7 @@ namespace NetTally.Adapters
                 return new List<PostComponents>();
 
             var posts = from p in postlist.Elements("li")
-                        where p.Id.StartsWith("post_")
+                        where p.Id.StartsWith("post_", StringComparison.Ordinal)
                         select GetPost(p);
 
             return posts;
@@ -216,7 +216,7 @@ namespace NetTally.Adapters
             // Number
             HtmlNode postHead = li.GetChildWithClass("div", "posthead");
             HtmlNode nodeControls = postHead?.GetChildWithClass("nodecontrols");
-            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount"));
+            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount", StringComparison.Ordinal));
 
             if (postCount != null)
                 number = int.Parse(postCount.GetAttributeValue("name", "0"));
