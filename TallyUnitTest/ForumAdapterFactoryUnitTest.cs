@@ -61,6 +61,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task vBulletin3()
         {
             IQuest quest = new Quest();
@@ -71,6 +72,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task vBulletin4()
         {
             IQuest quest = new Quest();
@@ -81,6 +83,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task vBulletin5()
         {
             IQuest quest = new Quest();
@@ -91,6 +94,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task NodeBB()
         {
             IQuest quest = new Quest();
@@ -102,6 +106,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task phpBB()
         {
             IQuest quest = new Quest();
