@@ -290,7 +290,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="doc">A base document node.</param>
         /// <returns>Returns the node that holds the page content, if found.</returns>
-        private static HtmlNode GetPageContent(HtmlNode doc, PageType pageType)
+        static HtmlNode GetPageContent(HtmlNode doc, PageType pageType)
         {
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
@@ -328,13 +328,13 @@ namespace NetTally.Adapters
 
             return node;
         }
-        
+
         /// <summary>
         /// Get a completed post from the provided HTML list item node.
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private static PostComponents GetPost(HtmlNode li)
+        static PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -375,10 +375,12 @@ namespace NetTally.Adapters
             number = int.Parse(postNumberText);
 
             PostComponents post;
-            try {
+            try
+            {
                 post = new PostComponents(author, id, text, number);
             }
-            catch {
+            catch
+            {
                 post = null;
             }
 
@@ -393,7 +395,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page to load threadmarks from.</param>
         /// <returns>Returns a list of 'a' node elements containing threadmark information.</returns>
-        private static IEnumerable<HtmlNode> GetThreadmarksList(HtmlDocument page)
+        static IEnumerable<HtmlNode> GetThreadmarksList(HtmlDocument page)
         {
             var doc = page.DocumentNode;
 
