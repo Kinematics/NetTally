@@ -63,6 +63,7 @@
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Utility\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
+    <Compile Include="Web\CheckForNewRelease.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
     <Compile Include="Web\IPageProvider.cs" />

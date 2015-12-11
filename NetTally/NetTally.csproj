@@ -70,7 +70,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BindingConverters.cs" />
-    <Compile Include="CheckForNewRelease.cs" />
     <Compile Include="CollectionWrappers.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="MergeVotesWindow.xaml.cs">
