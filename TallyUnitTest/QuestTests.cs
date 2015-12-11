@@ -456,7 +456,9 @@ namespace NetTally.Tests
             Assert.IsNotNull(quest.ForumAdapter);
             var fa = quest.ForumAdapter;
             await quest.InitForumAdapter();
+#pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
             Assert.ReferenceEquals(fa, quest.ForumAdapter);
+#pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
         }
 
         [TestMethod]
@@ -468,7 +470,9 @@ namespace NetTally.Tests
             Assert.IsNotNull(quest.ForumAdapter);
             var fa = quest.ForumAdapter;
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
+#pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
             Assert.ReferenceEquals(fa, quest.ForumAdapter);
+#pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
         }
 
         [TestMethod]
