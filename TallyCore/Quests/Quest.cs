@@ -125,8 +125,7 @@ namespace NetTally
                     throw new ArgumentNullException(nameof(value), "Thread name cannot be null.");
                 if (string.IsNullOrWhiteSpace(value))
                     throw new ArgumentException("URL cannot be empty.", nameof(value));
-                if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
-                    throw new ArgumentException("URL is not valid.", nameof(value));
+
 
                 threadName = CleanPageNumbers(value);
                 UpdateThreadTitle();

@@ -128,27 +128,6 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void IQuest_ThreadName_Invalid_Bad_NoChange()
-        {
-            try
-            {
-                quest.ThreadName = "/forums.sufficientvelocity.com/";
-                Assert.Fail("An exception should have been thrown.");
-            }
-            catch (ArgumentException)
-            {
-
-            }
-            catch (Exception e)
-            {
-                Assert.Fail("Unexpected exception caught:\n" + e.Message);
-            }
-
-            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
-            VerifyNoNotification();
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Blank()
         {
@@ -163,10 +142,11 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Host()
         {
             quest.ThreadName = "/forums.sufficientvelocity.com/";
+            Assert.AreEqual("/forums.sufficientvelocity.com/", quest.ThreadName);
+            VerifyNotification("ThreadName");
         }
 
         [TestMethod]
