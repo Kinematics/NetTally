@@ -42,7 +42,7 @@ namespace NetTally
 
         public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
 
-        private IQuest CurrentlySelectedQuest => QuestCollectionView.CurrentItem as IQuest;
+        private IQuest CurrentlySelectedQuest => QuestCollectionView?.CurrentItem as IQuest;
         #endregion
 
         #region Startup/shutdown events
