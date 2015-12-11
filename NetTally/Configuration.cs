@@ -122,6 +122,10 @@ namespace NetTally
         {
             if (config == null)
                 return;
+            if (questsWrapper == null)
+                return;
+            if (questsWrapper.QuestCollection == null)
+                return;
 
             try
             {
