@@ -54,6 +54,9 @@ namespace NetTally
         {
             try
             {
+                // Create a region profiler on startup to get it JIT'd before any actual profiling.
+                using (var rp0 = new RegionProfiler(null)) { }
+
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
