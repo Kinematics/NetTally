@@ -133,7 +133,13 @@ namespace NetTally
                 pages.Remove(finishedPage);
 
                 if (finishedPage.IsFaulted)
+                {
+                    var canceled = finishedPage.Exception.InnerExceptions.FirstOrDefault(e => e is OperationCanceledException);
+                    if (canceled != null)
+                        throw canceled;
+
                     throw new ApplicationException("Not all pages loaded.  Rerun tally.");
+                }
 
                 var page = await finishedPage;
 
