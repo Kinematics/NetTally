@@ -132,7 +132,13 @@ namespace NetTally
                 var finishedPage = await Task.WhenAny(pages);
                 pages.Remove(finishedPage);
 
+                if (finishedPage.IsFaulted)
+                    throw new ApplicationException("Not all pages loaded.  Rerun tally.");
+
                 var page = await finishedPage;
+
+                if (page == null)
+                    throw new ApplicationException("Not all pages loaded.  Rerun tally.");
 
                 var posts = from post in quest.ForumAdapter.GetPosts(page)
                             where post != null && post.IsVote && post.Author != threadInfo.Author &&
