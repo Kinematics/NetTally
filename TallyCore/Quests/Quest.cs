@@ -19,6 +19,11 @@ namespace NetTally
     [DataContract(Name ="Quest")]
     public class Quest : IQuest
     {
+        public Quest()
+        {
+            ThreadName = NewThreadEntry;
+        }
+
         #region IPropertyChanged interface implementation
         /// <summary>
         /// Event for INotifyPropertyChanged.
@@ -44,7 +49,7 @@ namespace NetTally
         public IForumAdapter ForumAdapter { get; private set; } = null;
 
 
-        string threadName = NewThreadEntry;
+        string threadName = string.Empty;
         string displayName = string.Empty;
         public string ThreadTitle { get; private set; } = string.Empty;
 
