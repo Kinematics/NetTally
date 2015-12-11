@@ -204,19 +204,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            HtmlNode doc = page.DocumentNode;
-
-            HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
-
-            if (pageContent == null)
-                throw new InvalidOperationException("Cannot find content on page.");
-
-            HtmlNode node = pageContent.Element("ol");
-
-            if (node == null || node.Id != "messageList")
-                return new List<PostComponents>();
-
-            var posts = from li in node.Elements("li")
+            var posts = from li in GetPostsList(page)
                         select GetPost(li);
 
             return posts;
@@ -327,6 +315,29 @@ namespace NetTally.Adapters
             //node = node.GetChildWithClass("pageContent");
 
             return node;
+        }
+
+        /// <summary>
+        /// Gets a list of HtmlNodes for the posts found on the provided page.
+        /// Returns an empty list on any failures.
+        /// </summary>
+        /// <param name="page">The page to search.</param>
+        /// <returns>Returns a list of any found posts.</returns>
+        static IEnumerable<HtmlNode> GetPostsList(HtmlDocument page)
+        {
+            if (page != null)
+            {
+                HtmlNode doc = page.DocumentNode;
+
+                HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
+
+                HtmlNode olNode = pageContent?.Element("ol");
+
+                if (olNode?.Id == "messageList")
+                    return olNode.Elements("li");
+            }
+
+            return new List<HtmlNode>();
         }
 
         /// <summary>
