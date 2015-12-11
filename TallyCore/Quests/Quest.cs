@@ -294,7 +294,7 @@ namespace NetTally
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
-        public bool ReadToEndOfThread => EndPost < 1 || ThreadmarkPost > 0;
+        public bool ReadToEndOfThread => EndPost == 0 || ThreadmarkPost != 0;
 
         /// <summary>
         /// Converts a post number into a page number.
@@ -342,12 +342,7 @@ namespace NetTally
                 // Keep track of whether we used threadmarks to figure out the
                 // first post.  If we did, we'll re-use this number when filtering
                 // for valid posts.
-                if (startInfo.Number == 1)
-                    ThreadmarkPost = 1;
-                else if (!startInfo.ByNumber)
-                    ThreadmarkPost = startInfo.ID;
-                else
-                    ThreadmarkPost = 0;
+                ThreadmarkPost = startInfo.ID;
 
                 // Var for what we determine the last page number will be
                 int lastPageNumber = 0;
