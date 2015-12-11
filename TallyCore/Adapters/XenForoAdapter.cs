@@ -265,8 +265,9 @@ namespace NetTally.Adapters
                     post = int.Parse(m1.Groups["post"].Value);
 
                 // If neither matched, it's post 1/page 1
+                // Store -1 as in the post ID slot, since we don't know what it is.
                 if (page == 0 && post == 0)
-                    return new ThreadStartValue(true, 1);
+                    return new ThreadStartValue(true, 1, 0, -1);
 
                 // If no page number was found, it's page 1
                 if (page == 0)
@@ -303,7 +304,7 @@ namespace NetTally.Adapters
                     PostComponents postComp = GetPost(tmPost);
                     if (postComp != null)
                     {
-                        return new ThreadStartValue(true, postComp.Number);
+                        return new ThreadStartValue(true, postComp.Number, 0, postComp.IDValue);
                     }
                 }
             }
