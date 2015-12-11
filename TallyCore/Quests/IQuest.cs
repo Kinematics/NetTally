@@ -17,6 +17,10 @@ namespace NetTally
         /// The display name that the user can select.
         /// </summary>
         string DisplayName { get; set; }
+        /// <summary>
+        /// The quest title as derived from the thread name.
+        /// </summary>
+        string ThreadTitle { get; }
 
 
         /// <summary>

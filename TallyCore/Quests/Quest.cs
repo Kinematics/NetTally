@@ -46,6 +46,7 @@ namespace NetTally
 
         string threadName = NewThreadEntry;
         string displayName = string.Empty;
+        public string ThreadTitle { get; private set; } = string.Empty;
 
         int postsPerPage = 0;
 
