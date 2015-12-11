@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>..\TallyCore\TallyCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -69,10 +70,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BindingConverters.cs" />
-    <Compile Include="CheckForNewRelease.cs" />
     <Compile Include="CollectionWrappers.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="ErrorLog.cs" />
     <Compile Include="MergeVotesWindow.xaml.cs">
       <DependentUpon>MergeVotesWindow.xaml</DependentUpon>
     </Compile>

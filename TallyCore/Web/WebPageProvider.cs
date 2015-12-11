@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -26,11 +24,13 @@ namespace NetTally
             Loaded
         }
 
+        // Maximum number of simultaneous connections allowed, to guard against hammering the server.
         const int maxSimultaneousConnections = 5;
+        readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
 
         WebCache Cache { get; } = WebCache.Instance;
-        readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
         string UserAgent { get; }
+
         bool _disposed = false;
 
         public WebPageProvider()
@@ -41,6 +41,7 @@ namespace NetTally
             UserAgent = $"{product.Product} ({version.InformationalVersion})";
         }
 
+        #region Disposal
         ~WebPageProvider()
         {
             Dispose(false);
@@ -64,8 +65,11 @@ namespace NetTally
 
             _disposed = true;
         }
+        #endregion
 
         #region Event handlers
+        public event EventHandler<MessageEventArgs> StatusChanged;
+
         /// <summary>
         /// Function to raise events when page load status has been updated.
         /// </summary>
@@ -77,8 +81,6 @@ namespace NetTally
         #endregion
 
         #region Public interface functions
-        public event EventHandler<MessageEventArgs> StatusChanged;
-
         /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
@@ -88,80 +90,20 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Load the pages for the given quest asynchronously.
-        /// </summary>
-        /// <param name="quest">Quest object containing query parameters.</param>
-        /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadQuestPages(IQuest quest, CancellationToken token)
-        {
-            try
-            {
-                // Determine the first and last page numbers to be loaded.
-
-                int firstPageNumber = await quest.GetFirstPageNumber(this, token);
-
-                HtmlDocument firstPage = await GetPage(quest.GetPageUrl(firstPageNumber), $"Page {firstPageNumber}", Caching.BypassCache, token)
-                    .ConfigureAwait(false);
-
-                if (firstPage == null)
-                    throw new InvalidOperationException("Unable to load web page.");
-
-                int lastPageNumber = await quest.GetLastPageNumber(firstPage, token);
-
-
-                // We will store the loaded pages in a new List.
-                List<HtmlDocument> pages = new List<HtmlDocument>();
-
-                // First page is already loaded.
-                pages.Add(firstPage);
-
-                // Set parameters for which pages to try to load
-                int pagesToScan = lastPageNumber - firstPageNumber;
-
-                int? lastPageNumberLoaded = Cache.GetLastPageLoaded(quest.ThreadName);
-
-                // Initiate the async tasks to load the pages
-                if (pagesToScan > 0)
-                {
-                    // Initiate tasks for all pages other than the first page (which we already loaded)
-                    var results = from pageNum in Enumerable.Range(firstPageNumber + 1, pagesToScan)
-                                  let cacheMode = (lastPageNumberLoaded.HasValue && pageNum >= lastPageNumberLoaded) ? Caching.BypassCache : Caching.UseCache
-                                  let pageUrl = quest.GetPageUrl(pageNum)
-                                  select GetPage(pageUrl, $"Page {pageNum}", cacheMode, token);
-
-                    // Wait for all the tasks to be completed.
-                    HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
-
-                    if (pageArray.Any(p => p == null))
-                    {
-                        throw new ApplicationException("Not all pages loaded.  Rerun tally.");
-                    }
-
-                    // Add the results to our list of pages.
-                    pages.AddRange(pageArray);
-                }
-
-                Cache.Update(quest.ThreadName, lastPageNumber);
-
-                return pages;
-            }
-            catch (OperationCanceledException)
-            {
-                UpdateStatus(StatusType.Cancelled);
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
         /// </summary>
         /// <param name="baseUrl">The thread URL.</param>
         /// <param name="pageNum">The page number in the thread to load.</param>
         /// <param name="caching">Whether to use or bypass the cache.</param>
         /// <param name="token">Cancellation token for the function.</param>
+        /// <param name="shouldCache">Indicate whether the result of this page load should be cached.</param>
         /// <returns>An HtmlDocument for the specified page.</returns>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token, bool shouldCache = true)
         {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
+
             if (caching == Caching.UseCache)
             {
                 HtmlDocument page = Cache.Get(url);
@@ -185,15 +127,7 @@ namespace NetTally
                 int tries = 0;
                 HttpClient client;
                 HttpResponseMessage response;
-
-                HttpClientHandler handler = new HttpClientHandler();
-                var cookies = ForumCookies.GetCookies(url);
-                if (cookies.Count > 0)
-                {
-                    CookieContainer cookieJar = new CookieContainer();
-                    cookieJar.Add(cookies);
-                    handler.CookieContainer = cookieJar;
-                }
+                HttpClientHandler handler = GetHandler(url);
 
                 using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
                 {
@@ -257,7 +191,8 @@ namespace NetTally
                 HtmlDocument htmldoc = new HtmlDocument();
                 htmldoc.LoadHtml(result);
 
-                Cache.Add(url, htmldoc);
+                if (shouldCache)
+                    Cache.Add(url, htmldoc);
 
                 UpdateStatus(StatusType.Loaded, shortDescription);
 
@@ -267,6 +202,29 @@ namespace NetTally
             {
                 ss.Release();
             }
+        }
+        #endregion
+
+        #region Private support functions
+        /// <summary>
+        /// Get an HTTP client handler object for a given URL.
+        /// Insert any needed cookies.
+        /// </summary>
+        /// <param name="url">The URL for the client handler to service.</param>
+        /// <returns>Returns a client handler, with cookies if needed.</returns>
+        private HttpClientHandler GetHandler(string url)
+        {
+            HttpClientHandler handler = new HttpClientHandler();
+
+            CookieCollection cookies = ForumCookies.GetCookies(url);
+            if (cookies.Count > 0)
+            {
+                CookieContainer cookieJar = new CookieContainer();
+                cookieJar.Add(cookies);
+                handler.CookieContainer = cookieJar;
+            }
+
+            return handler;
         }
 
         /// <summary>
@@ -312,8 +270,6 @@ namespace NetTally
                         case StatusType.Loaded:
                             sb.Append(details);
                             sb.Append(" loaded!");
-                            break;
-                        default:
                             break;
                     }
                 }

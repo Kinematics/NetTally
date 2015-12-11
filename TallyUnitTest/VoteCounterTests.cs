@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NetTally.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class VoteCounterTests
     {
         #region Setup
@@ -13,7 +13,7 @@ namespace NetTally.Tests
         static VoteCounter voteCounterRaw;
         static IQuest sampleQuest;
 
-        [ClassInitialize()]
+        [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             voteCounterRaw = new VoteCounter();
@@ -21,7 +21,7 @@ namespace NetTally.Tests
             sampleQuest = new Quest();
         }
 
-        [TestInitialize()]
+        [TestInitialize]
         public void Initialize()
         {
             voteCounter.Reset();
@@ -29,7 +29,7 @@ namespace NetTally.Tests
         }
         #endregion
 
-        [TestMethod()]
+        [TestMethod]
         public void ResetTest()
         {
             voteCounter.Reset();
@@ -50,37 +50,37 @@ namespace NetTally.Tests
         }
 
         #region Get vote collections
-        [TestMethod()]
+        [TestMethod]
         public void GetVotesCollectionTest1()
         {
             Assert.AreEqual(voteCounterRaw.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Vote));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotesCollectionTest2()
         {
             Assert.AreEqual(voteCounterRaw.VotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Plan));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotesCollectionTest3()
         {
             Assert.AreEqual(voteCounterRaw.RankedVotesWithSupporters, voteCounter.GetVotesCollection(VoteType.Rank));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotersCollectionTest1()
         {
             Assert.AreEqual(voteCounterRaw.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Vote));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotersCollectionTest2()
         {
             Assert.AreEqual(voteCounterRaw.VoterMessageId, voteCounter.GetVotersCollection(VoteType.Plan));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotersCollectionTest3()
         {
             Assert.AreEqual(voteCounterRaw.RankedVoterMessageId, voteCounter.GetVotersCollection(VoteType.Rank));
@@ -88,41 +88,41 @@ namespace NetTally.Tests
         #endregion
 
         #region Add Vote param checks
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest1()
         {
             voteCounter.AddVotes(null, null, null, VoteType.Vote);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest2()
         {
             voteCounter.AddVotes(new List<string>(), null, null, VoteType.Vote);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest3()
         {
             voteCounter.AddVotes(new List<string>(), "me", null, VoteType.Vote);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddVoteParamsTest4()
         {
             voteCounter.AddVotes(new List<string>(), "me", "1", VoteType.Vote);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest5()
         {
             voteCounter.AddVotes(new List<string>(), "", "1", VoteType.Vote);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest6()
         {
@@ -131,13 +131,13 @@ namespace NetTally.Tests
         #endregion
 
         #region Add Votes
-        [TestMethod()]
+        [TestMethod]
         public void AddVoteTypeVoteTest()
         {
             string voteLine = "[x] First test";
             string voter = "me";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote, voter, postId, voteType);
@@ -152,14 +152,14 @@ namespace NetTally.Tests
             Assert.AreEqual(postId, voters[voter]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddPlanTypeVoteTest()
         {
             string voteLine = "[x] First test";
             string voter = "me";
             string planname = "◈PlanPlan";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Plan;
 
             voteCounter.AddVotes(vote, planname, postId, voteType);
@@ -177,13 +177,13 @@ namespace NetTally.Tests
             Assert.IsTrue(voteCounter.HasPlan("PlanPlan"));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddRankTypeVoteTest()
         {
             string voteLine = "[1] First test";
             string voter = "me";
             string postId = "1";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Rank;
 
             voteCounter.AddVotes(vote, voter, postId, voteType);
@@ -195,7 +195,7 @@ namespace NetTally.Tests
             Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[voter]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddVoteMultiTest1()
         {
             string voteLine = "[x] First test";
@@ -203,7 +203,7 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote = new List<string>() { voteLine };
+            List<string> vote = new List<string> { voteLine };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote, voter1, postId1, voteType);
@@ -219,7 +219,7 @@ namespace NetTally.Tests
             Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddVoteMultiTest2()
         {
             string voteLine1 = "[x] First test";
@@ -228,8 +228,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -247,7 +247,7 @@ namespace NetTally.Tests
             Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void AddVoteReplacementTest1()
         {
             string voteLine1 = "[x] First test";
@@ -255,8 +255,8 @@ namespace NetTally.Tests
             string voter1 = "me";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -279,8 +279,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { line1 };
-            List<string> vote2 = new List<string>() { line2 };
+            List<string> vote1 = new List<string> { line1 };
+            List<string> vote2 = new List<string> { line2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -304,8 +304,8 @@ namespace NetTally.Tests
             string postId1 = "1";
             string voter2 = "you";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { line1 };
-            List<string> vote2 = new List<string>() { line2 };
+            List<string> vote1 = new List<string> { line1 };
+            List<string> vote2 = new List<string> { line2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -323,7 +323,7 @@ namespace NetTally.Tests
             Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches1()
         {
             string voteLine1 = "[x] First test";
@@ -332,7 +332,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches2()
         {
             string voteLine1 = "[x] First test";
@@ -341,7 +341,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches3()
         {
             string voteLine1 = "[x] First test";
@@ -350,7 +350,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches4()
         {
             string voteLine1 = "[x] First test";
@@ -359,7 +359,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches5()
         {
             string voteLine1 = "[x] First test";
@@ -368,7 +368,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches6()
         {
             string voteLine1 = "[x] First test";
@@ -377,7 +377,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches7()
         {
             string voteLine1 = "[x] First test";
@@ -386,7 +386,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches8()
         {
             string voteLine1 = "[x] First test";
@@ -395,7 +395,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches9()
         {
             string voteLine1 = "[x] “First Test”";
@@ -404,7 +404,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches10()
         {
             string voteLine1 = "[x] Don't go";
@@ -413,7 +413,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches11()
         {
             string voteLine1 = "[x] Don't go";
@@ -422,7 +422,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches12()
         {
             string voteLine1 = "[x] Don't go";
@@ -431,7 +431,7 @@ namespace NetTally.Tests
             TestMatch(voteLine1, voteLine2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMatches13()
         {
             string voteLine1 = "[x] First test";
@@ -442,7 +442,7 @@ namespace NetTally.Tests
 
 
 
-        [TestMethod()]
+        [TestMethod]
         public void TestMismatches1()
         {
             string voteLine1 = "[x] First test";
@@ -454,7 +454,7 @@ namespace NetTally.Tests
 
         #endregion
 
-        [TestMethod()]
+        [TestMethod]
         public void FindVotesForVoterTest1()
         {
             string voteLine1 = "[x] Vote for stuff 1";
@@ -463,8 +463,8 @@ namespace NetTally.Tests
             string voter2 = "you";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -475,7 +475,7 @@ namespace NetTally.Tests
             Assert.IsTrue(votes.Contains(voteLine1));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void FindVotesForVoterTest2()
         {
             string voteLine1 = "[x] Vote for stuff 1";
@@ -484,8 +484,8 @@ namespace NetTally.Tests
             string voter2 = "you";
             string postId1 = "1";
             string postId2 = "2";
-            List<string> vote1 = new List<string>() { voteLine1 };
-            List<string> vote2 = new List<string>() { voteLine1, voteLine2 };
+            List<string> vote1 = new List<string> { voteLine1 };
+            List<string> vote2 = new List<string> { voteLine1, voteLine2 };
             VoteType voteType = VoteType.Vote;
 
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
@@ -497,13 +497,13 @@ namespace NetTally.Tests
             Assert.IsTrue(votes.Contains(voteLine2));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TallyVotesTest()
         {
             //TODO
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void NameReferenceTest()
         {
             // Check for non-case sensitivity in referencing other voters.
@@ -518,7 +518,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voteCounter.HasVote("[x] Vote for something\r\n", VoteType.Vote));
         }
 
-        //[TestMethod()]
+        //[TestMethod]
         public void TimingMethod()
         {
             const int postCount = 100;

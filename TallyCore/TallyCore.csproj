@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>TallyCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>TallyCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
@@ -47,19 +49,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\ForumAdapterFactory.cs" />
+    <Compile Include="Adapters\IForumAdapter.cs" />
+    <Compile Include="Adapters\NodeBBAdapter.cs" />
+    <Compile Include="Adapters\phpBBAdapter.cs" />
+    <Compile Include="Adapters\Utility\ExtendHtmlNode.cs" />
+    <Compile Include="Adapters\Utility\ThreadInfo.cs" />
+    <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
+    <Compile Include="Adapters\Utility\ThreadStartValue.cs" />
     <Compile Include="Adapters\vBulletinAdapter3.cs" />
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
-    <Compile Include="Adapters\ForumAdapterFactory.cs" />
+    <Compile Include="Utility\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
+    <Compile Include="Web\CheckForNewRelease.cs" />
     <Compile Include="Web\WebCache.cs" />
     <Compile Include="Web\ForumCookies.cs" />
-    <Compile Include="Interfaces\IForumAdapter.cs" />
-    <Compile Include="Interfaces\IPageProvider.cs" />
-    <Compile Include="Interfaces\IQuest.cs" />
-    <Compile Include="Interfaces\ITextResultsProvider.cs" />
-    <Compile Include="Interfaces\IVoteCounter.cs" />
+    <Compile Include="Web\IPageProvider.cs" />
+    <Compile Include="Quests\IQuest.cs" />
+    <Compile Include="Output\ITextResultsProvider.cs" />
+    <Compile Include="Votes\IVoteCounter.cs" />
     <Compile Include="Utility\DebugMode.cs" />
     <Compile Include="Utility\MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,7 +77,7 @@
     <Compile Include="Quests\QuestCollection.cs" />
     <Compile Include="Votes\RankVotes.cs" />
     <Compile Include="Tally.cs" />
-    <Compile Include="TextResults.cs" />
+    <Compile Include="Output\TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
@@ -83,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TallyCore.ruleset" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

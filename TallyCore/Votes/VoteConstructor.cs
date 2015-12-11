@@ -264,7 +264,7 @@ namespace NetTally
                 var refNames = VoteString.GetVoteReferenceNames(line);
 
                 // Any references to plans automatically work.
-                if (refNames[ReferenceType.Plan].Any(p => VoteCounter.HasPlan(p)))
+                if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
                     continue;
 
                 string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n));

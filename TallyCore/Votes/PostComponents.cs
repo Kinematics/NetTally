@@ -13,6 +13,7 @@ namespace NetTally
     public class PostComponents : IComparable, IComparer<PostComponents>
     {
         public string Author { get; }
+        public int Number { get; }
         public string ID { get; }
         public string Text { get; }
         public int IDValue { get; }
@@ -41,7 +42,7 @@ namespace NetTally
         /// <param name="author">The author of the post.</param>
         /// <param name="id">The ID (string) of the post.</param>
         /// <param name="text">The text contents of the post.</param>
-        public PostComponents(string author, string id, string text)
+        public PostComponents(string author, string id, string text, int number = 0)
         {
             if (string.IsNullOrEmpty(author))
                 throw new ArgumentNullException(nameof(author));
@@ -53,6 +54,7 @@ namespace NetTally
             Author = author;
             ID = id;
             Text = text;
+            Number = number;
 
             int idnum;
             if (int.TryParse(id, out idnum))
@@ -217,7 +219,7 @@ namespace NetTally
                 return 1;
 
             if (x.IDValue == 0 || y.IDValue == 0)
-                return string.Compare(x.ID, y.ID);
+                return string.Compare(x.ID, y.ID, StringComparison.Ordinal);
 
             return x.IDValue - y.IDValue;
         }

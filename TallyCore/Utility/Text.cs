@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,6 +7,9 @@ using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
 {
+    /// <summary>
+    /// Class for general static functions relating to text manipulation and comparisons.
+    /// </summary>
     public static class Text
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
@@ -61,6 +65,75 @@ namespace NetTally.Utility
         /// </summary>
         public static readonly IEqualityComparer<string> AgnosticStringComparer = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
             CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+
+    }
+
+    /// <summary>
+    /// A class to allow creation of custom string comparers, by specifying
+    /// CompareInfo and CompareOptions during construction.
+    /// </summary>
+    public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
+    {
+        CompareInfo myComp;
+        CompareOptions myOptions = CompareOptions.None;
+
+        /// <summary>
+        /// Constructs a comparer using the specified CompareOptions.
+        /// </summary>
+        /// <param name="cmpi">CompareInfo to use.</param>
+        /// <param name="options">CompareOptions to use.</param>
+        public CustomStringComparer(CompareInfo cmpi, CompareOptions options)
+        {
+            myComp = cmpi;
+            myOptions = options;
+        }
+
+        /// <summary>
+        /// Compares strings with the CompareOptions specified in the constructor.
+        /// Implements the generic IComparer interface.
+        /// </summary>
+        /// <param name="x">The first string.</param>
+        /// <param name="y">The second string.</param>
+        /// <returns>Returns -1 if the first string is less than the second;
+        /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
+        public int Compare(string x, string y)
+        {
+            if (x == y) return 0;
+            if (x == null) return -1;
+            if (y == null) return 1;
+
+            return myComp.Compare(x, y, myOptions);
+        }
+
+        public bool Equals(string x, string y) => Compare(x, y) == 0;
+
+        public int GetHashCode(string obj) => obj.GetHashCode();
+
+
+        /// <summary>
+        /// Compares strings with the CompareOptions specified in the constructor.
+        /// Implements the non-generic IComparer interface, explicitly.
+        /// </summary>
+        /// <param name="x">The first string.</param>
+        /// <param name="y">The second string.</param>
+        /// <returns>Returns -1 if the first string is less than the second;
+        /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
+        int IComparer.Compare(object x, object y)
+        {
+            if (x == y) return 0;
+            if (x == null) return -1;
+            if (y == null) return 1;
+
+            String sx = x as String;
+            String sy = y as String;
+            if (sx != null && sy != null)
+                return myComp.Compare(sx, sy, myOptions);
+            throw new ArgumentException("x and y should be strings.");
+        }
+
+        bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
+
+        int IEqualityComparer.GetHashCode(object obj) => (obj as string)?.GetHashCode() ?? 0;
 
     }
 }

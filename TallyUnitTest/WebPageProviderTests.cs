@@ -4,30 +4,28 @@ using NetTally.Adapters;
 
 namespace NetTally.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class WebPageProviderTests
     {
         static WebPageProvider pageProvider;
         static PrivateObject privateWeb;
-        static IForumAdapter forumAdapter;
 
 
-        [ClassInitialize()]
+        [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            forumAdapter = new XenForoAdapter();
             pageProvider = new WebPageProvider();
             privateWeb = new PrivateObject(pageProvider);
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void ClearPageCacheTest()
         {
             pageProvider.ClearPageCache();
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadPagesTest()
         {
         }

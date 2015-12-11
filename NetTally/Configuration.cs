@@ -67,7 +67,7 @@ namespace NetTally
             // Get 'newest' directory that is not the one we expect to use
             var latestDir = versionDirectories
                 .Where(d => d.Name != dir.Name)
-                .Where(d => d.EnumerateFiles().Where(de => de.Name == "user.config").Count() > 0)
+                .Where(d => d.EnumerateFiles().Count(de => de.Name == "user.config") > 0)
                 .OrderBy(d => NumSort(d))
                 .LastOrDefault();
 
@@ -121,6 +121,10 @@ namespace NetTally
         public static void Save(Tally tally, QuestCollectionWrapper questsWrapper)
         {
             if (config == null)
+                return;
+            if (questsWrapper == null)
+                return;
+            if (questsWrapper.QuestCollection == null)
                 return;
 
             try
@@ -188,19 +192,26 @@ namespace NetTally
 
             foreach (QuestElement quest in Quests)
             {
-                IQuest q = new Quest()
+                try
                 {
-                    DisplayName = quest.DisplayName,
-                    ThreadName = quest.ThreadName,
-                    RawPostsPerPage = quest.PostsPerPage,
-                    StartPost = quest.StartPost,
-                    EndPost = quest.EndPost,
-                    CheckForLastThreadmark = quest.CheckForLastThreadmark,
-                    PartitionMode = quest.PartitionMode,
-                    AllowRankedVotes = quest.AllowRankedVotes
-                };
+                    IQuest q = new Quest
+                    {
+                        DisplayName = quest.DisplayName,
+                        ThreadName = quest.ThreadName,
+                        PostsPerPage = quest.PostsPerPage,
+                        StartPost = quest.StartPost,
+                        EndPost = quest.EndPost,
+                        CheckForLastThreadmark = quest.CheckForLastThreadmark,
+                        PartitionMode = quest.PartitionMode,
+                        AllowRankedVotes = quest.AllowRankedVotes
+                    };
 
-                questWrapper.QuestCollection.Add(q);
+                    questWrapper.QuestCollection.Add(q);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
             }
         }
 
@@ -220,11 +231,6 @@ namespace NetTally
     /// </summary>
     public class QuestElementCollection : ConfigurationElementCollection
     {
-        public QuestElementCollection()
-        {
-
-        }
-
         protected override ConfigurationElement CreateNewElement() => new QuestElement();
 
         protected override object GetElementKey(ConfigurationElement element)
@@ -255,7 +261,7 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
-            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.RawPostsPerPage, quest.StartPost, quest.EndPost,
+            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.PartitionMode, quest.AllowRankedVotes);
             BaseAdd(questElement, false);
         }

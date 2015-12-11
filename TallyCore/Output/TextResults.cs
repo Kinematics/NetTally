@@ -92,7 +92,7 @@ namespace NetTally
 
                         AddRankedOptions(result.Key);
 
-                        string[] labels = new string[5] { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+                        string[] labels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
                         int index = 0;
                         foreach (var winner in result.Value)
                         {
@@ -226,7 +226,7 @@ namespace NetTally
         private string GetVoterUrl(string voter, VoteType voteType)
         {
             Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
-            string url = Quest.GetForumAdapter().GetPostUrlFromId(Quest.ThreadName, idLookup[voter]);
+            string url = Quest.ForumAdapter.GetPermalinkForId(idLookup[voter]);
 
             return url;
         }
@@ -297,7 +297,7 @@ namespace NetTally
         /// <returns>Returns an ordered enumeration of the voters.</returns>
         private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            var voterList = new List<string>() { GetFirstVoter(voters) };
+            var voterList = new List<string> { GetFirstVoter(voters) };
             var otherVoters = voters.Except(voterList);
 
             var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
@@ -376,7 +376,7 @@ namespace NetTally
 
             string link;
 
-            if (firstVoter.StartsWith(Text.PlanNameMarker))
+            if (firstVoter.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
             {
                 link = GetVoterUrl(firstVoter, VoteType.Plan);
             }

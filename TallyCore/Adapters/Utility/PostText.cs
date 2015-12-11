@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using NetTally.Utility;
 
-namespace NetTally.Adapters.Utility
+namespace NetTally.Adapters
 {
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.
@@ -27,7 +27,7 @@ namespace NetTally.Adapters.Utility
         public static string CleanupWebString(string text)
         {
             if (text == null)
-                throw new ArgumentNullException(nameof(text));
+                return string.Empty;
 
             text = text.TrimStart();
 
@@ -84,7 +84,7 @@ namespace NetTally.Adapters.Utility
             {
                 string nodeClass = n.GetAttributeValue("class", "");
 
-                return classNames.Any(c => nodeClass.Contains(c));
+                return classNames.Any(nodeClass.Contains);
             };
 
         }
@@ -182,8 +182,6 @@ namespace NetTally.Adapters.Utility
                     case "div":
                         // Recurse into divs (typically spoilers).
                         ExtractPostTextString(child, exclude, sb);
-                        break;
-                    default:
                         break;
                 }
             }

@@ -5,324 +5,261 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Adapters.Utility;
 
 namespace NetTally.Adapters
 {
     public class vBulletinAdapter5 : IForumAdapter
     {
-        public vBulletinAdapter5()
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">The URI of the thread this adapter will be handling.</param>
+        public vBulletinAdapter5(Uri uri)
         {
-
+            Site = uri;
         }
 
-        public vBulletinAdapter5(string site)
+        #region Site properties
+        Uri site;
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)(?<thread>\d+-[^&?#]+)");
+
+        /// <summary>
+        /// Property for the site this adapter is handling.
+        /// Can be changed if the quest thread details are changed.
+        /// </summary>
+        public Uri Site
         {
-            ForumUrl = site;
-            ThreadsUrl = site;
-            PostsUrl = site;
+            get
+            {
+                return site;
+            }
+            set
+            {
+                // Must set a valid value
+                if (value == null)
+                    throw new ArgumentNullException(nameof(Site));
+
+                // If object doesn't have a value, just set and be done.
+                if (site == null)
+                {
+                    site = value;
+                    UpdateSiteData();
+                    return;
+                }
+
+                // If the URI didn't change, we don't need to do anything.
+                if (site.AbsoluteUri == value.AbsoluteUri)
+                {
+                    return;
+                }
+
+                // If the host *did* change, we can't consider this a valid adapter anymore.
+                if (site.Host != value.Host)
+                {
+                    throw new InvalidOperationException("Host has changed.");
+                }
+
+                // Otherwise, just update the site URI and data.
+                site = value;
+                UpdateSiteData();
+            }
         }
 
-        protected virtual string ForumUrl { get; }
-        protected virtual string ThreadsUrl { get; }
-        protected virtual string PostsUrl { get; }
+        /// <summary>
+        /// When the Site value changes, update the base site and thread name values appropriately.
+        /// </summary>
+        private void UpdateSiteData()
+        {
+            if (site == null)
+                throw new InvalidOperationException("Site value is null.");
 
+            Match m = siteRegex.Match(site.AbsoluteUri);
+            if (m.Success)
+            {
+                BaseSite = m.Groups["base"].Value;
+                ThreadName = m.Groups["thread"].Value;
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid vBulletin4 site URL format:\n{site.AbsoluteUri}");
+            }
+        }
+
+        string BaseSite { get; set; }
+        string ThreadName { get; set; }
+
+        string ThreadBaseUrl => $"{BaseSite}{ThreadName}";
+        string PostsBaseUrl => $"{ThreadBaseUrl}?p=";
+        string PageBaseUrl => $"{ThreadBaseUrl}/page";
+        #endregion
+
+        #region Public interface
+        /// <summary>
+        /// Get the default number of posts per page for this forum type.
+        /// </summary>
         public int DefaultPostsPerPage => 20;
 
-        // Extract color attributes from span style.
-        readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>\w+)", RegexOptions.IgnoreCase);
-        readonly Regex strikeSpanRegex = new Regex(@"text-decoration:\s*line-through");
-
-
-        #region Public interface functions
-
-        // Functions for constructing URLs
-
-        public string GetPageUrl(string threadName, int page)
-        {
-            if (threadName == null)
-                throw new ArgumentNullException(nameof(threadName));
-            if (threadName == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(threadName));
-
-            if (page == 1)
-                return threadName;
-
-            string trailSlash = "";
-            if (!threadName.EndsWith("/"))
-                trailSlash = "/";
-
-            return threadName + trailSlash + "page" + page.ToString();
-        }
-
-        public string GetPostUrlFromId(string threadName, string postId)
-        {
-            if (threadName == null)
-                throw new ArgumentNullException(nameof(threadName));
-            if (threadName == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(threadName));
-            if (postId == null)
-                throw new ArgumentNullException(nameof(postId));
-            if (postId == string.Empty)
-                throw new ArgumentOutOfRangeException(nameof(postId));
-
-            // http://www.vbulletin.com/forum/forum/vbulletin-sales-and-feedback/site-feedback/326978-is-vbulletin-3-8-5-going-to-be-released-this-month?p=2860988#post2860988
-
-            string trimSlash = threadName.TrimEnd('/');
-
-            return trimSlash + "?p=" + postId + "#post" + postId;
-        }
-        
-        public string GetRelativeUrl(string relative) => ForumUrl + relative;
+        /// <summary>
+        /// Generate a URL to access the specified page of the adapter's thread.
+        /// </summary>
+        /// <param name="page">The page of the thread that is being loaded.</param>
+        /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
+        public string GetUrlForPage(int page, int postsPerPage) => $"{PageBaseUrl}{page}";
 
         /// <summary>
-        /// Get the title of the web page.
+        /// Generate a URL to access the specified post of the adapter's thread.
         /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns the title of the page.</returns>
-        public string GetPageTitle(HtmlDocument page)
+        /// <param name="postId">The permalink ID of the post being requested.</param>
+        /// <returns>Returns a URL formatted to load the requested post.</returns>
+        public string GetPermalinkForId(string postId) => $"{PostsBaseUrl}{postId}";
+
+        /// <summary>
+        /// Get the starting post number, to begin tallying from.
+        /// Since vBulletin doesn't have threadmarks, this will always be whatever
+        /// is specified as the start post for the quest.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns data indicating where to begin tallying the thread.</returns>
+        public Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
+            Task.FromResult(new ThreadStartValue(true, quest.StartPost));
+
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
+        public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
-            var title = page.DocumentNode.Element("html")?.Element("head")?.Element("title")?.InnerText;
+            string title;
+            string author = string.Empty; // vBulletin doesn't show the thread author
+            int pages = 1;
 
-            if (title == null)
-                return string.Empty;
+            HtmlNode doc = page.DocumentNode.Element("html");
 
-            return PostText.CleanupWebString(title);
+            // Find the page title
+            title = doc.Element("head").Element("title")?.InnerText;
+            title = PostText.CleanupWebString(title);
+
+            var threadViewTab = doc.Element("body")?.Descendants("div").FirstOrDefault(a => a.Id == "thread-view-tab");
+
+            var pageNavControls = threadViewTab?.GetDescendantWithClass("div", "pagenav-controls");
+
+            var pageTotalSpan = pageNavControls?.GetDescendantWithClass("span", "pagetotal");
+
+            if (pageTotalSpan != null)
+                pages = int.Parse(pageTotalSpan.InnerText);
+
+            ThreadInfo info = new ThreadInfo(title, author, pages);
+
+            return info;
         }
 
         /// <summary>
-        /// Check if the name of the thread is valid for inserting into a URL.
+        /// Get a list of posts from the provided page.
         /// </summary>
-        /// <param name="name">The name of the quest/thread.</param>
-        /// <returns>Returns true if the name is valid.</returns>
-        public bool IsValidThreadName(string name)
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns a list of constructed posts from this page.</returns>
+        public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
+            var postList = page.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
-            // vBulletin v5 has no specific formatting.  Just make sure there aren't any spaces.
-            Regex validateQuestNameForUrl = new Regex(@"\S+");
-            return validateQuestNameForUrl.Match(name).Success;
+            if (postList == null)
+                return new List<PostComponents>();
+
+            var posts = from p in postList.Elements("li")
+                        where p.GetAttributeValue("data-node-id", "") != string.Empty
+                        select GetPost(p);
+
+            return posts;
         }
+        #endregion
 
+        #region Utility
         /// <summary>
-        /// Get the author of the thread.
-        /// -- vBulletin does not provide thread author information
+        /// Get a completed post from the provided HTML div node.
         /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns the thread author.</returns>
-        public string GetAuthorOfThread(HtmlDocument page) => string.Empty;
-
-        /// <summary>
-        /// Get the last page number of the thread, based on info available
-        /// from the given page.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns the last page number of the thread.</returns>
-        public int GetLastPageNumberOfThread(HtmlDocument page)
+        /// <param name="postDiv">Div node that contains the post.</param>
+        /// <returns>Returns a post object with required information.</returns>
+        private PostComponents GetPost(HtmlNode li)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            if (li == null)
+                throw new ArgumentNullException(nameof(li));
 
-            var threadViewTab = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "thread-view-tab");
+            string author = "";
+            string id = "";
+            string text = "";
+            int number = 0;
 
-            var pageNavControls = threadViewTab.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pagenav-controls"));
+            // ID
+            id = li.GetAttributeValue("data-node-id", "");
 
-            var pageTotalSpan = pageNavControls.Descendants("span").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("pagetotal"));
+            if (id == string.Empty)
+                return null;
 
-            int lastPage = 0;
-            if (int.TryParse(pageTotalSpan.InnerText, out lastPage))
-                return lastPage;
+            // Author
+            var postAuthorNode = li.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "author");
+            var authorNode = postAuthorNode?.GetDescendantWithClass("div", "author");
 
-            throw new InvalidOperationException("Unable to get the last page number of the thread.");
-        }
+            if (authorNode != null)
+                author = PostText.CleanupWebString(authorNode.InnerText);
 
-        /// <summary>
-        /// Given a page, return a list of posts on the page.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns an enumerable list of posts.</returns>
-        public IEnumerable<HtmlNode> GetPostsFromPage(HtmlDocument page)
-        {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            var contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
-            var postList = GetPostListFromPage(page);
-            return GetPostsFromList(postList);
-        }
-
-        /// <summary>
-        /// Get the ID string of the provided post (the portion that can be used in a URL).
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the portion of the ID that can be inserted into a URL
-        /// to reach this post.</returns>
-        public string GetIdOfPost(HtmlNode post)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
-            return post.GetAttributeValue("data-node-id", "");
-        }
-
-        /// <summary>
-        /// This gets the sequential post number of a given post message.
-        /// </summary>
-        /// <param name="post">The post to inspect.</param>
-        /// <returns>Returns the post number that's found.</returns>
-        public int GetPostNumberOfPost(HtmlNode post)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
-            var postCountAnchor = post.Descendants("a").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("b-post__count"));
+            // Number
+            var postCountAnchor = contentArea.GetDescendantWithClass("a", "b-post__count");
 
             if (postCountAnchor != null)
             {
                 string postNumText = postCountAnchor.InnerText;
-                if (postNumText.StartsWith("#"))
+                if (postNumText.StartsWith("#", StringComparison.Ordinal))
                     postNumText = postNumText.Substring(1);
 
-                int postNum = 0;
-                if (int.TryParse(postNumText, out postNum))
-                    return postNum;
+                number = int.Parse(postNumText);
             }
 
-            throw new InvalidOperationException("Unable to extract a post number from the post.");
-        }
-
-        /// <summary>
-        /// Gets the author of the post.
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the author of the post.</returns>
-        public string GetAuthorOfPost(HtmlNode post)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
-            var userInfo = post?.Elements("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "author");
-            var author = userInfo?.Elements("div").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("author"));
-
-            var authorAnchor = author?.Descendants("a").FirstOrDefault();
-
-            return HtmlEntity.DeEntitize(authorAnchor?.InnerText);
-        }
-
-        /// <summary>
-        /// Get the collated text of the post, that can be used in other parts of the program.
-        /// This includes BBCode formatting, where appropriate.
-        /// </summary>
-        /// <param name="post">The post or post content to query.</param>
-        /// <returns>Returns the contents of the post as a formatted string.</returns>
-        public string GetTextOfPost(HtmlNode post)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
-            // Get the inner contents, if it wasn't passed in directly
-            HtmlNode postContents = GetContentsOfPost(post);
+            // Text
+            var postTextNode = contentArea.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
 
             // Predicate filtering out elements that we don't want to include
             var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            return PostText.ExtractPostText(postContents, exclusion);
-        }
-
-        #endregion
-
-        #region Special Interface function
-        public Task<int> GetStartingPostNumber(IPageProvider pageProvider, IQuest quest, CancellationToken token)
-        {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            return Task.FromResult(quest.StartPost);
-        }
-
-        #endregion
+            text = PostText.ExtractPostText(postTextNode, exclusion);
 
 
-        // Utility functions to support the above interface functions
+            PostComponents post;
+            try
+            {
+                post = new PostComponents(author, id, text, number);
+            }
+            catch
+            {
+                post = null;
+            }
 
-        #region Functions dealing with pages
-
-        /// <summary>
-        /// Get the node element containing all the posts on the page.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <returns>Returns the page element that contains the posts.</returns>
-        private HtmlNode GetPostListFromPage(HtmlDocument page)
-        {
-            var posts = page.DocumentNode.Descendants("ul").FirstOrDefault(a => a.GetAttributeValue("class", "").Contains("conversation-list"));
-
-            return posts;
-        }
-
-        /// <summary>
-        /// Given the page node containing all of the posts on the thread,
-        /// get an IEnumerable list of all posts on the page.
-        /// </summary>
-        /// <param name="postList">Element containing posts from the page.</param>
-        /// <returns>Returns a list of posts.</returns>
-        private IEnumerable<HtmlNode> GetPostsFromList(HtmlNode postList)
-        {
-            if (postList == null)
-                return new List<HtmlNode>();
-
-            var posts = postList.Elements("li").Where<HtmlNode>(a => a.GetAttributeValue("data-node-id", "") != string.Empty);
-
-            return posts;
-        }
-
-        /// <summary>
-        /// Get a specific post from the page, when provided with the unique
-        /// ID of the post.
-        /// </summary>
-        /// <param name="page">The page to search.</param>
-        /// <param name="id">The ID of the post.</param>
-        /// <returns>Returns the post.</returns>
-        private HtmlNode GetPostFromPageById(HtmlDocument page, string id)
-        {
-            var postsList = GetPostsFromPage(page);
-
-            return postsList.FirstOrDefault(a => a.GetAttributeValue("data-node-id", "") == id);
+            return post;
         }
         #endregion
 
-        #region Functions dealing with posts
+        #region Detection
         /// <summary>
-        /// Function to tell if the provided HTML node is a thread post.
+        /// Static detection of whether the provided web page is a XenForo forum thread.
         /// </summary>
-        /// <param name="post">Proposed post.</param>
-        /// <returns>Returns true if the node appears to be a legitimate post.</returns>
-        private bool IsPost(HtmlNode post)
+        /// <param name="page">Web page to examine.</param>
+        /// <returns>Returns true if it's detected as a XenForo page.  Otherwise, false.</returns>
+        public static bool CanHandlePage(HtmlDocument page)
         {
-            if (post == null)
+            if (page == null)
                 return false;
 
-            return post.Name == "li" && post.GetAttributeValue("data-node-id", "") != string.Empty;
+            return page.DocumentNode.Element("html").Element("body")?.Id == "vb-page-body";
         }
-
-        /// <summary>
-        /// Gets the inner HTML node containing the actual contents of the post.
-        /// </summary>
-        /// <param name="post">The post to query.</param>
-        /// <returns>Returns the article node within the post.</returns>
-        private HtmlNode GetContentsOfPost(HtmlNode post)
-        {
-            if (post == null)
-                return null;
-
-            var postTextNode = post?.Elements("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
-
-            return postTextNode;
-        }
-
         #endregion
+
     }
 }

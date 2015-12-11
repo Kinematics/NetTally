@@ -30,7 +30,7 @@ namespace NetTally
             try
             {
                 string filename = GetLogFilename();
-                if (filename == null || filename == string.Empty)
+                if (string.IsNullOrEmpty(filename))
                     return null;
 
                 string output = ComposeOutput(callingMethod, message, exception);

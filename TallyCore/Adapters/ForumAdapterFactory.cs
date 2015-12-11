@@ -1,141 +1,158 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Adapters;
-using HtmlAgilityPack;
 
-namespace NetTally
+namespace NetTally.Adapters
 {
     public static class ForumAdapterFactory
     {
+        #region Public functions
         /// <summary>
-        /// Get a forum adapter for the site a quest is on.
-        /// If not given a token, only do explicit checks.
+        /// Overload to get an adapter for a quest without specifying a cancellation token.
         /// </summary>
-        /// <param name="quest">The quest that a forum adapter is needed for.</param>
-        /// <returns>Returns a forum adapter for the site the quest is on.</returns>
-        public static IForumAdapter GetAdapter(IQuest quest)
+        /// <param name="quest">The quest to get the adapter for.</param>
+        /// <returns>Returns a forum adapter for the quest.</returns>
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None, null);
+
+        /// <summary>
+        /// Overload to get an adapter for a quest without specifying a cancellation token.
+        /// </summary>
+        /// <param name="quest">The quest to get the adapter for.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a forum adapter for the quest.</returns>
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token) => await GetAdapter(quest, CancellationToken.None, null);
+
+        /// <summary>
+        /// Function to generate an appropriate forum adapter for the specified quest.
+        /// Generates an exception if the quest's thread URL is not well-formed.
+        /// </summary>
+        /// <param name="quest">The quest to get the adapter for.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <param name="pageProvider">The page provider to use if we need to query the web.</param>
+        /// <returns>Returns an appropriate forum adapter for the quest, if found. Otherwise, null.</returns>
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token, IPageProvider pageProvider)
         {
-            IForumAdapter adapter = GetExplicitAdapter(quest);
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
+            if (!Uri.IsWellFormedUriString(quest.ThreadName, UriKind.Absolute))
+                throw new InvalidOperationException($"Thread URL is not valid:\n{quest.ThreadName}\n\nPlease enter a valid URL.");
+
+            Uri uri = new Uri(quest.ThreadName);
+
+            IForumAdapter adapter = GetKnownForumAdapter(uri);
+
+            if (adapter == null)
+                adapter = await GetUnknownForumAdapter(uri, token, pageProvider);
 
             return adapter;
         }
+        #endregion
 
+        #region Private methods
         /// <summary>
-        /// Get a forum adapter for the site a quest is on.
-        /// If given a token, do implicit checks.
+        /// Generate a forum adapter object for certain known forums,
+        /// without needing to check the contents of the forum page.
         /// </summary>
-        /// <param name="quest">The quest that a forum adapter is needed for.</param>
-        /// <returns>Returns a forum adapter for the site the quest is on.</returns>
-        public static async Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token)
+        /// <param name="uri">The URI for the forum thread.</param>
+        /// <returns>Returns a forum adapter for certain known forums. Otherwise, null.</returns>
+        static IForumAdapter GetKnownForumAdapter(Uri uri)
         {
-            IForumAdapter adapter = GetExplicitAdapter(quest) ?? await GetImplicitAdapter(quest, token);
-
-            return adapter;
-        }
-
-        /// <summary>
-        /// Get adapter for site that we have explicitly built adapters for.
-        /// An empty string gets the default forum adapter.
-        /// </summary>
-        /// <param name="quest">The quest that a forum adapter is needed for.</param>
-        /// <returns>Returns a forum adapter for the site the quest is on.</returns>
-        private static IForumAdapter GetExplicitAdapter(IQuest quest)
-        {
-            switch (quest.SiteName)
+            switch (uri.Host)
             {
-                case "http://forums.sufficientvelocity.com/":
-                case "http://forums.spacebattles.com/":
-                case "https://forum.questionablequesting.com/":
-                    // Known XenForo sites
-                    return new XenForoAdapter(quest.SiteName);
-                case "":
-                    // Sufficient Velocity is the default if no site name is given
-                    return new XenForoAdapter("http://forums.sufficientvelocity.com/");
+                // Known XenForo sites
+                case "forums.sufficientvelocity.com":
+                case "forums.spacebattles.com":
+                case "forum.questionablequesting.com":
+                    return new XenForoAdapter(uri);
                 default:
                     return null;
             }
         }
 
         /// <summary>
-        /// Gets adapter for a site we can only implicitly guess the structure of.
+        /// Generate a forum adapter for any unknown forum.
+        /// Need to load a forum page (asynchronously) to determine which forum adapter is needed.
         /// </summary>
-        /// <param name="quest">The quest that a forum adapter is needed for.</param>
-        /// <returns>Returns a forum adapter for the site the quest is on.
-        /// Throws an exception if it is unable to identify a site's forums.</returns>
-        private async static Task<IForumAdapter> GetImplicitAdapter(IQuest quest, CancellationToken token)
+        /// <param name="uri">The URI of the forum thread to check.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a forum adapter for the forum thread if one can be determined.
+        /// Otherwise, null.</returns>
+        async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token, IPageProvider pageProvider)
         {
-            IPageProvider webPageProvider = new WebPageProvider();
+            bool localPageProvider = pageProvider == null;
 
-            var page = await webPageProvider.GetPage(quest.ThreadName, quest.SiteName, Caching.UseCache, token);
-
-            if (token.IsCancellationRequested)
-                return null;
-
-            if (CheckForXenForo(page))
-                return new XenForoAdapter(quest.SiteName);
-
-            if (CheckForVBulletin5(page))
-                return new vBulletinAdapter5(quest.SiteName);
-
-            if (CheckForVBulletin4(page))
-                return new vBulletinAdapter4(quest.SiteName);
-
-            if (CheckForVBulletin3(page))
-                return new vBulletinAdapter3(quest.SiteName);
-
-            return null;
-        }
-
-        /// <summary>
-        /// Determine if the provided page has the signature indicating that it
-        /// is a XenForo forum site.
-        /// </summary>
-        /// <param name="page">Page to check.</param>
-        /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForXenForo(HtmlDocument page) => page?.DocumentNode.Element("html")?.Id == "XenForo";
-
-        /// <summary>
-        /// Determine if the provided page has the signature indicating that it
-        /// is a XenForo forum site.
-        /// </summary>
-        /// <param name="page">Page to check.</param>
-        /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForVBulletin5(HtmlDocument page) => page?.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
-
-        /// <summary>
-        /// Determine if the provided page has the signature indicating that it
-        /// is a XenForo forum site.
-        /// </summary>
-        /// <param name="page">Page to check.</param>
-        /// <returns>Returns true if it's a XenForo forum.</returns>
-        private static bool CheckForVBulletin4(HtmlDocument page) => page?.DocumentNode.Element("html")?.Id == "vbulletin_html";
-
-        /// <summary>
-        /// Determine if the provided page has the signature indicating that it
-        /// is a vBulletin forum site.
-        /// </summary>
-        /// <param name="page">Page to check.</param>
-        /// <returns>Returns true if it's a vBulletin forum.</returns>
-        private static bool CheckForVBulletin3(HtmlDocument page)
-        {
-            if (page == null)
-                return false;
-
-            var root = page.DocumentNode;
-            var head = root.Descendants("head").FirstOrDefault();
-            if (head != null)
+            try
             {
-                var generator = head.Elements("meta").FirstOrDefault(a => a.GetAttributeValue("name", "") == "generator");
-                if (generator != null)
+                if (localPageProvider)
+                    pageProvider = new WebPageProvider();
+
+                try
                 {
-                    if (generator.GetAttributeValue("content", "").StartsWith("vBulletin"))
-                        return true;
+                    var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
+
+                    if (page == null)
+                        return null;
+
+                    if (token.IsCancellationRequested)
+                        return null;
+
+                    // Do automatic checks against any class in this library that implements
+                    // IForumAdapter, and the static method, "CanHandlePage".
+                    const string detectMethodName = "CanHandlePage";
+
+                    Type ti = typeof(IForumAdapter);
+
+                    // Get the list of all adapter classes built off of the IForumAdapter interface.
+                    var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
+                                        where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                        select t;
+
+                    foreach (var adapterClass in adapterList)
+                    {
+                        try
+                        {
+                            // Check the class for a static member named "CanHandlePage"
+                            var detectMethodArray = adapterClass.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Public,
+                                Type.FilterName, detectMethodName);
+
+                            // If it finds any such methods, check the class against the currently loaded page to
+                            // see if this the correct adapter to return.
+                            if (detectMethodArray.Any())
+                            {
+                                bool result = (bool)adapterClass.InvokeMember(detectMethodName,
+                                    BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod,
+                                    null, null, new object[] { page });
+
+                                if (result)
+                                {
+                                    var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
+
+                                    return adapter;
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorLog.Log(e);
+                        }
+                    }
+
                 }
+                catch (OperationCanceledException)
+                { }
+            }
+            finally
+            {
+                if (localPageProvider)
+                    pageProvider?.Dispose();
             }
 
-            return false;
+            // If nothing was found, return null.
+            return null;
         }
+        #endregion
     }
 }

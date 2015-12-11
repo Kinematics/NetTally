@@ -8,20 +8,22 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public class vBulletinAdapter4 : IForumAdapter
+    public class phpBBAdapter : IForumAdapter
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="site">The URI of the thread this adapter will be handling.</param>
-        public vBulletinAdapter4(Uri uri)
+        /// <param name="site">URI for the thread to manage.</param>
+        public phpBBAdapter(Uri site)
         {
-            Site = uri;
+            Site = site;
         }
 
         #region Site properties
         Uri site;
-        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)showthread.php\?(?<thread>[^&/]+)");
+        // Example: https://www.phpbb.com/community/viewtopic.php?f=466&t=2347241&start=15#p14278841
+        // https://www.phpbb.com/community/viewtopic.php?t=2347241&p14278841
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)viewtopic.php?(f=\d+&)?(t=(?<thread>\d+(?=\?|#|$)))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
@@ -81,30 +83,37 @@ namespace NetTally.Adapters
             }
             else
             {
-                throw new ArgumentException($"Invalid vBulletin4 site URL format:\n{site.AbsoluteUri}");
+                throw new ArgumentException($"Invalid vBulletin3 site URL format:\n{site.AbsoluteUri}");
             }
         }
 
         string BaseSite { get; set; }
         string ThreadName { get; set; }
 
-        string ThreadBaseUrl => $"{BaseSite}showthread.php?{ThreadName}";
-        string PostsBaseUrl => $"{ThreadBaseUrl}&p=";
-        string PageBaseUrl => $"{ThreadBaseUrl}/page";
+        string ThreadBaseUrl => $"{BaseSite}viewtopic.php?t={ThreadName}";
+        string PostsBaseUrl => $"{ThreadBaseUrl}&p";
         #endregion
 
         #region Public interface
         /// <summary>
         /// Get the default number of posts per page for this forum type.
         /// </summary>
-        public int DefaultPostsPerPage => 20;
+        public int DefaultPostsPerPage => 15;
 
         /// <summary>
         /// Generate a URL to access the specified page of the adapter's thread.
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>
         /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
-        public string GetUrlForPage(int page, int postsPerPage) => $"{PageBaseUrl}{page}";
+        public string GetUrlForPage(int page, int postsPerPage)
+        {
+            if (page < 1)
+                return ThreadBaseUrl;
+
+            int postIncrement = postsPerPage * (page - 1);
+
+            return $"{ThreadBaseUrl}&start={postIncrement}";
+        }
 
         /// <summary>
         /// Generate a URL to access the specified post of the adapter's thread.
@@ -136,34 +145,47 @@ namespace NetTally.Adapters
                 throw new ArgumentNullException(nameof(page));
 
             string title;
-            string author = string.Empty; // vBulletin doesn't show thread authors
+            string author = string.Empty;
             int pages = 1;
 
-            HtmlNode doc = page.DocumentNode;
+            HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = doc.Element("html").Element("head").Element("title")?.InnerText;
-            title = PostText.CleanupWebString(title);
+            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
-            // Get the number of pages from the navigation elements
-            var paginationTop = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "pagination_top");
+            // Find the number of pages
+            var body = doc.Element("body");
+            var wrap = body?.Elements("div").FirstOrDefault(n => n.Id == "wrap");
+            var pagebody = wrap?.Elements("div").FirstOrDefault(n => n.Id == "page-body");
 
-            var paginationForm = paginationTop.Element("form");
-
-            // If there is no form, that means there's only one page in the thread.
-            if (paginationForm != null)
+            if (pagebody != null)
             {
-                var firstSpan = paginationForm.Element("span");
-                var firstSpanA = firstSpan?.Element("a");
-                var pagesText = firstSpanA?.InnerText;
+                // Different versions of the forum have different methods of showing page numbers
 
-                if (pagesText != null)
+                var topicactions = pagebody.GetChildWithClass("topic-actions");
+                if (topicactions != null)
                 {
-                    Regex pageNumsRegex = new Regex(@"Page \d+ of (?<pages>\d+)");
-                    Match m = pageNumsRegex.Match(pagesText);
-                    if (m.Success)
+                    var pagination = topicactions.GetChildWithClass("pagination");
+                    string paginationText = pagination?.InnerText;
+                    if (paginationText != null)
                     {
-                        pages = int.Parse(m.Groups["pages"].Value);
+                        Regex pageOf = new Regex(@"Page\s*\d+\s*of\s*(?<pages>\d+)");
+                        Match m = pageOf.Match(paginationText);
+                        if (m.Success)
+                            pages = int.Parse(m.Groups["pages"].Value);
+                    }
+                }
+                else
+                {
+                    var actionbar = pagebody.GetChildWithClass("action-bar");
+                    var pagination = actionbar?.GetChildWithClass("pagination");
+
+                    var ul = pagination?.Element("ul");
+                    var lastPageLink = ul?.Elements("li")?.LastOrDefault(n => !n.GetAttributeValue("class", "").Split(' ').Contains("next"));
+
+                    if (lastPageLink != null)
+                    {
+                        pages = int.Parse(lastPageLink.InnerText);
                     }
                 }
             }
@@ -180,14 +202,15 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var body = page.DocumentNode.Element("html")?.Element("body");
-            var postlist = body.Descendants("ol").FirstOrDefault(a => a.Id == "posts");
+            var body = page.DocumentNode.Element("html").Element("body");
+            var wrap = body?.Elements("div").FirstOrDefault(n => n.Id == "wrap");
+            var pagebody = wrap?.Elements("div").FirstOrDefault(n => n.Id == "page-body");
 
-            if (postlist == null)
+            if (pagebody == null)
                 return new List<PostComponents>();
 
-            var posts = from p in postlist.Elements("li")
-                        where p.Id.StartsWith("post_", StringComparison.Ordinal)
+            var posts = from p in pagebody.Elements("div")
+                        where p.GetAttributeValue("class", "").Split(' ').Contains("post")
                         select GetPost(p);
 
             return posts;
@@ -196,52 +219,42 @@ namespace NetTally.Adapters
 
         #region Utility
         /// <summary>
-        /// Get a completed post from the provided HTML list item node.
+        /// Get a completed post from the provided HTML div node.
         /// </summary>
-        /// <param name="postDiv">List item node that contains the post.</param>
+        /// <param name="div">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li)
+        private PostComponents GetPost(HtmlNode div)
         {
-            if (li == null)
-                throw new ArgumentNullException(nameof(li));
+            if (div == null)
+                throw new ArgumentNullException(nameof(div));
 
             string author = "";
-            string id = "";
-            string text = "";
+            string id;
+            string text;
             int number = 0;
 
-            // ID
-            id = li.Id.Substring("post_".Length);
-
-            // Number
-            HtmlNode postHead = li.GetChildWithClass("div", "posthead");
-            HtmlNode nodeControls = postHead?.GetChildWithClass("nodecontrols");
-            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount", StringComparison.Ordinal));
-
-            if (postCount != null)
-                number = int.Parse(postCount.GetAttributeValue("name", "0"));
+            // id="p12345"
+            id = div.Id.Substring(1);
 
 
-            HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
+            var inner = div.GetChildWithClass("div", "inner");
+            var postbody = inner.GetChildWithClass("div", "postbody");
+            var authorNode = postbody.GetChildWithClass("p", "author");
+            var authorStrong = authorNode.Descendants("strong").FirstOrDefault();
+            var authorAnchor = authorStrong.Element("a");
 
-            if (postDetails != null)
-            {
-                // Author
-                HtmlNode userinfo = postDetails.GetChildWithClass("div", "userinfo");
-                HtmlNode username = userinfo?.GetChildWithClass("a", "username");
-                author = PostText.CleanupWebString(username?.InnerText);
+            author = PostText.CleanupWebString(authorAnchor.InnerText);
 
-                // Text
-                string postMessageId = "post_message_" + id;
+            // No way to get the post number??
 
-                HtmlNode message = postDetails.Descendants("div").FirstOrDefault(a => a.Id == postMessageId)?.Element("blockquote");
 
-                // Predicate filtering out elements that we don't want to include
-                var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+            // Get the full post text.  Two different layout variants.
+            var content = postbody.GetChildWithClass("div", "content");
+            if (content == null)
+                content = postbody.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
 
-                // Get the full post text.
-                text = PostText.ExtractPostText(message, exclusion);
-            }
+            text = PostText.ExtractPostText(content, n => false);
+
 
             PostComponents post;
             try
@@ -268,7 +281,14 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            return page.DocumentNode.Element("html")?.Id == "vbulletin_html";
+            var body = page.DocumentNode.Element("html").Element("body");
+
+            // Not viable to tally without post numbers in posts
+
+            //if (body.Id == "phpbb")
+            //    return true;
+
+            return false;
         }
         #endregion
 

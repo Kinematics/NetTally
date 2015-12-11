@@ -25,8 +25,6 @@ namespace NetTally
                     cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
                     cookies.Add(cookie);
                     break;
-                default:
-                    break;
             }
 
             return cookies;

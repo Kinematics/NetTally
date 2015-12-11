@@ -401,8 +401,6 @@ namespace NetTally
                     CancelInput();
                     e.Handled = true;
                     break;
-                default:
-                    break;
             }
         }
 
@@ -491,13 +489,16 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes1(string vote)
+        bool FilterVotes1(string vote)
         {
-            return VoteCounter.HasVote(vote, CurrentVoteType) &&
-                (Filter1String == null || Filter1String == string.Empty ||
+            if (VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (string.IsNullOrEmpty(Filter1String) ||
                  CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0 ||
                  (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0)));
+                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))))
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -506,13 +507,16 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">The vote to be checked.</param>
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        private bool FilterVotes2(string vote)
+        bool FilterVotes2(string vote)
         {
-            return VoteCounter.HasVote(vote, CurrentVoteType) &&
-                (Filter2String == null || Filter2String == string.Empty ||
+            if (VoteCounter.HasVote(vote, CurrentVoteType) &&
+                (string.IsNullOrEmpty(Filter2String) ||
                  CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0 ||
                  (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0)));
+                 VoteCounter.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))))
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -684,7 +688,7 @@ namespace NetTally
         /// <param name="task">The name of a new task.</param>
         private void AddTaskToContextMenu(string task)
         {
-            if (task == null || task == string.Empty)
+            if (string.IsNullOrEmpty(task))
                 return;
 
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))

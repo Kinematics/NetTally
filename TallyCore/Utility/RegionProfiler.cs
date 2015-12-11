@@ -17,10 +17,10 @@ namespace NetTally
     /// </summary>
     public sealed class RegionProfiler : IDisposable
     {
-        private Stopwatch stopwatch = new Stopwatch();
+        readonly Stopwatch stopwatch = new Stopwatch();
 
-        private TimeSpan watermark = new TimeSpan(0, 0, 2);
-        private string regionName;
+        TimeSpan watermark = new TimeSpan(0, 0, 2);
+        readonly string regionName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegionProfiler"/> class.

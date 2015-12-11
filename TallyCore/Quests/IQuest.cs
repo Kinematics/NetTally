@@ -1,11 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Adapters;
 
 namespace NetTally
 {
-    public interface IQuest
+    public interface IQuest : INotifyPropertyChanged
     {
         /// <summary>
         /// The name of the thread to be queried.
@@ -16,9 +18,9 @@ namespace NetTally
         /// </summary>
         string DisplayName { get; set; }
         /// <summary>
-        /// The base site name that can be used to get the forum adapter.
+        /// The quest title as derived from the thread name.
         /// </summary>
-        string SiteName { get; }
+        string ThreadTitle { get; }
 
 
         /// <summary>
@@ -34,17 +36,13 @@ namespace NetTally
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }
-        /// <summary>
-        /// Get the number of posts per page for this forum thread.
-        /// Raw value, without attempt at auto-fill.
-        /// </summary>
-        int RawPostsPerPage { get; set; }
 
         /// <summary>
         /// Flag for whether to try to override the provided starting post by
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
@@ -66,43 +64,43 @@ namespace NetTally
         int ThreadmarkPost { get; set; }
 
         /// <summary>
-        /// Return either the StartPost or the ThreadmarkPost, depending on config.
+        /// Initialize the forum adapter needed to read results from the web site this quest is for.
+        /// Runs async, but doesn't need a cancellation token.
         /// </summary>
-        int FirstTallyPost { get; }
+        /// <returns>Returns nothing.</returns>
+        Task InitForumAdapter();
 
         /// <summary>
-        /// Get the forum adapter needed to read results from the web site this
-        /// quest is for.
+        /// Initialize the forum adapter needed to read results from the web site this quest is for.
+        /// Runs async, with a cancellation token.
         /// </summary>
-        /// <returns></returns>
-        IForumAdapter GetForumAdapter();
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns nothing.</returns>
+        Task InitForumAdapter(CancellationToken token);
 
         /// <summary>
-        /// Get the forum adapter needed to read results from the web site this
-        /// quest is for.  Allow it to run async so that it can load web pages.
+        /// Get the forum adapter being used by this quest.
+        /// Must be initialized first.
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<IForumAdapter> GetForumAdapterAsync(CancellationToken token);
+        IForumAdapter ForumAdapter { get; }
 
-
-        /// <summary>
-        /// Get the URL string for the provided page number of the quest thread.
-        /// </summary>
-        string GetPageUrl(int pageNumber);
         /// <summary>
         /// Converts a post number into a page number.
         /// </summary>
         int GetPageNumberOf(int postNumber);
+
         /// <summary>
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
         /// </summary>
-        Task<int> GetFirstPageNumber(IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token);
+
         /// <summary>
-        /// Get the last page number of the thread, where we should stop reading, based on
-        /// current quest parameters and the provided web page.
+        /// Asynchronously load pages for the specified quest.
         /// </summary>
-        Task<int> GetLastPageNumber(HtmlDocument loadedPage, CancellationToken token);
+        /// <param name="pageProvider">The page provider to use to load the pages.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
+        Task<List<HtmlDocument>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token);
     }
 }

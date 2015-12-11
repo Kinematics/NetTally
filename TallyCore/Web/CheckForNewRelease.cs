@@ -16,13 +16,6 @@ namespace NetTally
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
         static readonly Regex numbers = new Regex(@"\d+");
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public CheckForNewRelease()
-        {
-        }
-
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
         /// Event for INotifyPropertyChanged.
@@ -73,7 +66,7 @@ namespace NetTally
         /// If no newer version is found, it sets up a request to re-run this function in 2 days time.
         /// </summary>
         /// <returns>Returns nothing.  Just runs async.</returns>
-        private async Task DoVersionCheck()
+        async Task DoVersionCheck()
         {
             try
             {
@@ -106,7 +99,7 @@ namespace NetTally
         /// </summary>
         /// <param name="action">The function to run.</param>
         /// <returns>Returns nothing.  Just runs async.</returns>
-        private async Task DelayedAction(Func<Task> action)
+        async Task DelayedAction(Func<Task> action)
         {
             await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
             var result = action();
@@ -116,7 +109,7 @@ namespace NetTally
         /// Get the current program version information, to compare with the latest version info.
         /// </summary>
         /// <returns>Returns the current version.</returns>
-        private Version GetCurrentVersion()
+        Version GetCurrentVersion()
         {
             Version currentVersion = null;
 
@@ -139,7 +132,7 @@ namespace NetTally
         /// Get the current program version information, to compare with the latest version info.
         /// </summary>
         /// <returns>Returns the current version string.</returns>
-        private async Task<Version> GetLatestVersion()
+        async Task<Version> GetLatestVersion()
         {
             Version latestVersion = null;
 
@@ -163,7 +156,7 @@ namespace NetTally
         /// the version number of the latest release.
         /// </summary>
         /// <returns>Returns the latest version string.</returns>
-        private async Task<string> GetLatestVersionString()
+        async Task<string> GetLatestVersionString()
         {
             try
             {
@@ -192,7 +185,7 @@ namespace NetTally
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument> GetLatestReleasePage()
+        async Task<HtmlDocument> GetLatestReleasePage()
         {
             HtmlDocument doc = null;
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
@@ -216,7 +209,7 @@ namespace NetTally
         /// </summary>
         /// <param name="potentialVersion">Web page text that's expected to hold a version number.</param>
         /// <returns>Returns the version as a string, if available.</returns>
-        private string GetVersionString(string potentialVersion)
+        string GetVersionString(string potentialVersion)
         {
             Match m = potentialVersionRegex.Match(potentialVersion);
             if (m.Success)

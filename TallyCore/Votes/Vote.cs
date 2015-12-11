@@ -15,7 +15,7 @@ namespace NetTally.Votes
             get
             {
                 var a = from v in VoteLines
-                        select new List<VoteLine>() { v };
+                        select new List<VoteLine> { v };
 
                 return a.ToList();
             }

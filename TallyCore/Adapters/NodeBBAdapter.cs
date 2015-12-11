@@ -8,20 +8,21 @@ using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
-    public class vBulletinAdapter4 : IForumAdapter
+    public class NodeBBAdapter : IForumAdapter
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="site">The URI of the thread this adapter will be handling.</param>
-        public vBulletinAdapter4(Uri uri)
+        /// <param name="site">URI for the thread to manage.</param>
+        public NodeBBAdapter(Uri site)
         {
-            Site = uri;
+            Site = site;
         }
 
         #region Site properties
         Uri site;
-        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)showthread.php\?(?<thread>[^&/]+)");
+        // Example: https://community.nodebb.org/topic/180/who-is-using-nodebb?page=2
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)(?<thread>[^?]+(?=\?|$))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
@@ -81,16 +82,15 @@ namespace NetTally.Adapters
             }
             else
             {
-                throw new ArgumentException($"Invalid vBulletin4 site URL format:\n{site.AbsoluteUri}");
+                throw new ArgumentException($"Invalid vBulletin3 site URL format:\n{site.AbsoluteUri}");
             }
         }
 
         string BaseSite { get; set; }
         string ThreadName { get; set; }
 
-        string ThreadBaseUrl => $"{BaseSite}showthread.php?{ThreadName}";
-        string PostsBaseUrl => $"{ThreadBaseUrl}&p=";
-        string PageBaseUrl => $"{ThreadBaseUrl}/page";
+        string ThreadBaseUrl => $"{BaseSite}{ThreadName}";
+        string PostsBaseUrl => $"{BaseSite}?p=";
         #endregion
 
         #region Public interface
@@ -104,7 +104,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>
         /// <returns>Returns a URL formatted to load the requested page of the thread.</returns>
-        public string GetUrlForPage(int page, int postsPerPage) => $"{PageBaseUrl}{page}";
+        public string GetUrlForPage(int page, int postsPerPage) => $"{ThreadBaseUrl}&page={page}";
 
         /// <summary>
         /// Generate a URL to access the specified post of the adapter's thread.
@@ -136,36 +136,27 @@ namespace NetTally.Adapters
                 throw new ArgumentNullException(nameof(page));
 
             string title;
-            string author = string.Empty; // vBulletin doesn't show thread authors
+            string author = string.Empty;
             int pages = 1;
 
-            HtmlNode doc = page.DocumentNode;
+            HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = doc.Element("html").Element("head").Element("title")?.InnerText;
-            title = PostText.CleanupWebString(title);
+            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
-            // Get the number of pages from the navigation elements
-            var paginationTop = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "pagination_top");
+            // Find the number of pages
+            var body = doc.Element("body");
+            var main = body?.Element("main").Elements("div").FirstOrDefault(n => n.Id == "content");
 
-            var paginationForm = paginationTop.Element("form");
+            var paginationContainer = main.GetDescendantWithClass("div", "pagination-container");
 
-            // If there is no form, that means there's only one page in the thread.
-            if (paginationForm != null)
+            if (paginationContainer != null)
             {
-                var firstSpan = paginationForm.Element("span");
-                var firstSpanA = firstSpan?.Element("a");
-                var pagesText = firstSpanA?.InnerText;
+                var lastPage = paginationContainer.Element("ul").Elements("li").LastOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains("page"));
+                var lastPageNumber = lastPage?.Element("a")?.GetAttributeValue("data-page", "1");
 
-                if (pagesText != null)
-                {
-                    Regex pageNumsRegex = new Regex(@"Page \d+ of (?<pages>\d+)");
-                    Match m = pageNumsRegex.Match(pagesText);
-                    if (m.Success)
-                    {
-                        pages = int.Parse(m.Groups["pages"].Value);
-                    }
-                }
+                if (lastPageNumber != null)
+                    pages = int.Parse(lastPageNumber);
             }
 
             ThreadInfo info = new ThreadInfo(title, author, pages);
@@ -180,14 +171,15 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var body = page.DocumentNode.Element("html")?.Element("body");
-            var postlist = body.Descendants("ol").FirstOrDefault(a => a.Id == "posts");
+            var body = page.DocumentNode.Element("html").Element("body");
+            var main = body?.Element("main").Elements("div").FirstOrDefault(n => n.Id == "content");
+            var topic = main?.GetDescendantWithClass("div", "topic");
+            var postlist = topic?.GetChildWithClass("ul", "posts");
 
             if (postlist == null)
                 return new List<PostComponents>();
 
             var posts = from p in postlist.Elements("li")
-                        where p.Id.StartsWith("post_", StringComparison.Ordinal)
                         select GetPost(p);
 
             return posts;
@@ -196,9 +188,9 @@ namespace NetTally.Adapters
 
         #region Utility
         /// <summary>
-        /// Get a completed post from the provided HTML list item node.
+        /// Get a completed post from the provided HTML div node.
         /// </summary>
-        /// <param name="postDiv">List item node that contains the post.</param>
+        /// <param name="li">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
         private PostComponents GetPost(HtmlNode li)
         {
@@ -206,42 +198,19 @@ namespace NetTally.Adapters
                 throw new ArgumentNullException(nameof(li));
 
             string author = "";
-            string id = "";
-            string text = "";
+            string id;
+            string text;
             int number = 0;
 
-            // ID
-            id = li.Id.Substring("post_".Length);
+            id = li.GetAttributeValue("data-pid", "");
+            author = li.GetAttributeValue("data-username", "");
+            number = int.Parse(li.GetAttributeValue("data-index", "0"));
 
-            // Number
-            HtmlNode postHead = li.GetChildWithClass("div", "posthead");
-            HtmlNode nodeControls = postHead?.GetChildWithClass("nodecontrols");
-            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount", StringComparison.Ordinal));
+            var content = li.GetChildWithClass("div", "content");
 
-            if (postCount != null)
-                number = int.Parse(postCount.GetAttributeValue("name", "0"));
+            // Get the full post text.
+            text = PostText.ExtractPostText(content, n => false);
 
-
-            HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
-
-            if (postDetails != null)
-            {
-                // Author
-                HtmlNode userinfo = postDetails.GetChildWithClass("div", "userinfo");
-                HtmlNode username = userinfo?.GetChildWithClass("a", "username");
-                author = PostText.CleanupWebString(username?.InnerText);
-
-                // Text
-                string postMessageId = "post_message_" + id;
-
-                HtmlNode message = postDetails.Descendants("div").FirstOrDefault(a => a.Id == postMessageId)?.Element("blockquote");
-
-                // Predicate filtering out elements that we don't want to include
-                var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
-
-                // Get the full post text.
-                text = PostText.ExtractPostText(message, exclusion);
-            }
 
             PostComponents post;
             try
@@ -268,7 +237,11 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            return page.DocumentNode.Element("html")?.Id == "vbulletin_html";
+            var html = page.DocumentNode.Element("html");
+
+            // No idea how to tell...
+
+            return false;
         }
         #endregion
 
