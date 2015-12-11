@@ -154,7 +154,7 @@ namespace NetTally
             }
             set
             {
-                displayName = Utility.Text.SafeString(value).Trim();
+                displayName = Utility.Text.SafeString(value);
                 OnPropertyChanged();
             }
         }
