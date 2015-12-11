@@ -29,9 +29,9 @@ namespace NetTally
         public RegionProfiler(string name)
         {
             regionName = name;
-            stopwatch.Start();
+            Trace.WriteLine($"Start Profiling: {regionName}");
 
-            Trace.WriteLine(string.Concat("Start Profiling: ", regionName));
+            stopwatch.Start();
         }
 
         /// <summary>
@@ -72,9 +72,9 @@ namespace NetTally
             stopwatch.Stop();
 
             if (!disposed)
-                Trace.WriteLine(string.Concat("Region ", regionName, " not finalized by Dispose call!"));
+                Trace.WriteLine($"Region {regionName} not finalized by Dispose call!");
 
-            string msg = string.Concat("End Profiling: ", stopwatch.Elapsed.TotalMilliseconds, " milliseconds in region ", regionName);
+            string msg = $"End Profiling: {stopwatch.Elapsed.TotalMilliseconds} milliseconds in region {regionName}";
 
             Trace.WriteLine(msg);
         }
