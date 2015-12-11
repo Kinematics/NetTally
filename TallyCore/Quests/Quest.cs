@@ -330,10 +330,10 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<HtmlDocument>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token)
+        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(IPageProvider pageProvider, CancellationToken token)
         {
             // We will store the loaded pages in a new List.
-            List<HtmlDocument> pages = new List<HtmlDocument>();
+            List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
 
             try
             {
@@ -370,7 +370,7 @@ namespace NetTally
                     if (firstPage == null)
                         throw new InvalidOperationException("Unable to load web page.");
 
-                    pages.Add(firstPage);
+                    pages.Add(Task.FromResult(firstPage));
 
                     ThreadInfo threadInfo = ForumAdapter.GetThreadInfo(firstPage);
                     lastPageNumber = threadInfo.Pages;
@@ -398,18 +398,7 @@ namespace NetTally
                                   let shouldCache = !(pageNum == lastPageNumber)
                                   select pageProvider.GetPage(pageUrl, $"Page {pageNum}", Caching.UseCache, token, shouldCache);
 
-                    // Wait for all the tasks to be completed.
-                    HtmlDocument[] pageArray = await Task.WhenAll(results).ConfigureAwait(false);
-
-                    GC.Collect();
-
-                    if (pageArray.Any(p => p == null))
-                    {
-                        throw new ApplicationException("Not all pages loaded.  Rerun tally.");
-                    }
-
-                    // Add the results to our list of pages.
-                    pages.AddRange(pageArray);
+                    pages.AddRange(results.ToList());
                 }
 
                 return pages;

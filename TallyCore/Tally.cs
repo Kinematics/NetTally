@@ -148,7 +148,7 @@ namespace NetTally
         {
             try
             {
-                List<HtmlDocument> loadedPages = null;
+                List<Task<HtmlDocument>> loadedPages = null;
 
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
@@ -165,11 +165,13 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    VoteCounter.TallyVotes(quest, loadedPages);
+                    await VoteCounter.TallyVotes(quest, loadedPages);
 
                     // Compose the final result string from the compiled votes.
                     ConstructResults(quest);
                 }
+
+                GC.Collect();
             }
             catch (Exception)
             {

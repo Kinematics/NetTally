@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 
 namespace NetTally
 {
     public interface IVoteCounter
     {
-        void TallyVotes(IQuest quest, List<HtmlDocument> pages);
+        Task TallyVotes(IQuest quest, List<Task<HtmlDocument>> pages);
         void TallyPosts(IQuest quest);
         List<PostComponents> PostsList { get; }
         void Reset();

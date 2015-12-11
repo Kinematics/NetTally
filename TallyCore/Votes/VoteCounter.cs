@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
 
@@ -106,7 +107,7 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
-        public void TallyVotes(IQuest quest, List<HtmlDocument> pages)
+        public async Task TallyVotes(IQuest quest, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -118,23 +119,33 @@ namespace NetTally
 
             DebugMode.Update();
 
-            var firstPage = pages.First();
+            var firstPage = await pages.First();
 
             // Use the title of the first page for the descriptive output.
             ThreadInfo threadInfo = quest.ForumAdapter.GetThreadInfo(firstPage);
             Title = threadInfo.Title;
 
-            var postsWithVotes = from page in pages
-                                 where page != null
-                                 from post in quest.ForumAdapter.GetPosts(page)
-                                 where post != null && post.IsVote && post.Author != threadInfo.Author &&
-                                    ((quest.ThreadmarkPost == 0 && post.Number >= quest.StartPost) ||
-                                     (quest.ThreadmarkPost == 1 && post.Number >= 1) ||
-                                     (quest.ThreadmarkPost > 1 && post.IDValue > quest.ThreadmarkPost)) &&
-                                    (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
-                                 select post;
+            PostsList = new List<PostComponents>();
 
-            PostsList = postsWithVotes.ToList();
+            while (pages.Count > 0)
+            {
+                var finishedPage = await Task.WhenAny(pages);
+                pages.Remove(finishedPage);
+
+                var page = await finishedPage;
+
+                var posts = from post in quest.ForumAdapter.GetPosts(page)
+                            where post != null && post.IsVote && post.Author != threadInfo.Author &&
+                               ((quest.ThreadmarkPost == 0 && post.Number >= quest.StartPost) ||
+                                (quest.ThreadmarkPost == 1 && post.Number >= 1) ||
+                                (quest.ThreadmarkPost > 1 && post.IDValue > quest.ThreadmarkPost)) &&
+                               (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
+                            select post;
+
+                PostsList.AddRange(posts);
+            }
+
+            PostsList = PostsList.OrderBy(p => p.Number).ToList();
 
             TallyPosts(quest);
         }
