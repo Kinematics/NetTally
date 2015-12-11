@@ -169,10 +169,11 @@ namespace NetTally
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
-            if (PostsList == null || PostsList.Count == 0)
-                return;
 
             Reset();
+
+            if (PostsList == null || PostsList.Count == 0)
+                return;
 
             // Preprocessing
             foreach (var post in PostsList)
