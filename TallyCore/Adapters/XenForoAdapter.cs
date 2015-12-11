@@ -412,7 +412,10 @@ namespace NetTally.Adapters
 
                 return list;
             }
-            catch { }
+            catch (Exception e)
+            {
+                ErrorLog.Log(e);
+            }
 
             return new List<HtmlNode>();
         }
