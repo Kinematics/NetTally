@@ -92,7 +92,7 @@ namespace NetTally
         /// <summary>
         /// Call this if anything changes the thread name, as that means the forum adapter is now invalid.
         /// </summary>
-        private void UpdateForumAdapter()
+        void UpdateForumAdapter()
         {
             if (ForumAdapter == null)
                 return;
@@ -121,10 +121,15 @@ namespace NetTally
             }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                    throw new ArgumentNullException(nameof(value), "Thread name cannot be empty.");
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value), "Thread name cannot be null.");
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("URL cannot be empty.", nameof(value));
+                if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
+                    throw new ArgumentException("URL is not valid.", nameof(value));
 
                 threadName = CleanPageNumbers(value);
+                UpdateThreadTitle();
 
                 OnPropertyChanged();
                 OnPropertyChanged("DisplayName");
@@ -140,21 +145,17 @@ namespace NetTally
         {
             get
             {
-                if (displayName != string.Empty)
+                if (!string.IsNullOrEmpty(displayName))
                     return displayName;
 
-                Match m = displayNameRegex.Match(threadName);
-                if (m.Success)
-                    return m.Groups["displayName"].Value;
+                if (!string.IsNullOrEmpty(ThreadTitle))
+                    return ThreadTitle;
 
                 return threadName;
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException("DisplayName");
-
-                displayName = Utility.Text.SafeString(value);
+                displayName = Utility.Text.SafeString(value).Trim();
                 OnPropertyChanged();
             }
         }
@@ -204,13 +205,17 @@ namespace NetTally
         /// Override ToString for class.
         /// </summary>
         /// <returns>Returns a string representing the current object.</returns>
-        public override string ToString()
+        public override string ToString() => DisplayName;
+
+        void UpdateThreadTitle()
         {
-            if (displayName == string.Empty)
-                return ThreadName;
+            Match m = displayNameRegex.Match(threadName);
+            if (m.Success)
+                ThreadTitle = m.Groups["displayName"].Value;
             else
-                return DisplayName;
+                ThreadTitle = threadName;
         }
+
         #endregion
 
         #region Page Loading
