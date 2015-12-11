@@ -107,7 +107,7 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
-        public async Task TallyVotes(IQuest quest, List<Task<HtmlDocument>> pages)
+        public async Task TallyVotes(IQuest quest, ThreadStartValue startInfo, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -142,10 +142,8 @@ namespace NetTally
 
                 var posts = from post in quest.ForumAdapter.GetPosts(page)
                             where post != null && post.IsVote && post.Author != threadInfo.Author &&
-                               ((quest.ThreadmarkPost == 0 && post.Number >= quest.StartPost) ||
-                                (quest.ThreadmarkPost == 1 && post.Number >= 1) ||
-                                (quest.ThreadmarkPost > 1 && post.IDValue > quest.ThreadmarkPost)) &&
-                               (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
+                                post.IsAfterStart(startInfo) &&
+                                (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
                             select post;
 
                 PostsList.AddRange(posts);

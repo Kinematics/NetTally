@@ -168,7 +168,7 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    await VoteCounter.TallyVotes(quest, loadedPages);
+                    await VoteCounter.TallyVotes(quest, startInfo, loadedPages);
 
                     // Compose the final result string from the compiled votes.
                     ConstructResults(quest);

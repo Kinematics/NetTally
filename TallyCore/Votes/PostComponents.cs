@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
+using NetTally.Adapters;
 
 namespace NetTally
 {
@@ -81,6 +82,23 @@ namespace NetTally
                 SeparateVoteStrings(VoteStrings);
             }
         }
+
+        /// <summary>
+        /// Checks whether the current post is 'after' the starting point that
+        /// is documented in the start info object.
+        /// </summary>
+        /// <param name="startInfo">The information about where the tally starts.</param>
+        /// <returns>Returns true if this post comes after the defined starting point.</returns>
+        public bool IsAfterStart(ThreadStartValue startInfo)
+        {
+            if (startInfo.ByNumber)
+            {
+                return Number >= startInfo.Number;
+            }
+
+            return IDValue > startInfo.ID;
+        }
+
 
         /// <summary>
         /// Get all plans from the current post.
