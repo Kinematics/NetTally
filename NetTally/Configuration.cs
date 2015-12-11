@@ -205,7 +205,9 @@ namespace NetTally
                     questWrapper.QuestCollection.Add(q);
                 }
                 catch (Exception)
-                { }
+                {
+                    continue;
+                }
             }
         }
 
