@@ -192,7 +192,7 @@ namespace NetTally
                 htmldoc.LoadHtml(result);
 
                 if (shouldCache)
-                    Cache.Add(url, htmldoc);
+                    Cache.Add(url, result);
 
                 UpdateStatus(StatusType.Loaded, shortDescription);
 
