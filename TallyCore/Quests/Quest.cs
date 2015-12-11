@@ -315,7 +315,7 @@ namespace NetTally
         /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the number of the first page we should start loading.</returns>
-        public async Task<ThreadStartValue> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadStartInfo> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
         {
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
@@ -330,7 +330,7 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadStartValue startInfo, IPageProvider pageProvider, CancellationToken token)
+        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadStartInfo startInfo, IPageProvider pageProvider, CancellationToken token)
         {
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();

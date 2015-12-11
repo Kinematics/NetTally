@@ -122,8 +122,8 @@ namespace NetTally.Adapters
         /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns data indicating where to begin tallying the thread.</returns>
-        public Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
-            Task.FromResult(new ThreadStartValue(true, quest.StartPost));
+        public Task<ThreadStartInfo> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token) =>
+            Task.FromResult(new ThreadStartInfo(true, quest.StartPost));
 
         /// <summary>
         /// Get thread info from the provided page.

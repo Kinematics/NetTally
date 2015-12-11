@@ -219,7 +219,7 @@ namespace NetTally.Adapters
         /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns data indicating where to begin tallying the thread.</returns>
-        public async Task<ThreadStartValue> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadStartInfo> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -228,7 +228,7 @@ namespace NetTally.Adapters
 
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
-                return new ThreadStartValue(true, quest.StartPost);
+                return new ThreadStartInfo(true, quest.StartPost);
 
             // Load the threadmarks so that we can find the starting post page or number.
             var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
@@ -237,7 +237,7 @@ namespace NetTally.Adapters
 
             // If there aren't any threadmarks, fall back on the normal start post.
             if (!threadmarks.Any())
-                return new ThreadStartValue(true, quest.StartPost);
+                return new ThreadStartInfo(true, quest.StartPost);
 
             // Threadmarks have already been filtered, so just pick the last one.
             var lastThreadmark = threadmarks.Last();
@@ -267,14 +267,14 @@ namespace NetTally.Adapters
                 // If neither matched, it's post 1/page 1
                 // Store -1 as in the post ID slot, since we don't know what it is.
                 if (page == 0 && post == 0)
-                    return new ThreadStartValue(true, 1, 0, -1);
+                    return new ThreadStartInfo(true, 1, 0, -1);
 
                 // If no page number was found, it's page 1
                 if (page == 0)
-                    return new ThreadStartValue(false, 0, 1, post);
+                    return new ThreadStartInfo(false, 0, 1, post);
 
                 // Otherwise, take the provided values.
-                return new ThreadStartValue(false, 0, page, post);
+                return new ThreadStartInfo(false, 0, page, post);
             }
 
             // If we get here, the long HREF search failed, and we'll need to load the page.
@@ -304,14 +304,14 @@ namespace NetTally.Adapters
                     PostComponents postComp = GetPost(tmPost);
                     if (postComp != null)
                     {
-                        return new ThreadStartValue(true, postComp.Number, 0, postComp.IDValue);
+                        return new ThreadStartInfo(true, postComp.Number, 0, postComp.IDValue);
                     }
                 }
             }
 
             // If we can't figure out how to get the start page from the threadmark,
             // just fall back on the given start post.
-            return new ThreadStartValue(true, quest.StartPost);
+            return new ThreadStartInfo(true, quest.StartPost);
         }
         #endregion
 
