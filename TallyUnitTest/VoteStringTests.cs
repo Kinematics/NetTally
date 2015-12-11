@@ -5,10 +5,10 @@ using NetTally.Utility;
 
 namespace NetTally.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class VoteStringTests
     {
-        [TestMethod()]
+        [TestMethod]
         public void RemoveBBCodeTest()
         {
             string cleanLine1 = "[x] Vote for stuff";
@@ -42,7 +42,7 @@ namespace NetTally.Tests
             Assert.AreEqual(cleanLine3, VoteString.RemoveBBCode(line7));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CleanVoteTest1()
         {
             string line1 = "[b][x] Vote for stuff[/b]";
@@ -65,7 +65,7 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void CleanVoteTest2()
         {
             string line1 = "[[b]x] Vote for stuff[/b]";
@@ -87,7 +87,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[x][main] [b]Vote[/b] for stuff", VoteString.CleanVoteLineBBCode(line8));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CleanVoteTest3()
         {
             string line1      = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
@@ -100,7 +100,7 @@ namespace NetTally.Tests
             Assert.AreEqual(cleanLine1, out2);
         }
 
-        //[TestMethod()]
+        //[TestMethod]
         public void TimeCleanVoteTest3()
         {
             //string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
@@ -135,7 +135,7 @@ namespace NetTally.Tests
             }
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePrefixTest()
         {
             string line1 = "[x] Vote for stuff";
@@ -151,7 +151,7 @@ namespace NetTally.Tests
             Assert.AreEqual("---", VoteString.GetVotePrefix(line5));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteMarkerTest()
         {
             string line1 = "[x] Vote for stuff";
@@ -189,7 +189,7 @@ namespace NetTally.Tests
             Assert.AreEqual("", VoteString.GetVoteMarker(line1));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteTaskTest()
         {
             string line1 = "[x] Vote for stuff";
@@ -211,7 +211,7 @@ namespace NetTally.Tests
             Assert.AreEqual("", VoteString.GetVoteTask(line8));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCondensedVoteTaskTest()
         {
             string line1 = "[x] Vote for stuff";
@@ -231,7 +231,7 @@ namespace NetTally.Tests
             Assert.AreEqual("", VoteString.GetVoteTask(line7, VoteType.Rank));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteContentTest()
         {
             string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
@@ -258,7 +258,7 @@ namespace NetTally.Tests
 
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCondensedVoteContentTest()
         {
             string line1 = "[x] Vote for stuff";
@@ -279,7 +279,7 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest1()
         {
             string input = "[x] Kinematics";
@@ -291,7 +291,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest2()
         {
             string input = "[x] Plan Assault";
@@ -303,7 +303,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest3()
         {
             string input = "[x] Kinematics.";
@@ -319,7 +319,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected4));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest4()
         {
             string input = "[x] Plan Assault.";
@@ -336,7 +336,7 @@ namespace NetTally.Tests
             
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest5()
         {
             string input = "[x] Plan [url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url]";
@@ -348,7 +348,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest6()
         {
             string input = "[x] [url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url].";
@@ -364,7 +364,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected4));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVotePlanNameTest7()
         {
             string input = "[x] [url=https://forum.questionablequesting.com/members/2392/]@Xryuran[/url]";
@@ -376,7 +376,7 @@ namespace NetTally.Tests
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected2));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteComponentsTest1()
         {
             string input = "[x] Vote for stuff";
@@ -393,7 +393,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Vote for stuff", content);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteComponentsTest2()
         {
             string input = "-[x][MAJOR] Vote for stuff";
@@ -410,7 +410,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Vote for stuff", content);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetVoteComponentsTest3()
         {
             string input = "- [ x ][MAJOR] Vote for stuff";
@@ -427,7 +427,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Vote for stuff", content);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest4()
         {
@@ -445,7 +445,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[color=blue]Vote for stuff[/color]", content);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest5()
         {
@@ -464,7 +464,7 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void IsRankedVoteTest()
         {
             string test = "[1] Cat";
@@ -510,7 +510,7 @@ namespace NetTally.Tests
             Assert.IsFalse(VoteString.IsRankedVote(test));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CondenseVoteTest1()
         {
             string input = "[x] Vote for stuff";
@@ -535,7 +535,7 @@ namespace NetTally.Tests
 
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void CondenseVoteTest2()
         {
@@ -546,7 +546,7 @@ namespace NetTally.Tests
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest1()
         {
             string input = "[X] Kinematics";
@@ -556,7 +556,7 @@ namespace NetTally.Tests
             Assert.AreEqual(null, VoteString.GetPlanName(input, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest2()
         {
             string input = "[X] Plan Kinematics";
@@ -566,7 +566,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest3()
         {
             string input = "[X] Base Plan Kinematics";
@@ -576,7 +576,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest4()
         {
             string input = "[X] Base Plan : Kinematics";
@@ -586,7 +586,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest5()
         {
             string input = "[X] Plan: Kinematics";
@@ -596,7 +596,7 @@ namespace NetTally.Tests
             Assert.AreEqual("Kinematics", VoteString.GetPlanName(input, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest6()
         {
             string input = "[X] Plan: Kinematics";
@@ -605,7 +605,7 @@ namespace NetTally.Tests
             Assert.AreEqual(expect, VoteString.GetMarkedPlanName(input));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetPlanNameTest7()
         {
             string input = "[X] Kinematics";

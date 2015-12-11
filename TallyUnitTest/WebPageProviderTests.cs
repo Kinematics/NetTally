@@ -4,14 +4,14 @@ using NetTally.Adapters;
 
 namespace NetTally.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class WebPageProviderTests
     {
         static WebPageProvider pageProvider;
         static PrivateObject privateWeb;
 
 
-        [ClassInitialize()]
+        [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             pageProvider = new WebPageProvider();
@@ -19,13 +19,13 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void ClearPageCacheTest()
         {
             pageProvider.ClearPageCache();
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadPagesTest()
         {
         }

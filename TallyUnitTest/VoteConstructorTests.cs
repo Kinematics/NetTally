@@ -6,14 +6,14 @@ using NetTally.Utility;
 
 namespace NetTally.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class VoteConstructorTests
     {
         static IVoteCounter voteCounter;
         static IQuest sampleQuest;
         static VoteConstructor voteConstructor;
 
-        [ClassInitialize()]
+        [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             voteCounter = new VoteCounter();
@@ -21,7 +21,7 @@ namespace NetTally.Tests
             voteConstructor = new VoteConstructor(voteCounter);
         }
 
-        [TestInitialize()]
+        [TestInitialize]
         public void Initialize()
         {
             voteCounter.Reset();
@@ -31,7 +31,7 @@ namespace NetTally.Tests
 
 
         #region Process Posts
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsWholeTest()
         {
             string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
@@ -60,7 +60,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters[author] == postId);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsBlockTest()
         {
             string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
@@ -86,7 +86,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 1);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsLineTest()
         {
             string testVote = @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
@@ -112,7 +112,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 1);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ProcessPostContentsTallyTest()
         {
@@ -138,7 +138,7 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsWholeWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.None;
@@ -172,7 +172,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsBlockWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
@@ -207,7 +207,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsLineWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
@@ -243,7 +243,7 @@ namespace NetTally.Tests
         }
 
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsWholeWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.None;
@@ -278,7 +278,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsBlockWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
@@ -315,7 +315,7 @@ namespace NetTally.Tests
             Assert.IsTrue(voters.Count == 2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ProcessPostContentsLineWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
@@ -354,7 +354,7 @@ namespace NetTally.Tests
         #endregion
 
         #region Partitioning
-        [TestMethod()]
+        [TestMethod]
         public void TestPartitionNone()
         {
             string testVote =
@@ -376,7 +376,7 @@ namespace NetTally.Tests
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestPartitionLine()
         {
             string testVote =
@@ -405,7 +405,7 @@ namespace NetTally.Tests
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestPartitionBlock()
         {
             string testVote =
@@ -438,7 +438,7 @@ namespace NetTally.Tests
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TestPartitionPlanBlock()
         {
             string testVote =

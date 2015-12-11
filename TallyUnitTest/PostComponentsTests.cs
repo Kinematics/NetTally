@@ -5,14 +5,14 @@ using NetTally;
 
 namespace TallyUnitTest
 {
-    [TestClass()]
+    [TestClass]
     public class PostComponentsTests
     {
         static string author = "Kinematics";
         static string id = "12345";
 
         #region Exceptions during construction
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction1()
         {
@@ -21,7 +21,7 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents(null, id, msg);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction2()
         {
@@ -30,7 +30,7 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents(author, null, msg);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction3()
         {
@@ -39,7 +39,7 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents(author, id, null);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction4()
         {
@@ -48,7 +48,7 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents("", id, msg);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void BadConstruction5()
         {
@@ -57,7 +57,7 @@ namespace TallyUnitTest
             PostComponents p = new PostComponents(author, "", msg);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void BadConstruction6()
         {
             //string msg = @"What do you think they'll be doing now?";
@@ -69,7 +69,7 @@ namespace TallyUnitTest
 
         #region Basic non-votes, and checking author and ID
 
-        [TestMethod()]
+        [TestMethod]
         public void NoVoteContent()
         {
             string msg = @"What do you think they'll be doing now?";
@@ -83,7 +83,7 @@ namespace TallyUnitTest
             Assert.IsNull(p.VoteStrings);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void EmbeddedMarker()
         {
             string msg = @"What do you think they'll be doing now? Use [x] to indicate which you're selecting.";
@@ -97,7 +97,7 @@ namespace TallyUnitTest
             Assert.IsNull(p.VoteStrings);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void NonNumericID()
         {
             string id = "A3000F";
@@ -115,7 +115,7 @@ namespace TallyUnitTest
         #endregion
 
         #region Various vote constructions
-        [TestMethod()]
+        [TestMethod]
         public void ConstructTallyPost()
         {
             string msg = @"What do you think they'll be doing now? Use [x] to indicate which you're selecting.
@@ -129,7 +129,7 @@ Last vote was:
             Assert.IsNull(p.VoteStrings);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest1()
         {
             string msg =
@@ -144,7 +144,7 @@ Last vote was:
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings.First());
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest2()
         {
             string msg =
@@ -162,7 +162,7 @@ Additional:
             Assert.AreEqual(@"[x] Ice cream", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest3()
         {
             string msg =
@@ -179,7 +179,7 @@ Additional:
             Assert.AreEqual(@"-[x] At the top", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest4()
         {
             string msg =
@@ -196,7 +196,7 @@ Additional:
             Assert.AreEqual(@"- [X] At the top", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest5()
         {
             string msg =
@@ -213,7 +213,7 @@ Additional:
             Assert.AreEqual(@"- - [X] - At the top", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest6()
         {
             string msg =
@@ -230,7 +230,7 @@ Additional:
             Assert.AreEqual(@"-[x] At the top", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest7()
         {
             string msg =
@@ -247,7 +247,7 @@ Additional:
             Assert.AreEqual(@"[X] [i]Teacups[/i]", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest8()
         {
             string msg =
@@ -264,7 +264,7 @@ Additional:
             Assert.AreEqual(@"[x] [color=orange]Teacups[/color]", p.VoteStrings[1]);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorTest9()
         {
             string msg =
@@ -284,7 +284,7 @@ Additional:
 
         #region Test that various comparisons properly relate two separate objects.
 
-        [TestMethod()]
+        [TestMethod]
         public void CompareTest1()
         {
             string author1 = "Kinematics";
@@ -303,7 +303,7 @@ Additional:
             Assert.IsTrue(p1.CompareTo(p2) == 0);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CompareTest2()
         {
             string author1 = "Kinematics";
@@ -321,7 +321,7 @@ Additional:
             Assert.IsTrue(p1.CompareTo(p2) == 0);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CompareTest3()
         {
             string author1 = "Kinematics";
@@ -338,7 +338,7 @@ Additional:
             Assert.IsTrue(p1.CompareTo(p2) < 0);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CompareTest4()
         {
             string author1 = "Kinematics";
