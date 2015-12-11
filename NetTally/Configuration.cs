@@ -188,19 +188,24 @@ namespace NetTally
 
             foreach (QuestElement quest in Quests)
             {
-                IQuest q = new Quest
+                try
                 {
-                    DisplayName = quest.DisplayName,
-                    ThreadName = quest.ThreadName,
-                    PostsPerPage = quest.PostsPerPage,
-                    StartPost = quest.StartPost,
-                    EndPost = quest.EndPost,
-                    CheckForLastThreadmark = quest.CheckForLastThreadmark,
-                    PartitionMode = quest.PartitionMode,
-                    AllowRankedVotes = quest.AllowRankedVotes
-                };
+                    IQuest q = new Quest
+                    {
+                        DisplayName = quest.DisplayName,
+                        ThreadName = quest.ThreadName,
+                        PostsPerPage = quest.PostsPerPage,
+                        StartPost = quest.StartPost,
+                        EndPost = quest.EndPost,
+                        CheckForLastThreadmark = quest.CheckForLastThreadmark,
+                        PartitionMode = quest.PartitionMode,
+                        AllowRankedVotes = quest.AllowRankedVotes
+                    };
 
-                questWrapper.QuestCollection.Add(q);
+                    questWrapper.QuestCollection.Add(q);
+                }
+                catch (Exception)
+                { }
             }
         }
 
