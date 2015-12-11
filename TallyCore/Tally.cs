@@ -159,8 +159,11 @@ namespace NetTally
 
                 await quest.InitForumAdapter(token);
 
+                // Figure out what page to start from
+                var startInfo = await quest.GetStartInfo(PageProvider, token);
+
                 // Load pages from the website
-                loadedPages = await quest.LoadQuestPages(PageProvider, token).ConfigureAwait(false);
+                loadedPages = await quest.LoadQuestPages(startInfo, PageProvider, token).ConfigureAwait(false);
 
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
