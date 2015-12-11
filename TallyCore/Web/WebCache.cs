@@ -12,10 +12,24 @@ namespace NetTally
     {
         public DateTime Timestamp { get; } = DateTime.Now;
         public HtmlDocument Doc { get; }
+        public string DocString { get; }
 
         public CachedPage(HtmlDocument doc)
         {
+            if (doc == null)
+                throw new ArgumentNullException(nameof(doc));
+
             Doc = doc;
+            DocString = null;
+        }
+
+        public CachedPage(string docString)
+        {
+            if (docString == null)
+                throw new ArgumentNullException(nameof(docString));
+
+            DocString = docString;
+            Doc = null;
         }
     }
 
