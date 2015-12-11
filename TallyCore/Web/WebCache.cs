@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -50,9 +51,10 @@ namespace NetTally
 
         #region Local storage
         const int MaxCacheEntries = 50;
+        readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(30);
+        static readonly object _lock = new object();
 
         Dictionary<string, CachedPage> PageCache { get; } = new Dictionary<string, CachedPage>(MaxCacheEntries);
-        Dictionary<string, int> LastPageLoadedFor { get; } = new Dictionary<string, int>();
         #endregion
 
         #region Public functions
@@ -61,8 +63,10 @@ namespace NetTally
         /// </summary>
         public void Clear()
         {
-            PageCache.Clear();
-            LastPageLoadedFor.Clear();
+            lock(_lock)
+            {
+                PageCache.Clear();
+            }
         }
 
         /// <summary>
@@ -72,7 +76,27 @@ namespace NetTally
         /// <param name="doc">The HTML document being cached.</param>
         public void Add(string url, HtmlDocument doc)
         {
-            PageCache[url] = new CachedPage(doc);
+            ExpireCache(DateTime.Now);
+
+            lock(_lock)
+            {
+                PageCache[url] = new CachedPage(doc);
+            }
+        }
+
+        /// <summary>
+        /// Add the original HTML string to the cache.
+        /// </summary>
+        /// <param name="url">The URL the document was retrieved from.</param>
+        /// <param name="docString">The HTML string to cache.</param>
+        public void Add(string url, string docString)
+        {
+            ExpireCache(DateTime.Now);
+
+            lock (_lock)
+            {
+                PageCache[url] = new CachedPage(docString);
+            }
         }
 
         /// <summary>
@@ -85,67 +109,57 @@ namespace NetTally
         {
             CachedPage cache;
 
-            if (PageCache.TryGetValue(url, out cache))
+            lock(_lock)
             {
-                var cacheAge = DateTime.Now - cache.Timestamp;
-
-                if (cacheAge.TotalMinutes < 30)
+                if (PageCache.TryGetValue(url, out cache))
                 {
-                    return cache.Doc;
-                }
+                    var cacheAge = DateTime.Now - cache.Timestamp;
 
-                // Purge the cached page if it's older than 30 minutes.
-                PageCache.Remove(url);
+                    if (cacheAge.TotalMinutes < 30)
+                    {
+                        if (cache.Doc != null)
+                        {
+                            return cache.Doc;
+                        }
+
+                        HtmlDocument doc = new HtmlDocument();
+                        doc.LoadHtml(cache.DocString);
+                        return doc;
+                    }
+
+                    // Purge the cached page if it's older than 30 minutes.
+                    PageCache.Remove(url);
+                }
             }
 
             return null;
         }
 
-        /// <summary>
-        /// Update the cache with the last page number loaded for a given thread.
-        /// On update, will initiate a cleaning of the cache to prevent memory bloat.
-        /// </summary>
-        /// <param name="threadName">The name of the thread that was loaded.</param>
-        /// <param name="lastPageNumber">The last page number loaded for that thread.</param>
-        public void Update(string threadName, int lastPageNumber)
-        {
-            LastPageLoadedFor[threadName] = lastPageNumber;
-            CleanCache();
-        }
-
-        /// <summary>
-        /// Get the last page loaded for the given thread name, if we have that info.
-        /// </summary>
-        /// <param name="threadName">The name of the thread being checked.</param>
-        /// <returns>Returns the last page number, if found, or null if not.</returns>
-        public int? GetLastPageLoaded(string threadName)
-        {
-            if (LastPageLoadedFor.ContainsKey(threadName))
-                return LastPageLoadedFor[threadName];
-
-            return null;
-        }
         #endregion
 
         #region Private functions
         /// <summary>
-        /// Clean the cache to prevent it from growing too large.
+        /// Run through the cache and expire anything that is too old, or
+        /// that goes over the maximum allowed cache items.
         /// </summary>
-        private void CleanCache()
+        /// <param name="time">The time this function is being called.</param>
+        void ExpireCache(DateTime time)
         {
-            if (PageCache.Count > MaxCacheEntries)
+            DateTime expireTime = time - cacheDuration;
+
+            int maxKept = MaxCacheEntries - 1;
+
+            lock (_lock)
             {
-                var newestEntries = PageCache.OrderByDescending(p => p.Value.Timestamp).Take(MaxCacheEntries);
-                var olderEntries = PageCache.Except(newestEntries).ToList();
+                var pagesToRemove = PageCache.OrderByDescending(p => p.Value.Timestamp).Where((p, i) => p.Value.Timestamp <= expireTime || i > maxKept).ToList();
 
-                foreach (var entry in olderEntries)
+                foreach (var page in pagesToRemove)
                 {
-                    PageCache.Remove(entry.Key);
+                    PageCache.Remove(page.Key);
                 }
-
-                GC.Collect();
             }
         }
+
         #endregion
     }
 }
