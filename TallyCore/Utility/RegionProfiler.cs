@@ -8,9 +8,8 @@ namespace NetTally
     /// time how long a small area of code takes to execute.
     /// 
     /// Usage:
-    /// using (var a = new Utility.RegionProfiler("name of region"))
-    /// or
-    /// using (var a = new RegionProfiler("name of region"))
+    /// 
+    /// using (var rp = new RegionProfiler("name of region"))
     /// {
     ///     [Code to be profiled]
     /// }
