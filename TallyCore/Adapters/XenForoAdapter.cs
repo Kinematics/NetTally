@@ -230,7 +230,7 @@ namespace NetTally.Adapters
             if (!quest.CheckForLastThreadmark)
                 return new ThreadStartValue(true, quest.StartPost);
 
-            // Attempt to get the starting post number from threadmarks, if that option is checked.
+            // Load the threadmarks so that we can find the starting post page or number.
             var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksList(threadmarkPage);
@@ -242,33 +242,75 @@ namespace NetTally.Adapters
             // Threadmarks have already been filtered, so just pick the last one.
             var lastThreadmark = threadmarks.Last();
 
-            // And extract the start point from the URL provided.
+            // And get the URL for the threadmark.
             string threadmarkHref = lastThreadmark.GetAttributeValue("href", "");
 
-            Regex tmFragment = new Regex(@"/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
+            // The threadmark list might use the long version of the URL (including thread info),
+            // or the short version (which only shows the post number).
+            // The long version lets us get the page number directly from the url,
+            // so we don't have to load the page itself.
 
-            Match m = tmFragment.Match(threadmarkHref);
+            // May possibly end with /page-00#post-00
+            Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
 
-            if (!m.Success)
-                return new ThreadStartValue(true, quest.StartPost);
+            Match m1 = longFragment.Match(threadmarkHref);
+            if (m1.Success)
+            {
+                int page = 0;
+                int post = 0;
 
-            int page = 0;
-            int post = 0;
+                if (m1.Groups["page"].Success)
+                    page = int.Parse(m1.Groups["page"].Value);
+                if (m1.Groups["post"].Success)
+                    post = int.Parse(m1.Groups["post"].Value);
 
-            if (m.Groups["page"].Success)
-                page = int.Parse(m.Groups["page"].Value);
-            if (m.Groups["post"].Success)
-                post = int.Parse(m.Groups["post"].Value);
+                // If neither matched, it's post 1/page 1
+                if (page == 0 && post == 0)
+                    return new ThreadStartValue(true, 1);
 
-            // If neither matched, it's post 1/page 1
-            if (page == 0 && post == 0)
-                return new ThreadStartValue(true, 1);
+                // If no page number was found, it's page 1
+                if (page == 0)
+                    return new ThreadStartValue(false, 0, 1, post);
 
-            // Otherwise, it's some post ID on some possibly identified page
-            if (page == 0)
-                return new ThreadStartValue(false, 0, 1, post);
-            else
+                // Otherwise, take the provided values.
                 return new ThreadStartValue(false, 0, page, post);
+            }
+
+            // If we get here, the long HREF search failed, and we'll need to load the page.
+            // The short HREF version gives the post ID
+            Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
+            Match m2 = shortFragment.Match(threadmarkHref);
+            if (m2.Success)
+            {
+                string tmID = m2.Groups["tmID"].Value;
+
+                // The threadmark href might be a relative path, so make sure to
+                // create a proper absolute path to load.
+                string permalink = GetPermalinkForId(tmID);
+
+                // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
+                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, Caching.UseCache, token).ConfigureAwait(false);
+
+                // If we loaded a proper thread page, get the posts off the page and find
+                // the one with the ID that matches the threadmark.
+                var posts = GetPostsList(lastThreadmarkPage);
+
+                string postID = $"post-{tmID}";
+                var tmPost = posts.FirstOrDefault(n => n.Id == postID);
+
+                if (tmPost != null)
+                {
+                    PostComponents postComp = GetPost(tmPost);
+                    if (postComp != null)
+                    {
+                        return new ThreadStartValue(true, postComp.Number);
+                    }
+                }
+            }
+
+            // If we can't figure out how to get the start page from the threadmark,
+            // just fall back on the given start post.
+            return new ThreadStartValue(true, quest.StartPost);
         }
         #endregion
 
