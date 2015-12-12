@@ -185,17 +185,6 @@ namespace NetTally.Output
 
         #region Utility functions (no side effects)
         /// <summary>
-        /// Split the text of a vote string into a list of individual lines.
-        /// </summary>
-        /// <param name="text">Text of a vote.</param>
-        /// <returns>Returns a list of lines from the vote.</returns>
-        private List<string> GetVoteLines(string text)
-        {
-            var split = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            return new List<string>(split);
-        }
-
-        /// <summary>
         /// Group votes together by task.
         /// </summary>
         /// <param name="votesWithSupporters">A collection of all votes.</param>
@@ -346,7 +335,7 @@ namespace NetTally.Output
         /// <param name="userVoteCount">The voter count for the vote</param>
         private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote, string task, int userVoteCount)
         {
-            List<string> voteLines = GetVoteLines(vote.Key);
+            List<string> voteLines = Text.GetStringLines(vote.Key);
 
             if (voteLines.Count == 0)
                 return;
