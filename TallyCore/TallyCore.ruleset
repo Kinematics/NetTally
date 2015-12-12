@@ -4,5 +4,6 @@
   <Rules AnalyzerId="RefactoringEssentials" RuleNamespace="RefactoringEssentials">
     <Rule Id="RECS0071" Action="Warning" />
     <Rule Id="RECS0091" Action="None" />
+    <Rule Id="RECS0145" Action="None" />
   </Rules>
 </RuleSet>
