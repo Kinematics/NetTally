@@ -10,9 +10,9 @@ namespace NetTally
     /// <summary>
     /// Class to hold a web page, and the time at which it was loaded.
     /// </summary>
-    public class CachedPage
+    public struct CachedPage
     {
-        public DateTime Timestamp { get; } = DateTime.Now;
+        public DateTime Timestamp { get; }
         public HtmlDocument Doc { get; }
         public string DocString { get; }
 
@@ -21,6 +21,7 @@ namespace NetTally
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
+            Timestamp = DateTime.Now;
             Doc = doc;
             DocString = null;
         }
@@ -30,6 +31,7 @@ namespace NetTally
             if (docString == null)
                 throw new ArgumentNullException(nameof(docString));
 
+            Timestamp = DateTime.Now;
             DocString = docString;
             Doc = null;
         }
