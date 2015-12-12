@@ -350,6 +350,7 @@ namespace NetTally
 
                 // If we're reading to the end of the thread (end post 0, or based on a threadmark),
                 // then we need to load the first page to find out how many pages there are in the thread.
+                // Make sure to bypass the cache, since it may have changed since the last load.
                 if (ReadToEndOfThread)
                 {
                     HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber, PostsPerPage),
