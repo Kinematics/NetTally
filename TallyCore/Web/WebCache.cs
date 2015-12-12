@@ -79,7 +79,6 @@ namespace NetTally
         }
         #endregion
 
-
         #region Local storage
         bool _disposed = false;
 
@@ -98,23 +97,7 @@ namespace NetTally
         /// <param name="doc">The HTML document being cached.</param>
         public void Add(string url, HtmlDocument doc)
         {
-            var cachedPage = new CachedPage(doc);
-
-            cacheLock.EnterWriteLock();
-            try
-            {
-                PageCache[url] = cachedPage;
-
-                if (PageCache.Count > MaxCacheEntries)
-                {
-                    var oldestEntry = PageCache.MinObject(p => p.Value.Timestamp);
-                    PageCache.Remove(oldestEntry.Key);
-                }
-            }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            }
+            AddCachedPage(url, new CachedPage(doc));
         }
 
         /// <summary>
@@ -124,8 +107,16 @@ namespace NetTally
         /// <param name="docString">The HTML string to cache.</param>
         public void Add(string url, string docString)
         {
-            var cachedPage = new CachedPage(docString);
+            AddCachedPage(url, new CachedPage(docString));
+        }
 
+        /// <summary>
+        /// Handle adding a CachedPage to the cache dictionary, with locking.
+        /// </summary>
+        /// <param name="url">The URL the page was retrieved from.</param>
+        /// <param name="cachedPage">The object to cache.</param>
+        void AddCachedPage(string url, CachedPage cachedPage)
+        {
             cacheLock.EnterWriteLock();
             try
             {
