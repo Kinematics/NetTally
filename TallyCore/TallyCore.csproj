@@ -56,11 +56,12 @@
     <Compile Include="Adapters\Utility\ExtendHtmlNode.cs" />
     <Compile Include="Adapters\Utility\ThreadInfo.cs" />
     <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
-    <Compile Include="Adapters\Utility\ThreadStartValue.cs" />
+    <Compile Include="Adapters\Utility\ThreadStartInfo.cs" />
     <Compile Include="Adapters\vBulletinAdapter3.cs" />
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
+    <Compile Include="Output\TallyOutput.cs" />
     <Compile Include="Utility\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\CheckForNewRelease.cs" />
