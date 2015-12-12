@@ -90,6 +90,15 @@ namespace NetTally
         }
 
         /// <summary>
+        /// If we're notified that a given attempt to load pages is done, we can
+        /// tell the web page cache to expire old data.
+        /// </summary>
+        public void DoneLoading()
+        {
+            Cache.ExpireCache(DateTime.Now);
+        }
+
+        /// <summary>
         /// Load the specified thread page and return the document as an HtmlDocument.
         /// </summary>
         /// <param name="baseUrl">The thread URL.</param>

@@ -184,6 +184,7 @@ namespace NetTally
             finally
             {
                 TallyIsRunning = false;
+                PageProvider.DoneLoading();
             }
         }
 

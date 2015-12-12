@@ -19,13 +19,19 @@ namespace NetTally
         Task<HtmlDocument> GetPage(string url, string shortDescrip, Caching caching, CancellationToken token, bool shouldCache = true);
 
         /// <summary>
+        /// Have an event that can be watched for status messages.
+        /// </summary>
+        event EventHandler<MessageEventArgs> StatusChanged;
+
+        /// <summary>
         /// Clear the cache of any previously loaded pages.
         /// </summary>
         void ClearPageCache();
 
         /// <summary>
-        /// Have an event that can be watched for status messages.
+        /// If we're notified that a given attempt to load pages is done, we can
+        /// tell the web page cache to expire old data.
         /// </summary>
-        event EventHandler<MessageEventArgs> StatusChanged;
+        void DoneLoading();
     }
 }

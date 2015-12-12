@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using HtmlAgilityPack;
 using NetTally.Utility;
 
@@ -37,38 +38,57 @@ namespace NetTally
     /// <summary>
     /// Class to handle caching web content.
     /// </summary>
-    public sealed class WebCache
+    public sealed class WebCache : IDisposable
     {
         #region Lazy singleton creation
-        private static readonly Lazy<WebCache> lazy = new Lazy<WebCache>(() => new WebCache());
+        static readonly Lazy<WebCache> lazy = new Lazy<WebCache>(() => new WebCache());
 
         public static WebCache Instance => lazy.Value;
 
-        private WebCache()
+        WebCache()
         {
         }
         #endregion
 
+        #region Disposal
+        ~WebCache()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true); //I am calling you from Dispose, it's safe
+            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
+        }
+
+        void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
+        {
+            if (_disposed)
+                return;
+
+            if (itIsSafeToAlsoFreeManagedObjects)
+            {
+                Clear();
+                cacheLock?.Dispose();
+            }
+
+            _disposed = true;
+        }
+        #endregion
+
+
         #region Local storage
+        bool _disposed = false;
+
         const int MaxCacheEntries = 50;
-        readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(30);
-        static readonly object _lock = new object();
+        readonly TimeSpan maxCacheDuration = TimeSpan.FromMinutes(30);
 
         Dictionary<string, CachedPage> PageCache { get; } = new Dictionary<string, CachedPage>(MaxCacheEntries);
+        readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
         #endregion
 
         #region Public functions
-        /// <summary>
-        /// Clear the current cache.
-        /// </summary>
-        public void Clear()
-        {
-            lock(_lock)
-            {
-                PageCache.Clear();
-            }
-        }
-
         /// <summary>
         /// Add a document to the cache.
         /// </summary>
@@ -76,11 +96,22 @@ namespace NetTally
         /// <param name="doc">The HTML document being cached.</param>
         public void Add(string url, HtmlDocument doc)
         {
-            ExpireCache(DateTime.Now);
+            var cachedPage = new CachedPage(doc);
 
-            lock(_lock)
+            cacheLock.EnterWriteLock();
+            try
             {
-                PageCache[url] = new CachedPage(doc);
+                PageCache[url] = cachedPage;
+
+                if (PageCache.Count > MaxCacheEntries)
+                {
+                    var oldestEntry = PageCache.MinObject(p => p.Value.Timestamp);
+                    PageCache.Remove(oldestEntry.Key);
+                }
+            }
+            finally
+            {
+                cacheLock.ExitWriteLock();
             }
         }
 
@@ -91,11 +122,22 @@ namespace NetTally
         /// <param name="docString">The HTML string to cache.</param>
         public void Add(string url, string docString)
         {
-            ExpireCache(DateTime.Now);
+            var cachedPage = new CachedPage(docString);
 
-            lock (_lock)
+            cacheLock.EnterWriteLock();
+            try
             {
-                PageCache[url] = new CachedPage(docString);
+                PageCache[url] = cachedPage;
+
+                if (PageCache.Count > MaxCacheEntries)
+                {
+                    var oldestEntry = PageCache.MinObject(p => p.Value.Timestamp);
+                    PageCache.Remove(oldestEntry.Key);
+                }
+            }
+            finally
+            {
+                cacheLock.ExitWriteLock();
             }
         }
 
@@ -109,13 +151,14 @@ namespace NetTally
         {
             CachedPage cache;
 
-            lock(_lock)
+            cacheLock.EnterReadLock();
+            try
             {
                 if (PageCache.TryGetValue(url, out cache))
                 {
                     var cacheAge = DateTime.Now - cache.Timestamp;
 
-                    if (cacheAge.TotalMinutes < 30)
+                    if (cacheAge < maxCacheDuration)
                     {
                         if (cache.Doc != null)
                         {
@@ -126,40 +169,55 @@ namespace NetTally
                         doc.LoadHtml(cache.DocString);
                         return doc;
                     }
-
-                    // Purge the cached page if it's older than 30 minutes.
-                    PageCache.Remove(url);
                 }
+            }
+            finally
+            {
+                cacheLock.ExitReadLock();
             }
 
             return null;
         }
 
-        #endregion
-
-        #region Private functions
         /// <summary>
-        /// Run through the cache and expire anything that is too old, or
-        /// that goes over the maximum allowed cache items.
+        /// Clear the current cache.
         /// </summary>
-        /// <param name="time">The time this function is being called.</param>
-        void ExpireCache(DateTime time)
+        public void Clear()
         {
-            DateTime expireTime = time - cacheDuration;
-
-            int maxKept = MaxCacheEntries - 1;
-
-            lock (_lock)
+            cacheLock.EnterWriteLock();
+            try
             {
-                var pagesToRemove = PageCache.OrderByDescending(p => p.Value.Timestamp).Where((p, i) => p.Value.Timestamp <= expireTime || i > maxKept).ToList();
+                PageCache.Clear();
+            }
+            finally
+            {
+                cacheLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
+        /// Remove all entries that are older than our defined time limit to retain cached pages.
+        /// </summary>
+        /// <param name="time">The reference time to use when determining the age of a page.</param>
+        public void ExpireCache(DateTime time)
+        {
+            DateTime expireLimitTime = time - maxCacheDuration;
+
+            cacheLock.EnterWriteLock();
+            try
+            {
+                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= expireLimitTime);
 
                 foreach (var page in pagesToRemove)
                 {
                     PageCache.Remove(page.Key);
                 }
             }
+            finally
+            {
+                cacheLock.ExitWriteLock();
+            }
         }
-
         #endregion
     }
 }
