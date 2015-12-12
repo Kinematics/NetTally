@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Output
 {
     public class TextResults : ITextResultsProvider
     {
