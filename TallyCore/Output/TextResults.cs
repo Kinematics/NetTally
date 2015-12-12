@@ -522,15 +522,6 @@ namespace NetTally.Output
         }
 
         /// <summary>
-        /// Add the winner of the runoff for the given task's options.
-        /// </summary>
-        /// <param name="winningChoice">The winning choice.</param>
-        private void AddRankedWinner(string winningChoice)
-        {
-            sb.Append($"[b]Winner:[/b] {winningChoice}\r\n\r\n");
-        }
-
-        /// <summary>
         /// Add the list of voters who voted for the winning vote for the current task.
         /// </summary>
         /// <param name="result">The task and winning vote.</param>
@@ -573,25 +564,6 @@ namespace NetTally.Output
             }
 
             sb.AppendLine("");
-        }
-
-        /// <summary>
-        /// Add the top two runners-up in the tally.
-        /// </summary>
-        /// <param name="runnersUp">The list of runners-up, in order.</param>
-        private void AddRunnersUp(IEnumerable<string> runnersUp)
-        {
-            if (runnersUp.Count() > 0)
-            {
-                sb.AppendLine("Runners Up:");
-
-                foreach (var ranker in runnersUp)
-                {
-                    sb.AppendLine(ranker);
-                }
-
-                sb.AppendLine("");
-            }
         }
 
         #endregion
