@@ -419,7 +419,7 @@ namespace NetTally.Output
         {
             // Number of voters where the voter name is not a plan name (and is thus a user).
             sb.Append("[b]No. of Votes: ");
-            sb.Append(voters.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
+            sb.Append(GetUserVoteCount(voters));
             sb.AppendLine("[/b]");
         }
 
