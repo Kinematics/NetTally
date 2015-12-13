@@ -91,6 +91,7 @@
     <Compile Include="Votes\VoteConstructor.cs" />
     <Compile Include="Votes\VoteCounter.cs" />
     <Compile Include="Web\WebPageProvider.cs" />
+    <Compile Include="Web\WebPageProvider2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
