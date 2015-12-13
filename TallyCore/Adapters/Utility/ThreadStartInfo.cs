@@ -6,13 +6,15 @@
         public int Number { get; }
         public int Page { get; }
         public int ID { get; }
+        public int Pages { get; }
 
-        public ThreadStartInfo(bool byNumber, int number = 0, int page = 0, int id = 0)
+        public ThreadStartInfo(bool byNumber, int number = 0, int page = 0, int id = 0, int pages = 0)
         {
             ByNumber = byNumber;
             Number = number;
             Page = page;
             ID = id;
+            Pages = pages;
         }
 
         /// <summary>
