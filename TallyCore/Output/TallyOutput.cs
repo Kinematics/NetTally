@@ -282,7 +282,7 @@ namespace NetTally.Output
                     AddTaskLabel(taskGroup.Key);
 
                     // Get all votes, ordered by a count of the user votes (ie: don't count plan references)
-                    var votesByTask = taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
+                    var votesByTask = taskGroup.OrderByDescending(v => CountVote(v));
 
                     foreach (var vote in votesByTask)
                     {
