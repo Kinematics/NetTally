@@ -199,7 +199,7 @@ namespace NetTally
             cacheLock.EnterWriteLock();
             try
             {
-                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= expireLimitTime);
+                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= expireLimitTime).ToList();
 
                 foreach (var page in pagesToRemove)
                 {
