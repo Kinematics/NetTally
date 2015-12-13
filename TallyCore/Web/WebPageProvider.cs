@@ -25,7 +25,7 @@ namespace NetTally
         }
 
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
-        const int maxSimultaneousConnections = 5;
+        const int maxSimultaneousConnections = 4;
         readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
 
         WebCache Cache { get; } = WebCache.Instance;
