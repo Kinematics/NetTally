@@ -60,5 +60,11 @@ namespace NetTally.Adapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
         IEnumerable<PostComponents> GetPosts(HtmlDocument page);
+
+
+        /// <summary>
+        /// String to use for a line break between tasks.
+        /// </summary>
+        string LineBreak { get; }
     }
 }

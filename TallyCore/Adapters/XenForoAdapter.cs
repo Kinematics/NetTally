@@ -313,6 +313,20 @@ namespace NetTally.Adapters
             // just fall back on the given start post.
             return new ThreadStartInfo(true, quest.StartPost);
         }
+
+        /// <summary>
+        /// String to use for a line break between tasks.
+        /// </summary>
+        public string LineBreak
+        {
+            get
+            {
+                if (Site.Host == "forums.spacebattles.com")
+                    return "———————————————————————————————————————————————————————";
+
+                return "[hr][/hr]";
+            }
+        }
         #endregion
 
         #region Static support functions

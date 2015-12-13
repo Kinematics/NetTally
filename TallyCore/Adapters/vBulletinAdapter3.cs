@@ -187,6 +187,12 @@ namespace NetTally.Adapters
 
             return posts;
         }
+
+        /// <summary>
+        /// String to use for a line break between tasks.
+        /// </summary>
+        public string LineBreak => "———————————————————————————————————————————————————————";
+
         #endregion
 
         #region Utility
