@@ -29,5 +29,18 @@ namespace NetTally
 
             return cookies;
         }
+
+        public static CookieCollection GetAllCookies()
+        {
+            CookieCollection cookies = new CookieCollection();
+
+            Cookie cookie;
+            // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
+            cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", "forum.questionablequesting.com");
+            cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
+            cookies.Add(cookie);
+
+            return cookies;
+        }
     }
 }
