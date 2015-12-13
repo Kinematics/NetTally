@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using NetTally.Utility;
 
 namespace NetTally.Output
@@ -48,9 +47,15 @@ namespace NetTally.Output
         }
     }
 
-
+    /// <summary>
+    /// Meta-vote class to allow storing the primary vote, along with any
+    /// 'child' votes that have the same first line of text as the main vote.
+    /// </summary>
     public class VoteNode
     {
+        /// <summary>
+        /// Allow access to the TallyOutput object that created this node.
+        /// </summary>
         TallyOutput owner;
 
         public string Text { get; set; }
@@ -69,12 +74,21 @@ namespace NetTally.Output
             SetLine();
         }
 
+        /// <summary>
+        /// Add new voters to this node's voter list.
+        /// </summary>
+        /// <param name="voters">Voters to add.</param>
         public void AddVoters(HashSet<string> voters)
         {
             if (voters != null)
                 Voters.UnionWith(voters);
         }
 
+        /// <summary>
+        /// Add a child node to the current node.
+        /// Update this node's voter list to include any new voters from the child.
+        /// </summary>
+        /// <param name="node">New child vote node.</param>
         public void AddChild(VoteNode node)
         {
             Voters.UnionWith(node.Voters);
@@ -82,6 +96,11 @@ namespace NetTally.Output
             SetLine();
         }
 
+        /// <summary>
+        /// Update the Line property when the voter list changes, so that it
+        /// always points at the first voter (for those votes that will use
+        /// the compact reference format).
+        /// </summary>
         private void SetLine()
         {
             var lines = Utility.Text.GetStringLines(Text);
@@ -94,6 +113,11 @@ namespace NetTally.Output
                 Line = GetCondensedLine();
         }
 
+        /// <summary>
+        /// Create the text to be used in the Line property, as a condensed
+        /// link format to the original voter.
+        /// </summary>
+        /// <returns>Returns the condensed line.</returns>
         private string GetCondensedLine()
         {
             StringBuilder sb = new StringBuilder();
@@ -117,8 +141,9 @@ namespace NetTally.Output
         }
     }
 
-
-
+    /// <summary>
+    /// Class to handle generating the output of a tally run, for display in the text box.
+    /// </summary>
     public class TallyOutput : ITextResultsProvider
     {
         #region Local Properties
@@ -132,6 +157,13 @@ namespace NetTally.Output
         #endregion
 
         #region Public Interface
+        /// <summary>
+        /// Public function to generate the full output for the tally.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="voteCounter">The vote counter holding the tally results.</param>
+        /// <param name="displayMode">The mode requested for how to format the output.</param>
+        /// <returns>Returns the full string to be displayed.</returns>
         public string BuildOutput(IQuest quest, IVoteCounter voteCounter, DisplayMode displayMode)
         {
             Quest = quest;
@@ -147,6 +179,10 @@ namespace NetTally.Output
         #endregion
 
         #region Top-level functions
+        /// <summary>
+        /// General construction.  Add the header and any vote output.
+        /// Surround by spoiler tags if requested by the display mode.
+        /// </summary>
         private void BuildGlobal()
         {
             using (var resultsSpoiler = new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll))
@@ -159,6 +195,10 @@ namespace NetTally.Output
             }
         }
 
+        /// <summary>
+        /// Add the header indicating the title of the thread that was tallied,
+        /// and the marker that this is a tally result (along with the program version number).
+        /// </summary>
         private void AddHeader()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -330,6 +370,13 @@ namespace NetTally.Output
         #endregion
 
         #region Normal votes
+        /// <summary>
+        /// Handle general organization of outputting the tally results,
+        /// grouped by task.  Use VoteNodes if displaying in a compact
+        /// mode, or just use the original votes if displaying in a normal
+        /// mode.
+        /// Display the vote, the count, and the voters, as appropriate.
+        /// </summary>
         private void ConstructNormalOutput()
         {
             var allVotes = VoteCounter.GetVotesCollection(VoteType.Vote);
@@ -378,6 +425,12 @@ namespace NetTally.Output
         }
 
         #region Add by VoteNode
+        /// <summary>
+        /// Add the text of the provided vote to the output.
+        /// In compact mode, adds the contents of the children as well, with
+        /// their individual vote counts.
+        /// </summary>
+        /// <param name="vote"></param>
         private void AddVote(VoteNode vote)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
@@ -396,6 +449,10 @@ namespace NetTally.Output
             }
         }
 
+        /// <summary>
+        /// Add the voter count to the output, for the provided vote.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddVoteCount(VoteNode vote)
         {
             if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
@@ -404,6 +461,10 @@ namespace NetTally.Output
             }
         }
 
+        /// <summary>
+        /// Add the list of voters supporting the provided vote.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddVoters(VoteNode vote)
         {
             if (DisplayMode == DisplayMode.CompactNoVoters)
@@ -427,6 +488,10 @@ namespace NetTally.Output
         #endregion
 
         #region Add by KeyValuePair
+        /// <summary>
+        /// Add or delegate adding the text of the provided vote to the output.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddVote(KeyValuePair<string, HashSet<string>> vote)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
@@ -439,6 +504,10 @@ namespace NetTally.Output
             }
         }
 
+        /// <summary>
+        /// Add the provided vote to the output in compact format.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote)
         {
             List<string> voteLines = Text.GetStringLines(vote.Key);
@@ -487,6 +556,11 @@ namespace NetTally.Output
             sb.Append($" Plan: {firstVoter} — {link}\r\n");
         }
 
+        /// <summary>
+        /// Add the vote count for the provided vote to the output.
+        /// Does not add to the output in compact mode.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddVoteCount(KeyValuePair<string, HashSet<string>> vote)
         {
             if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
@@ -495,6 +569,11 @@ namespace NetTally.Output
             }
         }
 
+        /// <summary>
+        /// Add the voters in the provided vote to the output.
+        /// Does not add voters when in CompactNoVoters mode.
+        /// </summary>
+        /// <param name="vote">The vote to add.</param>
         private void AddVoters(KeyValuePair<string, HashSet<string>> vote)
         {
             if (DisplayMode == DisplayMode.CompactNoVoters)
@@ -520,6 +599,28 @@ namespace NetTally.Output
         #endregion
 
         #region General functions to add to the string output
+        /// <summary>
+        /// Add a label for the specified task.
+        /// </summary>
+        /// <param name="taskName">The name of the task.</param>
+        private void AddTaskLabel(string taskName)
+        {
+            if (taskName.Length > 0)
+            {
+                sb.Append("[b]Task: ");
+                sb.Append(taskName);
+                sb.AppendLine("[/b]");
+                sb.AppendLine();
+            }
+        }
+
+        /// <summary>
+        /// Add a line containing a reference to a voter's post.
+        /// Handles rank, plan, and normal voters.
+        /// </summary>
+        /// <param name="voterName">The name of the voter.</param>
+        /// <param name="voteType">The type of vote this is for.</param>
+        /// <param name="marker">The marker to use for rank votes.</param>
         private void AddVoter(string voterName, VoteType voteType = VoteType.Vote, string marker = null)
         {
             bool closeBold = false;
@@ -550,6 +651,10 @@ namespace NetTally.Output
             sb.AppendLine();
         }
 
+        /// <summary>
+        /// Add a line showing the specified number of voters.
+        /// </summary>
+        /// <param name="count">The count to display.</param>
         private void AddVoterCount(int count)
         {
             sb.Append("[b]No. of Votes: ");
@@ -557,6 +662,10 @@ namespace NetTally.Output
             sb.AppendLine("[/b]");
         }
 
+        /// <summary>
+        /// Add a line showing the specified total number of voters.
+        /// </summary>
+        /// <param name="count">The count to display.</param>
         private void AddTotalVoterCount(int count)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
@@ -568,6 +677,11 @@ namespace NetTally.Output
             sb.AppendLine();
         }
 
+        /// <summary>
+        /// Add a line break (for between tasks).
+        /// Gets the line break text from the quest's forum adapter, since some
+        /// can show hard rules, and some need to just use manual text.
+        /// </summary>
         private void AddLineBreak()
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
@@ -576,21 +690,15 @@ namespace NetTally.Output
             sb.AppendLine(Quest.ForumAdapter.LineBreak);
             sb.AppendLine();
         }
-
-        private void AddTaskLabel(string taskName)
-        {
-            if (taskName.Length > 0)
-            {
-                sb.Append("[b]Task: ");
-                sb.Append(taskName);
-                sb.AppendLine("[/b]");
-                sb.AppendLine();
-            }
-        }
-
         #endregion
 
         #region General assist functions
+        /// <summary>
+        /// Get the URL for the post that is linked to the specified voter.
+        /// </summary>
+        /// <param name="voter">The voter to look up.</param>
+        /// <param name="voteType">The type of vote being checked.</param>
+        /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
         public string GetVoterUrl(string voter, VoteType voteType)
         {
             Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
@@ -602,12 +710,30 @@ namespace NetTally.Output
             return string.Empty;
         }
 
+        /// <summary>
+        /// Property to get the total number of ranked voters in the tally.
+        /// </summary>
         public int RankedVoterCount => VoteCounter.GetVotersCollection(VoteType.Rank).Count;
 
+        /// <summary>
+        /// Property to get the total number of normal voters in the tally.
+        /// </summary>
         public int NormalVoterCount => VoteCounter.GetVotersCollection(VoteType.Vote).Count - VoteCounter.PlanNames.Count;
 
+        /// <summary>
+        /// Calculate the number of non-plan voters in the provided vote object.
+        /// </summary>
+        /// <param name="vote">The vote containing a list of voters.</param>
+        /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
         private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.PlanNames.Contains(vc) == false) ?? 0;
 
+        /// <summary>
+        /// Get a list of voters, ordered alphabetically, except the first voter,
+        /// who is the 'earliest' of the provided voters (ie: the first person to
+        /// vote for this vote or plan).
+        /// </summary>
+        /// <param name="voters">A set of voters.</param>
+        /// <returns>Returns an organized, sorted list.</returns>
         private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
             var voterList = new List<string> { GetFirstVoter(voters) };
@@ -617,6 +743,13 @@ namespace NetTally.Output
             return orderedVoters;
         }
 
+        /// <summary>
+        /// Determine which of the provided voters was the 'first'.  That is,
+        /// the earliest voter with an actual vote, rather than a reference to
+        /// a future vote.
+        /// </summary>
+        /// <param name="voters">A set of voters to check.</param>
+        /// <returns>Returns which one of them is considered the first real poster.</returns>
         public string GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
@@ -642,6 +775,11 @@ namespace NetTally.Output
             return null;
         }
 
+        /// <summary>
+        /// Group votes by task.
+        /// </summary>
+        /// <param name="allVotes">A list of all votes.</param>
+        /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
         private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
             var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
@@ -649,6 +787,13 @@ namespace NetTally.Output
             return grouped;
         }
 
+        /// <summary>
+        /// Given a group of votes (grouped by task), create and return
+        /// a list of VoteNodes that collapse together votes that are 
+        /// sub-votes of each other.
+        /// </summary>
+        /// <param name="taskGroup">A set of votes with the same task value.</param>
+        /// <returns>Returns a list of VoteNodes that collapse similar votes.</returns>
         private IEnumerable<VoteNode> GetVoteNodes(IGrouping<string, KeyValuePair<string, HashSet<string>>> taskGroup)
         {
             var groupByFirstLine = taskGroup.GroupBy(v => Text.FirstLine(v.Key), Text.AgnosticStringComparer);
