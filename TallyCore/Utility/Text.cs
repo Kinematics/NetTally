@@ -36,6 +36,13 @@ namespace NetTally.Utility
         public static string PlanNameMarker { get; } = "\u25C8";
 
         /// <summary>
+        /// Check if the provided name starts with the plan name marker.
+        /// </summary>
+        /// <param name="name">The name to check.</param>
+        /// <returns>Returns true if the name starts with the plan name marker.</returns>
+        public static bool IsPlanName(string name) => name.StartsWith(PlanNameMarker, StringComparison.Ordinal);
+
+        /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
         /// and splits it up into a List of strings of one text line each.
         /// Does not generate empty lines.
