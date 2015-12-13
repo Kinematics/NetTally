@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -27,6 +25,8 @@ namespace NetTally
         }
 
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
+        // Setting it to 5 or higher causes it to hang for several seconds on the last page when
+        // loading SB and SV pages.
         const int maxSimultaneousConnections = 4;
         readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
 
@@ -236,7 +236,7 @@ namespace NetTally
 
             webHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            // Increase from 2 simultaneous connections to 4
+            // Increase the max simultaneous connections for the underlying service.
             ServicePointManager.DefaultConnectionLimit = maxSimultaneousConnections;
         }
 
@@ -254,8 +254,6 @@ namespace NetTally
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
             client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
         }
-
-
 
         /// <summary>
         /// Handle generating messages to send to OnStatusChanged handler.
