@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -141,7 +143,9 @@ namespace NetTally
                 using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
                 {
                     client.Timeout = TimeSpan.FromSeconds(10);
+                    client.DefaultRequestHeaders.Add("Accept", "text/html");
                     client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+                    client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
 
                     try
                     {
@@ -158,7 +162,26 @@ namespace NetTally
                             {
                                 if (response.IsSuccessStatusCode)
                                 {
-                                    result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                    StreamReader reader;
+
+                                    if (response.Content.Headers.ContentEncoding.Contains("gzip"))
+                                    {
+                                        reader = new StreamReader(
+                                            new GZipStream(await response.Content.ReadAsStreamAsync(), CompressionMode.Decompress));
+                                    }
+                                    else if (response.Content.Headers.ContentEncoding.Contains("deflate"))
+                                    {
+                                        reader = new StreamReader(
+                                            new DeflateStream(await response.Content.ReadAsStreamAsync(), CompressionMode.Decompress));
+                                    }
+                                    else
+                                    {
+                                        reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+                                    }
+
+                                    result = await reader.ReadToEndAsync();
+
+                                    reader.Close();
                                 }
                                 else if (response.StatusCode == HttpStatusCode.NotFound)
                                 {
