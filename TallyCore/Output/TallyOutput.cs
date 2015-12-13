@@ -49,6 +49,75 @@ namespace NetTally.Output
     }
 
 
+    public class VoteNode
+    {
+        TallyOutput owner;
+
+        public string Text { get; set; }
+        public string Line { get; set; }
+        public HashSet<string> Voters { get; } = new HashSet<string>();
+        public List<VoteNode> Children { get; } = new List<VoteNode>();
+
+        public int VoterCount => Voters.Count(v => !v.StartsWith(Utility.Text.PlanNameMarker, StringComparison.Ordinal));
+
+        public VoteNode(TallyOutput owner, string text, HashSet<string> voters)
+        {
+            this.owner = owner;
+            Text = text;
+
+            AddVoters(voters);
+            SetLine();
+        }
+
+        public void AddVoters(HashSet<string> voters)
+        {
+            if (voters != null)
+                Voters.UnionWith(voters);
+        }
+
+        public void AddChild(VoteNode node)
+        {
+            Voters.UnionWith(node.Voters);
+            Children.Add(node);
+            SetLine();
+        }
+
+        private void SetLine()
+        {
+            var lines = Utility.Text.GetStringLines(Text);
+
+            if (lines.Count == 1)
+                Line = lines.First();
+            else if (lines.Count == 2 && (VoteString.GetVotePrefix(lines[1]) != string.Empty))
+                Line = lines.First();
+            else
+                Line = GetCondensedLine();
+        }
+
+        private string GetCondensedLine()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("[X]");
+
+            string task = VoteString.GetVoteTask(Text);
+            if (task != string.Empty)
+                sb.Append($"[{task}]");
+
+
+            string firstVoter = owner.GetFirstVoter(Voters);
+            string link;
+
+            VoteType voteType = Utility.Text.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
+            link = owner.GetVoterUrl(firstVoter, voteType);
+
+            sb.Append($" Plan: {firstVoter} — {link}\r\n");
+
+            return sb.ToString();
+        }
+    }
+
+
 
     public class TallyOutput : ITextResultsProvider
     {
@@ -281,21 +350,83 @@ namespace NetTally.Output
 
                     AddTaskLabel(taskGroup.Key);
 
-                    // Get all votes, ordered by a count of the user votes (ie: don't count plan references)
-                    var votesForTask = taskGroup.OrderByDescending(v => CountVote(v));
-
-                    foreach (var vote in votesForTask)
+                    if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                     {
-                        AddVote(vote);
-                        AddVoteCount(vote);
-                        AddVoters(vote);
+                        var nodes = GetVoteNodes(taskGroup);
+
+                        foreach (var vote in nodes)
+                        {
+                            AddVote(vote);
+                            AddVoteCount(vote);
+                            AddVoters(vote);
+                        }
                     }
+                    else
+                    {
+                        foreach (var vote in taskGroup.OrderByDescending(v => CountVote(v)))
+                        {
+                            AddVote(vote);
+                            AddVoteCount(vote);
+                            AddVoters(vote);
+                        }
+                    }
+
                 }
             }
 
             AddTotalVoterCount(NormalVoterCount);
         }
 
+        #region Add by VoteNode
+        private void AddVote(VoteNode vote)
+        {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
+            {
+                sb.AppendLine(VoteString.ModifyVoteLine(vote.Line, marker: vote.VoterCount.ToString(), ByPartition: true));
+
+                var children = vote.Children.OrderByDescending(v => v.VoterCount);
+                foreach (var child in children)
+                {
+                    sb.AppendLine(VoteString.ModifyVoteLine(child.Line, marker: child.VoterCount.ToString(), ByPartition: true));
+                }
+            }
+            else
+            {
+                sb.Append(vote.Text);
+            }
+        }
+
+        private void AddVoteCount(VoteNode vote)
+        {
+            if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
+            {
+                AddVoterCount(vote.VoterCount);
+            }
+        }
+
+        private void AddVoters(VoteNode vote)
+        {
+            if (DisplayMode == DisplayMode.CompactNoVoters)
+                return;
+
+            using (var spoilerVoters = new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
+            {
+                var orderedVoters = GetOrderedVoterList(vote.Voters);
+
+                foreach (var voter in orderedVoters)
+                {
+                    AddVoter(voter);
+                }
+            }
+
+            if (DisplayMode != DisplayMode.Compact)
+            {
+                sb.AppendLine();
+            }
+        }
+        #endregion
+
+        #region Add by KeyValuePair
         private void AddVote(KeyValuePair<string, HashSet<string>> vote)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
@@ -384,6 +515,7 @@ namespace NetTally.Output
                 sb.AppendLine();
             }
         }
+        #endregion
 
         #endregion
 
@@ -459,7 +591,7 @@ namespace NetTally.Output
         #endregion
 
         #region General assist functions
-        private string GetVoterUrl(string voter, VoteType voteType)
+        public string GetVoterUrl(string voter, VoteType voteType)
         {
             Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
 
@@ -470,9 +602,9 @@ namespace NetTally.Output
             return string.Empty;
         }
 
-        private int RankedVoterCount => VoteCounter.GetVotersCollection(VoteType.Rank).Count;
+        public int RankedVoterCount => VoteCounter.GetVotersCollection(VoteType.Rank).Count;
 
-        private int NormalVoterCount => VoteCounter.GetVotersCollection(VoteType.Vote).Count - VoteCounter.PlanNames.Count;
+        public int NormalVoterCount => VoteCounter.GetVotersCollection(VoteType.Vote).Count - VoteCounter.PlanNames.Count;
 
         private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.PlanNames.Contains(vc) == false) ?? 0;
 
@@ -485,7 +617,7 @@ namespace NetTally.Output
             return orderedVoters;
         }
 
-        private string GetFirstVoter(HashSet<string> voters)
+        public string GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
             var votersCollection = VoteCounter.GetVotersCollection(VoteType.Vote);
@@ -512,11 +644,62 @@ namespace NetTally.Output
 
         private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), Utility.Text.AgnosticStringComparer).OrderBy(v => v.Key);
+            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
 
             return grouped;
         }
 
+        private IEnumerable<VoteNode> GetVoteNodes(IGrouping<string, KeyValuePair<string, HashSet<string>>> taskGroup)
+        {
+            var groupByFirstLine = taskGroup.GroupBy(v => Text.FirstLine(v.Key), Text.AgnosticStringComparer);
+
+            List<VoteNode> nodeList = new List<VoteNode>();
+            VoteNode parent;
+
+            foreach (var voteGroup in groupByFirstLine)
+            {
+                parent = null;
+
+                foreach (var vote in voteGroup)
+                {
+                    var lines = Text.GetStringLines(vote.Key);
+
+                    if (lines.Count > 2)
+                    {
+                        nodeList.Add(new VoteNode(this, vote.Key, vote.Value));
+                    }
+                    else if (lines.Count == 2 && (VoteString.GetVotePrefix(lines[1]) == string.Empty))
+                    {
+                        nodeList.Add(new VoteNode(this, vote.Key, vote.Value));
+                    }
+                    else
+                    {
+                        if (parent == null)
+                        {
+                            parent = new VoteNode(this, vote.Key, vote.Value);
+                        }
+                        else if (lines.Count == 1)
+                        {
+                            parent.AddVoters(vote.Value);
+                        }
+
+                        if (lines.Count == 2)
+                        {
+                            VoteNode child = new VoteNode(this, lines[1], vote.Value);
+                            parent.AddChild(child);
+                        }
+                    }
+                }
+
+                if (parent != null)
+                {
+                    nodeList.Add(parent);
+                }
+            }
+
+            return nodeList.OrderByDescending(v => v.VoterCount);
+        }
         #endregion
     }
+
 }
