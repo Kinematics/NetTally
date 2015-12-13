@@ -292,6 +292,8 @@ namespace NetTally.Adapters
                 // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
                 var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, Caching.UseCache, token).ConfigureAwait(false);
 
+                var threadInfo = GetThreadInfo(lastThreadmarkPage);
+
                 // If we loaded a proper thread page, get the posts off the page and find
                 // the one with the ID that matches the threadmark.
                 var posts = GetPostsList(lastThreadmarkPage);
@@ -304,7 +306,7 @@ namespace NetTally.Adapters
                     PostComponents postComp = GetPost(tmPost);
                     if (postComp != null)
                     {
-                        return new ThreadRangeInfo(true, postComp.Number, 0, postComp.IDValue);
+                        return new ThreadRangeInfo(true, postComp.Number, 0, postComp.IDValue, threadInfo.Pages);
                     }
                 }
             }
