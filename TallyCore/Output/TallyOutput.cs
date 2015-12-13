@@ -282,18 +282,13 @@ namespace NetTally.Output
                     AddTaskLabel(taskGroup.Key);
 
                     // Get all votes, ordered by a count of the user votes (ie: don't count plan references)
-                    var votesByTask = taskGroup.OrderByDescending(v => CountVote(v));
+                    var votesForTask = taskGroup.OrderByDescending(v => CountVote(v));
 
-                    foreach (var vote in votesByTask)
+                    foreach (var vote in votesForTask)
                     {
                         AddVote(vote, taskGroup.Key);
                         AddVoteCount(vote);
                         AddVoters(vote);
-
-                        if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
-                        {
-                            sb.AppendLine();
-                        }
                     }
                 }
             }
@@ -301,11 +296,11 @@ namespace NetTally.Output
             AddTotalVoterCount(NormalVoterCount);
         }
 
-        private void AddVote(KeyValuePair<string, HashSet<string>> vote, string groupName)
+        private void AddVote(KeyValuePair<string, HashSet<string>> vote, string task)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
             {
-                AddCompactVote(vote, groupName);
+                AddCompactVote(vote, task);
             }
             else
             {
@@ -381,6 +376,11 @@ namespace NetTally.Output
                 {
                     AddVoter(voter);
                 }
+            }
+
+            if (DisplayMode != DisplayMode.Compact)
+            {
+                sb.AppendLine();
             }
         }
 
