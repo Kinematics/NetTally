@@ -286,7 +286,7 @@ namespace NetTally.Output
 
                     foreach (var vote in votesForTask)
                     {
-                        AddVote(vote, taskGroup.Key);
+                        AddVote(vote);
                         AddVoteCount(vote);
                         AddVoters(vote);
                     }
@@ -296,11 +296,11 @@ namespace NetTally.Output
             AddTotalVoterCount(NormalVoterCount);
         }
 
-        private void AddVote(KeyValuePair<string, HashSet<string>> vote, string task)
+        private void AddVote(KeyValuePair<string, HashSet<string>> vote)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
             {
-                AddCompactVote(vote, task);
+                AddCompactVote(vote);
             }
             else
             {
@@ -308,7 +308,7 @@ namespace NetTally.Output
             }
         }
 
-        private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote, string task)
+        private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote)
         {
             List<string> voteLines = Text.GetStringLines(vote.Key);
 
@@ -337,6 +337,7 @@ namespace NetTally.Output
             // Longer votes get condensed down to a link to the original post (and named after the first voter)
             string firstVoter = GetFirstVoter(vote.Value);
 
+            string task = VoteString.GetVoteTask(vote.Key);
             sb.Append($"[{userCountMarker}]");
             if (task != string.Empty)
                 sb.Append($"[{task}]");
