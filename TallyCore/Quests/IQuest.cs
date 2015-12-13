@@ -101,6 +101,6 @@ namespace NetTally
         /// <param name="pageProvider">The page provider to use to load the pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo startInfo, IPageProvider pageProvider, CancellationToken token);
+        Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token);
     }
 }

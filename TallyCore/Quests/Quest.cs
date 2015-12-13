@@ -330,28 +330,28 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">Quest object containing query parameters.</param>
         /// <returns>Returns a list of web pages as HTML Documents.</returns>
-        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo startInfo, IPageProvider pageProvider, CancellationToken token)
+        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
         {
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
 
             try
             {
-                int firstPageNumber = startInfo.GetStartPage(this);
+                int firstPageNumber = threadRangeInfo.GetStartPage(this);
 
                 // Keep track of whether we used threadmarks to figure out the
                 // first post.  If we did, we'll re-use this number when filtering
                 // for valid posts.
-                ThreadmarkPost = startInfo.ID;
+                ThreadmarkPost = threadRangeInfo.ID;
 
                 // Var for what we determine the last page number will be
                 int lastPageNumber = 0;
                 int pagesToScan = 0;
 
-                if (startInfo.Pages > 0)
+                if (threadRangeInfo.Pages > 0)
                 {
                     // If the startInfo obtained the thread pages info, just use that.
-                    lastPageNumber = startInfo.Pages;
+                    lastPageNumber = threadRangeInfo.Pages;
                     pagesToScan = lastPageNumber - firstPageNumber + 1;
                 }
                 else if (ReadToEndOfThread)
