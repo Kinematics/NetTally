@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
 namespace NetTally.Output
 {
@@ -129,8 +130,7 @@ namespace NetTally.Output
                 }
 
                 // Output the total number of voters
-                int count = GetRankedVoterCount();
-                AddVoterCount(count);
+                AddTotalVoterCount(RankedVoterCount);
                 sb.AppendLine("");
             }
         }
@@ -176,13 +176,7 @@ namespace NetTally.Output
         /// <param name="task">The task to output.</param>
         private void AddCompleteTask(KeyValuePair<string, List<string>> task)
         {
-            if (task.Key.Length > 0)
-            {
-                sb.Append("[b]Task: ");
-                sb.Append(task.Key);
-                sb.Append("[/b]\r\n");
-                sb.AppendLine("");
-            }
+            AddTaskLabel(task.Key);
 
             AddRankedOptions(task.Key);
 
@@ -269,12 +263,130 @@ namespace NetTally.Output
         #region Normal votes
         private void ConstructNormalOutput()
         {
+            var allVotes = VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votesGroupedByTask = GroupVotesByTask(allVotes);
 
+            bool firstTask = true;
+
+            foreach (var taskGroup in votesGroupedByTask)
+            {
+                if (taskGroup.Count() > 0)
+                {
+                    if (!firstTask)
+                    {
+                        AddLineBreak();
+                    }
+
+                    firstTask = false;
+
+                    AddTaskLabel(taskGroup.Key);
+
+                    // Get all votes, ordered by a count of the user votes (ie: don't count plan references)
+                    var votesByTask = taskGroup.OrderByDescending(v => v.Value.Count(vc => VoteCounter.PlanNames.Contains(vc) == false));
+
+                    foreach (var vote in votesByTask)
+                    {
+                        AddVote(vote, taskGroup.Key);
+                        AddVoteCount(vote);
+                        AddVoters(vote);
+
+                        if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
+                        {
+                            sb.AppendLine();
+                        }
+                    }
+                }
+            }
+
+            AddTotalVoterCount(NormalVoterCount);
+        }
+
+        private void AddVote(KeyValuePair<string, HashSet<string>> vote, string groupName)
+        {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
+            {
+                AddCompactVote(vote, groupName);
+            }
+            else
+            {
+                sb.Append(vote.Key);
+            }
+        }
+
+        private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote, string task)
+        {
+            List<string> voteLines = Text.GetStringLines(vote.Key);
+
+            if (voteLines.Count == 0)
+                return;
+
+            int userCount = CountVote(vote);
+            string userCountMarker = userCount.ToString();
+
+            // Single-line votes are always shown.
+            if (voteLines.Count == 1)
+            {
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userCountMarker));
+                return;
+            }
+
+            // Two-line votes can be shown if the second line is a sub-vote.
+            if (voteLines.Count == 2 && VoteString.GetVotePrefix(voteLines.Last()) != string.Empty)
+            {
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userCountMarker));
+                sb.AppendLine(VoteString.ModifyVoteLine(voteLines.Last(), marker: userCountMarker));
+                return;
+            }
+
+
+            // Longer votes get condensed down to a link to the original post (and named after the first voter)
+            string firstVoter = GetFirstVoter(vote.Value);
+
+            sb.Append($"[{userCountMarker}]");
+            if (task != string.Empty)
+                sb.Append($"[{task}]");
+
+            string link;
+
+            if (firstVoter.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
+            {
+                link = GetVoterUrl(firstVoter, VoteType.Plan);
+            }
+            else
+            {
+                link = GetVoterUrl(firstVoter, VoteType.Vote);
+            }
+
+            sb.Append($" Plan: {firstVoter} — {link}\r\n");
+        }
+
+        private void AddVoteCount(KeyValuePair<string, HashSet<string>> vote)
+        {
+            if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
+            {
+                AddVoterCount(CountVote(vote));
+            }
+        }
+
+        private void AddVoters(KeyValuePair<string, HashSet<string>> vote)
+        {
+            if (DisplayMode == DisplayMode.CompactNoVoters)
+                return;
+
+            using (var spoilerVoters = new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
+            {
+                var orderedVoters = GetOrderedVoterList(vote.Value);
+
+                foreach (var voter in orderedVoters)
+                {
+                    AddVoter(voter);
+                }
+            }
         }
 
         #endregion
 
-        #region General assist functions
+        #region General functions to add to the string output
         private void AddVoter(string voterName, VoteType voteType = VoteType.Vote, string marker = null)
         {
             bool closeBold = false;
@@ -305,37 +417,103 @@ namespace NetTally.Output
             sb.AppendLine();
         }
 
+        private void AddVoterCount(int count)
+        {
+            sb.Append("[b]No. of Votes: ");
+            sb.Append(count);
+            sb.AppendLine("[/b]");
+        }
+
+        private void AddTotalVoterCount(int count)
+        {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
+                sb.AppendLine();
+
+            sb.Append("Total No. of Voters: ");
+            sb.Append(count);
+            sb.AppendLine();
+            sb.AppendLine();
+        }
+
+        private void AddLineBreak()
+        {
+            if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
+                sb.AppendLine();
+
+            sb.AppendLine(Quest.ForumAdapter.LineBreak);
+            sb.AppendLine();
+        }
+
+        private void AddTaskLabel(string taskName)
+        {
+            if (taskName.Length > 0)
+            {
+                sb.Append("[b]Task: ");
+                sb.Append(taskName);
+                sb.AppendLine("[/b]");
+                sb.AppendLine();
+            }
+        }
+
+        #endregion
+
+        #region General assist functions
         private string GetVoterUrl(string voter, VoteType voteType)
         {
             Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
 
-            if (idLookup.ContainsKey(voter))
-                return Quest.ForumAdapter.GetPermalinkForId(idLookup[voter]);
+            string voteID;
+            if (idLookup.TryGetValue(voter, out voteID))
+                return Quest.ForumAdapter.GetPermalinkForId(voteID);
 
             return string.Empty;
         }
 
-        private int GetRankedVoterCount()
+        private int RankedVoterCount => VoteCounter.GetVotersCollection(VoteType.Rank).Count;
+
+        private int NormalVoterCount => VoteCounter.GetVotersCollection(VoteType.Vote).Count - VoteCounter.PlanNames.Count;
+
+        private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.PlanNames.Contains(vc) == false) ?? 0;
+
+        private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            var voters = VoteCounter.GetVotersCollection(VoteType.Rank);
-            return voters.Count;
+            var voterList = new List<string> { GetFirstVoter(voters) };
+            var otherVoters = voters.Except(voterList);
+
+            var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
+            return orderedVoters;
         }
 
-        private int GetNormalVoterCount()
+        private string GetFirstVoter(HashSet<string> voters)
         {
-            var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
-            return voters.Count - VoteCounter.PlanNames.Count;
-        }
+            var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
+            var votersCollection = VoteCounter.GetVotersCollection(VoteType.Vote);
 
-        private void AddVoterCount(int count)
-        {
-            if (count > 0)
+            if (planVoters.Any())
             {
-                sb.Append("Total No. of Voters: ");
-                sb.Append(count);
-                sb.AppendLine();
-                sb.AppendLine();
+                return planVoters.MinObject(v => votersCollection[v]);
             }
+
+            var nonFutureVoters = voters.Except(VoteCounter.FutureReferences.Select(p => p.Author));
+
+            if (nonFutureVoters.Any())
+            {
+                return nonFutureVoters.MinObject(v => votersCollection[v]);
+            }
+
+            if (voters.Any())
+            {
+                return voters.MinObject(v => votersCollection[v]);
+            }
+
+            return null;
+        }
+
+        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
+        {
+            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), Utility.Text.AgnosticStringComparer).OrderBy(v => v.Key);
+
+            return grouped;
         }
 
         #endregion
