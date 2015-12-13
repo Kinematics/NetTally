@@ -89,7 +89,7 @@ namespace NetTally
         /// </summary>
         /// <param name="startInfo">The information about where the tally starts.</param>
         /// <returns>Returns true if this post comes after the defined starting point.</returns>
-        public bool IsAfterStart(ThreadStartInfo startInfo)
+        public bool IsAfterStart(ThreadRangeInfo startInfo)
         {
             if (startInfo.ByNumber)
             {

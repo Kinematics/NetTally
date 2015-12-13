@@ -43,7 +43,7 @@ namespace NetTally.Adapters
         /// <param name="pageProvider">A page provider for loading web pages.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns the number of the post where tallying should begin.</returns>
-        Task<ThreadStartInfo> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadRangeInfo> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token);
 
         // Extract information from a downloaded page
 

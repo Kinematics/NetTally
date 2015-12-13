@@ -1,6 +1,6 @@
 ﻿namespace NetTally.Adapters
 {
-    public class ThreadStartInfo
+    public class ThreadRangeInfo
     {
         public bool ByNumber { get; }
         public int Number { get; }
@@ -8,7 +8,7 @@
         public int ID { get; }
         public int Pages { get; }
 
-        public ThreadStartInfo(bool byNumber, int number = 0, int page = 0, int id = 0, int pages = 0)
+        public ThreadRangeInfo(bool byNumber, int number = 0, int page = 0, int id = 0, int pages = 0)
         {
             ByNumber = byNumber;
             Number = number;

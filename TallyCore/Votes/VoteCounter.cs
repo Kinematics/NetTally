@@ -107,7 +107,7 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
-        public async Task TallyVotes(IQuest quest, ThreadStartInfo startInfo, List<Task<HtmlDocument>> pages)
+        public async Task TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));

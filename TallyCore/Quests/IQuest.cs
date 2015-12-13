@@ -93,7 +93,7 @@ namespace NetTally
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
         /// </summary>
-        Task<ThreadStartInfo> GetStartInfo(IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadRangeInfo> GetStartInfo(IPageProvider pageProvider, CancellationToken token);
 
         /// <summary>
         /// Asynchronously load pages for the specified quest.
@@ -101,6 +101,6 @@ namespace NetTally
         /// <param name="pageProvider">The page provider to use to load the pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadStartInfo startInfo, IPageProvider pageProvider, CancellationToken token);
+        Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo startInfo, IPageProvider pageProvider, CancellationToken token);
     }
 }
