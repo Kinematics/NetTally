@@ -213,7 +213,7 @@ namespace NetTally.Tests
         public void IQuest_DisplayName_Empty()
         {
             quest.DisplayName = "   ";
-            Assert.AreEqual(quest.ThreadTitle, quest.DisplayName);
+            Assert.AreEqual("   ", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -237,7 +237,7 @@ namespace NetTally.Tests
         public void IQuest_DisplayName_Normal_Trim()
         {
             quest.DisplayName = " My Quest  ";
-            Assert.AreEqual("My Quest", quest.DisplayName);
+            Assert.AreEqual(" My Quest  ", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
