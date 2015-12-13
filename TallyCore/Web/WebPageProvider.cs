@@ -140,8 +140,9 @@ namespace NetTally
                 HttpResponseMessage response;
                 HttpClientHandler handler = GetHandler(url);
 
-                using (client = new HttpClient(handler) { MaxResponseContentBufferSize = 1000000 })
+                using (client = new HttpClient(handler))
                 {
+                    client.MaxResponseContentBufferSize = 1000000;
                     client.Timeout = TimeSpan.FromSeconds(10);
                     client.DefaultRequestHeaders.Add("Accept", "text/html");
                     client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
