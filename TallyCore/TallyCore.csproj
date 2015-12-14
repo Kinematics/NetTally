@@ -78,7 +78,6 @@
     <Compile Include="Quests\QuestCollection.cs" />
     <Compile Include="Votes\RankVotes.cs" />
     <Compile Include="Tally.cs" />
-    <Compile Include="Output\TextResults.cs" />
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
