@@ -67,8 +67,9 @@
     <Compile Include="Utility\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\CheckForNewRelease.cs" />
+    <Compile Include="Web\Utility\CachedPage.cs" />
     <Compile Include="Web\WebCache.cs" />
-    <Compile Include="Web\ForumCookies.cs" />
+    <Compile Include="Web\Utility\ForumCookies.cs" />
     <Compile Include="Web\IPageProvider.cs" />
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
