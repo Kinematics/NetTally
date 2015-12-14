@@ -365,7 +365,7 @@ namespace NetTally
 
             mergeWindow.ShowDialog();
 
-            tally.ConstructResults(CurrentlySelectedQuest);
+            tally.UpdateResults(CurrentlySelectedQuest);
         }
 
         /// <summary>

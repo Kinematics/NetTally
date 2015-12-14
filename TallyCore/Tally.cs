@@ -10,33 +10,50 @@ using NetTally.Web;
 
 namespace NetTally
 {
+    /// <summary>
+    /// Class that links together the various pieces of the tally system.
+    /// Call this to run a tally.
+    /// </summary>
     public class Tally : INotifyPropertyChanged, IDisposable
     {
+        #region Local State
+        // Disposal
         bool _disposed = false;
-        IPageProvider PageProvider { get; } = new WebPageProvider2();
-        public IVoteCounter VoteCounter { get; } = new VoteCounter();
-        public ITextResultsProvider TextResults { get; set; } = new TallyOutput();
 
+        // References
+        public IVoteCounter VoteCounter { get; } = new VoteCounter();
+        IPageProvider PageProvider { get; } = new WebPageProvider2();
+        ITextResultsProvider TextResults { get; } = new TallyOutput();
+
+        // State
+        DisplayMode displayMode = DisplayMode.Normal;
+        IQuest lastTallyQuest = null;
         bool tallyIsRunning = false;
         string results = string.Empty;
-        DisplayMode displayMode = DisplayMode.Normal;
 
-        IQuest lastTallyQuest = null;
-
+        // User data
         public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        #endregion
 
+        #region Construction and Disposal
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public Tally()
             : this(null, null)
         {
         }
 
+        /// <summary>
+        /// Constructor that allows overriding the default VoteCounter and PageProvider.
+        /// </summary>
+        /// <param name="altVoteCounter">Alternate VoteCounter.</param>
+        /// <param name="altPageProvider">Alternate PageProvider.</param>
         public Tally(IVoteCounter altVoteCounter, IPageProvider altPageProvider)
         {
-            if (altVoteCounter != null)
-                VoteCounter = altVoteCounter;
-
-            if (altPageProvider != null)
-                PageProvider = altPageProvider;
+            // Replace defaults if parameters are non-null.
+            VoteCounter = altVoteCounter ?? VoteCounter;
+            PageProvider = altPageProvider ?? PageProvider;
 
             PageProvider.StatusChanged += PageProvider_StatusChanged;
         }
@@ -64,7 +81,7 @@ namespace NetTally
 
             _disposed = true;
         }
-
+        #endregion
 
         #region Event handling
         /// <summary>
@@ -91,10 +108,22 @@ namespace NetTally
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         #endregion
 
-        #region Behavior properties
+        #region Current Properties
+        /// <summary>
+        /// Flag whether the tally is currently running.
+        /// </summary>
+        public bool TallyIsRunning
+        {
+            get { return tallyIsRunning; }
+            set
+            {
+                tallyIsRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
@@ -119,23 +148,9 @@ namespace NetTally
             set
             {
                 displayMode = value;
-                ConstructResults(lastTallyQuest);
+                UpdateResults(lastTallyQuest);
             }
         }
-
-        /// <summary>
-        /// Flag whether the tally is currently running.
-        /// </summary>
-        public bool TallyIsRunning
-        {
-            get { return tallyIsRunning; }
-            set
-            {
-                tallyIsRunning = value;
-                OnPropertyChanged();
-            }
-        }
-
         #endregion
 
         #region Interface functions
@@ -173,7 +188,7 @@ namespace NetTally
                     await VoteCounter.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
 
                     // Compose the final result string from the compiled votes.
-                    ConstructResults(quest);
+                    UpdateResults(quest);
                 }
 
                 GC.Collect();
@@ -202,8 +217,20 @@ namespace NetTally
                 VoteCounter.TallyPosts(lastTallyQuest);
 
                 // Compose the final result string from the compiled votes.
-                ConstructResults(lastTallyQuest);
+                UpdateResults(lastTallyQuest);
             }
+        }
+
+        /// <summary>
+        /// Compose the tallied results into a string to put in the TallyResults property,
+        /// for display in the UI.
+        /// </summary>
+        public void UpdateResults(IQuest quest)
+        {
+            if (quest == null)
+                return;
+
+            TallyResults = TextResults.BuildOutput(quest, VoteCounter, DisplayMode);
         }
 
         /// <summary>
@@ -212,18 +239,6 @@ namespace NetTally
         public void ClearPageCache()
         {
             PageProvider.ClearPageCache();
-        }
-
-        /// <summary>
-        /// Compose the tallied results into a string to put in the TallyResults property,
-        /// for display in the UI.
-        /// </summary>
-        public void ConstructResults(IQuest quest)
-        {
-            if (quest == null)
-                return;
-
-            TallyResults = TextResults.BuildOutput(quest, VoteCounter, DisplayMode);
         }
         #endregion
     }
