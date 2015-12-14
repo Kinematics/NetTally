@@ -5,7 +5,7 @@ using System.Threading;
 using HtmlAgilityPack;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Web
 {
     /// <summary>
     /// Class to handle caching web content.

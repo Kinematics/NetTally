@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTally.Web;
 
 namespace NetTally.Adapters
 {
@@ -87,7 +88,7 @@ namespace NetTally.Adapters
             try
             {
                 if (localPageProvider)
-                    pageProvider = new WebPageProvider();
+                    pageProvider = new WebPageProvider2();
 
                 try
                 {

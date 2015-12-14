@@ -1,20 +1,21 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NetTally.Adapters;
+using NetTally.Web;
 
 namespace NetTally.Tests
 {
     [TestClass]
     public class WebPageProviderTests
     {
-        static WebPageProvider pageProvider;
+        static IPageProvider pageProvider;
         static PrivateObject privateWeb;
 
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            pageProvider = new WebPageProvider();
+            pageProvider = new WebPageProvider2();
             privateWeb = new PrivateObject(pageProvider);
         }
 

@@ -6,13 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Output;
+using NetTally.Web;
 
 namespace NetTally
 {
     public class Tally : INotifyPropertyChanged, IDisposable
     {
         bool _disposed = false;
-        IPageProvider PageProvider { get; } = new WebPageProvider();
+        IPageProvider PageProvider { get; } = new WebPageProvider2();
         public IVoteCounter VoteCounter { get; } = new VoteCounter();
         public ITextResultsProvider TextResults { get; set; } = new TallyOutput();
 

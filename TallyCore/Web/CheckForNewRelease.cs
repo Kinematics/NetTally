@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Web;
 
 namespace NetTally
 {
@@ -192,7 +193,7 @@ namespace NetTally
 
             try
             {
-                IPageProvider webPageProvider = new WebPageProvider();
+                IPageProvider webPageProvider = new WebPageProvider2();
 
                 doc = await webPageProvider.GetPage(url, "", Caching.BypassCache, CancellationToken.None).ConfigureAwait(false);
             }

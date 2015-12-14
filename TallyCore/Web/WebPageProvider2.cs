@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
-namespace NetTally
+namespace NetTally.Web
 {
     public class WebPageProvider2 : IPageProvider
     {
