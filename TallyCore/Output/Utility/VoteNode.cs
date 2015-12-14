@@ -14,7 +14,7 @@ namespace NetTally.Output
         /// <summary>
         /// Allow access to the TallyOutput object that created this node.
         /// </summary>
-        TallyOutput owner;
+        readonly TallyOutput owner;
 
         public string Text { get; set; }
         public string Line { get; set; }

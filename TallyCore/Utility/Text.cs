@@ -81,8 +81,8 @@ namespace NetTally.Utility
     /// </summary>
     public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
     {
-        CompareInfo myComp;
-        CompareOptions myOptions = CompareOptions.None;
+        readonly CompareInfo myComp;
+        readonly CompareOptions myOptions = CompareOptions.None;
 
         /// <summary>
         /// Constructs a comparer using the specified CompareOptions.

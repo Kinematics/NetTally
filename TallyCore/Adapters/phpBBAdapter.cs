@@ -287,7 +287,7 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            var body = page.DocumentNode.Element("html").Element("body");
+            //var body = page.DocumentNode.Element("html").Element("body");
 
             // Not viable to tally without post numbers in posts
 

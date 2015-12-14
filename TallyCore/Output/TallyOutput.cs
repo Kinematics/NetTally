@@ -51,7 +51,7 @@ namespace NetTally.Output
         /// </summary>
         private void BuildGlobal()
         {
-            using (var resultsSpoiler = new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll))
+            using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll))
             {
                 AddHeader();
 
@@ -213,7 +213,7 @@ namespace NetTally.Output
                                 where whoVoted.Any(a => a.voters.Contains(v.Key)) == false
                                 select v.Key;
 
-            using (var spoilerVoters = new Spoiler(sb, "Voters", DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll))
+            using (new Spoiler(sb, "Voters", DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll))
             {
                 foreach (var mark in whoVoted.OrderBy(a => a.marker))
                 {
@@ -252,7 +252,7 @@ namespace NetTally.Output
 
             foreach (var taskGroup in votesGroupedByTask)
             {
-                if (taskGroup.Count() > 0)
+                if (taskGroup.Any())
                 {
                     if (!firstTask)
                     {
@@ -336,7 +336,7 @@ namespace NetTally.Output
             if (DisplayMode == DisplayMode.CompactNoVoters)
                 return;
 
-            using (var spoilerVoters = new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
+            using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
             {
                 var orderedVoters = GetOrderedVoterList(vote.Voters);
 
@@ -445,7 +445,7 @@ namespace NetTally.Output
             if (DisplayMode == DisplayMode.CompactNoVoters)
                 return;
 
-            using (var spoilerVoters = new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
+            using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
             {
                 var orderedVoters = GetOrderedVoterList(vote.Value);
 

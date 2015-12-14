@@ -23,7 +23,7 @@ namespace NetTally.Adapters
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token) => await GetAdapter(quest, CancellationToken.None, null);
+        public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token) => await GetAdapter(quest, token, null);
 
         /// <summary>
         /// Function to generate an appropriate forum adapter for the specified quest.
@@ -85,65 +85,59 @@ namespace NetTally.Adapters
         {
             bool localPageProvider = pageProvider == null;
 
+            if (localPageProvider)
+                pageProvider = new WebPageProvider2();
+
             try
             {
-                if (localPageProvider)
-                    pageProvider = new WebPageProvider2();
+                var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
 
-                try
+                if (page == null)
+                    return null;
+
+                if (token.IsCancellationRequested)
+                    return null;
+
+                // Do automatic checks against any class in this library that implements
+                // IForumAdapter, and the static method, "CanHandlePage".
+                const string detectMethodName = "CanHandlePage";
+
+                Type ti = typeof(IForumAdapter);
+
+                // Get the list of all adapter classes built off of the IForumAdapter interface.
+                var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
+                                    where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                    select t;
+
+                foreach (var adapterClass in adapterList)
                 {
-                    var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
-
-                    if (page == null)
-                        return null;
-
-                    if (token.IsCancellationRequested)
-                        return null;
-
-                    // Do automatic checks against any class in this library that implements
-                    // IForumAdapter, and the static method, "CanHandlePage".
-                    const string detectMethodName = "CanHandlePage";
-
-                    Type ti = typeof(IForumAdapter);
-
-                    // Get the list of all adapter classes built off of the IForumAdapter interface.
-                    var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
-                                        where (!t.IsInterface && ti.IsAssignableFrom(t))
-                                        select t;
-
-                    foreach (var adapterClass in adapterList)
+                    try
                     {
-                        try
+                        // Check the class for a static member named "CanHandlePage"
+                        var detectMethodArray = adapterClass.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Public,
+                            Type.FilterName, detectMethodName);
+
+                        // If it finds any such methods, check the class against the currently loaded page to
+                        // see if this the correct adapter to return.
+                        if (detectMethodArray.Any())
                         {
-                            // Check the class for a static member named "CanHandlePage"
-                            var detectMethodArray = adapterClass.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Public,
-                                Type.FilterName, detectMethodName);
+                            bool result = (bool)adapterClass.InvokeMember(detectMethodName,
+                                BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod,
+                                null, null, new object[] { page });
 
-                            // If it finds any such methods, check the class against the currently loaded page to
-                            // see if this the correct adapter to return.
-                            if (detectMethodArray.Any())
+                            if (result)
                             {
-                                bool result = (bool)adapterClass.InvokeMember(detectMethodName,
-                                    BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod,
-                                    null, null, new object[] { page });
+                                var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
 
-                                if (result)
-                                {
-                                    var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
-
-                                    return adapter;
-                                }
+                                return adapter;
                             }
                         }
-                        catch (Exception e)
-                        {
-                            ErrorLog.Log(e);
-                        }
                     }
-
+                    catch (Exception e)
+                    {
+                        ErrorLog.Log(e);
+                    }
                 }
-                catch (OperationCanceledException)
-                { }
             }
             finally
             {

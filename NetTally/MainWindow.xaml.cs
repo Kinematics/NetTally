@@ -55,7 +55,7 @@ namespace NetTally
             try
             {
                 // Create a region profiler on startup to get it JIT'd before any actual profiling.
-                using (var rp0 = new RegionProfiler(null)) { }
+                using (new RegionProfiler(null)) { }
 
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -95,7 +95,6 @@ namespace NetTally
                 // Set the current item
                 QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
-                Properties.Settings settings = new Properties.Settings();
                 tally.DisplayMode = wrapper.DisplayMode;
 
                 // Set up data contexts

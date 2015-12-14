@@ -538,7 +538,7 @@ namespace NetTally.Tests
 
             const int loopCount = 100;
 
-            using (var rp = new RegionProfiler("Test Loops addrange"))
+            using (new RegionProfiler("Test Loops addrange"))
             {
                 for (int i = 0; i < loopCount; i++)
                 {
@@ -551,7 +551,7 @@ namespace NetTally.Tests
 
             postList.Clear();
 
-            using (var rp = new RegionProfiler("Test Loops tolist"))
+            using (new RegionProfiler("Test Loops tolist"))
             {
                 for (int i = 0; i < loopCount; i++)
                 {

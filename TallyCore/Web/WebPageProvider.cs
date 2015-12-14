@@ -129,7 +129,7 @@ namespace NetTally.Web
             UpdateStatus(StatusType.Requested, url);
 
             // Limit to no more than 5 parallel requests
-            await ss.WaitAsync(token);
+            await ss.WaitAsync(token).ConfigureAwait(false);
 
             try
             {
@@ -155,7 +155,7 @@ namespace NetTally.Web
                             if (tries > 0)
                             {
                                 // If we have to retry loading the page, give it a short delay.
-                                await Task.Delay(TimeSpan.FromSeconds(4));
+                                await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
                                 UpdateStatus(StatusType.Retry, shortDescription);
                             }
 

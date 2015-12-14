@@ -119,14 +119,14 @@ namespace NetTally.Tests
             }
 
             // Make sure the JIT has compiled the functions being tested, including the profiler
-            using (var rp = new RegionProfiler("Prime the compiler"))
+            using (new RegionProfiler("Prime the compiler"))
             {
                 result = VoteString.CleanVoteLineBBCode(lines[0]);
                 result = VoteString.CleanVoteLineBBCode(lines[1]);
                 result = VoteString.CleanVoteLineBBCode(lines[2]);
             }
 
-            using (var rp = new RegionProfiler("clean bbcode"))
+            using (new RegionProfiler("clean bbcode"))
             {
                 for (int i = 0; i < loopCount; i++)
                 {

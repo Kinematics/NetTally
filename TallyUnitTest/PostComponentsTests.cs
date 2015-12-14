@@ -100,13 +100,13 @@ namespace TallyUnitTest
         [TestMethod]
         public void NonNumericID()
         {
-            string id = "A3000F";
+            string id1 = "A3000F";
             string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents(author, id, msg);
+            PostComponents p = new PostComponents(author, id1, msg);
 
             Assert.AreEqual(author, p.Author);
-            Assert.AreEqual(id, p.ID);
+            Assert.AreEqual(id1, p.ID);
             Assert.AreEqual(0, p.IDValue);
             Assert.IsFalse(p.IsVote);
             Assert.IsNull(p.VoteStrings);

@@ -151,7 +151,8 @@ namespace NetTally.Adapters
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
-            string title, author;
+            string title;
+            string author;
             int pages;
 
             HtmlNode doc = page.DocumentNode;
@@ -409,7 +410,9 @@ namespace NetTally.Adapters
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
 
-            string author, id, text;
+            string author;
+            string id;
+            string text;
             int number;
 
             // Author and ID are in the basic list item attributes

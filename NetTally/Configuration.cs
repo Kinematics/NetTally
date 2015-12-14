@@ -67,7 +67,7 @@ namespace NetTally
             // Get 'newest' directory that is not the one we expect to use
             var latestDir = versionDirectories
                 .Where(d => d.Name != dir.Name)
-                .Where(d => d.EnumerateFiles().Count(de => de.Name == "user.config") > 0)
+                .Where(d => d.EnumerateFiles().Any(de => de.Name == "user.config"))
                 .OrderBy(d => NumSort(d))
                 .LastOrDefault();
 

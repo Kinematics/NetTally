@@ -231,7 +231,7 @@ namespace NetTally
             if (string.IsNullOrEmpty(postID))
                 throw new ArgumentNullException(nameof(postID));
 
-            if (voteParts.Count() == 0)
+            if (!voteParts.Any())
                 return;
 
             var votes = GetVotesCollection(voteType);

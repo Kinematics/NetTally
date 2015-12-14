@@ -150,7 +150,7 @@ namespace NetTally
         {
             try
             {
-                List<Task<HtmlDocument>> loadedPages = null;
+                List<Task<HtmlDocument>> loadedPages;
 
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
@@ -159,7 +159,7 @@ namespace NetTally
                     UserDefinedTasks.Clear();
                 lastTallyQuest = quest;
 
-                await quest.InitForumAdapter(token);
+                await quest.InitForumAdapter(token).ConfigureAwait(false);
 
                 // Figure out what page to start from
                 var startInfo = await quest.GetStartInfo(PageProvider, token);
@@ -170,7 +170,7 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    await VoteCounter.TallyVotes(quest, startInfo, loadedPages);
+                    await VoteCounter.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
 
                     // Compose the final result string from the compiled votes.
                     ConstructResults(quest);

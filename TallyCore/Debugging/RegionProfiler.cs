@@ -18,7 +18,7 @@ namespace NetTally
     {
         readonly Stopwatch stopwatch = new Stopwatch();
 
-        TimeSpan watermark = new TimeSpan(0, 0, 2);
+        readonly TimeSpan watermark = new TimeSpan(0, 0, 2);
         readonly string regionName;
 
         /// <summary>

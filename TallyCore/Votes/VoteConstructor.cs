@@ -86,7 +86,7 @@ namespace NetTally
                 var rankings = GetRankingsFromPost(post);
 
                 if (rankings.Count > 0)
-                    ProcessRankings(rankings, post, quest.PartitionMode);
+                    ProcessRankings(rankings, post);
             }
 
             post.Processed = true;
@@ -256,8 +256,6 @@ namespace NetTally
             if (post.ForceProcess)
                 return false;
 
-            var voters = VoteCounter.GetVotersCollection(VoteType.Vote);
-
             foreach (var line in post.WorkingVote)
             {
                 // Exclude plan name marker references.
@@ -384,7 +382,7 @@ namespace NetTally
         /// <param name="ranksList">A list of all rank votes in the post.</param>
         /// <param name="post">The components of the original post.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
-        private void ProcessRankings(List<string> ranksList, PostComponents post, PartitionMode partitionMode)
+        private void ProcessRankings(List<string> ranksList, PostComponents post)
         {
             if (ranksList.Count > 0)
             {

@@ -203,10 +203,10 @@ namespace NetTally.Adapters
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
 
-            string author = "";
+            string author;
             string id;
             string text;
-            int number = 0;
+            int number;
 
             id = li.GetAttributeValue("data-pid", "");
             author = li.GetAttributeValue("data-username", "");
@@ -243,7 +243,7 @@ namespace NetTally.Adapters
             if (page == null)
                 return false;
 
-            var html = page.DocumentNode.Element("html");
+            //var html = page.DocumentNode.Element("html");
 
             // No idea how to tell...
 
