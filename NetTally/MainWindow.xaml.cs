@@ -233,7 +233,8 @@ namespace NetTally
                             innerEx = innerEx.InnerException;
                         }
                         MessageBox.Show(exmsg, "Error");
-                        ErrorLog.Log(ex);
+                        if (!(ex is ApplicationException))
+                            ErrorLog.Log(ex);
                         cts.Cancel();
                     }
                 }
