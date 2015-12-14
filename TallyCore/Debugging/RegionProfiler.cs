@@ -9,7 +9,7 @@ namespace NetTally
     /// 
     /// Usage:
     /// 
-    /// using (var rp = new RegionProfiler("name of region"))
+    /// using (new RegionProfiler("name of region"))
     /// {
     ///     [Code to be profiled]
     /// }
@@ -18,7 +18,7 @@ namespace NetTally
     {
         readonly Stopwatch stopwatch = new Stopwatch();
 
-        readonly TimeSpan watermark = new TimeSpan(0, 0, 2);
+        readonly TimeSpan watermark;
         readonly string regionName;
 
         /// <summary>
@@ -26,23 +26,23 @@ namespace NetTally
         /// </summary>
         /// <param name="name">The name.</param>
         public RegionProfiler(string name)
+            : this(name, TimeSpan.Zero)
         {
-            regionName = name;
-            if (regionName != null)
-                Trace.WriteLine($"Start Profiling: {regionName}");
-
-            stopwatch.Start();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="watermarkParam">The watermark param.</param>
+        /// <param name="watermark">The watermark param.</param>
         public RegionProfiler(string name, TimeSpan watermark)
-            : this(name)
         {
             this.watermark = watermark;
+            regionName = name;
+            if (regionName != null)
+                Trace.WriteLine($"Start Profiling: {regionName}");
+
+            stopwatch.Start();
         }
 
         /// <summary>
@@ -69,16 +69,18 @@ namespace NetTally
         /// <param name="disposed"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         public void Dispose(bool disposed)
         {
-            stopwatch.Stop();
-
-            if (regionName != null)
+            if (disposed)
             {
-                if (!disposed)
-                    Trace.WriteLine($"Region {regionName} not finalized by Dispose call!");
+                stopwatch.Stop();
 
-                string msg = $"End Profiling: {stopwatch.Elapsed.TotalMilliseconds} milliseconds in region {regionName}";
-
-                Trace.WriteLine(msg);
+                if (regionName != null && stopwatch.Elapsed > watermark)
+                {
+                    Trace.WriteLine($"End Profiling: {stopwatch.Elapsed.TotalMilliseconds} ms in region {regionName}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"Region {regionName ?? "<unnamed>"} not finalized by Dispose call!");
             }
         }
     }
