@@ -64,7 +64,7 @@
     <Compile Include="Output\TallyOutput.cs" />
     <Compile Include="Output\Utility\SpoilerBBCode.cs" />
     <Compile Include="Output\Utility\VoteNode.cs" />
-    <Compile Include="Utility\ErrorLog.cs" />
+    <Compile Include="Debugging\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Web\CheckForNewRelease.cs" />
     <Compile Include="Web\Utility\CachedPage.cs" />
@@ -74,7 +74,7 @@
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
     <Compile Include="Votes\IVoteCounter.cs" />
-    <Compile Include="Utility\DebugMode.cs" />
+    <Compile Include="Debugging\DebugMode.cs" />
     <Compile Include="Utility\MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="Utility\Text.cs" />
     <Compile Include="Votes\PostComponents.cs" />
     <Compile Include="Adapters\Utility\PostText.cs" />
-    <Compile Include="Utility\RegionProfiler.cs" />
+    <Compile Include="Debugging\RegionProfiler.cs" />
     <Compile Include="Utility\Utility.cs" />
     <Compile Include="Votes\Vote.cs" />
     <Compile Include="Votes\VoteLine.cs" />
