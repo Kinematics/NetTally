@@ -96,7 +96,7 @@ namespace NetTally
             var rankVoters = VoteCounter.GetVotersCollection(VoteType.Rank);
 
             // Get the lists of all unique voters/ranked voters that we can show in the display.
-            List<string> voters = voteVoters.Select(v => v.Key).Except(VoteCounter.PlanNames)
+            List<string> voters = voteVoters.Select(v => v.Key)
                 .Concat(rankVoters.Select(v => v.Key))
                 .Distinct().OrderBy(v => v).ToList();
 
