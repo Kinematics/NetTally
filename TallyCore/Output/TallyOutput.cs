@@ -269,9 +269,12 @@ namespace NetTally.Output
 
                         foreach (var vote in nodes)
                         {
-                            AddVote(vote);
-                            AddVoteCount(vote);
-                            AddVoters(vote);
+                            if (vote.VoterCount > 0)
+                            {
+                                AddVote(vote);
+                                AddVoteCount(vote);
+                                AddVoters(vote);
+                            }
                         }
                     }
                     else
