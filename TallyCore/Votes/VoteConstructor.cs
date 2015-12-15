@@ -46,7 +46,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllPlansWithContent();
+            var plans = post.GetAllPlansWithContent(VoteCounter);
 
             StorePlanReferences(plans);
 
@@ -67,7 +67,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllFullPostPlans();
+            var plans = post.GetAllFullPostPlans(VoteCounter);
 
             StorePlanReferences(plans);
 
