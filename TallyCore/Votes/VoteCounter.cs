@@ -175,18 +175,24 @@ namespace NetTally
             if (PostsList == null || PostsList.Count == 0)
                 return;
 
-            // Preprocessing
+            // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
             foreach (var post in PostsList)
             {
                 ReferenceVoters.Add(post.Author);
                 ReferenceVoterPosts[post.Author] = post.ID;
-                voteConstructor.PreprocessPlans(post, quest);
+                voteConstructor.PreprocessPlansPhase1(post, quest);
+            }
+
+            // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
+            foreach (var post in PostsList)
+            {
+                voteConstructor.PreprocessPlansPhase2(post, quest);
             }
 
             // Once all the plans are in place, set the working votes for each post.
             foreach (var post in PostsList)
             {
-                post.SetWorkingVote(voteConstructor.GetWorkingVote);
+                post.SetWorkingVote(p => voteConstructor.GetWorkingVote(p));
             }
 
             var unprocessed = PostsList;

@@ -34,19 +34,42 @@ namespace NetTally
         #region Public functions
         /// <summary>
         /// First pass review of posts to extract and store plans.
+        /// In this pass, only plans that have actual content (ie: indented
+        /// sub-lines) are considered.
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlans(PostComponents post, IQuest quest)
+        public void PreprocessPlansPhase1(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllPlans();
+            var plans = post.GetAllPlansWithContent();
 
-            StorePlans(plans);
+            StorePlanReferences(plans);
+
+            ProcessPlans(plans, post, quest.PartitionMode);
+        }
+
+        /// <summary>
+        /// Second pass review of posts to extract and store plans.
+        /// In this pass, plans that are simply labels for the entire post,
+        /// and don't have any content themselves, are considered.
+        /// </summary>
+        /// <param name="post">Post to be examined.</param>
+        /// <param name="quest">Quest being tallied.</param>
+        public void PreprocessPlansPhase2(PostComponents post, IQuest quest)
+        {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
+            var plans = post.GetAllFullPostPlans();
+
+            StorePlanReferences(plans);
 
             ProcessPlans(plans, post, quest.PartitionMode);
         }
@@ -99,7 +122,7 @@ namespace NetTally
         /// Store original plan name and contents in reference containers.
         /// </summary>
         /// <param name="plans">A list of valid plans.</param>
-        private void StorePlans(IEnumerable<List<string>> plans)
+        private void StorePlanReferences(IEnumerable<List<string>> plans)
         {
             foreach (var plan in plans)
             {
@@ -185,34 +208,47 @@ namespace NetTally
                 }
             }
 
-            // Break the remainder of the vote into blocks so that we can compare vs auto-plans.
-            var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-            foreach (var block in voteBlocks)
+            // Then check if the *entire post* should be treated as a complete plan.
+            string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
+            if (postPlanName != null && VoteCounter.ReferencePlans.ContainsKey(postPlanName) &&
+                    VoteCounter.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Text.AgnosticStringComparer))
             {
-                // Multi-line blocks might be a plan.  Check.
-                if (block.Count() > 1)
-                {
-                    // See if the block key marks a known plan.
-                    string planName = VoteString.GetPlanName(block.Key);
+                // Replace known plans with just the plan key.  They'll be expanded later.
+                vote.Add(post.VoteLines.First());
+            }
+            else
+            {
+                // If the entire post isn't an auto-plan, break it down into blocks.
 
-                    if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
-                        VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
+                // Break the remainder of the vote into blocks so that we can compare vs auto-plans.
+                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                foreach (var block in voteBlocks)
+                {
+                    // Multi-line blocks might be a plan.  Check.
+                    if (block.Count() > 1)
                     {
-                        // Replace known plans with just the plan key.  They'll be expanded later.
-                        vote.Add(block.Key);
+                        // See if the block key marks a known plan.
+                        string planName = VoteString.GetPlanName(block.Key);
+
+                        if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
+                            VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
+                        {
+                            // Replace known plans with just the plan key.  They'll be expanded later.
+                            vote.Add(block.Key);
+                        }
+                        else
+                        {
+                            // If it's not a known plan, pass everything through.
+                            vote.AddRange(block);
+                        }
                     }
                     else
                     {
-                        // If it's not a known plan, pass everything through.
+                        // Single lines can be added normally
                         vote.AddRange(block);
+                        //vote.Add(block.Key);
                     }
-                }
-                else
-                {
-                    // Single lines can be added normally
-                    vote.AddRange(block);
-                    //vote.Add(block.Key);
                 }
             }
 

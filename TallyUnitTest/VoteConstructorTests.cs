@@ -461,7 +461,7 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            voteConstructor.PreprocessPlans(p1, sampleQuest);
+            voteConstructor.PreprocessPlansPhase1(p1, sampleQuest);
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);

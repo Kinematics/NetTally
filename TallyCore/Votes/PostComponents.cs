@@ -104,22 +104,49 @@ namespace NetTally
         /// Get all plans from the current post.
         /// </summary>
         /// <returns></returns>
-        public List<List<string>> GetAllPlans()
+        public List<List<string>> GetAllPlansWithContent()
         {
             List<List<string>> results = new List<List<string>>();
 
-            results.AddRange(BasePlans.Select(a => a.ToList()));
-
-            var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-            foreach (var block in voteBlocks)
+            if (VoteLines.Any())
             {
-                if (block.Count() > 1)
+                results.AddRange(BasePlans.Select(a => a.ToList()));
+
+                var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                foreach (var block in voteBlocks)
                 {
-                    string planname = VoteString.GetPlanName(block.Key);
+                    if (block.Count() > 1)
+                    {
+                        string planname = VoteString.GetPlanName(block.Key);
+
+                        if (planname != null)
+                            results.Add(block.ToList());
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public List<List<string>> GetAllFullPostPlans()
+        {
+            List<List<string>> results = new List<List<string>>();
+
+            if (VoteLines.Any())
+            {
+                results.AddRange(BasePlans.Select(a => a.ToList()));
+
+                var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
+                {
+                    var firstLine = VoteLines.First();
+
+                    string planname = VoteString.GetPlanName(firstLine);
 
                     if (planname != null)
-                        results.Add(block.ToList());
+                        results.Add(VoteLines);
                 }
             }
 
