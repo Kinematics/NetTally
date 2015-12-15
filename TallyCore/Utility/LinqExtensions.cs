@@ -192,5 +192,24 @@ namespace NetTally.Utility
 
             return max;
         }
+
+        /// <summary>
+        /// Do a fully agnostic string comparison with all of the contents of the
+        /// provided IEnumerable, to determine if the container contains the 
+        /// specified value.
+        /// </summary>
+        /// <param name="self">The object being extended.</param>
+        /// <param name="value">The string value to compare with.</param>
+        /// <returns>Returns true if the comparison passes using the agnostic comparer.</returns>
+        public static bool ContainsAgnostic(this IEnumerable<string> self, string value)
+        {
+            foreach (string item in self)
+            {
+                if (Text.AgnosticStringComparer.Equals(item, value))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }
