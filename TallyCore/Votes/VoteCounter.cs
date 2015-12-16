@@ -27,14 +27,6 @@ namespace NetTally
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
 
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        //public VoteCounter()
-        //{
-        //    voteConstructor = new VoteConstructor(this);
-        //}
-
         #region Public Interface Properties
         public string Title { get; set; } = string.Empty;
 
