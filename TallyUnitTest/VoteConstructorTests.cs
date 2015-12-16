@@ -23,6 +23,7 @@ namespace NetTally.Tests
         public void Initialize()
         {
             VoteCounter.Instance.Reset();
+            VoteCounter.Instance.PostsList.Clear();
             sampleQuest.AllowRankedVotes = false;
             sampleQuest.PartitionMode = PartitionMode.None;
         }
@@ -150,7 +151,8 @@ namespace NetTally.Tests
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
@@ -158,10 +160,13 @@ namespace NetTally.Tests
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -185,18 +190,19 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -220,18 +226,19 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -255,19 +262,20 @@ namespace NetTally.Tests
 -[x] Light conversation. No need for serious precog questions right now.";
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -291,19 +299,20 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -328,19 +337,20 @@ namespace NetTally.Tests
 
             string author = "Muramasa";
             string postId = "123456";
-            PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
-
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            int postNumber = 100;
+            PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
 
             string referralVote = @"[x] Muramasa
 [x] With Cake";
             string refAuthor = "Gerbil";
             string refID = "123457";
-            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote);
-            p2.SetWorkingVote(voteConstructor.GetWorkingVote);
+            int refPostNum = 101;
+            PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            voteConstructor.ProcessPost(p2, sampleQuest);
+            VoteCounter.Instance.PostsList.Add(p1);
+            VoteCounter.Instance.PostsList.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);

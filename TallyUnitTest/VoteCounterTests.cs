@@ -466,6 +466,8 @@ namespace NetTally.Tests
 
             VoteCounter.Instance.AddVotes(vote1, voter1, postId1, voteType);
             VoteCounter.Instance.AddVotes(vote2, voter2, postId2, voteType);
+            VoteCounter.Instance.ReferenceVoters.Add(voter1);
+            VoteCounter.Instance.ReferenceVoters.Add(voter2);
 
             var votes = VoteCounter.Instance.GetVotesFromReference("[x] me", "Him");
             Assert.AreEqual(1, votes.Count);
@@ -487,6 +489,8 @@ namespace NetTally.Tests
 
             VoteCounter.Instance.AddVotes(vote1, voter1, postId1, voteType);
             VoteCounter.Instance.AddVotes(vote2, voter2, postId2, voteType);
+            VoteCounter.Instance.ReferenceVoters.Add(voter1);
+            VoteCounter.Instance.ReferenceVoters.Add(voter2);
 
             var votes = VoteCounter.Instance.GetVotesFromReference("[x] you", "Him");
             Assert.AreEqual(2, votes.Count);
