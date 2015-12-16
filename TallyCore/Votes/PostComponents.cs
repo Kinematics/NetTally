@@ -109,10 +109,10 @@ namespace NetTally
         {
             List<List<string>> results = new List<List<string>>();
 
+            results.AddRange(BasePlans.Select(a => a.ToList()));
+
             if (VoteLines.Any())
             {
-                results.AddRange(BasePlans.Select(a => a.ToList()));
-
                 var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
 
                 foreach (var block in voteBlocks)
