@@ -11,21 +11,19 @@ namespace NetTally.Tests
     public class VoteTests
     {
         #region Setup
-        static IVoteCounter voteCounter;
         static IQuest sampleQuest;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            voteCounter = new VoteCounter();
             sampleQuest = new Quest();
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            voteCounter.Reset();
-            voteCounter.PostsList.Clear();
+            VoteCounter.Instance.Reset();
+            VoteCounter.Instance.PostsList.Clear();
             sampleQuest = new Quest();
         }
         #endregion
@@ -38,9 +36,9 @@ namespace NetTally.Tests
             int postNumber = 100;
 
             PostComponents post = new PostComponents(author, postId, vote, postNumber);
-            voteCounter.PostsList.Add(post);
+            VoteCounter.Instance.PostsList.Add(post);
 
-            voteCounter.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -49,7 +47,7 @@ namespace NetTally.Tests
 
         public List<string> GetVotesBy(string author, VoteType voteType)
         {
-            var votes = voteCounter.GetVotesCollection(voteType);
+            var votes = VoteCounter.Instance.GetVotesCollection(voteType);
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
@@ -64,15 +62,15 @@ namespace NetTally.Tests
                 int postNumber = 99 + count;
 
                 PostComponents post = new PostComponents(author, postID, vote, postNumber);
-                voteCounter.PostsList.Add(post);
+                VoteCounter.Instance.PostsList.Add(post);
 
                 count++;
             }
 
-            voteCounter.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(sampleQuest);
 
             count = 0;
-            foreach (var post in voteCounter.PostsList)
+            foreach (var post in VoteCounter.Instance.PostsList)
             {
                 var userVotes = GetVotesBy(post.Author, VoteType.Vote);
                 CollectionAssert.AreEqual(results[count++], userVotes);

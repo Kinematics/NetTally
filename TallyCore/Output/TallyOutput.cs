@@ -14,7 +14,6 @@ namespace NetTally.Output
     {
         #region Local Properties
         IQuest Quest { get; set; }
-        IVoteCounter VoteCounter { get; set; }
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb { get; set; }
@@ -27,13 +26,11 @@ namespace NetTally.Output
         /// Public function to generate the full output for the tally.
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
-        /// <param name="voteCounter">The vote counter holding the tally results.</param>
         /// <param name="displayMode">The mode requested for how to format the output.</param>
         /// <returns>Returns the full string to be displayed.</returns>
-        public string BuildOutput(IQuest quest, IVoteCounter voteCounter, DisplayMode displayMode)
+        public string BuildOutput(IQuest quest, DisplayMode displayMode)
         {
             Quest = quest;
-            VoteCounter = voteCounter;
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
@@ -75,7 +72,7 @@ namespace NetTally.Output
             if (DebugMode.Active)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
-            sb.AppendLine(VoteCounter.Title);
+            sb.AppendLine(VoteCounter.Instance.Title);
 
             sb.Append("[color=transparent]##### ");
             sb.Append(product.Product);
@@ -92,10 +89,10 @@ namespace NetTally.Output
         /// </summary>
         private void ConstructRankedOutput()
         {
-            if (VoteCounter.HasRankedVotes)
+            if (VoteCounter.Instance.HasRankedVotes)
             {
                 // Get ranked results, and order them by task name
-                var results = RankVotes.Rank(VoteCounter).OrderBy(a => a.Key);
+                var results = RankVotes.Rank().OrderBy(a => a.Key);
 
                 // Output the ranking results for each task
                 foreach (var task in results)
@@ -176,7 +173,7 @@ namespace NetTally.Output
         /// <param name="taskName">The name of the task.</param>
         private void AddRankedOptions(string taskName)
         {
-            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Rank);
             var voteContents = votes.
                 Where(v => VoteString.GetVoteTask(v.Key) == taskName).
                 Select(v => VoteString.GetVoteContent(v.Key));
@@ -201,8 +198,8 @@ namespace NetTally.Output
         /// <param name="choice">The name of the choice selected.</param>
         private void AddRankedVoters(string taskName, string choice)
         {
-            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
-            var voters = VoteCounter.GetVotersCollection(VoteType.Rank);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Rank);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
 
             var whoVoted = from v in votes
                            where VoteString.GetVoteTask(v.Key) == taskName &&
@@ -245,7 +242,7 @@ namespace NetTally.Output
         /// </summary>
         private void ConstructNormalOutput()
         {
-            var allVotes = VoteCounter.GetVotesCollection(VoteType.Vote);
+            var allVotes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var votesGroupedByTask = GroupVotesByTask(allVotes);
 
             bool firstTask = true;
@@ -500,7 +497,7 @@ namespace NetTally.Output
                 sb.Append(marker);
                 sb.Append("] ");
             }
-            else if (VoteCounter.PlanNames.Contains(voterName))
+            else if (VoteCounter.Instance.PlanNames.Contains(voterName))
             {
                 sb.Append("[b]Plan: ");
                 closeBold = true;
@@ -570,7 +567,7 @@ namespace NetTally.Output
         /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
         public string GetVoterUrl(string voter, VoteType voteType)
         {
-            Dictionary<string, string> idLookup = VoteCounter.GetVotersCollection(voteType);
+            Dictionary<string, string> idLookup = VoteCounter.Instance.GetVotersCollection(voteType);
 
             string voteID;
             if (idLookup.TryGetValue(voter, out voteID))
@@ -582,19 +579,19 @@ namespace NetTally.Output
         /// <summary>
         /// Property to get the total number of ranked voters in the tally.
         /// </summary>
-        public int RankedVoterCount => VoteCounter.GetVotersCollection(VoteType.Rank).Count;
+        public int RankedVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Rank).Count;
 
         /// <summary>
         /// Property to get the total number of normal voters in the tally.
         /// </summary>
-        public int NormalVoterCount => VoteCounter.GetVotersCollection(VoteType.Vote).Count - VoteCounter.PlanNames.Count;
+        public int NormalVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count - VoteCounter.Instance.PlanNames.Count;
 
         /// <summary>
         /// Calculate the number of non-plan voters in the provided vote object.
         /// </summary>
         /// <param name="vote">The vote containing a list of voters.</param>
         /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
-        private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.PlanNames.Contains(vc) == false) ?? 0;
+        private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.Instance.PlanNames.Contains(vc) == false) ?? 0;
 
         /// <summary>
         /// Get a list of voters, ordered alphabetically, except the first voter,
@@ -621,15 +618,15 @@ namespace NetTally.Output
         /// <returns>Returns which one of them is considered the first real poster.</returns>
         public string GetFirstVoter(HashSet<string> voters)
         {
-            var planVoters = voters.Where(v => VoteCounter.PlanNames.Contains(v));
-            var votersCollection = VoteCounter.GetVotersCollection(VoteType.Vote);
+            var planVoters = voters.Where(v => VoteCounter.Instance.PlanNames.Contains(v));
+            var votersCollection = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
 
             if (planVoters.Any())
             {
                 return planVoters.MinObject(v => votersCollection[v]);
             }
 
-            var nonFutureVoters = voters.Except(VoteCounter.FutureReferences.Select(p => p.Author));
+            var nonFutureVoters = voters.Except(VoteCounter.Instance.FutureReferences.Select(p => p.Author));
 
             if (nonFutureVoters.Any())
             {

@@ -66,6 +66,7 @@
     <Compile Include="Output\Utility\VoteNode.cs" />
     <Compile Include="Debugging\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
+    <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Web\CheckForNewRelease.cs" />
     <Compile Include="Web\Utility\CachedPage.cs" />
     <Compile Include="Web\WebCache.cs" />

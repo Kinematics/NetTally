@@ -9,22 +9,20 @@ namespace NetTally.Tests
     [TestClass]
     public class VoteConstructorTests
     {
-        static IVoteCounter voteCounter;
         static IQuest sampleQuest;
         static VoteConstructor voteConstructor;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            voteCounter = new VoteCounter();
             sampleQuest = new Quest();
-            voteConstructor = new VoteConstructor(voteCounter);
+            voteConstructor = new VoteConstructor();
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            voteCounter.Reset();
+            VoteCounter.Instance.Reset();
             sampleQuest.AllowRankedVotes = false;
             sampleQuest.PartitionMode = PartitionMode.None;
         }
@@ -50,8 +48,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(voters.Count == 1);
             //Assert.IsTrue(voteCounter.VotesWithSupporters.ContainsKey(testVote));
@@ -80,8 +78,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -106,8 +104,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -165,8 +163,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -200,8 +198,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -235,8 +233,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -271,8 +269,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 2);
             Assert.IsTrue(votes.All(v => v.Value.Count == 1));
             Assert.IsTrue(voters.Count == 2);
@@ -307,8 +305,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 4);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 3);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -344,8 +342,8 @@ namespace NetTally.Tests
 
             voteConstructor.ProcessPost(p2, sampleQuest);
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 8);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 7);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -371,7 +369,7 @@ namespace NetTally.Tests
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
@@ -400,7 +398,7 @@ namespace NetTally.Tests
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
@@ -433,7 +431,7 @@ namespace NetTally.Tests
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }
@@ -465,7 +463,7 @@ namespace NetTally.Tests
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest);
-            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Text.AgnosticStringComparer));
         }

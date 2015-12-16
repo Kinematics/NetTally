@@ -13,21 +13,14 @@ namespace NetTally
     public class VoteConstructor
     {
         #region Constructor and vars
-        IVoteCounter VoteCounter { get; }
-
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="voteCounter">An IVoteCounter must be provided to the constructor.</param>
-        public VoteConstructor(IVoteCounter voteCounter)
+        public VoteConstructor()
         {
-            if (voteCounter == null)
-                throw new ArgumentNullException(nameof(voteCounter));
-
-            VoteCounter = voteCounter;
         }
         #endregion
 
@@ -46,7 +39,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllPlansWithContent(VoteCounter);
+            var plans = post.GetAllPlansWithContent();
 
             StorePlanReferences(plans);
 
@@ -67,7 +60,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllFullPostPlans(VoteCounter);
+            var plans = post.GetAllFullPostPlans();
 
             StorePlanReferences(plans);
 
@@ -95,7 +88,7 @@ namespace NetTally
                 // delay processing.
                 if (HasFutureReference(post))
                 {
-                    VoteCounter.FutureReferences.Add(post);
+                    VoteCounter.Instance.FutureReferences.Add(post);
                     return false;
                 }
 
@@ -128,10 +121,10 @@ namespace NetTally
             {
                 string planName = VoteString.GetPlanName(plan.First());
 
-                if (!VoteCounter.ReferencePlanNames.Contains(planName))
+                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName))
                 {
-                    VoteCounter.ReferencePlanNames.Add(planName);
-                    VoteCounter.ReferencePlans[planName] = plan;
+                    VoteCounter.Instance.ReferencePlanNames.Add(planName);
+                    VoteCounter.Instance.ReferencePlans[planName] = plan;
                 }
             }
         }
@@ -149,7 +142,7 @@ namespace NetTally
             {
                 string planName = VoteString.GetMarkedPlanName(plan.First());
 
-                if (!VoteCounter.HasPlan(planName))
+                if (!VoteCounter.Instance.HasPlan(planName))
                 {
                     var nPlan = NormalizePlanName(plan);
 
@@ -157,7 +150,7 @@ namespace NetTally
                     // One of: By line, By block, or By post (ie: entire vote)
                     var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
 
-                    VoteCounter.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
+                    VoteCounter.Instance.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
                 }
             }
         }
@@ -183,7 +176,7 @@ namespace NetTally
 
             if (post.BasePlans.Any())
             {
-                var voters = VoteCounter.GetVotersCollection(VoteType.Plan);
+                var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Plan);
                 bool checkPlan = true;
                 string planName;
 
@@ -196,7 +189,7 @@ namespace NetTally
                     // As long as we keep finding base plans that are defined in this post, keep skipping.
                     if (checkPlan)
                     {
-                        if (VoteCounter.HasPlan(planName) && voters[planName] == post.ID)
+                        if (VoteCounter.Instance.HasPlan(planName) && voters[planName] == post.ID)
                             continue;
                     }
 
@@ -210,8 +203,8 @@ namespace NetTally
 
             // Then check if the *entire post* should be treated as a complete plan.
             string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
-            if (postPlanName != null && VoteCounter.ReferencePlans.ContainsKey(postPlanName) &&
-                    VoteCounter.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Text.AgnosticStringComparer))
+            if (postPlanName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(postPlanName) &&
+                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Text.AgnosticStringComparer))
             {
                 // Replace known plans with just the plan key.  They'll be expanded later.
                 vote.Add(post.VoteLines.First());
@@ -231,8 +224,8 @@ namespace NetTally
                         // See if the block key marks a known plan.
                         string planName = VoteString.GetPlanName(block.Key);
 
-                        if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
-                            VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
+                        if (planName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(planName) &&
+                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
                         {
                             // Replace known plans with just the plan key.  They'll be expanded later.
                             vote.Add(block.Key);
@@ -298,14 +291,14 @@ namespace NetTally
                 var refNames = VoteString.GetVoteReferenceNames(line);
 
                 // Any references to plans automatically work.
-                if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
+                if (refNames[ReferenceType.Plan].Any(VoteCounter.Instance.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.ContainsAgnostic(n))?.AgnosticMatch(VoteCounter.ReferenceVoters);
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.ContainsAgnostic(n))?.AgnosticMatch(VoteCounter.Instance.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
                 {
-                    var refVoterPosts = VoteCounter.PostsList.Where(p => p.Author == refVoter).ToList();
+                    var refVoterPosts = VoteCounter.Instance.PostsList.Where(p => p.Author == refVoter).ToList();
 
                     // If ref voter has no posts (how did we get here?), can't be a future reference.
                     if (!refVoterPosts.Any())
@@ -325,7 +318,7 @@ namespace NetTally
                     if (refNames[ReferenceType.Label].Any())
                     {
                         // If we've processed a vote for the ref voter, that's what will be used.
-                        if (VoteCounter.HasVoter(refVoter, VoteType.Vote))
+                        if (VoteCounter.Instance.HasVoter(refVoter, VoteType.Vote))
                             return false;
                     }
 
@@ -355,7 +348,7 @@ namespace NetTally
             // One of: By line, By block, or By post (ie: entire vote)
             List<string> votePartitions = GetVotePartitions(post.WorkingVote, partitionMode, VoteType.Vote, post.Author);
 
-            VoteCounter.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
+            VoteCounter.Instance.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
 
         #endregion
@@ -381,7 +374,7 @@ namespace NetTally
             if (refName != null)
             {
                 // If so, see if that voter made any rank votes.
-                var indirect = VoteCounter.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName)).Select(v => v.Key);
+                var indirect = VoteCounter.Instance.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName)).Select(v => v.Key);
 
                 // If so, return those votes.
                 if (indirect.Any())
@@ -404,7 +397,7 @@ namespace NetTally
             {
                 var refNames = VoteString.GetVoteReferenceNames(post.VoteLines.First());
 
-                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.HasVoter(n, VoteType.Rank));
+                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.Instance.HasVoter(n, VoteType.Rank));
 
                 return refVoter;
             }
@@ -422,7 +415,7 @@ namespace NetTally
         {
             if (ranksList.Count > 0)
             {
-                VoteCounter.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
+                VoteCounter.Instance.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
             }
         }
 
@@ -565,7 +558,7 @@ namespace NetTally
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {
@@ -618,7 +611,7 @@ namespace NetTally
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {
@@ -667,7 +660,7 @@ namespace NetTally
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {

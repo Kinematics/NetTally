@@ -21,7 +21,6 @@ namespace NetTally
         bool _disposed = false;
 
         // References
-        public IVoteCounter VoteCounter { get; } = new VoteCounter();
         IPageProvider PageProvider { get; } = new WebPageProvider2();
         ITextResultsProvider TextResults { get; } = new TallyOutput();
 
@@ -40,7 +39,7 @@ namespace NetTally
         /// Default constructor.
         /// </summary>
         public Tally()
-            : this(null, null)
+            : this(null)
         {
         }
 
@@ -49,10 +48,9 @@ namespace NetTally
         /// </summary>
         /// <param name="altVoteCounter">Alternate VoteCounter.</param>
         /// <param name="altPageProvider">Alternate PageProvider.</param>
-        public Tally(IVoteCounter altVoteCounter, IPageProvider altPageProvider)
+        public Tally(IPageProvider altPageProvider)
         {
             // Replace defaults if parameters are non-null.
-            VoteCounter = altVoteCounter ?? VoteCounter;
             PageProvider = altPageProvider ?? PageProvider;
 
             PageProvider.StatusChanged += PageProvider_StatusChanged;
@@ -185,7 +183,7 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    await VoteCounter.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
+                    await VoteCounter.Instance.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
 
                     // Compose the final result string from the compiled votes.
                     UpdateResults(quest);
@@ -214,7 +212,7 @@ namespace NetTally
             if (lastTallyQuest != null && changedQuest == lastTallyQuest)
             {
                 // Tally the votes from the loaded pages.
-                VoteCounter.TallyPosts(lastTallyQuest);
+                VoteCounter.Instance.TallyPosts(lastTallyQuest);
 
                 // Compose the final result string from the compiled votes.
                 UpdateResults(lastTallyQuest);
@@ -230,7 +228,7 @@ namespace NetTally
             if (quest == null)
                 return;
 
-            TallyResults = TextResults.BuildOutput(quest, VoteCounter, DisplayMode);
+            TallyResults = TextResults.BuildOutput(quest, DisplayMode);
         }
 
         /// <summary>

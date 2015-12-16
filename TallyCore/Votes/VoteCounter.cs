@@ -8,9 +8,20 @@ using NetTally.Utility;
 
 namespace NetTally
 {
-    public class VoteCounter : IVoteCounter
+    public class VoteCounter1 : IVoteCounter
     {
-        readonly VoteConstructor voteConstructor;
+        #region Lazy singleton creation
+        static readonly Lazy<VoteCounter1> lazy = new Lazy<VoteCounter1>(() => new VoteCounter1());
+
+        public static VoteCounter1 Instance => lazy.Value;
+
+        VoteCounter1()
+        {
+            voteConstructor = new VoteConstructor();
+        }
+        #endregion
+
+        VoteConstructor voteConstructor { get; }
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
@@ -19,10 +30,10 @@ namespace NetTally
         /// <summary>
         /// Constructor
         /// </summary>
-        public VoteCounter()
-        {
-            voteConstructor = new VoteConstructor(this);
-        }
+        //public VoteCounter()
+        //{
+        //    voteConstructor = new VoteConstructor(this);
+        //}
 
         #region Public Interface Properties
         public string Title { get; set; } = string.Empty;

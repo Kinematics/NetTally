@@ -9,18 +9,14 @@ namespace NetTally
         /// <summary>
         /// Rank the ranked votes provided by the vote counter.
         /// </summary>
-        /// <param name="voteCounter">Vote counter with a tallied collection of votes.</param>
         /// <returns>Returns a dictionary of task grouping to preferred vote for the
         /// top-rated choice.</returns>
-        public static Dictionary<string, List<string>> Rank(IVoteCounter voteCounter)
+        public static Dictionary<string, List<string>> Rank()
         {
-            if (voteCounter == null)
-                throw new ArgumentNullException(nameof(voteCounter));
-
-            if (voteCounter.HasRankedVotes == false)
+            if (VoteCounter.Instance.HasRankedVotes == false)
                 throw new InvalidOperationException("There are no votes to rank.");
 
-            var votes = voteCounter.GetVotesCollection(VoteType.Rank);
+            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Rank);
 
             // Handle each task separately
             var groupByTask = from vote in votes

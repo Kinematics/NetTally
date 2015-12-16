@@ -131,7 +131,7 @@ namespace NetTally
             GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
         }
 
-        protected virtual void Dispose(Boolean itIsSafeToAlsoFreeManagedObjects)
+        protected virtual void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
         {
             if (_disposed)
                 return;

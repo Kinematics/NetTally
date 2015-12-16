@@ -105,7 +105,7 @@ namespace NetTally
         /// Plans named after a user are ignored as invalid.
         /// </summary>
         /// <returns>Returns a list of composed plans.</returns>
-        public List<List<string>> GetAllPlansWithContent(IVoteCounter voteCounter)
+        public List<List<string>> GetAllPlansWithContent()
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -121,7 +121,7 @@ namespace NetTally
                     {
                         string planname = VoteString.GetPlanName(block.Key);
 
-                        if (planname != null && !voteCounter.ReferenceVoters.ContainsAgnostic(planname))
+                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.ContainsAgnostic(planname))
                             results.Add(block.ToList());
                     }
                 }
@@ -130,7 +130,7 @@ namespace NetTally
             return results;
         }
 
-        public List<List<string>> GetAllFullPostPlans(IVoteCounter voteCounter)
+        public List<List<string>> GetAllFullPostPlans()
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -146,7 +146,7 @@ namespace NetTally
 
                     string planname = VoteString.GetPlanName(firstLine);
 
-                    if (planname != null && !voteCounter.ReferenceVoters.ContainsAgnostic(planname))
+                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.ContainsAgnostic(planname))
                         results.Add(VoteLines);
                 }
             }
