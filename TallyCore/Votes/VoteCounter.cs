@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -386,6 +387,7 @@ namespace NetTally
         /// supports.
         /// </summary>
         /// <param name="voteLine">The vote line to be checked.</param>
+        /// <param name="author">The author of the vote. Prevent circular references.</param>
         /// <returns>Returns a list of all votes supported by the user or plan
         /// specified in the vote line, if found.  Otherwise returns an
         /// empty list.</returns>
@@ -404,7 +406,7 @@ namespace NetTally
 
             if (searchName == null)
             {
-                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => n != author && HasVoter(n, VoteType.Vote));
+                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => n != author && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
             }
 
             if (searchName != null)
@@ -459,7 +461,7 @@ namespace NetTally
         public bool HasVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
-            return voters.ContainsKey(voterName);
+            return voters.Keys.ContainsAgnostic(voterName);
         }
 
         /// <summary>
