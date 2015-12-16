@@ -198,10 +198,15 @@ namespace NetTally
             {
                 if (addBasePlans)
                 {
-                    if (block.Count() > 1 && VoteString.GetPlanName(block.Key, basePlan: true) != null)
+                    if (block.Count() > 1)
                     {
-                        BasePlans.Add(block);
-                        continue;
+                        string planName = VoteString.GetPlanName(block.Key, basePlan: true);
+
+                        if (planName != null && VoteCounter.Instance.ReferenceVoters.ContainsAgnostic(planName) == false)
+                        {
+                            BasePlans.Add(block);
+                            continue;
+                        }
                     }
                 }
                 addBasePlans = false;
