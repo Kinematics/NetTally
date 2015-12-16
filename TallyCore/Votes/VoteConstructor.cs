@@ -548,15 +548,36 @@ namespace NetTally
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
+            List<string> referralVotes = new List<string>();
 
             foreach (string line in lines)
             {
-                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                // If someone copy/pasted a vote with a referral at the top (eg: self-named plan),
+                // skip the copy/pasted section.
+                if (referralVotes.Any())
+                {
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
 
-                if (referralVotes.Count > 0)
+                    referralVotes.Clear();
+                }
+
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+
+                if (referralVotes.Any())
                 {
                     foreach (var referral in referralVotes)
                         sb.Append(referral);
+
+                    referralVotes = referralVotes.SelectMany(a => Text.GetStringLines(a)).ToList();
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
                 }
                 else
                 {
@@ -580,14 +601,34 @@ namespace NetTally
         private List<string> PartitionByLine(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
+            List<string> referralVotes = new List<string>();
 
             foreach (string line in lines)
             {
-                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                // If someone copy/pasted a vote with a referral at the top (eg: self-named plan),
+                // skip the copy/pasted section.
+                if (referralVotes.Any())
+                {
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
 
-                if (referralVotes.Count > 0)
+                    referralVotes.Clear();
+                }
+
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+
+                if (referralVotes.Any())
                 {
                     partitions.AddRange(referralVotes);
+
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
                 }
                 else
                 {
@@ -608,13 +649,27 @@ namespace NetTally
         private List<string> PartitionByBlock(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
+            List<string> referralVotes = new List<string>();
             StringBuilder sb = new StringBuilder();
 
             foreach (string line in lines)
             {
-                List<string> referralVotes = VoteCounter.GetVotesFromReference(line, author);
+                // If someone copy/pasted a vote with a referral at the top (eg: self-named plan),
+                // skip the copy/pasted section.
+                if (referralVotes.Any())
+                {
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
 
-                if (referralVotes.Count > 0)
+                    referralVotes.Clear();
+                }
+
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
+
+                if (referralVotes.Any())
                 {
                     if (sb.Length > 0)
                     {
@@ -623,6 +678,13 @@ namespace NetTally
                     }
 
                     partitions.AddRange(referralVotes);
+
+                    referralVotes = referralVotes.SelectMany(a => Text.GetStringLines(a)).ToList();
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
                 }
                 else
                 {
