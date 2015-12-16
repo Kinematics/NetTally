@@ -301,7 +301,7 @@ namespace NetTally
                 if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n));
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.ContainsAgnostic(n))?.AgnosticMatch(VoteCounter.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
                 {
