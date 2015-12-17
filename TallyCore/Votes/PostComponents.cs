@@ -138,6 +138,7 @@ namespace NetTally
             {
                 var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
 
+                // If the vote has any plans with content in them, skip.
                 if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
                 {
                     var firstLine = VoteLines.First();
