@@ -608,5 +608,37 @@ namespace NetTally.Tests
             TestReferencePostParsing(votes, listOfExpected);
         }
         #endregion
+
+
+        [TestMethod]
+        public void Vote_Reference_Author_SelfReference()
+        {
+            List<string> votes = new List<string>
+            {
+@"[x] plan actions
+-[x] do stuff
+[x] Name: Gonzo",
+@"[x] plan Kinematic's
+-[x] do stuff
+[x] Name: Guido"
+            };
+
+
+            List<string> expected = new List<string>()
+            {
+@"[x] plan Kinematic's
+-[x] do stuff
+[x] Name: Guido
+"
+            };
+
+            List<List<string>> listOfExpected = new List<List<string>> { expected, expected };
+
+            List<string> authors = new List<string> { "Kinematics", "Kinematics" };
+
+            TestReferencePostParsing(votes, authors, listOfExpected);
+        }
+
+
     }
 }
