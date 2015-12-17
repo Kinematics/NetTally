@@ -114,7 +114,11 @@ namespace NetTally.Utility
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
 
-        public int GetHashCode(string obj) => obj.GetHashCode();
+        // There is no hash code we can possibly return which will guarantee that the
+        // two strings are different, without running the full comparison itself.
+        // Since the hashcode has to be the same just to get it to run the comparison,
+        // we'll just have to give all strings the same hash code.
+        public int GetHashCode(string obj) => 0;
 
 
         /// <summary>
@@ -140,7 +144,11 @@ namespace NetTally.Utility
 
         bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
 
-        int IEqualityComparer.GetHashCode(object obj) => (obj as string)?.GetHashCode() ?? 0;
+        // There is no hash code we can possibly return which will guarantee that the
+        // two strings are different, without running the full comparison itself.
+        // Since the hashcode has to be the same just to get it to run the comparison,
+        // we'll just have to give all strings the same hash code.
+        int IEqualityComparer.GetHashCode(object obj) => 0;
 
     }
 }
