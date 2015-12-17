@@ -136,8 +136,6 @@ namespace NetTally
 
             if (VoteLines.Any())
             {
-                results.AddRange(BasePlans.Select(a => a.ToList()));
-
                 var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
 
                 if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
