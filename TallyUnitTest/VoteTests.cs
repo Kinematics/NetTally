@@ -51,32 +51,35 @@ namespace NetTally.Tests
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
-        public void TestReferencePostParsing(List<string> votes, List<List<string>> results)
+        public void TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
         {
-            int count = 1;
-
-            foreach (var vote in votes)
+            for (int i = 0; i < votes.Count; i++)
             {
-                string author = $"User{count}";
-                string postID = $"{12344 + count}";
-                int postNumber = 99 + count;
+                string postID = $"{12345 + i}";
+                int postNumber = 100 + i;
 
-                PostComponents post = new PostComponents(author, postID, vote, postNumber);
+                PostComponents post = new PostComponents(authors[i], postID, votes[i], postNumber);
                 VoteCounter.Instance.PostsList.Add(post);
-
-                count++;
             }
 
             VoteCounter.Instance.TallyPosts(sampleQuest);
 
-            count = 0;
-            foreach (var post in VoteCounter.Instance.PostsList)
+            for (int i = 0; i < results.Count; i++)
             {
+                var post = VoteCounter.Instance.PostsList[i];
                 var userVotes = GetVotesBy(post.Author, VoteType.Vote);
-                CollectionAssert.AreEqual(results[count++], userVotes);
+                CollectionAssert.AreEqual(results[i], userVotes);
             }
         }
 
+        public void TestReferencePostParsing(List<string> votes, List<List<string>> results)
+        {
+            List<string> authors = new List<string>();
+            for (int i = 1; i <= votes.Count; i++)
+            {
+                authors.Add($"User{i}");
+            }
+        }
         #endregion
 
         #region Single Vote Tests
