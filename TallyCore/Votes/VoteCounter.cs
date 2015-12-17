@@ -409,7 +409,8 @@ namespace NetTally
 
             if (searchName == null)
             {
-                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n => n != author && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
+                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n =>
+                    !Text.AgnosticStringComparer.Equals(n, author) && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
             }
 
             if (searchName != null)
