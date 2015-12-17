@@ -231,5 +231,31 @@ namespace NetTally.Utility
             return null;
         }
 
+        /// <summary>
+        /// Find the first character difference between two strings.
+        /// </summary>
+        /// <param name="first">First string.</param>
+        /// <param name="second">Second string.</param>
+        /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
+        public static int FirstDifferenceInStrings(this string first, string second)
+        {
+            if (first == null)
+                throw new ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new ArgumentNullException(nameof(second));
+
+            int length = first.Length < second.Length ? first.Length : second.Length;
+
+            for (int i = 0; i < length; i++)
+            {
+                if (first[i] != second[i])
+                    return i;
+            }
+
+            if (first.Length != second.Length)
+                return Math.Min(first.Length, second.Length);
+
+            return -1;
+        }
     }
 }
