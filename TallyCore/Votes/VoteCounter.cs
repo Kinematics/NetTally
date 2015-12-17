@@ -464,7 +464,7 @@ namespace NetTally
         public bool HasVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
-            return voters.Keys.ContainsAgnostic(voterName);
+            return voters.Keys.Contains(voterName, Text.AgnosticStringComparer);
         }
 
         /// <summary>
