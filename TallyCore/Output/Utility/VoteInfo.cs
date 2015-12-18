@@ -52,6 +52,9 @@ namespace NetTally.Output
         /// <returns>Returns an organized, sorted list.</returns>
         public static IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
+            if (voters.Count == 0)
+                return new List<string>();
+
             var voterList = new List<string> { GetFirstVoter(voters) };
             var otherVoters = voters.Except(voterList);
 
@@ -139,7 +142,8 @@ namespace NetTally.Output
 
                     if (parent == null)
                     {
-                        parent = new VoteNode(lines[0], vote.Value);
+                        var voters = lines.Count == 1 ? vote.Value : null;
+                        parent = new VoteNode(lines[0], voters);
                     }
 
                     if (lines.Count == 1)
@@ -148,13 +152,11 @@ namespace NetTally.Output
                     }
                     else if (lines.Count == 2 && VoteString.GetVotePrefix(lines[1]) != string.Empty)
                     {
-                        VoteNode child = new VoteNode(lines[1], vote.Value);
-                        parent.AddChild(child);
+                        parent.AddChild(lines[1], vote.Value);
                     }
                     else
                     {
-                        VoteNode child = new VoteNode(vote.Key, vote.Value);
-                        parent.AddChild(child);
+                        parent.AddChild(vote.Key, vote.Value);
                     }
                 }
 
