@@ -63,6 +63,7 @@
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Output\TallyOutput.cs" />
     <Compile Include="Output\Utility\SpoilerBBCode.cs" />
+    <Compile Include="Output\Utility\VoteInfo.cs" />
     <Compile Include="Output\Utility\VoteNode.cs" />
     <Compile Include="Debugging\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
