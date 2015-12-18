@@ -668,6 +668,18 @@ namespace NetTally.Output
             {
                 parent = null;
 
+                if (voteGroup.Count() == 1)
+                {
+                    string planname = VoteString.GetPlanName(voteGroup.Key);
+                    if (planname != null && VoteCounter.Instance.HasPlan(planname))
+                    {
+                        var vote = voteGroup.First();
+                        parent = new VoteNode(this, vote.Key, vote.Value);
+                        nodeList.Add(parent);
+                        continue;
+                    }
+                }
+
                 foreach (var vote in voteGroup)
                 {
                     var lines = Text.GetStringLines(vote.Key);

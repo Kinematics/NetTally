@@ -64,9 +64,15 @@ namespace NetTally.Output
             var lines = Utility.Text.GetStringLines(Text);
 
             if (lines.Count == 1)
+            {
                 Line = lines.First();
+            }
             else
-                Line = GetCondensedLine();
+            {
+                string planname = VoteString.GetPlanName(lines[0]);
+                bool isPlan = planname != null && VoteCounter.Instance.HasPlan(planname);
+                Line = GetCondensedLine(isPlan);
+            }
         }
 
         /// <summary>
@@ -74,11 +80,14 @@ namespace NetTally.Output
         /// link format to the original voter.
         /// </summary>
         /// <returns>Returns the condensed line.</returns>
-        private string GetCondensedLine()
+        private string GetCondensedLine(bool isPlan)
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("-[X]");
+            if (!isPlan)
+                sb.Append("-");
+
+            sb.Append("[X]");
 
             // Don't need to list any task, because it's guaranteed to be listed in the
             // parent line that this is a child of.
@@ -87,7 +96,7 @@ namespace NetTally.Output
             string link;
 
             VoteType voteType = Utility.Text.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
-            link = owner.GetVoterUrl(firstVoter, voteType);
+            link = VoteInfo.GetVoterUrl(firstVoter, VoteCounter.Instance.Quest, voteType);
 
             sb.Append($" Plan: {firstVoter} — {link}");
 
