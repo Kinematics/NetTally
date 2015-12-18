@@ -223,7 +223,8 @@ namespace NetTally
         /// </summary>
         public void UpdateResults()
         {
-            TallyResults = TextResults.BuildOutput(DisplayMode);
+            if (VoteCounter.Instance.Quest != null)
+                TallyResults = TextResults.BuildOutput(DisplayMode);
         }
 
         /// <summary>
