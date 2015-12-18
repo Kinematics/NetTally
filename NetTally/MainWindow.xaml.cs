@@ -369,6 +369,19 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Opens the advanced options window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void optionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            OptionsWindow options = new OptionsWindow();
+            options.Owner = Application.Current.MainWindow;
+
+            options.ShowDialog();
+        }
+
+        /// <summary>
         /// Open a browser to view the wiki URL.
         /// </summary>
         /// <param name="sender"></param>
