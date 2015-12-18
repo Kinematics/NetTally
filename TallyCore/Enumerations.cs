@@ -57,6 +57,8 @@ namespace NetTally
         None,
         [Description("Partition By Line")]
         ByLine,
+        [Description("Partition By Line (+Task)")]
+        ByLineTask,
         [Description("Partition By Block")]
         ByBlock,
         [Description("Partition (Plans) By Block")]

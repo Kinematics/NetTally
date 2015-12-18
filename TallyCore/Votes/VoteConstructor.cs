@@ -491,6 +491,10 @@ namespace NetTally
                     // When partitioning by line, promote the plan first.
                     // The label line can be discarded, and the others treated as less indented.
                     return PartitionByLine(PromoteLines(lines), author);
+                case PartitionMode.ByLineTask:
+                    // When partitioning by line, promote the plan first.
+                    // The label line can be discarded, and the others treated as less indented.
+                    return PartitionByLineTask(lines, author);
                 case PartitionMode.ByBlock:
                     // Normal block partitioning means we don't partition plans.
                     // They will end up as a single block for the regular vote to consume.
@@ -523,6 +527,9 @@ namespace NetTally
                 case PartitionMode.ByLine:
                     // Partition by line
                     return PartitionByLine(lines, author);
+                case PartitionMode.ByLineTask:
+                    // Partition by line; keep parent tasks
+                    return PartitionByLineTask(lines, author);
                 case PartitionMode.ByBlock:
                     // Partition by block.  Plans are considered single blocks.
                     return PartitionByBlock(lines, author);
@@ -631,6 +638,67 @@ namespace NetTally
                 else
                 {
                     partitions.Add(line + "\r\n");
+                }
+            }
+
+            return partitions;
+        }
+
+        /// <summary>
+        /// Partition a vote by line, but carry any task on parent lines down
+        /// to child lines.
+        /// </summary>
+        /// <param name="lines">The lines of the vote.</param>
+        /// <param name="author">The author of the vote, for use in determining
+        /// valid referrals.</param>
+        /// <returns>Returns a list of partitioned vote lines.</returns>
+        private List<string> PartitionByLineTask(IEnumerable<string> lines, string author)
+        {
+            List<string> partitions = new List<string>();
+            List<string> referralVotes = new List<string>();
+            string parentTask = string.Empty;
+
+            foreach (string line in lines)
+            {
+                // If someone copy/pasted a vote with a referral at the top (eg: self-named plan),
+                // skip the copy/pasted section.
+                if (referralVotes.Any())
+                {
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
+
+                    referralVotes.Clear();
+                }
+
+                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
+
+                if (referralVotes.Any())
+                {
+                    partitions.AddRange(referralVotes);
+
+                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    {
+                        referralVotes = referralVotes.Skip(1).ToList();
+                        continue;
+                    }
+                }
+                else
+                {
+                    string taskedLine = line;
+
+                    if (VoteString.GetVotePrefix(line) == string.Empty)
+                    {
+                        parentTask = VoteString.GetVoteTask(line);
+                    }
+                    else if (VoteString.GetVoteTask(line) == string.Empty)
+                    {
+                        taskedLine = VoteString.ModifyVoteLine(line, task: parentTask);
+                    }
+
+                    partitions.Add(taskedLine + "\r\n");
                 }
             }
 
