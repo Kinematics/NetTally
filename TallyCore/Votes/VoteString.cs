@@ -53,6 +53,10 @@ namespace NetTally
         static readonly Dictionary<string, int> countTags = new Dictionary<string, int> {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
         #endregion
 
+        #region Other regexes
+        static readonly Regex colonRegex = new Regex(@"(?<!plan\s*):(?!//)", RegexOptions.IgnoreCase);
+        #endregion
+
         #region Cleanup functions
         /// <summary>
         /// Remove BBCode markup from a text string.
@@ -266,11 +270,15 @@ namespace NetTally
         /// <returns>Returns the vote line without the extended description.</returns>
         public static string TrimExtendedTextDescription(string line)
         {
-            var where = line.IndexOf(':');
-            if (where > 0)
+            Match m = colonRegex.Match(line);
+            if (m.Success)
             {
-                if (where < line.Length / 4)
-                    return line.Substring(0, where);
+                int where = m.Index;
+                if (where > 0)
+                {
+                    if (where < line.Length / 4)
+                        return line.Substring(0, where);
+                }
             }
 
             return line;
