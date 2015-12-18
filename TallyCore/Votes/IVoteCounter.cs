@@ -7,7 +7,10 @@ namespace NetTally
 {
     public interface IVoteCounter
     {
+        IQuest Quest { get; }
+
         Task TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages);
+        void TallyPosts();
         void TallyPosts(IQuest quest);
         List<PostComponents> PostsList { get; }
         void Reset();

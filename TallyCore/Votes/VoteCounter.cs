@@ -28,6 +28,8 @@ namespace NetTally
 
 
         #region Public Interface Properties
+        public IQuest Quest { get; set; } = null;
+
         public string Title { get; set; } = string.Empty;
 
         public HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -121,12 +123,14 @@ namespace NetTally
             if (pages.Count == 0)
                 return;
 
+            Quest = quest;
+
             DebugMode.Update();
 
             var firstPage = await pages.First();
 
             // Use the title of the first page for the descriptive output.
-            ThreadInfo threadInfo = quest.ForumAdapter.GetThreadInfo(firstPage);
+            ThreadInfo threadInfo = Quest.ForumAdapter.GetThreadInfo(firstPage);
             Title = threadInfo.Title;
 
             PostsList = new List<PostComponents>();
@@ -150,10 +154,10 @@ namespace NetTally
                 if (page == null)
                     throw new ApplicationException("Not all pages loaded.  Rerun tally.");
 
-                var posts = from post in quest.ForumAdapter.GetPosts(page)
+                var posts = from post in Quest.ForumAdapter.GetPosts(page)
                             where post != null && post.IsVote && post.Author != threadInfo.Author &&
                                 post.IsAfterStart(startInfo) &&
-                                (quest.ReadToEndOfThread || post.Number <= quest.EndPost)
+                                (Quest.ReadToEndOfThread || post.Number <= Quest.EndPost)
                             select post;
 
                 PostsList.AddRange(posts);
@@ -161,7 +165,17 @@ namespace NetTally
 
             PostsList = PostsList.OrderBy(p => p.Number).ToList();
 
-            TallyPosts(quest);
+            TallyPosts();
+        }
+
+        /// <summary>
+        /// Run TallyPosts using the provided quest.
+        /// </summary>
+        /// <param name="quest">The quest that will be used for tallying parameters.</param>
+        public void TallyPosts(IQuest quest)
+        {
+            Quest = quest;
+            TallyPosts();
         }
 
         /// <summary>
@@ -169,11 +183,8 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="PostsList">The list of PostComponents that define valid vote posts.</param>
-        public void TallyPosts(IQuest quest)
+        public void TallyPosts()
         {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
             Reset();
 
             if (PostsList == null || PostsList.Count == 0)
@@ -184,13 +195,13 @@ namespace NetTally
             {
                 ReferenceVoters.Add(post.Author);
                 ReferenceVoterPosts[post.Author] = post.ID;
-                voteConstructor.PreprocessPlansPhase1(post, quest);
+                voteConstructor.PreprocessPlansPhase1(post, Quest);
             }
 
             // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
             foreach (var post in PostsList)
             {
-                voteConstructor.PreprocessPlansPhase2(post, quest);
+                voteConstructor.PreprocessPlansPhase2(post, Quest);
             }
 
             // Once all the plans are in place, set the working votes for each post.
@@ -205,7 +216,7 @@ namespace NetTally
             while (unprocessed.Any())
             {
                 // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => voteConstructor.ProcessPost(p, quest) == true).ToList();
+                var processed = unprocessed.Where(p => voteConstructor.ProcessPost(p, Quest) == true).ToList();
 
                 // As long as some got processed, remove those from the unprocessed list
                 // and let the loop run again.
