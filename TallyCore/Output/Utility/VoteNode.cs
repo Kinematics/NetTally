@@ -65,8 +65,6 @@ namespace NetTally.Output
 
             if (lines.Count == 1)
                 Line = lines.First();
-            else if (lines.Count == 2 && (VoteString.GetVotePrefix(lines[1]) != string.Empty))
-                Line = lines.First();
             else
                 Line = GetCondensedLine();
         }
@@ -80,12 +78,10 @@ namespace NetTally.Output
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("[X]");
+            sb.Append("-[X]");
 
-            string task = VoteString.GetVoteTask(Text);
-            if (task != string.Empty)
-                sb.Append($"[{task}]");
-
+            // Don't need to list any task, because it's guaranteed to be listed in the
+            // parent line that this is a child of.
 
             string firstVoter = owner.GetFirstVoter(Voters);
             string link;

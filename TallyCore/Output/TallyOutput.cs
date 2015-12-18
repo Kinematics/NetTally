@@ -675,30 +675,24 @@ namespace NetTally.Output
                 {
                     var lines = Text.GetStringLines(vote.Key);
 
-                    if (lines.Count > 2)
+                    if (parent == null)
                     {
-                        nodeList.Add(new VoteNode(this, vote.Key, vote.Value));
+                        parent = new VoteNode(this, lines[0], vote.Value);
                     }
-                    else if (lines.Count == 2 && (VoteString.GetVotePrefix(lines[1]) == string.Empty))
+
+                    if (lines.Count == 1)
                     {
-                        nodeList.Add(new VoteNode(this, vote.Key, vote.Value));
+                        parent.AddVoters(vote.Value);
+                    }
+                    else if (lines.Count == 2 && VoteString.GetVotePrefix(lines[1]) != string.Empty)
+                    {
+                        VoteNode child = new VoteNode(this, lines[1], vote.Value);
+                        parent.AddChild(child);
                     }
                     else
                     {
-                        if (parent == null)
-                        {
-                            parent = new VoteNode(this, vote.Key, vote.Value);
-                        }
-                        else if (lines.Count == 1)
-                        {
-                            parent.AddVoters(vote.Value);
-                        }
-
-                        if (lines.Count == 2)
-                        {
-                            VoteNode child = new VoteNode(this, lines[1], vote.Value);
-                            parent.AddChild(child);
-                        }
+                        VoteNode child = new VoteNode(this, vote.Key, vote.Value);
+                        parent.AddChild(child);
                     }
                 }
 
