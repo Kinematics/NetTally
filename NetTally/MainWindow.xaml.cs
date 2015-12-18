@@ -96,6 +96,10 @@ namespace NetTally
                 QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
                 tally.DisplayMode = wrapper.DisplayMode;
+                AdvancedOptions.Instance.AllowRankedVotes = wrapper.AllowRankedVotes;
+                AdvancedOptions.Instance.IgnoreSymbols = wrapper.IgnoreSymbols;
+                AdvancedOptions.Instance.TrimExtendedText = wrapper.TrimExtendedText;
+
 
                 // Set up data contexts
                 DataContext = QuestCollectionView;

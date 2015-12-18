@@ -166,6 +166,27 @@ namespace NetTally
             set { this["CurrentQuest"] = value; }
         }
 
+        [ConfigurationProperty("AllowRankedVotes", DefaultValue = true)]
+        public bool AllowRankedVotes
+        {
+            get { return (bool)this["AllowRankedVotes"]; }
+            set { this["AllowRankedVotes"] = value; }
+        }
+
+        [ConfigurationProperty("IgnoreSymbols", DefaultValue = true)]
+        public bool IgnoreSymbols
+        {
+            get { return (bool)this["IgnoreSymbols"]; }
+            set { this["IgnoreSymbols"] = value; }
+        }
+
+        [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
+        public bool TrimExtendedText
+        {
+            get { return (bool)this["TrimExtendedText"]; }
+            set { this["TrimExtendedText"] = value; }
+        }
+
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
@@ -189,6 +210,9 @@ namespace NetTally
 
             questWrapper.CurrentQuest = CurrentQuest;
             questWrapper.DisplayMode = DisplayMode;
+            questWrapper.AllowRankedVotes = AllowRankedVotes;
+            questWrapper.IgnoreSymbols = IgnoreSymbols;
+            questWrapper.TrimExtendedText = TrimExtendedText;
 
             foreach (QuestElement quest in Quests)
             {
@@ -219,6 +243,9 @@ namespace NetTally
         {
             CurrentQuest = questWrapper.CurrentQuest;
             DisplayMode = questWrapper.DisplayMode;
+            AllowRankedVotes = questWrapper.AllowRankedVotes;
+            IgnoreSymbols = questWrapper.IgnoreSymbols;
+            TrimExtendedText = questWrapper.TrimExtendedText;
 
             Quests.Clear();
             foreach (var quest in questWrapper.QuestCollection)
