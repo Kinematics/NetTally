@@ -97,7 +97,7 @@ namespace NetTally
             }
 
             // Handle ranking votes, if applicable.
-            if (quest.AllowRankedVotes)
+            if (AdvancedOptions.Instance.AllowRankedVotes)
             {
                 var rankings = GetRankingsFromPost(post);
 
