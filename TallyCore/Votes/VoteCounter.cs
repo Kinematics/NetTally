@@ -432,9 +432,12 @@ namespace NetTally
         /// <returns>Returns whether the provided plan name exists in the current PlanNames hash set.</returns>
         public bool HasPlan(string planName)
         {
-            if (!planName.StartsWith(Utility.Text.PlanNameMarker, StringComparison.Ordinal))
+            if (planName == null)
+                return false;
+
+            if (!planName.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
             {
-                planName = Utility.Text.PlanNameMarker + planName;
+                planName = Text.PlanNameMarker + planName;
             }
 
             return PlanNames.Contains(planName);
