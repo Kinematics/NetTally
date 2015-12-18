@@ -241,6 +241,40 @@ namespace NetTally
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Function that can modify vote lines that are read in according to
+        /// preference specifications.
+        /// </summary>
+        /// <param name="line">The line as read.</param>
+        /// <returns>Returns the vote line with any modifications.</returns>
+        public static string ModifyLinesRead(string line)
+        {
+            if (AdvancedOptions.Instance.TrimExtendedText)
+                return TrimExtendedTextDescription(line);
+
+            return line;
+        }
+
+        /// <summary>
+        /// A modification option that removes extended text descriptions
+        /// from a vote line.  If a colon is found that separates less
+        /// than 25% of the vote line length from more than 75%, the
+        /// excess portion is dropped.
+        /// </summary>
+        /// <param name="line">The line as read.</param>
+        /// <returns>Returns the vote line without the extended description.</returns>
+        public static string TrimExtendedTextDescription(string line)
+        {
+            var where = line.IndexOf(':');
+            if (where > 0)
+            {
+                if (where < line.Length / 4)
+                    return line.Substring(0, where);
+            }
+
+            return line;
+        }
         #endregion
 
         #region 'Get' functions
