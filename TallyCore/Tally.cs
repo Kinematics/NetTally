@@ -148,6 +148,17 @@ namespace NetTally
                 UpdateResults();
             }
         }
+
+
+        public bool IgnoreSymbols
+        {
+            get { return Utility.Text.IgnoreSymbols; }
+            set
+            {
+                Utility.Text.IgnoreSymbols = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #region Interface functions

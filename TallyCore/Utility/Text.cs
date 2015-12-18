@@ -70,9 +70,15 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> AgnosticStringComparer { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+        public static IEqualityComparer<string> AgnosticStringComparer => IgnoreSymbols ? AgnosticStringComparer1 : AgnosticStringComparer2;
+
+        public static bool IgnoreSymbols { get; set; } = true;
+
+        private static IEqualityComparer<string> AgnosticStringComparer1 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
             CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
 
+        private static IEqualityComparer<string> AgnosticStringComparer2 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
     }
 
     /// <summary>
