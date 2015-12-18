@@ -26,7 +26,6 @@ namespace NetTally
 
         // State
         DisplayMode displayMode = DisplayMode.Normal;
-        IQuest lastTallyQuest = null;
         bool tallyIsRunning = false;
         string results = string.Empty;
 
@@ -146,7 +145,7 @@ namespace NetTally
             set
             {
                 displayMode = value;
-                UpdateResults(lastTallyQuest);
+                UpdateResults();
             }
         }
         #endregion
@@ -168,9 +167,8 @@ namespace NetTally
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
 
-                if (lastTallyQuest?.DisplayName != quest.DisplayName)
+                if (VoteCounter.Instance.Quest?.DisplayName != quest.DisplayName)
                     UserDefinedTasks.Clear();
-                lastTallyQuest = quest;
 
                 await quest.InitForumAdapter(token).ConfigureAwait(false);
 
@@ -186,14 +184,14 @@ namespace NetTally
                     await VoteCounter.Instance.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
 
                     // Compose the final result string from the compiled votes.
-                    UpdateResults(quest);
+                    UpdateResults();
                 }
 
                 GC.Collect();
             }
             catch (Exception)
             {
-                lastTallyQuest = null;
+                VoteCounter.Instance.Quest = null;
                 throw;
             }
             finally
@@ -209,13 +207,13 @@ namespace NetTally
         /// <param name="changedQuest"></param>
         public void UpdateTally(IQuest changedQuest)
         {
-            if (lastTallyQuest != null && changedQuest == lastTallyQuest)
+            if (VoteCounter.Instance.Quest != null && changedQuest == VoteCounter.Instance.Quest)
             {
                 // Tally the votes from the loaded pages.
-                VoteCounter.Instance.TallyPosts(lastTallyQuest);
+                VoteCounter.Instance.TallyPosts();
 
                 // Compose the final result string from the compiled votes.
-                UpdateResults(lastTallyQuest);
+                UpdateResults();
             }
         }
 
@@ -223,12 +221,9 @@ namespace NetTally
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
-        public void UpdateResults(IQuest quest)
+        public void UpdateResults()
         {
-            if (quest == null)
-                return;
-
-            TallyResults = TextResults.BuildOutput(quest, DisplayMode);
+            TallyResults = TextResults.BuildOutput(DisplayMode);
         }
 
         /// <summary>

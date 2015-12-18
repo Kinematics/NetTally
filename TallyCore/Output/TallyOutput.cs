@@ -13,7 +13,6 @@ namespace NetTally.Output
     public class TallyOutput : ITextResultsProvider
     {
         #region Local Properties
-        IQuest Quest { get; set; }
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb { get; set; }
@@ -25,12 +24,10 @@ namespace NetTally.Output
         /// <summary>
         /// Public function to generate the full output for the tally.
         /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
         /// <param name="displayMode">The mode requested for how to format the output.</param>
         /// <returns>Returns the full string to be displayed.</returns>
-        public string BuildOutput(IQuest quest, DisplayMode displayMode)
+        public string BuildOutput(DisplayMode displayMode)
         {
-            Quest = quest;
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
@@ -553,7 +550,7 @@ namespace NetTally.Output
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine();
 
-            sb.AppendLine(Quest.ForumAdapter.LineBreak);
+            sb.AppendLine(VoteCounter.Instance.Quest.ForumAdapter.LineBreak);
             sb.AppendLine();
         }
         #endregion
@@ -571,7 +568,7 @@ namespace NetTally.Output
 
             string voteID;
             if (idLookup.TryGetValue(voter, out voteID))
-                return Quest.ForumAdapter.GetPermalinkForId(voteID);
+                return VoteCounter.Instance.Quest.ForumAdapter.GetPermalinkForId(voteID);
 
             return string.Empty;
         }
