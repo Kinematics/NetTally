@@ -99,7 +99,7 @@ namespace NetTally.Output
                 }
 
                 // Output the total number of voters
-                AddTotalVoterCount(RankedVoterCount);
+                AddTotalVoterCount(VoteInfo.RankedVoterCount);
                 sb.AppendLine("");
             }
         }
@@ -240,7 +240,7 @@ namespace NetTally.Output
         private void ConstructNormalOutput()
         {
             var allVotes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var votesGroupedByTask = GroupVotesByTask(allVotes);
+            var votesGroupedByTask = VoteInfo.GroupVotesByTask(allVotes);
 
             bool firstTask = true;
 
@@ -259,7 +259,7 @@ namespace NetTally.Output
 
                     if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                     {
-                        var nodes = GetVoteNodes(taskGroup);
+                        var nodes = VoteInfo.GetVoteNodes(taskGroup);
 
                         foreach (var vote in nodes)
                         {
@@ -273,7 +273,7 @@ namespace NetTally.Output
                     }
                     else
                     {
-                        foreach (var vote in taskGroup.OrderByDescending(v => CountVote(v)))
+                        foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)))
                         {
                             AddVote(vote);
                             AddVoteCount(vote);
@@ -284,7 +284,7 @@ namespace NetTally.Output
                 }
             }
 
-            AddTotalVoterCount(NormalVoterCount);
+            AddTotalVoterCount(VoteInfo.NormalVoterCount);
         }
 
         #region Add by VoteNode
@@ -335,7 +335,7 @@ namespace NetTally.Output
 
             using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
             {
-                var orderedVoters = GetOrderedVoterList(vote.Voters);
+                var orderedVoters = VoteInfo.GetOrderedVoterList(vote.Voters);
 
                 foreach (var voter in orderedVoters)
                 {
@@ -378,7 +378,7 @@ namespace NetTally.Output
             if (voteLines.Count == 0)
                 return;
 
-            int userCount = CountVote(vote);
+            int userCount = VoteInfo.CountVote(vote);
             string userCountMarker = userCount.ToString();
 
             // Single-line votes are always shown.
@@ -398,7 +398,7 @@ namespace NetTally.Output
 
 
             // Longer votes get condensed down to a link to the original post (and named after the first voter)
-            string firstVoter = GetFirstVoter(vote.Value);
+            string firstVoter = VoteInfo.GetFirstVoter(vote.Value);
 
             string task = VoteString.GetVoteTask(vote.Key);
             sb.Append($"[{userCountMarker}]");
@@ -409,11 +409,11 @@ namespace NetTally.Output
 
             if (firstVoter.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
             {
-                link = GetVoterUrl(firstVoter, VoteType.Plan);
+                link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Plan);
             }
             else
             {
-                link = GetVoterUrl(firstVoter, VoteType.Vote);
+                link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Vote);
             }
 
             sb.Append($" Plan: {firstVoter} — {link}\r\n");
@@ -428,7 +428,7 @@ namespace NetTally.Output
         {
             if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
             {
-                AddVoterCount(CountVote(vote));
+                AddVoterCount(VoteInfo.CountVote(vote));
             }
         }
 
@@ -444,7 +444,7 @@ namespace NetTally.Output
 
             using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
             {
-                var orderedVoters = GetOrderedVoterList(vote.Value);
+                var orderedVoters = VoteInfo.GetOrderedVoterList(vote.Value);
 
                 foreach (var voter in orderedVoters)
                 {
@@ -501,7 +501,7 @@ namespace NetTally.Output
             }
 
             sb.Append("[url=\"");
-            sb.Append(GetVoterUrl(voterName, voteType));
+            sb.Append(VoteInfo.GetVoterUrl(voterName, voteType));
             sb.Append("\"]");
             sb.Append(voterName);
             sb.Append("[/url]");
@@ -552,166 +552,6 @@ namespace NetTally.Output
 
             sb.AppendLine(VoteCounter.Instance.Quest.ForumAdapter.LineBreak);
             sb.AppendLine();
-        }
-        #endregion
-
-        #region General assist functions
-        /// <summary>
-        /// Get the URL for the post that is linked to the specified voter.
-        /// </summary>
-        /// <param name="voter">The voter to look up.</param>
-        /// <param name="voteType">The type of vote being checked.</param>
-        /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
-        public string GetVoterUrl(string voter, VoteType voteType)
-        {
-            Dictionary<string, string> idLookup = VoteCounter.Instance.GetVotersCollection(voteType);
-
-            string voteID;
-            if (idLookup.TryGetValue(voter, out voteID))
-                return VoteCounter.Instance.Quest.ForumAdapter.GetPermalinkForId(voteID);
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Property to get the total number of ranked voters in the tally.
-        /// </summary>
-        public int RankedVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Rank).Count;
-
-        /// <summary>
-        /// Property to get the total number of normal voters in the tally.
-        /// </summary>
-        public int NormalVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count - VoteCounter.Instance.PlanNames.Count;
-
-        /// <summary>
-        /// Calculate the number of non-plan voters in the provided vote object.
-        /// </summary>
-        /// <param name="vote">The vote containing a list of voters.</param>
-        /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
-        private int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.Instance.PlanNames.Contains(vc) == false) ?? 0;
-
-        /// <summary>
-        /// Get a list of voters, ordered alphabetically, except the first voter,
-        /// who is the 'earliest' of the provided voters (ie: the first person to
-        /// vote for this vote or plan).
-        /// </summary>
-        /// <param name="voters">A set of voters.</param>
-        /// <returns>Returns an organized, sorted list.</returns>
-        private IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
-        {
-            var voterList = new List<string> { GetFirstVoter(voters) };
-            var otherVoters = voters.Except(voterList);
-
-            var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
-            return orderedVoters;
-        }
-
-        /// <summary>
-        /// Determine which of the provided voters was the 'first'.  That is,
-        /// the earliest voter with an actual vote, rather than a reference to
-        /// a future vote.
-        /// </summary>
-        /// <param name="voters">A set of voters to check.</param>
-        /// <returns>Returns which one of them is considered the first real poster.</returns>
-        public string GetFirstVoter(HashSet<string> voters)
-        {
-            var planVoters = voters.Where(v => VoteCounter.Instance.PlanNames.Contains(v));
-            var votersCollection = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-
-            if (planVoters.Any())
-            {
-                return planVoters.MinObject(v => votersCollection[v]);
-            }
-
-            var nonFutureVoters = voters.Except(VoteCounter.Instance.FutureReferences.Select(p => p.Author));
-
-            if (nonFutureVoters.Any())
-            {
-                return nonFutureVoters.MinObject(v => votersCollection[v]);
-            }
-
-            if (voters.Any())
-            {
-                return voters.MinObject(v => votersCollection[v]);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Group votes by task.
-        /// </summary>
-        /// <param name="allVotes">A list of all votes.</param>
-        /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
-        private IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
-        {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
-
-            return grouped;
-        }
-
-        /// <summary>
-        /// Given a group of votes (grouped by task), create and return
-        /// a list of VoteNodes that collapse together votes that are 
-        /// sub-votes of each other.
-        /// </summary>
-        /// <param name="taskGroup">A set of votes with the same task value.</param>
-        /// <returns>Returns a list of VoteNodes that collapse similar votes.</returns>
-        private IEnumerable<VoteNode> GetVoteNodes(IGrouping<string, KeyValuePair<string, HashSet<string>>> taskGroup)
-        {
-            var groupByFirstLine = taskGroup.GroupBy(v => Text.FirstLine(v.Key), Text.AgnosticStringComparer);
-
-            List<VoteNode> nodeList = new List<VoteNode>();
-            VoteNode parent;
-
-            foreach (var voteGroup in groupByFirstLine)
-            {
-                parent = null;
-
-                if (voteGroup.Count() == 1)
-                {
-                    string planname = VoteString.GetPlanName(voteGroup.Key);
-                    if (planname != null && VoteCounter.Instance.HasPlan(planname))
-                    {
-                        var vote = voteGroup.First();
-                        parent = new VoteNode(this, vote.Key, vote.Value);
-                        nodeList.Add(parent);
-                        continue;
-                    }
-                }
-
-                foreach (var vote in voteGroup)
-                {
-                    var lines = Text.GetStringLines(vote.Key);
-
-                    if (parent == null)
-                    {
-                        parent = new VoteNode(this, lines[0], vote.Value);
-                    }
-
-                    if (lines.Count == 1)
-                    {
-                        parent.AddVoters(vote.Value);
-                    }
-                    else if (lines.Count == 2 && VoteString.GetVotePrefix(lines[1]) != string.Empty)
-                    {
-                        VoteNode child = new VoteNode(this, lines[1], vote.Value);
-                        parent.AddChild(child);
-                    }
-                    else
-                    {
-                        VoteNode child = new VoteNode(this, vote.Key, vote.Value);
-                        parent.AddChild(child);
-                    }
-                }
-
-                if (parent != null)
-                {
-                    nodeList.Add(parent);
-                }
-            }
-
-            return nodeList.OrderByDescending(v => v.VoterCount);
         }
         #endregion
     }

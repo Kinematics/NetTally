@@ -11,11 +11,6 @@ namespace NetTally.Output
     /// </summary>
     public class VoteNode
     {
-        /// <summary>
-        /// Allow access to the TallyOutput object that created this node.
-        /// </summary>
-        readonly TallyOutput owner;
-
         public string Text { get; set; }
         public string Line { get; set; }
         public HashSet<string> Voters { get; } = new HashSet<string>();
@@ -23,9 +18,8 @@ namespace NetTally.Output
 
         public int VoterCount => Voters.Count(v => !v.StartsWith(Utility.Text.PlanNameMarker, StringComparison.Ordinal));
 
-        public VoteNode(TallyOutput owner, string text, HashSet<string> voters)
+        public VoteNode(string text, HashSet<string> voters)
         {
-            this.owner = owner;
             Text = text;
 
             AddVoters(voters);
@@ -92,7 +86,7 @@ namespace NetTally.Output
             // Don't need to list any task, because it's guaranteed to be listed in the
             // parent line that this is a child of.
 
-            string firstVoter = owner.GetFirstVoter(Voters);
+            string firstVoter = VoteInfo.GetFirstVoter(Voters);
             string link;
 
             VoteType voteType = Utility.Text.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
