@@ -96,7 +96,7 @@ namespace NetTally.Output
             string link;
 
             VoteType voteType = Utility.Text.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
-            link = VoteInfo.GetVoterUrl(firstVoter, VoteCounter.Instance.Quest, voteType);
+            link = VoteInfo.GetVoterUrl(firstVoter, voteType);
 
             sb.Append($" Plan: {firstVoter} — {link}");
 
