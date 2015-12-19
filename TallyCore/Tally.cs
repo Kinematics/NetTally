@@ -105,6 +105,22 @@ namespace NetTally
             if (e.PropertyName == "DisplayMode")
                 UpdateResults();
         }
+
+        /// <summary>
+        /// Listener for if any global options change.
+        /// If the display mode changes, update the output results.
+        /// </summary>
+        /// <param name="sender">The quest that sent the notification.</param>
+        /// <param name="e">Info about a property of the quest that changed.</param>
+        private void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            IQuest quest = sender as IQuest;
+            if (quest != null && quest == VoteCounter.Instance.Quest)
+            {
+                if (e.PropertyName == "PartitionMode")
+                    UpdateTally();
+            }
+        }
         #endregion
 
         #region Implement INotifyPropertyChanged interface
@@ -164,6 +180,10 @@ namespace NetTally
         {
             try
             {
+                // Mark the quest as one that we will listen for changes from.
+                quest.PropertyChanged -= Quest_PropertyChanged;
+                quest.PropertyChanged += Quest_PropertyChanged;
+
                 List<Task<HtmlDocument>> loadedPages;
 
                 TallyIsRunning = true;
@@ -204,22 +224,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Process the results of the tally through the vote counter, and update the output.
-        /// </summary>
-        /// <param name="changedQuest"></param>
-        public void UpdateTally(IQuest changedQuest)
-        {
-            if (VoteCounter.Instance.Quest != null && changedQuest == VoteCounter.Instance.Quest)
-            {
-                // Tally the votes from the loaded pages.
-                VoteCounter.Instance.TallyPosts();
-
-                // Compose the final result string from the compiled votes.
-                UpdateResults();
-            }
-        }
-
-        /// <summary>
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
@@ -235,6 +239,23 @@ namespace NetTally
         public void ClearPageCache()
         {
             PageProvider.ClearPageCache();
+        }
+        #endregion
+
+        #region Private update methods
+        /// <summary>
+        /// Process the results of the tally through the vote counter, and update the output.
+        /// </summary>
+        private void UpdateTally()
+        {
+            if (VoteCounter.Instance.Quest != null)
+            {
+                // Tally the votes from the loaded pages.
+                VoteCounter.Instance.TallyPosts();
+
+                // Compose the final result string from the compiled votes.
+                UpdateResults();
+            }
         }
         #endregion
     }

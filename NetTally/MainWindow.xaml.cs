@@ -255,16 +255,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// When changing partition mode, update based on the currently collected tally info.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void partitionMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            tally.UpdateTally(CurrentlySelectedQuest);
-        }
-
-        /// <summary>
         /// Clear the page cache so that subsequent tally requests load the pages from the network
         /// rather than from the cache.
         /// </summary>

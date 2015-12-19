@@ -173,7 +173,7 @@
         </CheckBox>
         <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="161" Padding="8,6,4,3"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=PartitionModes}"
-                  SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"  SelectionChanged="partitionMode_SelectionChanged"
+                  SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
