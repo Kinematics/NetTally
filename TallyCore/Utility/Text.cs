@@ -118,11 +118,27 @@ namespace NetTally.Utility
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
 
-        // There is no hash code we can possibly return which will guarantee that the
-        // two strings are different, without running the full comparison itself.
-        // Since the hashcode has to be the same just to get it to run the comparison,
-        // we'll just have to give all strings the same hash code.
-        public int GetHashCode(string obj) => 0;
+        static readonly Regex filterRegex = new Regex(@"[^a-z]+", RegexOptions.IgnoreCase);
+
+        // The hash code represents a number that either guarantees that two
+        // strings are different, or allows that two strings -might- be the same.
+        // Create a hash value that creates the minimal comparison possible, to
+        // see if two strings are different.
+        public int GetHashCode(string input)
+        {
+            // Decompose a unicode string so that 'accented' charaters are broken
+            // into their original + accent marks as separate character entities.
+            // EG: á becomes a + ́
+            string decomposed = input.Normalize(System.Text.NormalizationForm.FormD);
+            // Filter the decomposed string so that we're left with only numbers and
+            // lowercase letters.
+            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c));
+            // Convert the LINQ results to a new string.
+            string check = new string(filtered.ToArray());
+            // And if this hash code comes out different, we can be certain that
+            // two strings that are compared will be different.
+            return check.GetHashCode();
+        }
 
 
         /// <summary>
@@ -148,11 +164,28 @@ namespace NetTally.Utility
 
         bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
 
-        // There is no hash code we can possibly return which will guarantee that the
-        // two strings are different, without running the full comparison itself.
-        // Since the hashcode has to be the same just to get it to run the comparison,
-        // we'll just have to give all strings the same hash code.
-        int IEqualityComparer.GetHashCode(object obj) => 0;
+        // The hash code represents a number that either guarantees that two
+        // strings are different, or allows that two strings -might- be the same.
+        // Create a hash value that creates the minimal comparison possible, to
+        // see if two strings are different.
+        int IEqualityComparer.GetHashCode(object obj)
+        {
+            string input = obj as string;
+            if (input == null)
+                return obj.GetHashCode();
 
+            // Decompose a unicode string so that 'accented' charaters are broken
+            // into their original + accent marks as separate character entities.
+            // EG: á becomes a + ́
+            string decomposed = input.Normalize(System.Text.NormalizationForm.FormD);
+            // Filter the decomposed string so that we're left with only numbers and
+            // lowercase letters.
+            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c));
+            // Convert the LINQ results to a new string.
+            string check = new string(filtered.ToArray());
+            // And if this hash code comes out different, we can be certain that
+            // two strings that are compared will be different.
+            return check.GetHashCode();
+        }
     }
 }
