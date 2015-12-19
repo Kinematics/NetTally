@@ -36,6 +36,7 @@ namespace NetTally
         bool allowRankedVotes = true;
         bool ignoreSymbols = true;
         bool trimExtendedText = false;
+        DisplayMode displayMode = DisplayMode.Normal;
 
         /// <summary>
         /// Whether or not to parse ranked votes in a tally.
@@ -76,6 +77,21 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Enum of the type of display composition methodology to use for the output display.
+        /// Recalculates the display if changed.
+        /// </summary>
+        public DisplayMode DisplayMode
+        {
+            get { return displayMode; }
+            set
+            {
+                displayMode = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
     }
 }

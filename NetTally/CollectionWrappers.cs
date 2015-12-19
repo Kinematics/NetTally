@@ -13,12 +13,12 @@
         public bool IgnoreSymbols { get; set; }
         public bool TrimExtendedText { get; set; }
 
-        public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest, DisplayMode displayMode)
+        public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest)
         {
             QuestCollection = questCollection;
             CurrentQuest = currentQuest;
-            DisplayMode = displayMode;
 
+            DisplayMode = AdvancedOptions.Instance.DisplayMode;
             AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
             IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;

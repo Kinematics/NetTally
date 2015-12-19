@@ -77,7 +77,7 @@ namespace NetTally
 
                 questCollection = new QuestCollection();
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null, DisplayMode.Normal);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null);
 
                 if (DebugMode.Active)
                     ErrorLog.Log("Preparing to load config.");
@@ -95,7 +95,7 @@ namespace NetTally
                 // Set the current item
                 QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
-                tally.DisplayMode = wrapper.DisplayMode;
+                AdvancedOptions.Instance.DisplayMode = wrapper.DisplayMode;
                 AdvancedOptions.Instance.AllowRankedVotes = wrapper.AllowRankedVotes;
                 AdvancedOptions.Instance.IgnoreSymbols = wrapper.IgnoreSymbols;
                 AdvancedOptions.Instance.TrimExtendedText = wrapper.TrimExtendedText;
@@ -107,7 +107,7 @@ namespace NetTally
                 resultsWindow.DataContext = tally;
                 tallyButton.DataContext = tally;
                 cancelTally.DataContext = tally;
-                displayMode.DataContext = tally;
+                displayMode.DataContext = AdvancedOptions.Instance;
 
                 checkForNewRelease = new CheckForNewRelease();
                 newRelease.DataContext = checkForNewRelease;
@@ -174,7 +174,7 @@ namespace NetTally
             {
                 string selectedQuest = CurrentlySelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest, tally.DisplayMode);
+                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
                 NetTallyConfig.Save(tally, qcw);
 
                 Properties.Settings settings = new Properties.Settings();

@@ -44,7 +44,7 @@ namespace NetTally
             if (questConfig == null)
                 return;
 
-            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null, DisplayMode.Normal);
+            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null);
             questConfig.Load(questWrapper);
 
             upgradeConfig.SaveAs(conf.FilePath, ConfigurationSaveMode.Full);

@@ -25,7 +25,6 @@ namespace NetTally
         ITextResultsProvider TextResults { get; } = new TallyOutput();
 
         // State
-        DisplayMode displayMode = DisplayMode.Normal;
         bool tallyIsRunning = false;
         string results = string.Empty;
 
@@ -53,6 +52,7 @@ namespace NetTally
             PageProvider = altPageProvider ?? PageProvider;
 
             PageProvider.StatusChanged += PageProvider_StatusChanged;
+            AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
         }
 
         ~Tally()
@@ -73,6 +73,8 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
+                PageProvider.StatusChanged -= PageProvider_StatusChanged;
+                AdvancedOptions.Instance.PropertyChanged -= Options_PropertyChanged;
                 PageProvider.Dispose();
             }
 
@@ -92,6 +94,20 @@ namespace NetTally
             TallyResults = TallyResults + e.Message;
         }
 
+        /// <summary>
+        /// Listener for if any global options change.
+        /// If the display mode changes, update the output results.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "DisplayMode")
+                UpdateResults();
+        }
+        #endregion
+
+        #region Implement INotifyPropertyChanged interface
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -132,20 +148,6 @@ namespace NetTally
             {
                 results = value;
                 OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Enum of the type of display composition methodology to use for the output display.
-        /// Recalculates the display if changed.
-        /// </summary>
-        public DisplayMode DisplayMode
-        {
-            get { return displayMode; }
-            set
-            {
-                displayMode = value;
-                UpdateResults();
             }
         }
         #endregion
@@ -224,7 +226,7 @@ namespace NetTally
         public void UpdateResults()
         {
             if (VoteCounter.Instance.Quest != null)
-                TallyResults = TextResults.BuildOutput(DisplayMode);
+                TallyResults = TextResults.BuildOutput(AdvancedOptions.Instance.DisplayMode);
         }
 
         /// <summary>
