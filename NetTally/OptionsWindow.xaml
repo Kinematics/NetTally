@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Advanced Options" Height="410.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Global Options" Height="410.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
     <Grid>
         <CheckBox x:Name="allowRankedVotes" Content="Allow Ranked Votes (default: True)" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=AllowRankedVotes}"/>
@@ -18,7 +18,7 @@
         <Button x:Name="resetAllButton" Content="Reset All" HorizontalAlignment="Left" Margin="10,0,0,10" Width="100" Height="32" VerticalAlignment="Bottom" Click="resetAllButton_Click"/>
         <TextBlock x:Name="allowRankedVotesDescription" Margin="28,123,10,0" TextWrapping="Wrap" Text="When set, this allows ranked votes to be tallied.  If ranked votes are interfering with your tally, you can turn it off here." VerticalAlignment="Top"/>
         <TextBlock x:Name="ignoreSymbolsDescription" Margin="28,181,10,0" TextWrapping="Wrap" Text="When set, this makes it so that vote and voter comparisons that differ only because of whitespace or punctuation are treated the same." VerticalAlignment="Top"/>
-        <TextBlock x:Name="trimExtendedTextDescription" Margin="28,239,10,0" TextWrapping="Wrap" Text="When set, this is an experimental attempt to trim extended descriptions from a vote line.  An extended description is a long segment of text after a colon, that is at least twice as long as the text preceding the colon." VerticalAlignment="Top"/>
+        <TextBlock x:Name="trimExtendedTextDescription" Margin="28,239,10,0" TextWrapping="Wrap" Text="This is an experimental attempt to trim extended descriptions from a vote line.  An extended description is a long segment of text after a colon, that is at least three times as long as the text preceding the colon. When this option is set, any extended description will be removed." VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
