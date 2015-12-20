@@ -227,7 +227,6 @@ namespace NetTally
                         EndPost = quest.EndPost,
                         CheckForLastThreadmark = quest.CheckForLastThreadmark,
                         PartitionMode = quest.PartitionMode,
-                        AllowRankedVotes = quest.AllowRankedVotes
                     };
 
                     questWrapper.QuestCollection.Add(q);
@@ -289,7 +288,7 @@ namespace NetTally
         public void Add(IQuest quest)
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.PartitionMode, quest.AllowRankedVotes);
+                quest.CheckForLastThreadmark, quest.PartitionMode);
             BaseAdd(questElement, false);
         }
 
@@ -306,7 +305,7 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            PartitionMode partitionMode, bool allowRankedVotes)
+            PartitionMode partitionMode)
         {
             ThreadName = threadName;
             DisplayName = displayName;
@@ -315,7 +314,9 @@ namespace NetTally
             EndPost = endPost;
             CheckForLastThreadmark = checkForLastThreadmark;
             PartitionMode = partitionMode;
-            AllowRankedVotes = allowRankedVotes;
+
+            // Set it to false to make it disappear.
+            AllowRankedVotes = false;
         }
 
         public QuestElement()
