@@ -60,7 +60,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="input">The string to get the first line from.</param>
         /// <returns>Returns the first line of the provided string.</returns>
-        public static string FirstLine(string input)
+        public static string GetFirstLine(string input)
         {
             var lines = GetStringLines(input);
             return lines.FirstOrDefault();

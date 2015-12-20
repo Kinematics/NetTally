@@ -115,7 +115,7 @@ namespace NetTally.Output
         /// <returns>Returns a list of VoteNodes that collapse similar votes.</returns>
         public static IEnumerable<VoteNode> GetVoteNodes(IGrouping<string, KeyValuePair<string, HashSet<string>>> taskGroup)
         {
-            var groupByFirstLine = taskGroup.GroupBy(v => StringUtility.FirstLine(v.Key), StringUtility.AgnosticStringComparer);
+            var groupByFirstLine = taskGroup.GroupBy(v => StringUtility.GetFirstLine(v.Key), StringUtility.AgnosticStringComparer);
 
             List<VoteNode> nodeList = new List<VoteNode>();
             VoteNode parent;
