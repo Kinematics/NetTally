@@ -514,8 +514,8 @@ namespace NetTally
 
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
-            string agVote = votes.Keys.FirstOrDefault(k => 
-                Utility.StringUtility.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
+            string agVote = votes.Keys.FirstOrDefault(k =>
+                StringUtility.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
 
             // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
             return agVote ?? vote;
