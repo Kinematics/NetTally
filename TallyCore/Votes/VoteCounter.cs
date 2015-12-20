@@ -510,7 +510,11 @@ namespace NetTally
 
             // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
             if (!cleanedKeys.ContainsKey(vote))
-                cleanedKeys[vote] = VoteString.RemoveBBCode(vote);
+            {
+                string clean = VoteString.RemoveBBCode(vote);
+                clean = VoteString.DeUrlContent(clean);
+                cleanedKeys[vote] = clean;
+            }
 
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
