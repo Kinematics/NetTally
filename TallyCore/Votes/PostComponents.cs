@@ -66,7 +66,7 @@ namespace NetTally
             if (IsTallyPost(text))
                 return;
 
-            var lines = Utility.Text.GetStringLines(text);
+            var lines = StringUtility.GetStringLines(text);
             var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.RemoveBBCode(a)).Success);
 
             if (voteLines.Any())
@@ -121,7 +121,7 @@ namespace NetTally
                     {
                         string planname = VoteString.GetPlanName(block.Key);
 
-                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, Utility.Text.AgnosticStringComparer))
+                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
                             results.Add(block.ToList());
                     }
                 }
@@ -145,7 +145,7 @@ namespace NetTally
 
                     string planname = VoteString.GetPlanName(firstLine);
 
-                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, Utility.Text.AgnosticStringComparer))
+                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
                         results.Add(VoteLines);
                 }
             }
@@ -201,7 +201,7 @@ namespace NetTally
                     {
                         string planName = VoteString.GetPlanName(block.Key, basePlan: true);
 
-                        if (planName != null && !VoteCounter.Instance.ReferenceVoters.Contains(planName, Utility.Text.AgnosticStringComparer))
+                        if (planName != null && !VoteCounter.Instance.ReferenceVoters.Contains(planName, StringUtility.AgnosticStringComparer))
                         {
                             BasePlans.Add(block);
                             continue;

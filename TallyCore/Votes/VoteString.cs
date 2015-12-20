@@ -471,7 +471,7 @@ namespace NetTally
                     results[ReferenceType.Label].Add(label);
 
                 string name = m2.Groups["reference"].Value;
-                string pName = $"{Text.PlanNameMarker}{name}";
+                string pName = $"{StringUtility.PlanNameMarker}{name}";
 
                 // [x] Plan Kinematics => Kinematics
                 // [x] Plan Boom. => Boom.
@@ -490,7 +490,7 @@ namespace NetTally
                 if (name.EndsWith(".", StringComparison.Ordinal))
                 {
                     name = name.Substring(0, name.Length - 1);
-                    pName = $"{Text.PlanNameMarker}{name}";
+                    pName = $"{StringUtility.PlanNameMarker}{name}";
 
                     results[ReferenceType.Any].Add(name);
                     results[ReferenceType.Voter].Add(name);
@@ -544,7 +544,7 @@ namespace NetTally
         {
             string planname = GetPlanName(voteLine);
             if (planname != null)
-                return Text.PlanNameMarker + planname;
+                return StringUtility.PlanNameMarker + planname;
 
             return null;
         }

@@ -205,7 +205,7 @@ namespace NetTally.Utility
         {
             foreach (string item in self)
             {
-                if (Text.AgnosticStringComparer.Equals(item, value))
+                if (StringUtility.AgnosticStringComparer.Equals(item, value))
                     return item;
             }
 
@@ -224,7 +224,7 @@ namespace NetTally.Utility
         {
             foreach (string item in list)
             {
-                if (Text.AgnosticStringComparer.Equals(item, value))
+                if (StringUtility.AgnosticStringComparer.Equals(item, value))
                     return item;
             }
 

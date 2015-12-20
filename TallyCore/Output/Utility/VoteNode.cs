@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
 namespace NetTally.Output
 {
@@ -21,7 +22,7 @@ namespace NetTally.Output
         public HashSet<string> Voters { get; } = new HashSet<string>();
         public HashSet<string> AllVoters { get; } = new HashSet<string>();
 
-        public int VoterCount => AllVoters.Count(v => !v.StartsWith(Utility.Text.PlanNameMarker, StringComparison.Ordinal));
+        public int VoterCount => AllVoters.Count(v => !v.StartsWith(StringUtility.PlanNameMarker, StringComparison.Ordinal));
 
         bool HasParent => Parent != null;
         bool HasChildren => Children.Count > 0;
@@ -72,7 +73,7 @@ namespace NetTally.Output
         /// <returns>Returns a string representation of the current vote node.</returns>
         public string GetLine(DisplayMode displayMode)
         {
-            var lines = Utility.Text.GetStringLines(Text);
+            var lines = StringUtility.GetStringLines(Text);
             if (lines.Count == 0)
                 return string.Empty;
 
@@ -130,7 +131,7 @@ namespace NetTally.Output
                 {
                     string link;
 
-                    VoteType voteType = Utility.Text.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
+                    VoteType voteType = StringUtility.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
                     link = VoteInfo.GetVoterUrl(firstVoter, voteType);
 
                     sb.Append(" — ");

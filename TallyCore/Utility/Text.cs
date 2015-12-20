@@ -10,7 +10,7 @@ namespace NetTally.Utility
     /// <summary>
     /// Class for general static functions relating to text manipulation and comparisons.
     /// </summary>
-    public static class Text
+    public static class StringUtility
     {
         // Regex for control and formatting characters that we don't want to allow processing of.
         // EG: \u200B, non-breaking space

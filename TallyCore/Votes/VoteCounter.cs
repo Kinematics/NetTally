@@ -51,11 +51,11 @@ namespace NetTally
         #region Public Class Properties
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(Text.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
         public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(Text.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
         #endregion
 
@@ -421,7 +421,7 @@ namespace NetTally
             if (searchName == null)
             {
                 searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n =>
-                    !Text.AgnosticStringComparer.Equals(n, author) && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
+                    !StringUtility.AgnosticStringComparer.Equals(n, author) && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
             }
 
             if (searchName != null)
@@ -446,9 +446,9 @@ namespace NetTally
             if (planName == null)
                 return false;
 
-            if (!planName.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
+            if (!planName.StartsWith(StringUtility.PlanNameMarker, StringComparison.Ordinal))
             {
-                planName = Text.PlanNameMarker + planName;
+                planName = StringUtility.PlanNameMarker + planName;
             }
 
             return PlanNames.Contains(planName);
@@ -479,7 +479,7 @@ namespace NetTally
         public bool HasVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
-            return voters.Keys.Contains(voterName, Text.AgnosticStringComparer);
+            return voters.Keys.Contains(voterName, StringUtility.AgnosticStringComparer);
         }
 
         /// <summary>
@@ -515,7 +515,7 @@ namespace NetTally
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
             string agVote = votes.Keys.FirstOrDefault(k => 
-                Utility.Text.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
+                Utility.StringUtility.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
 
             // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
             return agVote ?? vote;

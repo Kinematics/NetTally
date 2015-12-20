@@ -208,7 +208,7 @@ namespace NetTally
             // Then check if the *entire post* should be treated as a complete plan.
             string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
             if (postPlanName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(postPlanName) &&
-                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Text.AgnosticStringComparer))
+                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), StringUtility.AgnosticStringComparer))
             {
                 // Replace known plans with just the plan key.  They'll be expanded later.
                 vote.Add(post.VoteLines.First());
@@ -229,7 +229,7 @@ namespace NetTally
                         string planName = VoteString.GetPlanName(block.Key);
 
                         if (planName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(planName) &&
-                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Text.AgnosticStringComparer))
+                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), StringUtility.AgnosticStringComparer))
                         {
                             // Replace known plans with just the plan key.  They'll be expanded later.
                             vote.Add(block.Key);
@@ -298,7 +298,7 @@ namespace NetTally
                 if (refNames[ReferenceType.Plan].Any(VoteCounter.Instance.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.Contains(n, Text.AgnosticStringComparer))
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.Contains(n, StringUtility.AgnosticStringComparer))
                     ?.AgnosticMatch(VoteCounter.Instance.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
@@ -561,7 +561,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -577,8 +577,8 @@ namespace NetTally
                     foreach (var referral in referralVotes)
                         sb.Append(referral);
 
-                    referralVotes = referralVotes.SelectMany(a => Text.GetStringLines(a)).ToList();
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    referralVotes = referralVotes.SelectMany(a => StringUtility.GetStringLines(a)).ToList();
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -614,7 +614,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -629,7 +629,7 @@ namespace NetTally
                 {
                     partitions.AddRange(referralVotes);
 
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -664,7 +664,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -679,7 +679,7 @@ namespace NetTally
                 {
                     partitions.AddRange(referralVotes);
 
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -724,7 +724,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -745,8 +745,8 @@ namespace NetTally
 
                     partitions.AddRange(referralVotes);
 
-                    referralVotes = referralVotes.SelectMany(a => Text.GetStringLines(a)).ToList();
-                    if (Text.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    referralVotes = referralVotes.SelectMany(a => StringUtility.GetStringLines(a)).ToList();
+                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;

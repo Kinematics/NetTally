@@ -407,7 +407,7 @@ namespace NetTally.Output
         /// <param name="vote">The vote to add.</param>
         private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote)
         {
-            List<string> voteLines = Text.GetStringLines(vote.Key);
+            List<string> voteLines = StringUtility.GetStringLines(vote.Key);
 
             if (voteLines.Count == 0)
                 return;
@@ -441,7 +441,7 @@ namespace NetTally.Output
 
             string link;
 
-            if (firstVoter.StartsWith(Text.PlanNameMarker, StringComparison.Ordinal))
+            if (firstVoter.StartsWith(StringUtility.PlanNameMarker, StringComparison.Ordinal))
             {
                 link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Plan);
             }

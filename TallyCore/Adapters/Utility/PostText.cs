@@ -33,7 +33,7 @@ namespace NetTally.Adapters
 
             text = HtmlEntity.DeEntitize(text);
 
-            return Text.SafeString(text);
+            return StringUtility.SafeString(text);
         }
 
         /// <summary>

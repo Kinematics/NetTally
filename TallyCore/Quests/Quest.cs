@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -153,7 +154,7 @@ namespace NetTally
             }
             set
             {
-                displayName = Utility.Text.SafeString(value);
+                displayName = StringUtility.SafeString(value);
                 OnPropertyChanged();
             }
         }
@@ -183,7 +184,7 @@ namespace NetTally
             if (m.Success)
                 url = m.Groups["base"].Value;
 
-            return Utility.Text.SafeString(url);
+            return StringUtility.SafeString(url);
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -222,7 +223,7 @@ namespace NetTally
             }
             set
             {
-                filter1String = Utility.Text.SafeString(value);
+                filter1String = StringUtility.SafeString(value);
                 OnPropertyChanged();
 
                 IsFilter1Empty = filter1String == string.Empty;
@@ -243,7 +244,7 @@ namespace NetTally
             }
             set
             {
-                filter2String = Utility.Text.SafeString(value);
+                filter2String = StringUtility.SafeString(value);
                 OnPropertyChanged();
 
                 IsFilter2Empty = filter2String == string.Empty;
@@ -409,7 +410,7 @@ namespace NetTally
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
             InputBox.Visibility = Visibility.Collapsed;
 
-            string newTask = Utility.Text.SafeString(InputTextBox.Text).Trim();
+            string newTask = StringUtility.SafeString(InputTextBox.Text).Trim();
 
             // Clear InputBox.
             InputTextBox.Text = String.Empty;
