@@ -327,7 +327,7 @@ namespace NetTally.Adapters
                 if (Site.Host == "forums.spacebattles.com")
                     return "———————————————————————————————————————————————————————";
 
-                return "[hr][/hr]";
+                return "[hr]——————————————————————————————————————————————[/hr]";
             }
         }
         #endregion
