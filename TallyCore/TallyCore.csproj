@@ -85,7 +85,7 @@
     <Compile Include="Votes\RankVotes.cs" />
     <Compile Include="Tally.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="Utility\Text.cs" />
+    <Compile Include="Utility\StringUtility.cs" />
     <Compile Include="Votes\PostComponents.cs" />
     <Compile Include="Adapters\Utility\PostText.cs" />
     <Compile Include="Debugging\RegionProfiler.cs" />
