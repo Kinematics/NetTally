@@ -59,7 +59,6 @@ namespace NetTally
         int endPost = 0;
 
         bool checkForLastThreadmark = true;
-        bool allowRankedVotes = false;
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
 
@@ -155,19 +154,6 @@ namespace NetTally
             set
             {
                 displayName = Utility.Text.SafeString(value);
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Flag for whether to count votes using preferential vote ranking.
-        /// </summary>
-        public bool AllowRankedVotes
-        {
-            get { return allowRankedVotes; }
-            set
-            {
-                allowRankedVotes = value;
                 OnPropertyChanged();
             }
         }

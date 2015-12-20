@@ -49,11 +49,6 @@ namespace NetTally
         PartitionMode PartitionMode { get; set; }
 
         /// <summary>
-        /// Flag for whether to count votes using preferential vote ranking.
-        /// </summary>
-        bool AllowRankedVotes { get; set; }
-
-        /// <summary>
         /// Derived property.
         /// </summary>
         bool ReadToEndOfThread { get; }

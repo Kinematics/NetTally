@@ -89,7 +89,6 @@ namespace NetTally.Tests
             Assert.AreEqual(0, quest.EndPost);
             Assert.AreEqual(true, quest.ReadToEndOfThread);
             Assert.AreEqual(false, quest.CheckForLastThreadmark);
-            Assert.AreEqual(false, quest.AllowRankedVotes);
             Assert.AreEqual(0, quest.ThreadmarkPost);
             Assert.AreEqual(PartitionMode.None, quest.PartitionMode);
             Assert.IsNull(quest.ForumAdapter);
@@ -366,13 +365,6 @@ namespace NetTally.Tests
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             VerifyNotification("PartitionMode");
-        }
-
-        [TestMethod]
-        public void IQuest_AllowRankedVotes_Notify()
-        {
-            quest.AllowRankedVotes = true;
-            VerifyNotification("AllowRankedVotes");
         }
         #endregion
 

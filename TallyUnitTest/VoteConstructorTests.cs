@@ -24,7 +24,6 @@ namespace NetTally.Tests
         {
             VoteCounter.Instance.Reset();
             VoteCounter.Instance.PostsList.Clear();
-            sampleQuest.AllowRankedVotes = false;
             sampleQuest.PartitionMode = PartitionMode.None;
         }
 
