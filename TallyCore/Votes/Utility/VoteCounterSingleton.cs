@@ -8,6 +8,6 @@ namespace NetTally
 {
     public static class VoteCounter
     {
-        public static IVoteCounter Instance { get; } = VoteCounter1.Instance;
+        public static IVoteCounter Instance { get; } = VoteCounterImpl.Instance;
     }
 }

@@ -8,14 +8,14 @@ using NetTally.Utility;
 
 namespace NetTally
 {
-    public class VoteCounter1 : IVoteCounter
+    public class VoteCounterImpl : IVoteCounter
     {
         #region Lazy singleton creation
-        static readonly Lazy<VoteCounter1> lazy = new Lazy<VoteCounter1>(() => new VoteCounter1());
+        static readonly Lazy<VoteCounterImpl> lazy = new Lazy<VoteCounterImpl>(() => new VoteCounterImpl());
 
-        public static VoteCounter1 Instance => lazy.Value;
+        public static VoteCounterImpl Instance => lazy.Value;
 
-        VoteCounter1()
+        VoteCounterImpl()
         {
             voteConstructor = new VoteConstructor();
         }

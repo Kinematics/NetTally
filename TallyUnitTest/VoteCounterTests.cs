@@ -9,7 +9,7 @@ namespace NetTally.Tests
     public class VoteCounterTests
     {
         #region Setup
-        static VoteCounter1 voteCounterRaw = VoteCounter1.Instance;
+        static VoteCounterImpl voteCounterRaw = VoteCounterImpl.Instance;
         static IQuest sampleQuest;
 
         [ClassInitialize]
