@@ -58,7 +58,7 @@ namespace NetTally
         int startPost = 1;
         int endPost = 0;
 
-        bool checkForLastThreadmark = false;
+        bool checkForLastThreadmark = true;
         bool allowRankedVotes = false;
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
