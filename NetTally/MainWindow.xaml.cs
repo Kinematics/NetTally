@@ -376,6 +376,19 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Opens the global options window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void questOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            QuestOptionsWindow options = new QuestOptionsWindow(CurrentlySelectedQuest);
+            options.Owner = Application.Current.MainWindow;
+
+            options.ShowDialog();
+        }
+
+        /// <summary>
         /// Open a browser to view the wiki URL.
         /// </summary>
         /// <param name="sender"></param>
@@ -595,6 +608,5 @@ namespace NetTally
             QuestCollectionView.Refresh();
         }
         #endregion
-
     }
 }

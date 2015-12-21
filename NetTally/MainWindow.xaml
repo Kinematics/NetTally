@@ -45,7 +45,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <ComboBox x:Name="questList" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
+        <ComboBox x:Name="questList" Height="30" Margin="10,10,320,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
                   ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <ComboBox.ItemContainerStyle>
@@ -95,25 +95,19 @@
         <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" Visibility="Hidden">
             <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
         </Canvas>
-        <ComboBox x:Name="postsPerPage" Margin="0,10,227,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Right" Width="65"
-                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ValidPostsPerPage}"
-                  SelectedItem="{Binding Path=CurrentItem.PostsPerPage}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
-            <ComboBox.ItemContainerStyle>
-                <Style TargetType="ComboBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                </Style>
-            </ComboBox.ItemContainerStyle>
-            <ComboBox.ToolTip>
+        <Button x:Name="questOptionsButton" Content="Quest Options" Margin="0,10,227,0" VerticalAlignment="Top" Height="30"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
+                Click="questOptionsButton_Click" HorizontalAlignment="Right" Width="88">
+            <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
-                        <TextBlock FontWeight="Bold">Posts Per Page</TextBlock>
-                        <TextBlock>Specify the number of posts per page for this forum thread.</TextBlock>
+                        <TextBlock FontWeight="Bold">Set quest options</TextBlock>
+                        <TextBlock>Make modifications to quest-specific options.</TextBlock>
                     </StackPanel>
                 </ToolTip>
-            </ComboBox.ToolTip>
-        </ComboBox>
+            </Button.ToolTip>
+        </Button>
+
         <Button x:Name="editNameButton" Content="Edit Name" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="125" Click="editNameButton_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <Button.ToolTip>
