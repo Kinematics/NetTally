@@ -234,7 +234,7 @@ namespace NetTally.Adapters
             // Load the threadmarks so that we can find the starting post page or number.
             var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
 
-            var threadmarks = GetThreadmarksList(threadmarkPage);
+            var threadmarks = GetThreadmarksList(quest, threadmarkPage);
 
             // If there aren't any threadmarks, fall back on the normal start post.
             if (!threadmarks.Any())
@@ -468,7 +468,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="page">The page to load threadmarks from.</param>
         /// <returns>Returns a list of 'a' node elements containing threadmark information.</returns>
-        static IEnumerable<HtmlNode> GetThreadmarksList(HtmlDocument page)
+        static IEnumerable<HtmlNode> GetThreadmarksList(IQuest quest, HtmlDocument page)
         {
             var doc = page.DocumentNode;
 
@@ -480,9 +480,11 @@ namespace NetTally.Adapters
 
                 var ol = section.Element("ol");
 
+                var filter = new ThreadmarkFilter(quest);
+
                 var list = from n in ol.Elements("li")
                            let a = n.Element("a")
-                           where !ThreadmarkFilter.Filter(a.InnerText)
+                           where !filter.Filter(a.InnerText)
                            select a;
 
                 return list;
