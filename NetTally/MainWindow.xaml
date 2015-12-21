@@ -171,7 +171,7 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="161" Padding="8,6,4,3"
+        <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,6,4,3"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=PartitionModes}"
                   SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
@@ -190,7 +190,7 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <Button x:Name="optionsButton" Content="Advanced Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="161" Click="optionsButton_Click"
+        <Button x:Name="optionsButton" Content="Advanced Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="145" Click="optionsButton_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="22" VerticalAlignment="Top">
             <Button.ToolTip>
                 <ToolTip>
@@ -201,7 +201,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="openManageVotesWindow" Content="Manage Votes..." Margin="484,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="130"
+        <Button x:Name="openManageVotesWindow" Content="Manage Votes..." Margin="468,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="145"
                 Click="openManageVotesWindow_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <Button.ToolTip>
@@ -213,11 +213,11 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <ComboBox x:Name="displayMode" Margin="484,80,0,0" VerticalAlignment="Top" Height="22"
+        <ComboBox x:Name="displayMode" Margin="468,80,0,0" VerticalAlignment="Top" Height="22"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
                   SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
-                  HorizontalAlignment="Left" Width="130" Padding="8,3,4,3">
+                  HorizontalAlignment="Left" Width="145" Padding="8,3,4,3">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
