@@ -227,6 +227,8 @@ namespace NetTally
                         EndPost = quest.EndPost,
                         CheckForLastThreadmark = quest.CheckForLastThreadmark,
                         PartitionMode = quest.PartitionMode,
+                        UseCustomThreadmarkFilters = quest.UseCustomThreadmarkFilters,
+                        CustomThreadmarkFilters = quest.CustomThreadmarkFilters,
                     };
 
                     questWrapper.QuestCollection.Add(q);
@@ -288,7 +290,7 @@ namespace NetTally
         public void Add(IQuest quest)
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.PartitionMode);
+                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters);
             BaseAdd(questElement, false);
         }
 
@@ -305,7 +307,7 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            PartitionMode partitionMode)
+            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters)
         {
             ThreadName = threadName;
             DisplayName = displayName;
@@ -314,6 +316,8 @@ namespace NetTally
             EndPost = endPost;
             CheckForLastThreadmark = checkForLastThreadmark;
             PartitionMode = partitionMode;
+            UseCustomThreadmarkFilters = useCustomThreadmarkFilters;
+            CustomThreadmarkFilters = customThreadmarkFilters;
 
             // Set it to false to make it disappear.
             AllowRankedVotes = false;
@@ -387,6 +391,20 @@ namespace NetTally
         {
             get { return (bool)this["AllowRankedVotes"]; }
             set { this["AllowRankedVotes"] = value; }
+        }
+
+        [ConfigurationProperty("UseCustomThreadmarkFilters", DefaultValue = false)]
+        public bool UseCustomThreadmarkFilters
+        {
+            get { return (bool)this["UseCustomThreadmarkFilters"]; }
+            set { this["UseCustomThreadmarkFilters"] = value; }
+        }
+
+        [ConfigurationProperty("CustomThreadmarkFilters", DefaultValue = "")]
+        public string CustomThreadmarkFilters
+        {
+            get { return (string)this["CustomThreadmarkFilters"]; }
+            set { this["CustomThreadmarkFilters"] = value; }
         }
     }
 
