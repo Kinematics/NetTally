@@ -3,11 +3,11 @@
 namespace NetTally
 {
     /// <summary>
-    /// Interaction logic for OptionsWindow.xaml
+    /// Interaction logic for GlobalOptionsWindow.xaml
     /// </summary>
-    public partial class OptionsWindow : Window
+    public partial class GlobalOptionsWindow : Window
     {
-        public OptionsWindow()
+        public GlobalOptionsWindow()
         {
             InitializeComponent();
             DataContext = AdvancedOptions.Instance;

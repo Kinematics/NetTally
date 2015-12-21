@@ -369,7 +369,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void optionsButton_Click(object sender, RoutedEventArgs e)
         {
-            OptionsWindow options = new OptionsWindow();
+            GlobalOptionsWindow options = new GlobalOptionsWindow();
             options.Owner = Application.Current.MainWindow;
 
             options.ShowDialog();

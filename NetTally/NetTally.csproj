@@ -75,8 +75,8 @@
     <Compile Include="MergeVotesWindow.xaml.cs">
       <DependentUpon>MergeVotesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OptionsWindow.xaml.cs">
-      <DependentUpon>OptionsWindow.xaml</DependentUpon>
+    <Compile Include="GlobalOptionsWindow.xaml.cs">
+      <DependentUpon>GlobalOptionsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
     <Page Include="MainWindow.xaml">
@@ -95,7 +95,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OptionsWindow.xaml">
+    <Page Include="GlobalOptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
