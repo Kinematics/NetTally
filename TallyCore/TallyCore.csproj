@@ -61,7 +61,7 @@
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
-    <Compile Include="AdvancedOptions.cs" />
+    <Compile Include="Global\AdvancedOptions.cs" />
     <Compile Include="Output\TallyOutput.cs" />
     <Compile Include="Output\Utility\SpoilerBBCode.cs" />
     <Compile Include="Output\Utility\VoteInfo.cs" />
@@ -84,7 +84,7 @@
     <Compile Include="Quests\QuestCollection.cs" />
     <Compile Include="Votes\RankVotes.cs" />
     <Compile Include="Tally.cs" />
-    <Compile Include="Enumerations.cs" />
+    <Compile Include="Global\Enumerations.cs" />
     <Compile Include="Utility\StringUtility.cs" />
     <Compile Include="Votes\PostComponents.cs" />
     <Compile Include="Adapters\Utility\PostText.cs" />
