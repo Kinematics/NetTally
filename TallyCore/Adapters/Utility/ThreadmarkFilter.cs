@@ -38,13 +38,22 @@ namespace NetTally.Adapters
             if (string.IsNullOrEmpty(customThreadmarkFilters))
                 return;
 
-            var splits = customThreadmarkFilters.Split(',');
+            string safeCustomThreadmarkFilters = Utility.StringUtility.SafeString(customThreadmarkFilters);
+
+            var splits = safeCustomThreadmarkFilters.Split(',');
 
             var options = splits.Aggregate((s, t) => s.Trim() + "|" + t.Trim());
 
             string rString = $@"\b({options})\b";
 
-            customRegex = new Regex(rString, RegexOptions.IgnoreCase);
+            try
+            {
+                customRegex = new Regex(rString, RegexOptions.IgnoreCase);
+            }
+            catch (Exception)
+            {
+                customRegex = null;
+            }
         }
 
         /// <summary>
