@@ -190,23 +190,34 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <CheckBox x:Name="useRankedVotes" Content="Allow Ranked Votes" HorizontalAlignment="Left" Margin="590,0,0,9" VerticalAlignment="Bottom"
-                  IsChecked="{Binding Path=CurrentItem.AllowRankedVotes}"
-                  IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Visibility="Hidden">
-            <CheckBox.ToolTip>
+        <Button x:Name="optionsButton" Content="Advanced Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="161" Click="optionsButton_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="22" VerticalAlignment="Top">
+            <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
-                        <TextBlock FontWeight="Bold">Allow Ranked Votes</TextBlock>
-                        <TextBlock>Allow votes that rank choices by number to be tallied.</TextBlock>
+                        <TextBlock FontWeight="Bold">Advanced Options</TextBlock>
+                        <TextBlock>Open the window to configure certain advanced parsing options.</TextBlock>
                     </StackPanel>
                 </ToolTip>
-            </CheckBox.ToolTip>
-        </CheckBox>
-        <ComboBox x:Name="displayMode" Margin="318,80,0,0" VerticalAlignment="Top" Height="22"
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="openManageVotesWindow" Content="Manage Votes..." Margin="484,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="130"
+                Click="openManageVotesWindow_Click"
+                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
+                        <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <ComboBox x:Name="displayMode" Margin="484,80,0,0" VerticalAlignment="Top" Height="22"
                   ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
                   SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
-                  HorizontalAlignment="Left" Width="161" Padding="8,3,4,3">
+                  HorizontalAlignment="Left" Width="130" Padding="8,3,4,3">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -222,29 +233,6 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <Button x:Name="openMergeVotesWindow" Content="Manage Votes..." Margin="484,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="130"
-                Click="openMergeVotesWindow_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
-            <Button.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
-                        <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </Button.ToolTip>
-        </Button>
-        <Button x:Name="optionsButton" Content="Advanced Options..." HorizontalAlignment="Left" Margin="484,80,0,0" Width="130" Click="optionsButton_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="22" VerticalAlignment="Top">
-            <Button.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Advanced Options</TextBlock>
-                        <TextBlock>Open the window to configure certain advanced parsing options.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </Button.ToolTip>
-        </Button>
 
         <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">

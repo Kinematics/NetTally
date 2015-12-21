@@ -350,14 +350,14 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void openMergeVotesWindow_Click(object sender, RoutedEventArgs e)
+        private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow mergeWindow = new ManageVotesWindow(tally)
+            ManageVotesWindow manageWindow = new ManageVotesWindow(tally)
             {
                 Owner = Application.Current.MainWindow
             };
 
-            mergeWindow.ShowDialog();
+            manageWindow.ShowDialog();
 
             tally.UpdateResults();
         }
