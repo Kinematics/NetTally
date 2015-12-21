@@ -78,6 +78,9 @@
     <Compile Include="GlobalOptionsWindow.xaml.cs">
       <DependentUpon>GlobalOptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QuestOptionsWindow.xaml.cs">
+      <DependentUpon>QuestOptionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -96,6 +99,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GlobalOptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QuestOptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

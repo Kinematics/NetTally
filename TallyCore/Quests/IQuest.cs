@@ -42,6 +42,16 @@ namespace NetTally
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+        /// <summary>
+        /// Flag for whether to use custom threadmark filters to exclude threadmarks
+        /// from the list of valid 'last threadmark found' checks.
+        /// </summary>
+        bool UseCustomThreadmarkFilters { get; set; }
+        /// <summary>
+        /// Custom threadmark filters to exclude threadmarks from the list of valid
+        /// 'last threadmark found' checks.
+        /// </summary>
+        string CustomThreadmarkFilters { get; set; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
