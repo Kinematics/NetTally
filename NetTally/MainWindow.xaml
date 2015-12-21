@@ -190,7 +190,7 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <Button x:Name="optionsButton" Content="Advanced Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="145" Click="optionsButton_Click"
+        <Button x:Name="globalOptionsButton" Content="Global Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="145" Click="globalOptionsButton_Click"
                 IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}" Height="22" VerticalAlignment="Top">
             <Button.ToolTip>
                 <ToolTip>

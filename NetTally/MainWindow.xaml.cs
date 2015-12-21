@@ -363,11 +363,11 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Opens the advanced options window.
+        /// Opens the global options window.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void optionsButton_Click(object sender, RoutedEventArgs e)
+        private void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             GlobalOptionsWindow options = new GlobalOptionsWindow();
             options.Owner = Application.Current.MainWindow;
