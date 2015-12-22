@@ -72,8 +72,8 @@
     <Compile Include="BindingConverters.cs" />
     <Compile Include="CollectionWrappers.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="MergeVotesWindow.xaml.cs">
-      <DependentUpon>MergeVotesWindow.xaml</DependentUpon>
+    <Compile Include="ManageVotesWindow.xaml.cs">
+      <DependentUpon>ManageVotesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="GlobalOptionsWindow.xaml.cs">
       <DependentUpon>GlobalOptionsWindow.xaml</DependentUpon>
@@ -94,7 +94,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MergeVotesWindow.xaml">
+    <Page Include="ManageVotesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
