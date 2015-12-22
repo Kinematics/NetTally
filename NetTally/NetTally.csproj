@@ -69,9 +69,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="BindingConverters.cs" />
-    <Compile Include="CollectionWrappers.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="Config\BindingConverters.cs" />
+    <Compile Include="Config\CollectionWrappers.cs" />
+    <Compile Include="Config\Configuration.cs" />
     <Compile Include="ManageVotesWindow.xaml.cs">
       <DependentUpon>ManageVotesWindow.xaml</DependentUpon>
     </Compile>
