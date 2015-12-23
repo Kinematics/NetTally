@@ -15,6 +15,8 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
+        /// <exception cref="ArgumentNullException">If quest is null.</exception>
+        /// <exception cref="InvalidOperationException">If the quest's thread is not a proper URL.</exception>
         public async static Task<IForumAdapter> GetAdapter(IQuest quest) => await GetAdapter(quest, CancellationToken.None, null);
 
         /// <summary>
@@ -23,16 +25,20 @@ namespace NetTally.Adapters
         /// <param name="quest">The quest to get the adapter for.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
+        /// <exception cref="ArgumentNullException">If quest is null.</exception>
+        /// <exception cref="InvalidOperationException">If the quest's thread is not a proper URL.</exception>
         public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token) => await GetAdapter(quest, token, null);
 
         /// <summary>
         /// Function to generate an appropriate forum adapter for the specified quest.
         /// Generates an exception if the quest's thread URL is not well-formed.
         /// </summary>
-        /// <param name="quest">The quest to get the adapter for.</param>
+        /// <param name="quest">The quest to get the adapter for.  Cannot be null.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <param name="pageProvider">The page provider to use if we need to query the web.</param>
+        /// <param name="pageProvider">The page provider to use if we need to query the web.  If it's null, will create a new one.</param>
         /// <returns>Returns an appropriate forum adapter for the quest, if found. Otherwise, null.</returns>
+        /// <exception cref="ArgumentNullException">If quest is null.</exception>
+        /// <exception cref="InvalidOperationException">If the quest's thread is not a proper URL.</exception>
         public async static Task<IForumAdapter> GetAdapter(IQuest quest, CancellationToken token, IPageProvider pageProvider)
         {
             if (quest == null)
@@ -59,7 +65,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="uri">The URI for the forum thread.</param>
         /// <returns>Returns a forum adapter for certain known forums. Otherwise, null.</returns>
-        static IForumAdapter GetKnownForumAdapter(Uri uri)
+        private static IForumAdapter GetKnownForumAdapter(Uri uri)
         {
             switch (uri.Host)
             {
@@ -77,11 +83,14 @@ namespace NetTally.Adapters
         /// Generate a forum adapter for any unknown forum.
         /// Need to load a forum page (asynchronously) to determine which forum adapter is needed.
         /// </summary>
-        /// <param name="uri">The URI of the forum thread to check.</param>
+        /// <param name="uri">The URI of the forum thread to check.  Cannot be null.  Must be absolute.</param>
         /// <param name="token">Cancellation token.</param>
+        /// <param name="pageProvider">The page provider to use to load pages.  If it's null, will create a new one.</param>
         /// <returns>Returns a forum adapter for the forum thread if one can be determined.
         /// Otherwise, null.</returns>
-        async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token, IPageProvider pageProvider)
+        /// <exception cref="ArgumentNullException">If <paramref name="uri"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">If <paramref name="uri"/> is not an absolute uri.</exception>
+        private async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token, IPageProvider pageProvider)
         {
             bool localPageProvider = pageProvider == null;
 
