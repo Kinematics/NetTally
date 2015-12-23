@@ -74,9 +74,7 @@ namespace NetTally
 
                 if (ex != null)
                 {
-                    if (sb.Length > 0)
-                        sb.Append("\r\n\r\n");
-
+                    sb.Append($"Exception type: {ex.GetType().Name}\n");
                     sb.Append($"Message is: {ex.Message}\n\n");
                     sb.Append($"Stack Trace is:\n{ex.StackTrace}\n");
 
