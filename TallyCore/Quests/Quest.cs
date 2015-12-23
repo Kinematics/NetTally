@@ -357,7 +357,13 @@ namespace NetTally
             // Keep track of whether we used threadmarks to figure out the
             // first post.  If we did, we'll re-use this number when filtering
             // for valid posts.
-            ThreadmarkPost = threadRangeInfo.ID;
+            if (threadRangeInfo.IsThreadmarkSearchResult)
+                if (threadRangeInfo.ID > 0)
+                    ThreadmarkPost = threadRangeInfo.ID;
+                else
+                    ThreadmarkPost = -1;
+            else
+                ThreadmarkPost = 0;
 
             // Var for what we determine the last page number will be
             int lastPageNumber = 0;

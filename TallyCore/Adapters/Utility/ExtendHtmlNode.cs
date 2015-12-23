@@ -18,6 +18,7 @@ namespace NetTally.Adapters
         /// If it's null or empty, any element will work.</param>
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
         public static HtmlNode GetChildWithClass(this HtmlNode node, string element, string @class)
         {
             if (string.IsNullOrEmpty(@class))
@@ -38,6 +39,7 @@ namespace NetTally.Adapters
         /// <param name="node">The object the extension method is being used on.</param>
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
         public static HtmlNode GetChildWithClass(this HtmlNode node, string @class) => node.GetChildWithClass(null, @class);
 
         /// <summary>
@@ -49,6 +51,7 @@ namespace NetTally.Adapters
         /// If it's null or empty, any element will work.</param>
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
         public static HtmlNode GetDescendantWithClass(this HtmlNode node, string element, string @class)
         {
             if (string.IsNullOrEmpty(@class))
@@ -69,6 +72,7 @@ namespace NetTally.Adapters
         /// <param name="node">The object the extension method is being used on.</param>
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
+        /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
         public static HtmlNode GetDescendantWithClass(this HtmlNode node, string @class) => node.GetDescendantWithClass(null, @class);
 
     }

@@ -39,15 +39,17 @@ namespace NetTally.Adapters
         /// <summary>
         /// Extract the text contents of a post, given a starting HTML node.
         /// </summary>
-        /// <param name="node">The parent node containing the entirety of a post.</param>
+        /// <param name="node">The parent node containing the entirety of a post.  Cannot be null.</param>
         /// <param name="exclude">A predicate that can be used to exclude specific
-        /// sub-nodes from the end result.</param>
+        /// sub-nodes from the end result.  A default is used if none is provided.</param>
         /// <returns>Returns a cleaned version of the text of the post.</returns>
+        /// <exception cref="ArgumentNullException">If node is null.</exception>
         public static string ExtractPostText(HtmlNode node, Predicate<HtmlNode> exclude)
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
+            // If no exclusion is provided, no nodes are removed.
             if (exclude == null)
                 exclude = (n) => false;
 
@@ -67,9 +69,8 @@ namespace NetTally.Adapters
         {
             return (HtmlNode n) =>
             {
-                string nodeClass = n.GetAttributeValue("class", "");
-
-                return nodeClass.Contains(className);
+                var nodeClasses = n.GetAttributeValue("class", "").Split(' ');
+                return nodeClasses.Contains(className, StringComparer.OrdinalIgnoreCase);
             };
         }
 
@@ -82,9 +83,8 @@ namespace NetTally.Adapters
         {
             return (HtmlNode n) =>
             {
-                string nodeClass = n.GetAttributeValue("class", "");
-
-                return classNames.Any(nodeClass.Contains);
+                var nodeClasses = n.GetAttributeValue("class", "").Split(' ');
+                return classNames.Any(p => nodeClasses.Contains(p, StringComparer.OrdinalIgnoreCase));
             };
 
         }
@@ -93,17 +93,27 @@ namespace NetTally.Adapters
 
         #region Private Support Functions
         /// <summary>
+        /// Extracts post text as a string from the provided HTML node.
+        /// Creates a new string builder to call the full version of this function.
+        /// </summary>
+        /// <param name="node">The starting HTML node.</param>
+        /// <param name="exclude">A predicate to exclude processing of further nodes.</param>
+        /// <returns>Returns the text contents of the post.</returns>
+        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude) => ExtractPostTextString(node, exclude, new StringBuilder());
+
+        /// <summary>
         /// Extracts the text (recursively) from the specified node, and converts some elements into BBCode.
         /// </summary>
         /// <param name="node">The parent node.</param>
         /// <param name="exclude">A predicate that can be used to exclude specific
         /// sub-nodes from the end result.</param>
-        /// <param name="sb">The stringbuilder where all results are concatenated.  Will create if not provided.</param>
+        /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb = null)
+        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb)
         {
-            if (sb == null)
-                sb = new StringBuilder();
+            System.Diagnostics.Debug.Assert(node != null);
+            System.Diagnostics.Debug.Assert(exclude != null);
+            System.Diagnostics.Debug.Assert(sb != null);
 
             foreach (var child in node.ChildNodes)
             {

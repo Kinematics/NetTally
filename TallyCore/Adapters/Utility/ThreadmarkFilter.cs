@@ -50,7 +50,7 @@ namespace NetTally.Adapters
             {
                 customRegex = new Regex(rString, RegexOptions.IgnoreCase);
             }
-            catch (Exception)
+            catch (ArgumentException)
             {
                 customRegex = null;
             }
