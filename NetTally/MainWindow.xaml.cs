@@ -67,21 +67,15 @@ namespace NetTally
         {
             try
             {
-                // Create a region profiler on startup to get it JIT'd before any actual profiling.
-                using (new RegionProfiler(null)) { }
-
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+                // Create a region profiler on startup to get it JIT'd before any actual profiling.
+                using (new RegionProfiler(null)) { }
+
                 DebugMode.Update();
 
-                if (DebugMode.Active)
-                    ErrorLog.Log("Preparing to initialize components.");
-
                 InitializeComponent();
-
-                if (DebugMode.Active)
-                    ErrorLog.Log("Completed initializing components.");
 
                 this.Title = WindowTitle;
 
