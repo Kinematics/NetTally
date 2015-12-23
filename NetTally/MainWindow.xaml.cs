@@ -41,6 +41,21 @@ namespace NetTally
         public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
 
         private IQuest CurrentlySelectedQuest => QuestCollectionView?.CurrentItem as IQuest;
+
+        /// <summary>
+        /// Get the title to be used for the main window, showing the program name and version number.
+        /// </summary>
+        private string WindowTitle
+        {
+            get
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+
+                return $"{product.Product} - {version.InformationalVersion}";
+            }
+        }
         #endregion
 
         #region Startup/shutdown events
@@ -68,7 +83,7 @@ namespace NetTally
                 if (DebugMode.Active)
                     ErrorLog.Log("Completed initializing components.");
 
-                this.Title = GetWindowTitle();
+                this.Title = WindowTitle;
 
                 // Set tally vars
                 tally = new Tally();
@@ -183,19 +198,6 @@ namespace NetTally
                 string file = ErrorLog.Log(ex);
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in shutdown", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        /// <summary>
-        /// Get the title to be used for the main window, showing the program name and version number.
-        /// </summary>
-        /// <returns>Returns the program name and version number as a string.</returns>
-        private string GetWindowTitle()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
-            return $"{product.Product} - {version.InformationalVersion}";
         }
         #endregion
 
