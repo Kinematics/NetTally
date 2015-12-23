@@ -68,7 +68,7 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,297,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,320,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.DisplayName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
@@ -80,7 +80,7 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,297,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,320,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=CurrentItem.ThreadName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
@@ -92,7 +92,7 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,297,0" VerticalAlignment="Top" Visibility="Hidden">
+        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,320,0" VerticalAlignment="Top" Visibility="Hidden">
             <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
         </Canvas>
         <Button x:Name="questOptionsButton" Content="Quest Options" Margin="0,10,227,0" VerticalAlignment="Top" Height="30"
