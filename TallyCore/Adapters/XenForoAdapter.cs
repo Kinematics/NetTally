@@ -30,7 +30,8 @@ namespace NetTally.Adapters
         /// Property for the site this adapter is handling.
         /// Can be changed if the quest thread details are changed.
         /// </summary>
-        public Uri Site {
+        public Uri Site
+        {
             get
             {
                 return site;
@@ -489,7 +490,7 @@ namespace NetTally.Adapters
 
                 return list;
             }
-            catch (Exception e)
+            catch (ArgumentNullException e)
             {
                 ErrorLog.Log(e);
             }
