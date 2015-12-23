@@ -311,7 +311,7 @@ namespace NetTally
                     VoteView1.MoveCurrentToPosition(-1);
                 }
             }
-            catch (Exception ex)
+            catch (ArgumentOutOfRangeException ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -597,7 +597,7 @@ namespace NetTally
                     VoterView2.Refresh();
                 }
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
