@@ -101,14 +101,15 @@ namespace NetTally.Web
         }
 
         /// <summary>
-        /// Load the specified thread page and return the document as an HtmlDocument.
+        /// Asynchronously load a specific page.
         /// </summary>
-        /// <param name="baseUrl">The thread URL.</param>
-        /// <param name="pageNum">The page number in the thread to load.</param>
-        /// <param name="caching">Whether to use or bypass the cache.</param>
-        /// <param name="token">Cancellation token for the function.</param>
-        /// <param name="shouldCache">Indicate whether the result of this page load should be cached.</param>
-        /// <returns>An HtmlDocument for the specified page.</returns>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <returns>Returns an HTML document, if it can be loaded.</returns>
+        /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token, bool shouldCache = true)
         {
             if (string.IsNullOrEmpty(url))

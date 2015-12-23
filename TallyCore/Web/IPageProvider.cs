@@ -10,12 +10,13 @@ namespace NetTally
         /// <summary>
         /// Asynchronously load a specific page.
         /// </summary>
-        /// <param name="url">The URL of the page to load.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.</param>
-        /// <param name="bypassCache">Flag for whether to bypass the cache when trying to load the page.</param>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <param name="shouldCache">Indicate whether the result of this page load should be cached.</param>
-        /// <returns>Returns an HTML document.</returns>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <returns>Returns an HTML document, if it can be loaded.</returns>
+        /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         Task<HtmlDocument> GetPage(string url, string shortDescrip, Caching caching, CancellationToken token, bool shouldCache = true);
 
         /// <summary>
