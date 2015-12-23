@@ -239,6 +239,9 @@ namespace NetTally.Output
         /// </summary>
         private void ConstructNormalOutput()
         {
+            if (VoteInfo.NormalVoterCount == 0)
+                return;
+
             var allVotes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var votesGroupedByTask = VoteInfo.GroupVotesByTask(allVotes);
 
