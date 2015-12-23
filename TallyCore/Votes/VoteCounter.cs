@@ -112,7 +112,11 @@ namespace NetTally
         /// Construct the votes Results from the provided list of HTML pages.
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
+        /// <param name="startInfo">The start information.</param>
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
+        /// <returns>Returns a void task.</returns>
+        /// <exception cref="ArgumentNullException">If quest or pages is null.</exception>
+        /// <exception cref="ApplicationException">If not all pages loaded.</exception>
         public async Task TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
