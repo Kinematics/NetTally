@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace NetTally
@@ -20,27 +21,44 @@ namespace NetTally
 
         readonly TimeSpan watermark;
         readonly string regionName;
+        readonly bool accumulate;
+
+        readonly static Dictionary<string, double> accumulator = new Dictionary<string, double>();
+        readonly static Dictionary<string, int> counter = new Dictionary<string, int>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">Name to identify this object when results are output.</param>
         public RegionProfiler(string name)
-            : this(name, TimeSpan.Zero)
+            : this(name, TimeSpan.Zero, false)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="watermark">The watermark param.</param>
-        public RegionProfiler(string name, TimeSpan watermark)
+        /// <param name="name">Name to identify this object when results are output.</param>
+        /// <param name="accumulate">Flag for whether to accumulate results for this named region.</param>
+        public RegionProfiler(string name, bool accumulate)
+            : this(name, TimeSpan.Zero, accumulate)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
+        /// </summary>
+        /// <param name="name">Name to identify this object when results are output.</param>
+        /// <param name="watermark">The watermark param.</param>
+        /// <param name="accumulate">Flag for whether to accumulate results for this named region.</param>
+        public RegionProfiler(string name, TimeSpan watermark, bool accumulate)
+        {
+            this.accumulate = accumulate;
             this.watermark = watermark;
+
             regionName = name;
-            if (regionName != null)
-                Trace.WriteLine($"Start Profiling: {regionName}");
+            if (regionName != null && !accumulate)
+                Trace.WriteLine($"Start profiling in region [{regionName}]");
 
             stopwatch.Start();
         }
@@ -75,13 +93,37 @@ namespace NetTally
 
                 if (regionName != null && stopwatch.Elapsed > watermark)
                 {
-                    Trace.WriteLine($"End Profiling: {stopwatch.Elapsed.TotalMilliseconds} ms in region {regionName}");
+                    if (accumulate)
+                    {
+                        if (!counter.ContainsKey(regionName))
+                            counter[regionName] = 0;
+                        if (!accumulator.ContainsKey(regionName))
+                            accumulator[regionName] = 0.0;
+
+                        counter[regionName]++;
+                        accumulator[regionName] = accumulator[regionName] + stopwatch.Elapsed.TotalMilliseconds;
+
+                        Trace.WriteLine($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds} ms). Average: {accumulator[regionName]/counter[regionName]} ms.");
+                    }
+                    else
+                    {
+                        Trace.WriteLine($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds} ms");
+                    }
                 }
             }
             else
             {
                 Debug.WriteLine($"Region {regionName ?? "<unnamed>"} not finalized by Dispose call!");
             }
+        }
+
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public static void Reset()
+        {
+            accumulator.Clear();
+            counter.Clear();
         }
     }
 }
