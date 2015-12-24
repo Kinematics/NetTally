@@ -177,6 +177,21 @@ namespace NetTally
             // it's a tally post.
             string cleanText = VoteString.RemoveBBCode(postText);
             return (tallyRegex.Matches(cleanText).Count > 0);
+            // 6.6 ms
+
+            //readonly static Regex tallyRegex2 = new Regex(@"^(\[/?(b|i|u|color(=[^]]+)?)\])*#####", RegexOptions.Multiline);
+            //return (tallyRegex2.Matches(postText).Count > 0);
+            // 9.0 ms
+
+            //readonly static Regex tallyRegex3 = new Regex(@"^(\[/?(b|i|u|color(=[^]]+)?)\])*#####");
+            //var lines = StringUtility.GetStringLines(postText);
+            //return lines.Any(a => tallyRegex3.Match(a).Success);
+            // 7.2 ms
+
+            //readonly static Regex tallyRegex4 = new Regex(@"^(\[color=[^]]+\])*#####");
+            //var lines = StringUtility.GetStringLines(postText);
+            //return lines.Any(a => tallyRegex4.Match(a).Success);
+            // 7.4 ms
         }
 
         /// <summary>
