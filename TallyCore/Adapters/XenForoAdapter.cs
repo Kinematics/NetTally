@@ -453,8 +453,9 @@ namespace NetTally.Adapters
             {
                 post = new PostComponents(author, id, text, number);
             }
-            catch
+            catch (Exception e)
             {
+                ErrorLog.Log(e);
                 post = null;
             }
 
