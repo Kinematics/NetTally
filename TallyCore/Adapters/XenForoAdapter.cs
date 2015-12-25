@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
 namespace NetTally.Adapters
 {
@@ -463,13 +464,15 @@ namespace NetTally.Adapters
         }
 
         /// <summary>
-        /// Get the list of threadmarks from the provided page.  If the page doesn't have
-        /// any threadmarks, returns an empty list.
-        /// Runs a filter (ThreadmarksFilter class) on any threadmark titles.  Any that
-        /// don't pass aren't included in the list.
+        /// Gets the list of threadmarks from an index page.
+        /// Handle nested threadmarks.
+        /// If the page doesn't have any threadmarks, return an empty list.
+        /// Runs a filter (ThreadmarksFilter class) on any threadmark titles.
+        /// Any that don't pass aren't included in the list.
         /// </summary>
-        /// <param name="page">The page to load threadmarks from.</param>
-        /// <returns>Returns a list of 'a' node elements containing threadmark information.</returns>
+        /// <param name="quest">The quest.</param>
+        /// <param name="page">The index page of the threadmarks.</param>
+        /// <returns>Returns a list of all unfiltered threadmark links.</returns>
         static IEnumerable<HtmlNode> GetThreadmarksList(IQuest quest, HtmlDocument page)
         {
             var doc = page.DocumentNode;
@@ -480,18 +483,22 @@ namespace NetTally.Adapters
 
                 var section = content.GetChildWithClass("div", "section");
 
+                // Check a few different locations for the HTML list.
                 var list = section.Element("ol") ?? section.Descendants("ul").FirstOrDefault() ?? section.Descendants("ol").FirstOrDefault();
 
                 if (list != null)
                 {
                     var filter = new ThreadmarkFilter(quest);
 
-                    var threadmarks = from n in list.Elements("li")
-                                      let a = n.Element("a")
-                                      where !filter.Filter(a.InnerText)
-                                      select a;
+                    Predicate<HtmlNode> filterLambda = (n) => filter.Filter(n.InnerText);
 
-                    return threadmarks;
+                    Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
+
+                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? i.Element("ol")?.Elements("li") ?? new List<HtmlNode>();
+
+                    var results = list.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
+
+                    return results;
                 }
             }
             catch (ArgumentNullException e)
@@ -501,6 +508,7 @@ namespace NetTally.Adapters
 
             return new List<HtmlNode>();
         }
+
         #endregion
 
         #region Detection
