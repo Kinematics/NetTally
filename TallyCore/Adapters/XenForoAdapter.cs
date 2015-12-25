@@ -480,16 +480,19 @@ namespace NetTally.Adapters
 
                 var section = content.GetChildWithClass("div", "section");
 
-                var ol = section.Element("ol");
+                var list = section.Element("ol") ?? section.Descendants("ul").FirstOrDefault() ?? section.Descendants("ol").FirstOrDefault();
 
-                var filter = new ThreadmarkFilter(quest);
+                if (list != null)
+                {
+                    var filter = new ThreadmarkFilter(quest);
 
-                var list = from n in ol.Elements("li")
-                           let a = n.Element("a")
-                           where !filter.Filter(a.InnerText)
-                           select a;
+                    var threadmarks = from n in list.Elements("li")
+                                      let a = n.Element("a")
+                                      where !filter.Filter(a.InnerText)
+                                      select a;
 
-                return list;
+                    return threadmarks;
+                }
             }
             catch (ArgumentNullException e)
             {
