@@ -169,7 +169,10 @@ namespace NetTally.Web
                                      response.StatusCode == HttpStatusCode.NotAcceptable ||
                                      response.StatusCode == HttpStatusCode.RequestUriTooLong ||
                                      response.StatusCode == HttpStatusCode.ServiceUnavailable ||
-                                     response.StatusCode == HttpStatusCode.Unauthorized)
+                                     response.StatusCode == HttpStatusCode.Unauthorized ||
+                                     response.StatusCode == (HttpStatusCode)429 || // 429 Too Many Requests (proposed standard)
+                                     ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600) // Fail all 400/500 level responses
+                                     )
                             {
                                 tries = maxtries;
                             }
