@@ -27,9 +27,11 @@ namespace NetTally
 
             foreach (var task in groupByTask)
             {
-                System.Diagnostics.Debug.WriteLine($"- Rank Task [{task.Key}]");
+                System.Diagnostics.Debug.WriteLine($"Rank Task [{task.Key}]");
 
                 taskPreference[task.Key] = RankTask(task);
+
+                System.Diagnostics.Debug.WriteLine($"End task [{task.Key}]");
             }
 
             return taskPreference;
@@ -61,8 +63,14 @@ namespace NetTally
                 // The best result each time through the loop gets added to the result list...
                 string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices, allVotes);
 
-                if (topChoice != string.Empty)
-                    topChoices.Add(topChoice);
+                if (string.IsNullOrEmpty(topChoice))
+                {
+                    break;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"-- Top choice: [{topChoice}]");
+
+                topChoices.Add(topChoice);
             
                 // ... and removed from the active choice list, for the next time through the loop.
                 RemoveChoice(topChoice, voterChoices);
@@ -173,6 +181,8 @@ namespace NetTally
                     return bestChoice;
                 }
 
+                System.Diagnostics.Debug.WriteLine("-- No majority option.");
+
                 // If no option has an absolute majority, find the most-disliked option
                 // and remove it from all voters' option lists, in preparation of another
                 // round of checks.
@@ -192,6 +202,11 @@ namespace NetTally
         private static string GetFirstChoice(Dictionary<string, int> choices,
             Dictionary<string, List<string>> originalVotersChoices)
         {
+            foreach (var c in choices)
+            {
+                System.Diagnostics.Debug.WriteLine($"--- {c.Key} @ {c.Value}");
+            }
+
             int highestNumberOfChoices = choices.Max(a => a.Value);
 
             // Get the list of all choices that have the same total (max) number of selections
@@ -379,7 +394,7 @@ namespace NetTally
         private static void RemoveLastPlaceOption(string bottomChoice, Dictionary<string, List<string>> voterList,
             Dictionary<string, List<string>> voterNonChoices)
         {
-            System.Diagnostics.Debug.WriteLine($"- Eliminate [{bottomChoice}]");
+            System.Diagnostics.Debug.WriteLine($"-- Eliminate [{bottomChoice}]");
 
             foreach (var voter in voterList)
             {
