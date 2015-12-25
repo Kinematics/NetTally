@@ -257,5 +257,45 @@ namespace NetTally.Utility
 
             return -1;
         }
+
+
+        /// <summary>
+        /// Traverses the list, and returns the list plus children in a flattened format.
+        /// </summary>
+        /// <typeparam name="T">The class type of the main list.</typeparam>
+        /// <typeparam name="U">The type of object selected from each list item, to filter and return.</typeparam>
+        /// <param name="items">The items.</param>
+        /// <param name="childSelector">A function to select child nodes of a given node.</param>
+        /// <param name="nodeSelector">A function to select the part of the list item that you're filtering and returning.</param>
+        /// <param name="filter">An optional predicate filter that will prevent traversal of any nodes or their children.</param>
+        /// <returns>Returns a (potentially filtered) list of items, including all children of items from the initial list.</returns>
+        /// <exception cref="System.ArgumentNullException">Throw if <paramref name="childSelector"/> or <paramref name="nodeSelector"/>
+        /// is null.</exception>
+        public static IEnumerable<U> TraverseList<T, U>(this IEnumerable<T> items,
+            Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Predicate<U> filter)
+        {
+            if (childSelector == null)
+                throw new ArgumentNullException(nameof(childSelector));
+            if (nodeSelector == null)
+                throw new ArgumentNullException(nameof(nodeSelector));
+
+            var list = new LinkedList<T>(items);
+            while (list.Any())
+            {
+                var next = list.First();
+                list.RemoveFirst();
+
+                // Don't process children of any filtered nodes.
+                if (filter == null || !filter(nodeSelector(next)))
+                {
+                    yield return nodeSelector(next);
+
+                    // Reverse the childSelector's results when we push onto the list,
+                    // because we want to pull them off of the list in the original order.
+                    foreach (var child in childSelector(next).Reverse())
+                        list.AddFirst(child);
+                }
+            }
+        }
     }
 }
