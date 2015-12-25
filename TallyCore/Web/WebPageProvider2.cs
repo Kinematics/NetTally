@@ -160,9 +160,26 @@ namespace NetTally.Web
                             {
                                 result = await response.Content.ReadAsStringAsync();
                             }
-                            else if (response.StatusCode == HttpStatusCode.NotFound)
+                            else if (response.StatusCode == HttpStatusCode.NotFound ||
+                                     response.StatusCode == HttpStatusCode.BadRequest ||
+                                     response.StatusCode == HttpStatusCode.Forbidden ||
+                                     response.StatusCode == HttpStatusCode.Gone ||
+                                     response.StatusCode == HttpStatusCode.HttpVersionNotSupported ||
+                                     response.StatusCode == HttpStatusCode.InternalServerError ||
+                                     response.StatusCode == HttpStatusCode.NotAcceptable ||
+                                     response.StatusCode == HttpStatusCode.RequestUriTooLong ||
+                                     response.StatusCode == HttpStatusCode.ServiceUnavailable ||
+                                     response.StatusCode == HttpStatusCode.Unauthorized)
                             {
                                 tries = maxtries;
+                            }
+                            else if (response.StatusCode == HttpStatusCode.Moved ||
+                                     response.StatusCode == HttpStatusCode.MovedPermanently ||
+                                     response.StatusCode == HttpStatusCode.Redirect ||
+                                     response.StatusCode == HttpStatusCode.TemporaryRedirect)
+                            {
+                                url = response.Content.Headers.ContentLocation.AbsoluteUri;
+                                tries++;
                             }
                             else
                             {
