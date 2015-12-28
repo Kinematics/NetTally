@@ -214,21 +214,21 @@ namespace NetTally
             questWrapper.IgnoreSymbols = IgnoreSymbols;
             questWrapper.TrimExtendedText = TrimExtendedText;
 
-            foreach (QuestElement quest in Quests)
+            foreach (QuestElement questElement in Quests)
             {
                 try
                 {
                     IQuest q = new Quest
                     {
-                        DisplayName = quest.DisplayName,
-                        ThreadName = quest.ThreadName,
-                        PostsPerPage = quest.PostsPerPage,
-                        StartPost = quest.StartPost,
-                        EndPost = quest.EndPost,
-                        CheckForLastThreadmark = quest.CheckForLastThreadmark,
-                        PartitionMode = quest.PartitionMode,
-                        UseCustomThreadmarkFilters = quest.UseCustomThreadmarkFilters,
-                        CustomThreadmarkFilters = quest.CustomThreadmarkFilters,
+                        DisplayName = questElement.DisplayName,
+                        ThreadName = questElement.ThreadName,
+                        PostsPerPage = questElement.PostsPerPage,
+                        StartPost = questElement.StartPost,
+                        EndPost = questElement.EndPost,
+                        CheckForLastThreadmark = questElement.CheckForLastThreadmark,
+                        PartitionMode = questElement.PartitionMode,
+                        UseCustomThreadmarkFilters = questElement.UseCustomThreadmarkFilters,
+                        CustomThreadmarkFilters = questElement.CustomThreadmarkFilters,
                     };
 
                     questWrapper.QuestCollection.Add(q);
