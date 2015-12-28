@@ -576,6 +576,7 @@ namespace NetTally
         /// </summary>
         private void CleanupQuestName()
         {
+            editNameButton.Content = "Edit Name";
             editQuestName.Visibility = Visibility.Hidden;
         }
 
