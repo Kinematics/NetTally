@@ -406,6 +406,26 @@ namespace NetTally
             get { return (string)this["CustomThreadmarkFilters"]; }
             set { this["CustomThreadmarkFilters"] = value; }
         }
+
+
+        // Obsolete configuration properties.  Left in place solely so that if they
+        // exist, they don't cause load errors.  We do not save the results when
+        // saving a new config instance.
+
+        [ConfigurationProperty("UseVotePartitions", DefaultValue = false)]
+        public bool UseVotePartitions
+        {
+            get { return (bool)this["UseVotePartitions"]; }
+            set { this["UseVotePartitions"] = value; }
+        }
+
+        [ConfigurationProperty("PartitionByLine", DefaultValue = true)]
+        public bool PartitionByLine
+        {
+            get { return (bool)this["PartitionByLine"]; }
+            set { this["PartitionByLine"] = value; }
+        }
+
     }
 
 }
