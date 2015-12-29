@@ -231,6 +231,14 @@ namespace NetTally
                         CustomThreadmarkFilters = questElement.CustomThreadmarkFilters,
                     };
 
+                    if (questElement.UseVotePartitions && q.PartitionMode == PartitionMode.None)
+                    {
+                        if (questElement.PartitionByLine)
+                            q.PartitionMode = PartitionMode.ByLine;
+                        else
+                            q.PartitionMode = PartitionMode.ByBlock;
+                    }
+
                     questWrapper.QuestCollection.Add(q);
                 }
                 catch (Exception)
