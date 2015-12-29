@@ -100,7 +100,7 @@ namespace NetTally
 
             line = NormalizeContentBBCode(line);
 
-            return line;
+            return line.Trim();
         }
 
         /// <summary>
