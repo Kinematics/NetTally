@@ -163,7 +163,7 @@ namespace NetTally.Adapters
             title = PostText.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
 
             // Find a common parent for other data
-            HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
+            HtmlNode pageContent = GetPageContent(page, PageType.Thread);
 
             if (pageContent == null)
                 throw new InvalidOperationException("Cannot find content on page.");
@@ -173,9 +173,10 @@ namespace NetTally.Adapters
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
             if (titleBar == null)
-                throw new InvalidOperationException("Not a valid thread page.");
+                throw new InvalidOperationException("Not a valid forum thread.");
 
-            var pageDesc = titleBar.ChildNodes.FirstOrDefault(n => n.Id == "pageDescription");
+            var pageDesc = page.GetElementbyId("pageDescription");
+
             var authorNode = pageDesc?.GetChildWithClass("username");
 
             author = PostText.CleanupWebString(authorNode?.InnerText);
@@ -234,7 +235,7 @@ namespace NetTally.Adapters
                 return new ThreadRangeInfo(true, quest.StartPost);
 
             // Load the threadmarks so that we can find the starting post page or number.
-            var threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
+            HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
 
             var threadmarks = GetThreadmarksList(quest, threadmarkPage);
 
@@ -251,7 +252,7 @@ namespace NetTally.Adapters
             // The threadmark list might use the long version of the URL (including thread info),
             // or the short version (which only shows the post number).
             // The long version lets us get the page number directly from the url,
-            // so we don't have to load the page itself.
+            // so we don't have to load another page to determine what it is.
 
             // May possibly end with /page-00#post-00
             Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
@@ -299,10 +300,9 @@ namespace NetTally.Adapters
 
                 // If we loaded a proper thread page, get the posts off the page and find
                 // the one with the ID that matches the threadmark.
-                var posts = GetPostsList(lastThreadmarkPage);
-
                 string postID = $"post-{tmID}";
-                var tmPost = posts.FirstOrDefault(n => n.Id == postID);
+
+                var tmPost = lastThreadmarkPage.GetElementbyId(postID);
 
                 if (tmPost != null)
                 {
@@ -314,7 +314,7 @@ namespace NetTally.Adapters
                 }
             }
 
-            // If we can't figure out how to get the start page from the threadmark,
+            // If we can't figure out how to get the threadmark's page from the threadmark,
             // just fall back on the given start post.
             return new ThreadRangeInfo(true, quest.StartPost);
         }
@@ -338,26 +338,23 @@ namespace NetTally.Adapters
         /// <summary>
         /// Find the pageContent div contained in the top-level document node.
         /// </summary>
-        /// <param name="doc">A base document node.</param>
+        /// <param name="doc">An HTML document page.</param>
         /// <returns>Returns the node that holds the page content, if found.</returns>
-        static HtmlNode GetPageContent(HtmlNode doc, PageType pageType)
+        static HtmlNode GetPageContent(HtmlDocument doc, PageType pageType)
         {
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
-            var body = doc.Element("html").Element("body");
-
-            var node = body.ChildNodes.First(n => n.Id == "headerMover");
-            node = node.ChildNodes.First(n => n.Id == "content");
+            var contentNode = doc.GetElementbyId("content");
 
             switch (pageType)
             {
                 case PageType.Thread:
-                    if (!node.GetAttributeValue("class", "").Contains("thread_view"))
+                    if (!contentNode.GetAttributeValue("class", "").Contains("thread_view"))
                         throw new InvalidOperationException("This page does not contain a forum thread.");
                     break;
                 case PageType.Threadmarks:
-                    if (!node.GetAttributeValue("class", "").Contains("threadmarks"))
+                    if (!contentNode.GetAttributeValue("class", "").Contains("threadmarks"))
                         throw new InvalidOperationException("This page does not contain threadmarks.");
                     break;
             }
@@ -369,14 +366,7 @@ namespace NetTally.Adapters
             // the node recursion should be fast (ie: only one div per child level until we
             // reach pageContent).
 
-            node = node.GetDescendantWithClass("pageContent");
-
-            //if (node.ChildNodes.Count == 1 && node.FirstChild.GetAttributeValue("class", "") == "pageWidth")
-            //    node = node.Element("div");
-
-            //node = node.GetChildWithClass("pageContent");
-
-            return node;
+            return contentNode.GetDescendantWithClass("pageContent");
         }
 
         /// <summary>
@@ -387,19 +377,11 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of any found posts.</returns>
         static IEnumerable<HtmlNode> GetPostsList(HtmlDocument page)
         {
-            if (page != null)
-            {
-                HtmlNode doc = page.DocumentNode;
+            // The ordered list containing all messages.
+            var messageList = page?.GetElementbyId("messageList");
 
-                HtmlNode pageContent = GetPageContent(doc, PageType.Thread);
-
-                HtmlNode olNode = pageContent?.Element("ol");
-
-                if (olNode?.Id == "messageList")
-                    return olNode.Elements("li");
-            }
-
-            return new List<HtmlNode>();
+            // Return all found list items in the message list, or an empty list.
+            return messageList?.Elements("li") ?? new List<HtmlNode>();
         }
 
         /// <summary>
@@ -479,7 +461,7 @@ namespace NetTally.Adapters
 
             try
             {
-                var content = GetPageContent(doc, PageType.Threadmarks);
+                var content = GetPageContent(page, PageType.Threadmarks);
 
                 var section = content.GetChildWithClass("div", "section");
 
