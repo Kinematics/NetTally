@@ -145,7 +145,7 @@ namespace NetTally.Adapters
             title = doc.Element("head").Element("title")?.InnerText;
             title = PostText.CleanupWebString(title);
 
-            var threadViewTab = doc.Element("body")?.Descendants("div").FirstOrDefault(a => a.Id == "thread-view-tab");
+            var threadViewTab = page.GetElementbyId("thread-view-tab");
 
             var pageNavControls = threadViewTab?.GetDescendantWithClass("div", "pagenav-controls");
 

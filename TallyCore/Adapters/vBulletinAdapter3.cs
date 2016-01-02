@@ -176,13 +176,12 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var divs = page.DocumentNode.Element("html").Element("body")?.Elements("div");
-            var postlist = divs?.FirstOrDefault(a => a.Id == "posts");
+            var postList = page.GetElementbyId("posts");
 
-            if (postlist == null)
+            if (postList == null)
                 return new List<PostComponents>();
 
-            var posts = from p in postlist.Elements("div")
+            var posts = from p in postList.Elements("div")
                         select GetPost(p);
 
             return posts;
@@ -220,7 +219,7 @@ namespace NetTally.Adapters
 
             string postAuthorDivID = "postmenu_" + id;
 
-            var authorAnchor = postTable.Descendants("div").FirstOrDefault(a => a.Id == postAuthorDivID)?.Element("a");
+            var authorAnchor = postTable.OwnerDocument.GetElementbyId(postAuthorDivID).Element("a");
 
             if (authorAnchor != null)
             {
@@ -235,7 +234,7 @@ namespace NetTally.Adapters
 
             string postNumberAnchorID = "postcount" + id;
 
-            var anchor = postTable.Descendants("a").FirstOrDefault(a => a.Id == postNumberAnchorID);
+            var anchor = postTable.OwnerDocument.GetElementbyId(postNumberAnchorID);
 
             if (anchor != null)
             {
@@ -245,7 +244,7 @@ namespace NetTally.Adapters
 
             string postMessageId = "post_message_" + id;
 
-            var postContents = postTable.Descendants("div").FirstOrDefault(a => a.Id == postMessageId);
+            var postContents = postTable.OwnerDocument.GetElementbyId(postMessageId);
 
             // Predicate filtering out elements that we don't want to include
             var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");

@@ -145,8 +145,7 @@ namespace NetTally.Adapters
             title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // Find the number of pages
-            var body = doc.Element("body");
-            var main = body?.Element("main").Elements("div").FirstOrDefault(n => n.Id == "content");
+            var main = page.GetElementbyId("content");
 
             var paginationContainer = main.GetDescendantWithClass("div", "pagination-container");
 
@@ -171,8 +170,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var body = page.DocumentNode.Element("html").Element("body");
-            var main = body?.Element("main").Elements("div").FirstOrDefault(n => n.Id == "content");
+            var main = page.GetElementbyId("content");
             var topic = main?.GetDescendantWithClass("div", "topic");
             var postlist = topic?.GetChildWithClass("ul", "posts");
 

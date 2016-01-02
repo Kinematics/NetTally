@@ -146,7 +146,7 @@ namespace NetTally.Adapters
             title = PostText.CleanupWebString(title);
 
             // Get the number of pages from the navigation elements
-            var paginationTop = page.DocumentNode.Descendants("div").FirstOrDefault(a => a.Id == "pagination_top");
+            var paginationTop = page.GetElementbyId("pagination_top");
 
             var paginationForm = paginationTop.Element("form");
 
@@ -180,8 +180,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var body = page.DocumentNode.Element("html")?.Element("body");
-            var postlist = body.Descendants("ol").FirstOrDefault(a => a.Id == "posts");
+            var postlist = page.GetElementbyId("posts");
 
             if (postlist == null)
                 return new List<PostComponents>();
@@ -220,9 +219,7 @@ namespace NetTally.Adapters
             id = li.Id.Substring("post_".Length);
 
             // Number
-            HtmlNode postHead = li.GetChildWithClass("div", "posthead");
-            HtmlNode nodeControls = postHead?.GetChildWithClass("nodecontrols");
-            HtmlNode postCount = nodeControls?.Elements("a").FirstOrDefault(n => n.Id.StartsWith("postcount", StringComparison.Ordinal));
+            var postCount = li.OwnerDocument.GetElementbyId($"postcount{id}");
 
             if (postCount != null)
                 number = int.Parse(postCount.GetAttributeValue("name", "0"));
@@ -240,7 +237,7 @@ namespace NetTally.Adapters
                 // Text
                 string postMessageId = "post_message_" + id;
 
-                HtmlNode message = postDetails.Descendants("div").FirstOrDefault(a => a.Id == postMessageId)?.Element("blockquote");
+                var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
 
                 // Predicate filtering out elements that we don't want to include
                 var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");

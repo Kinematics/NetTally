@@ -154,9 +154,7 @@ namespace NetTally.Adapters
             title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // Find the number of pages
-            var body = doc.Element("body");
-            var wrap = body?.Elements("div").FirstOrDefault(n => n.Id == "wrap");
-            var pagebody = wrap?.Elements("div").FirstOrDefault(n => n.Id == "page-body");
+            var pagebody = page.GetElementbyId("page-body");
 
             if (pagebody != null)
             {
@@ -202,9 +200,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var body = page.DocumentNode.Element("html").Element("body");
-            var wrap = body?.Elements("div").FirstOrDefault(n => n.Id == "wrap");
-            var pagebody = wrap?.Elements("div").FirstOrDefault(n => n.Id == "page-body");
+            var pagebody = page.GetElementbyId("page-body");
 
             if (pagebody == null)
                 return new List<PostComponents>();
