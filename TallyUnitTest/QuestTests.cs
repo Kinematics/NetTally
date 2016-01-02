@@ -88,7 +88,7 @@ namespace NetTally.Tests
             Assert.AreEqual(1, quest.StartPost);
             Assert.AreEqual(0, quest.EndPost);
             Assert.AreEqual(true, quest.ReadToEndOfThread);
-            Assert.AreEqual(false, quest.CheckForLastThreadmark);
+            Assert.AreEqual(true, quest.CheckForLastThreadmark);
             Assert.AreEqual(0, quest.ThreadmarkPost);
             Assert.AreEqual(PartitionMode.None, quest.PartitionMode);
             Assert.IsNull(quest.ForumAdapter);
