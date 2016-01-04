@@ -237,6 +237,9 @@ namespace NetTally.Adapters
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", Caching.BypassCache, token, false).ConfigureAwait(false);
 
+            if (threadmarkPage == null)
+                return new ThreadRangeInfo(true, quest.StartPost);
+
             var threadmarks = GetThreadmarksList(quest, threadmarkPage);
 
             // If there aren't any threadmarks, fall back on the normal start post.
