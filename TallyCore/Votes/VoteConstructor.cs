@@ -92,6 +92,15 @@ namespace NetTally
                     return false;
                 }
 
+                // If a newer vote has been registered in the vote counter, that means
+                // that this post was a prior future reference that got overridden later.
+                // Indicate that it has been processed so that it doesn't try to
+                // re-submit it later.
+                if (VoteCounter.Instance.HasNewerVote(post))
+                {
+                    return true;
+                }
+
                 // Process the actual vote.
                 ProcessVote(post, quest.PartitionMode);
             }

@@ -487,6 +487,27 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Determines whether the authof of this post has made a newer vote
+        /// submission.
+        /// </summary>
+        /// <param name="post">The post being checked.</param>
+        /// <returns>Returns true if the voter has a newer vote
+        /// already submitted to the counter.</returns>
+        public bool HasNewerVote(PostComponents post)
+        {
+            if (!HasVoter(post.Author, VoteType.Vote))
+                return false;
+
+            int submittedID = 0;
+            if (!int.TryParse(GetVotersCollection(VoteType.Vote)[post.Author], out submittedID))
+            {
+                return string.CompareOrdinal(GetVotersCollection(VoteType.Vote)[post.Author], post.ID) > 0;
+            }
+
+            return (submittedID > post.IDValue);
+        }
+
+        /// <summary>
         /// Gets a list of ranking votes in condensed form.
         /// </summary>
         /// <returns>Returns a list of ranking votes in condensed form.</returns>
