@@ -71,7 +71,9 @@ namespace NetTally
 
             if (voteLines.Any())
             {
-                VoteStrings = voteLines.Select(a => VoteString.ModifyLinesRead(a)).Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
+                VoteStrings = voteLines.Select(a => VoteString.CleanVoteLineBBCode(a))
+                    .Select(a => VoteString.ModifyLinesRead(a))
+                    .Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
 
                 SeparateVoteStrings(VoteStrings);
             }
