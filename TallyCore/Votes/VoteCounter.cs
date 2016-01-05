@@ -420,17 +420,18 @@ namespace NetTally
 
             var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            string searchName = referenceNames[ReferenceType.Plan].FirstOrDefault(HasPlan);
+            string existingRefName = PlanNames.FirstOrDefault(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
 
-            if (searchName == null)
+            if (existingRefName == null)
             {
-                searchName = referenceNames[ReferenceType.Voter].FirstOrDefault(n =>
-                    !StringUtility.AgnosticStringComparer.Equals(n, author) && HasVoter(n, VoteType.Vote))?.AgnosticMatch(ReferenceVoters);
+                existingRefName = ReferenceVoters.FirstOrDefault(n =>
+                    n != author &&
+                    referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
             }
 
-            if (searchName != null)
+            if (existingRefName != null)
             {
-                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(searchName));
+                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(existingRefName));
 
                 results.AddRange(planVotes.Select(v => v.Key));
             }
