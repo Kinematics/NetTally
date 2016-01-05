@@ -42,6 +42,8 @@ namespace NetTally
         SpoilerVoters,
         [Description("Spoiler All")]
         SpoilerAll,
+        [Description("Normal, No Voters")]
+        NormalNoVoters,
         [Description("Compact")]
         Compact,
         [Description("Compact, No Voters")]
