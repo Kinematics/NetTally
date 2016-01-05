@@ -455,7 +455,7 @@ namespace NetTally
                 planName = StringUtility.PlanNameMarker + planName;
             }
 
-            return PlanNames.Contains(planName);
+            return PlanNames.Contains(planName, StringUtility.AgnosticStringComparer);
         }
 
         /// <summary>

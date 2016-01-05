@@ -130,7 +130,7 @@ namespace NetTally
             {
                 string planName = VoteString.GetPlanName(plan.First());
 
-                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName))
+                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, StringUtility.AgnosticStringComparer))
                 {
                     VoteCounter.Instance.ReferencePlanNames.Add(planName);
                     VoteCounter.Instance.ReferencePlans[planName] = plan;
