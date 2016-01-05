@@ -489,21 +489,6 @@ namespace NetTally
                 // [x] Plan Boom. => ◈Boom.
                 results[ReferenceType.Any].Add(pName);
                 results[ReferenceType.Plan].Add(pName);
-
-                // [x] Plan Kinematics. => Kinematics
-                // [x] Plan Boom. => Boom
-                // [x] Plan Kinematics. => ◈Kinematics
-                // [x] Plan Boom. => ◈Boom
-                if (name.EndsWith(".", StringComparison.Ordinal))
-                {
-                    name = name.Substring(0, name.Length - 1);
-                    pName = $"{StringUtility.PlanNameMarker}{name}";
-
-                    results[ReferenceType.Any].Add(name);
-                    results[ReferenceType.Voter].Add(name);
-                    results[ReferenceType.Any].Add(pName);
-                    results[ReferenceType.Plan].Add(pName);
-                }
             }
 
             return results;
