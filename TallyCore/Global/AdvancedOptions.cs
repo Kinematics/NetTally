@@ -35,6 +35,7 @@ namespace NetTally
         #region Properties and associated fields
         bool allowRankedVotes = true;
         bool ignoreSymbols = true;
+        bool ignoreSpoilers = false;
         bool trimExtendedText = false;
         DisplayMode displayMode = DisplayMode.Normal;
 
@@ -88,6 +89,19 @@ namespace NetTally
             set
             {
                 displayMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Whether or not to ignore spoiler blocks when parsing.
+        /// </summary>
+        public bool IgnoreSpoilers
+        {
+            get { return ignoreSpoilers; }
+            set
+            {
+                ignoreSpoilers = value;
                 OnPropertyChanged();
             }
         }

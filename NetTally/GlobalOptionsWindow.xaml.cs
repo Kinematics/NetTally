@@ -23,6 +23,7 @@ namespace NetTally
             allowRankedVotes.IsChecked = true;
             ignoreSymbols.IsChecked = true;
             trimExtendedText.IsChecked = false;
+            ignoreSpoilers.IsChecked = false;
         }
     }
 }
