@@ -12,6 +12,7 @@
         public bool AllowRankedVotes { get; set; }
         public bool IgnoreSymbols { get; set; }
         public bool TrimExtendedText { get; set; }
+        public bool IgnoreSpoilers { get; set; }
 
         public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest)
         {
@@ -22,6 +23,7 @@
             AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
             IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
+            IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;
         }
     }
 

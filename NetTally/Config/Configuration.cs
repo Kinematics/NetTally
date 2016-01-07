@@ -187,6 +187,13 @@ namespace NetTally
             set { this["TrimExtendedText"] = value; }
         }
 
+        [ConfigurationProperty("IgnoreSpoilers", DefaultValue = false)]
+        public bool IgnoreSpoilers
+        {
+            get { return (bool)this["IgnoreSpoilers"]; }
+            set { this["IgnoreSpoilers"] = value; }
+        }
+
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
@@ -213,6 +220,7 @@ namespace NetTally
             questWrapper.AllowRankedVotes = AllowRankedVotes;
             questWrapper.IgnoreSymbols = IgnoreSymbols;
             questWrapper.TrimExtendedText = TrimExtendedText;
+            questWrapper.IgnoreSpoilers = IgnoreSpoilers;
 
             foreach (QuestElement questElement in Quests)
             {
@@ -255,6 +263,7 @@ namespace NetTally
             AllowRankedVotes = questWrapper.AllowRankedVotes;
             IgnoreSymbols = questWrapper.IgnoreSymbols;
             TrimExtendedText = questWrapper.TrimExtendedText;
+            IgnoreSpoilers = questWrapper.IgnoreSpoilers;
 
             Quests.Clear();
             foreach (var quest in questWrapper.QuestCollection)
