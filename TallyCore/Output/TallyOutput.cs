@@ -160,7 +160,10 @@ namespace NetTally.Output
                 if (index > 4)
                     index = 4;
 
-                AddRankedVoters(task.Key, winner);
+                if (DisplayMode != DisplayMode.NormalNoVoters)
+                    AddRankedVoters(task.Key, winner);
+                else
+                    sb.AppendLine();
             }
         }
 
@@ -278,7 +281,7 @@ namespace NetTally.Output
                         {
                             AddVote(vote);
                             AddVoteCount(vote);
-                            AddVoters(vote);
+                            AddVoters(vote.Value, "Voters");
                         }
                     }
 
@@ -304,12 +307,12 @@ namespace NetTally.Output
                 var children = vote.Children.OrderByDescending(v => v.VoterCount);
                 foreach (var child in children)
                 {
-                    AddVoters(child);
+                    AddVoters(child.Voters, child.GetLine(DisplayMode));
                 }
 
                 if (vote.Voters.Count > 0)
                 {
-                    AddVoters(vote, "Voters");
+                    AddVoters(vote.Voters, "Voters");
                 }
             }
             else if (DisplayMode == DisplayMode.CompactNoVoters)
@@ -337,52 +340,6 @@ namespace NetTally.Output
             if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
             {
                 AddVoterCount(vote.VoterCount);
-            }
-        }
-
-        /// <summary>
-        /// Add the list of voters supporting the provided vote.
-        /// </summary>
-        /// <param name="vote">The vote to add.</param>
-        private void AddAllVoters(VoteNode vote)
-        {
-            if (DisplayMode == DisplayMode.CompactNoVoters)
-                return;
-
-            using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
-            {
-                var orderedVoters = VoteInfo.GetOrderedVoterList(vote.AllVoters);
-
-                foreach (var voter in orderedVoters)
-                {
-                    AddVoter(voter);
-                }
-            }
-
-            if (DisplayMode != DisplayMode.Compact)
-            {
-                sb.AppendLine();
-            }
-        }
-
-        private void AddVoters(VoteNode vote, string label = null)
-        {
-            if (DisplayMode == DisplayMode.CompactNoVoters)
-                return;
-
-            using (new Spoiler(sb, label ?? vote.GetLine(DisplayMode), DisplayMode != DisplayMode.Normal))
-            {
-                var orderedVoters = VoteInfo.GetOrderedVoterList(vote.Voters);
-
-                foreach (var voter in orderedVoters)
-                {
-                    AddVoter(voter);
-                }
-            }
-
-            if (DisplayMode != DisplayMode.Compact)
-            {
-                sb.AppendLine();
             }
         }
         #endregion
@@ -468,32 +425,6 @@ namespace NetTally.Output
                 AddVoterCount(VoteInfo.CountVote(vote));
             }
         }
-
-        /// <summary>
-        /// Add the voters in the provided vote to the output.
-        /// Does not add voters when in CompactNoVoters mode.
-        /// </summary>
-        /// <param name="vote">The vote to add.</param>
-        private void AddVoters(KeyValuePair<string, HashSet<string>> vote)
-        {
-            if (DisplayMode == DisplayMode.CompactNoVoters)
-                return;
-
-            using (new Spoiler(sb, "Voters", DisplayMode != DisplayMode.Normal))
-            {
-                var orderedVoters = VoteInfo.GetOrderedVoterList(vote.Value);
-
-                foreach (var voter in orderedVoters)
-                {
-                    AddVoter(voter);
-                }
-            }
-
-            if (DisplayMode != DisplayMode.Compact)
-            {
-                sb.AppendLine();
-            }
-        }
         #endregion
 
         #endregion
@@ -510,6 +441,38 @@ namespace NetTally.Output
                 sb.Append("[b]Task: ");
                 sb.Append(taskName);
                 sb.AppendLine("[/b]");
+                sb.AppendLine();
+            }
+        }
+
+        /// <summary>
+        /// Add the list of voters supporting the provided vote.
+        /// </summary>
+        /// <param name="voters">The list of voters to display.</param>
+        /// <param name="spoilerLabel">The label to use for the spoiler (if used).</param>
+        private void AddVoters(HashSet<string> voters, string spoilerLabel)
+        {
+            if (DisplayMode == DisplayMode.CompactNoVoters)
+                return;
+
+            if (DisplayMode == DisplayMode.NormalNoVoters)
+            {
+                sb.AppendLine();
+                return;
+            }
+
+            using (new Spoiler(sb, spoilerLabel, DisplayMode != DisplayMode.Normal))
+            {
+                var orderedVoters = VoteInfo.GetOrderedVoterList(voters);
+
+                foreach (var voter in orderedVoters)
+                {
+                    AddVoter(voter);
+                }
+            }
+
+            if (DisplayMode != DisplayMode.Compact)
+            {
                 sb.AppendLine();
             }
         }
