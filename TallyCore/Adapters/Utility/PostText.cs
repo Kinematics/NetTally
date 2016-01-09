@@ -192,6 +192,7 @@ namespace NetTally.Adapters
                     case "div":
                         // Recurse into divs (typically spoilers).
                         ExtractPostTextString(child, exclude, sb);
+                        sb.Append("\r\n");
                         break;
                 }
             }
