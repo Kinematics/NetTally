@@ -212,15 +212,16 @@ namespace NetTally
 
         public void Load(QuestCollectionWrapper questWrapper)
         {
+            AdvancedOptions.Instance.DisplayMode = DisplayMode;
+            AdvancedOptions.Instance.AllowRankedVotes = AllowRankedVotes;
+            AdvancedOptions.Instance.IgnoreSpoilers = IgnoreSpoilers;
+            AdvancedOptions.Instance.IgnoreSymbols = IgnoreSymbols;
+            AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
+
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
 
             questWrapper.CurrentQuest = CurrentQuest;
-            questWrapper.DisplayMode = DisplayMode;
-            questWrapper.AllowRankedVotes = AllowRankedVotes;
-            questWrapper.IgnoreSymbols = IgnoreSymbols;
-            questWrapper.TrimExtendedText = TrimExtendedText;
-            questWrapper.IgnoreSpoilers = IgnoreSpoilers;
 
             foreach (QuestElement questElement in Quests)
             {
@@ -258,12 +259,13 @@ namespace NetTally
 
         public void Save(QuestCollectionWrapper questWrapper)
         {
+            DisplayMode = AdvancedOptions.Instance.DisplayMode;
+            AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
+            IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
+            IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;
+            TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
+
             CurrentQuest = questWrapper.CurrentQuest;
-            DisplayMode = questWrapper.DisplayMode;
-            AllowRankedVotes = questWrapper.AllowRankedVotes;
-            IgnoreSymbols = questWrapper.IgnoreSymbols;
-            TrimExtendedText = questWrapper.TrimExtendedText;
-            IgnoreSpoilers = questWrapper.IgnoreSpoilers;
 
             Quests.Clear();
             foreach (var quest in questWrapper.QuestCollection)

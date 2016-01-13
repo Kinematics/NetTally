@@ -102,13 +102,6 @@ namespace NetTally
                 // Set the current item
                 QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
 
-                AdvancedOptions.Instance.DisplayMode = wrapper.DisplayMode;
-                AdvancedOptions.Instance.AllowRankedVotes = wrapper.AllowRankedVotes;
-                AdvancedOptions.Instance.IgnoreSymbols = wrapper.IgnoreSymbols;
-                AdvancedOptions.Instance.TrimExtendedText = wrapper.TrimExtendedText;
-                AdvancedOptions.Instance.IgnoreSpoilers = wrapper.IgnoreSpoilers;
-
-
                 // Set up data contexts
                 DataContext = QuestCollectionView;
 
