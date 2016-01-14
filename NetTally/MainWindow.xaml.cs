@@ -89,7 +89,7 @@ namespace NetTally
                 if (DebugMode.Active)
                     ErrorLog.Log("Preparing to load config.");
 
-                NetTallyConfig.Load(tally, wrapper);
+                NetTallyConfig.Load(wrapper);
 
                 if (DebugMode.Active)
                     ErrorLog.Log("Completed loading config.");
@@ -176,7 +176,7 @@ namespace NetTally
                 string selectedQuest = CurrentlySelectedQuest?.ThreadName ?? "";
 
                 QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
-                NetTallyConfig.Save(tally, qcw);
+                NetTallyConfig.Save(qcw);
 
                 Properties.Settings settings = new Properties.Settings();
                 settings.Save();

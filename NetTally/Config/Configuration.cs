@@ -15,7 +15,7 @@ namespace NetTally
         // Keep the configuration file for the duration of the program run.
         static Configuration config = null;
 
-        public static void Load(Tally tally, QuestCollectionWrapper questsWrapper)
+        public static void Load(QuestCollectionWrapper questsWrapper)
         {
             Upgrade();
 
@@ -118,7 +118,7 @@ namespace NetTally
             return 0;
         }
 
-        public static void Save(Tally tally, QuestCollectionWrapper questsWrapper)
+        public static void Save(QuestCollectionWrapper questsWrapper)
         {
             if (config == null)
                 return;
