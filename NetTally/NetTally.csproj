@@ -72,6 +72,9 @@
     <Compile Include="Config\BindingConverters.cs" />
     <Compile Include="Config\CollectionWrappers.cs" />
     <Compile Include="Config\Configuration.cs" />
+    <Compile Include="Config\QuestCollectionConfig.cs" />
+    <Compile Include="Config\QuestConfig.cs" />
+    <Compile Include="Config\QuestSectionConfig.cs" />
     <Compile Include="ManageVotesWindow.xaml.cs">
       <DependentUpon>ManageVotesWindow.xaml</DependentUpon>
     </Compile>
