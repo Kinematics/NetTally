@@ -21,7 +21,7 @@ namespace NetTally
 
             config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
 
-            QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
+            QuestsSection questConfig = config.Sections[QuestsSection.SectionName] as QuestsSection;
 
             questConfig?.Load(questsWrapper);
         }
@@ -39,7 +39,7 @@ namespace NetTally
 
             var upgradeConfig = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
 
-            QuestsSection questConfig = upgradeConfig.Sections[QuestsSection.DefinedName] as QuestsSection;
+            QuestsSection questConfig = upgradeConfig.Sections[QuestsSection.SectionName] as QuestsSection;
 
             if (questConfig == null)
                 return;
@@ -129,7 +129,7 @@ namespace NetTally
 
             try
             {
-                QuestsSection questConfig = config.Sections[QuestsSection.DefinedName] as QuestsSection;
+                QuestsSection questConfig = config.Sections[QuestsSection.SectionName] as QuestsSection;
                 questConfig.Save(questsWrapper);
 
                 config.Save(ConfigurationSaveMode.Minimal);

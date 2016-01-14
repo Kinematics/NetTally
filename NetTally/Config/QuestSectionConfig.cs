@@ -12,7 +12,7 @@ namespace NetTally
         /// <summary>
         /// Defined name of the config section, as saved in the config file.
         /// </summary>
-        public const string DefinedName = "NetTally.Quests";
+        public const string SectionName = "NetTally.Quests";
 
         #region Properties
         [ConfigurationProperty("Quests", IsDefaultCollection = false)]
