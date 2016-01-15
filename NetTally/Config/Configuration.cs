@@ -8,120 +8,47 @@ using System.Windows;
 namespace NetTally
 {
     /// <summary>
-    /// Wrapper class for creating/loading/saving user config sections.
+    /// Class for loading and saving program configuration information.
     /// </summary>
     public static class NetTallyConfig
     {
-        // Keep the configuration file for the duration of the program run.
-        static Configuration config = null;
-
+        #region Loading and Saving        
+        /// <summary>
+        /// Loads the program config into the specified quests collection wrapper.
+        /// </summary>
+        /// <param name="questsWrapper">The quests wrapper to store data in.</param>
         public static void Load(QuestCollectionWrapper questsWrapper)
         {
-            Upgrade();
+            Configuration config = GetConfigToLoadFrom();
 
-            config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
-
-            QuestsSection questConfig = config.Sections[QuestsSection.SectionName] as QuestsSection;
-
-            questConfig?.Load(questsWrapper);
-        }
-        
-        private static void Upgrade()
-        {
-            var conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
-            if (conf.HasFile)
-                return;
-
-            var map = GetUpgradeMap();
-
-            if (map == null)
-                return;
-
-            var upgradeConfig = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
-
-            QuestsSection questConfig = upgradeConfig.Sections[QuestsSection.SectionName] as QuestsSection;
-
-            if (questConfig == null)
-                return;
-
-            QuestCollectionWrapper questWrapper = new QuestCollectionWrapper(null, null);
-            questConfig.Load(questWrapper);
-
-            upgradeConfig.SaveAs(conf.FilePath, ConfigurationSaveMode.Full);
-        }
-
-
-        private static ExeConfigurationFileMap GetUpgradeMap()
-        {
-            var conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
-            FileInfo defaultFile = new FileInfo(conf.FilePath);
-
-            var dir = defaultFile.Directory;
-            var parent = dir.Parent;
-
-            if (!parent.Exists)
-                return null;
-
-            var versionDirectories = parent.EnumerateDirectories("*.*.*.*", SearchOption.TopDirectoryOnly);
-
-            // Get 'newest' directory that is not the one we expect to use
-            var latestDir = versionDirectories
-                .Where(d => d.Name != dir.Name)
-                .Where(d => d.EnumerateFiles().Any(de => de.Name == "user.config"))
-                .OrderBy(d => NumSort(d))
-                .LastOrDefault();
-
-            if (latestDir == null)
-                return null;
-
-            var upgradeFile = Path.Combine(latestDir.FullName, defaultFile.Name);
-
-            ExeConfigurationFileMap map = new ExeConfigurationFileMap();
-            map.RoamingUserConfigFilename = upgradeFile;
-
-
-            conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            map.MachineConfigFilename = conf.FilePath;
-            map.ExeConfigFilename = conf.FilePath;
-
-            conf = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-            map.LocalUserConfigFilename = conf.FilePath;
-
-            return map;
+            ReadConfigInformation(config, questsWrapper);
         }
 
         /// <summary>
-        /// Provide a sortable number based on the version number of the provided directory.
+        /// Reads the configuration information from the provided configuration object into
+        /// the provided quests collection wrapper.
         /// </summary>
-        /// <param name="d">The name of a config directory: 1.2.3.4.</param>
-        /// <returns>Returns a numeric value evaluted as the combined numbers of the directory
-        /// name (up to a max of 256 per segment).</returns>
-        private static int NumSort(DirectoryInfo d)
+        /// <param name="config">The configuration object to read.</param>
+        /// <param name="questsWrapper">The quests wrapper to store data in.</param>
+        private static void ReadConfigInformation(Configuration config, QuestCollectionWrapper questsWrapper)
         {
-            // 1.2.3.4
-            Regex r = new Regex(@"(?<p1>\d+)\.(?<p2>\d+)\.(?<p3>\d+)\.(?<p4>\d+)");
+            QuestsSection questsSection = config.Sections[QuestsSection.SectionName] as QuestsSection;
 
-            Match m = r.Match(d.Name);
-            if (m.Success)
-            {
-                byte p1, p2, p3, p4;
-                if (byte.TryParse(m.Groups["p1"].Value, out p1) &&
-                    byte.TryParse(m.Groups["p2"].Value, out p2) &&
-                    byte.TryParse(m.Groups["p3"].Value, out p3) &&
-                    byte.TryParse(m.Groups["p4"].Value, out p4))
-                {
-                    int sortNumber = p1 << 24 | p2 << 16 | p3 << 8 | p4;
-                    return sortNumber;
-                }
-            }
-
-            return 0;
+            questsSection?.Load(questsWrapper);
         }
 
+        /// <summary>
+        /// Saves the data from the specified quests wrapper into the config file.
+        /// Tries to save in both the portable location (same directory as the executable),
+        /// and to the roaming location (AppData).
+        /// The portable location is transferable between computers without needing
+        /// a corresponding user account, while the roaming location keeps data from
+        /// being lost if you unzip a new version of the program to a differently-named
+        /// folder.
+        /// </summary>
+        /// <param name="questsWrapper">The quests wrapper.</param>
         public static void Save(QuestCollectionWrapper questsWrapper)
         {
-            if (config == null)
-                return;
             if (questsWrapper == null)
                 return;
             if (questsWrapper.QuestCollection == null)
@@ -129,10 +56,29 @@ namespace NetTally
 
             try
             {
-                QuestsSection questConfig = config.Sections[QuestsSection.SectionName] as QuestsSection;
-                questConfig.Save(questsWrapper);
+                // Write the config to the portable location.
+                Configuration config = GetPortableConfig();
+                WriteConfigInformation(questsWrapper, config);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                // Don't have permission to write the portable config output.
+            }
+            catch (Exception e)
+            {
+                string file = ErrorLog.Log(e);
+                MessageBox.Show($"Log saved to:\n{file ?? "(unable to write log file)"}", "Error saving configuration file", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
 
-                config.Save(ConfigurationSaveMode.Minimal);
+            try
+            {
+                // Write the config to the roaming location.
+                Configuration config = GetRoamingConfig();
+                WriteConfigInformation(questsWrapper, config);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                // Don't have permission to write to the roaming location.
             }
             catch (Exception e)
             {
@@ -140,6 +86,170 @@ namespace NetTally
                 MessageBox.Show($"Log saved to:\n{file ?? "(unable to write log file)"}", "Error saving configuration file", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-    }
 
+        /// <summary>
+        /// Writes the data from the provided quests wrapper object into the specified configuration file.
+        /// </summary>
+        /// <param name="questsWrapper">The quests wrapper with program data.</param>
+        /// <param name="config">The configuration file to save to.</param>
+        private static void WriteConfigInformation(QuestCollectionWrapper questsWrapper, Configuration config)
+        {
+            QuestsSection questSection = config.Sections[QuestsSection.SectionName] as QuestsSection;
+            questSection?.Save(questsWrapper);
+
+            config.Save(ConfigurationSaveMode.Minimal);
+        }
+        #endregion
+
+        #region Getting Configs        
+        /// <summary>
+        /// Gets the configuration object with program config data to load on startup.
+        /// </summary>
+        /// <returns>Returns the portable config, if available.
+        /// Returns the roaming config if there is no portable config, and the roaming config exists.
+        /// Returns the portable config object if no config file was found.</returns>
+        private static Configuration GetConfigToLoadFrom()
+        {
+            var portableConfig = GetPortableConfig();
+
+            if (portableConfig.HasFile)
+                return portableConfig;
+
+            Configuration roamingConfig = GetRecentRoamingConfig();
+
+            if (roamingConfig.HasFile)
+                return roamingConfig;
+
+            return portableConfig;
+        }
+
+        /// <summary>
+        /// Gets the portable configuration.
+        /// </summary>
+        /// <returns>Returns the portable config object after determining where it should be located.</returns>
+        private static Configuration GetPortableConfig()
+        {
+            ExeConfigurationFileMap map = GetPortableMap();
+            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
+
+            return config;
+        }
+
+        /// <summary>
+        /// Gets the roaming configuration.
+        /// </summary>
+        /// <returns>Returns the roaming config object from the default location.</returns>
+        private static Configuration GetRoamingConfig()
+        {
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+
+            return config;
+        }
+
+        /// <summary>
+        /// Gets the recent roaming configuration.
+        /// </summary>
+        /// <returns>Returns the current roaming config if it has a file.
+        /// Returns the most recent roaming config it can find, if the current one does not exist.</returns>
+        private static Configuration GetRecentRoamingConfig()
+        {
+            Configuration config = GetRoamingConfig();
+
+            if (config.HasFile)
+                return config;
+
+            ExeConfigurationFileMap map = GetMapToMostRecentRoamingConfig(config);
+
+            if (map != null)
+                config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
+
+            return config;
+        }
+
+        #endregion
+
+        #region Getting Config Maps        
+        /// <summary>
+        /// Gets the config map for the portable config file.
+        /// </summary>
+        /// <returns>Returns the config map for the portable config file.</returns>
+        private static ExeConfigurationFileMap GetPortableMap()
+        {
+            string portableConfigPath = Path.Combine(Environment.CurrentDirectory, "user.config");
+            return GetMapWithUserPath(portableConfigPath);
+        }
+
+        /// <summary>
+        /// Gets the map to the most recent roaming configuration file that can be located.
+        /// </summary>
+        /// <param name="config">The default configuration location for the current program version.</param>
+        /// <returns>Returns a configuration map file if a recent file can be located.
+        /// If no file can be located, returns null.</returns>
+        private static ExeConfigurationFileMap GetMapToMostRecentRoamingConfig(Configuration config)
+        {
+            FileInfo defaultFile = new FileInfo(config.FilePath);
+
+            var defaultDir = defaultFile.Directory;
+            var parent = defaultDir.Parent;
+
+            if (!parent.Exists)
+                return null;
+
+            var versionDirectories = parent.EnumerateDirectories("*.*.*.*", SearchOption.TopDirectoryOnly);
+
+            var dirs = from dir in versionDirectories
+                       where dir.Name != defaultDir.Name &&
+                          dir.EnumerateFiles().Any(de => de.Name == "user.config")
+                       let v = DirectoryVersion(dir)
+                       where v.Major > 0
+                       orderby v
+                       select dir;
+
+            var latestDir = dirs.LastOrDefault();
+            if (latestDir == null)
+                return null;
+
+            var mostRecentFile = Path.Combine(latestDir.FullName, "user.config");
+
+            return GetMapWithUserPath(mostRecentFile);
+        }
+
+        /// <summary>
+        /// Gets a configuration file map that uses the provided user path for the local and roaming paths.
+        /// </summary>
+        /// <param name="userPath">The path to use for user config file locations.</param>
+        /// <returns>Returns a configuration file map using the provided user path.</returns>
+        private static ExeConfigurationFileMap GetMapWithUserPath(string userPath)
+        {
+            ExeConfigurationFileMap map = new ExeConfigurationFileMap();
+
+            ConfigurationFileMap machineMap = new ConfigurationFileMap();
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+            map.MachineConfigFilename = machineMap.MachineConfigFilename;
+            map.ExeConfigFilename = config.FilePath;
+            map.LocalUserConfigFilename = userPath;
+            map.RoamingUserConfigFilename = userPath;
+
+            return map;
+        }
+
+        /// <summary>
+        /// Returns a Version object based on the name of the provided directory.
+        /// </summary>
+        /// <param name="d">The directory.</param>
+        /// <returns>Returns a version based on the directory name, or the default.</returns>
+        private static Version DirectoryVersion(DirectoryInfo d)
+        {
+            try
+            {
+                return new Version(d.Name);
+            }
+            catch (Exception)
+            {
+                return new Version();
+            }
+        }
+        #endregion
+    }
 }
