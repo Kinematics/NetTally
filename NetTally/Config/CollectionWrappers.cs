@@ -9,6 +9,12 @@
         public QuestCollection QuestCollection { get; set; }
         public string CurrentQuest { get; set; }
 
+        public QuestCollectionWrapper()
+        {
+            QuestCollection = new QuestCollection();
+            CurrentQuest = null;
+        }
+
         public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest)
         {
             QuestCollection = questCollection;

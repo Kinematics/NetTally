@@ -80,11 +80,8 @@ namespace NetTally
                 // Set tally vars
                 tally = new Tally();
 
-                questCollection = new QuestCollection();
-
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null);
-
-                NetTallyConfig.Load(wrapper);
+                QuestCollectionWrapper wrapper = NetTallyConfig.Load();
+                questCollection = wrapper.QuestCollection;
 
                 // Set up view for binding
                 QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
@@ -163,8 +160,8 @@ namespace NetTally
             {
                 string selectedQuest = CurrentlySelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper qcw = new QuestCollectionWrapper(questCollection, selectedQuest);
-                NetTallyConfig.Save(qcw);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, selectedQuest);
+                NetTallyConfig.Save(wrapper);
 
                 Properties.Settings settings = new Properties.Settings();
                 settings.Save();

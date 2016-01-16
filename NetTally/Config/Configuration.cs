@@ -13,14 +13,19 @@ namespace NetTally
     {
         #region Loading and Saving        
         /// <summary>
-        /// Loads the program config into the specified quests collection wrapper.
+        /// Loads the program user data config and returns a collection of
+        /// quests.
         /// </summary>
-        /// <param name="questsWrapper">The quests wrapper to store data in.</param>
-        public static void Load(QuestCollectionWrapper questsWrapper)
+        /// <returns>Returns the quests wrapper to store data in.</returns>
+        public static QuestCollectionWrapper Load()
         {
+            QuestCollectionWrapper questsWrapper = new QuestCollectionWrapper();
+
             Configuration config = GetConfigToLoadFrom();
 
             ReadConfigInformation(config, questsWrapper);
+
+            return questsWrapper;
         }
 
         /// <summary>
