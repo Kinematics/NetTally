@@ -73,8 +73,6 @@ namespace NetTally
                 // Create a region profiler on startup to get it JIT'd before any actual profiling.
                 using (new RegionProfiler(null)) { }
 
-                DebugMode.Update();
-
                 InitializeComponent();
 
                 this.Title = WindowTitle;
@@ -86,13 +84,7 @@ namespace NetTally
 
                 QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, null);
 
-                if (DebugMode.Active)
-                    ErrorLog.Log("Preparing to load config.");
-
                 NetTallyConfig.Load(wrapper);
-
-                if (DebugMode.Active)
-                    ErrorLog.Log("Completed loading config.");
 
                 // Set up view for binding
                 QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
@@ -113,10 +105,6 @@ namespace NetTally
                 checkForNewRelease = new CheckForNewRelease();
                 newRelease.DataContext = checkForNewRelease;
                 checkForNewRelease.Update();
-
-                if (DebugMode.Active)
-                    ErrorLog.Log("Completed main window construction.");
-
             }
             catch (Exception e)
             {

@@ -129,8 +129,6 @@ namespace NetTally
 
             Quest = quest;
 
-            DebugMode.Update();
-
             var firstPage = await pages.First();
 
             // Use the title of the first page for the descriptive output.
