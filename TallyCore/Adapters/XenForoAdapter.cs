@@ -406,7 +406,7 @@ namespace NetTally.Adapters
             author = PostText.CleanupWebString(li.GetAttributeValue("data-author", ""));
             id = li.Id.Substring("post-".Length);
 
-            if (DebugMode.Active)
+            if (AdvancedOptions.Instance.DebugMode)
                 author = $"{author}_{id}";
 
             // Get the primary content of the list item

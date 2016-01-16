@@ -66,7 +66,7 @@ namespace NetTally.Output
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 
             sb.Append("[b]Vote Tally");
-            if (DebugMode.Active)
+            if (AdvancedOptions.Instance.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
             sb.AppendLine(VoteCounter.Instance.Title);
