@@ -77,7 +77,6 @@
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
     <Compile Include="Votes\IVoteCounter.cs" />
-    <Compile Include="Debugging\DebugMode.cs" />
     <Compile Include="Web\Utility\MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
