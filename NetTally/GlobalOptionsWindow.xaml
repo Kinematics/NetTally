@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Global Options" Height="467.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Global Options" Height="517.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
     <Grid>
         <TextBlock x:Name="windowDescription" Margin="10,10,10,0" TextWrapping="Wrap" Text="The following are options that change how the program works, at a mechanical level.  Most of the time you should leave them at the default, but occasionally situations may arise that require adjustments to the parsing behavior.  This allows you to make those adjustments when needed, with the understanding that it may cause extra work on the back-end of things, with merging votes and voters." VerticalAlignment="Top"/>
         <CheckBox x:Name="allowRankedVotes" Content="Allow Ranked Votes (default: True)" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top"
@@ -16,12 +16,15 @@
                   IsChecked="{Binding Path=TrimExtendedText}"/>
         <CheckBox x:Name="ignoreSpoilers" Content="Ignore Spoilers (default: False)" HorizontalAlignment="Left" Margin="10,308,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}"/>
+        <CheckBox x:Name="debugMode" Content="Debug Mode (default: False)" HorizontalAlignment="Left" Margin="10,366,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=DebugMode}"/>
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" Click="closeButton_Click" Height="32" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100" IsDefault="True" IsCancel="True"/>
         <Button x:Name="resetAllButton" Content="Reset All" HorizontalAlignment="Left" Margin="10,0,0,10" Width="100" Height="32" VerticalAlignment="Bottom" Click="resetAllButton_Click"/>
         <TextBlock x:Name="allowRankedVotesDescription" Margin="28,123,10,0" TextWrapping="Wrap" Text="When set, this allows ranked votes to be tallied.  If ranked votes are interfering with your tally, you can turn it off here." VerticalAlignment="Top"/>
         <TextBlock x:Name="ignoreSymbolsDescription" Margin="28,181,10,0" TextWrapping="Wrap" Text="When set, this makes it so that vote and voter comparisons that differ only because of whitespace or punctuation are treated the same.  Disable it if it causes votes that should be considered separate to be automatically merged." VerticalAlignment="Top"/>
         <TextBlock x:Name="trimExtendedTextDescription" Margin="28,255,10,0" TextWrapping="Wrap" Text="This is an experimental attempt to trim extended descriptions from a vote line.  An extended description is a long segment of text after a colon, that is at least three times as long as the text preceding the colon. When this option is set, any extended description will be removed." VerticalAlignment="Top"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="28,329,0,0" TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within the post.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored." VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="28,387,0,0" TextWrapping="Wrap" Text="When set, tallies run in a debug mode that combines the post author with the post ID.  This allows you to tally votes from the same person across multiple posts, and ignores the thread author exception.  This always resets to false on program startup." VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
