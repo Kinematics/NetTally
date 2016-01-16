@@ -39,6 +39,8 @@ namespace NetTally
         bool trimExtendedText = false;
         DisplayMode displayMode = DisplayMode.Normal;
 
+        bool debugMode = false;
+
         /// <summary>
         /// Whether or not to parse ranked votes in a tally.
         /// </summary>
@@ -102,6 +104,19 @@ namespace NetTally
             set
             {
                 ignoreSpoilers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Whether the program should be running in its debug mode.
+        /// </summary>
+        public bool DebugMode
+        {
+            get { return debugMode; }
+            set
+            {
+                debugMode = value;
                 OnPropertyChanged();
             }
         }
