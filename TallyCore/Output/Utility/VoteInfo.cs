@@ -99,7 +99,7 @@ namespace NetTally.Output
         /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
         public static IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
+            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(StringUtility.GetFirstLine(v.Key)), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
 
             return grouped;
         }
