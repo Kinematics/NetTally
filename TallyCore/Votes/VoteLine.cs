@@ -71,7 +71,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="voteLine">The vote line to examine.</param>
         /// <returns>Returns the vote line without any BBCode formatting.</returns>
-        public string CleanText(string voteLine)
+        public static string CleanText(string voteLine)
         {
             // Need to trim the result because removing markup may reveal new whitespace.
             return markupRegex.Replace(voteLine, "").Trim();

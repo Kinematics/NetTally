@@ -375,7 +375,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The vote being checked.</param>
         /// <returns>Returns any ranked vote lines in the vote.</returns>
-        private List<string> GetRankingsFromPost(PostComponents post)
+        private static List<string> GetRankingsFromPost(PostComponents post)
         {
             // If there are any explicit rank vote lines, return those.
             if (post.RankLines.Any())
@@ -489,7 +489,7 @@ namespace NetTally
         /// <param name="partitionMode">The partition mode being used.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns the vote partitioned appropriately.</returns>
-        private List<string> GetVotePartitionsFromPlan(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        private static List<string> GetVotePartitionsFromPlan(IEnumerable<string> lines, PartitionMode partitionMode, string author)
         {
             switch (partitionMode)
             {
@@ -526,7 +526,7 @@ namespace NetTally
         /// <param name="partitionMode">The partition mode being used.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns the vote, partitioned according to the requested mode.</returns>
-        private List<string> GetVotePartitionsFromVote(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        private static List<string> GetVotePartitionsFromVote(IEnumerable<string> lines, PartitionMode partitionMode, string author)
         {
             switch (partitionMode)
             {
@@ -846,7 +846,7 @@ namespace NetTally
         /// <param name="lines">A list of lines defining a plan.</param>
         /// <returns>Returns the list of lines, with the assurance that
         /// any plan name starts with just "Plan".</returns>
-        private IEnumerable<string> NormalizePlanName(IEnumerable<string> lines)
+        private static IEnumerable<string> NormalizePlanName(IEnumerable<string> lines)
         {
             string firstLine = lines.First();
             var remainder = lines.Skip(1);

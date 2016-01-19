@@ -42,7 +42,6 @@ namespace NetTally
         #endregion
 
         #region Fields
-        static readonly Regex siteRegex = new Regex(@"^(?<siteName>https?://[^/]+/)");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
 
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";

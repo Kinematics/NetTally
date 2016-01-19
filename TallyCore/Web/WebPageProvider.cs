@@ -246,7 +246,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL for the client handler to service.</param>
         /// <returns>Returns a client handler, with cookies if needed.</returns>
-        private HttpClientHandler GetHandler(string url)
+        private static HttpClientHandler GetHandler(string url)
         {
             HttpClientHandler handler = new HttpClientHandler();
 

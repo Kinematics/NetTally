@@ -338,7 +338,7 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(voters));
             if (voterToJoin == null)
                 throw new ArgumentNullException(nameof(voterToJoin));
-            if (voterToJoin == string.Empty)
+            if (voterToJoin.Length > 0)
                 throw new ArgumentException("No target voter provided.", nameof(voterToJoin));
             if (voters.Count == 0)
                 return false;
