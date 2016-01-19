@@ -205,7 +205,7 @@ namespace NetTally.Adapters
         /// </summary>
         /// <param name="postDiv">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li)
+        private static PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));

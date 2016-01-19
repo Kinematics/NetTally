@@ -14,7 +14,7 @@ namespace NetTally
     {
         #region Constructor and vars
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        private static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Constructor
@@ -124,7 +124,7 @@ namespace NetTally
         /// Store original plan name and contents in reference containers.
         /// </summary>
         /// <param name="plans">A list of valid plans.</param>
-        private void StorePlanReferences(IEnumerable<List<string>> plans)
+        private static void StorePlanReferences(IEnumerable<List<string>> plans)
         {
             foreach (var plan in plans)
             {
@@ -292,7 +292,7 @@ namespace NetTally
         /// </summary>
         /// <param name="vote">List of lines for the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(PostComponents post)
+        private static bool HasFutureReference(PostComponents post)
         {
             // If we decide it has to be forced, ignore all checks in here.
             if (post.ForceProcess)
@@ -405,7 +405,7 @@ namespace NetTally
         /// </summary>
         /// <param name="voteStrings">The standard vote partitions.</param>
         /// <returns></returns>
-        private string GetPureRankReference(PostComponents post)
+        private static string GetPureRankReference(PostComponents post)
         {
             if (post.VoteLines.Count == 1)
             {
@@ -425,7 +425,7 @@ namespace NetTally
         /// <param name="ranksList">A list of all rank votes in the post.</param>
         /// <param name="post">The components of the original post.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
-        private void ProcessRankings(List<string> ranksList, PostComponents post)
+        private static void ProcessRankings(List<string> ranksList, PostComponents post)
         {
             if (ranksList.Count > 0)
             {
@@ -473,7 +473,7 @@ namespace NetTally
         /// <param name="partitionMode">The partition mode being used.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns the vote broken into rank partitions.</returns>
-        private List<string> GetVotePartitionsFromRank(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        private static List<string> GetVotePartitionsFromRank(IEnumerable<string> lines, PartitionMode partitionMode, string author)
         {
             // Ranked votes only ever have one line of content.
             // Add CRLF to the end, and return that as a list.
@@ -558,7 +558,7 @@ namespace NetTally
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a non-partitioned version of the vote.</returns>
-        private List<string> PartitionByNone(IEnumerable<string> lines, string author)
+        private static List<string> PartitionByNone(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -612,7 +612,7 @@ namespace NetTally
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a the vote partitioned by line.</returns>
-        private List<string> PartitionByLine(IEnumerable<string> lines, string author)
+        private static List<string> PartitionByLine(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -661,7 +661,7 @@ namespace NetTally
         /// <param name="author">The author of the vote, for use in determining
         /// valid referrals.</param>
         /// <returns>Returns a list of partitioned vote lines.</returns>
-        private List<string> PartitionByLineTask(IEnumerable<string> lines, string author)
+        private static List<string> PartitionByLineTask(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -721,7 +721,7 @@ namespace NetTally
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a the vote partitioned by block.</returns>
-        private List<string> PartitionByBlock(IEnumerable<string> lines, string author)
+        private static List<string> PartitionByBlock(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -789,7 +789,7 @@ namespace NetTally
         /// <param name="blocks">A list of vote blocks.</param>
         /// <param name="planTask">A task name to apply.  If no name is provided, no changes are made.</param>
         /// <returns>Returns the vote blocks with the task applied.</returns>
-        private List<string> ApplyTaskToBlocks(List<string> blocks, string planTask)
+        private static List<string> ApplyTaskToBlocks(List<string> blocks, string planTask)
         {
             if (blocks == null)
                 throw new ArgumentNullException(nameof(blocks));
@@ -824,7 +824,7 @@ namespace NetTally
         /// <param name="lines">A list of strings to examine/promote.</param>
         /// <returns>Returns the strings without the initial line, and with the
         /// remaining lines reduced by one indent level.</returns>
-        private IEnumerable<string> PromoteLines(IEnumerable<string> lines)
+        private static IEnumerable<string> PromoteLines(IEnumerable<string> lines)
         {
             if (lines == null)
                 throw new ArgumentNullException(nameof(lines));

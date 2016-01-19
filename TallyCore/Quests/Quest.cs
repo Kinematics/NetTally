@@ -180,7 +180,7 @@ namespace NetTally
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public string CleanPageNumbers(string url)
+        public static string CleanPageNumbers(string url)
         {
             Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
             Match m = pageNumberRegex.Match(url);

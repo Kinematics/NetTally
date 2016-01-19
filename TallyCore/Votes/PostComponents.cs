@@ -173,7 +173,7 @@ namespace NetTally
         /// </summary>
         /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        public bool IsTallyPost(string postText)
+        public static bool IsTallyPost(string postText)
         {
             // If the post contains the string "#####" at the start of the line for part of its text,
             // it's a tally post.
