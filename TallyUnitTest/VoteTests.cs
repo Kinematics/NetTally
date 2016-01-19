@@ -89,7 +89,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X]Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X]Run
 "
@@ -106,7 +106,7 @@ namespace NetTally.Tests
 @"[X] Run
 [x] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Run
 [x] Kill
@@ -123,7 +123,7 @@ namespace NetTally.Tests
 @"[X] Ambush
 -[X] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Ambush
 -[X] Kill
@@ -139,7 +139,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X][Plan]Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan]Run
 "
@@ -155,7 +155,7 @@ namespace NetTally.Tests
 @"[X][Plan] Run
 [x][Plan] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan] Run
 [x][Plan] Kill
@@ -172,7 +172,7 @@ namespace NetTally.Tests
 @"[X][Plan] Ambush
 -[X] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan] Ambush
 -[X] Kill
@@ -191,7 +191,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X]Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X]Run
 "
@@ -209,7 +209,7 @@ namespace NetTally.Tests
 @"[X] Run
 [x] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Run
 ",
@@ -229,7 +229,7 @@ namespace NetTally.Tests
 @"[X] Ambush
 -[X] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Ambush
 ",
@@ -248,7 +248,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X][Plan]Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan]Run
 "
@@ -266,7 +266,7 @@ namespace NetTally.Tests
 @"[X][Plan] Run
 [x][Plan] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan] Run
 ",
@@ -286,7 +286,7 @@ namespace NetTally.Tests
 @"[X][Plan] Ambush
 -[X] Kill";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Plan] Ambush
 ",
@@ -309,7 +309,7 @@ namespace NetTally.Tests
 [X] Run
 [X] Report";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Action] Ambush
 ",
@@ -333,7 +333,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X] Ambush";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Ambush
 "
@@ -351,7 +351,7 @@ namespace NetTally.Tests
 @"[X] Ambush
 [X] Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Ambush
 ",
@@ -393,7 +393,7 @@ namespace NetTally.Tests
             string testVote =
 @"[X][Action] Ambush";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Action] Ambush
 "
@@ -411,7 +411,7 @@ namespace NetTally.Tests
 @"[X][Action] Ambush
 [X] Run";
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X][Action] Ambush
 ",
@@ -492,7 +492,7 @@ namespace NetTally.Tests
 @"[X] User1"
             };
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X]Run
 "
@@ -515,7 +515,7 @@ namespace NetTally.Tests
             };
 
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Stuff
 [X] More Stuff
@@ -537,11 +537,11 @@ namespace NetTally.Tests
 -[X] More Stuff
 -[X] Yet more stuff",
 @"[X] User1",
-@"[X] Dodgy",
+@"[X] Dodgy"
             };
 
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Plan Dodgy
 -[X] More Stuff
@@ -563,11 +563,11 @@ namespace NetTally.Tests
 -[X] More Stuff
 -[X] Yet more stuff",
 @"[X] Plan User1",
-@"[X] User 1",
+@"[X] User 1"
             };
 
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Plan User1
 -[X] More Stuff
@@ -591,11 +591,11 @@ namespace NetTally.Tests
 @"[X] Plan User1
 -[X] More Stuff
 -[X] Yet more stuff",
-@"[X] User 1",
+@"[X] User 1"
             };
 
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[X] Plan User1
 -[X] More Stuff
@@ -624,7 +624,7 @@ namespace NetTally.Tests
             };
 
 
-            List<string> expected = new List<string>()
+            List<string> expected = new List<string>
             {
 @"[x] plan Kinematic's
 -[x] do stuff

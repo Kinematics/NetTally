@@ -15,13 +15,6 @@ namespace NetTally
         #region Constructor and vars
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         private static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public VoteConstructor()
-        {
-        }
         #endregion
 
         #region Public functions
