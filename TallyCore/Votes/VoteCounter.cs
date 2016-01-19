@@ -17,11 +17,9 @@ namespace NetTally
 
         VoteCounterImpl()
         {
-            voteConstructor = new VoteConstructor();
         }
         #endregion
 
-        VoteConstructor voteConstructor { get; }
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
@@ -202,19 +200,19 @@ namespace NetTally
             {
                 ReferenceVoters.Add(post.Author);
                 ReferenceVoterPosts[post.Author] = post.ID;
-                voteConstructor.PreprocessPlansPhase1(post, Quest);
+                VoteConstructor.PreprocessPlansPhase1(post, Quest);
             }
 
             // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
             foreach (var post in PostsList)
             {
-                voteConstructor.PreprocessPlansPhase2(post, Quest);
+                VoteConstructor.PreprocessPlansPhase2(post, Quest);
             }
 
             // Once all the plans are in place, set the working votes for each post.
             foreach (var post in PostsList)
             {
-                post.SetWorkingVote(p => voteConstructor.GetWorkingVote(p));
+                post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
             }
 
             var unprocessed = PostsList;
@@ -223,7 +221,7 @@ namespace NetTally
             while (unprocessed.Any())
             {
                 // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => voteConstructor.ProcessPost(p, Quest) == true).ToList();
+                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
 
                 // As long as some got processed, remove those from the unprocessed list
                 // and let the loop run again.

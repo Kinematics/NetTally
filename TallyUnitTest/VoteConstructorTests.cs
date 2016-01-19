@@ -10,13 +10,11 @@ namespace NetTally.Tests
     public class VoteConstructorTests
     {
         static IQuest sampleQuest;
-        static VoteConstructor voteConstructor;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             sampleQuest = new Quest();
-            voteConstructor = new VoteConstructor();
         }
 
         [TestInitialize]
@@ -44,9 +42,9 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.None;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -74,9 +72,9 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -100,9 +98,9 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByLine;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -128,11 +126,11 @@ namespace NetTally.Tests
             string postId = "123456";
 
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
             Assert.IsFalse(p.IsVote);
 
-            voteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest);
         }
 
 
@@ -152,9 +150,9 @@ namespace NetTally.Tests
             string postId = "123456";
             int postNumber = 100;
             PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
@@ -375,9 +373,9 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, StringUtility.AgnosticStringComparer));
@@ -404,9 +402,9 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, StringUtility.AgnosticStringComparer));
@@ -437,9 +435,9 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, StringUtility.AgnosticStringComparer));
@@ -468,10 +466,10 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            voteConstructor.PreprocessPlansPhase1(p1, sampleQuest);
-            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
+            VoteConstructor.PreprocessPlansPhase1(p1, sampleQuest);
+            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            voteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, StringUtility.AgnosticStringComparer));

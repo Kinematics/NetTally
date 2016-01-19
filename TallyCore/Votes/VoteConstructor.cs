@@ -10,11 +10,11 @@ namespace NetTally
     /// <summary>
     /// Class that can handle constructing votes (in various manners) from the base text of a post.
     /// </summary>
-    public class VoteConstructor
+    public static class VoteConstructor
     {
-        #region Constructor and vars
+        #region Fields
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        private static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
         #endregion
 
         #region Public functions
@@ -25,7 +25,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlansPhase1(PostComponents post, IQuest quest)
+        public static void PreprocessPlansPhase1(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -46,7 +46,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlansPhase2(PostComponents post, IQuest quest)
+        public static void PreprocessPlansPhase2(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -65,7 +65,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
-        public bool ProcessPost(PostComponents post, IQuest quest)
+        public static bool ProcessPost(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -110,55 +110,7 @@ namespace NetTally
             post.Processed = true;
             return true;
         }
-        #endregion
 
-        #region Utility functions for processing plans.
-        /// <summary>
-        /// Store original plan name and contents in reference containers.
-        /// </summary>
-        /// <param name="plans">A list of valid plans.</param>
-        private static void StorePlanReferences(IEnumerable<List<string>> plans)
-        {
-            foreach (var plan in plans)
-            {
-                string planName = VoteString.GetPlanName(plan.First());
-
-                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, StringUtility.AgnosticStringComparer))
-                {
-                    VoteCounter.Instance.ReferencePlanNames.Add(planName);
-                    VoteCounter.Instance.ReferencePlans[planName] = plan;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Put any plans found in the grouped vote lines into the standard tracking sets,
-        /// after handling any partitioning needed.
-        /// </summary>
-        /// <param name="plans">List of plans to be processed.</param>
-        /// <param name="post">Post the plans were pulled from.</param>
-        /// <param name="partitionMode">Partition mode being used.</param>
-        private static void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
-        {
-            foreach (var plan in plans)
-            {
-                string planName = VoteString.GetMarkedPlanName(plan.First());
-
-                if (!VoteCounter.Instance.HasPlan(planName))
-                {
-                    var nPlan = NormalizePlanName(plan);
-
-                    // Get the list of all vote partitions, built according to current preferences.
-                    // One of: By line, By block, or By post (ie: entire vote)
-                    var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
-
-                    VoteCounter.Instance.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
-                }
-            }
-        }
-        #endregion
-
-        #region Utility functions for processing votes.
         /// <summary>
         /// Get the lines of the vote that we will be processing out of the post.
         /// Only take the .VoteLines, and condense any instances of known plans
@@ -166,7 +118,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post we're getting the vote from.</param>
         /// <returns>Returns the vote with plans compressed.</returns>
-        public List<string> GetWorkingVote(PostComponents post)
+        public static List<string> GetWorkingVote(PostComponents post)
         {
             List<string> vote = new List<string>();
 
@@ -253,6 +205,55 @@ namespace NetTally
 
             return vote;
         }
+        #endregion
+
+        #region Utility functions for processing plans.
+        /// <summary>
+        /// Store original plan name and contents in reference containers.
+        /// </summary>
+        /// <param name="plans">A list of valid plans.</param>
+        private static void StorePlanReferences(IEnumerable<List<string>> plans)
+        {
+            foreach (var plan in plans)
+            {
+                string planName = VoteString.GetPlanName(plan.First());
+
+                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, StringUtility.AgnosticStringComparer))
+                {
+                    VoteCounter.Instance.ReferencePlanNames.Add(planName);
+                    VoteCounter.Instance.ReferencePlans[planName] = plan;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Put any plans found in the grouped vote lines into the standard tracking sets,
+        /// after handling any partitioning needed.
+        /// </summary>
+        /// <param name="plans">List of plans to be processed.</param>
+        /// <param name="post">Post the plans were pulled from.</param>
+        /// <param name="partitionMode">Partition mode being used.</param>
+        private static void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
+        {
+            foreach (var plan in plans)
+            {
+                string planName = VoteString.GetMarkedPlanName(plan.First());
+
+                if (!VoteCounter.Instance.HasPlan(planName))
+                {
+                    var nPlan = NormalizePlanName(plan);
+
+                    // Get the list of all vote partitions, built according to current preferences.
+                    // One of: By line, By block, or By post (ie: entire vote)
+                    var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
+
+                    VoteCounter.Instance.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
+                }
+            }
+        }
+        #endregion
+
+        #region Utility functions for processing votes.
 
         /// <summary>
         /// Utility function to determine whether adjacent lines should
