@@ -163,17 +163,23 @@ namespace NetTally.Web
                             }
                             else if (response.StatusCode == HttpStatusCode.NotFound ||
                                      response.StatusCode == HttpStatusCode.BadRequest ||
-                                     response.StatusCode == HttpStatusCode.Forbidden ||
                                      response.StatusCode == HttpStatusCode.Gone ||
                                      response.StatusCode == HttpStatusCode.HttpVersionNotSupported ||
                                      response.StatusCode == HttpStatusCode.InternalServerError ||
                                      response.StatusCode == HttpStatusCode.NotAcceptable ||
                                      response.StatusCode == HttpStatusCode.RequestUriTooLong ||
-                                     response.StatusCode == HttpStatusCode.ServiceUnavailable ||
-                                     response.StatusCode == HttpStatusCode.Unauthorized
+                                     response.StatusCode == HttpStatusCode.ServiceUnavailable
                                      )
                             {
                                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})\nURL: {url}";
+                                tries = maxtries;
+                            }
+                            else if (response.StatusCode == HttpStatusCode.Forbidden ||
+                                     response.StatusCode == HttpStatusCode.Unauthorized)
+                            {
+                                // Forbidden/unauthorized results might be because of CloudFlare bot blocking or similar.
+                                // Let the user know they may need to contact the site admin.
+                                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})\nURL: {url}\nConsider contacting the site administrator.";
                                 tries = maxtries;
                             }
                             else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600)
