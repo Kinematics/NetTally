@@ -124,6 +124,8 @@ namespace NetTally.Utility
         {
             if (self == null)
                 throw new ArgumentNullException(nameof(self));
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
 
             T min = default(T);
             U _min = default(U);
@@ -179,6 +181,8 @@ namespace NetTally.Utility
         {
             if (self == null)
                 throw new ArgumentNullException(nameof(self));
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
 
             T max = default(T);
             U _max = default(U);
@@ -222,6 +226,9 @@ namespace NetTally.Utility
         /// <returns>Returns the item in the list that matches the value, or null.</returns>
         public static string AgnosticMatch(this IEnumerable<string> self, string value)
         {
+            if (self == null)
+                throw new ArgumentNullException(nameof(self));
+
             foreach (string item in self)
             {
                 if (StringUtility.AgnosticStringComparer.Equals(item, value))
@@ -241,6 +248,11 @@ namespace NetTally.Utility
         /// <returns>Returns the item in the list that matches the value, or null.</returns>
         public static string AgnosticMatch(this string value, IEnumerable<string> list)
         {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             foreach (string item in list)
             {
                 if (StringUtility.AgnosticStringComparer.Equals(item, value))

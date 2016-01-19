@@ -56,6 +56,8 @@ namespace NetTally.Adapters
         /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
         public static HtmlNode GetDescendantWithClass(this HtmlNode node, string element, string @class)
         {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
