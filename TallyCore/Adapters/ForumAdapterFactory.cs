@@ -99,7 +99,7 @@ namespace NetTally.Adapters
 
             try
             {
-                var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, Caching.UseCache, token);
+                var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, CachingMode.UseCache, token);
 
                 if (page == null)
                     return null;

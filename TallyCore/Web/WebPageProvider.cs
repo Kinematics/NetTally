@@ -110,13 +110,13 @@ namespace NetTally.Web
         /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescription, Caching caching, CancellationToken token, bool shouldCache = true)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescription, CachingMode caching, CancellationToken token, bool shouldCache = true)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
 
-            if (caching == Caching.UseCache)
+            if (caching == CachingMode.UseCache)
             {
                 HtmlDocument page = Cache.Get(url);
 

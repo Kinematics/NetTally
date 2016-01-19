@@ -70,7 +70,7 @@ namespace NetTally
     /// <summary>
     /// Enum for whether to use the cache when loading a web page.
     /// </summary>
-    public enum Caching
+    public enum CachingMode
     {
         UseCache,
         BypassCache
