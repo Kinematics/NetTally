@@ -102,16 +102,25 @@ namespace NetTally.Utility
                 yield return new GroupOfAdjacent<TSource, TKey>(list, last);
         }
 
-
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.
         /// </summary>
         /// <typeparam name="T">The type of object the list contains.</typeparam>
         /// <param name="self">The list.</param>
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
+        /// <returns>Returns the object that has the lowest 'value'.</returns>
+        public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> => MinObject(self, transform, null);
+
+        /// <summary>
+        /// Extension method to get the object with the minimum value from an enumerable list.
+        /// Overload that allows explicitly providing a comparer.
+        /// </summary>
+        /// <typeparam name="T">The type of object the list contains.</typeparam>
+        /// <param name="self">The list.</param>
+        /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is less than another.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
-        public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer = null) where U : IComparable<U>
+        public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
             if (self == null)
                 throw new ArgumentNullException(nameof(self));
@@ -149,14 +158,24 @@ namespace NetTally.Utility
         }
 
         /// <summary>
+        /// Extension method to get the object with the minimum value from an enumerable list.
+        /// </summary>
+        /// <typeparam name="T">The type of object the list contains.</typeparam>
+        /// <param name="self">The list.</param>
+        /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
+        /// <returns>Returns the object that has the lowest 'value'.</returns>
+        public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> => MaxObject(self, transform, null);
+
+        /// <summary>
         /// Extension method to get the object with the maximum value from an enumerable list.
+        /// Overload that allows explicitly providing a comparer.
         /// </summary>
         /// <typeparam name="T">The type of object the list contains.</typeparam>
         /// <param name="self">The list.</param>
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is greater than another.</param>
         /// <returns>Returns the object that has the highest 'value'.</returns>
-        public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer = null) where U : IComparable<U>
+        public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
             if (self == null)
                 throw new ArgumentNullException(nameof(self));
