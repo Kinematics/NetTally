@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Runtime.CompilerServices;
 
@@ -10,6 +11,19 @@ namespace NetTally
     /// </summary>
     public static class ErrorLog
     {
+        /// <summary>
+        /// Gets the program version.
+        /// </summary>
+        public static string ProgramVersion
+        {
+            get
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
+                return version.InformationalVersion;
+            }
+        }
+
         /// <summary>
         /// Public shortcut function to log an exception.
         /// </summary>
@@ -62,6 +76,10 @@ namespace NetTally
 
                 sb.Append("Timestamp: ");
                 sb.AppendLine(DateTime.Now.ToLongTimeString());
+
+                sb.Append("Version: ");
+                sb.AppendLine(ProgramVersion);
+
                 if (!string.IsNullOrEmpty(callingMethod))
                 {
                     sb.Append("Called from: ");
