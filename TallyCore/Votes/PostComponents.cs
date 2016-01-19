@@ -162,6 +162,9 @@ namespace NetTally
         /// <param name="fn">A function that will generate a string list from the post components.</param>
         public void SetWorkingVote(Func<PostComponents, List<string>> fn)
         {
+            if (fn == null)
+                throw new ArgumentNullException(nameof(fn));
+
             WorkingVote = fn(this);
             Processed = false;
             ForceProcess = false;

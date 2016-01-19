@@ -40,7 +40,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="name">The name to check.</param>
         /// <returns>Returns true if the name starts with the plan name marker.</returns>
-        public static bool IsPlanName(string name) => name.StartsWith(PlanNameMarker, StringComparison.Ordinal);
+        public static bool IsPlanName(string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
 
         /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
@@ -51,6 +51,9 @@ namespace NetTally.Utility
         /// <returns>The list of all string lines in the input.</returns>
         public static List<string> GetStringLines(string input)
         {
+            if (string.IsNullOrEmpty(input))
+                return new List<string>();
+
             string[] split = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             return new List<string>(split);
         }
@@ -129,7 +132,7 @@ namespace NetTally.Utility
             // Decompose a unicode string so that 'accented' charaters are broken
             // into their original + accent marks as separate character entities.
             // EG: á becomes a + ́
-            string decomposed = input.Normalize(System.Text.NormalizationForm.FormD);
+            string decomposed = input?.Normalize(System.Text.NormalizationForm.FormD) ?? string.Empty;
             // Filter the decomposed string so that we're left with only numbers and
             // lowercase letters.
             var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c));
@@ -172,7 +175,7 @@ namespace NetTally.Utility
         {
             string input = obj as string;
             if (input == null)
-                return obj.GetHashCode();
+                return obj?.GetHashCode() ?? 0;
 
             // Decompose a unicode string so that 'accented' charaters are broken
             // into their original + accent marks as separate character entities.

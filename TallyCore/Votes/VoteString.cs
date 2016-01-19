@@ -272,6 +272,9 @@ namespace NetTally
         /// <returns>Returns the vote line without the extended description.</returns>
         public static string TrimExtendedTextDescription(string line)
         {
+            if (string.IsNullOrEmpty(line))
+                return string.Empty;
+
             string lineContent = GetVoteContent(line);
 
             Match m = colonRegex.Match(lineContent);

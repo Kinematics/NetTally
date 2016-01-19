@@ -177,7 +177,7 @@ namespace NetTally
         {
             List<string> vote = new List<string>();
 
-            if (!post.IsVote)
+            if (post == null || !post.IsVote)
                 return vote;
 
             // First determine if any base plans are copies of an original definition, or being defined in this post.

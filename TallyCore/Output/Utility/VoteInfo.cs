@@ -50,7 +50,7 @@ namespace NetTally.Output
         /// <returns>Returns an organized, sorted list.</returns>
         public static IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
         {
-            if (voters.Count == 0)
+            if (voters == null || voters.Count == 0)
                 return new List<string>();
 
             var voterList = new List<string> { GetFirstVoter(voters) };

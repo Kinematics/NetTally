@@ -200,7 +200,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var pagebody = page.GetElementbyId("page-body");
+            var pagebody = page?.GetElementbyId("page-body");
 
             if (pagebody == null)
                 return new List<PostComponents>();

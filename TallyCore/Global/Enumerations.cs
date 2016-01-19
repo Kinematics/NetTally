@@ -87,6 +87,9 @@ namespace NetTally
         /// in the original definition.</returns>
         public static string GetDescription(this Enum enumerationValue)
         {
+            if (enumerationValue == null)
+                return null;
+
             FieldInfo fi = enumerationValue.GetType().GetField(enumerationValue.ToString());
 
             DescriptionAttribute[] attributes =

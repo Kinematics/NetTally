@@ -166,7 +166,7 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
-            var postList = page.DocumentNode.GetDescendantWithClass("u", "conversation-list");
+            var postList = page?.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
             if (postList == null)
                 return new List<PostComponents>();

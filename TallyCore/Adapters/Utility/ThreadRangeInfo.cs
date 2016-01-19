@@ -78,7 +78,7 @@ namespace NetTally.Adapters
         {
             if (ByNumber)
             {
-                return quest.GetPageNumberOf(Number);
+                return quest?.GetPageNumberOf(Number) ?? 1;
             }
 
             return Page;

@@ -494,6 +494,9 @@ namespace NetTally
         /// already submitted to the counter.</returns>
         public bool HasNewerVote(PostComponents post)
         {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+
             if (!HasVoter(post.Author, VoteType.Vote))
                 return false;
 
