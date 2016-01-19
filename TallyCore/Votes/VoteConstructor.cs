@@ -698,11 +698,11 @@ namespace NetTally
                 {
                     string taskedLine = line;
 
-                    if (VoteString.GetVotePrefix(line) == string.Empty)
+                    if (string.IsNullOrEmpty(VoteString.GetVotePrefix(line)))
                     {
                         parentTask = VoteString.GetVoteTask(line);
                     }
-                    else if (VoteString.GetVoteTask(line) == string.Empty)
+                    else if (string.IsNullOrEmpty(VoteString.GetVoteTask(line)))
                     {
                         taskedLine = VoteString.ModifyVoteLine(line, task: parentTask);
                     }
@@ -766,7 +766,7 @@ namespace NetTally
                     string prefix = VoteString.GetVotePrefix(line);
 
                     // If we encountered a new top-level vote line, store any existing stringbuilder contents.
-                    if (prefix == string.Empty && sb.Length > 0)
+                    if (string.IsNullOrEmpty(prefix) && sb.Length > 0)
                     {
                         partitions.Add(sb.ToString());
                         sb.Clear();
@@ -800,7 +800,7 @@ namespace NetTally
 
             foreach (var block in blocks)
             {
-                if (VoteString.GetVoteTask(block) == string.Empty)
+                if (VoteString.GetVoteTask(block).Length == 0)
                 {
                     string rep = VoteString.ModifyVoteLine(block, task: planTask, byPartition: true);
                     results.Add(rep);
@@ -831,7 +831,7 @@ namespace NetTally
 
             var remainder = lines.Skip(1);
 
-            if (remainder.All(l => VoteString.GetVotePrefix(l) != string.Empty))
+            if (remainder.All(l => VoteString.GetVotePrefix(l).Length > 0))
             {
                 return remainder.Select(l => l.Substring(1).Trim());
             }

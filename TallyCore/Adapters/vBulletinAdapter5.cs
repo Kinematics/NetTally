@@ -172,7 +172,7 @@ namespace NetTally.Adapters
                 return new List<PostComponents>();
 
             var posts = from p in postList.Elements("li")
-                        where p.GetAttributeValue("data-node-id", "") != string.Empty
+                        where !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", ""))
                         select GetPost(p);
 
             return posts;
@@ -203,7 +203,7 @@ namespace NetTally.Adapters
             // ID
             id = li.GetAttributeValue("data-node-id", "");
 
-            if (id == string.Empty)
+            if (string.IsNullOrEmpty(id))
                 return null;
 
             // Author

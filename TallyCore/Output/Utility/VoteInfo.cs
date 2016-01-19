@@ -148,7 +148,7 @@ namespace NetTally.Output
                     {
                         parent.AddVoters(vote.Value);
                     }
-                    else if (lines.Count == 2 && VoteString.GetVotePrefix(lines[1]) != string.Empty)
+                    else if (lines.Count == 2 && !string.IsNullOrEmpty(VoteString.GetVotePrefix(lines[1])))
                     {
                         parent.AddChild(lines[1], vote.Value);
                     }

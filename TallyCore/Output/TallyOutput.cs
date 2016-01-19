@@ -371,7 +371,7 @@ namespace NetTally.Output
             }
 
             // Two-line votes can be shown if the second line is a sub-vote.
-            if (voteLines.Count == 2 && VoteString.GetVotePrefix(voteLines.Last()) != string.Empty)
+            if (voteLines.Count == 2 && !string.IsNullOrEmpty(VoteString.GetVotePrefix(voteLines.Last())))
             {
                 sb.AppendLine(VoteString.ModifyVoteLine(voteLines.First(), marker: userCountMarker));
                 sb.AppendLine(VoteString.ModifyVoteLine(voteLines.Last(), marker: userCountMarker));
@@ -384,7 +384,7 @@ namespace NetTally.Output
 
             string task = VoteString.GetVoteTask(vote.Key);
             sb.Append($"[{userCountMarker}]");
-            if (task != string.Empty)
+            if (!string.IsNullOrEmpty(task))
                 sb.Append($"[{task}]");
 
             string link;

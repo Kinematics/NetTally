@@ -177,14 +177,14 @@ namespace NetTally.Adapters
                         break;
                     case "img":
                         string srcUrl = child.GetAttributeValue("data-url", "");
-                        if (srcUrl == string.Empty)
+                        if (string.IsNullOrEmpty(srcUrl))
                             srcUrl = child.GetAttributeValue("src", "");
 
                         // MCE sprite smilies do not use actual images, so don't include them.
                         if (child.GetAttributeValue("class", "").Contains("mceSmilieSprite"))
                             break;
 
-                        if (srcUrl != string.Empty)
+                        if (!string.IsNullOrEmpty(srcUrl))
                         {
                             sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
                         }

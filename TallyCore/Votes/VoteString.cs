@@ -175,7 +175,7 @@ namespace NetTally
             for (int i = 0; i < lineSplit.Length; i++)
             {
                 // Skip blank entries from the split
-                if (lineSplit[i] == string.Empty)
+                if (string.IsNullOrEmpty(lineSplit[i]))
                     continue;
 
                 if (openMatches[i].Success)
@@ -184,7 +184,7 @@ namespace NetTally
 
                     for (int j = i + 1; j < lineSplit.Length; j++)
                     {
-                        if (lineSplit[j] == string.Empty)
+                        if (string.IsNullOrEmpty(lineSplit[j]))
                             continue;
 
                         if (closeMatches[j].Success && closeMatches[j].Groups[1].Value == tag)
@@ -214,7 +214,7 @@ namespace NetTally
 
                     for (int j = i - 1; j >= 0; j--)
                     {
-                        if (lineSplit[j] == string.Empty)
+                        if (string.IsNullOrEmpty(lineSplit[j]))
                             continue;
 
                         if (openMatches[j].Success && openMatches[j].Groups[1].Value == tag)
@@ -440,7 +440,7 @@ namespace NetTally
         {
             string marker = GetVoteMarker(voteLine);
 
-            if (marker == string.Empty)
+            if (string.IsNullOrEmpty(marker))
                 return false;
 
             return char.IsDigit(marker, 0);
@@ -580,7 +580,7 @@ namespace NetTally
 
             string line;
 
-            if (task == string.Empty)
+            if (string.IsNullOrEmpty(task))
                 line = $"{prefix}[{marker}] {content}";
             else
                 line = $"{prefix}[{marker}][{task}] {content}";
@@ -623,7 +623,7 @@ namespace NetTally
 
             string modifiedLine;
 
-            if (task == string.Empty)
+            if (string.IsNullOrEmpty(task))
                 modifiedLine = $"{prefix}[{marker}] {content}";
             else
                 modifiedLine = $"{prefix}[{marker}][{task}] {content}";

@@ -61,7 +61,7 @@ namespace NetTally.Votes
 
         private string BuildText()
         {
-            return $"{Prefix}[{Marker}]" + (Task != string.Empty ? $"[{Task}]" : "") + $" {Content}";
+            return $"{Prefix}[{Marker}]" + (!string.IsNullOrEmpty(Task) ? $"[{Task}]" : "") + $" {Content}";
         }
 
 

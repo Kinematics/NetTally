@@ -310,9 +310,9 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(fromVote));
             if (toVote == null)
                 throw new ArgumentNullException(nameof(toVote));
-            if (fromVote == string.Empty)
+            if (fromVote.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(fromVote), "Vote string is empty.");
-            if (toVote == string.Empty)
+            if (toVote.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(toVote), "Vote string is empty.");
             if (fromVote == toVote)
                 return false;
@@ -663,7 +663,7 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(vote));
             if (revisedKey == null)
                 throw new ArgumentNullException(nameof(revisedKey));
-            if (revisedKey == string.Empty)
+            if (revisedKey.Length == 0)
                 throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
             if (vote.Key == revisedKey)
                 return false;

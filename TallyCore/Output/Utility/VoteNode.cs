@@ -113,7 +113,7 @@ namespace NetTally.Output
                 if (!HasParent)
                 {
                     string task = VoteString.GetVoteTask(lines[0]);
-                    if (task != string.Empty)
+                    if (!string.IsNullOrEmpty(task))
                         sb.Append($"[{task}]");
                 }
 
