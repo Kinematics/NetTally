@@ -8,12 +8,22 @@ namespace NetTally.Web
         /// <summary>
         /// A means of looking up cookies to use for specific forum URLs.
         /// </summary>
-        /// <param name="url">URL of the forum thread being loaded.</param>
+        /// <param name="url">URL string of the forum thread being loaded.</param>
         /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
         public static CookieCollection GetCookies(string url)
         {
-            CookieCollection cookies = new CookieCollection();
             Uri uri = new Uri(url);
+            return GetCookies(uri);
+        }
+
+        /// <summary>
+        /// A means of looking up cookies to use for specific forum URLs.
+        /// </summary>
+        /// <param name="uri">URI of the forum thread being loaded.</param>
+        /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
+        public static CookieCollection GetCookies(Uri uri)
+        {
+            CookieCollection cookies = new CookieCollection();
 
             Cookie cookie;
 
