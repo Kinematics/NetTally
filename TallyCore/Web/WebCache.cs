@@ -74,10 +74,10 @@ namespace NetTally.Web
         /// Add the original HTML string to the cache.
         /// </summary>
         /// <param name="url">The URL the document was retrieved from.</param>
-        /// <param name="docString">The HTML string to cache.</param>
-        public void Add(string url, string docString)
+        /// <param name="html">The HTML string to cache.</param>
+        public void Add(string url, string html)
         {
-            AddCachedPage(url, new CachedPage(docString));
+            AddCachedPage(url, new CachedPage(html));
         }
 
         /// <summary>

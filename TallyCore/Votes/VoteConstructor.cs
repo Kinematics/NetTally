@@ -138,7 +138,7 @@ namespace NetTally
         /// <param name="plans">List of plans to be processed.</param>
         /// <param name="post">Post the plans were pulled from.</param>
         /// <param name="partitionMode">Partition mode being used.</param>
-        private void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
+        private static void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
         {
             foreach (var plan in plans)
             {
@@ -262,7 +262,7 @@ namespace NetTally
         /// <param name="line">The line to check.</param>
         /// <returns>Returns the line as the key if it's not a sub-vote line.
         /// Otherwise returns null.</returns>
-        private string SelectSubLines(string line)
+        private static string SelectSubLines(string line)
         {
             string prefix = VoteString.GetVotePrefix(line);
             if (string.IsNullOrEmpty(prefix))
@@ -277,7 +277,7 @@ namespace NetTally
         /// </summary>
         /// <param name="line">The line to generate a key for.</param>
         /// <returns>Returns the line, or "Key", as the key for a line.</returns>
-        private string NonNullSelectSubLines(string line) => line ?? "Key";
+        private static string NonNullSelectSubLines(string line) => line ?? "Key";
 
         /// <summary>
         /// Determine if there are any references to future (unprocessed) votes
@@ -349,7 +349,7 @@ namespace NetTally
         /// <param name="vote">The vote to process.</param>
         /// <param name="post">The post it was derived from.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
-        private void ProcessVote(PostComponents post, PartitionMode partitionMode)
+        private static void ProcessVote(PostComponents post, PartitionMode partitionMode)
         {
             // Get the list of all vote partitions, built according to current preferences.
             // One of: By line, By block, or By post (ie: entire vote)

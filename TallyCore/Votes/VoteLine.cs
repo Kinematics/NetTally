@@ -93,10 +93,10 @@ namespace NetTally.Votes
                 // The returned value will capitalize the first letter, and lowercase any following letters.
 
                 if (task.Length == 1)
-                    task = task.ToUpper();
+                    task = task.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
 
                 if (task.Length > 1)
-                    task = char.ToUpper(task[0]) + task.Substring(1).ToLower();
+                    task = char.ToUpper(task[0], System.Globalization.CultureInfo.InvariantCulture) + task.Substring(1).ToLower(System.Globalization.CultureInfo.InvariantCulture);
             }
             else
             {
@@ -116,7 +116,7 @@ namespace NetTally.Votes
         public string MinimizeVote()
         {
             string collapsed = collapseRegex.Replace(CleanedText, "");
-            collapsed = collapsed.ToLower();
+            collapsed = collapsed.ToLower(System.Globalization.CultureInfo.InvariantCulture);
             if (MinimizeByLine)
                 collapsed = leadHyphenRegex.Replace(collapsed, "");
 

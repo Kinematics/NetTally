@@ -22,13 +22,13 @@ namespace NetTally.Web
             DocString = null;
         }
 
-        public CachedPage(string docString)
+        public CachedPage(string html)
         {
-            if (docString == null)
-                throw new ArgumentNullException(nameof(docString));
+            if (html == null)
+                throw new ArgumentNullException(nameof(html));
 
             Timestamp = DateTime.Now;
-            DocString = docString;
+            DocString = html;
             Doc = null;
         }
     }

@@ -23,6 +23,9 @@ namespace NetTally.Web
         /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
         public static CookieCollection GetCookies(Uri uri)
         {
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+
             CookieCollection cookies = new CookieCollection();
 
             Cookie cookie;

@@ -125,12 +125,12 @@ namespace NetTally.Utility
         // strings are different, or allows that two strings -might- be the same.
         // Create a hash value that creates the minimal comparison possible, to
         // see if two strings are different.
-        public int GetHashCode(string input)
+        public int GetHashCode(string obj)
         {
             // Decompose a unicode string so that 'accented' charaters are broken
             // into their original + accent marks as separate character entities.
             // EG: á becomes a + ́
-            string decomposed = input?.Normalize(System.Text.NormalizationForm.FormD) ?? string.Empty;
+            string decomposed = obj?.Normalize(System.Text.NormalizationForm.FormD) ?? string.Empty;
             // Filter the decomposed string so that we're left with only numbers and
             // lowercase letters.
             var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c, CultureInfo.InvariantCulture));

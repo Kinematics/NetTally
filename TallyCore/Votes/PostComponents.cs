@@ -93,6 +93,9 @@ namespace NetTally
         /// <returns>Returns true if this post comes after the defined starting point.</returns>
         public bool IsAfterStart(ThreadRangeInfo startInfo)
         {
+            if (startInfo == null)
+                throw new ArgumentNullException(nameof(startInfo));
+
             if (startInfo.ByNumber)
             {
                 return Number >= startInfo.Number;
