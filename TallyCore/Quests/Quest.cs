@@ -384,7 +384,7 @@ namespace NetTally
                     $"Page {firstPageNumber}", CachingMode.BypassCache, token).ConfigureAwait(false);
 
                 if (firstPage == null)
-                    throw new InvalidOperationException("Unable to load web page.");
+                    throw new InvalidOperationException($"Unable to load web page: {ForumAdapter.GetUrlForPage(firstPageNumber, PostsPerPage)}");
 
                 pages.Add(Task.FromResult(firstPage));
 
