@@ -131,6 +131,9 @@ namespace NetTally
 
             var firstPage = await pages.First();
 
+            if (firstPage == null)
+                return false;
+
             // Use the title of the first page for the descriptive output.
             ThreadInfo threadInfo = Quest.ForumAdapter.GetThreadInfo(firstPage);
             Title = threadInfo.Title;
