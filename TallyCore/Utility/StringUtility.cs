@@ -135,7 +135,7 @@ namespace NetTally.Utility
             string decomposed = input?.Normalize(System.Text.NormalizationForm.FormD) ?? string.Empty;
             // Filter the decomposed string so that we're left with only numbers and
             // lowercase letters.
-            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c));
+            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c, CultureInfo.InvariantCulture));
             // Convert the LINQ results to a new string.
             string check = new string(filtered.ToArray());
             // And if this hash code comes out different, we can be certain that
@@ -183,7 +183,7 @@ namespace NetTally.Utility
             string decomposed = input.Normalize(System.Text.NormalizationForm.FormD);
             // Filter the decomposed string so that we're left with only numbers and
             // lowercase letters.
-            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c));
+            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c, CultureInfo.InvariantCulture));
             // Convert the LINQ results to a new string.
             string check = new string(filtered.ToArray());
             // And if this hash code comes out different, we can be certain that
