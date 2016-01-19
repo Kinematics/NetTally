@@ -32,7 +32,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllPlansWithContent();
+            var plans = GetAllPlansWithContent(post);
 
             StorePlanReferences(plans);
 
@@ -53,7 +53,7 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var plans = post.GetAllFullPostPlans();
+            var plans = GetAllFullPostPlans(post);
 
             StorePlanReferences(plans);
 
@@ -207,7 +207,65 @@ namespace NetTally
         }
         #endregion
 
-        #region Utility functions for processing plans.
+        #region Utility functions for processing plans.        
+        /// <summary>
+        /// Gets a list of all plans within the post that have defined content (child lines).
+        /// </summary>
+        /// <param name="post">The post to extract plans from.</param>
+        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
+        private static List<List<string>> GetAllPlansWithContent(PostComponents post)
+        {
+            List<List<string>> results = new List<List<string>>();
+
+            results.AddRange(post.BasePlans.Select(a => a.ToList()));
+
+            if (post.VoteLines.Any())
+            {
+                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                foreach (var block in voteBlocks)
+                {
+                    if (block.Count() > 1)
+                    {
+                        string planname = VoteString.GetPlanName(block.Key);
+
+                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            results.Add(block.ToList());
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets a list of all full-vote plans (of which there will only be one, if found).
+        /// </summary>
+        /// <param name="post">The post to extract plans from.</param>
+        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
+        private static List<List<string>> GetAllFullPostPlans(PostComponents post)
+        {
+            List<List<string>> results = new List<List<string>>();
+
+            if (post.VoteLines.Any())
+            {
+                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                // If the vote has any plans with content in them, skip this post.
+                if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
+                {
+                    var firstLine = post.VoteLines.First();
+
+                    string planname = VoteString.GetPlanName(firstLine);
+
+                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                        results.Add(post.VoteLines);
+                }
+            }
+
+            return results;
+        }
+
         /// <summary>
         /// Store original plan name and contents in reference containers.
         /// </summary>

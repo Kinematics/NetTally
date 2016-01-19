@@ -104,60 +104,6 @@ namespace NetTally
             return IDValue > startInfo.ID;
         }
 
-
-        /// <summary>
-        /// Get all plans from the current post.
-        /// Plans named after a user are ignored as invalid.
-        /// </summary>
-        /// <returns>Returns a list of composed plans.</returns>
-        public List<List<string>> GetAllPlansWithContent()
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            results.AddRange(BasePlans.Select(a => a.ToList()));
-
-            if (VoteLines.Any())
-            {
-                var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-                foreach (var block in voteBlocks)
-                {
-                    if (block.Count() > 1)
-                    {
-                        string planname = VoteString.GetPlanName(block.Key);
-
-                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
-                            results.Add(block.ToList());
-                    }
-                }
-            }
-
-            return results;
-        }
-
-        public List<List<string>> GetAllFullPostPlans()
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            if (VoteLines.Any())
-            {
-                var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
-
-                // If the vote has any plans with content in them, skip.
-                if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
-                {
-                    var firstLine = VoteLines.First();
-
-                    string planname = VoteString.GetPlanName(firstLine);
-
-                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
-                        results.Add(VoteLines);
-                }
-            }
-
-            return results;
-        }
-
         /// <summary>
         /// Set the WorkingVote list from a call to the supplied function.
         /// Reset Processed and ForceProcess flags.
