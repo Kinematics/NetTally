@@ -444,7 +444,7 @@ namespace NetTally
         /// <param name="voteType">The vote type being partitioned.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a list of partitions, representing the pieces of the vote.</returns>
-        private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
+        private static List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
         {
             if (lines == null)
                 throw new ArgumentNullException(nameof(lines));

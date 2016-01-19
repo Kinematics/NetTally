@@ -12,7 +12,6 @@ namespace NetTally.Votes
         // Formatting markup may be preserved within the content of the vote, but will be ignored
         // if it is outside the vote as a whole (eg: bolding the entire vote, vs individual words).
 
-        static readonly Regex prePostRegex = new Regex(@"");
         // Regex to match any markup that we'll want to remove during comparisons.
         static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
         // Regex to get the different parts of the vote. Content includes only the first line of the vote.

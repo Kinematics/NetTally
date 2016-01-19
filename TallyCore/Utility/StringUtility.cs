@@ -121,8 +121,6 @@ namespace NetTally.Utility
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
 
-        static readonly Regex filterRegex = new Regex(@"[^a-z]+", RegexOptions.IgnoreCase);
-
         // The hash code represents a number that either guarantees that two
         // strings are different, or allows that two strings -might- be the same.
         // Create a hash value that creates the minimal comparison possible, to
