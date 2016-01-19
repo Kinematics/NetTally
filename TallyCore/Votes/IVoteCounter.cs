@@ -9,7 +9,7 @@ namespace NetTally
     {
         IQuest Quest { get; set; }
 
-        Task TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages);
+        Task<bool> TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages);
         void TallyPosts();
         void TallyPosts(IQuest quest);
         List<PostComponents> PostsList { get; }

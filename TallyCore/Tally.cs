@@ -203,10 +203,13 @@ namespace NetTally
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
                     // Tally the votes from the loaded pages.
-                    await VoteCounter.Instance.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
+                    bool completed = await VoteCounter.Instance.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
 
-                    // Compose the final result string from the compiled votes.
-                    UpdateResults();
+                    if (completed)
+                    {
+                        // Compose the final result string from the compiled votes.
+                        UpdateResults();
+                    }
                 }
 
                 GC.Collect();

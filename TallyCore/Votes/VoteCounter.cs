@@ -114,10 +114,10 @@ namespace NetTally
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="startInfo">The start information.</param>
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
-        /// <returns>Returns a void task.</returns>
+        /// <returns>Returns true if processing was successfully completed.  Otherwise false.</returns>
         /// <exception cref="ArgumentNullException">If quest or pages is null.</exception>
         /// <exception cref="ApplicationException">If not all pages loaded.</exception>
-        public async Task TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
+        public async Task<bool> TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -125,7 +125,7 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(pages));
 
             if (pages.Count == 0)
-                return;
+                return false;
 
             Quest = quest;
 
@@ -168,6 +168,8 @@ namespace NetTally
             PostsList = PostsList.OrderBy(p => p.Number).ToList();
 
             TallyPosts();
+
+            return true;
         }
 
         /// <summary>
