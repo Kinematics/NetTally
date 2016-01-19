@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally
+namespace NetTally.Web
 {
     /// <summary>
     /// EventArgs custom class to pass a message string.

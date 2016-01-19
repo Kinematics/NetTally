@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace NetTally
+namespace NetTally.Web
 {
     public static class ForumCookies
     {
