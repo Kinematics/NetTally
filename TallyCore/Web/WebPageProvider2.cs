@@ -114,7 +114,7 @@ namespace NetTally.Web
         /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescription, CachingMode caching, CancellationToken token, bool shouldCache = true)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, CancellationToken token, bool shouldCache = true)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
@@ -126,7 +126,7 @@ namespace NetTally.Web
 
                 if (page != null)
                 {
-                    UpdateStatus(StatusType.Cached, shortDescription);
+                    UpdateStatus(StatusType.Cached, shortDescrip);
                     return page;
                 }
             }
@@ -151,7 +151,7 @@ namespace NetTally.Web
                         {
                             // If we have to retry loading the page, give it a short delay.
                             await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                            UpdateStatus(StatusType.Retry, shortDescription);
+                            UpdateStatus(StatusType.Retry, shortDescrip);
                         }
 
                         using (response = await client.GetAsync(url, token).ConfigureAwait(false))
@@ -193,7 +193,7 @@ namespace NetTally.Web
                 }
                 catch (HttpRequestException e)
                 {
-                    UpdateStatus(StatusType.Error, shortDescription, e);
+                    UpdateStatus(StatusType.Error, shortDescrip, e);
                     throw;
                 }
                 catch (OperationCanceledException e)
@@ -212,7 +212,7 @@ namespace NetTally.Web
 
                 if (result == null)
                 {
-                    UpdateStatus(StatusType.Failed, shortDescription);
+                    UpdateStatus(StatusType.Failed, shortDescrip);
                     return null;
                 }
 
@@ -222,7 +222,7 @@ namespace NetTally.Web
                 if (shouldCache)
                     Cache.Add(url, result);
 
-                UpdateStatus(StatusType.Loaded, shortDescription);
+                UpdateStatus(StatusType.Loaded, shortDescrip);
 
                 return htmldoc;
             }

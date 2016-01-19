@@ -392,10 +392,10 @@ namespace NetTally
         /// <param name="content">The content of the vote line.</param>
         public static void GetVoteComponents(string line,
             out string prefix, out string marker, out string task, out string content,
-            bool ByPartition = false)
+            bool byPartition = false)
         {
             Match m;
-            if (ByPartition)
+            if (byPartition)
                 m = voteLineRegexSingleLine.Match(line);
             else
                 m = voteLineRegex.Match(line);
@@ -599,7 +599,7 @@ namespace NetTally
         /// <returns>Returns a complete vote line.</returns>
         public static string ModifyVoteLine(string voteLine,
             string prefix = null, string marker = null, string task = null, string content = null,
-            bool ByPartition = false)
+            bool byPartition = false)
         {
             if (string.IsNullOrEmpty(voteLine))
                 throw new ArgumentNullException(nameof(voteLine));
@@ -614,7 +614,7 @@ namespace NetTally
             string voteContent;
 
             // Use the original vote line value for any parameter that is null.
-            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, ByPartition: ByPartition);
+            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, byPartition: byPartition);
 
             prefix = prefix ?? votePrefix;
             marker = marker ?? voteMarker;
@@ -652,7 +652,7 @@ namespace NetTally
                 }
             }
 
-            return ModifyVoteLine(voteLine, task: newTask ?? "", ByPartition: true);
+            return ModifyVoteLine(voteLine, task: newTask ?? "", byPartition: true);
         }
         #endregion
 

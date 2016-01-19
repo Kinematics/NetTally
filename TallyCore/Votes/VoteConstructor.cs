@@ -802,7 +802,7 @@ namespace NetTally
             {
                 if (VoteString.GetVoteTask(block) == string.Empty)
                 {
-                    string rep = VoteString.ModifyVoteLine(block, task: planTask, ByPartition: true);
+                    string rep = VoteString.ModifyVoteLine(block, task: planTask, byPartition: true);
                     results.Add(rep);
                 }
                 else
