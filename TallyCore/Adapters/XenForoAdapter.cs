@@ -464,8 +464,6 @@ namespace NetTally.Adapters
         /// <returns>Returns a list of all unfiltered threadmark links.</returns>
         static IEnumerable<HtmlNode> GetThreadmarksList(IQuest quest, HtmlDocument page)
         {
-            var doc = page.DocumentNode;
-
             try
             {
                 var content = GetPageContent(page, PageType.Threadmarks);

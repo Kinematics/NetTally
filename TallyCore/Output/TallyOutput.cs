@@ -330,18 +330,6 @@ namespace NetTally.Output
                 sb.Append(vote.Text);
             }
         }
-
-        /// <summary>
-        /// Add the voter count to the output, for the provided vote.
-        /// </summary>
-        /// <param name="vote">The vote to add.</param>
-        private void AddVoteCount(VoteNode vote)
-        {
-            if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
-            {
-                AddVoterCount(vote.VoterCount);
-            }
-        }
         #endregion
 
         #region Add by KeyValuePair

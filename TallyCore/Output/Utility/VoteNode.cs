@@ -79,10 +79,6 @@ namespace NetTally.Output
 
             string results = string.Empty;
 
-            string planname = VoteString.GetPlanName(lines[0]);
-            bool isPlan = planname != null && VoteCounter.Instance.HasPlan(planname);
-
-
             if (HasChildren || (!HasParent && lines.Count == 1))
             {
                 // Parent node, or solitary node with 1 line.
