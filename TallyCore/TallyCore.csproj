@@ -90,8 +90,8 @@
     <Compile Include="Adapters\Utility\PostText.cs" />
     <Compile Include="Debugging\RegionProfiler.cs" />
     <Compile Include="Utility\Misc.cs" />
-    <Compile Include="Votes\Vote.cs" />
-    <Compile Include="Votes\VoteLine.cs" />
+    <Compile Include="Votes\Objects\Vote.cs" />
+    <Compile Include="Votes\Objects\VoteLine.cs" />
     <Compile Include="Votes\VoteString.cs" />
     <Compile Include="Votes\VoteConstructor.cs" />
     <Compile Include="Votes\VoteCounter.cs" />
