@@ -9,119 +9,83 @@ namespace NetTally.Votes
 {
     public class VoteLine
     {
-        // Formatting markup may be preserved within the content of the vote, but will be ignored
-        // if it is outside the vote as a whole (eg: bolding the entire vote, vs individual words).
-
-        // Regex to match any markup that we'll want to remove during comparisons.
-        static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
-        // Regex to get the different parts of the vote. Content includes only the first line of the vote.
-        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>-*)\s*\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?!url=)(?<task>[^]]*?)\s*\])?\s*(?<content>.*)");
-        // Regex to allow us to collapse a vote to a commonly comparable version.
-        static readonly Regex collapseRegex = new Regex(@"\s|\.");
-        // Regex to allow us to strip leading dashes from a per-line vote.
-        static readonly Regex leadHyphenRegex = new Regex(@"^-+");
-
+        // The minimal indicator that a text string is a vote line.
+        static readonly Regex minimumVoteLineRegex = new Regex(@"^[-\s]*\[\s*[xX+✓✔1-9]\s*\]");
+        // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)");
 
         public string Text { get; }
+        public string CleanedText { get; }
+
         public string Prefix { get; }
         public string Marker { get; }
         public string Task { get; }
         public string Content { get; }
 
-        public string CleanedText { get; }
-        public string MinimizedText { get; }
-        public bool MinimizeByLine { get; }
+        public static readonly VoteLine Empty = new VoteLine();
 
-        public VoteLine(string voteLine, IQuest quest = null)
+        private VoteLine()
         {
-            CleanedText = CleanText(voteLine);
-            string prefix, marker, task, content;
-            GetComponentsFromLine(voteLine, out prefix, out marker, out task, out content);
+            Text = string.Empty;
+            CleanedText = string.Empty;
+            Prefix = string.Empty;
+            Marker = string.Empty;
+            Task = string.Empty;
+            Content = string.Empty;
+        }
 
-            Prefix = prefix;
-            Marker = marker;
-            Task = task;
-            Content = content;
+        public VoteLine(string text)
+        {
+            string stripText = VoteString.RemoveBBCode(text);
 
-            MinimizeByLine = quest?.PartitionMode == PartitionMode.ByLine;
-            MinimizedText = MinimizeVote();
+            Match m = minimumVoteLineRegex.Match(stripText);
+            if (!m.Success)
+            {
+                throw new ArgumentException("Not a valid vote line.", nameof(text));
+            }
+
+            Text = VoteString.CleanVoteLineBBCode(text);
+            CleanedText = stripText;
+
+            m = voteLineRegex.Match(Text);
+
+            if (m.Success)
+            {
+                Prefix = m.Groups["prefix"].Value.Replace(" ", string.Empty);
+                Marker = m.Groups["marker"].Value;
+                Task = m.Groups["task"]?.Value.Trim() ?? "";
+                Content = m.Groups["content"].Value;
+            }
+            else
+            {
+                throw new ArgumentException("Failed to extract data from vote line.", nameof(text));
+            }
         }
 
         public VoteLine(string prefix, string marker, string task, string content)
         {
-            Prefix = prefix;
-            Marker = marker;
-            Task = task;
-            Content = content;
+            Prefix = prefix ?? "";
+            Marker = marker ?? "X";
+            Task = task ?? "";
+            Content = content ?? "";
 
             Text = BuildText();
-            CleanedText = CleanText(Text);
+            CleanedText = VoteString.RemoveBBCode(Text);
         }
 
-        private string BuildText()
+        public VoteLine ModifyVoteLine(string prefix = null, string marker = null, string task = null, string content = null)
         {
-            return $"{Prefix}[{Marker}]" + (!string.IsNullOrEmpty(Task) ? $"[{Task}]" : "") + $" {Content}";
+            prefix = prefix ?? Prefix;
+            marker = marker ?? Marker;
+            task = task ?? Task;
+            content = content ?? Content;
+
+            return new VoteLine(prefix, marker, task, content);
         }
 
 
+        private string BuildText() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {Content}";
 
-        /// <summary>
-        /// Given a vote line, remove any BBCode formatting chunks, and trim the result.
-        /// </summary>
-        /// <param name="voteLine">The vote line to examine.</param>
-        /// <returns>Returns the vote line without any BBCode formatting.</returns>
-        public static string CleanText(string voteLine)
-        {
-            // Need to trim the result because removing markup may reveal new whitespace.
-            return markupRegex.Replace(voteLine, "").Trim();
-        }
-
-
-
-        public void GetComponentsFromLine(string line, out string prefix, out string marker, out string task, out string content)
-        {
-            Match m = voteLineRegex.Match(CleanedText);
-            if (m.Success)
-            {
-                prefix = m.Groups["prefix"].Value;
-                marker = m.Groups["marker"].Value;
-                content = m.Groups["content"].Value.Trim();
-
-                task = m.Groups["task"].Value.Trim();
-
-                // A task name is composed of any number of characters or digits, with an optional ending question mark.
-                // The returned value will capitalize the first letter, and lowercase any following letters.
-
-                if (task.Length == 1)
-                    task = task.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
-
-                if (task.Length > 1)
-                    task = char.ToUpper(task[0], System.Globalization.CultureInfo.InvariantCulture) + task.Substring(1).ToLower(System.Globalization.CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                throw new InvalidOperationException("Unable to parse vote line.");
-            }
-        }
-
-        /// <summary>
-        /// Collapse a vote to a minimized form, for comparison.
-        /// All BBCode markup is removed, along with all spaces and periods,
-        /// and leading dashes when partitioning by line.  The text is then
-        /// lowercased.
-        /// </summary>
-        /// <param name="voteLine">Original vote line to minimize.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns a minimized version of the vote string.</returns>
-        public string MinimizeVote()
-        {
-            string collapsed = collapseRegex.Replace(CleanedText, "");
-            collapsed = collapsed.ToLower(System.Globalization.CultureInfo.InvariantCulture);
-            if (MinimizeByLine)
-                collapsed = leadHyphenRegex.Replace(collapsed, "");
-
-            return collapsed;
-        }
 
     }
 }
