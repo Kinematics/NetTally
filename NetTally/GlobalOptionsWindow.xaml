@@ -33,8 +33,10 @@
                   IsChecked="{Binding Path=TrimExtendedText}" />
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,73,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}" />
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top"
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DebugMode}" />
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,94,0,0" Grid.Row="1" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=GlobalSpoilers}"/>
 
         <!-- External Tooltip Descriptions -->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowRankedVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -52,6 +54,10 @@
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trimExtendedText, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Trim Extended Vote Descriptions"/>
             <TextBlock TextWrapping="Wrap" Text="This is an experimental attempt to trim extended descriptions from a vote line.  An extended description is a long segment of text after a colon, that is at least three times as long as the text preceding the colon. When this option is set, any extended description will be removed.  Defaults to false."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Always Use Full Spoilers"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, all display modes will be placed inside a full spoiler block (similar to Spoiler All).  This does not affect whether voter lists are placed in spoilers.  Defaults to false."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=debugMode, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Debug Mode"/>

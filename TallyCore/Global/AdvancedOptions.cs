@@ -37,6 +37,7 @@ namespace NetTally
         bool ignoreSymbols = true;
         bool ignoreSpoilers = false;
         bool trimExtendedText = false;
+        bool globalSpoilers = false;
         DisplayMode displayMode = DisplayMode.Normal;
 
         bool debugMode = false;
@@ -104,6 +105,19 @@ namespace NetTally
             set
             {
                 ignoreSpoilers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to always put spoiler tags around all forms of display output.
+        /// </summary>
+        public bool GlobalSpoilers
+        {
+            get { return globalSpoilers; }
+            set
+            {
+                globalSpoilers = value;
                 OnPropertyChanged();
             }
         }

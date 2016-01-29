@@ -24,6 +24,7 @@ namespace NetTally
             ignoreSymbols.IsChecked = true;
             trimExtendedText.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
+            globalSpoilers.IsChecked = false;
             debugMode.IsChecked = false;
         }
     }

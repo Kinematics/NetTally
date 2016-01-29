@@ -45,7 +45,7 @@ namespace NetTally.Output
         /// </summary>
         private void BuildGlobal()
         {
-            using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll))
+            using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll || AdvancedOptions.Instance.GlobalSpoilers))
             {
                 AddHeader();
 
