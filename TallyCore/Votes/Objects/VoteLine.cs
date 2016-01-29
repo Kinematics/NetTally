@@ -86,6 +86,6 @@ namespace NetTally.Votes
 
         private string BuildText() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {Content}";
 
-
+        public override string ToString() => Text;
     }
 }

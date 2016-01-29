@@ -18,5 +18,7 @@ namespace NetTally.Votes
         {
 
         }
+
+        public override string ToString() => string.Join("\r\n", this.Select(x => x.Text).ToArray());
     }
 }
