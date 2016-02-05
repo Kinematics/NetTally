@@ -56,7 +56,9 @@ namespace NetTally
         #endregion
 
         #region Other regexes
-        static readonly Regex colonRegex = new Regex(@"(?<!plan\s*):(?!//)", RegexOptions.IgnoreCase);
+        static readonly Regex colonExtendedTextRegex = new Regex(@"(?<!plan\s*):(?!//)", RegexOptions.IgnoreCase);
+        static readonly Regex hyphenExtendedTextRegex = new Regex(@"-(-+|\s+|\s*[A-Z])");
+
         #endregion
 
         #region Cleanup functions
@@ -265,7 +267,7 @@ namespace NetTally
         /// <summary>
         /// A modification option that removes extended text descriptions
         /// from a vote line.  If a colon is found that separates less
-        /// than 25% of the vote line length from more than 75%, the
+        /// than 30% of the vote line length from more than 70%, the
         /// excess portion is dropped.
         /// </summary>
         /// <param name="line">The line as read.</param>
@@ -277,18 +279,65 @@ namespace NetTally
 
             string lineContent = GetVoteContent(line);
 
-            Match m = colonRegex.Match(lineContent);
+            // If content is less than about 8 words long, don't try to trim it.
+            if (lineContent.Length < 50)
+                return line;
+
+            // Get the offset into the original text that the content begins.
+            int contentIndex = line.IndexOf(lineContent, StringComparison.InvariantCulture);
+
+            // The furthest into the content area that we're going to allow a
+            // separator to be placed.
+            int separatorLimit = lineContent.Length * 3 / 10;
+
+            // Colons are always allowed as separators, though it needs
+            // to run through a regex to be sure it's not part of a plan
+            // definition line, or part of an absolute path on Windows.
+            Match m = colonExtendedTextRegex.Match(lineContent);
             if (m.Success)
             {
                 if (m.Index > 0)
                 {
-                    if (m.Index < lineContent.Length * 3 / 10)
+                    if (m.Index < separatorLimit)
                     {
-                        m = colonRegex.Match(line);
-
-                        return line.Substring(0, m.Index);
+                        return line.Substring(0, m.Index + contentIndex);
                     }
                 }
+            }
+
+            // Em dashes are always allowed as separators.
+            int index = lineContent.IndexOf('—');
+            if (index > 0)
+            {
+                if (index < separatorLimit)
+                {
+                    return line.Substring(0, index + contentIndex);
+                }
+            }
+
+            // Search for any instances of hyphens in the content.
+            // Only counts if there's a space after the hyphen, or if
+            // the next word starts with a capital letter.
+            // Select the one that comes closest to, without passing,
+            // the separator limit.
+            MatchCollection matches = hyphenExtendedTextRegex.Matches(lineContent);
+            m = null;
+            if (matches.Count > 0)
+            {
+                for (int ctr = 0; ctr < matches.Count; ctr++)
+                {
+                    if (matches[ctr].Length < separatorLimit)
+                    {
+                        m = matches[ctr];
+                    }
+                }
+            }
+
+            // If we have a value in m, that was the last hyphen that occurred before
+            // the separator limit index.
+            if (m != null)
+            {
+                return line.Substring(0, m.Index + contentIndex);
             }
 
             return line;
