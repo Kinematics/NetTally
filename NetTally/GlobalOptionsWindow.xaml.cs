@@ -25,6 +25,7 @@ namespace NetTally
             trimExtendedText.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
             globalSpoilers.IsChecked = false;
+            allowVoteLabelPlanNames.IsChecked = true;
             debugMode.IsChecked = false;
         }
     }

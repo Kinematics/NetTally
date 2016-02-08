@@ -53,6 +53,9 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
+            if (AdvancedOptions.Instance.AllowVoteLabelPlanNames == false)
+                return;
+
             var plans = GetAllFullPostPlans(post);
 
             StorePlanReferences(plans);

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Global Options" Height="349.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Global Options" Height="356.584" Width="607.664" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
@@ -17,7 +17,7 @@
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="90" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
@@ -33,10 +33,12 @@
                   IsChecked="{Binding Path=TrimExtendedText}" />
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,73,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}" />
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=DebugMode}" />
         <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,94,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=GlobalSpoilers}"/>
+        <CheckBox x:Name="allowVoteLabelPlanNames" Content="Allow Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,115,0,0" Grid.Row="1" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=AllowVoteLabelPlanNames}"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,153,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowRankedVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -58,6 +60,10 @@
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Always Use Full Spoilers"/>
             <TextBlock TextWrapping="Wrap" Text="When set, all display modes will be placed inside a full spoiler block (similar to Spoiler All).  This does not affect whether voter lists are placed in spoilers.  Defaults to false."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowVoteLabelPlanNames, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Vote Labels as Plan Names"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line as the first line of the vote, that has no plan content, are allowed to be used as identifiers for the 'plan name' of the entire vote."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=debugMode, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Debug Mode"/>

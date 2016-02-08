@@ -33,12 +33,14 @@ namespace NetTally
         #endregion
 
         #region Properties and associated fields
+        DisplayMode displayMode = DisplayMode.Normal;
+
         bool allowRankedVotes = true;
         bool ignoreSymbols = true;
         bool ignoreSpoilers = false;
         bool trimExtendedText = false;
         bool globalSpoilers = false;
-        DisplayMode displayMode = DisplayMode.Normal;
+        bool allowVoteLabelPlanNames = true;
 
         bool debugMode = false;
 
@@ -118,6 +120,19 @@ namespace NetTally
             set
             {
                 globalSpoilers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        public bool AllowVoteLabelPlanNames
+        {
+            get { return allowVoteLabelPlanNames; }
+            set
+            {
+                allowVoteLabelPlanNames = value;
                 OnPropertyChanged();
             }
         }
