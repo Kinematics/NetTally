@@ -58,6 +58,20 @@ namespace NetTally
             set { this["IgnoreSpoilers"] = value; }
         }
 
+        [ConfigurationProperty("GlobalSpoilers", DefaultValue = false)]
+        public bool GlobalSpoilers
+        {
+            get { return (bool)this["GlobalSpoilers"]; }
+            set { this["GlobalSpoilers"] = value; }
+        }
+
+        [ConfigurationProperty("AllowVoteLabelPlanNames", DefaultValue = true)]
+        public bool AllowVoteLabelPlanNames
+        {
+            get { return (bool)this["AllowVoteLabelPlanNames"]; }
+            set { this["AllowVoteLabelPlanNames"] = value; }
+        }
+
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
@@ -89,6 +103,8 @@ namespace NetTally
             AdvancedOptions.Instance.IgnoreSpoilers = IgnoreSpoilers;
             AdvancedOptions.Instance.IgnoreSymbols = IgnoreSymbols;
             AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
+            AdvancedOptions.Instance.GlobalSpoilers = GlobalSpoilers;
+            AdvancedOptions.Instance.AllowVoteLabelPlanNames = AllowVoteLabelPlanNames;
 
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
@@ -141,6 +157,8 @@ namespace NetTally
             IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
             IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
+            GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers;
+            AllowVoteLabelPlanNames = AdvancedOptions.Instance.AllowVoteLabelPlanNames;
 
             CurrentQuest = questWrapper.CurrentQuest;
 
