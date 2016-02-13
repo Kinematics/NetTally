@@ -43,6 +43,7 @@ namespace NetTally
         /// Second pass review of posts to extract and store plans.
         /// In this pass, plans that are simply labels for the entire post,
         /// and don't have any content themselves, are considered.
+        /// The overall vote must have more than one line, however.
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
@@ -56,7 +57,32 @@ namespace NetTally
             if (AdvancedOptions.Instance.AllowVoteLabelPlanNames == false)
                 return;
 
-            var plans = GetAllFullPostPlans(post);
+            var plans = GetAllFullPostPlans(post, true);
+
+            StorePlanReferences(plans);
+
+            ProcessPlans(plans, post, quest.PartitionMode);
+        }
+
+        /// <summary>
+        /// Third pass review of posts to extract and store plans.
+        /// In this pass, plans that are simply labels for the entire post,
+        /// and don't have any content themselves, are considered.
+        /// The overall vote may have just one line.
+        /// </summary>
+        /// <param name="post">Post to be examined.</param>
+        /// <param name="quest">Quest being tallied.</param>
+        public static void PreprocessPlansPhase3(PostComponents post, IQuest quest)
+        {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
+            if (AdvancedOptions.Instance.AllowVoteLabelPlanNames == false)
+                return;
+
+            var plans = GetAllFullPostPlans(post, false);
 
             StorePlanReferences(plans);
 
@@ -246,7 +272,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post to extract plans from.</param>
         /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private static List<List<string>> GetAllFullPostPlans(PostComponents post)
+        private static List<List<string>> GetAllFullPostPlans(PostComponents post, bool multiline)
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -257,12 +283,16 @@ namespace NetTally
                 // If the vote has any plans with content in them, skip this post.
                 if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
                 {
-                    var firstLine = post.VoteLines.First();
+                    // If flagged for multiline, there must be more than 1 line in the vote.
+                    if (!multiline || post.VoteLines.Count > 1)
+                    {
+                        var firstLine = post.VoteLines.First();
 
-                    string planname = VoteString.GetPlanName(firstLine);
+                        string planname = VoteString.GetPlanName(firstLine);
 
-                    if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
-                        results.Add(post.VoteLines);
+                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            results.Add(post.VoteLines);
+                    }
                 }
             }
 

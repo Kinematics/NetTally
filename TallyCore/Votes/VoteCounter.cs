@@ -204,9 +204,17 @@ namespace NetTally
             }
 
             // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
+            // Total vote must have multiple lines.
             foreach (var post in PostsList)
             {
                 VoteConstructor.PreprocessPlansPhase2(post, Quest);
+            }
+
+            // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
+            // Total vote may be only one line.
+            foreach (var post in PostsList)
+            {
+                VoteConstructor.PreprocessPlansPhase3(post, Quest);
             }
 
             // Once all the plans are in place, set the working votes for each post.
