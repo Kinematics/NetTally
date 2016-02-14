@@ -56,7 +56,7 @@ namespace NetTally
         #endregion
 
         #region Other regexes
-        static readonly Regex extendedTextRegex = new Regex(@"(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
+        static readonly Regex extendedTextRegex = new Regex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
         static readonly Regex wordCountRegex = new Regex(@"\S+\b");
         #endregion
 
