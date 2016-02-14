@@ -56,9 +56,8 @@ namespace NetTally
         #endregion
 
         #region Other regexes
-        static readonly Regex colonExtendedTextRegex = new Regex(@"(?<!plan\s*):(?!//)", RegexOptions.IgnoreCase);
-        static readonly Regex hyphenExtendedTextRegex = new Regex(@"-(-+|\s+|\s*[A-Z])");
-
+        static readonly Regex extendedTextRegex = new Regex(@"(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
+        static readonly Regex wordCountRegex = new Regex(@"\S+\b");
         #endregion
 
         #region Cleanup functions
@@ -266,25 +265,46 @@ namespace NetTally
 
         /// <summary>
         /// A modification option that removes extended text descriptions
-        /// from a vote line.  If a colon is found that separates less
-        /// than 30% of the vote line length from more than 70%, the
+        /// from a vote line.  If a colon/dash/em-dash is found that separates
+        /// less than 30% of the vote line length from more than 70%, the
         /// excess portion is dropped.
         /// </summary>
-        /// <param name="line">The line as read.</param>
+        /// <param name="voteLine">The original vote line.</param>
         /// <returns>Returns the vote line without the extended description.</returns>
-        public static string TrimExtendedTextDescription(string line)
+        private static string TrimExtendedTextDescription(string voteLine)
         {
-            if (string.IsNullOrEmpty(line))
+            if (string.IsNullOrEmpty(voteLine))
                 return string.Empty;
 
-            string lineContent = GetVoteContent(line);
-
-            // If content is less than about 8 words long, don't try to trim it.
-            if (lineContent.Length < 50)
-                return line;
+            string lineContent = GetVoteContent(voteLine);
 
             // Get the offset into the original text that the content begins.
-            int contentIndex = line.IndexOf(lineContent, StringComparison.InvariantCulture);
+            int contentIndex = voteLine.IndexOf(lineContent, StringComparison.InvariantCulture);
+
+            int trimmingIndex = GetTrimIndexForContent(lineContent);
+
+            if (trimmingIndex > 0)
+            {
+                return voteLine.Substring(0, trimmingIndex + contentIndex);
+            }
+
+            return voteLine;
+        }
+
+        /// <summary>
+        /// Gets the index to trim from for a given content line.
+        /// Determines the trim point as the last valid separation
+        /// character that fits under the length limit.  If there are
+        /// multiple separation points on the line, the untrimmed portion
+        /// of the line must have more than one word in it.
+        /// </summary>
+        /// <param name="lineContent">Content of the vote line.</param>
+        /// <returns>Returns the index that marks where to remove further text, or 0 if none.</returns>
+        private static int GetTrimIndexForContent(string lineContent)
+        {
+            // If content is less than about 8 words long, don't try to trim it.
+            if (lineContent.Length < 50)
+                return 0;
 
             // The furthest into the content area that we're going to allow a
             // separator to be placed.
@@ -293,54 +313,56 @@ namespace NetTally
             // Colons are always allowed as separators, though it needs
             // to run through a regex to be sure it's not part of a plan
             // definition line, or part of an absolute path on Windows.
-            Match m = colonExtendedTextRegex.Match(lineContent);
-            if (m.Success)
-            {
-                if (m.Index > 0)
-                {
-                    if (m.Index < separatorLimit)
-                    {
-                        return line.Substring(0, m.Index + contentIndex);
-                    }
-                }
-            }
 
             // Em dashes are always allowed as separators.
-            int index = lineContent.IndexOf('—');
-            if (index > 0)
-            {
-                if (index < separatorLimit)
-                {
-                    return line.Substring(0, index + contentIndex);
-                }
-            }
 
             // Search for any instances of hyphens in the content.
             // Only counts if there's a space after the hyphen, or if
             // the next word starts with a capital letter.
             // Select the one that comes closest to, without passing,
             // the separator limit.
-            MatchCollection matches = hyphenExtendedTextRegex.Matches(lineContent);
-            m = null;
-            if (matches.Count > 0)
+
+            MatchCollection matches = extendedTextRegex.Matches(lineContent);
+
+            // If there is only one separator, use it as long as it's within the limit.
+            if (matches.Count == 1)
             {
-                for (int ctr = 0; ctr < matches.Count; ctr++)
+                Match m = matches[0];
+                if (m.Success && m.Index > 0 && m.Index < separatorLimit)
                 {
-                    if (matches[ctr].Length < separatorLimit)
+                    return m.Index;
+                }
+            }
+            // If there's more than one separator, take the last one that fits, but
+            // only if there's more than one word before it.
+            else if (matches.Count > 1)
+            {
+                for (int i = matches.Count-1; i >= 0; i--)
+                {
+                    Match m = matches[i];
+                    if (m.Success && m.Index > 0 && m.Index < separatorLimit)
                     {
-                        m = matches[ctr];
+                        string partial = lineContent.Substring(0, m.Index);
+
+                        if (CountWords(partial) > 1)
+                            return m.Index;
                     }
                 }
             }
 
-            // If we have a value in m, that was the last hyphen that occurred before
-            // the separator limit index.
-            if (m != null)
-            {
-                return line.Substring(0, m.Index + contentIndex);
-            }
+            // If no proper matches were found, return 0.
+            return 0;
+        }
 
-            return line;
+        /// <summary>
+        /// Counts the words in the provided string.
+        /// </summary>
+        /// <param name="partial">Part of a content line that we're going to count the words of.</param>
+        /// <returns>Returns the number of words found in the provided string.</returns>
+        private static int CountWords(string partial)
+        {
+            var matches = wordCountRegex.Matches(partial);
+            return matches.Count;
         }
         #endregion
 
