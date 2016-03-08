@@ -41,6 +41,7 @@ namespace NetTally
         bool trimExtendedText = false;
         bool globalSpoilers = false;
         bool allowVoteLabelPlanNames = true;
+        bool disableProxyVotes = false;
 
         bool debugMode = false;
 
@@ -133,6 +134,19 @@ namespace NetTally
             set
             {
                 allowVoteLabelPlanNames = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
+        /// </summary>
+        public bool DisableProxyVotes
+        {
+            get { return disableProxyVotes; }
+            set
+            {
+                disableProxyVotes = value;
                 OnPropertyChanged();
             }
         }

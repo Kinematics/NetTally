@@ -72,6 +72,13 @@ namespace NetTally
             set { this["AllowVoteLabelPlanNames"] = value; }
         }
 
+        [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
+        public bool DisableProxyVotes
+        {
+            get { return (bool)this["DisableProxyVotes"]; }
+            set { this["DisableProxyVotes"] = value; }
+        }
+
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
@@ -105,6 +112,7 @@ namespace NetTally
             AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
             AdvancedOptions.Instance.GlobalSpoilers = GlobalSpoilers;
             AdvancedOptions.Instance.AllowVoteLabelPlanNames = AllowVoteLabelPlanNames;
+            AdvancedOptions.Instance.DisableProxyVotes = DisableProxyVotes;
 
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
@@ -159,6 +167,7 @@ namespace NetTally
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
             GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers;
             AllowVoteLabelPlanNames = AdvancedOptions.Instance.AllowVoteLabelPlanNames;
+            DisableProxyVotes = AdvancedOptions.Instance.DisableProxyVotes;
 
             CurrentQuest = questWrapper.CurrentQuest;
 
