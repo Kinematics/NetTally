@@ -285,6 +285,8 @@ namespace NetTally
             string toVote = VoteView2.CurrentItem?.ToString();
 
             MergeVotes(fromVote, toVote);
+
+            OnPropertyChanged("HasUndoActions");
         }
 
         /// <summary>
@@ -314,6 +316,8 @@ namespace NetTally
                     VoterView1.Refresh();
                     VoterView2.Refresh();
                     VoteView1.MoveCurrentToPosition(-1);
+
+                    OnPropertyChanged("HasUndoActions");
                 }
             }
             catch (ArgumentOutOfRangeException ex)
@@ -336,6 +340,7 @@ namespace NetTally
                 VoteView1.MoveCurrentToPosition(-1);
                 VoteView2.MoveCurrentToFirst();
 
+                OnPropertyChanged("HasUndoActions");
             }
         }
 
@@ -346,7 +351,15 @@ namespace NetTally
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void undo_Click(object sender, RoutedEventArgs e)
         {
-            VoteCounter.Instance.Undo();
+            if(VoteCounter.Instance.Undo())
+            {
+                VoteView1.Refresh();
+                VoteView2.Refresh();
+                VoteView1.MoveCurrentToPosition(-1);
+                VoteView2.MoveCurrentToFirst();
+            }
+
+            OnPropertyChanged("HasUndoActions");
         }
 
         /// <summary>
