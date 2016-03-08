@@ -355,6 +355,8 @@ namespace NetTally
             {
                 VoteView1.Refresh();
                 VoteView2.Refresh();
+                VoterView1.Refresh();
+                VoterView2.Refresh();
                 VoteView1.MoveCurrentToPosition(-1);
                 VoteView2.MoveCurrentToFirst();
             }
