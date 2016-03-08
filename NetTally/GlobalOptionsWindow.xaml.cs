@@ -21,11 +21,15 @@ namespace NetTally
         private void resetAllButton_Click(object sender, RoutedEventArgs e)
         {
             allowRankedVotes.IsChecked = true;
-            ignoreSymbols.IsChecked = true;
-            trimExtendedText.IsChecked = false;
-            ignoreSpoilers.IsChecked = false;
-            globalSpoilers.IsChecked = false;
+
             allowVoteLabelPlanNames.IsChecked = true;
+            ignoreSymbols.IsChecked = true;
+            disableProxyVotes.IsChecked = false;
+            ignoreSpoilers.IsChecked = false;
+            trimExtendedText.IsChecked = false;
+
+            globalSpoilers.IsChecked = false;
+
             debugMode.IsChecked = false;
         }
     }
