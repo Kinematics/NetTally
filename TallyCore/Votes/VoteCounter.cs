@@ -45,7 +45,7 @@ namespace NetTally
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
-        public Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
+        Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
         #endregion
@@ -366,6 +366,11 @@ namespace NetTally
 
             int count = 0;
 
+            var priorVotes = votes.Where(v => v.Value.Any(u => voters.Contains(u)));
+            var voterIDList = GetVotersCollection(voteType);
+            UndoBuffer.Push(new UndoAction(UndoActionType.Join, voteType, voterIDList, voters, priorVotes));
+
+
             foreach (string voter in voters)
             {
                 if (voter != voterToJoin)
@@ -402,6 +407,8 @@ namespace NetTally
             {
                 var votersToTrim = votes[vote];
 
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), vote, votersToTrim));
+
                 removed = votes.Remove(vote);
 
                 foreach (var voter in votersToTrim)
@@ -420,7 +427,55 @@ namespace NetTally
             if (!HasUndoActions)
                 return false;
 
-            return false;
+            var undo = UndoBuffer.Pop();
+            List<string> vote;
+
+            switch (undo.ActionType)
+            {
+                case UndoActionType.Delete:
+                    vote = new List<string> { undo.Vote1 };
+                    foreach (var voter in undo.Voters1)
+                    {
+                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                    }
+                    break;
+                case UndoActionType.Merge:
+                    LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
+                    vote = new List<string> { undo.Vote1 };
+                    foreach (var voter in undo.Voters1)
+                    {
+                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                    }
+                    break;
+                case UndoActionType.Join:
+                    foreach (string voter in undo.Voters)
+                    {
+                        RemoveSupport(voter, undo.VoteType);
+
+                        foreach (var priorVote in undo.PriorVotes)
+                        {
+                            if (priorVote.Value.Contains(voter))
+                            {
+                                vote = new List<string> { priorVote.Key };
+
+                                AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                            }
+                        }
+                    }
+
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void LimitVoters(string vote2, HashSet<string> voters2, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+            var vote = votes[vote2];
+            vote.IntersectWith(voters2);
         }
         #endregion
 
@@ -699,6 +754,12 @@ namespace NetTally
             if (vote.Key == revisedKey)
                 return false;
 
+
+            var voters = GetVotersCollection(voteType);
+            UndoBuffer.Push(new UndoAction(UndoActionType.Merge, voteType, voters,
+                vote.Key, GetVoters(vote.Key, voteType), revisedKey, GetVoters(revisedKey, voteType)));
+
+
             var votes = GetVotesCollection(voteType);
 
             if (votes.ContainsKey(revisedKey))
@@ -713,6 +774,16 @@ namespace NetTally
             votes.Remove(vote.Key);
 
             return true;
+        }
+
+        private HashSet<string> GetVoters(string vote, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+
+            if (votes.ContainsKey(vote))
+                return votes[vote];
+
+            return new HashSet<string>();
         }
 
         /// <summary>
