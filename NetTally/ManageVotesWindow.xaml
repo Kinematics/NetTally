@@ -140,7 +140,8 @@
                 </ToolTip>
             </RadioButton.ToolTip>
         </RadioButton>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⦔Delete⦓" Margin="10,196,10,0" VerticalAlignment="Top" Height="35" RenderTransformOrigin="0.507,0.1" ToolTipService.ShowOnDisabled="True" Click="delete_Click">
+        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⦔Delete⦓" Margin="10,196,10,0" VerticalAlignment="Top" Height="35" RenderTransformOrigin="0.507,0.1"
+                ToolTipService.ShowOnDisabled="True" Click="delete_Click">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay">
                     <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
@@ -156,6 +157,20 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
+
+        <Button Grid.Column="1" Grid.Row="0" x:Name="undo" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
+                Click="undo_Click" ToolTipService.ShowOnDisabled="True"
+                IsEnabled="{Binding Path=HasUndoActions, Mode=OneWay}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Undo</TextBlock>
+                        <TextBlock>Undo the last merge, delete, or join action.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+
 
         <!-- Grid 1,1 : Voter Controls -->
 

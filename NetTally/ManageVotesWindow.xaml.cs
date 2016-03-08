@@ -182,6 +182,11 @@ namespace NetTally
         public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
 
         /// <summary>
+        /// Returns whether the VoteCounter has stored undo actions.
+        /// </summary>
+        public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
+
+        /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
         /// </summary>
         public bool DisplayStandardVotes
@@ -332,6 +337,16 @@ namespace NetTally
                 VoteView2.MoveCurrentToFirst();
 
             }
+        }
+
+        /// <summary>
+        /// Calls Undo on the vote counter to undo the most recent vote modification action.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void undo_Click(object sender, RoutedEventArgs e)
+        {
+            VoteCounter.Instance.Undo();
         }
 
         /// <summary>
