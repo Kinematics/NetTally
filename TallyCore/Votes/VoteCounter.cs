@@ -312,7 +312,9 @@ namespace NetTally
                 votes.Remove(emptyVote.Key);
             }
         }
+        #endregion
 
+        #region Modifying Votes
         /// <summary>
         /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
         /// Moves the voters from the from vote into the to vote list, and removes the 'from' vote's key.
@@ -411,6 +413,10 @@ namespace NetTally
             return removed;
         }
 
+        /// <summary>
+        /// Undoes the most recently performed modification to the vote count.
+        /// </summary>
+        /// <returns>Returns true if it performed an undo action.  Otherwise, false.</returns>
         public bool Undo()
         {
             if (!HasUndoActions)
@@ -418,7 +424,9 @@ namespace NetTally
 
             return false;
         }
+        #endregion
 
+        #region Querying Votes
         /// <summary>
         /// Find all votes tied to a given vote line.
         /// The "plan name" (possibly user name) is checked with the
