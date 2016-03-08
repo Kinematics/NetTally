@@ -383,6 +383,10 @@ namespace NetTally
             if (post.ForceProcess)
                 return false;
 
+            // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
+            if (AdvancedOptions.Instance.DisableProxyVotes)
+                return false;
+
             foreach (var line in post.WorkingVote)
             {
                 // Exclude plan name marker references.

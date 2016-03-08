@@ -431,7 +431,7 @@ namespace NetTally
 
             string existingRefName = PlanNames.FirstOrDefault(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
 
-            if (existingRefName == null)
+            if (existingRefName == null && !AdvancedOptions.Instance.DisableProxyVotes)
             {
                 existingRefName = ReferenceVoters.FirstOrDefault(n =>
                     n != author &&
