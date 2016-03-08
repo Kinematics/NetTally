@@ -319,6 +319,7 @@ namespace NetTally
             // Search for any instances of hyphens in the content.
             // Only counts if there's a space after the hyphen, or if
             // the next word starts with a capital letter.
+
             // Select the one that comes closest to, without passing,
             // the separator limit.
 
