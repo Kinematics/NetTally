@@ -45,7 +45,6 @@ namespace NetTally
 
         HashSet<PostComponents> FutureReferences { get; }
 
-        Stack<UndoAction> UndoBuffer { get; }
         bool HasUndoActions { get; }
         bool Undo();
     }
