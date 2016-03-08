@@ -61,7 +61,7 @@ namespace NetTally
 
         #endregion
 
-        #region Public Interface Functions
+        #region Basic reset & tally
         /// <summary>
         /// Reset all tracking variables.
         /// </summary>
@@ -84,32 +84,6 @@ namespace NetTally
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
-        }
-
-        /// <summary>
-        /// Get the dictionary collection of votes for the requested vote type.
-        /// </summary>
-        /// <param name="voteType">The type of vote being requested.</param>
-        /// <returns>Returns a dictionary collection of the requested vote type.</returns>
-        public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return RankedVotesWithSupporters;
-            else
-                return VotesWithSupporters;
-        }
-
-        /// <summary>
-        /// Get the dictionary collection of voters and post IDs for the requested vote type.
-        /// </summary>
-        /// <param name="voteType">The type of vote being requested.</param>
-        /// <returns>Returns a dictionary collection of the requested voter type.</returns>
-        public Dictionary<string, string> GetVotersCollection(VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return RankedVoterMessageId;
-            else
-                return VoterMessageId;
         }
 
         /// <summary>
@@ -255,231 +229,45 @@ namespace NetTally
             }
         }
 
-        /// <summary>
-        /// Add a vote to the vote counter.
-        /// </summary>
-        /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
-        /// <param name="voter">The voter for this vote.</param>
-        /// <param name="postID">The post ID for this vote.</param>
-        /// <param name="voteType">The type of vote being added.</param>
-        public void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
-        {
-            if (voteParts == null)
-                throw new ArgumentNullException(nameof(voteParts));
-            if (string.IsNullOrEmpty(voter))
-                throw new ArgumentNullException(nameof(voter));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
-
-            if (!voteParts.Any())
-                return;
-
-            var votes = GetVotesCollection(voteType);
-            var voters = GetVotersCollection(voteType);
-
-            // Store/update the post ID of the voter
-            voters[voter] = postID;
-
-            // Track plan names
-            if (voteType == VoteType.Plan)
-                PlanNames.Add(voter);
-
-            // Remove the voter from any existing votes
-            foreach (var vote in votes)
-            {
-                vote.Value.Remove(voter);
-            }
-
-            // Add/update all segments of the provided vote
-            foreach (var part in voteParts)
-            {
-                string voteKey = GetVoteKey(part, voteType);
-
-                // Make sure there's a hashset for the voter list available for the vote key.
-                if (!votes.ContainsKey(voteKey))
-                {
-                    votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                }
-
-                // Update the supporters list.
-                votes[voteKey].Add(voter);
-            }
-
-            // Any votes that no longer have any support can be removed
-            var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
-            foreach (var emptyVote in emptyVotes)
-            {
-                votes.Remove(emptyVote.Key);
-            }
-        }
         #endregion
 
-        #region Modifying Votes
+        #region Query on collection stuff
         /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the 'from' vote's key.
+        /// Get the dictionary collection of votes for the requested vote type.
         /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <param name="voteType">The type of vote being merged.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        public bool Merge(string fromVote, string toVote, VoteType voteType)
+        /// <param name="voteType">The type of vote being requested.</param>
+        /// <returns>Returns a dictionary collection of the requested vote type.</returns>
+        public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
         {
-            if (fromVote == null)
-                throw new ArgumentNullException(nameof(fromVote));
-            if (toVote == null)
-                throw new ArgumentNullException(nameof(toVote));
-            if (fromVote.Length == 0)
-                throw new ArgumentOutOfRangeException(nameof(fromVote), "Vote string is empty.");
-            if (toVote.Length == 0)
-                throw new ArgumentOutOfRangeException(nameof(toVote), "Vote string is empty.");
-            if (fromVote == toVote)
-                return false;
-
             if (voteType == VoteType.Rank)
-                return MergeRanks(fromVote, toVote);
+                return RankedVotesWithSupporters;
             else
-                return MergeVotes(fromVote, toVote);
+                return VotesWithSupporters;
         }
 
         /// <summary>
-        /// Merges voter support.
-        /// All of the list of provided voters are adjusted to support the same votes
-        /// as those supported by the voterToJoin.
+        /// Get the dictionary collection of voters and post IDs for the requested vote type.
         /// </summary>
-        /// <param name="voters">List of voters that are being adjusted.</param>
-        /// <param name="voterToJoin">Voter that all specified voters will be joining.</param>
-        /// <param name="voteType">The type of vote being manipulated.</param>
-        /// <returns>Returns true if adjustments were made.</returns>
-        public bool Join(List<string> voters, string voterToJoin, VoteType voteType)
+        /// <param name="voteType">The type of vote being requested.</param>
+        /// <returns>Returns a dictionary collection of the requested voter type.</returns>
+        public Dictionary<string, string> GetVotersCollection(VoteType voteType)
         {
-            if (voters == null)
-                throw new ArgumentNullException(nameof(voters));
-            if (string.IsNullOrEmpty(voterToJoin))
-                throw new ArgumentNullException(nameof(voterToJoin));
-            if (voters.Count == 0)
-                return false;
-
-            var votes = GetVotesCollection(voteType);
-
-            var joinVotersVotes = votes.Where(v => v.Value.Contains(voterToJoin));
-
-            int count = 0;
-
-            var priorVotes = votes.Where(v => v.Value.Any(u => voters.Contains(u)));
-            var voterIDList = GetVotersCollection(voteType);
-            UndoBuffer.Push(new UndoAction(UndoActionType.Join, voteType, voterIDList, voters, priorVotes));
-
-
-            foreach (string voter in voters)
-            {
-                if (voter != voterToJoin)
-                {
-                    count++;
-                    RemoveSupport(voter, voteType);
-
-                    foreach (var vote in joinVotersVotes)
-                    {
-                        vote.Value.Add(voter);
-                    }
-                }
-            }
-
-            return count > 0;
+            if (voteType == VoteType.Rank)
+                return RankedVoterMessageId;
+            else
+                return VoterMessageId;
         }
 
-        /// <summary>
-        /// Delete a vote from the vote list specified.
-        /// </summary>
-        /// <param name="vote">The vote to remove.</param>
-        /// <param name="voteType">The type of vote to remove.</param>
-        /// <returns>Returns true if a vote was removed.</returns>
-        public bool Delete(string vote, VoteType voteType)
+        private HashSet<string> GetVoters(string vote, VoteType voteType)
         {
-            if (string.IsNullOrEmpty(vote))
-                return false;
-
             var votes = GetVotesCollection(voteType);
-
-            bool removed = false;
 
             if (votes.ContainsKey(vote))
-            {
-                var votersToTrim = votes[vote];
+                return votes[vote];
 
-                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), vote, votersToTrim));
-
-                removed = votes.Remove(vote);
-
-                foreach (var voter in votersToTrim)
-                    TrimVoter(voter, voteType);
-            }
-
-            return removed;
+            return new HashSet<string>();
         }
 
-        /// <summary>
-        /// Undoes the most recently performed modification to the vote count.
-        /// </summary>
-        /// <returns>Returns true if it performed an undo action.  Otherwise, false.</returns>
-        public bool Undo()
-        {
-            if (!HasUndoActions)
-                return false;
-
-            var undo = UndoBuffer.Pop();
-            List<string> vote;
-
-            switch (undo.ActionType)
-            {
-                case UndoActionType.Delete:
-                    vote = new List<string> { undo.Vote1 };
-                    foreach (var voter in undo.Voters1)
-                    {
-                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
-                    }
-                    break;
-                case UndoActionType.Merge:
-                    LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
-                    vote = new List<string> { undo.Vote1 };
-                    foreach (var voter in undo.Voters1)
-                    {
-                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
-                    }
-                    break;
-                case UndoActionType.Join:
-                    foreach (string voter in undo.Voters)
-                    {
-                        RemoveSupport(voter, undo.VoteType);
-
-                        foreach (var priorVote in undo.PriorVotes)
-                        {
-                            if (priorVote.Value.Contains(voter))
-                            {
-                                vote = new List<string> { priorVote.Key };
-
-                                AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
-                            }
-                        }
-                    }
-
-                    break;
-                default:
-                    return false;
-            }
-
-            return true;
-        }
-
-        private void LimitVoters(string vote2, HashSet<string> voters2, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-            var vote = votes[vote2];
-            vote.IntersectWith(voters2);
-        }
-        #endregion
-
-        #region Querying Votes
         /// <summary>
         /// Find all votes tied to a given vote line.
         /// The "plan name" (possibly user name) is checked with the
@@ -604,6 +392,264 @@ namespace NetTally
             var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
             return condensed;
         }
+
+        /// <summary>
+        /// Determines whether the provided vote string can be found in
+        /// condensed form in the rank votes.
+        /// </summary>
+        /// <param name="rankVote">The vote to check for.</param>
+        /// <returns>Returns true if found.</returns>
+        private bool HasCondensedRankVote(string rankVote)
+        {
+            foreach (var vote in RankedVotesWithSupporters)
+            {
+                if (VoteString.CondenseVote(vote.Key) == rankVote)
+                    return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Modifying Votes
+        /// <summary>
+        /// Add a vote to the vote counter.
+        /// </summary>
+        /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
+        /// <param name="voter">The voter for this vote.</param>
+        /// <param name="postID">The post ID for this vote.</param>
+        /// <param name="voteType">The type of vote being added.</param>
+        public void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
+        {
+            if (voteParts == null)
+                throw new ArgumentNullException(nameof(voteParts));
+            if (string.IsNullOrEmpty(voter))
+                throw new ArgumentNullException(nameof(voter));
+            if (string.IsNullOrEmpty(postID))
+                throw new ArgumentNullException(nameof(postID));
+
+            if (!voteParts.Any())
+                return;
+
+            // Store/update the post ID of the voter
+            var voters = GetVotersCollection(voteType);
+            voters[voter] = postID;
+
+            // Track plan names
+            if (voteType == VoteType.Plan)
+                PlanNames.Add(voter);
+
+            var votes = GetVotesCollection(voteType);
+
+            // Remove the voter from any existing votes
+            RemoveSupport(voter, voteType);
+
+            // Add/update all segments of the provided vote
+            foreach (var part in voteParts)
+            {
+                AddVote(part, voter, voteType);
+            }
+
+            // Cleanup any votes that no longer have any support
+            CleanupEmptyVotes(voteType);
+        }
+
+        /// <summary>
+        /// Adds an individual vote.
+        /// </summary>
+        /// <param name="vote">The vote that is being added to.</param>
+        /// <param name="voter">The voter that is supporting the vote.</param>
+        /// <param name="voteType">Type of the vote.</param>
+        /// <exception cref="System.ArgumentNullException">vote and voter must not be null or empty.</exception>
+        private void AddVote(string vote, string voter, VoteType voteType)
+        {
+            if (string.IsNullOrEmpty(vote))
+                throw new ArgumentNullException(nameof(vote));
+            if (string.IsNullOrEmpty(voter))
+                throw new ArgumentNullException(nameof(voter));
+
+            string voteKey = GetVoteKey(vote, voteType);
+            var votes = GetVotesCollection(voteType);
+
+            // Make sure there's a hashset for the voter list available for the vote key.
+            if (votes.ContainsKey(voteKey) == false)
+            {
+                votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            // Update the supporters list.
+            votes[voteKey].Add(voter);
+        }
+
+
+
+
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the 'from' vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        /// <param name="voteType">The type of vote being merged.</param>
+        /// <returns>Returns true if there were any changes.</returns>
+        public bool Merge(string fromVote, string toVote, VoteType voteType)
+        {
+            if (fromVote == null)
+                throw new ArgumentNullException(nameof(fromVote));
+            if (toVote == null)
+                throw new ArgumentNullException(nameof(toVote));
+            if (fromVote.Length == 0)
+                throw new ArgumentOutOfRangeException(nameof(fromVote), "Vote string is empty.");
+            if (toVote.Length == 0)
+                throw new ArgumentOutOfRangeException(nameof(toVote), "Vote string is empty.");
+            if (fromVote == toVote)
+                return false;
+
+            if (voteType == VoteType.Rank)
+                return MergeRanks(fromVote, toVote);
+            else
+                return MergeVotes(fromVote, toVote);
+        }
+
+        /// <summary>
+        /// Merges voter support.
+        /// All of the list of provided voters are adjusted to support the same votes
+        /// as those supported by the voterToJoin.
+        /// </summary>
+        /// <param name="voters">List of voters that are being adjusted.</param>
+        /// <param name="voterToJoin">Voter that all specified voters will be joining.</param>
+        /// <param name="voteType">The type of vote being manipulated.</param>
+        /// <returns>Returns true if adjustments were made.</returns>
+        public bool Join(List<string> voters, string voterToJoin, VoteType voteType)
+        {
+            if (voters == null)
+                throw new ArgumentNullException(nameof(voters));
+            if (string.IsNullOrEmpty(voterToJoin))
+                throw new ArgumentNullException(nameof(voterToJoin));
+            if (voters.Count == 0)
+                return false;
+
+            var votes = GetVotesCollection(voteType);
+
+            var joinVotersVotes = votes.Where(v => v.Value.Contains(voterToJoin));
+
+            int count = 0;
+
+            var priorVotes = votes.Where(v => v.Value.Any(u => voters.Contains(u)));
+            var voterIDList = GetVotersCollection(voteType);
+            UndoBuffer.Push(new UndoAction(UndoActionType.Join, voteType, voterIDList, voters, priorVotes));
+
+
+            foreach (string voter in voters)
+            {
+                if (voter != voterToJoin)
+                {
+                    count++;
+                    RemoveSupport(voter, voteType);
+
+                    foreach (var vote in joinVotersVotes)
+                    {
+                        vote.Value.Add(voter);
+                    }
+                }
+            }
+
+            CleanupEmptyVotes(voteType);
+
+            return count > 0;
+        }
+
+        /// <summary>
+        /// Delete a vote from the vote list specified.
+        /// </summary>
+        /// <param name="vote">The vote to remove.</param>
+        /// <param name="voteType">The type of vote to remove.</param>
+        /// <returns>Returns true if a vote was removed.</returns>
+        public bool Delete(string vote, VoteType voteType)
+        {
+            if (string.IsNullOrEmpty(vote))
+                return false;
+
+            var votes = GetVotesCollection(voteType);
+
+            bool removed = false;
+
+            if (votes.ContainsKey(vote))
+            {
+                var votersToTrim = votes[vote];
+
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), vote, votersToTrim));
+
+                removed = votes.Remove(vote);
+
+                foreach (var voter in votersToTrim)
+                    TrimVoter(voter, voteType);
+            }
+
+            return removed;
+        }
+
+        /// <summary>
+        /// Undoes the most recently performed modification to the vote count.
+        /// </summary>
+        /// <returns>Returns true if it performed an undo action.  Otherwise, false.</returns>
+        public bool Undo()
+        {
+            if (!HasUndoActions)
+                return false;
+
+            var undo = UndoBuffer.Pop();
+            List<string> vote;
+
+            switch (undo.ActionType)
+            {
+                case UndoActionType.Delete:
+                    vote = new List<string> { undo.Vote1 };
+                    foreach (var voter in undo.Voters1)
+                    {
+                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                    }
+                    break;
+                case UndoActionType.Merge:
+                    LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
+                    vote = new List<string> { undo.Vote1 };
+                    foreach (var voter in undo.Voters1)
+                    {
+                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                    }
+                    break;
+                case UndoActionType.Join:
+                    foreach (string voter in undo.Voters)
+                    {
+                        RemoveSupport(voter, undo.VoteType);
+
+                        foreach (var priorVote in undo.PriorVotes)
+                        {
+                            if (priorVote.Value.Contains(voter))
+                            {
+                                vote = new List<string> { priorVote.Key };
+
+                                AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                            }
+                        }
+                    }
+
+                    CleanupEmptyVotes(undo.VoteType);
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void LimitVoters(string vote2, HashSet<string> voters2, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+            var vote = votes[vote2];
+            vote.IntersectWith(voters2);
+        }
         #endregion
 
         #region Private support methods
@@ -652,6 +698,15 @@ namespace NetTally
             {
                 vote.Value.Remove(voter);
             }
+        }
+
+        /// <summary>
+        /// Removes any votes that no longer have any voter support.
+        /// </summary>
+        /// <param name="voteType">Type of the vote.</param>
+        private void CleanupEmptyVotes(VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
 
             // Any votes that no longer have any support can be removed
             var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
@@ -774,33 +829,6 @@ namespace NetTally
             votes.Remove(vote.Key);
 
             return true;
-        }
-
-        private HashSet<string> GetVoters(string vote, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-
-            if (votes.ContainsKey(vote))
-                return votes[vote];
-
-            return new HashSet<string>();
-        }
-
-        /// <summary>
-        /// Determines whether the provided vote string can be found in
-        /// condensed form in the rank votes.
-        /// </summary>
-        /// <param name="rankVote">The vote to check for.</param>
-        /// <returns>Returns true if found.</returns>
-        private bool HasCondensedRankVote(string rankVote)
-        {
-            foreach (var vote in RankedVotesWithSupporters)
-            {
-                if (VoteString.CondenseVote(vote.Key) == rankVote)
-                    return true;
-            }
-
-            return false;
         }
         #endregion
     }
