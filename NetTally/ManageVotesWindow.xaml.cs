@@ -285,8 +285,6 @@ namespace NetTally
             string toVote = VoteView2.CurrentItem?.ToString();
 
             MergeVotes(fromVote, toVote);
-
-            OnPropertyChanged("HasUndoActions");
         }
 
         /// <summary>
@@ -606,6 +604,7 @@ namespace NetTally
 
                 if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
                 {
+                    /*
                     var votesAfter = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys.ToList();
 
                     var removedVotes = votesPrior.Except(votesAfter);
@@ -622,9 +621,15 @@ namespace NetTally
 
                         VoteCollection.Add(addVote);
                     }
+                    */
 
+                    VoteView1.Refresh();
+                    VoteView2.Refresh();
                     VoterView1.Refresh();
                     VoterView2.Refresh();
+
+
+                    OnPropertyChanged("HasUndoActions");
                 }
             }
             catch (ArgumentException ex)
