@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
+using NetTally.Votes;
 
 namespace NetTally
 {
@@ -43,5 +44,9 @@ namespace NetTally
         Dictionary<string, List<string>> ReferencePlans { get; }
 
         HashSet<PostComponents> FutureReferences { get; }
+
+        Stack<UndoAction> UndoBuffer { get; }
+        bool HasUndoActions { get; }
+        bool Undo();
     }
 }

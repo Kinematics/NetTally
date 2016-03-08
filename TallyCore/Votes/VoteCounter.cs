@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
 using NetTally.Utility;
+using NetTally.Votes;
 
 namespace NetTally
 {
@@ -44,6 +45,9 @@ namespace NetTally
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
+        public Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
+
+        public bool HasUndoActions => UndoBuffer.Count > 0;
         #endregion
 
         #region Public Class Properties
@@ -75,6 +79,8 @@ namespace NetTally
             ReferencePlans.Clear();
 
             FutureReferences.Clear();
+
+            UndoBuffer.Clear();
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
@@ -403,6 +409,14 @@ namespace NetTally
             }
 
             return removed;
+        }
+
+        public bool Undo()
+        {
+            if (!HasUndoActions)
+                return false;
+
+            return false;
         }
 
         /// <summary>
