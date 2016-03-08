@@ -6,28 +6,35 @@ using System.Threading.Tasks;
 
 namespace NetTally.Votes
 {
+    public enum UndoActionType
+    {
+        Merge,
+        Join,
+        Delete
+    }
+
     public class UndoAction
     {
+        public UndoActionType ActionType { get; }
         public VoteType VoteType { get; }
-        public string FromVote { get; }
-        public string ToVote { get; }
-        public string DeletedVote { get; }
-        HashSet<string> FromVoters { get; }
-        HashSet<string> ToVoters { get; }
-        HashSet<string> DeletedVoters { get; }
 
-        public UndoAction(VoteType voteType, string fromVote = null, string toVote = null, string deletedVote = null,
-            HashSet<string> fromVoters = null, HashSet<string> toVoters = null, HashSet<string> deletedVoters = null)
+        public string Vote1 { get; }
+        public string Vote2 { get; }
+        public HashSet<string> Voters1 { get; }
+        public HashSet<string> Voters2 { get; }
+
+        public UndoAction(UndoActionType actionType, VoteType voteType,
+            string vote1 = null, HashSet<string> voters1 = null,
+            string vote2 = null, HashSet<string> voters2 = null)
         {
+            ActionType = actionType;
             VoteType = voteType;
 
-            FromVote = fromVote;
-            ToVote = toVote;
-            DeletedVote = deletedVote;
+            Vote1 = vote1;
+            Voters1 = new HashSet<string>(voters1 ?? Enumerable.Empty<string>());
 
-            FromVoters = new HashSet<string>(fromVoters ?? Enumerable.Empty<string>());
-            ToVoters = new HashSet<string>(toVoters ?? Enumerable.Empty<string>());
-            DeletedVoters = new HashSet<string>(deletedVoters ?? Enumerable.Empty<string>());
+            Vote2 = vote2;
+            Voters2 = new HashSet<string>(voters2 ?? Enumerable.Empty<string>());
         }
     }
 }
