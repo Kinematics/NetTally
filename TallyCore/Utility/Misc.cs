@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
 using System.Globalization;
 
 namespace NetTally.Utility
@@ -33,5 +38,50 @@ namespace NetTally.Utility
             return result;
         }
     }
-    
+
+
+
+    [Serializable]
+    public class ObservableCollectionExt<T> : ObservableCollection<T>
+    {
+        public ObservableCollectionExt()
+        {
+        }
+
+        public ObservableCollectionExt(IEnumerable<T> list)
+            : base(list)
+        {
+        }
+
+        public ObservableCollectionExt(List<T> list)
+            : base(list)
+        {
+        }
+
+        public void RemoveWhere(Predicate<T> predicate)
+        {
+            CheckReentrancy();
+
+            List<T> itemsToRemove = Items.Where(x => predicate(x)).ToList();
+            itemsToRemove.ForEach(item => Items.Remove(item));
+
+            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        public void AddRange(IEnumerable<T> list)
+        {
+            CheckReentrancy();
+
+            foreach (T item in list)
+            {
+                Items.Add(item);
+            }
+
+            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+    }
 }
