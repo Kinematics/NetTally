@@ -729,7 +729,8 @@ namespace NetTally
                     vote = new List<string> { undo.Vote1 };
                     foreach (var voter in undo.Voters1)
                     {
-                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                        AddVote(undo.Vote1, voter, undo.VoteType);
+                        AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
                     }
                     break;
                 case UndoActionType.Merge:
