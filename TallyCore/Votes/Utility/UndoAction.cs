@@ -27,7 +27,8 @@ namespace NetTally.Votes
 
         public List<string> JoinedVoters { get; }
         public List<KeyValuePair<string, HashSet<string>>> PriorVotes { get; }
-        public Dictionary<KeyValuePair<string, HashSet<string>>, string> MergedVotes;
+        public Dictionary<KeyValuePair<string, HashSet<string>>, string> MergedVotes { get; }
+        public Dictionary<string, HashSet<string>> DeletedVotes { get; }
 
 
         // Delete
@@ -47,6 +48,29 @@ namespace NetTally.Votes
 
             Vote1 = vote1;
             Voters1 = new HashSet<string>(voters1 ?? Enumerable.Empty<string>());
+        }
+
+        // Delete Rank votes
+        public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
+            Dictionary<string, HashSet<string>> deletedVotes)
+        {
+            if (actionType != UndoActionType.Delete)
+                throw new InvalidOperationException("Invalid use of constructor for Delete undo.");
+            if (voteType != VoteType.Rank)
+                throw new InvalidOperationException("Invalid use of constructor for non-rank deletion.");
+            if (deletedVotes == null)
+                throw new ArgumentNullException(nameof(deletedVotes));
+
+            ActionType = actionType;
+            VoteType = voteType;
+            PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
+
+            DeletedVotes = new Dictionary<string, HashSet<string>>();
+            foreach (var deletedVote in deletedVotes)
+            {
+                // original vote, revised vote key
+                DeletedVotes.Add(deletedVote.Key, new HashSet<string>(deletedVote.Value));
+            }
         }
 
         // Merge
