@@ -18,13 +18,14 @@ namespace NetTally.Votes
         public UndoActionType ActionType { get; }
         public VoteType VoteType { get; }
 
+        public Dictionary<string, string> PostIDs { get; }
+
         public string Vote1 { get; }
         public string Vote2 { get; }
         public HashSet<string> Voters1 { get; }
         public HashSet<string> Voters2 { get; }
-        public Dictionary<string, string> PostIDs { get; }
 
-        public List<string> Voters { get; }
+        public List<string> JoinedVoters { get; }
         public List<KeyValuePair<string, HashSet<string>>> PriorVotes { get; }
 
         // Delete
@@ -75,12 +76,12 @@ namespace NetTally.Votes
 
         // Join
         public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
-            List<string> voters, IEnumerable<KeyValuePair<string, HashSet<string>>> priorVotes)
+            List<string> joinedVoters, IEnumerable<KeyValuePair<string, HashSet<string>>> priorVotes)
         {
             if (actionType != UndoActionType.Join)
                 throw new InvalidOperationException("Invalid use of constructor for Join undo.");
-            if (voters == null)
-                throw new ArgumentNullException(nameof(voters));
+            if (joinedVoters == null)
+                throw new ArgumentNullException(nameof(joinedVoters));
             if (priorVotes == null)
                 throw new ArgumentNullException(nameof(priorVotes));
 
@@ -88,7 +89,7 @@ namespace NetTally.Votes
             VoteType = voteType;
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
-            Voters = new List<string>(voters);
+            JoinedVoters = new List<string>(joinedVoters);
 
             PriorVotes = new List<KeyValuePair<string, HashSet<string>>>();
             foreach (var prior in priorVotes)
