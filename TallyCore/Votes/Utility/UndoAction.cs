@@ -31,25 +31,6 @@ namespace NetTally.Votes
         public Dictionary<string, HashSet<string>> DeletedVotes { get; }
 
 
-        // Delete
-        public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
-            string vote1, HashSet<string> voters1)
-        {
-            if (actionType != UndoActionType.Delete)
-                throw new InvalidOperationException("Invalid use of constructor for Delete undo.");
-            if (vote1 == null)
-                throw new ArgumentNullException(nameof(vote1));
-            if (voters1 == null)
-                throw new ArgumentNullException(nameof(voters1));
-
-            ActionType = actionType;
-            VoteType = voteType;
-            PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
-
-            Vote1 = vote1;
-            Voters1 = new HashSet<string>(voters1 ?? Enumerable.Empty<string>());
-        }
-
         // Delete votes
         public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
             Dictionary<string, HashSet<string>> deletedVotes)
