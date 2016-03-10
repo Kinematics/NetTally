@@ -27,6 +27,8 @@ namespace NetTally.Votes
 
         public List<string> JoinedVoters { get; }
         public List<KeyValuePair<string, HashSet<string>>> PriorVotes { get; }
+        public Dictionary<KeyValuePair<string, HashSet<string>>, string> MergedVotes;
+
 
         // Delete
         public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
@@ -72,6 +74,31 @@ namespace NetTally.Votes
 
             Vote2 = vote2;
             Voters2 = new HashSet<string>(voters2 ?? Enumerable.Empty<string>());
+        }
+
+        // Merge rank votes
+        public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
+            Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes)
+        {
+            if (actionType != UndoActionType.Merge)
+                throw new InvalidOperationException("Invalid use of constructor for Merge undo.");
+            if (voteType != VoteType.Rank)
+                throw new InvalidOperationException("Invalid use of constructor for non-rank merge.");
+            if (postIDs == null)
+                throw new ArgumentNullException(nameof(postIDs));
+            if (mergedVotes == null)
+                throw new ArgumentNullException(nameof(mergedVotes));
+
+            ActionType = actionType;
+            VoteType = voteType;
+            PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
+
+            MergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
+            foreach (var mergedVote in mergedVotes)
+            {
+                // original vote, revised vote key
+                MergedVotes.Add(new KeyValuePair<string, HashSet<string>>(mergedVote.Key.Key, new HashSet<string>(mergedVote.Key.Value)), mergedVote.Value);
+            }
         }
 
         // Join
