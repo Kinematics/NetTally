@@ -645,30 +645,10 @@ namespace NetTally
 
                 if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
                 {
-                    /*
-                    var votesAfter = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys.ToList();
-
-                    var removedVotes = votesPrior.Except(votesAfter);
-                    var addedVotes = votesAfter.Except(votesPrior);
-
-                    foreach (var vote in removedVotes)
-                    {
-                        VoteCollection.Remove(vote);
-                    }
-
-                    foreach (var vote in addedVotes)
-                    {
-                        string addVote = CurrentVoteType == VoteType.Rank ? VoteString.CondenseVote(vote) : vote;
-
-                        VoteCollection.Add(addVote);
-                    }
-                    */
-
                     VoteView1.Refresh();
                     VoteView2.Refresh();
                     VoterView1.Refresh();
                     VoterView2.Refresh();
-
 
                     OnPropertyChanged("HasUndoActions");
                 }
