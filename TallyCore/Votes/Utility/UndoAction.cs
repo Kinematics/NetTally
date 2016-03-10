@@ -50,14 +50,12 @@ namespace NetTally.Votes
             Voters1 = new HashSet<string>(voters1 ?? Enumerable.Empty<string>());
         }
 
-        // Delete Rank votes
+        // Delete votes
         public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
             Dictionary<string, HashSet<string>> deletedVotes)
         {
             if (actionType != UndoActionType.Delete)
                 throw new InvalidOperationException("Invalid use of constructor for Delete undo.");
-            if (voteType != VoteType.Rank)
-                throw new InvalidOperationException("Invalid use of constructor for non-rank deletion.");
             if (deletedVotes == null)
                 throw new ArgumentNullException(nameof(deletedVotes));
 
@@ -68,7 +66,6 @@ namespace NetTally.Votes
             DeletedVotes = new Dictionary<string, HashSet<string>>();
             foreach (var deletedVote in deletedVotes)
             {
-                // original vote, revised vote key
                 DeletedVotes.Add(deletedVote.Key, new HashSet<string>(deletedVote.Value));
             }
         }

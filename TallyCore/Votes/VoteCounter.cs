@@ -692,22 +692,37 @@ namespace NetTally
             if (string.IsNullOrEmpty(vote))
                 return false;
 
-            var votes = GetVotesCollection(voteType);
-
             bool removed = false;
 
-            if (votes.ContainsKey(vote))
+            var votes = GetVotesCollection(voteType);
+            Dictionary<string, HashSet<string>> deletedVotes = new Dictionary<string, HashSet<string>>();
+
+            foreach (var v in votes)
             {
-                var votersToTrim = votes[vote];
-
-                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), vote, votersToTrim));
-
-                removed = votes.Remove(vote);
-
-                foreach (var voter in votersToTrim)
-                    TrimVoter(voter, voteType);
+                if (v.Key == vote || (voteType == VoteType.Rank && VoteString.CondenseVote(v.Key) == vote))
+                {
+                    deletedVotes.Add(v.Key, v.Value);
+                }
             }
 
+            if (deletedVotes.Count > 0)
+            {
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), deletedVotes));
+
+                foreach (var del in deletedVotes)
+                {
+                    removed = votes.Remove(del.Key) || removed;
+                }
+            }
+
+            foreach (var v in deletedVotes)
+            {
+                foreach (var voter in v.Value)
+                {
+                    TrimVoter(voter, voteType);
+                }
+            }
+            
             return removed;
         }
 
@@ -726,11 +741,13 @@ namespace NetTally
             switch (undo.ActionType)
             {
                 case UndoActionType.Delete:
-                    vote = new List<string> { undo.Vote1 };
-                    foreach (var voter in undo.Voters1)
+                    foreach (var v in undo.DeletedVotes)
                     {
-                        AddVote(undo.Vote1, voter, undo.VoteType);
-                        AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
+                        foreach (var voter in v.Value)
+                        {
+                            AddVote(v.Key, voter, undo.VoteType);
+                            AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
+                        }
                     }
                     break;
                 case UndoActionType.Merge:
