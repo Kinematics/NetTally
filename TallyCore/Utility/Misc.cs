@@ -30,8 +30,11 @@ namespace NetTally.Utility
             if (ys == null)
                 throw new ArgumentException("Parameter x is not a string.");
 
-            string compX = VoteString.GetVoteTask(xs) + " " + VoteString.GetVoteContent(xs);
-            string compY = VoteString.GetVoteTask(ys) + " " + VoteString.GetVoteContent(ys);
+            string marker = VoteString.GetVoteMarker(xs);
+            VoteType voteType = string.IsNullOrEmpty(marker) ? VoteType.Rank : VoteType.Plan;
+
+            string compX = VoteString.GetVoteTask(xs, voteType) + " " + VoteString.GetVoteContent(xs, voteType);
+            string compY = VoteString.GetVoteTask(ys, voteType) + " " + VoteString.GetVoteContent(ys, voteType);
 
             int result = string.Compare(compX, compY, CultureInfo.CurrentUICulture, CompareOptions.IgnoreCase);
 
