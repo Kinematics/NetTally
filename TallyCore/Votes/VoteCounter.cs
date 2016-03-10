@@ -414,7 +414,7 @@ namespace NetTally
 
         #region Modifying Votes
         /// <summary>
-        /// Add a vote to the vote counter.
+        /// Add a collection of votes to the vote counter.
         /// </summary>
         /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
         /// <param name="voter">The voter for this vote.</param>
@@ -433,8 +433,7 @@ namespace NetTally
                 return;
 
             // Store/update the post ID of the voter
-            var voters = GetVotersCollection(voteType);
-            voters[voter] = postID;
+            AddVoterPostID(voter, postID, voteType);
 
             // Track plan names
             if (voteType == VoteType.Plan)
@@ -482,8 +481,24 @@ namespace NetTally
             votes[voteKey].Add(voter);
         }
 
+        /// <summary>
+        /// Adds the voter post identifier.
+        /// </summary>
+        /// <param name="voter">The voter.</param>
+        /// <param name="postID">The post identifier.</param>
+        /// <param name="voteType">Type of the vote.</param>
+        /// <exception cref="System.ArgumentNullException">voter and postID may not be null or empty.</exception>
+        private void AddVoterPostID(string voter, string postID, VoteType voteType)
+        {
+            if (string.IsNullOrEmpty(voter))
+                throw new ArgumentNullException(nameof(voter));
+            if (string.IsNullOrEmpty(postID))
+                throw new ArgumentNullException(nameof(postID));
 
-
+            // Store/update the post ID of the voter
+            var voters = GetVotersCollection(voteType);
+            voters[voter] = postID;
+        }
 
         /// <summary>
         /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
@@ -495,14 +510,10 @@ namespace NetTally
         /// <returns>Returns true if there were any changes.</returns>
         public bool Merge(string fromVote, string toVote, VoteType voteType)
         {
-            if (fromVote == null)
+            if (string.IsNullOrEmpty(fromVote))
                 throw new ArgumentNullException(nameof(fromVote));
-            if (toVote == null)
+            if (string.IsNullOrEmpty(toVote))
                 throw new ArgumentNullException(nameof(toVote));
-            if (fromVote.Length == 0)
-                throw new ArgumentOutOfRangeException(nameof(fromVote), "Vote string is empty.");
-            if (toVote.Length == 0)
-                throw new ArgumentOutOfRangeException(nameof(toVote), "Vote string is empty.");
             if (fromVote == toVote)
                 return false;
 
@@ -510,6 +521,116 @@ namespace NetTally
                 return MergeRanks(fromVote, toVote);
             else
                 return MergeVotes(fromVote, toVote);
+        }
+
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        /// <returns>Returns true if there were any changes.</returns>
+        private bool MergeRanks(string fromVote, string toVote)
+        {
+            var votes = GetVotesCollection(VoteType.Rank);
+
+            Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
+
+            foreach (var vote in votes)
+            {
+                if (VoteString.CondenseVote(vote.Key) == fromVote)
+                {
+                    string toContent = VoteString.GetVoteContent(toVote, VoteType.Rank);
+                    string toTask = VoteString.GetVoteTask(toVote, VoteType.Rank);
+                    string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
+
+                    mergedVotes.Add(vote, revisedKey);
+                }
+            }
+
+            if (mergedVotes.Count > 0)
+            {
+                var voters = GetVotersCollection(VoteType.Rank);
+                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteType.Rank, voters, mergedVotes));
+
+                foreach (var merge in mergedVotes)
+                {
+                    Rename(merge.Key, merge.Value, VoteType.Rank);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
+        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
+        /// </summary>
+        /// <param name="fromVote">Vote that is being merged.</param>
+        /// <param name="toVote">Vote that is being merged into.</param>
+        /// <returns>Returns true if there were any changes.</returns>
+        private bool MergeVotes(string fromVote, string toVote) => Rename(fromVote, toVote, VoteType.Vote);
+
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="oldVote">The old vote text.</param>
+        /// <param name="newVote">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(string oldVote, string newVote, VoteType voteType)
+        {
+            var votes = GetVotesCollection(voteType);
+
+            var oldVoteObj = votes.FirstOrDefault(v => v.Key == oldVote);
+
+            return Rename(oldVoteObj, newVote, voteType);
+        }
+
+        /// <summary>
+        /// Rename a vote.
+        /// </summary>
+        /// <param name="vote">The old vote object.</param>
+        /// <param name="revisedKey">The new vote text.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if it renamed the vote.</returns>
+        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
+        {
+            if ((string.IsNullOrEmpty(vote.Key)) || (vote.Value == null))
+                throw new ArgumentNullException(nameof(vote));
+            if (revisedKey == null)
+                throw new ArgumentNullException(nameof(revisedKey));
+            if (revisedKey.Length == 0)
+                throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
+            if (vote.Key == revisedKey)
+                return false;
+
+            if (voteType != VoteType.Rank)
+            {
+                var voters = GetVotersCollection(voteType);
+                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, voteType, voters,
+                    vote.Key, vote.Value, revisedKey, GetVoters(revisedKey, voteType)));
+            }
+
+
+            var votes = GetVotesCollection(voteType);
+
+            string voteKey = GetVoteKey(revisedKey, voteType);
+
+            if (votes.ContainsKey(voteKey))
+            {
+                votes[voteKey].UnionWith(vote.Value);
+            }
+            else
+            {
+                votes[voteKey] = vote.Value;
+            }
+
+            votes.Remove(vote.Key);
+
+            return true;
         }
 
         /// <summary>
@@ -612,15 +733,33 @@ namespace NetTally
                     }
                     break;
                 case UndoActionType.Merge:
-                    LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
-                    vote = new List<string> { undo.Vote1 };
-                    foreach (var voter in undo.Voters1)
+                    if (undo.VoteType == VoteType.Rank)
                     {
-                        AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                        foreach (var mergedVote in undo.MergedVotes)
+                        {
+                            LimitVoters(mergedVote.Value, mergedVote.Key.Value, VoteType.Rank);
+
+                            foreach (var voter in mergedVote.Key.Value)
+                            {
+                                AddVote(mergedVote.Key.Key, voter, undo.VoteType);
+                                AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
+
+                        vote = new List<string> { undo.Vote1 };
+                        foreach (var voter in undo.Voters1)
+                        {
+                            AddVote(undo.Vote1, voter, undo.VoteType);
+                            AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
+                        }
                     }
                     break;
                 case UndoActionType.Join:
-                    foreach (string voter in undo.Voters)
+                    foreach (string voter in undo.JoinedVoters)
                     {
                         RemoveSupport(voter, undo.VoteType);
 
@@ -630,16 +769,17 @@ namespace NetTally
                             {
                                 vote = new List<string> { priorVote.Key };
 
-                                AddVotes(vote, voter, undo.PostIDs[voter], undo.VoteType);
+                                AddVote(priorVote.Key, voter, undo.VoteType);
+                                AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
                             }
                         }
                     }
-
-                    CleanupEmptyVotes(undo.VoteType);
                     break;
                 default:
                     return false;
             }
+
+            CleanupEmptyVotes(undo.VoteType);
 
             return true;
         }
@@ -648,7 +788,15 @@ namespace NetTally
         {
             var votes = GetVotesCollection(voteType);
             var vote = votes[vote2];
-            vote.IntersectWith(voters2);
+
+            if (voteType == VoteType.Rank)
+            {
+                vote.ExceptWith(voters2);
+            }
+            else
+            {
+                vote.IntersectWith(voters2);
+            }
         }
         #endregion
 
@@ -733,103 +881,6 @@ namespace NetTally
             }
         }
 
-        /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
-        /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        private bool MergeRanks(string fromVote, string toVote)
-        {
-            var votes = GetVotesCollection(VoteType.Rank);
-
-            Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
-
-            foreach (var vote in votes)
-            {
-                if (VoteString.CondenseVote(vote.Key) == fromVote)
-                {
-                    string toContent = VoteString.GetVoteContent(toVote, VoteType.Rank);
-                    string toTask = VoteString.GetVoteTask(toVote, VoteType.Rank);
-                    string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
-
-                    mergedVotes.Add(vote, revisedKey);
-                }
-            }
-
-            foreach (var merge in mergedVotes)
-            {
-                Rename(merge.Key, merge.Value, VoteType.Rank);
-            }
-
-            return mergedVotes.Count > 0;
-        }
-
-        /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
-        /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        private bool MergeVotes(string fromVote, string toVote) => Rename(fromVote, toVote, VoteType.Vote);
-
-        /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="oldVote">The old vote text.</param>
-        /// <param name="newVote">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        private bool Rename(string oldVote, string newVote, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-
-            var oldVoteObj = votes.FirstOrDefault(v => v.Key == oldVote);
-
-            return Rename(oldVoteObj, newVote, voteType);
-        }
-
-        /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="vote">The old vote object.</param>
-        /// <param name="revisedKey">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
-        {
-            if ((string.IsNullOrEmpty(vote.Key)) || (vote.Value == null))
-                throw new ArgumentNullException(nameof(vote));
-            if (revisedKey == null)
-                throw new ArgumentNullException(nameof(revisedKey));
-            if (revisedKey.Length == 0)
-                throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
-            if (vote.Key == revisedKey)
-                return false;
-
-
-            var voters = GetVotersCollection(voteType);
-            UndoBuffer.Push(new UndoAction(UndoActionType.Merge, voteType, voters,
-                vote.Key, GetVoters(vote.Key, voteType), revisedKey, GetVoters(revisedKey, voteType)));
-
-
-            var votes = GetVotesCollection(voteType);
-
-            if (votes.ContainsKey(revisedKey))
-            {
-                votes[revisedKey].UnionWith(vote.Value);
-            }
-            else
-            {
-                votes[revisedKey] = vote.Value;
-            }
-
-            votes.Remove(vote.Key);
-
-            return true;
-        }
         #endregion
     }
 }
