@@ -184,7 +184,7 @@ namespace NetTally.Output
 
             foreach (var option in uniqueOptions.OrderBy(a => a))
             {
-                sb.AppendLine(option);
+                AddVoteStringLine(option);
             }
 
             sb.AppendLine();
@@ -302,7 +302,7 @@ namespace NetTally.Output
         {
             if (DisplayMode == DisplayMode.Compact)
             {
-                sb.AppendLine(vote.GetLine(DisplayMode));
+                AddVoteStringLine(vote.GetLine(DisplayMode));
 
                 var children = vote.Children.OrderByDescending(v => v.VoterCount);
                 foreach (var child in children)
@@ -317,12 +317,12 @@ namespace NetTally.Output
             }
             else if (DisplayMode == DisplayMode.CompactNoVoters)
             {
-                sb.AppendLine(vote.GetLine(DisplayMode));
+                AddVoteStringLine(vote.GetLine(DisplayMode));
 
                 var children = vote.Children.OrderByDescending(v => v.VoterCount);
                 foreach (var child in children)
                 {
-                    sb.AppendLine(child.GetLine(DisplayMode));
+                    AddVoteStringLine(child.GetLine(DisplayMode));
                 }
             }
             else
@@ -345,8 +345,26 @@ namespace NetTally.Output
             }
             else
             {
-                sb.Append(vote.Key);
+                AddVoteString(vote.Key);
             }
+        }
+
+        /// <summary>
+        /// Adds the vote string to the string builder, after reformatting any BBCode.
+        /// </summary>
+        /// <param name="vote">The vote.</param>
+        private void AddVoteString(string vote)
+        {
+            sb.Append(VoteString.FormatBBCodeForOutput(vote));
+        }
+
+        /// <summary>
+        /// Adds the vote string as a full line to the string builder, after reformatting any BBCode.
+        /// </summary>
+        /// <param name="vote">The vote.</param>
+        private void AddVoteStringLine(string vote)
+        {
+            sb.AppendLine(VoteString.FormatBBCodeForOutput(vote));
         }
 
         /// <summary>

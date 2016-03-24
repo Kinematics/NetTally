@@ -92,6 +92,20 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Formats the provided line, converting any custom BBCode start/end characters (『』)
+        /// into normal brackets ( [] ) for output.
+        /// </summary>
+        /// <param name="input">The input text.</param>
+        /// <returns>Returns the input text line with BBCode characters converted to brackets.</returns>
+        public static string FormatBBCodeForOutput(string input)
+        {
+            string output = input.Replace('『', '[');
+            output = output.Replace('』', ']');
+
+            return output;
+        }
+
+        /// <summary>
         /// Remove BBCode from the precontent area of a vote line, while leaving it in the content area.
         /// Unmatched tags are either removed (for extra ending tags) or closed (for extra opening tags).
         /// </summary>
