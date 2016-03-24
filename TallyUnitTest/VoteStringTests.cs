@@ -16,13 +16,13 @@ namespace NetTally.Tests
             string cleanLine3 = "[x][main] Vote for stuff";
             string cleanLine4 = "-[x] Vote for “stuff”";
 
-            string line1 = "[b][x] Vote for stuff[/b]";
-            string line2 = "[color=blue][x] Vote for stuff[/color]";
-            string line3 = "[b][x] Vote for stuff";
-            string line4 = "[color=blue][b][x] Vote for stuff[/b]";
-            string line5 = "[b]-[x] Vote for stuff";
-            string line6 = "[color=blue]-[x] Vote for “stuff”[/color]";
-            string line7 = "[color=blue][x][main] Vote for stuff[/color]";
+            string line1 = "『b』[x] Vote for stuff『/b』";
+            string line2 = "『color=blue』[x] Vote for stuff『/color』";
+            string line3 = "『b』[x] Vote for stuff";
+            string line4 = "『color=blue』『b』[x] Vote for stuff『/b』";
+            string line5 = "『b』-[x] Vote for stuff";
+            string line6 = "『color=blue』-[x] Vote for “stuff”『/color』";
+            string line7 = "『color=blue』[x][main] Vote for stuff『/color』";
 
             string e = "";
 
@@ -45,14 +45,14 @@ namespace NetTally.Tests
         [TestMethod]
         public void CleanVoteTest1()
         {
-            string line1 = "[b][x] Vote for stuff[/b]";
-            string line2 = "[color=blue][x] Vote for stuff[/color]";
-            string line3 = "[b][x] Vote for stuff";
-            string line4 = "[color=blue][b][x] Vote for stuff[/b]";
-            string line5 = "[b]-[x] Vote for stuff";
-            string line6 = "[color=blue]-[x] Vote for “stuff”[/color]";
-            string line7 = "[color=blue][x][main] Vote for stuff[/color]";
-            string line8 = "[x] [b]Vote for stuff";
+            string line1 = "『b』[x] Vote for stuff『/b』";
+            string line2 = "『color=blue』[x] Vote for stuff『/color』";
+            string line3 = "『b』[x] Vote for stuff";
+            string line4 = "『color=blue』『b』[x] Vote for stuff『/b』";
+            string line5 = "『b』-[x] Vote for stuff";
+            string line6 = "『color=blue』-[x] Vote for “stuff”『/color』";
+            string line7 = "『color=blue』[x][main] Vote for stuff『/color』";
+            string line8 = "[x] 『b』Vote for stuff";
 
             Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
             Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line2));
@@ -64,34 +64,33 @@ namespace NetTally.Tests
             Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line8));
         }
 
-
         [TestMethod]
         public void CleanVoteTest2()
         {
-            string line1 = "[[b]x] Vote for stuff[/b]";
-            string line2 = "[x] [color=blue]Vote for stuff[/color]";
-            string line3 = "[x] Vote [b]for[/b] stuff";
-            string line4 = "[color=blue][x] [b]Vote for stuff[/b]";
+            string line1 = "[『b』x] Vote for stuff『/b』";
+            string line2 = "[x] 『color=blue』Vote for stuff『/color』";
+            string line3 = "[x] Vote 『b』for『/b』 stuff";
+            string line4 = "『color=blue』[x] 『b』Vote for stuff『/b』";
             string line5 = "-[x] [url=http://link]Vote for stuff[/url]";
-            string line6 = "-[x] Vote for [color=blue]“stuff”[/color]";
-            string line7 = "[color=blue][x][/color][main] Vote for stuff";
-            string line8 = "[color=blue][x][/color][main] [b][b]Vote[/b] for stuff";
+            string line6 = "-[x] Vote for 『color=blue』“stuff”『/color』";
+            string line7 = "『color=blue』[x]『/color』[main] Vote for stuff";
+            string line8 = "『color=blue』[x]『/color』[main] 『b』『b』Vote『/b』 for stuff";
 
             Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
-            Assert.AreEqual("[x] [color=blue]Vote for stuff[/color]", VoteString.CleanVoteLineBBCode(line2));
-            Assert.AreEqual("[x] Vote [b]for[/b] stuff", VoteString.CleanVoteLineBBCode(line3));
-            Assert.AreEqual("[x] [b]Vote for stuff[/b]", VoteString.CleanVoteLineBBCode(line4));
+            Assert.AreEqual("[x] 『color=blue』Vote for stuff『/color』", VoteString.CleanVoteLineBBCode(line2));
+            Assert.AreEqual("[x] Vote 『b』for『/b』 stuff", VoteString.CleanVoteLineBBCode(line3));
+            Assert.AreEqual("[x] 『b』Vote for stuff『/b』", VoteString.CleanVoteLineBBCode(line4));
             Assert.AreEqual("-[x] [url=http://link]Vote for stuff[/url]", VoteString.CleanVoteLineBBCode(line5));
-            Assert.AreEqual("-[x] Vote for [color=blue]“stuff”[/color]", VoteString.CleanVoteLineBBCode(line6));
+            Assert.AreEqual("-[x] Vote for 『color=blue』“stuff”『/color』", VoteString.CleanVoteLineBBCode(line6));
             Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            Assert.AreEqual("[x][main] [b]Vote[/b] for stuff", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual("[x][main] 『b』Vote『/b』 for stuff", VoteString.CleanVoteLineBBCode(line8));
         }
 
         [TestMethod]
         public void CleanVoteTest3()
         {
-            string line1      = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string cleanLine1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [i][color=#ebebeb]years[/color][/i], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line1      = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb』years『/color』『/i』『color=#ebebeb』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string cleanLine1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
 
             string out1 = VoteString.CleanVoteLineBBCode(cleanLine1);
             string out2 = VoteString.CleanVoteLineBBCode(line1);
@@ -103,8 +102,8 @@ namespace NetTally.Tests
         //[TestMethod]
         public void TimeCleanVoteTest3()
         {
-            //string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color][i][color=#ebebeb]years[/color][/i][color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string line2 = "[X] - Brutalize them. You haven’t had a chance to properly fight in [/color]years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            //string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb]years『/color』『/i』『color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line2 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
             //string line3 = "[X] - Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
             string line = line2;
 
@@ -198,8 +197,9 @@ namespace NetTally.Tests
             string line4 = "-[x][ animal] Vote for stuff";
             string line5 = "[x][MINOR] Vote for stuff";
             string line6 = "[x][Trade Relations] Vote for stuff";
-            string line7 = "[x] [url=http://google.com]<image>[/url]";
-            string line8 = "[x] [b]Vote for stuff[/b]";
+            string line7 = "[x] 『url=http://google.com』<image>『/url』";
+            string line8 = "[x] 『b』Vote for stuff『/b』";
+
 
             Assert.AreEqual("", VoteString.GetVoteTask(line1));
             Assert.AreEqual("", VoteString.GetVoteTask(line2));
@@ -234,8 +234,8 @@ namespace NetTally.Tests
         [TestMethod]
         public void GetVoteContentTest()
         {
-            string input = "[X] We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
-            string expected = "We [i]did[/i] agree to non-lethal. My most [color=blue]powerful[/color] stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
+            string input = "[X] We 『i』did『/i』 agree to non-lethal. My most 『color=blue』powerful『/color』 stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
+            string expected = "We 『i』did『/i』 agree to non-lethal. My most 『color=blue』powerful『/color』 stuff either knocks people out or kills them without having to fight at all. Everything else I've learned to do so far feels like a witch barrier, and I try not to use that since it freaks everyone out.";
 
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
@@ -252,7 +252,7 @@ namespace NetTally.Tests
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
             // Invalid line.  Leading BBCode should have already been removed.
-            input = "[color=blue]-[x] Vote for stuff[/color]";
+            input = "『color=blue』-[x] Vote for stuff『/color』";
             expected = "";
             Assert.AreEqual(expected, VoteString.GetVoteContent(input));
 
@@ -431,7 +431,7 @@ namespace NetTally.Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest4()
         {
-            string input = "[color=blue]-[x][MAJOR] Vote for stuff[/color]";
+            string input = "『color=blue』-[x][MAJOR] Vote for stuff『/color』";
             string prefix;
             string marker;
             string task;
@@ -442,14 +442,14 @@ namespace NetTally.Tests
             Assert.AreEqual("-", prefix);
             Assert.AreEqual("x", marker);
             Assert.AreEqual("MAJOR", task);
-            Assert.AreEqual("[color=blue]Vote for stuff[/color]", content);
+            Assert.AreEqual("『color=blue』Vote for stuff『/color』", content);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetVoteComponentsTest5()
         {
-            string input = "-[[b]x][MAJOR] Vote for stuff[/b]";
+            string input = "-[『b』x][MAJOR] Vote for stuff『/b』";
             string prefix;
             string marker;
             string task;
@@ -460,7 +460,7 @@ namespace NetTally.Tests
             Assert.AreEqual("-", prefix);
             Assert.AreEqual("x", marker);
             Assert.AreEqual("MAJOR", task);
-            Assert.AreEqual("[b]Vote for stuff[/b]", content);
+            Assert.AreEqual("『b』Vote for stuff『/b』", content);
         }
 
 
@@ -528,8 +528,8 @@ namespace NetTally.Tests
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
-            input = "[1][Major] [b]Vote for stuff[/b]";
-            expected = "[Major] [b]Vote for stuff[/b]";
+            input = "[1][Major] 『b』Vote for stuff『/b』";
+            expected = "[Major] 『b』Vote for stuff『/b』";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
 
@@ -540,7 +540,7 @@ namespace NetTally.Tests
         public void CondenseVoteTest2()
         {
             // Shouldn't be able to generate this working string anymore:
-            string input = "[b][1] Vote for stuff[/b]";
+            string input = "『b』[1] Vote for stuff『/b』";
             string expected = "[] ";
 
             Assert.AreEqual(expected, VoteString.CondenseVote(input));
