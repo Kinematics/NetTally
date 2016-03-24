@@ -131,19 +131,19 @@ namespace NetTally.Adapters
                         sb.Append("\r\n");
                         break;
                     case "i":
-                        sb.Append("[i]");
+                        sb.Append("『i』");
                         ExtractPostTextString(child, exclude, sb);
-                        sb.Append("[/i]");
+                        sb.Append("『/i』");
                         break;
                     case "b":
-                        sb.Append("[b]");
+                        sb.Append("『b』");
                         ExtractPostTextString(child, exclude, sb);
-                        sb.Append("[/b]");
+                        sb.Append("『/b』");
                         break;
                     case "u":
-                        sb.Append("[u]");
+                        sb.Append("『u』");
                         ExtractPostTextString(child, exclude, sb);
-                        sb.Append("[/u]");
+                        sb.Append("『/u』");
                         break;
                     case "span":
                         string spanStyle = child.GetAttributeValue("style", "");
@@ -159,9 +159,9 @@ namespace NetTally.Adapters
                             Match m = spanColorRegex.Match(spanStyle);
                             if (m.Success)
                             {
-                                sb.Append($"[color={m.Groups["color"].Value}]");
+                                sb.Append($"『color={m.Groups["color"].Value}』");
                                 ExtractPostTextString(child, exclude, sb);
-                                sb.Append("[/color]");
+                                sb.Append("『/color』");
                             }
                             else
                             {
@@ -171,9 +171,9 @@ namespace NetTally.Adapters
                         }
                         break;
                     case "a":
-                        sb.Append($"[url=\"{child.GetAttributeValue("href", "")}\"]");
+                        sb.Append($"『url=\"{child.GetAttributeValue("href", "")}\"』");
                         ExtractPostTextString(child, exclude, sb);
-                        sb.Append("[/url]");
+                        sb.Append("『/url』");
                         break;
                     case "img":
                         string srcUrl = child.GetAttributeValue("data-url", "");
@@ -186,7 +186,7 @@ namespace NetTally.Adapters
 
                         if (!string.IsNullOrEmpty(srcUrl))
                         {
-                            sb.Append($"[url=\"{srcUrl}\"]<Image>[/url]");
+                            sb.Append($"『url=\"{srcUrl}\"』<Image>『/url』");
                         }
                         break;
                     case "div":
