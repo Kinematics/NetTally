@@ -40,17 +40,17 @@ namespace NetTally
 
         #region BBCode regexes
         // Regex to match any markup that we'll want to remove during comparisons.
-        static readonly Regex markupRegex = new Regex(@"\[/?[ibu]\]|\[color[^]]*\]|\[/color\]");
+        static readonly Regex markupRegex = new Regex(@"『/?[ibu]』|『color=[^』]+』|『/color』");
 
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
-        static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[[xX✓✔1-9]\](?!\s*\[/(?:[bui]|color)\])(?!(?:\s*\[(?:[bui]|color=[^]]+)\])+\s*\[(?![bui]|color=[^]]+|url=[^]]+)[^]]+\])");
+        static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[\s*[xX✓✔1-9]\s*\]\s*(?!(?:(?:『/?[ibu]』|『color=[^』]+』|『/color』)\s*)+\[)\s*(\[[^]]+\])?");
 
         // Regex for any opening or closing BBCode tag.
-        static readonly Regex allBBCodeRegex = new Regex(@"(\[(?:/)?(?:b|i|u|color)(?(?<=\[color)=[^]]+)\])");
+        static readonly Regex allBBCodeRegex = new Regex(@"(『(?:/)?(?:b|i|u|color)(?(?<=『color)=[^』]+)』)");
         // Regex for any opening BBCode tag.
-        static readonly Regex openBBCodeRegex = new Regex(@"^\[(b|i|u|color)(?(?<=\[color)=[^]]+)\]");
+        static readonly Regex openBBCodeRegex = new Regex(@"^『(b|i|u|color)(?(?<=『color)=[^』]+)』");
         // Regex for any closing BBCode tag.
-        static readonly Regex closeBBCodeRegex = new Regex(@"^\[/(b|i|u|color)\]");
+        static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
 
         static readonly Dictionary<string, int> countTags = new Dictionary<string, int> {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
         #endregion
@@ -113,23 +113,38 @@ namespace NetTally
         /// <returns>Returns the vote line without any BBCode in the pre-content area.</returns>
         private static string StripPrecontentBBCode(string line)
         {
+
             // Remove BBCode markup one at a time, until we get a clear check
             // across the entire precontent area.  Any BBCode in the content
-            // area is left alone.
-            Match m = precontentRegex.Match(line);
-            while (m.Success == false)
+            // area is left alone.  Any BBCode inside the task segment is
+            // removed.
+            Match m1 = markupRegex.Match(line);
+            Match m2;
+            while (m1.Success == true)
             {
-                string cleaned = markupRegex.Replace(line, "", 1);
-
-                if (cleaned != line)
+                m2 = precontentRegex.Match(line);
+                if (!m2.Success)
                 {
-                    line = cleaned;
-                    m = precontentRegex.Match(line);
+                    line = markupRegex.Replace(line, "", 1);
+                }
+                else if (m2.Groups[1].Success)
+                {
+                    m1 = markupRegex.Match(m2.Groups[1].Value);
+                    if (m1.Success)
+                    {
+                        line = markupRegex.Replace(line, "", 1);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
                     break;
                 }
+
+                m1 = markupRegex.Match(line);
             }
 
             return line;
