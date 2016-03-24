@@ -220,7 +220,7 @@ namespace NetTally.Tests
         public void AddVoteMultiTest2()
         {
             string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] [b]First[/b] test";
+            string voteLine2 = "[x] 『b』First『/b』 test";
             string voter1 = "me";
             string postId1 = "1";
             string voter2 = "you";
@@ -333,7 +333,7 @@ namespace NetTally.Tests
         public void TestMatches2()
         {
             string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] [b]First[/b] test";
+            string voteLine2 = "[x] 『b』First『/b』 test";
 
             TestMatch(voteLine1, voteLine2);
         }
@@ -369,7 +369,7 @@ namespace NetTally.Tests
         public void TestMatches6()
         {
             string voteLine1 = "[x] First test";
-            string voteLine2 = "[b][x] First test[/b]";
+            string voteLine2 = "『b』[x] First test『/b』";
 
             TestMatch(voteLine1, voteLine2);
         }

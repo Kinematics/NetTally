@@ -112,8 +112,8 @@ namespace NetTally.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void ProcessPostContentsTallyTest()
         {
-            string testVote = @"[b]Vote Tally[/b]
-[color=transparent]##### NetTally 1.0[/color]
+            string testVote = @"『b』Vote Tally『/b』
+『color=transparent』##### NetTally 1.0『/color』
 [x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
 [x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
 [x] Head over to Oriko's.

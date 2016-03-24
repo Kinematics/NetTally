@@ -120,7 +120,7 @@ namespace TallyUnitTest
         {
             string msg = @"What do you think they'll be doing now? Use [x] to indicate which you're selecting.
 Last vote was:
-[color=invisible]##### NetTally 1.1.8[/color]
+『color=invisible』##### NetTally 1.1.8『/color』
 [x] Ferris wheel.";
 
             PostComponents p = new PostComponents(author, id, msg);
@@ -218,8 +218,8 @@ Additional:
         {
             string msg =
 @"What do you think they'll be doing now?
-[b][x] Ferris wheel
--[x] At the top[/b]";
+『b』[x] Ferris wheel
+-[x] At the top『/b』";
 
             PostComponents p = new PostComponents(author, id, msg);
 
@@ -236,7 +236,7 @@ Additional:
             string msg =
 @"What do you think they'll be doing now?
 [x] Ferris wheel
-[X] [i]Teacups[/i]";
+[X] 『i』Teacups『/i』";
 
             PostComponents p = new PostComponents(author, id, msg);
 
@@ -244,7 +244,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"[X] [i]Teacups[/i]", p.VoteStrings[1]);
+            Assert.AreEqual(@"[X] 『i』Teacups『/i』", p.VoteStrings[1]);
         }
 
         [TestMethod]
