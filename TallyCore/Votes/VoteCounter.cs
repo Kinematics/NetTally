@@ -53,11 +53,11 @@ namespace NetTally
         #region Public Class Properties
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
         public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
         #endregion
 
@@ -84,6 +84,11 @@ namespace NetTally
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
+
+            if (VotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
+                VotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+            if (RankedVotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
+                RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
         }
 
         /// <summary>
