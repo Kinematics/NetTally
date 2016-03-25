@@ -621,14 +621,26 @@ namespace NetTally
 
             if (votes.ContainsKey(voteKey))
             {
-                votes[voteKey].UnionWith(vote.Value);
+                bool isRevisedSameAsVote = StringUtility.AgnosticStringComparer.Equals(vote.Key, voteKey);
+
+                if (isRevisedSameAsVote)
+                {
+                    var priorVotes = vote.Value;
+                    votes.Remove(vote.Key);
+                    votes[voteKey] = priorVotes;
+                }
+                else
+                {
+                    votes[voteKey].UnionWith(vote.Value);
+                    votes.Remove(vote.Key);
+                }
             }
             else
             {
                 votes[voteKey] = vote.Value;
+                votes.Remove(vote.Key);
             }
 
-            votes.Remove(vote.Key);
 
             return true;
         }
