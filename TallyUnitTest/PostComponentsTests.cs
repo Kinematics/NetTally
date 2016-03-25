@@ -120,7 +120,7 @@ namespace TallyUnitTest
         {
             string msg = @"What do you think they'll be doing now? Use [x] to indicate which you're selecting.
 Last vote was:
-『color=invisible』##### NetTally 1.1.8『/color』
+『color=transparent』##### NetTally 1.1.8『/color』
 [x] Ferris wheel.";
 
             PostComponents p = new PostComponents(author, id, msg);
