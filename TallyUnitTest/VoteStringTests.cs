@@ -8,131 +8,321 @@ namespace NetTally.Tests
     [TestClass]
     public class VoteStringTests
     {
+        #region RemoveBBCode
         [TestMethod]
-        public void RemoveBBCodeTest()
+        public void RemoveBBCode_Empty()
         {
-            string cleanLine1 = "[x] Vote for stuff";
-            string cleanLine2 = "-[x] Vote for stuff";
-            string cleanLine3 = "[x][main] Vote for stuff";
-            string cleanLine4 = "-[x] Vote for “stuff”";
+            string line = "";
+            string cleanLine = "";
 
-            string line1 = "『b』[x] Vote for stuff『/b』";
-            string line2 = "『color=blue』[x] Vote for stuff『/color』";
-            string line3 = "『b』[x] Vote for stuff";
-            string line4 = "『color=blue』『b』[x] Vote for stuff『/b』";
-            string line5 = "『b』-[x] Vote for stuff";
-            string line6 = "『color=blue』-[x] Vote for “stuff”『/color』";
-            string line7 = "『color=blue』[x][main] Vote for stuff『/color』";
-
-            string e = "";
-
-            Assert.AreEqual(e, VoteString.RemoveBBCode(e));
-
-            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(cleanLine1));
-            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line1));
-            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line2));
-            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line3));
-            Assert.AreEqual(cleanLine1, VoteString.RemoveBBCode(line4));
-
-            Assert.AreEqual(cleanLine2, VoteString.RemoveBBCode(cleanLine2));
-            Assert.AreEqual(cleanLine2, VoteString.RemoveBBCode(line5));
-            Assert.AreEqual(cleanLine4, VoteString.RemoveBBCode(line6));
-
-            Assert.AreEqual(cleanLine3, VoteString.RemoveBBCode(cleanLine3));
-            Assert.AreEqual(cleanLine3, VoteString.RemoveBBCode(line7));
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
         }
 
         [TestMethod]
-        public void CleanVoteTest1()
+        public void RemoveBBCode_NoBBCode()
         {
-            string line1 = "『b』[x] Vote for stuff『/b』";
-            string line2 = "『color=blue』[x] Vote for stuff『/color』";
-            string line3 = "『b』[x] Vote for stuff";
-            string line4 = "『color=blue』『b』[x] Vote for stuff『/b』";
-            string line5 = "『b』-[x] Vote for stuff";
-            string line6 = "『color=blue』-[x] Vote for “stuff”『/color』";
-            string line7 = "『color=blue』[x][main] Vote for stuff『/color』";
-            string line8 = "[x] 『b』Vote for stuff";
+            string line = "[x] Vote for stuff";
+            string cleanLine = "[x] Vote for stuff";
 
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line2));
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line3));
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line4));
-            Assert.AreEqual("-[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line5));
-            Assert.AreEqual("-[x] Vote for “stuff”", VoteString.CleanVoteLineBBCode(line6));
-            Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
         }
 
         [TestMethod]
-        public void CleanVoteTest2()
+        public void RemoveBBCode_FullLineBold()
         {
-            string line1 = "[『b』x] Vote for stuff『/b』";
-            string line2 = "[x] 『color=blue』Vote for stuff『/color』";
-            string line3 = "[x] Vote 『b』for『/b』 stuff";
-            string line4 = "『color=blue』[x] 『b』Vote for stuff『/b』";
-            string line5 = "-[x] [url=http://link]Vote for stuff[/url]";
-            string line6 = "-[x] Vote for 『color=blue』“stuff”『/color』";
-            string line7 = "『color=blue』[x]『/color』[main] Vote for stuff";
-            string line8 = "『color=blue』[x]『/color』[main] 『b』『b』Vote『/b』 for stuff";
+            string line = "『b』[x] Vote for stuff『/b』";
+            string cleanLine = "[x] Vote for stuff";
 
-            Assert.AreEqual("[x] Vote for stuff", VoteString.CleanVoteLineBBCode(line1));
-            Assert.AreEqual("[x] 『color=blue』Vote for stuff『/color』", VoteString.CleanVoteLineBBCode(line2));
-            Assert.AreEqual("[x] Vote 『b』for『/b』 stuff", VoteString.CleanVoteLineBBCode(line3));
-            Assert.AreEqual("[x] 『b』Vote for stuff『/b』", VoteString.CleanVoteLineBBCode(line4));
-            Assert.AreEqual("-[x] [url=http://link]Vote for stuff[/url]", VoteString.CleanVoteLineBBCode(line5));
-            Assert.AreEqual("-[x] Vote for 『color=blue』“stuff”『/color』", VoteString.CleanVoteLineBBCode(line6));
-            Assert.AreEqual("[x][main] Vote for stuff", VoteString.CleanVoteLineBBCode(line7));
-            Assert.AreEqual("[x][main] 『b』Vote『/b』 for stuff", VoteString.CleanVoteLineBBCode(line8));
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
         }
 
         [TestMethod]
-        public void CleanVoteTest3()
+        public void RemoveBBCode_FullLineColor()
         {
-            string line1      = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb』years『/color』『/i』『color=#ebebeb』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string cleanLine1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string line = "『color=blue』[x] Vote for stuff『/color』";
+            string cleanLine = "[x] Vote for stuff";
 
-            string out1 = VoteString.CleanVoteLineBBCode(cleanLine1);
-            string out2 = VoteString.CleanVoteLineBBCode(line1);
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
 
-            Assert.AreEqual(cleanLine1, out1);
-            Assert.AreEqual(cleanLine1, out2);
+            line = "『color=#15fae6』[x] Vote for stuff『/color』";
+            cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
         }
 
-        //[TestMethod]
-        public void TimeCleanVoteTest3()
+        [TestMethod]
+        public void RemoveBBCode_PartialLineBold()
         {
-            //string line1 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb]years『/color』『/i』『color=#ebebeb], and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string line2 = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            //string line3 = "[X] - Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string line = line2;
+            string line = "『b』[x] Vote for stuff";
+            string cleanLine = "[x] Vote for stuff";
 
-            const int loopCount = 1000;
-            string result;
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
 
-            string[] lines = new string[loopCount];
+            line = "[x] Vote for stuff『/b』";
+            cleanLine = "[x] Vote for stuff";
 
-            for (int i = 0; i < loopCount; i++)
-            {
-                lines[i] = $"{line}{i + 1}";
-            }
-
-            // Make sure the JIT has compiled the functions being tested, including the profiler
-            using (new RegionProfiler("Prime the compiler"))
-            {
-                result = VoteString.CleanVoteLineBBCode(lines[0]);
-                result = VoteString.CleanVoteLineBBCode(lines[1]);
-                result = VoteString.CleanVoteLineBBCode(lines[2]);
-            }
-
-            using (new RegionProfiler("clean bbcode"))
-            {
-                for (int i = 0; i < loopCount; i++)
-                {
-                    result = VoteString.CleanVoteLineBBCode(lines[i]);
-                }
-            }
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
         }
+
+        [TestMethod]
+        public void RemoveBBCode_MultiCodes()
+        {
+            string line = "『color=blue』『b』[x] 『i』Vote『/i』 for stuff『/b』";
+            string cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.RemoveBBCode(line));
+        }
+        #endregion
+
+        #region DeUrl
+        [TestMethod]
+        public void DeUrl_Empty()
+        {
+            string content = "";
+            string clean = "";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_None()
+        {
+            string content = "Vote for stuff";
+            string clean = "Vote for stuff";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_NoneWithBBCode()
+        {
+            string content = "『i』Vote『/i』 for stuff";
+            string clean = "『i』Vote『/i』 for stuff";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_Url()
+        {
+            string content = "[url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url]";
+            string clean = "Xryuran";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_AtUrl()
+        {
+            string content = "[url=https://forum.questionablequesting.com/members/2392/]@Xryuran[/url]";
+            string clean = "Xryuran";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_Image()
+        {
+            string content = "[url=http://google.com/image/1.jpg]<Image>[/url]";
+            string clean = "<Image>";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void DeUrl_Link()
+        {
+            string content = "Vote for [url=http://google.com/myhome.html]me[/url]!";
+            string clean = "Vote for me!";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+        #endregion
+
+        #region CleanVoteLine
+        [TestMethod]
+        public void CleanVoteLine_Empty()
+        {
+            string content = "";
+            string clean = "";
+
+            Assert.AreEqual(clean, VoteString.DeUrlContent(content));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_NoBBCode()
+        {
+            string line = "[x] Vote for stuff";
+            string cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_FullLineBold()
+        {
+            string line = "『b』[x] Vote for stuff『/b』";
+            string cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_FullLineBoldPre()
+        {
+            string line = "-『b』[x] Vote for stuff『/b』";
+            string cleanLine = "-[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_FullLineBoldPreTask()
+        {
+            string line = "-[x]『b』[Who] Vote for stuff『/b』";
+            string cleanLine = "-[x][Who] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_FullLineColor()
+        {
+            string line = "『color=blue』[x] Vote for stuff『/color』";
+            string cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+
+            line = "『color=#15fae6』[x] Vote for stuff『/color』";
+            cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_Color()
+        {
+            string line = "[x] 『color=blue』Vote for stuff『/color』";
+            string cleanLine = "[x] 『color=blue』Vote for stuff『/color』";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+
+            line = "[x] 『color=#15fae6』Vote for stuff『/color』";
+            cleanLine = "[x] 『color=#15fae6』Vote for stuff『/color』";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_PartialBold()
+        {
+            string line = "『b』[x] Vote for stuff";
+            string cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+
+            line = "[x] Vote for stuff『/b』";
+            cleanLine = "[x] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_ItalicsInContent()
+        {
+            string line = "[x] 『i』Vote『/i』 for stuff";
+            string cleanLine = "[x] 『i』Vote『/i』 for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_MultiCodes()
+        {
+            string line = "[x] 『i』Vote『/i』 for 『b』stuff『/b』";
+            string cleanLine = "[x] 『i』Vote『/i』 for 『b』stuff『/b』";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_NestedCodes()
+        {
+            string line = "[x] 『b』『i』Vote『/i』 for stuff『/b』";
+            string cleanLine = "[x] 『b』『i』Vote『/i』 for stuff『/b』";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_TaskMarkup()
+        {
+            string line = "-[x][『b』Who『/b』] Vote for stuff";
+            string cleanLine = "-[x][Who] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_NestedTaskMarkup()
+        {
+            string line = "-[x][『color=#15fae6』『b』Who『/b』『/color』] Vote for stuff";
+            string cleanLine = "-[x][Who] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_InMarker()
+        {
+            string line = "-[『b』x][Who『/b』] Vote for stuff";
+            string cleanLine = "-[x][Who] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+
+            line = "-『b』[『b』x][Who『/b』] Vote for stuff『/b』";
+            cleanLine = "-[x][Who] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_InMarkerPlus()
+        {
+            string line = "-『b』[『b』x][Who『/b』] 『b』Vote『/b』 for stuff『/b』";
+            string cleanLine = "-[x][Who] 『b』Vote『/b』 for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_ColorMarker()
+        {
+            string line = "『color=blue』[x]『/color』[main] Vote for stuff";
+            string cleanLine = "[x][main] Vote for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_ColorMarkerPlus()
+        {
+            string line = "『color=blue』[x]『/color』[main] 『b』『b』Vote『/b』 for stuff";
+            string cleanLine = "[x][main] 『b』Vote『/b』 for stuff";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+
+        [TestMethod]
+        public void CleanVoteLine_LongSamplePartialColors()
+        {
+            string line = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb』years『/color』『/i』『color=#ebebeb』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            string cleanLine = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+
+            Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
+        }
+        #endregion
+
 
         [TestMethod]
         public void GetVotePrefixTest()
