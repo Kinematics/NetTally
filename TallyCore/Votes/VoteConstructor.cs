@@ -258,8 +258,20 @@ namespace NetTally
                     {
                         string planname = VoteString.GetPlanName(block.Key);
 
-                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
-                            results.Add(block.ToList());
+                        if (planname != null)
+                        {
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            {
+                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                {
+                                    results.Add(block.ToList());
+                                }
+                            }
+                            else
+                            {
+                                results.Add(block.ToList());
+                            }
+                        }
                     }
                 }
             }
@@ -290,8 +302,20 @@ namespace NetTally
 
                         string planname = VoteString.GetPlanName(firstLine);
 
-                        if (planname != null && !VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
-                            results.Add(post.VoteLines);
+                        if (planname != null)
+                        {
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            {
+                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                {
+                                    results.Add(post.VoteLines);
+                                }
+                            }
+                            else
+                            {
+                                results.Add(post.VoteLines);
+                            }
+                        }
                     }
                 }
             }
