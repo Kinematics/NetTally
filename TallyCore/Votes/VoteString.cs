@@ -616,6 +616,8 @@ namespace NetTally
 
             Match m;
 
+            // Base Plan XXX
+            // Plan XXX
             if (basePlan)
                 m = basePlanRegex.Match(simpleContent);
             else
@@ -628,6 +630,7 @@ namespace NetTally
 
             if (!basePlan)
             {
+                // Arkatekt's Plan
                 m = altPlanRegex.Match(simpleContent);
                 if (m.Success)
                 {
