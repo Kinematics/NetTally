@@ -270,7 +270,7 @@ namespace NetTally
             if (votes.ContainsKey(vote))
                 return votes[vote];
 
-            return new HashSet<string>();
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
