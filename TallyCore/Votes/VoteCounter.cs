@@ -297,18 +297,52 @@ namespace NetTally
 
             var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            string existingRefName = PlanNames.FirstOrDefault(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
+            string proxyName = null;
 
-            if (existingRefName == null && !AdvancedOptions.Instance.DisableProxyVotes)
+
+            if (referenceNames[ReferenceType.Label].Count == 0)
             {
-                existingRefName = ReferenceVoters.FirstOrDefault(n =>
-                    n != author &&
-                    referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+                // If there is no "plan" prefix, and if the plan name is a user
+                // reference, it may only refer to that user's vote as a whole.
+
+                // If this matches a user name, get that user name as the proxy reference.
+                if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), StringUtility.AgnosticStringComparer))
+                {
+                    if (!AdvancedOptions.Instance.DisableProxyVotes)
+                    {
+                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+                    }
+                }
+                else if (HasPlan(referenceNames[ReferenceType.Plan].First()))
+                {
+                    // If this is not a user name, get the plan name as the proxy reference.
+                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
+                }
+            }
+            else
+            {
+                // If there is a "plan" prefix, then if it's a user reference,
+                // check for a ◈plan before checking for the user's base vote.
+
+                // If the reference exists as a plan, use it.
+                if (HasPlan(referenceNames[ReferenceType.Plan].First()))
+                {
+                    // If this is not a user name, get the plan name as the proxy reference.
+                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
+                }
+                else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), StringUtility.AgnosticStringComparer))
+                {
+                    // If it doesn't exist as a plan, then we can check for users.
+                    if (!AdvancedOptions.Instance.DisableProxyVotes)
+                    {
+                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+                    }
+                }
             }
 
-            if (existingRefName != null)
+            if (!string.IsNullOrEmpty(proxyName))
             {
-                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(existingRefName));
+                var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(proxyName));
 
                 results.AddRange(planVotes.Select(v => v.Key));
             }
