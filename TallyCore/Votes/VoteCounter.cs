@@ -185,21 +185,21 @@ namespace NetTally
             {
                 ReferenceVoters.Add(post.Author);
                 ReferenceVoterPosts[post.Author] = post.ID;
-                VoteConstructor.PreprocessPlansPhase1(post, Quest);
+                VoteConstructor.PreprocessPlansWithContent(post, Quest);
             }
 
             // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
             // Total vote must have multiple lines.
             foreach (var post in PostsList)
             {
-                VoteConstructor.PreprocessPlansPhase2(post, Quest);
+                VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
             }
 
             // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
             // Total vote may be only one line.
             foreach (var post in PostsList)
             {
-                VoteConstructor.PreprocessPlansPhase3(post, Quest);
+                VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
             }
 
             // Once all the plans are in place, set the working votes for each post.

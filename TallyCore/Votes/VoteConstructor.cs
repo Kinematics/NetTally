@@ -25,7 +25,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlansPhase1(PostComponents post, IQuest quest)
+        public static void PreprocessPlansWithContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -47,7 +47,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlansPhase2(PostComponents post, IQuest quest)
+        public static void PreprocessPlanLabelsWithContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -72,7 +72,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlansPhase3(PostComponents post, IQuest quest)
+        public static void PreprocessPlanLabelsWithoutContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
