@@ -311,6 +311,9 @@ namespace NetTally
                     if (!AdvancedOptions.Instance.DisableProxyVotes)
                     {
                         proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+
+                        if (proxyName == author)
+                            proxyName = null;
                     }
                 }
                 else if (HasPlan(referenceNames[ReferenceType.Plan].First()))
@@ -336,6 +339,9 @@ namespace NetTally
                     if (!AdvancedOptions.Instance.DisableProxyVotes)
                     {
                         proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+
+                        if (proxyName == author)
+                            proxyName = null;
                     }
                 }
             }
