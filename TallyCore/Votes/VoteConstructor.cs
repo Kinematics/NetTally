@@ -442,12 +442,12 @@ namespace NetTally
 
                     // If the reference name included 'plan', then we use what's available at the time of this post.
                     // 'plan' indicates it's a pinned reference, and is stored in the Label slot if found.
-                    if (refNames[ReferenceType.Label].Any())
-                    {
-                        // If we've processed a vote for the ref voter, that's what will be used.
-                        if (VoteCounter.Instance.HasVoter(refVoter, VoteType.Vote))
-                            return false;
-                    }
+                    //if (refNames[ReferenceType.Label].Any())
+                    //{
+                    //    // If we've processed a vote for the ref voter, that's what will be used.
+                    //    if (VoteCounter.Instance.HasVoter(refVoter, VoteType.Vote))
+                    //        return false;
+                    //}
 
                     // If there's no 'plan' label, then we need to verify that the last vote that the
                     // ref voter made (has a working vote) was processed.
