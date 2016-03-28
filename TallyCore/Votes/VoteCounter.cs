@@ -328,11 +328,6 @@ namespace NetTally
             if (string.IsNullOrEmpty(planName))
                 return false;
 
-            if (!planName.StartsWith(StringUtility.PlanNameMarker, StringComparison.Ordinal))
-            {
-                planName = StringUtility.PlanNameMarker + planName;
-            }
-
             return PlanNames.Contains(planName, StringUtility.AgnosticStringComparer);
         }
 
