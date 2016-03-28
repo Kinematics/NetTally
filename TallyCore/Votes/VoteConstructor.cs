@@ -524,7 +524,7 @@ namespace NetTally
             {
                 var refNames = VoteString.GetVoteReferenceNames(post.VoteLines.First());
 
-                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.Instance.HasVoter(n, VoteType.Rank));
+                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.Instance.HasUserEnteredVoter(n, VoteType.Rank));
 
                 return refVoter;
             }
