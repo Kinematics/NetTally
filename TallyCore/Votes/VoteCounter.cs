@@ -356,6 +356,12 @@ namespace NetTally
         public bool HasVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
+            return voters.Keys.Contains(voterName);
+        }
+
+        public bool HasUserEnteredVoter(string voterName, VoteType voteType)
+        {
+            var voters = GetVotersCollection(voteType);
             return voters.Keys.Contains(voterName, StringUtility.AgnosticStringComparer);
         }
 

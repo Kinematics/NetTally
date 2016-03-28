@@ -35,6 +35,7 @@ namespace NetTally
         bool HasPlan(string planName);
         bool HasVote(string vote, VoteType voteType);
         bool HasVoter(string voterName, VoteType voteType);
+        bool HasUserEnteredVoter(string voterName, VoteType voteType);
         bool HasNewerVote(PostComponents post);
 
 
