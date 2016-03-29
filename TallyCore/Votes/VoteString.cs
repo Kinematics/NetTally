@@ -23,7 +23,7 @@ namespace NetTally
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(base\s*)?plan(:|\s)+)?(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\w))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
@@ -571,28 +571,74 @@ namespace NetTally
             results[ReferenceType.Voter] = new List<string>();
             results[ReferenceType.Label] = new List<string>();
 
+            if (string.IsNullOrEmpty(contents))
+                return results;
+
             contents = RemoveBBCode(contents);
             contents = DeUrlContent(contents);
 
-            Match m2 = referenceNameRegex.Match(contents);
-            if (m2.Success)
+            Match m = referenceNameRegex.Match(contents);
+            if (m.Success)
             {
-                string label = m2.Groups["label"].Value;
-                if (!string.IsNullOrEmpty(label))
-                    results[ReferenceType.Label].Add(label);
-
-                string name = m2.Groups["reference"].Value;
+                string label = m.Groups["label"].Value.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                string name = m.Groups["reference"].Value;
                 string pName = $"{StringUtility.PlanNameMarker}{name}";
 
-                // [x] Plan Kinematics => Kinematics
-                // [x] Plan Boom. => Boom.
-                results[ReferenceType.Any].Add(name);
-                results[ReferenceType.Voter].Add(name);
+                if (m.Groups["label"].Success)
+                {
+                    // Some label: plan, base plan, ^, pin
 
-                // [x] Plan Kinematics => ◈Kinematics
-                // [x] Plan Boom. => ◈Boom.
-                results[ReferenceType.Any].Add(pName);
-                results[ReferenceType.Plan].Add(pName);
+                    results[ReferenceType.Label].Add(label);
+
+                    // ^ can only be used for user proxies.
+                    if (label == "^")
+                    {
+                        // [x] ^Kinematics => Kinematics
+                        results[ReferenceType.Any].Add(name);
+                        results[ReferenceType.Voter].Add(name);
+                    }
+                    // "Pin" can be used for user proxies, but also need to allow the
+                    // entire contents to be stored as a plan name.
+                    else if (label == "pin")
+                    {
+                        // [x] pin Kinematics => Kinematics
+                        results[ReferenceType.Any].Add(name);
+                        results[ReferenceType.Voter].Add(name);
+
+                        // [x] Pin the tail on the donkey => ◈Pin the tail on the donkey
+                        string pContent = $"{StringUtility.PlanNameMarker}{contents}";
+                        results[ReferenceType.Any].Add(pContent);
+                        results[ReferenceType.Plan].Add(pContent);
+                    }
+                    else
+                    {
+                        // Other labels would include possible plan proxies or user proxies.
+
+                        // [x] Plan Kinematics => Kinematics
+                        // [x] Plan Boom. => Boom.
+                        results[ReferenceType.Any].Add(name);
+                        results[ReferenceType.Voter].Add(name);
+
+                        // [x] Plan Kinematics => ◈Kinematics
+                        // [x] Plan Boom. => ◈Boom.
+                        results[ReferenceType.Any].Add(pName);
+                        results[ReferenceType.Plan].Add(pName);
+                    }
+                }
+                else
+                {
+                    // No labels.  Can apply to anything.
+
+                    // [x] Kinematics => Kinematics
+                    // [x] Boom. => Boom.
+                    results[ReferenceType.Any].Add(name);
+                    results[ReferenceType.Voter].Add(name);
+
+                    // [x] Kinematics => ◈Kinematics
+                    // [x] Boom. => ◈Boom.
+                    results[ReferenceType.Any].Add(pName);
+                    results[ReferenceType.Plan].Add(pName);
+                }
             }
 
             return results;
