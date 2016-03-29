@@ -297,8 +297,10 @@ namespace NetTally
 
             var referenceNames = VoteString.GetVoteReferenceNames(voteLine);
 
-            string proxyName = null;
+            if (!referenceNames[ReferenceType.Any].Any())
+                return results;
 
+            string proxyName = null;
 
             if (referenceNames[ReferenceType.Label].Count == 0)
             {
