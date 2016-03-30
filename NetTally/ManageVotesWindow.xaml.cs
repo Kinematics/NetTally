@@ -595,11 +595,15 @@ namespace NetTally
                 .Concat(VoteCounter.Instance.GetCondensedRankVotes())
                 .Distinct().ToList();
 
+            var priorDest = VoteView2.CurrentItem;
+
             VoteCollection.Clear();
             VoteCollection.AddRange(votes);
 
             VoteView1.Refresh();
             VoteView2.Refresh();
+
+            VoteView2.MoveCurrentTo(priorDest);
         }
 
         /// <summary>
