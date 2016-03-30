@@ -37,11 +37,41 @@ namespace NetTally
             set { this["AllowRankedVotes"] = value; }
         }
 
+        [Obsolete("Invert usage")]
         [ConfigurationProperty("IgnoreSymbols", DefaultValue = true)]
         public bool IgnoreSymbols
         {
             get { return (bool)this["IgnoreSymbols"]; }
             set { this["IgnoreSymbols"] = value; }
+        }
+
+        [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
+        public bool WhitespaceAndPunctuationIsSignificant
+        {
+            get { return (bool)this["WhitespaceAndPunctuationIsSignificant"]; }
+            set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
+        }
+
+        [Obsolete("Invert usage")]
+        [ConfigurationProperty("AllowVoteLabelPlanNames", DefaultValue = true)]
+        public bool AllowVoteLabelPlanNames
+        {
+            get { return (bool)this["AllowVoteLabelPlanNames"]; }
+            set { this["AllowVoteLabelPlanNames"] = value; }
+        }
+
+        [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
+        public bool ForbidVoteLabelPlanNames
+        {
+            get { return (bool)this["ForbidVoteLabelPlanNames"]; }
+            set { this["ForbidVoteLabelPlanNames"] = value; }
+        }
+
+        [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
+        public bool DisableProxyVotes
+        {
+            get { return (bool)this["DisableProxyVotes"]; }
+            set { this["DisableProxyVotes"] = value; }
         }
 
         [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
@@ -50,7 +80,6 @@ namespace NetTally
             get { return (bool)this["TrimExtendedText"]; }
             set { this["TrimExtendedText"] = value; }
         }
-
         [ConfigurationProperty("IgnoreSpoilers", DefaultValue = false)]
         public bool IgnoreSpoilers
         {
@@ -63,20 +92,6 @@ namespace NetTally
         {
             get { return (bool)this["GlobalSpoilers"]; }
             set { this["GlobalSpoilers"] = value; }
-        }
-
-        [ConfigurationProperty("AllowVoteLabelPlanNames", DefaultValue = true)]
-        public bool AllowVoteLabelPlanNames
-        {
-            get { return (bool)this["AllowVoteLabelPlanNames"]; }
-            set { this["AllowVoteLabelPlanNames"] = value; }
-        }
-
-        [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
-        public bool DisableProxyVotes
-        {
-            get { return (bool)this["DisableProxyVotes"]; }
-            set { this["DisableProxyVotes"] = value; }
         }
 
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
@@ -108,11 +123,20 @@ namespace NetTally
             AdvancedOptions.Instance.DisplayMode = DisplayMode;
             AdvancedOptions.Instance.AllowRankedVotes = AllowRankedVotes;
             AdvancedOptions.Instance.IgnoreSpoilers = IgnoreSpoilers;
-            AdvancedOptions.Instance.IgnoreSymbols = IgnoreSymbols;
             AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
             AdvancedOptions.Instance.GlobalSpoilers = GlobalSpoilers;
-            AdvancedOptions.Instance.AllowVoteLabelPlanNames = AllowVoteLabelPlanNames;
             AdvancedOptions.Instance.DisableProxyVotes = DisableProxyVotes;
+            AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
+            AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
+
+            if (AllowVoteLabelPlanNames == false)
+                AdvancedOptions.Instance.ForbidVoteLabelPlanNames = true;
+            if (IgnoreSymbols == false)
+                AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = true;
+
+            //AdvancedOptions.Instance.AllowVoteLabelPlanNames = AllowVoteLabelPlanNames;
+            //AdvancedOptions.Instance.IgnoreSymbols = IgnoreSymbols;
+
 
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
@@ -162,12 +186,16 @@ namespace NetTally
         {
             DisplayMode = AdvancedOptions.Instance.DisplayMode;
             AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
-            IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
             IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
             GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers;
-            AllowVoteLabelPlanNames = AdvancedOptions.Instance.AllowVoteLabelPlanNames;
             DisableProxyVotes = AdvancedOptions.Instance.DisableProxyVotes;
+            ForbidVoteLabelPlanNames = AdvancedOptions.Instance.ForbidVoteLabelPlanNames;
+            WhitespaceAndPunctuationIsSignificant = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant;
+
+            //AllowVoteLabelPlanNames = AdvancedOptions.Instance.AllowVoteLabelPlanNames;
+            //IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
+
 
             CurrentQuest = questWrapper.CurrentQuest;
 
