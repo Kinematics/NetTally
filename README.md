@@ -31,7 +31,7 @@ Example:
 -[x] At the target on the left
 ```
 
-Referral votes allow you to specify another user or plan name whose vote you wish to support.
+Proxy votes allow you to specify another user or plan name whose vote you wish to support.
 
 Example:
 ```
