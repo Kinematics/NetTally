@@ -645,8 +645,7 @@ namespace NetTally
 
                 if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
                 {
-                    UpdateVoteCollection();
-                    UpdateVoterCollection();
+                    UpdateCollections();
 
                     OnPropertyChanged("HasUndoActions");
                 }
