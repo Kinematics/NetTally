@@ -22,8 +22,8 @@ namespace NetTally
         {
             allowRankedVotes.IsChecked = true;
 
-            allowVoteLabelPlanNames.IsChecked = true;
-            ignoreSymbols.IsChecked = true;
+            forbidVoteLabelPlanNames.IsChecked = false;
+            whitespaceAndPunctuationIsSignificant.IsChecked = false;
             disableProxyVotes.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
             trimExtendedText.IsChecked = false;

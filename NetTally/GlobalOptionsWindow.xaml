@@ -30,10 +30,10 @@
                   IsChecked="{Binding Path=AllowRankedVotes}" />
 
         <Label x:Name="labelFormatting" Content="Formatting" HorizontalAlignment="Left" Margin="10,49,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="-0.605,0.231"/>
-        <CheckBox x:Name="allowVoteLabelPlanNames" Content="Allow Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,75,0,0" Grid.Row="1" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=AllowVoteLabelPlanNames}"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSymbols" Content="Ignore Whitespace &amp; Punctuation" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=IgnoreSymbols}" />
+        <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,75,0,0" Grid.Row="1" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=ForbidVoteLabelPlanNames}"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=WhitespaceAndPunctuationIsSignificant}" />
         <CheckBox x:Name="disableProxyVotes" Content="Disable Proxy Votes" HorizontalAlignment="Left" Margin="10,117,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DisableProxyVotes}"/>
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top"
@@ -56,15 +56,15 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to true."/>
         </StackPanel>
 
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowVoteLabelPlanNames, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Vote Labels as Plan Names"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line as the first line of the vote, that has no plan content, are allowed to be used as identifiers for the 'plan name' of the entire vote."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to true."/>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=forbidVoteLabelPlanNames, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Forbid Vote Labels as Plan Names"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line (which has no content) as the first line of the vote, ignore that as a means of giving the entire vote a plan name."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=ignoreSymbols, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ignore Whitespace &amp; Punctuation"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that vote and voter comparisons that differ only because of whitespace or punctuation are treated the same.  Disable it if it causes votes that should be considered separate to be automatically merged."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to true."/>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=whitespaceAndPunctuationIsSignificant, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Whitespace &amp; Punctuation is Significant"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that whitespace and punctuation is significant when comparing votes and voters.  Enable it if votes that should be considered separate are being treated as the same."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable Proxy Votes"/>
