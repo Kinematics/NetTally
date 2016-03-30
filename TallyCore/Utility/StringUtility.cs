@@ -73,13 +73,13 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> AgnosticStringComparer => AdvancedOptions.Instance.IgnoreSymbols ? AgnosticStringComparer1 : AgnosticStringComparer2;
+        public static IEqualityComparer<string> AgnosticStringComparer => AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? AgnosticStringComparer1 : AgnosticStringComparer2;
 
         private static IEqualityComparer<string> AgnosticStringComparer1 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
 
         private static IEqualityComparer<string> AgnosticStringComparer2 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
     }
 
     /// <summary>
