@@ -34,7 +34,7 @@
                   IsChecked="{Binding Path=ForbidVoteLabelPlanNames}"/>
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=WhitespaceAndPunctuationIsSignificant}" />
-        <CheckBox x:Name="disableProxyVotes" Content="Disable Proxy Votes" HorizontalAlignment="Left" Margin="10,117,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,117,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DisableProxyVotes}"/>
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}" />
@@ -67,8 +67,8 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable Proxy Votes"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable User Proxy Votes"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=ignoreSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -78,7 +78,8 @@
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trimExtendedText, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Trim Extended Vote Descriptions"/>
-            <TextBlock TextWrapping="Wrap" Text="This is an experimental attempt to trim extended descriptions from a vote line.  An extended description is a long segment of text after a colon, that is at least three times as long as the text preceding the colon. When this option is set, any extended description will be removed."/>
+            <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Experimental."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
 
