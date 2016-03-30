@@ -134,10 +134,6 @@ namespace NetTally
             if (IgnoreSymbols == false)
                 AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = true;
 
-            //AdvancedOptions.Instance.AllowVoteLabelPlanNames = AllowVoteLabelPlanNames;
-            //AdvancedOptions.Instance.IgnoreSymbols = IgnoreSymbols;
-
-
             if (questWrapper.QuestCollection == null)
                 questWrapper.QuestCollection = new QuestCollection();
 
