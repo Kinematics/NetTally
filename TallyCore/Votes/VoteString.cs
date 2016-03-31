@@ -286,10 +286,9 @@ namespace NetTally
         /// <returns>Returns the vote line with any modifications.</returns>
         public static string ModifyLinesRead(string line)
         {
-            if (AdvancedOptions.Instance.TrimExtendedText)
-                return TrimExtendedTextDescription(line);
+            string result = TrimExtendedTextDescription(line);
 
-            return line;
+            return result;
         }
 
         /// <summary>
@@ -300,8 +299,11 @@ namespace NetTally
         /// </summary>
         /// <param name="voteLine">The original vote line.</param>
         /// <returns>Returns the vote line without the extended description.</returns>
-        private static string TrimExtendedTextDescription(string voteLine)
+        public static string TrimExtendedTextDescription(string voteLine)
         {
+            if (!AdvancedOptions.Instance.TrimExtendedText)
+                return voteLine;
+
             if (string.IsNullOrEmpty(voteLine))
                 return string.Empty;
 
@@ -318,6 +320,24 @@ namespace NetTally
             }
 
             return voteLine;
+        }
+
+        public static string TrimExtendedTextDescriptionOfContent(string content)
+        {
+            if (!AdvancedOptions.Instance.TrimExtendedText)
+                return content;
+
+            if (string.IsNullOrEmpty(content))
+                return string.Empty;
+
+            int trimmingIndex = GetTrimIndexForContent(content);
+
+            if (trimmingIndex > 0)
+            {
+                return content.Substring(0, trimmingIndex);
+            }
+
+            return content;
         }
 
         /// <summary>
