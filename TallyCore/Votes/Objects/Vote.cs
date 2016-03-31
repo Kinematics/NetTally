@@ -11,6 +11,11 @@ namespace NetTally.Votes
     {
         public VoteLineSequence VoteLines { get; }
 
+        public Vote(IEnumerable<string> voteLines)
+        {
+            VoteLines = new VoteLineSequence(voteLines);
+        }
+
         public Vote(IEnumerable<VoteLine> voteLines)
         {
             VoteLines = new VoteLineSequence(voteLines);
