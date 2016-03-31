@@ -67,6 +67,8 @@
     <Compile Include="Output\Utility\VoteInfo.cs" />
     <Compile Include="Output\Utility\VoteNode.cs" />
     <Compile Include="Debugging\ErrorLog.cs" />
+    <Compile Include="Utility\DefaultClock.cs" />
+    <Compile Include="Utility\IClock.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Utility\ObservableCollectionExtension.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
