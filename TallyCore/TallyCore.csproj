@@ -68,6 +68,7 @@
     <Compile Include="Output\Utility\VoteNode.cs" />
     <Compile Include="Debugging\ErrorLog.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
+    <Compile Include="Utility\ObservableCollectionExtension.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />
