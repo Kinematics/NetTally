@@ -71,9 +71,9 @@
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />
-    <Compile Include="Web\CheckForNewRelease.cs" />
-    <Compile Include="Web\Utility\CachedPage.cs" />
-    <Compile Include="Web\WebCache.cs" />
+    <Compile Include="Web\Utility\CheckForNewRelease.cs" />
+    <Compile Include="Web\Cache\CachedPage.cs" />
+    <Compile Include="Web\Cache\WebCache.cs" />
     <Compile Include="Web\Utility\ForumCookies.cs" />
     <Compile Include="Web\IPageProvider.cs" />
     <Compile Include="Quests\IQuest.cs" />
