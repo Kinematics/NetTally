@@ -36,17 +36,19 @@
                   IsChecked="{Binding Path=WhitespaceAndPunctuationIsSignificant}" />
         <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,117,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DisableProxyVotes}"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes" HorizontalAlignment="Left" Margin="10,138,0,0" Grid.Row="1" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=ForcePinnedProxyVotes}"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,159,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}" />
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,159,0,0" VerticalAlignment="Top"
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=TrimExtendedText}" />
 
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,180,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,206,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,201,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,227,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=GlobalSpoilers}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,227,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,253,0,0" VerticalAlignment="Top"
+        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,248,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,274,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -69,6 +71,11 @@
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable User Proxy Votes"/>
             <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=forcePinnedProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Force Pinned Proxy Votes"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are always considered 'pinned', rather than 'tracking'.  That is, they will always refer to a vote prior to the vote currently being processed."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=ignoreSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">

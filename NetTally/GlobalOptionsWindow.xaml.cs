@@ -25,6 +25,7 @@ namespace NetTally
             forbidVoteLabelPlanNames.IsChecked = false;
             whitespaceAndPunctuationIsSignificant.IsChecked = false;
             disableProxyVotes.IsChecked = false;
+            forcePinnedProxyVotes.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
             trimExtendedText.IsChecked = false;
 

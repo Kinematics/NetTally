@@ -74,6 +74,13 @@ namespace NetTally
             set { this["DisableProxyVotes"] = value; }
         }
 
+        [ConfigurationProperty("ForcePinnedProxyVotes", DefaultValue = false)]
+        public bool ForcePinnedProxyVotes
+        {
+            get { return (bool)this["ForcePinnedProxyVotes"]; }
+            set { this["ForcePinnedProxyVotes"] = value; }
+        }
+
         [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
         public bool TrimExtendedText
         {
@@ -126,6 +133,7 @@ namespace NetTally
             AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
             AdvancedOptions.Instance.GlobalSpoilers = GlobalSpoilers;
             AdvancedOptions.Instance.DisableProxyVotes = DisableProxyVotes;
+            AdvancedOptions.Instance.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
             AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
             AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
 
@@ -186,12 +194,9 @@ namespace NetTally
             TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
             GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers;
             DisableProxyVotes = AdvancedOptions.Instance.DisableProxyVotes;
+            ForcePinnedProxyVotes = AdvancedOptions.Instance.ForcePinnedProxyVotes;
             ForbidVoteLabelPlanNames = AdvancedOptions.Instance.ForbidVoteLabelPlanNames;
             WhitespaceAndPunctuationIsSignificant = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant;
-
-            //AllowVoteLabelPlanNames = AdvancedOptions.Instance.AllowVoteLabelPlanNames;
-            //IgnoreSymbols = AdvancedOptions.Instance.IgnoreSymbols;
-
 
             CurrentQuest = questWrapper.CurrentQuest;
 

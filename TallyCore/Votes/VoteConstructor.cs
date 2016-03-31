@@ -408,7 +408,8 @@ namespace NetTally
                 return false;
 
             // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
-            if (AdvancedOptions.Instance.DisableProxyVotes)
+            // Likewise, if we're forcing all proxy votes to be pinned, there can't be any future references.
+            if (AdvancedOptions.Instance.DisableProxyVotes || AdvancedOptions.Instance.ForcePinnedProxyVotes)
                 return false;
 
             foreach (var line in post.WorkingVote)

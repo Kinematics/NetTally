@@ -44,6 +44,7 @@ namespace NetTally
         bool ignoreSymbols = true;
         bool whitespaceAndPunctuationIsSignificant = false;
         bool disableProxyVotes = false;
+        bool forcePinnedProxyVotes = false;
         bool ignoreSpoilers = false;
         bool trimExtendedText = false;
 
@@ -133,6 +134,19 @@ namespace NetTally
             set
             {
                 disableProxyVotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to force all user proxy votes to be pinned.
+        /// </summary>
+        public bool ForcePinnedProxyVotes
+        {
+            get { return forcePinnedProxyVotes; }
+            set
+            {
+                forcePinnedProxyVotes = value;
                 OnPropertyChanged();
             }
         }
