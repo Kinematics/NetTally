@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Runtime.CompilerServices;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -30,7 +31,7 @@ namespace NetTally
         /// <param name="e">Exception to be logged.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the error was logged to.</returns>
-        public static string Log(Exception e, [CallerMemberName] string callingMethod = "") => Log(exception: e, callingMethod: callingMethod);
+        public static string Log(Exception e, [CallerMemberName] string callingMethod = "", IClock clock = null) => Log(exception: e, callingMethod: callingMethod, clock: clock);
 
         /// <summary>
         /// Public function to log either a text message or an exception, or both.
@@ -39,15 +40,18 @@ namespace NetTally
         /// <param name="exception">The exception to log.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the log was saved in.</returns>
-        public static string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "")
+        public static string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null)
         {
             try
             {
-                string filename = GetLogFilename();
+                if (clock == null)
+                    clock = new DefaultClock();
+
+                string filename = GetLogFilename(clock);
                 if (string.IsNullOrEmpty(filename))
                     return null;
 
-                string output = ComposeOutput(callingMethod, message, exception);
+                string output = ComposeOutput(callingMethod, message, exception, clock);
                 if (output == null)
                     return null;
 
@@ -68,14 +72,14 @@ namespace NetTally
         /// <param name="message">Text message to output.</param>
         /// <param name="ex">The exception whose message and stack trace will be output.</param>
         /// <returns>Returns the compiled output string.</returns>
-        private static string ComposeOutput(string callingMethod, string message, Exception ex)
+        private static string ComposeOutput(string callingMethod, string message, Exception ex, IClock clock)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
 
                 sb.Append("Timestamp: ");
-                sb.AppendLine(DateTime.Now.ToLongTimeString());
+                sb.AppendLine(clock.Now.ToLongTimeString());
 
                 sb.Append("Version: ");
                 sb.AppendLine(ProgramVersion);
@@ -143,7 +147,7 @@ namespace NetTally
         /// Gets the name of a log file that can be used for output.
         /// </summary>
         /// <returns>Returns the full path of the log file.</returns>
-        private static string GetLogFilename()
+        private static string GetLogFilename(IClock clock)
         {
             string path;
 
@@ -162,7 +166,7 @@ namespace NetTally
                 path = "";
             }
 
-            var now = DateTime.Now;
+            var now = clock.Now;
 
             string date = $"{now.Year}-{now.Month}-{now.Day}";
 

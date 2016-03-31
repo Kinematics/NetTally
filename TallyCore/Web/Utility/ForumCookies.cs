@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using NetTally.Utility;
 
 namespace NetTally.Web
 {
@@ -21,10 +22,12 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="uri">URI of the forum thread being loaded.</param>
         /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
-        public static CookieCollection GetCookies(Uri uri)
+        public static CookieCollection GetCookies(Uri uri, IClock clock = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
+
+            clock = clock ?? new DefaultClock();
 
             CookieCollection cookies = new CookieCollection();
 
@@ -35,7 +38,7 @@ namespace NetTally.Web
                 case "forum.questionablequesting.com":
                     // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
                     cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host);
-                    cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
+                    cookie.Expires = clock.Now + TimeSpan.FromDays(30);
                     cookies.Add(cookie);
                     break;
             }
@@ -48,15 +51,17 @@ namespace NetTally.Web
         /// in the HttpClientManager, and it will use whichever is needed.
         /// </summary>
         /// <returns>Returns the collection of all known cookies.</returns>
-        public static CookieCollection GetAllCookies()
+        public static CookieCollection GetAllCookies(IClock clock = null)
         {
+            clock = clock ?? new DefaultClock();
+
             CookieCollection cookies = new CookieCollection();
 
             Cookie cookie;
 
             // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
             cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", "forum.questionablequesting.com");
-            cookie.Expires = DateTime.Now + TimeSpan.FromDays(30);
+            cookie.Expires = clock.Now + TimeSpan.FromDays(30);
             cookies.Add(cookie);
 
             return cookies;

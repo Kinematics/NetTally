@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
 namespace NetTally.Web
 {
@@ -33,14 +34,18 @@ namespace NetTally.Web
         WebCache Cache { get; } = WebCache.Instance;
         string UserAgent { get; }
 
+        IClock Clock { get; }
+
         bool _disposed = false;
 
-        public WebPageProvider()
+        public WebPageProvider(IClock clock = null)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
             UserAgent = $"{product.Product} ({version.InformationalVersion})";
+
+            Clock = clock ?? new DefaultClock();
         }
 
         #region Disposal
@@ -97,7 +102,7 @@ namespace NetTally.Web
         /// </summary>
         public void DoneLoading()
         {
-            Cache.ExpireCache(DateTime.Now);
+            Cache.ExpireCache(Clock.Now);
         }
 
         /// <summary>

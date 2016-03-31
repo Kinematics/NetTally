@@ -19,6 +19,20 @@ namespace NetTally.Web
 
         WebCache()
         {
+            SetClock(null);
+        }
+
+        public void SetClock(IClock clock)
+        {
+            cacheLock.EnterReadLock();
+            try
+            {
+                Clock = clock ?? new DefaultClock();
+            }
+            finally
+            {
+                cacheLock.ExitReadLock();
+            }
         }
         #endregion
 
@@ -51,6 +65,8 @@ namespace NetTally.Web
 
         #region Local storage
         bool _disposed = false;
+
+        IClock Clock { get; set; }
 
         const int MaxCacheEntries = 50;
         readonly TimeSpan maxCacheDuration = TimeSpan.FromMinutes(30);
@@ -119,7 +135,7 @@ namespace NetTally.Web
             {
                 if (PageCache.TryGetValue(url, out cache))
                 {
-                    var cacheAge = DateTime.Now - cache.Timestamp;
+                    var cacheAge = Clock.Now - cache.Timestamp;
 
                     if (cacheAge < maxCacheDuration)
                     {

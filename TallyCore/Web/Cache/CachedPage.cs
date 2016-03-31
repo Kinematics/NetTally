@@ -1,5 +1,6 @@
 ﻿using System;
 using HtmlAgilityPack;
+using NetTally.Utility;
 
 namespace NetTally.Web
 {
@@ -12,22 +13,28 @@ namespace NetTally.Web
         public HtmlDocument Doc { get; }
         public string DocString { get; }
 
-        public CachedPage(HtmlDocument doc)
+        public CachedPage(HtmlDocument doc, IClock clock = null)
         {
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
-            Timestamp = DateTime.Now;
+            if (clock == null)
+                clock = new DefaultClock();
+
+            Timestamp = clock.Now;
             Doc = doc;
             DocString = null;
         }
 
-        public CachedPage(string html)
+        public CachedPage(string html, IClock clock = null)
         {
             if (html == null)
                 throw new ArgumentNullException(nameof(html));
 
-            Timestamp = DateTime.Now;
+            if (clock == null)
+                clock = new DefaultClock();
+
+            Timestamp = clock.Now;
             DocString = html;
             Doc = null;
         }
