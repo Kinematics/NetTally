@@ -20,9 +20,9 @@ namespace NetTally
         // Disposal
         bool _disposed = false;
 
-        // References
-        IPageProvider PageProvider { get; } = new WebPageProvider2();
-        ITextResultsProvider TextResults { get; } = new TallyOutput();
+        // Depdendency references
+        IPageProvider PageProvider { get; }
+        ITextResultsProvider TextResults { get; }
 
         // State
         bool tallyIsRunning = false;
@@ -32,29 +32,24 @@ namespace NetTally
         public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         #endregion
 
-        #region Construction and Disposal
+        #region Construction
         /// <summary>
-        /// Default constructor.
+        /// Constructor that allows overriding the default PageProvider.
         /// </summary>
-        public Tally()
-            : this(null)
+        /// <param name="pageProvider">Alternate PageProvider.</param>
+        public Tally(IPageProvider pageProvider = null, ITextResultsProvider textResults = null)
         {
-        }
+            // Defaults if none specified
+            PageProvider = pageProvider ?? new WebPageProvider2();
+            TextResults = textResults ?? new TallyOutput();
 
-        /// <summary>
-        /// Constructor that allows overriding the default VoteCounter and PageProvider.
-        /// </summary>
-        /// <param name="altVoteCounter">Alternate VoteCounter.</param>
-        /// <param name="altPageProvider">Alternate PageProvider.</param>
-        public Tally(IPageProvider altPageProvider)
-        {
-            // Replace defaults if parameters are non-null.
-            PageProvider = altPageProvider ?? PageProvider;
-
+            // Hook up to event notifications
             PageProvider.StatusChanged += PageProvider_StatusChanged;
             AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
         }
+        #endregion
 
+        #region Disposal
         ~Tally()
         {
             Dispose(false);
@@ -107,8 +102,7 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Listener for if any global options change.
-        /// If the display mode changes, update the output results.
+        /// Listener for if any quest options change.  Update the tally if needed.
         /// </summary>
         /// <param name="sender">The quest that sent the notification.</param>
         /// <param name="e">Info about a property of the quest that changed.</param>
@@ -211,8 +205,6 @@ namespace NetTally
                         UpdateResults();
                     }
                 }
-
-                GC.Collect();
             }
             catch (Exception)
             {
@@ -223,6 +215,8 @@ namespace NetTally
             {
                 TallyIsRunning = false;
                 PageProvider.DoneLoading();
+
+                GC.Collect();
             }
         }
 
