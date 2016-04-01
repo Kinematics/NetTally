@@ -603,7 +603,7 @@ namespace NetTally
             VoteView1.Refresh();
             VoteView2.Refresh();
 
-            VoteView2.MoveCurrentTo(priorDest);
+            VoteView2.MoveCurrentTo(priorDest ?? "");
         }
 
         /// <summary>
