@@ -77,9 +77,10 @@ namespace NetTally
             try
             {
                 StringBuilder sb = new StringBuilder();
+                var time = clock.Now;
 
                 sb.Append("Timestamp: ");
-                sb.AppendLine(clock.Now.ToLongTimeString());
+                sb.AppendLine($"{time.ToString("h:mm:ss tt")}");
 
                 sb.Append("Version: ");
                 sb.AppendLine(ProgramVersion);
