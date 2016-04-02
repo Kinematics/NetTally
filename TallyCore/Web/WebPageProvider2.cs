@@ -257,7 +257,7 @@ namespace NetTally.Web
         /// </summary>
         private void SetupUserAgent()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(WebPageProvider2).GetTypeInfo().Assembly;
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
             UserAgent = $"{product.Product} ({version.InformationalVersion})";

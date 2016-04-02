@@ -61,7 +61,7 @@ namespace NetTally.Output
         /// </summary>
         private void AddHeader()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(TallyOutput).GetTypeInfo().Assembly;
             var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
             var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
 

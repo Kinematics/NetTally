@@ -113,8 +113,10 @@ namespace NetTally.Adapters
 
                 Type ti = typeof(IForumAdapter);
 
+                var assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
+
                 // Get the list of all adapter classes built off of the IForumAdapter interface.
-                var adapterList = from t in Assembly.GetExecutingAssembly().GetTypes()
+                var adapterList = from t in assembly.DefinedTypes
                                     where (!t.IsInterface && ti.IsAssignableFrom(t))
                                     select t;
 

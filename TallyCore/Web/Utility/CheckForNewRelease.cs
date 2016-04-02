@@ -115,7 +115,7 @@ namespace NetTally
 
             try
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                var assembly = typeof(CheckForNewRelease).GetTypeInfo().Assembly;
                 var fileVersion = (AssemblyFileVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute));
 
                 currentVersion = new Version(fileVersion.Version);

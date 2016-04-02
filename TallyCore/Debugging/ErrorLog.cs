@@ -19,7 +19,7 @@ namespace NetTally
         {
             get
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                var assembly = typeof(ErrorLog).GetTypeInfo().Assembly;
                 var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
                 return version.InformationalVersion;
             }
