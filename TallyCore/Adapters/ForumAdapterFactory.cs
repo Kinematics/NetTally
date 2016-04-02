@@ -124,19 +124,18 @@ namespace NetTally.Adapters
                 {
                     try
                     {
-                        // Check the class for a static member named "CanHandlePage"
-                        var detectMethodArray = adapterClass.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Public,
-                            Type.FilterName, detectMethodName);
+                        // Check that the class has the method for determining whether it can handle a page type.
+                        var methods = adapterClass.DeclaredMethods;
+                        var handleMethods = methods.Where(m => m.Name == detectMethodName && m.ReturnType.Name == "Boolean");
 
-                        // If it finds any such methods, check the class against the currently loaded page to
-                        // see if this the correct adapter to return.
-                        if (detectMethodArray.Any())
+                        if (handleMethods.Any())
                         {
-                            bool result = (bool)adapterClass.InvokeMember(detectMethodName,
-                                BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod,
-                                null, null, new object[] { page });
+                            var handleMethod = handleMethods.First();
 
-                            if (result)
+                            // Run the check, and return an instance of this class if it returns true.
+                            bool canHandle = (bool)handleMethod.Invoke(null, new object[] { page });
+
+                            if (canHandle)
                             {
                                 var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
 
