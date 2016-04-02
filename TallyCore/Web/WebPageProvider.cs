@@ -188,7 +188,7 @@ namespace NetTally.Web
 
                                     result = await reader.ReadToEndAsync();
 
-                                    reader.Close();
+                                    reader.Dispose();
                                 }
                                 else if (response.StatusCode == HttpStatusCode.NotFound)
                                 {
