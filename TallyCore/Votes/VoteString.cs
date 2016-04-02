@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
@@ -600,7 +600,7 @@ namespace NetTally
             Match m = referenceNameRegex.Match(contents);
             if (m.Success)
             {
-                string label = m.Groups["label"].Value.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                string label = CultureInfo.InvariantCulture.TextInfo.ToLower(m.Groups["label"].Value);
                 string name = m.Groups["reference"].Value;
                 string pName = $"{StringUtility.PlanNameMarker}{name}";
 

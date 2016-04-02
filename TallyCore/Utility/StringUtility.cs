@@ -131,7 +131,7 @@ namespace NetTally.Utility
                 return 0;
 
             // Different casings don't guarantee uniqueness.
-            string lowered = obj.ToLower(CultureInfo.InvariantCulture);
+            string lowered = CultureInfo.InvariantCulture.TextInfo.ToLower(obj);
 
             // Different accents don't guarantee uniqueness.
             // Decompose a unicode string so that 'accented' charaters are broken
@@ -186,7 +186,7 @@ namespace NetTally.Utility
                 return obj?.GetHashCode() ?? 0;
 
             // Different casings don't guarantee uniqueness.
-            string lowered = input.ToLower(CultureInfo.InvariantCulture);
+            string lowered = CultureInfo.InvariantCulture.TextInfo.ToLower(input);
 
             // Different accents don't guarantee uniqueness.
             // Decompose a unicode string so that 'accented' charaters are broken
