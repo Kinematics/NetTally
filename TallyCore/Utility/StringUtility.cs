@@ -127,15 +127,25 @@ namespace NetTally.Utility
         // see if two strings are different.
         public int GetHashCode(string obj)
         {
+            if (string.IsNullOrEmpty(obj))
+                return 0;
+
+            // Different casings don't guarantee uniqueness.
+            string lowered = obj.ToLower(CultureInfo.InvariantCulture);
+
+            // Different accents don't guarantee uniqueness.
             // Decompose a unicode string so that 'accented' charaters are broken
             // into their original + accent marks as separate character entities.
             // EG: á becomes a + ́
-            string decomposed = obj?.Normalize(System.Text.NormalizationForm.FormD) ?? string.Empty;
-            // Filter the decomposed string so that we're left with only numbers and
-            // lowercase letters.
-            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c, CultureInfo.InvariantCulture));
+            string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
+
+            // Different spacing/punctuation doesn't guarantee uniqueness.
+            var decArr = decomposed.ToArray();
+            var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
+
             // Convert the LINQ results to a new string.
             string check = new string(filtered.ToArray());
+
             // And if this hash code comes out different, we can be certain that
             // two strings that are compared will be different.
             return check.GetHashCode();
@@ -175,15 +185,22 @@ namespace NetTally.Utility
             if (input == null)
                 return obj?.GetHashCode() ?? 0;
 
+            // Different casings don't guarantee uniqueness.
+            string lowered = input.ToLower(CultureInfo.InvariantCulture);
+
+            // Different accents don't guarantee uniqueness.
             // Decompose a unicode string so that 'accented' charaters are broken
             // into their original + accent marks as separate character entities.
             // EG: á becomes a + ́
-            string decomposed = input.Normalize(System.Text.NormalizationForm.FormD);
-            // Filter the decomposed string so that we're left with only numbers and
-            // lowercase letters.
-            var filtered = decomposed.Where(c => char.IsLetterOrDigit(c)).Select(c => char.ToLower(c, CultureInfo.InvariantCulture));
+            string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
+
+            // Different spacing/punctuation doesn't guarantee uniqueness.
+            var decArr = decomposed.ToArray();
+            var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
+
             // Convert the LINQ results to a new string.
             string check = new string(filtered.ToArray());
+
             // And if this hash code comes out different, we can be certain that
             // two strings that are compared will be different.
             return check.GetHashCode();
