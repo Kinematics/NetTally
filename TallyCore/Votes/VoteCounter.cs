@@ -99,7 +99,7 @@ namespace NetTally
         /// <param name="pages">The web pages that have been loaded for the quest.</param>
         /// <returns>Returns true if processing was successfully completed.  Otherwise false.</returns>
         /// <exception cref="ArgumentNullException">If quest or pages is null.</exception>
-        /// <exception cref="ApplicationException">If not all pages loaded.</exception>
+        /// <exception cref="Exception">If not all pages loaded.</exception>
         public async Task<bool> TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
         {
             if (quest == null)
@@ -134,13 +134,19 @@ namespace NetTally
                     if (canceled != null)
                         throw canceled;
 
-                    throw new ApplicationException("Not all pages loaded.  Rerun tally.");
+                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
+                    ae.Data["Application"] = true;
+                    throw ae;
                 }
 
                 var page = await finishedPage;
 
                 if (page == null)
-                    throw new ApplicationException("Not all pages loaded.  Rerun tally.");
+                {
+                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
+                    ae.Data["Application"] = true;
+                    throw ae;
+                }
 
                 var posts = from post in Quest.ForumAdapter.GetPosts(page)
                             where post != null && post.IsVote && post.Author != threadInfo.Author &&
