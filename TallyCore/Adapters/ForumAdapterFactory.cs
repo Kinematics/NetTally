@@ -117,7 +117,7 @@ namespace NetTally.Adapters
 
                 // Get the list of all adapter classes built off of the IForumAdapter interface.
                 var adapterList = from t in assembly.DefinedTypes
-                                    where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                    where (!t.GetTypeInfo().IsInterface && ti.IsAssignableFrom(t))
                                     select t;
 
                 foreach (var adapterClass in adapterList)

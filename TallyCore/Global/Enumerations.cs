@@ -110,7 +110,7 @@ namespace NetTally
         public static T GetValueFromDescription<T>(string description)
         {
             var type = typeof(T);
-            if (!type.IsEnum)
+            if (!type.GetTypeInfo().IsEnum)
                 throw new InvalidOperationException();
 
             foreach (var field in type.GetFields())
@@ -144,7 +144,7 @@ namespace NetTally
 
             // Can't use generic type constraints on value types,
             // so have to do check like this
-            if (enumType.BaseType != typeof(Enum))
+            if (enumType.GetTypeInfo().BaseType != typeof(Enum))
                 throw new ArgumentException("T must be of type System.Enum");
 
             Array enumValArray = Enum.GetValues(enumType);
