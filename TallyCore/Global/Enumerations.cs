@@ -90,15 +90,26 @@ namespace NetTally
             if (enumerationValue == null)
                 return null;
 
-            FieldInfo fi = enumerationValue.GetType().GetField(enumerationValue.ToString());
+            string enumString = enumerationValue.ToString();
 
-            DescriptionAttribute[] attributes =
-                (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            var field = enumerationValue.GetType().GetTypeInfo().DeclaredFields.FirstOrDefault(f => f.Name == enumString);
 
-            if (attributes != null && attributes.Length > 0)
-                return attributes[0].Description;
-            else
-                return enumerationValue.ToString();
+            if (field != null)
+            {
+                var fieldAtt = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "DescriptionAttribute");
+
+                if (fieldAtt != null && fieldAtt.ConstructorArguments.Count > 0)
+                {
+                    var fieldDes = fieldAtt.ConstructorArguments.First().Value as string;
+
+                    if (fieldDes != null)
+                    {
+                        return fieldDes;
+                    }
+                }
+            }
+
+            return enumString;
         }
 
         /// <summary>
@@ -110,22 +121,25 @@ namespace NetTally
         public static T GetValueFromDescription<T>(string description)
         {
             var type = typeof(T);
-            if (!type.GetTypeInfo().IsEnum)
+            var typeInfo = type.GetTypeInfo();
+
+            if (!typeInfo.IsEnum)
                 throw new InvalidOperationException();
 
-            foreach (var field in type.GetFields())
+            foreach (var field in typeInfo.DeclaredFields)
             {
-                var attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+                var fieldAtt = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "DescriptionAttribute");
 
-                if (attribute != null)
+                if (fieldAtt != null && fieldAtt.ConstructorArguments.Count > 0)
                 {
-                    if (attribute.Description == description)
+                    if (fieldAtt.ConstructorArguments[0].Value as string == description)
+                    {
                         return (T)field.GetValue(null);
+                    }
                 }
-                else
+                else if (field.Name == description)
                 {
-                    if (field.Name == description)
-                        return (T)field.GetValue(null);
+                    return (T)field.GetValue(null);
                 }
             }
 
