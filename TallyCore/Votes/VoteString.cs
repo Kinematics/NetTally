@@ -310,7 +310,7 @@ namespace NetTally
             string lineContent = GetVoteContent(voteLine);
 
             // Get the offset into the original text that the content begins.
-            int contentIndex = voteLine.IndexOf(lineContent, StringComparison.InvariantCulture);
+            int contentIndex = voteLine.IndexOf(lineContent, StringComparison.Ordinal);
 
             int trimmingIndex = GetTrimIndexForContent(lineContent);
 
