@@ -31,7 +31,7 @@ namespace NetTally.Utility
             string compX = VoteString.GetVoteTask(xs, voteType) + " " + VoteString.GetVoteContent(xs, voteType);
             string compY = VoteString.GetVoteTask(ys, voteType) + " " + VoteString.GetVoteContent(ys, voteType);
 
-            int result = string.Compare(compX, compY, CultureInfo.CurrentUICulture, CompareOptions.IgnoreCase);
+            int result = string.Compare(compX, compY, StringComparison.CurrentCultureIgnoreCase);
 
             return result;
         }
