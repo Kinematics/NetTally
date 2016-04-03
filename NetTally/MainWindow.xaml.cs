@@ -62,9 +62,6 @@ namespace NetTally
 
                 ErrorLog.Initialize(new WindowsErrorLog());
 
-                // Create a region profiler on startup to get it JIT'd before any actual profiling.
-                using (new RegionProfiler(null)) { }
-
                 InitializeComponent();
 
                 this.Title = WindowTitle;
