@@ -143,6 +143,14 @@ namespace NetTally.Web
 
             try
             {
+                Uri uri = new Uri(url);
+
+                Cookie cookie = ForumCookies.GetCookie(uri);
+                if (cookie != null)
+                {
+                    webHandler.CookieContainer.Add(uri, cookie);
+                }
+
                 string result = null;
                 string failureDescrip = null;
                 int maxtries = 5;
@@ -266,9 +274,6 @@ namespace NetTally.Web
         private void SetupHandler()
         {
             webHandler = new HttpClientHandler();
-
-            CookieCollection cookies = ForumCookies.GetAllCookies();
-            webHandler.CookieContainer.Add(cookies);
 
             webHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 

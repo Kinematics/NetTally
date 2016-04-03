@@ -7,31 +7,20 @@ namespace NetTally.Web
     public static class ForumCookies
     {
         /// <summary>
-        /// A means of looking up cookies to use for specific forum URLs.
+        /// Gets the cookie associated with the given URI, if available.
         /// </summary>
-        /// <param name="url">URL string of the forum thread being loaded.</param>
-        /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
-        public static CookieCollection GetCookies(string url)
-        {
-            Uri uri = new Uri(url);
-            return GetCookies(uri);
-        }
-
-        /// <summary>
-        /// A means of looking up cookies to use for specific forum URLs.
-        /// </summary>
-        /// <param name="uri">URI of the forum thread being loaded.</param>
-        /// <returns>Returns a collection of any cookies that need to be set while loading the page.</returns>
-        public static CookieCollection GetCookies(Uri uri, IClock clock = null)
+        /// <param name="uri">The URI.</param>
+        /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
+        /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
+        /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
+        public static Cookie GetCookie(Uri uri, IClock clock = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
 
             clock = clock ?? new DefaultClock();
 
-            CookieCollection cookies = new CookieCollection();
-
-            Cookie cookie;
+            Cookie cookie = null;
 
             switch (uri.Host)
             {
@@ -39,32 +28,10 @@ namespace NetTally.Web
                     // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
                     cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host);
                     cookie.Expires = clock.Now + TimeSpan.FromDays(30);
-                    cookies.Add(cookie);
                     break;
             }
 
-            return cookies;
-        }
-
-        /// <summary>
-        /// Get a collection of all the cookies we know about.  These can all be stored
-        /// in the HttpClientManager, and it will use whichever is needed.
-        /// </summary>
-        /// <returns>Returns the collection of all known cookies.</returns>
-        public static CookieCollection GetAllCookies(IClock clock = null)
-        {
-            clock = clock ?? new DefaultClock();
-
-            CookieCollection cookies = new CookieCollection();
-
-            Cookie cookie;
-
-            // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
-            cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", "forum.questionablequesting.com");
-            cookie.Expires = clock.Now + TimeSpan.FromDays(30);
-            cookies.Add(cookie);
-
-            return cookies;
+            return cookie;
         }
     }
 }

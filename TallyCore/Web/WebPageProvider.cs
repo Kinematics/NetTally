@@ -213,6 +213,8 @@ namespace NetTally.Web
                     }
                 }
 
+                handler.Dispose();
+
                 if (token.IsCancellationRequested)
                 {
                     return null;
@@ -252,12 +254,12 @@ namespace NetTally.Web
         {
             HttpClientHandler handler = new HttpClientHandler();
 
-            CookieCollection cookies = ForumCookies.GetCookies(url);
-            if (cookies.Count > 0)
+            Uri uri = new Uri(url);
+
+            Cookie cookie = ForumCookies.GetCookie(uri);
+            if (cookie != null)
             {
-                CookieContainer cookieJar = new CookieContainer();
-                cookieJar.Add(cookies);
-                handler.CookieContainer = cookieJar;
+                handler.CookieContainer.Add(uri, cookie);
             }
 
             return handler;
