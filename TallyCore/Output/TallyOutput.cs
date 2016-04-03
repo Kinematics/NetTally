@@ -61,21 +61,13 @@ namespace NetTally.Output
         /// </summary>
         private void AddHeader()
         {
-            var assembly = typeof(TallyOutput).GetTypeInfo().Assembly;
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
             sb.Append("[b]Vote Tally");
             if (AdvancedOptions.Instance.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
             sb.AppendLine(VoteCounter.Instance.Title);
 
-            sb.Append("[color=transparent]##### ");
-            sb.Append(product.Product);
-            sb.Append(" ");
-            sb.Append(version.InformationalVersion);
-            sb.AppendLine("[/color]");
+            sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
             sb.AppendLine();
         }
         #endregion

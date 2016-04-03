@@ -62,6 +62,7 @@
     <Compile Include="Adapters\vBulletinAdapter5.cs" />
     <Compile Include="Adapters\XenForoAdapter.cs" />
     <Compile Include="Global\AdvancedOptions.cs" />
+    <Compile Include="Global\ProductInfo.cs" />
     <Compile Include="Output\TallyOutput.cs" />
     <Compile Include="Output\Utility\SpoilerBBCode.cs" />
     <Compile Include="Output\Utility\VoteInfo.cs" />

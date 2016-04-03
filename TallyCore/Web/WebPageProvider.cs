@@ -40,10 +40,7 @@ namespace NetTally.Web
 
         public WebPageProvider(IClock clock = null)
         {
-            var assembly = typeof(WebPageProvider).GetTypeInfo().Assembly;
-            var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-            var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-            UserAgent = $"{product.Product} ({version.InformationalVersion})";
+            UserAgent = $"{ProductInfo.Name} ({ProductInfo.Version})";
 
             Clock = clock ?? new DefaultClock();
         }

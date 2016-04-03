@@ -45,17 +45,7 @@ namespace NetTally
         /// <summary>
         /// Get the title to be used for the main window, showing the program name and version number.
         /// </summary>
-        private string WindowTitle
-        {
-            get
-            {
-                var assembly = typeof(MainWindow).GetTypeInfo().Assembly;
-                var product = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-
-                return $"{product.Product} - {version.InformationalVersion}";
-            }
-        }
+        private string WindowTitle => $"{ProductInfo.Name} - {ProductInfo.Version}";
         #endregion
 
         #region Startup/shutdown events

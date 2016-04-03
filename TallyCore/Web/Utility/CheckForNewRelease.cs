@@ -70,7 +70,7 @@ namespace NetTally
         {
             try
             {
-                Version currentVersion = GetCurrentVersion();
+                Version currentVersion = ProductInfo.FileVersion;
                 Version latestVersion = await GetLatestVersion().ConfigureAwait(false);
 
                 if (currentVersion == null || latestVersion == null)
@@ -103,29 +103,6 @@ namespace NetTally
         {
             await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
             var result = action();
-        }
-
-        /// <summary>
-        /// Get the current program version information, to compare with the latest version info.
-        /// </summary>
-        /// <returns>Returns the current version.</returns>
-        private static Version GetCurrentVersion()
-        {
-            Version currentVersion = null;
-
-            try
-            {
-                var assembly = typeof(CheckForNewRelease).GetTypeInfo().Assembly;
-                var fileVersion = (AssemblyFileVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute));
-
-                currentVersion = new Version(fileVersion.Version);
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Log(e);
-            }
-
-            return currentVersion;
         }
 
         /// <summary>

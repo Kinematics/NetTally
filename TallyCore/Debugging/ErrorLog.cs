@@ -13,19 +13,6 @@ namespace NetTally
     public static class ErrorLog
     {
         /// <summary>
-        /// Gets the program version.
-        /// </summary>
-        public static string ProgramVersion
-        {
-            get
-            {
-                var assembly = typeof(ErrorLog).GetTypeInfo().Assembly;
-                var version = (AssemblyInformationalVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute));
-                return version.InformationalVersion;
-            }
-        }
-
-        /// <summary>
         /// Public shortcut function to log an exception.
         /// </summary>
         /// <param name="e">Exception to be logged.</param>
@@ -83,7 +70,7 @@ namespace NetTally
                 sb.AppendLine($"{time.ToString("h:mm:ss tt")}");
 
                 sb.Append("Version: ");
-                sb.AppendLine(ProgramVersion);
+                sb.AppendLine(ProductInfo.Version);
 
                 if (!string.IsNullOrEmpty(callingMethod))
                 {
