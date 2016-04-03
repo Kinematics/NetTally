@@ -166,10 +166,8 @@ namespace NetTally
         /// <summary>
         /// Run the tally for the specified quest.
         /// </summary>
-        /// <param name="questTitle">The name of the quest thread to scan.</param>
-        /// <param name="startPost">The starting post number.</param>
-        /// <param name="endPost">The ending post number.</param>
-        /// <returns></returns>
+        /// <param name="quest">The quest to scan.</param>
+        /// <param name="token">Cancellation token.</param>
         public async Task Run(IQuest quest, CancellationToken token)
         {
             try
