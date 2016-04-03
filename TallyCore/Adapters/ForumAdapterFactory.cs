@@ -111,14 +111,14 @@ namespace NetTally.Adapters
                 // IForumAdapter, and the static method, "CanHandlePage".
                 const string detectMethodName = "CanHandlePage";
 
-                Type ti = typeof(IForumAdapter);
+                Type ti = typeof(IForumAdapter).GetTypeInfo();
 
                 var assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
 
                 // Get the list of all adapter classes built off of the IForumAdapter interface.
                 var adapterList = from t in assembly.DefinedTypes
-                                    where (!t.GetTypeInfo().IsInterface && ti.IsAssignableFrom(t))
-                                    select t;
+                                  where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                  select t;
 
                 foreach (var adapterClass in adapterList)
                 {
