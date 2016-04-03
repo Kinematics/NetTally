@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTally", "NetTally\NetTally.csproj", "{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}"
 EndProject
@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ACA0D1B9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyUnitTest", "TallyUnitTest\TallyUnitTest.csproj", "{7C756E0C-F734-4501-BD21-453E49C88C17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallyCore", "TallyCore\TallyCore.csproj", "{037E6032-88E9-4861-AB1F-42EC39859ECB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTally.Core", "TallyCore\NetTally.Core.csproj", "{037E6032-88E9-4861-AB1F-42EC39859ECB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

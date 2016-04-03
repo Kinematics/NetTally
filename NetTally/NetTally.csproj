@@ -143,9 +143,9 @@
     <Resource Include="CheckVoteWin.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TallyCore\TallyCore.csproj">
+    <ProjectReference Include="..\TallyCore\NetTally.Core.csproj">
       <Project>{037e6032-88e9-4861-ab1f-42ec39859ecb}</Project>
-      <Name>TallyCore</Name>
+      <Name>NetTally.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
