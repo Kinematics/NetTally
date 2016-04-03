@@ -31,7 +31,8 @@ namespace NetTally.Utility
             CheckReentrancy();
 
             List<T> itemsToRemove = Items.Where(x => predicate(x)).ToList();
-            itemsToRemove.ForEach(item => Items.Remove(item));
+            foreach (var item in itemsToRemove)
+                Items.Remove(item);
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
