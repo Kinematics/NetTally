@@ -111,21 +111,21 @@ namespace NetTally.Adapters
                 // IForumAdapter, and the static method, "CanHandlePage".
                 const string detectMethodName = "CanHandlePage";
 
-                var ti = typeof(IForumAdapter).GetTypeInfo();
+                TypeInfo ti = typeof(IForumAdapter).GetTypeInfo();
 
-                var assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
+                Assembly assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
 
                 // Get the list of all adapter classes built off of the IForumAdapter interface.
                 var adapterList = from t in assembly.DefinedTypes
                                   where (!t.IsInterface && ti.IsAssignableFrom(t))
                                   select t;
 
-                foreach (var adapterClass in adapterList)
+                foreach (var adapterClassInfo in adapterList)
                 {
                     try
                     {
                         // Check that the class has the method for determining whether it can handle a page type.
-                        var methods = adapterClass.DeclaredMethods;
+                        var methods = adapterClassInfo.DeclaredMethods;
                         var handleMethods = methods.Where(m => m.Name == detectMethodName && m.ReturnType.Name == "Boolean");
 
                         if (handleMethods.Any())
@@ -137,7 +137,7 @@ namespace NetTally.Adapters
 
                             if (canHandle)
                             {
-                                var adapter = (IForumAdapter)Activator.CreateInstance(adapterClass, new object[] { uri });
+                                var adapter = (IForumAdapter)Activator.CreateInstance(adapterClassInfo.AsType(), new object[] { uri });
 
                                 return adapter;
                             }
