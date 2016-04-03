@@ -140,7 +140,7 @@ namespace NetTally.Utility
             string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
 
             // Different spacing/punctuation doesn't guarantee uniqueness.
-            var decArr = decomposed.ToArray();
+            var decArr = decomposed.ToCharArray();
             var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
 
             // Convert the LINQ results to a new string.
@@ -195,7 +195,7 @@ namespace NetTally.Utility
             string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
 
             // Different spacing/punctuation doesn't guarantee uniqueness.
-            var decArr = decomposed.ToArray();
+            var decArr = decomposed.ToCharArray();
             var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
 
             // Convert the LINQ results to a new string.
