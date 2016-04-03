@@ -27,11 +27,6 @@ namespace NetTally.Utility
         {
         }
 
-        public ObservableCollectionExt(List<T> list)
-            : base(list)
-        {
-        }
-
         public void RemoveWhere(Predicate<T> predicate)
         {
             CheckReentrancy();
