@@ -15,7 +15,6 @@ namespace NetTally.Utility
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    [Serializable]
     public class ObservableCollectionExt<T> : ObservableCollection<T>
     {
         public ObservableCollectionExt()
