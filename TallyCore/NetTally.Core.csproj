@@ -73,6 +73,8 @@
     <Compile Include="Utility\IClock.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Utility\ObservableCollectionExtension.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />
