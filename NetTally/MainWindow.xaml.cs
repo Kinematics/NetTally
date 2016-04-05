@@ -398,13 +398,14 @@ namespace NetTally
         /// <summary>
         /// Tries to confirm any in-progress edit.
         /// </summary>
-        private void TryConfirmEdit()
+        private void TryConfirmEdit(bool focusOnStart = false)
         {
             if (editQuestName.Visibility == Visibility.Visible || editQuestThread.Visibility == Visibility.Visible)
             {
                 ConfirmEdit();
                 HideEditBoxes();
-                startPost.Focus();
+                if (focusOnStart)
+                    startPost.Focus();
             }
         }
 
