@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
-
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -22,30 +16,9 @@ namespace NetTally
     public partial class MainWindow : Window, IDisposable
     {
         #region Fields and Properties
+        readonly MainViewModel mainViewModel;
+
         bool _disposed = false;
-
-        // Collections for holding quests
-        public ICollectionView QuestCollectionView { get; }
-        QuestCollection questCollection;
-
-        string editingName = string.Empty;
-
-        // Locals for managing the tally
-        Tally tally;
-        CancellationTokenSource cts;
-
-        CheckForNewRelease checkForNewRelease;
-
-        public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
-
-        public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
-
-        private IQuest CurrentlySelectedQuest => QuestCollectionView?.CurrentItem as IQuest;
-
-        /// <summary>
-        /// Get the title to be used for the main window, showing the program name and version number.
-        /// </summary>
-        private string WindowTitle => $"{ProductInfo.Name} - {ProductInfo.Version}";
         #endregion
 
         #region Startup/shutdown events
@@ -64,63 +37,17 @@ namespace NetTally
 
                 InitializeComponent();
 
-                this.Title = WindowTitle;
-
-                // Set tally vars
-                tally = new Tally();
-
-                QuestCollectionWrapper wrapper = NetTallyConfig.Load();
-                questCollection = wrapper.QuestCollection;
-
-                // Set up view for binding
-                QuestCollectionView = CollectionViewSource.GetDefaultView(questCollection);
-                // Sort the collection view
-                var sortDesc = new SortDescription("DisplayName", ListSortDirection.Ascending);
-                QuestCollectionView.SortDescriptions.Add(sortDesc);
-                // Set the current item
-                QuestCollectionView.MoveCurrentTo(questCollection[wrapper.CurrentQuest]);
+                this.Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
                 // Set up data contexts
-                DataContext = QuestCollectionView;
-
-                resultsWindow.DataContext = tally;
-                tallyButton.DataContext = tally;
-                cancelTally.DataContext = tally;
-                displayMode.DataContext = AdvancedOptions.Instance;
-
-                checkForNewRelease = new CheckForNewRelease();
-                newRelease.DataContext = checkForNewRelease;
-                checkForNewRelease.Update();
+                mainViewModel = new MainViewModel(NetTallyConfig.Load());
+                DataContext = mainViewModel;
             }
             catch (Exception e)
             {
                 string file = ErrorLog.Log(e);
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in startup", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        ~MainWindow()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true); //I am calling you from Dispose, it's safe
-            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
-        }
-
-        protected virtual void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
-        {
-            if (_disposed)
-                return;
-
-            if (itIsSafeToAlsoFreeManagedObjects)
-            {
-                tally.Dispose();
-            }
-
-            _disposed = true;
         }
 
         /// <summary>
@@ -147,19 +74,42 @@ namespace NetTally
         {
             try
             {
-                string selectedQuest = CurrentlySelectedQuest?.ThreadName ?? "";
+                string selectedQuest = mainViewModel.SelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(questCollection, selectedQuest);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(mainViewModel.QuestList, selectedQuest);
                 NetTallyConfig.Save(wrapper);
-
-                Properties.Settings settings = new Properties.Settings();
-                settings.Save();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string file = ErrorLog.Log(ex);
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in shutdown", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+        #endregion
+
+        #region Disposal
+        ~MainWindow()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true); //I am calling you from Dispose, it's safe
+            GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
+        }
+
+        protected virtual void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
+        {
+            if (_disposed)
+                return;
+
+            if (itIsSafeToAlsoFreeManagedObjects)
+            {
+                mainViewModel.Dispose();
+            }
+
+            _disposed = true;
         }
         #endregion
 
@@ -171,38 +121,27 @@ namespace NetTally
         /// <param name="e"></param>
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
-            DoneEditing();
+            TryConfirmEdit();
 
-            if (CurrentlySelectedQuest == null)
+            if (mainViewModel.SelectedQuest == null)
                 return;
 
-            using (cts = new CancellationTokenSource())
+            try
             {
-                try
+                await mainViewModel.Tally();
+            }
+            catch (Exception ex)
+            {
+                string exmsg = ex.Message;
+                var innerEx = ex.InnerException;
+                while (innerEx != null)
                 {
-                    await tally.Run(CurrentlySelectedQuest, cts.Token);
+                    exmsg = exmsg + "\n" + innerEx.Message;
+                    innerEx = innerEx.InnerException;
                 }
-                catch (OperationCanceledException)
-                {
-                    // got a cancel request somewhere
-                }
-                catch (Exception ex)
-                {
-                    if (cts.IsCancellationRequested == false)
-                    {
-                        string exmsg = ex.Message;
-                        var innerEx = ex.InnerException;
-                        while (innerEx != null)
-                        {
-                            exmsg = exmsg + "\n" + innerEx.Message;
-                            innerEx = innerEx.InnerException;
-                        }
-                        MessageBox.Show(exmsg, "Error");
-                        if (!(ex.Data.Contains("Application")))
-                            ErrorLog.Log(ex);
-                        cts.Cancel();
-                    }
-                }
+                MessageBox.Show(exmsg, "Error");
+                if (!(ex.Data.Contains("Application")))
+                    ErrorLog.Log(ex);
             }
         }
 
@@ -213,7 +152,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void cancelTally_Click(object sender, RoutedEventArgs e)
         {
-            cts?.Cancel();
+            mainViewModel.Cancel();
         }
 
         /// <summary>
@@ -224,13 +163,13 @@ namespace NetTally
         /// <param name="e"></param>
         private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
         {
-            DoneEditing();
+            TryConfirmEdit();
 
             tallyButton.IsEnabled = false;
 
             try
             {
-                tally.ClearPageCache();
+                mainViewModel.ClearCache();
             }
             catch (Exception ex)
             {
@@ -250,11 +189,11 @@ namespace NetTally
         /// <param name="e"></param>
         private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            DoneEditing();
+            TryConfirmEdit();
 
             try
             {
-                Clipboard.SetText(tally.TallyResults);
+                Clipboard.SetText(mainViewModel.Output);
             }
             catch (Exception ex1)
             {
@@ -262,7 +201,7 @@ namespace NetTally
                 //MessageBox.Show(ex1.Message, "Clipboard error 1", MessageBoxButton.OK, MessageBoxImage.Error);
                 try
                 {
-                    Clipboard.SetDataObject(tally.TallyResults, false);
+                    Clipboard.SetDataObject(mainViewModel.Output, false);
                 }
                 catch (Exception ex2)
                 {
@@ -280,19 +219,10 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            DoneEditing();
+            TryConfirmEdit();
 
-            var newEntry = questCollection.AddNewQuest();
-            if (newEntry == null)
-            {
-                newEntry = questCollection.FirstOrDefault(q => q.ThreadName == Quest.NewThreadEntry);
-                if (newEntry == null)
-                    return;
-            }
-
-            QuestCollectionView.MoveCurrentTo(newEntry);
-
-            EditQuestThread();
+            if (mainViewModel.AddNewQuest())
+                StartEdit(true);
         }
 
         /// <summary>
@@ -302,9 +232,8 @@ namespace NetTally
         /// <param name="e"></param>
         private void removeQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            DoneEditing();
-            questCollection.Remove(CurrentlySelectedQuest);
-            QuestCollectionView.Refresh();
+            TryConfirmEdit();
+            mainViewModel.RemoveQuest();
         }
 
         /// <summary>
@@ -314,14 +243,15 @@ namespace NetTally
         /// <param name="e"></param>
         private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow(tally)
+            ManageVotesWindow manageWindow = new ManageVotesWindow()
             {
-                Owner = Application.Current.MainWindow
+                Owner = Application.Current.MainWindow,
+                DataContext = mainViewModel
             };
 
             manageWindow.ShowDialog();
 
-            tally.UpdateResults();
+            mainViewModel.Update();
         }
 
         /// <summary>
@@ -331,8 +261,11 @@ namespace NetTally
         /// <param name="e"></param>
         private void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            GlobalOptionsWindow options = new GlobalOptionsWindow();
-            options.Owner = Application.Current.MainWindow;
+            GlobalOptionsWindow options = new GlobalOptionsWindow()
+            {
+                Owner = Application.Current.MainWindow,
+                //DataContext = mainViewModel
+            };
 
             options.ShowDialog();
         }
@@ -344,7 +277,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            QuestOptionsWindow options = new QuestOptionsWindow(CurrentlySelectedQuest);
+            QuestOptionsWindow options = new QuestOptionsWindow(mainViewModel.SelectedQuest);
             options.Owner = Application.Current.MainWindow;
 
             options.ShowDialog();
@@ -362,7 +295,7 @@ namespace NetTally
         }
         #endregion
 
-        #region Events to support editing thread names
+        #region Focus on start/end post boxes
         /// <summary>
         /// If either start post or end post text boxes get focus, select the entire
         /// contents so that they're easy to replace.
@@ -396,7 +329,123 @@ namespace NetTally
                 }
             }
         }
+        #endregion
 
+        #region Functions for editing quest names and URLs.
+        /// <summary>
+        /// Starts editing quest name/thread info.
+        /// </summary>
+        /// <param name="startWithThread">If set to <c>true</c> [start with thread].</param>
+        private void StartEdit(bool startWithThread = false)
+        {
+            if (mainViewModel.SelectedQuest == null)
+            {
+                HideEditBoxes();
+                return;
+            }
+
+            if (editQuestThread.Visibility == Visibility.Visible)
+            {
+                ConfirmEdit();
+                HideEditBoxes();
+            }
+            else if (editQuestName.Visibility == Visibility.Visible || startWithThread)
+            {
+                ConfirmEdit();
+                editQuestName.Visibility = Visibility.Hidden;
+                editQuestThread.Visibility = Visibility.Visible;
+                editDescriptor.Text = "Thread";
+                editDescriptorCanvas.Visibility = Visibility.Visible;
+                editNameButton.Content = "Finish Edit";
+                editQuestThread.Focus();
+            }
+            else
+            {
+                editQuestName.Visibility = Visibility.Visible;
+                editQuestThread.Visibility = Visibility.Hidden;
+                editDescriptor.Text = "Name";
+                editDescriptorCanvas.Visibility = Visibility.Visible;
+                editNameButton.Content = "Edit URL";
+                editQuestName.Focus();
+            }
+        }
+
+        /// <summary>
+        /// Hides the edit boxes.  Run after editing is complete.
+        /// </summary>
+        private void HideEditBoxes()
+        {
+            editQuestName.Visibility = Visibility.Hidden;
+            editQuestThread.Visibility = Visibility.Hidden;
+            editDescriptorCanvas.Visibility = Visibility.Hidden;
+            editNameButton.Content = "Edit Name";
+        }
+
+        /// <summary>
+        /// Tries to cancel any in-progress edit.
+        /// </summary>
+        private void TryCancelEdit()
+        {
+            if (editQuestName.Visibility == Visibility.Visible || editQuestThread.Visibility == Visibility.Visible)
+            {
+                CancelEdit();
+                HideEditBoxes();
+            }
+        }
+
+        /// <summary>
+        /// Tries to confirm any in-progress edit.
+        /// </summary>
+        private void TryConfirmEdit()
+        {
+            if (editQuestName.Visibility == Visibility.Visible || editQuestThread.Visibility == Visibility.Visible)
+            {
+                ConfirmEdit();
+                HideEditBoxes();
+                startPost.Focus();
+            }
+        }
+
+        /// <summary>
+        /// If the edit is cancelled, revert to the original value.
+        /// </summary>
+        private void CancelEdit()
+        {
+            BindingExpression be = GetCurrentEditBinding();
+
+            if (be != null && mainViewModel.SelectedQuest != null)
+                be.UpdateTarget();
+        }
+
+        /// <summary>
+        /// If the edit is confirmed, push the current value to the quest.
+        /// </summary>
+        private void ConfirmEdit()
+        {
+            BindingExpression be = GetCurrentEditBinding();
+
+            if (be != null && mainViewModel.SelectedQuest != null)
+                be.UpdateSource();
+        }
+
+        /// <summary>
+        /// Helper function to get the edit binding of the currently visible edit window.
+        /// </summary>
+        /// <returns>Returns the binding for the current visible edit window, if any.</returns>
+        private BindingExpression GetCurrentEditBinding()
+        {
+            BindingExpression be = null;
+
+            if (editQuestName.Visibility == Visibility.Visible)
+                be = editQuestName.GetBindingExpression(TextBox.TextProperty);
+            else if (editQuestThread.Visibility == Visibility.Visible)
+                be = editQuestThread.GetBindingExpression(TextBox.TextProperty);
+
+            return be;
+        }
+        #endregion
+
+        #region Keyboard Shortcuts
         /// <summary>
         /// Global window key capture for using F2 to edit the quest name and URL.
         /// </summary>
@@ -406,7 +455,15 @@ namespace NetTally
         {
             if (e.Key == Key.F2)
             {
-                EditActions();
+                StartEdit();
+            }
+            else if (e.Key == Key.Escape)
+            {
+                TryCancelEdit();
+            }
+            else if (e.Key == Key.Enter)
+            {
+                TryConfirmEdit();
             }
         }
 
@@ -417,7 +474,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void editNameButton_Click(object sender, RoutedEventArgs e)
         {
-            EditActions();
+            StartEdit();
         }
 
         /// <summary>
@@ -430,16 +487,7 @@ namespace NetTally
         {
             if (e.Key == Key.Enter)
             {
-                DoneEditingQuestName();
-                startPost.Focus();
-            }
-            else if (e.Key == Key.Escape)
-            {
-                // Restore original name if we escape.
-                IQuest quest = CurrentlySelectedQuest;
-                if (quest != null)
-                    quest.DisplayName = editingName;
-                DoneEditingQuestName();
+                TryConfirmEdit();
             }
         }
 
@@ -453,122 +501,8 @@ namespace NetTally
         {
             if (e.Key == Key.Enter)
             {
-                DoneEditingQuestSite();
+                TryConfirmEdit();
             }
-            else if (e.Key == Key.Escape)
-            {
-                // Restore original name if we escape.
-                IQuest quest = CurrentlySelectedQuest;
-                if (quest != null)
-                    quest.ThreadName = editingName;
-                DoneEditingQuestSite();
-            }
-        }
-        #endregion
-
-        #region Edit and edit cleanup methods
-
-        /// <summary>
-        /// The sequence of edit actions performed when either hitting F2 or the Edit Name button.
-        /// </summary>
-        private void EditActions()
-        {
-            if ((editQuestName.Visibility == Visibility.Hidden) && (editQuestThread.Visibility == Visibility.Hidden))
-            {
-                EditQuestName();
-            }
-            else if (editQuestThread.Visibility == Visibility.Hidden)
-            {
-                EditQuestThread();
-            }
-            else
-            {
-                DoneEditingQuestSite();
-            }
-        }
-
-        /// <summary>
-        /// Adjust window so that we can edit the quest name.
-        /// </summary>
-        private void EditQuestName()
-        {
-            DoneEditingQuestSite();
-            editingName = ((IQuest)QuestCollectionView.CurrentItem).DisplayName;
-            editDescriptor.Text = "Name";
-            editNameButton.Content = "Edit URL";
-            editQuestName.Visibility = Visibility.Visible;
-            editDescriptorCanvas.Visibility = Visibility.Visible;
-            editQuestName.Focus();
-        }
-
-        /// <summary>
-        /// Adjust window so that we can edit the quest thread.
-        /// </summary>
-        private void EditQuestThread()
-        {
-            DoneEditingQuestName();
-            editingName = ((IQuest)QuestCollectionView.CurrentItem).ThreadName;
-            editDescriptor.Text = "Thread";
-            editNameButton.Content = "Finish Edit";
-            editQuestThread.Visibility = Visibility.Visible;
-            editDescriptorCanvas.Visibility = Visibility.Visible;
-            editQuestThread.Focus();
-        }
-
-        /// <summary>
-        /// Call when we want to cleanup all editing in progress.
-        /// </summary>
-        private void DoneEditing()
-        {
-            RunCleanup(CleanupQuestName, CleanupQuestSite);
-        }
-
-        /// <summary>
-        /// Call when we want to cleanup after editing the quest name.
-        /// </summary>
-        private void DoneEditingQuestName()
-        {
-            RunCleanup(CleanupQuestName);
-        }
-
-        /// <summary>
-        /// Call when we want to cleanup after editing the quest thread.
-        /// </summary>
-        private void DoneEditingQuestSite()
-        {
-            RunCleanup(CleanupQuestSite);
-        }
-
-        /// <summary>
-        /// Cleanup code specific to cleaning up after editing the quest name.
-        /// </summary>
-        private void CleanupQuestName()
-        {
-            editNameButton.Content = "Edit Name";
-            editQuestName.Visibility = Visibility.Hidden;
-        }
-
-        /// <summary>
-        /// Cleanup code specific to cleaning up after editing the quest thread.
-        /// </summary>
-        private void CleanupQuestSite()
-        {
-            editNameButton.Content = "Edit Name";
-            editQuestThread.Visibility = Visibility.Hidden;
-        }
-
-        /// <summary>
-        /// Overall cleanup handling, which runs any provided actions before refreshing the view.
-        /// </summary>
-        private void RunCleanup(params Action[] actions)
-        {
-            foreach (Action action in actions)
-            {
-                action();
-            }
-
-            editDescriptorCanvas.Visibility = Visibility.Hidden;
-            QuestCollectionView.Refresh();
         }
         #endregion
     }
