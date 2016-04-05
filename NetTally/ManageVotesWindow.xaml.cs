@@ -59,6 +59,8 @@ namespace NetTally
 
             MainViewModel = mainViewModel;
 
+            MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+
             // Create filtered, sortable views into the collection for display in the window.
             VoteView1 = new ListCollectionView(MainViewModel.AllVotesCollection);
             VoteView2 = new ListCollectionView(MainViewModel.AllVotesCollection);
@@ -103,10 +105,9 @@ namespace NetTally
             Filter1String = "";
             Filter2String = "";
         }
-
         #endregion
 
-        #region Event handling
+        #region INotifyPropertyChanged implementation
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -290,8 +291,6 @@ namespace NetTally
             {
                 if (VoteCounter.Instance.Join(fromVoters, joinVoter, CurrentVoteType))
                 {
-                    UpdateCollections();
-
                     OnPropertyChanged("HasUndoActions");
                 }
             }
@@ -310,8 +309,6 @@ namespace NetTally
         {
             if (VoteCounter.Instance.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
             {
-                UpdateCollections();
-
                 OnPropertyChanged("HasUndoActions");
             }
         }
@@ -325,10 +322,8 @@ namespace NetTally
         {
             if(VoteCounter.Instance.Undo())
             {
-                UpdateCollections();
+                OnPropertyChanged("HasUndoActions");
             }
-
-            OnPropertyChanged("HasUndoActions");
         }
 
         /// <summary>
@@ -351,7 +346,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            lastSelected2 = VoteView2.CurrentItem;
+            lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
             VoterView2.Refresh();
             merge.IsEnabled = VotesCanMerge;
         }
@@ -478,6 +473,17 @@ namespace NetTally
         }
         #endregion
 
+        #region Watched Events
+
+        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "VoteCounter")
+            {
+                UpdateCollections();
+            }
+        }
+        #endregion
+
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
@@ -587,8 +593,6 @@ namespace NetTally
 
                 if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
                 {
-                    UpdateCollections();
-
                     OnPropertyChanged("HasUndoActions");
                 }
             }
