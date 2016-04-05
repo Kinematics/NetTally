@@ -127,7 +127,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// List of quests for binding.
         /// </summary>
-        public QuestCollection QuestList { get; set; }
+        public QuestCollection QuestList { get; }
 
         /// <summary>
         /// The currently selected quest.
@@ -238,6 +238,11 @@ namespace NetTally.ViewModels
         /// Creates a notification event if the contents change.
         /// </summary>
         public string Output => tally.TallyResults;
+
+        /// <summary>
+        /// Redirection for user defined task values.
+        /// </summary>
+        public HashSet<string> UserDefinedTasks => tally.UserDefinedTasks;
         #endregion
 
         #region Section: Tally Commands

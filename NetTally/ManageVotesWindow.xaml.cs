@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using NetTally.Utility;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -32,7 +33,7 @@ namespace NetTally
         List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        HashSet<string> UserDefinedTasks { get; }
+        MainViewModel MainViewModel { get; }
 
         ListBox newTaskBox = null;
 
@@ -51,12 +52,12 @@ namespace NetTally
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="tally">The tally that is having votes merged.</param>
-        public ManageVotesWindow(Tally tally)
+        /// <param name="mainViewModel">The primary view model of the program.</param>
+        public ManageVotesWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
 
-            UserDefinedTasks = tally.UserDefinedTasks;
+            MainViewModel = mainViewModel;
 
             // Gets the lists of all current votes and ranked votes that can be shown.
             var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
@@ -689,7 +690,7 @@ namespace NetTally
         {
             var voteTasks = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys
                 .Select(v => VoteString.GetVoteTask(v))
-                .Concat(UserDefinedTasks.ToList())
+                .Concat(MainViewModel.UserDefinedTasks.ToList())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(v => v != string.Empty);
 
@@ -749,7 +750,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            UserDefinedTasks.Add(task);
+            MainViewModel.UserDefinedTasks.Add(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 

@@ -243,10 +243,9 @@ namespace NetTally
         /// <param name="e"></param>
         private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow()
+            ManageVotesWindow manageWindow = new ManageVotesWindow(mainViewModel)
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = mainViewModel
             };
 
             manageWindow.ShowDialog();
