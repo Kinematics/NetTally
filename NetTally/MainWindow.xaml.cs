@@ -193,7 +193,6 @@ namespace NetTally
             catch (Exception ex1)
             {
                 ErrorLog.Log("First clipboard failure", ex1);
-                //MessageBox.Show(ex1.Message, "Clipboard error 1", MessageBoxButton.OK, MessageBoxImage.Error);
                 try
                 {
                     Clipboard.SetDataObject(mainViewModel.Output, false);
@@ -201,7 +200,6 @@ namespace NetTally
                 catch (Exception ex2)
                 {
                     ErrorLog.Log("Second clipboard failure", ex2);
-                    //MessageBox.Show(ex2.Message, "Clipboard error 2", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
