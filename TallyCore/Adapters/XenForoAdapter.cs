@@ -297,7 +297,7 @@ namespace NetTally.Adapters
                 string permalink = GetPermalinkForId(tmID);
 
                 // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
-                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, token).ConfigureAwait(false);
+                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, token, true).ConfigureAwait(false);
 
                 var threadInfo = GetThreadInfo(lastThreadmarkPage);
 

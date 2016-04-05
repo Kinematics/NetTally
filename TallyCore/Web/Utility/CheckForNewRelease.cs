@@ -171,7 +171,7 @@ namespace NetTally
             {
                 using (IPageProvider webPageProvider = new WebPageProvider2())
                 {
-                    doc = await webPageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None).ConfigureAwait(false);
+                    doc = await webPageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
