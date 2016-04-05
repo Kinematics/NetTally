@@ -25,6 +25,11 @@ namespace NetTally.ViewModels
 
             BindCheckForNewRelease();
             BindTally();
+
+            AllVotesCollection = new ObservableCollectionExt<string>();
+            AllVotersCollection = new ObservableCollectionExt<string>();
+
+            BindVoteCounter();
         }
 
         #region IDisposable
@@ -306,6 +311,44 @@ namespace NetTally.ViewModels
         public void Update()
         {
             tally.UpdateResults();
+        }
+
+        #endregion
+
+        #region Section: Vote Counter
+        public ObservableCollectionExt<string> AllVotesCollection { get; }
+        public ObservableCollectionExt<string> AllVotersCollection { get; }
+
+        private void BindVoteCounter()
+        {
+            VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
+        }
+
+        private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Votes")
+            {
+                var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+
+                List<string> votes = votesWithSupporters.Keys
+                    .Concat(VoteCounter.Instance.GetCondensedRankVotes())
+                    .Distinct().ToList();
+
+                AllVotesCollection.Clear();
+                AllVotesCollection.AddRange(votes);
+
+                var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+                var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
+
+                List<string> voters = voteVoters.Select(v => v.Key)
+                    .Concat(rankVoters.Select(v => v.Key))
+                    .Distinct().OrderBy(v => v).ToList();
+
+                AllVotersCollection.Clear();
+                AllVotersCollection.AddRange(voters);
+
+                OnPropertyChanged("VoteCounter");
+            }
         }
 
         #endregion
