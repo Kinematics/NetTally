@@ -87,6 +87,7 @@ namespace NetTally
             // Create filtered views for display in the window.
             VoterView1 = new ListCollectionView(MainViewModel.AllVotersCollection);
             VoterView2 = new ListCollectionView(MainViewModel.AllVotersCollection);
+
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
 
@@ -473,8 +474,12 @@ namespace NetTally
         }
         #endregion
 
-        #region Watched Events
-
+        #region Watched Events        
+        /// <summary>
+        /// Watch for notifications from the main view model about changes in the vote backend.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "VoteCounter")
@@ -629,13 +634,7 @@ namespace NetTally
         /// </summary>
         private void InitTasksFromVoteCounter()
         {
-            var voteTasks = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys
-                .Select(v => VoteString.GetVoteTask(v))
-                .Concat(MainViewModel.UserDefinedTasks.ToList())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(v => v != string.Empty);
-
-            foreach (var task in voteTasks)
+            foreach (var task in MainViewModel.KnownTasks)
                 ContextMenuTasks.Add(CreateContextMenuItem(task));
         }
 

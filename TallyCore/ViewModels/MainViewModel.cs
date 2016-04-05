@@ -349,6 +349,23 @@ namespace NetTally.ViewModels
             }
         }
 
+        public IEnumerable<string> KnownTasks
+        {
+            get
+            {
+                var voteTasks = VoteCounter.Instance.GetVotesCollection(VoteType.Vote).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var rankTasks = VoteCounter.Instance.GetVotesCollection(VoteType.Rank).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var userTasks = UserDefinedTasks.ToList();
+
+                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Where(v => !string.IsNullOrEmpty(v));
+
+                return allTasks;
+            }
+        }
         #endregion
     }
 }
