@@ -127,7 +127,7 @@ namespace NetTally
 
             try
             {
-                await mainViewModel.Tally();
+                await mainViewModel.RunTally();
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void cancelTally_Click(object sender, RoutedEventArgs e)
         {
-            mainViewModel.Cancel();
+            mainViewModel.CancelTally();
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace NetTally
 
             manageWindow.ShowDialog();
 
-            mainViewModel.Update();
+            mainViewModel.UpdateOutput();
         }
 
         /// <summary>
