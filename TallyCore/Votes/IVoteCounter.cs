@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
@@ -6,7 +7,7 @@ using NetTally.Votes;
 
 namespace NetTally
 {
-    public interface IVoteCounter
+    public interface IVoteCounter : INotifyPropertyChanged
     {
         IQuest Quest { get; set; }
 
