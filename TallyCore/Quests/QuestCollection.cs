@@ -32,8 +32,8 @@ namespace NetTally
             Add(nq);
             if (this.Contains(nq))
                 return nq;
-            else
-                return null;
+
+            return this.FirstOrDefault(q => q.ThreadName == nq.ThreadName);
         }
 
         /// <summary>
