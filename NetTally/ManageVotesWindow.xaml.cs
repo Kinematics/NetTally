@@ -20,13 +20,13 @@ namespace NetTally
     public partial class ManageVotesWindow : Window, INotifyPropertyChanged
     {
         #region Constructor and variables
-        public ObservableCollectionExt<string> VoteCollection { get; }
         public ListCollectionView VoteView1 { get; }
         public ListCollectionView VoteView2 { get; }
 
-        public ObservableCollectionExt<string> VoterCollection { get; }
         public ListCollectionView VoterView1 { get; }
         public ListCollectionView VoterView2 { get; }
+
+        object lastSelected2 = null;
 
         bool displayStandardVotes = true;
 
@@ -59,22 +59,13 @@ namespace NetTally
 
             MainViewModel = mainViewModel;
 
-            // Gets the lists of all current votes and ranked votes that can be shown.
-            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                .Distinct().ToList();
-
-            // Create a collection for the views to draw from.
-            VoteCollection = new ObservableCollectionExt<string>(votes);
-
             // Create filtered, sortable views into the collection for display in the window.
-            VoteView1 = new ListCollectionView(VoteCollection);
-            VoteView2 = new ListCollectionView(VoteCollection);
+            VoteView1 = new ListCollectionView(MainViewModel.AllVotesCollection);
+            VoteView2 = new ListCollectionView(MainViewModel.AllVotesCollection);
 
             if (VoteView1.CanSort)
             {
-                IComparer voteCompare = new Utility.CustomVoteSort();
+                IComparer voteCompare = new CustomVoteSort();
                 //IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
@@ -91,20 +82,9 @@ namespace NetTally
             VoteView2.MoveCurrentToFirst();
 
 
-            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
-
-            // Get the lists of all unique voters/ranked voters that we can show in the display.
-            List<string> voters = voteVoters.Select(v => v.Key)
-                .Concat(rankVoters.Select(v => v.Key))
-                .Distinct().OrderBy(v => v).ToList();
-
-            // Create a collection for the views to draw from.
-            VoterCollection = new ObservableCollectionExt<string>(voters);
-
             // Create filtered views for display in the window.
-            VoterView1 = new ListCollectionView(VoterCollection);
-            VoterView2 = new ListCollectionView(VoterCollection);
+            VoterView1 = new ListCollectionView(MainViewModel.AllVotersCollection);
+            VoterView2 = new ListCollectionView(MainViewModel.AllVotersCollection);
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
 
@@ -310,11 +290,7 @@ namespace NetTally
             {
                 if (VoteCounter.Instance.Join(fromVoters, joinVoter, CurrentVoteType))
                 {
-                    VoteView1.Refresh();
-                    VoteView2.Refresh();
-                    VoterView1.Refresh();
-                    VoterView2.Refresh();
-                    VoteView1.MoveCurrentToPosition(-1);
+                    UpdateCollections();
 
                     OnPropertyChanged("HasUndoActions");
                 }
@@ -334,10 +310,7 @@ namespace NetTally
         {
             if (VoteCounter.Instance.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
             {
-                VoteView1.Refresh();
-                VoteView2.Refresh();
-                VoteView1.MoveCurrentToPosition(-1);
-                VoteView2.MoveCurrentToFirst();
+                UpdateCollections();
 
                 OnPropertyChanged("HasUndoActions");
             }
@@ -378,6 +351,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            lastSelected2 = VoteView2.CurrentItem;
             VoterView2.Refresh();
             merge.IsEnabled = VotesCanMerge;
         }
@@ -581,49 +555,12 @@ namespace NetTally
         /// </summary>
         private void UpdateCollections()
         {
-            UpdateVoteCollection();
-            UpdateVoterCollection();
-        }
-
-        /// <summary>
-        /// Fully refresh the observed vote collection from the VoteCounter class.
-        /// </summary>
-        private void UpdateVoteCollection()
-        {
-            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-
-            List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                .Distinct().ToList();
-
-            var priorDest = VoteView2.CurrentItem;
-
-            VoteCollection.Clear();
-            VoteCollection.AddRange(votes);
-
             VoteView1.Refresh();
             VoteView2.Refresh();
-
-            VoteView2.MoveCurrentTo(priorDest ?? "");
-        }
-
-        /// <summary>
-        /// Fully refresh the observed voter collection from the VoteCounter class.
-        /// </summary>
-        private void UpdateVoterCollection()
-        {
-            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
-
-            List<string> voters = voteVoters.Select(v => v.Key)
-                .Concat(rankVoters.Select(v => v.Key))
-                .Distinct().OrderBy(v => v).ToList();
-
-            VoterCollection.Clear();
-            VoterCollection.AddRange(voters);
-
             VoterView1.Refresh();
             VoterView2.Refresh();
+            VoteView1.MoveCurrentToPosition(-1);
+            VoteView2.MoveCurrentTo(lastSelected2 ?? "");
         }
 
         /// <summary>
