@@ -458,14 +458,17 @@ namespace NetTally
             if (e.Key == Key.F2)
             {
                 StartEdit();
+                e.Handled = true;
             }
             else if (e.Key == Key.Escape)
             {
                 TryCancelEdit();
+                e.Handled = true;
             }
             else if (e.Key == Key.Enter)
             {
                 TryConfirmEdit();
+                e.Handled = true;
             }
         }
 
@@ -490,6 +493,7 @@ namespace NetTally
             if (e.Key == Key.Enter)
             {
                 TryConfirmEdit();
+                e.Handled = true;
             }
         }
 
@@ -504,6 +508,7 @@ namespace NetTally
             if (e.Key == Key.Enter)
             {
                 TryConfirmEdit();
+                e.Handled = true;
             }
         }
         #endregion
