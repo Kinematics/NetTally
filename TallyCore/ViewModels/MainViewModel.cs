@@ -14,6 +14,8 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
+        SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+
         public MainViewModel(QuestCollectionWrapper config)
         {
             if (config == null)
@@ -68,11 +70,34 @@ namespace NetTally.ViewModels
 
         /// <summary>
         /// Function to raise events when a property has been changed.
+        /// Enforces synchronization with the main thread so that observers on
+        /// the main thread won't break.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+
+            if (SynchronizationContext.Current == _synchronizationContext)
+            {
+                // Execute the PropertyChanged event on the current thread
+                RaisePropertyChanged(e);
+            }
+            else
+            {
+                // Raises the PropertyChanged event on the creator thread
+                _synchronizationContext.Send(RaisePropertyChanged, e);
+            }
+        }
+
+        /// <summary>
+        /// Function to actually invoke the delegate, after synchronization is done.
+        /// </summary>
+        /// <param name="param">The parameter.</param>
+        private void RaisePropertyChanged(object param)
+        {
+            // We are in the creator thread, call the base implementation directly
+            PropertyChanged?.Invoke(this, (PropertyChangedEventArgs)param);
         }
         #endregion
 

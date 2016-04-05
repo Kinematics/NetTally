@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 
 namespace NetTally.Utility
 {
@@ -17,6 +18,9 @@ namespace NetTally.Utility
     /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
     public class ObservableCollectionExt<T> : ObservableCollection<T>
     {
+        #region Constructor
+        private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+
         public ObservableCollectionExt()
         {
         }
@@ -25,7 +29,51 @@ namespace NetTally.Utility
             : base(list)
         {
         }
+        #endregion
 
+        #region Handling raising events on proper synchronization context.
+        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (SynchronizationContext.Current == _synchronizationContext)
+            {
+                // Execute the CollectionChanged event on the current thread
+                RaiseCollectionChanged(e);
+            }
+            else
+            {
+                // Raises the CollectionChanged event on the creator thread
+                _synchronizationContext.Send(RaiseCollectionChanged, e);
+            }
+        }
+
+        private void RaiseCollectionChanged(object param)
+        {
+            // We are in the creator thread, call the base implementation directly
+            base.OnCollectionChanged((NotifyCollectionChangedEventArgs)param);
+        }
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (SynchronizationContext.Current == _synchronizationContext)
+            {
+                // Execute the PropertyChanged event on the current thread
+                RaisePropertyChanged(e);
+            }
+            else
+            {
+                // Raises the PropertyChanged event on the creator thread
+                _synchronizationContext.Send(RaisePropertyChanged, e);
+            }
+        }
+
+        private void RaisePropertyChanged(object param)
+        {
+            // We are in the creator thread, call the base implementation directly
+            base.OnPropertyChanged((PropertyChangedEventArgs)param);
+        }
+        #endregion
+
+        #region Custom modification functions
         /// <summary>
         /// Removes all matching instances from the collection before notifying
         /// about changes.
@@ -50,6 +98,9 @@ namespace NetTally.Utility
         /// <param name="list">The list of items to add.</param>
         public void AddRange(IEnumerable<T> list)
         {
+            if (list == null)
+                return;
+
             CheckReentrancy();
 
             foreach (T item in list)
@@ -68,6 +119,9 @@ namespace NetTally.Utility
         /// <param name="list">The list of new items for the collection.</param>
         public void Replace(IEnumerable<T> list)
         {
+            if (list == null)
+                return;
+
             CheckReentrancy();
 
             Items.Clear();
@@ -81,5 +135,6 @@ namespace NetTally.Utility
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+        #endregion
     }
 }
