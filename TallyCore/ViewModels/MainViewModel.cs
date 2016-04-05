@@ -345,7 +345,7 @@ namespace NetTally.ViewModels
 
                 AllVotersCollection.Replace(voters);
 
-                OnPropertyChanged("VoteCounter");
+                OnPropertyChanged("VotesFromTally");
             }
         }
 
@@ -365,6 +365,50 @@ namespace NetTally.ViewModels
 
                 return allTasks;
             }
+        }
+
+        public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
+
+        public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
+
+        public bool MergeVotes(string fromVote, string toVote, VoteType voteType)
+        {
+            return VoteCounter.Instance.Merge(fromVote, toVote, voteType);
+        }
+
+        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType)
+        {
+            return VoteCounter.Instance.Join(voters, voterToJoin, voteType);
+        }
+
+        public bool DeleteVote(string vote, VoteType voteType)
+        {
+            return VoteCounter.Instance.Delete(vote, voteType);
+        }
+
+        public bool UndoVoteModification()
+        {
+            return VoteCounter.Instance.Undo();
+        }
+
+        public HashSet<string> GetVoterListForVote(string vote, VoteType voteType)
+        {
+            var votes = VoteCounter.Instance.GetVotesCollection(voteType);
+            if (votes.ContainsKey(vote))
+                return votes[vote];
+
+            if (voteType == VoteType.Rank)
+            {
+                var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == vote).Select(k => k.Value).FirstOrDefault();
+                return condensedVoters;
+            }
+
+            return null;
+        }
+
+        public bool VoteExists(string vote, VoteType voteType)
+        {
+            return VoteCounter.Instance.HasVote(vote, voteType);
         }
         #endregion
     }

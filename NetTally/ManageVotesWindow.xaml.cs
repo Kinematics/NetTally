@@ -97,7 +97,7 @@ namespace NetTally
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
-            InitTasksFromVoteCounter();
+            InitKnownTasks();
             UpdateContextMenu();
 
             // Set the data context for binding.
@@ -162,12 +162,12 @@ namespace NetTally
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
-        public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
+        public bool HasRankedVotes => MainViewModel.HasRankedVotes;
 
         /// <summary>
-        /// Returns whether the VoteCounter has stored undo actions.
+        /// Returns whether there are stored undo actions in the vote tally.
         /// </summary>
-        public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
+        public bool HasUndoActions => MainViewModel.HasUndoActions;
 
         /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
@@ -290,12 +290,12 @@ namespace NetTally
 
             try
             {
-                if (VoteCounter.Instance.Join(fromVoters, joinVoter, CurrentVoteType))
+                if (MainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
                 {
                     OnPropertyChanged("HasUndoActions");
                 }
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -308,9 +308,16 @@ namespace NetTally
         /// <param name="e"></param>
         private void delete_Click(object sender, RoutedEventArgs e)
         {
-            if (VoteCounter.Instance.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+            try
             {
-                OnPropertyChanged("HasUndoActions");
+                if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+                {
+                    OnPropertyChanged("HasUndoActions");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -321,9 +328,16 @@ namespace NetTally
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void undo_Click(object sender, RoutedEventArgs e)
         {
-            if(VoteCounter.Instance.Undo())
+            try
             {
-                OnPropertyChanged("HasUndoActions");
+                if (MainViewModel.UndoVoteModification())
+                {
+                    OnPropertyChanged("HasUndoActions");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -482,7 +496,7 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "VoteCounter")
+            if (e.PropertyName == "VotesFromTally")
             {
                 UpdateCollections();
             }
@@ -498,12 +512,24 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes1(string vote)
         {
-            if (VoteCounter.Instance.HasVote(vote, CurrentVoteType) &&
-                (string.IsNullOrEmpty(Filter1String) ||
-                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0 ||
-                 (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.Instance.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))))
+            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+                return false;
+
+            if (string.IsNullOrEmpty(Filter1String))
                 return true;
+
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0)
+                return true;
+
+            if (CurrentVoteType == VoteType.Vote)
+            {
+                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                if (voters != null)
+                {
+                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -516,12 +542,24 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes2(string vote)
         {
-            if (VoteCounter.Instance.HasVote(vote, CurrentVoteType) &&
-                (string.IsNullOrEmpty(Filter2String) ||
-                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0 ||
-                 (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.Instance.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))))
+            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+                return false;
+
+            if (string.IsNullOrEmpty(Filter2String))
                 return true;
+
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0)
+                return true;
+
+            if (CurrentVoteType == VoteType.Vote)
+            {
+                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                if (voters != null)
+                {
+                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -544,21 +582,9 @@ namespace NetTally
 
             string currentVote = voteView.CurrentItem.ToString();
 
-            var votes = VoteCounter.Instance.GetVotesCollection(CurrentVoteType);
-            HashSet<string> voterList;
+            var voters = MainViewModel.GetVoterListForVote(currentVote, CurrentVoteType);
 
-            if (votes.TryGetValue(currentVote, out voterList))
-            {
-                if (voterList == null)
-                    return false;
-
-                return voterList.Contains(voterName);
-            }
-
-
-            var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == currentVote).Select(k => k.Value);
-
-            return condensedVoters.Any(h => h.Contains(voterName));
+            return voters?.Contains(voterName) ?? false;
         }
 
         /// <summary>
@@ -594,9 +620,7 @@ namespace NetTally
         {
             try
             {
-                var votesPrior = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys.ToList();
-
-                if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
+                if (MainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
                 {
                     OnPropertyChanged("HasUndoActions");
                 }
@@ -632,7 +656,7 @@ namespace NetTally
         /// <summary>
         /// Populate the ContextMenuTasks list from known tasks on window load.
         /// </summary>
-        private void InitTasksFromVoteCounter()
+        private void InitKnownTasks()
         {
             foreach (var task in MainViewModel.KnownTasks)
                 ContextMenuTasks.Add(CreateContextMenuItem(task));
