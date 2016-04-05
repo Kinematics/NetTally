@@ -26,6 +26,11 @@ namespace NetTally.Utility
         {
         }
 
+        /// <summary>
+        /// Removes all matching instances from the collection before notifying
+        /// about changes.
+        /// </summary>
+        /// <param name="predicate">The predicate indicating what to remove.</param>
         public void RemoveWhere(Predicate<T> predicate)
         {
             CheckReentrancy();
@@ -39,9 +44,33 @@ namespace NetTally.Utility
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
+        /// <summary>
+        /// Adds a range of values to the collection before notifying about changes.
+        /// </summary>
+        /// <param name="list">The list of items to add.</param>
         public void AddRange(IEnumerable<T> list)
         {
             CheckReentrancy();
+
+            foreach (T item in list)
+            {
+                Items.Add(item);
+            }
+
+            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        /// <summary>
+        /// Replaces the current collection with the contents of the specified list.
+        /// </summary>
+        /// <param name="list">The list of new items for the collection.</param>
+        public void Replace(IEnumerable<T> list)
+        {
+            CheckReentrancy();
+
+            Items.Clear();
 
             foreach (T item in list)
             {

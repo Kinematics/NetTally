@@ -334,8 +334,7 @@ namespace NetTally.ViewModels
                     .Concat(VoteCounter.Instance.GetCondensedRankVotes())
                     .Distinct().ToList();
 
-                AllVotesCollection.Clear();
-                AllVotesCollection.AddRange(votes);
+                AllVotesCollection.Replace(votes);
 
                 var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
                 var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
@@ -344,8 +343,7 @@ namespace NetTally.ViewModels
                     .Concat(rankVoters.Select(v => v.Key))
                     .Distinct().OrderBy(v => v).ToList();
 
-                AllVotersCollection.Clear();
-                AllVotersCollection.AddRange(voters);
+                AllVotersCollection.Replace(voters);
 
                 OnPropertyChanged("VoteCounter");
             }
