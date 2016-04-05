@@ -13,31 +13,45 @@ namespace NetTally.Web
         public HtmlDocument Doc { get; }
         public string DocString { get; }
 
-        public CachedPage(HtmlDocument doc, IClock clock = null)
+        #region Constructors
+        public CachedPage(HtmlDocument doc)
+            : this(doc, new DefaultClock())
+        {
+
+        }
+
+        public CachedPage(string html)
+            : this(html, new DefaultClock())
+        {
+
+        }
+
+        public CachedPage(HtmlDocument doc, IClock clock)
         {
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
             if (clock == null)
-                clock = new DefaultClock();
+                throw new ArgumentNullException(nameof(clock));
 
             Timestamp = clock.Now;
             Doc = doc;
             DocString = null;
         }
 
-        public CachedPage(string html, IClock clock = null)
+        public CachedPage(string html, IClock clock)
         {
             if (html == null)
                 throw new ArgumentNullException(nameof(html));
 
             if (clock == null)
-                clock = new DefaultClock();
+                throw new ArgumentNullException(nameof(clock));
 
             Timestamp = clock.Now;
             DocString = html;
             Doc = null;
         }
+        #endregion
 
         #region Equality overrides
         public override int GetHashCode()
