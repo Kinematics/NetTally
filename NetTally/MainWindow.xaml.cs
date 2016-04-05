@@ -264,7 +264,7 @@ namespace NetTally
             GlobalOptionsWindow options = new GlobalOptionsWindow()
             {
                 Owner = Application.Current.MainWindow,
-                //DataContext = mainViewModel
+                DataContext = mainViewModel.Options
             };
 
             options.ShowDialog();
@@ -277,8 +277,11 @@ namespace NetTally
         /// <param name="e"></param>
         private void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            QuestOptionsWindow options = new QuestOptionsWindow(mainViewModel.SelectedQuest);
-            options.Owner = Application.Current.MainWindow;
+            QuestOptionsWindow options = new QuestOptionsWindow()
+            {
+                Owner = Application.Current.MainWindow,
+                DataContext = mainViewModel
+            };
 
             options.ShowDialog();
         }

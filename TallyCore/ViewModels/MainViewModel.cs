@@ -96,6 +96,11 @@ namespace NetTally.ViewModels
         public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
 
         /// <summary>
+        /// Gets the user-readable list of valid posts per page, for use in the view.
+        /// </summary>
+        public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+
+        /// <summary>
         /// Public link to the advanced options instance, for data binding.
         /// </summary>
         public AdvancedOptions Options => AdvancedOptions.Instance;
