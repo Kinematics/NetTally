@@ -7,18 +7,26 @@ namespace NetTally.Web
     public static class ForumCookies
     {
         /// <summary>
+        /// Shortcut that provides the default clock parameter.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <returns></returns>
+        public static Cookie GetCookie(Uri uri) => GetCookie(uri, new DefaultClock());
+
+        /// <summary>
         /// Gets the cookie associated with the given URI, if available.
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
         /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
         /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
-        public static Cookie GetCookie(Uri uri, IClock clock = null)
+        public static Cookie GetCookie(Uri uri, IClock clock)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
 
-            clock = clock ?? new DefaultClock();
+            if (clock == null)
+                throw new ArgumentNullException(nameof(clock));
 
             Cookie cookie = null;
 

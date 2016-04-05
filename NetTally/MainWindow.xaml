@@ -70,7 +70,7 @@
         </ComboBox>
         <TextBox x:Name="editQuestName" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=SelectedQuest.DisplayName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
-                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
+                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4" LostFocus="textEntry_LostFocus">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -82,7 +82,7 @@
         </TextBox>
         <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap"  VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
                  Text="{Binding Path=SelectedQuest.ThreadName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
-                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
+                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4" LostFocus="textEntry_LostFocus">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>

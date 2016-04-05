@@ -257,7 +257,7 @@ namespace NetTally.ViewModels
         /// Runs a tally on the currently selected quest.
         /// </summary>
         /// <returns></returns>
-        public async Task Tally()
+        public async Task RunTally()
         {
             try
             {
@@ -292,7 +292,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Cancels the currently running tally, if any.
         /// </summary>
-        public void Cancel()
+        public void CancelTally()
         {
             cts?.Cancel();
         }
@@ -308,7 +308,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Requests that the tally class update its current results.
         /// </summary>
-        public void Update()
+        public void UpdateOutput()
         {
             tally.UpdateResults();
         }

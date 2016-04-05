@@ -382,7 +382,7 @@ namespace NetTally
                 // Make sure to bypass the cache, since it may have changed since the last load.
 
                 HtmlDocument firstPage = await pageProvider.GetPage(ForumAdapter.GetUrlForPage(firstPageNumber, PostsPerPage),
-                    $"Page {firstPageNumber}", CachingMode.BypassCache, token).ConfigureAwait(false);
+                    $"Page {firstPageNumber}", CachingMode.BypassCache, token, true).ConfigureAwait(false);
 
                 if (firstPage == null)
                     throw new InvalidOperationException($"Unable to load web page: {ForumAdapter.GetUrlForPage(firstPageNumber, PostsPerPage)}");
