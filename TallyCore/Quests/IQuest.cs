@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using NetTally.Adapters;
 
 namespace NetTally
 {
-    public interface IQuest : INotifyPropertyChanged
+    public interface IQuest : INotifyPropertyChanged, IComparable
     {
         /// <summary>
         /// The name of the thread to be queried.

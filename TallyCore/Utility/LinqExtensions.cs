@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace NetTally.Utility
@@ -27,6 +28,22 @@ namespace NetTally.Utility
 
     public static class LinqExtensions
     {
+        /// <summary>
+        /// Sorts the specified collection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
+        {
+            var sorted = collection.OrderBy(x => x).ToList();
+            for (int i = 0; i < sorted.Count(); i++)
+            {
+                int src = collection.IndexOf(sorted[i]);
+                if (src != i)
+                    collection.Move(src, i);
+            }
+        }
+
         public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacent<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector)
         {
