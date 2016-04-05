@@ -57,7 +57,7 @@ namespace NetTally
             if (AdvancedOptions.Instance.ForbidVoteLabelPlanNames)
                 return;
 
-            var plans = GetAllFullPostPlans(post, true);
+            var plans = GetAllFullPostPlans(post);
 
             StorePlanReferences(plans);
 
@@ -82,7 +82,7 @@ namespace NetTally
             if (AdvancedOptions.Instance.ForbidVoteLabelPlanNames)
                 return;
 
-            var plans = GetAllFullPostPlans(post, false);
+            var plans = GetAllOneLinePlans(post);
 
             StorePlanReferences(plans);
 
@@ -260,6 +260,7 @@ namespace NetTally
 
                         if (planname != null)
                         {
+                            // Add a named vote that is named after a user only if it matches the post author's name.
                             if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
                             {
                                 if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
@@ -269,6 +270,7 @@ namespace NetTally
                             }
                             else
                             {
+                                // If it's not named after a user, add it normally.
                                 results.Add(block.ToList());
                             }
                         }
@@ -284,7 +286,7 @@ namespace NetTally
         /// </summary>
         /// <param name="post">The post to extract plans from.</param>
         /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private static List<List<string>> GetAllFullPostPlans(PostComponents post, bool multiline)
+        private static List<List<string>> GetAllFullPostPlans(PostComponents post)
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -292,11 +294,11 @@ namespace NetTally
             {
                 var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
 
-                // If the vote has any plans with content in them, skip this post.
+                // If the vote has any plans with content in them, we can't make this a full-post plan.
                 if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
                 {
-                    // If flagged for multiline, there must be more than 1 line in the vote.
-                    if (!multiline || post.VoteLines.Count > 1)
+                    // The post must have more than one line to count for a plan label.
+                    if (post.VoteLines.Count > 1)
                     {
                         var firstLine = post.VoteLines.First();
 
@@ -304,6 +306,7 @@ namespace NetTally
 
                         if (planname != null)
                         {
+                            // If it's named after a user, it must be the post author.  Otherwise, anything is fine.
                             if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
                             {
                                 if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
@@ -314,6 +317,46 @@ namespace NetTally
                             else
                             {
                                 results.Add(post.VoteLines);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets a list of all full-vote plans (of which there will only be one, if found).
+        /// </summary>
+        /// <param name="post">The post to extract plans from.</param>
+        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
+        private static List<List<string>> GetAllOneLinePlans(PostComponents post)
+        {
+            List<List<string>> results = new List<List<string>>();
+
+            if (post.VoteLines.Any())
+            {
+                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+
+                foreach (var block in voteBlocks)
+                {
+                    if (block.Count() == 1)
+                    {
+                        string planname = VoteString.GetPlanName(block.Key);
+
+                        if (planname != null)
+                        {
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            {
+                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                {
+                                    results.Add(block.ToList());
+                                }
+                            }
+                            else
+                            {
+                                results.Add(block.ToList());
                             }
                         }
                     }
