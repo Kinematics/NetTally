@@ -113,6 +113,7 @@ namespace NetTally
         }
         #endregion
 
+        #region UI Events
         #region User action events
         /// <summary>
         /// Start running the tally on the currently selected quest and post range.
@@ -121,8 +122,6 @@ namespace NetTally
         /// <param name="e"></param>
         private async void tallyButton_Click(object sender, RoutedEventArgs e)
         {
-            TryConfirmEdit();
-
             if (mainViewModel.SelectedQuest == null)
                 return;
 
@@ -163,8 +162,6 @@ namespace NetTally
         /// <param name="e"></param>
         private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
         {
-            TryConfirmEdit();
-
             tallyButton.IsEnabled = false;
 
             try
@@ -189,8 +186,6 @@ namespace NetTally
         /// <param name="e"></param>
         private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            TryConfirmEdit();
-
             try
             {
                 Clipboard.SetText(mainViewModel.Output);
@@ -219,8 +214,6 @@ namespace NetTally
         /// <param name="e"></param>
         private void addQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            TryConfirmEdit();
-
             if (mainViewModel.AddNewQuest())
                 StartEdit(true);
         }
@@ -232,8 +225,17 @@ namespace NetTally
         /// <param name="e"></param>
         private void removeQuestButton_Click(object sender, RoutedEventArgs e)
         {
-            TryConfirmEdit();
             mainViewModel.RemoveQuest();
+        }
+
+        /// <summary>
+        /// Button event handler for editing the quest name and URL.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editNameButton_Click(object sender, RoutedEventArgs e)
+        {
+            StartEdit();
         }
 
         /// <summary>
@@ -297,18 +299,87 @@ namespace NetTally
         }
         #endregion
 
-        #region Focus on start/end post boxes
+        #region Keyboard Shortcuts
         /// <summary>
-        /// If either start post or end post text boxes get focus, select the entire
-        /// contents so that they're easy to replace.
+        /// Global window key capture for managing the edit of the quest name/URL,
+        /// if the focus isn't in the edit box.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F2)
+            {
+                StartEdit();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                TryCancelEdit();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Enter)
+            {
+                TryConfirmEdit(true);
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// When modifying the quest name, hitting enter will complete the entry,
+        /// and hitting escape will cancel the edits.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TryConfirmEdit(true);
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// When modifying the quest site, hitting enter will complete the entry,
+        /// and hitting escape will cancel the edits.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editQuestThread_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TryConfirmEdit(true);
+                e.Handled = true;
+            }
+        }
+        #endregion
+
+        #region UI Focus
+        /// <summary>
+        /// If the text box gets focus, select the entire contents so that it's easy to replace.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void textEntry_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (sender as TextBox);
             if (tb != null)
+            {
                 tb.SelectAll();
+            }
+        }
+
+        /// <summary>
+        /// If the text box loses focus, make sure to try to confirm any edits made before
+        /// other controls activate.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void textEntry_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TryConfirmEdit();
         }
 
         /// <summary>
@@ -326,11 +397,13 @@ namespace NetTally
             {
                 if (!tb.IsKeyboardFocusWithin)
                 {
-                    e.Handled = true;
                     tb.Focus();
+                    e.Handled = true;
                 }
             }
         }
+
+        #endregion
         #endregion
 
         #region Functions for editing quest names and URLs.
@@ -445,72 +518,6 @@ namespace NetTally
                 be = editQuestThread.GetBindingExpression(TextBox.TextProperty);
 
             return be;
-        }
-        #endregion
-
-        #region Keyboard Shortcuts
-        /// <summary>
-        /// Global window key capture for using F2 to edit the quest name and URL.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.F2)
-            {
-                StartEdit();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Escape)
-            {
-                TryCancelEdit();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Enter)
-            {
-                TryConfirmEdit();
-                e.Handled = true;
-            }
-        }
-
-        /// <summary>
-        /// Button event handler for editing the quest name and URL.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void editNameButton_Click(object sender, RoutedEventArgs e)
-        {
-            StartEdit();
-        }
-
-        /// <summary>
-        /// When modifying the quest name, hitting enter will complete the entry,
-        /// and hitting escape will cancel the edits.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                TryConfirmEdit();
-                e.Handled = true;
-            }
-        }
-
-        /// <summary>
-        /// When modifying the quest site, hitting enter will complete the entry,
-        /// and hitting escape will cancel the edits.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void editQuestThread_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                TryConfirmEdit();
-                e.Handled = true;
-            }
         }
         #endregion
     }
