@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
@@ -25,6 +27,21 @@ namespace NetTally
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
 
+        #region Implement INotifyPropertyChanged interface
+        /// <summary>
+        /// Event for INotifyPropertyChanged.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
 
         #region Public Interface Properties
         public IQuest Quest { get; set; } = null;
@@ -89,6 +106,8 @@ namespace NetTally
                 VotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
             if (RankedVotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+
+            OnPropertyChanged("Votes");
         }
 
         /// <summary>
@@ -506,6 +525,8 @@ namespace NetTally
 
             // Cleanup any votes that no longer have any support
             CleanupEmptyVotes(voteType);
+
+            OnPropertyChanged("Votes");
         }
 
         /// <summary>
@@ -533,6 +554,8 @@ namespace NetTally
 
             // Update the supporters list.
             votes[voteKey].Add(voter);
+
+            OnPropertyChanged("Votes");
         }
 
         /// <summary>
@@ -611,6 +634,8 @@ namespace NetTally
                 {
                     Rename(merge.Key, merge.Value, VoteType.Rank);
                 }
+
+                OnPropertyChanged("Votes");
 
                 return true;
             }
@@ -695,6 +720,7 @@ namespace NetTally
                 votes.Remove(vote.Key);
             }
 
+            OnPropertyChanged("Votes");
 
             return true;
         }
@@ -744,6 +770,8 @@ namespace NetTally
 
             CleanupEmptyVotes(voteType);
 
+            OnPropertyChanged("Votes");
+
             return count > 0;
         }
 
@@ -788,7 +816,9 @@ namespace NetTally
                     TrimVoter(voter, voteType);
                 }
             }
-            
+
+            OnPropertyChanged("Votes");
+
             return removed;
         }
 
@@ -864,6 +894,8 @@ namespace NetTally
             }
 
             CleanupEmptyVotes(undo.VoteType);
+
+            OnPropertyChanged("Votes");
 
             return true;
         }

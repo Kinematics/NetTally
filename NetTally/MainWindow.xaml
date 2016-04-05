@@ -46,7 +46,7 @@
             </Button.ToolTip>
         </Button>
         <ComboBox x:Name="questList" Height="30" Margin="10,10,320,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
-                  ItemsSource="{Binding Path=SourceCollection}" IsSynchronizedWithCurrentItem="True"
+                  ItemsSource="{Binding Path=QuestList}" SelectedItem="{Binding Path=SelectedQuest}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
@@ -68,8 +68,8 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,320,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
-                 Text="{Binding Path=CurrentItem.DisplayName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
+        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+                 Text="{Binding Path=SelectedQuest.DisplayName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -80,8 +80,8 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,320,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
-                 Text="{Binding Path=CurrentItem.ThreadName, UpdateSourceTrigger=PropertyChanged}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
+        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap"  VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
+                 Text="{Binding Path=SelectedQuest.ThreadName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
                  PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -120,7 +120,7 @@
             </Button.ToolTip>
         </Button>
         <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+                 Text="{Binding Path=SelectedQuest.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolOrConverter}" Mode="OneWay">
                     <Binding ElementName="startPost" Path="(Validation.HasError)" Mode="OneWay" />
@@ -137,7 +137,7 @@
             </TextBox.ToolTip>
         </TextBox>
         <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=CurrentItem.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+                 Text="{Binding Path=SelectedQuest.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolOrConverter}" Mode="OneWay">
                     <Binding ElementName="endPost" Path="(Validation.HasError)" Mode="OneWay" />
@@ -154,7 +154,7 @@
             </TextBox.ToolTip>
         </TextBox>
         <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
-                  RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=CurrentItem.CheckForLastThreadmark}"
+                  RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=SelectedQuest.CheckForLastThreadmark}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
             <CheckBox.ToolTip>
                 <ToolTip>
@@ -166,8 +166,7 @@
             </CheckBox.ToolTip>
         </CheckBox>
         <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
-                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=PartitionModes}"
-                  SelectedIndex="{Binding Path=PartitionMode, Converter={StaticResource PartitionModeConverter}}"
+                  ItemsSource="{Binding Path=PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={StaticResource PartitionModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
                   VerticalContentAlignment="Center">
             <ComboBox.ItemContainerStyle>
@@ -209,8 +208,7 @@
             </Button.ToolTip>
         </Button>
         <ComboBox x:Name="displayMode" Margin="468,80,0,0" VerticalAlignment="Top" Height="22"
-                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DisplayModes}"
-                  SelectedIndex="{Binding Path=DisplayMode, Converter={StaticResource DisplayModeConverter}}"
+                  ItemsSource="{Binding Path=DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={StaticResource DisplayModeConverter}}"
                   IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}"
                   HorizontalAlignment="Left" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center">
             <ComboBox.ItemContainerStyle>
@@ -283,7 +281,7 @@
         </Button>
 
         <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
-                 Text="{Binding Path=TallyResults, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                 Text="{Binding Path=Output, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <TextBlock x:Name="wikiLink" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
@@ -291,7 +289,7 @@
             </Hyperlink>
         </TextBlock>
         <TextBlock x:Name="newRelease" HorizontalAlignment="Left" Margin="140,0,0,3" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"
-                   Visibility="{Binding Path=NewRelease, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                   Visibility="{Binding Path=NewReleaseAvailable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/releases/latest" RequestNavigate="Hyperlink_RequestNavigate">
                 A newer version is available
             </Hyperlink>

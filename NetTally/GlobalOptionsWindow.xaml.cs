@@ -10,7 +10,6 @@ namespace NetTally
         public GlobalOptionsWindow()
         {
             InitializeComponent();
-            DataContext = AdvancedOptions.Instance;
         }
 
         private void closeButton_Click(object sender, RoutedEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
@@ -418,6 +419,29 @@ namespace NetTally
             }
 
             return pages;
+        }
+        #endregion
+
+        #region IComparable implementation        
+        /// <summary>
+        /// Compares the current instance with another object of the same type and returns an integer that
+        /// indicates whether the current instance precedes, follows, or occurs in the same position in the
+        /// sort order as the other object.
+        /// Sort order is determined by DisplayName, with a case-insensitive check.
+        /// </summary>
+        /// <param name="obj">An object to compare with this instance.</param>
+        /// <returns>
+        /// Returns -1 if this is before obj, 0 if it's the same, and 1 if it's after obj.
+        /// </returns>
+        public int CompareTo(object obj)
+        {
+            IQuest q = obj as IQuest;
+
+            if (q == null)
+                return 1;
+
+            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(DisplayName),
+                CultureInfo.InvariantCulture.TextInfo.ToLower(q.DisplayName), StringComparison.Ordinal);
         }
         #endregion
     }

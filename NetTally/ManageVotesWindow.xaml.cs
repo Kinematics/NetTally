@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using NetTally.Utility;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -19,20 +20,20 @@ namespace NetTally
     public partial class ManageVotesWindow : Window, INotifyPropertyChanged
     {
         #region Constructor and variables
-        public ObservableCollectionExt<string> VoteCollection { get; }
         public ListCollectionView VoteView1 { get; }
         public ListCollectionView VoteView2 { get; }
 
-        public ObservableCollectionExt<string> VoterCollection { get; }
         public ListCollectionView VoterView1 { get; }
         public ListCollectionView VoterView2 { get; }
+
+        object lastSelected2 = null;
 
         bool displayStandardVotes = true;
 
         List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        HashSet<string> UserDefinedTasks { get; }
+        MainViewModel MainViewModel { get; }
 
         ListBox newTaskBox = null;
 
@@ -51,29 +52,22 @@ namespace NetTally
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="tally">The tally that is having votes merged.</param>
-        public ManageVotesWindow(Tally tally)
+        /// <param name="mainViewModel">The primary view model of the program.</param>
+        public ManageVotesWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
 
-            UserDefinedTasks = tally.UserDefinedTasks;
+            MainViewModel = mainViewModel;
 
-            // Gets the lists of all current votes and ranked votes that can be shown.
-            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                .Distinct().ToList();
-
-            // Create a collection for the views to draw from.
-            VoteCollection = new ObservableCollectionExt<string>(votes);
+            MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
             // Create filtered, sortable views into the collection for display in the window.
-            VoteView1 = new ListCollectionView(VoteCollection);
-            VoteView2 = new ListCollectionView(VoteCollection);
+            VoteView1 = new ListCollectionView(MainViewModel.AllVotesCollection);
+            VoteView2 = new ListCollectionView(MainViewModel.AllVotesCollection);
 
             if (VoteView1.CanSort)
             {
-                IComparer voteCompare = new Utility.CustomVoteSort();
+                IComparer voteCompare = new CustomVoteSort();
                 //IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
@@ -90,20 +84,10 @@ namespace NetTally
             VoteView2.MoveCurrentToFirst();
 
 
-            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
-
-            // Get the lists of all unique voters/ranked voters that we can show in the display.
-            List<string> voters = voteVoters.Select(v => v.Key)
-                .Concat(rankVoters.Select(v => v.Key))
-                .Distinct().OrderBy(v => v).ToList();
-
-            // Create a collection for the views to draw from.
-            VoterCollection = new ObservableCollectionExt<string>(voters);
-
             // Create filtered views for display in the window.
-            VoterView1 = new ListCollectionView(VoterCollection);
-            VoterView2 = new ListCollectionView(VoterCollection);
+            VoterView1 = new ListCollectionView(MainViewModel.AllVotersCollection);
+            VoterView2 = new ListCollectionView(MainViewModel.AllVotersCollection);
+
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
 
@@ -113,7 +97,7 @@ namespace NetTally
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
-            InitTasksFromVoteCounter();
+            InitKnownTasks();
             UpdateContextMenu();
 
             // Set the data context for binding.
@@ -122,10 +106,9 @@ namespace NetTally
             Filter1String = "";
             Filter2String = "";
         }
-
         #endregion
 
-        #region Event handling
+        #region INotifyPropertyChanged implementation
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -179,12 +162,12 @@ namespace NetTally
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
-        public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
+        public bool HasRankedVotes => MainViewModel.HasRankedVotes;
 
         /// <summary>
-        /// Returns whether the VoteCounter has stored undo actions.
+        /// Returns whether there are stored undo actions in the vote tally.
         /// </summary>
-        public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
+        public bool HasUndoActions => MainViewModel.HasUndoActions;
 
         /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
@@ -307,18 +290,12 @@ namespace NetTally
 
             try
             {
-                if (VoteCounter.Instance.Join(fromVoters, joinVoter, CurrentVoteType))
+                if (MainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
                 {
-                    VoteView1.Refresh();
-                    VoteView2.Refresh();
-                    VoterView1.Refresh();
-                    VoterView2.Refresh();
-                    VoteView1.MoveCurrentToPosition(-1);
-
                     OnPropertyChanged("HasUndoActions");
                 }
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -331,14 +308,16 @@ namespace NetTally
         /// <param name="e"></param>
         private void delete_Click(object sender, RoutedEventArgs e)
         {
-            if (VoteCounter.Instance.Delete(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+            try
             {
-                VoteView1.Refresh();
-                VoteView2.Refresh();
-                VoteView1.MoveCurrentToPosition(-1);
-                VoteView2.MoveCurrentToFirst();
-
-                OnPropertyChanged("HasUndoActions");
+                if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+                {
+                    OnPropertyChanged("HasUndoActions");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -349,12 +328,17 @@ namespace NetTally
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void undo_Click(object sender, RoutedEventArgs e)
         {
-            if(VoteCounter.Instance.Undo())
+            try
             {
-                UpdateCollections();
+                if (MainViewModel.UndoVoteModification())
+                {
+                    OnPropertyChanged("HasUndoActions");
+                }
             }
-
-            OnPropertyChanged("HasUndoActions");
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         /// <summary>
@@ -377,6 +361,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
             VoterView2.Refresh();
             merge.IsEnabled = VotesCanMerge;
         }
@@ -503,6 +488,21 @@ namespace NetTally
         }
         #endregion
 
+        #region Watched Events        
+        /// <summary>
+        /// Watch for notifications from the main view model about changes in the vote backend.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "VotesFromTally")
+            {
+                UpdateCollections();
+            }
+        }
+        #endregion
+
         #region Utility functions
         /// <summary>
         /// Filter to be used by a collection view to determine which votes should
@@ -512,12 +512,24 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes1(string vote)
         {
-            if (VoteCounter.Instance.HasVote(vote, CurrentVoteType) &&
-                (string.IsNullOrEmpty(Filter1String) ||
-                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0 ||
-                 (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.Instance.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))))
+            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+                return false;
+
+            if (string.IsNullOrEmpty(Filter1String))
                 return true;
+
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0)
+                return true;
+
+            if (CurrentVoteType == VoteType.Vote)
+            {
+                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                if (voters != null)
+                {
+                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -530,12 +542,24 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes2(string vote)
         {
-            if (VoteCounter.Instance.HasVote(vote, CurrentVoteType) &&
-                (string.IsNullOrEmpty(Filter2String) ||
-                 CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0 ||
-                 (CurrentVoteType == VoteType.Vote &&
-                 VoteCounter.Instance.GetVotesCollection(CurrentVoteType)[vote].Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))))
+            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+                return false;
+
+            if (string.IsNullOrEmpty(Filter2String))
                 return true;
+
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0)
+                return true;
+
+            if (CurrentVoteType == VoteType.Vote)
+            {
+                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                if (voters != null)
+                {
+                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -558,21 +582,9 @@ namespace NetTally
 
             string currentVote = voteView.CurrentItem.ToString();
 
-            var votes = VoteCounter.Instance.GetVotesCollection(CurrentVoteType);
-            HashSet<string> voterList;
+            var voters = MainViewModel.GetVoterListForVote(currentVote, CurrentVoteType);
 
-            if (votes.TryGetValue(currentVote, out voterList))
-            {
-                if (voterList == null)
-                    return false;
-
-                return voterList.Contains(voterName);
-            }
-
-
-            var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == currentVote).Select(k => k.Value);
-
-            return condensedVoters.Any(h => h.Contains(voterName));
+            return voters?.Contains(voterName) ?? false;
         }
 
         /// <summary>
@@ -580,49 +592,12 @@ namespace NetTally
         /// </summary>
         private void UpdateCollections()
         {
-            UpdateVoteCollection();
-            UpdateVoterCollection();
-        }
-
-        /// <summary>
-        /// Fully refresh the observed vote collection from the VoteCounter class.
-        /// </summary>
-        private void UpdateVoteCollection()
-        {
-            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-
-            List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                .Distinct().ToList();
-
-            var priorDest = VoteView2.CurrentItem;
-
-            VoteCollection.Clear();
-            VoteCollection.AddRange(votes);
-
             VoteView1.Refresh();
             VoteView2.Refresh();
-
-            VoteView2.MoveCurrentTo(priorDest ?? "");
-        }
-
-        /// <summary>
-        /// Fully refresh the observed voter collection from the VoteCounter class.
-        /// </summary>
-        private void UpdateVoterCollection()
-        {
-            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
-
-            List<string> voters = voteVoters.Select(v => v.Key)
-                .Concat(rankVoters.Select(v => v.Key))
-                .Distinct().OrderBy(v => v).ToList();
-
-            VoterCollection.Clear();
-            VoterCollection.AddRange(voters);
-
             VoterView1.Refresh();
             VoterView2.Refresh();
+            VoteView1.MoveCurrentToPosition(-1);
+            VoteView2.MoveCurrentTo(lastSelected2 ?? "");
         }
 
         /// <summary>
@@ -645,12 +620,8 @@ namespace NetTally
         {
             try
             {
-                var votesPrior = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys.ToList();
-
-                if (VoteCounter.Instance.Merge(fromVote, toVote, CurrentVoteType))
+                if (MainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
                 {
-                    UpdateCollections();
-
                     OnPropertyChanged("HasUndoActions");
                 }
             }
@@ -685,15 +656,9 @@ namespace NetTally
         /// <summary>
         /// Populate the ContextMenuTasks list from known tasks on window load.
         /// </summary>
-        private void InitTasksFromVoteCounter()
+        private void InitKnownTasks()
         {
-            var voteTasks = VoteCounter.Instance.GetVotesCollection(CurrentVoteType).Keys
-                .Select(v => VoteString.GetVoteTask(v))
-                .Concat(UserDefinedTasks.ToList())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(v => v != string.Empty);
-
-            foreach (var task in voteTasks)
+            foreach (var task in MainViewModel.KnownTasks)
                 ContextMenuTasks.Add(CreateContextMenuItem(task));
         }
 
@@ -749,7 +714,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            UserDefinedTasks.Add(task);
+            MainViewModel.UserDefinedTasks.Add(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 

@@ -8,11 +8,11 @@
         Title="Quest Options" Height="290" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
-        <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
+        <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
 
         <ComboBox x:Name="postsPerPage" Margin="10,47,0,0" VerticalAlignment="Top" Height="30"  HorizontalAlignment="Left" Width="65"
-                  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ValidPostsPerPage}"
-                  SelectedItem="{Binding Path=PostsPerPage}" RenderTransformOrigin="-0.959,0.542" VerticalContentAlignment="Center">
+                  ItemsSource="{Binding Path=ValidPostsPerPage}"
+                  SelectedItem="{Binding Path=SelectedQuest.PostsPerPage}" RenderTransformOrigin="-0.959,0.542" VerticalContentAlignment="Center">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -32,7 +32,7 @@
                    Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
 
         <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filtering values" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=UseCustomThreadmarkFilters}">
+                  IsChecked="{Binding Path=SelectedQuest.UseCustomThreadmarkFilters}">
             <CheckBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -44,8 +44,9 @@
         </CheckBox>
         <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used." />
+        
         <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,183,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Text="{Binding Path=CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=checkBox, Path=IsChecked}">
+                 Text="{Binding Path=SelectedQuest.CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
