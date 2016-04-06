@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Utility;
 
 namespace NetTally
 {
@@ -10,7 +11,7 @@ namespace NetTally
         /// Rank the ranked votes provided by the vote counter.
         /// </summary>
         /// <returns>Returns a dictionary of task grouping to preferred vote for the
-        /// top-rated choice.</returns>
+        /// top-rated choices.</returns>
         public static Dictionary<string, List<string>> Rank()
         {
             if (VoteCounter.Instance.HasRankedVotes == false)
@@ -44,8 +45,8 @@ namespace NetTally
         /// <returns>Returns the top voter choice for the task.</returns>
         private static List<string> RankTask(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
-            List<string> allVotes = GetVoteList(task);
-            var voterChoices = ConvertVotesToVoters(task);
+            HashSet<string> allVotes = GetVoteList(task);
+            var voterChoices = ConvertVotesToVoters(task, allVotes);
             var voterNonChoices = GetNonChoices(voterChoices, allVotes);
 
             // 1st, 2nd, 3rd, and 4th place results
@@ -85,11 +86,11 @@ namespace NetTally
         /// </summary>
         /// <param name="task">The list of all votes for a task.</param>
         /// <returns>Returns a list of all votes.</returns>
-        private static List<string> GetVoteList(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
+        private static HashSet<string> GetVoteList(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
         {
-            var votes = from vote in task
-                        select VoteString.GetVoteContent(vote.Key);
-            return votes.ToList();
+            var votes = task.Select(vote => VoteString.GetVoteContent(vote.Key));
+
+            return new HashSet<string>(votes, StringUtility.AgnosticStringComparer);
         }
 
         /// <summary>
@@ -98,24 +99,29 @@ namespace NetTally
         /// </summary>
         /// <param name="task">All votes provided for a given task.</param>
         /// <returns>Returns a grouping of votes per user.</returns>
-        private static Dictionary<string, List<string>> ConvertVotesToVoters(IGrouping<string, KeyValuePair<string, HashSet<string>>> task)
+        private static Dictionary<string, List<string>> ConvertVotesToVoters(IGrouping<string, KeyValuePair<string, HashSet<string>>> task,
+            HashSet<string> allVotes)
         {
             var ordered = task.OrderBy(a => VoteString.GetVoteMarker(a.Key));
 
             Dictionary<string, List<string>> voters = new Dictionary<string, List<string>>();
-            List<string> votes;
+
+            var allVoters = task.SelectMany(a => a.Value);
+
+            foreach (var voter in allVoters)
+            {
+                voters[voter] = new List<string>();
+            }
 
             foreach (var vote in ordered)
             {
+                string voteContent = VoteString.GetVoteContent(vote.Key);
+
+                string normVote = allVotes.FirstOrDefault(v => StringUtility.AgnosticStringComparer.Equals(v, voteContent)) ?? voteContent;
+
                 foreach (var voter in vote.Value)
                 {
-                    if (!voters.TryGetValue(voter, out votes))
-                    {
-                        votes = new List<string>();
-                        voters[voter] = votes;
-                    }
-
-                    votes.Add(VoteString.GetVoteContent(vote.Key));
+                    voters[voter].Add(normVote);
                 }
             }
 
@@ -128,7 +134,7 @@ namespace NetTally
         /// <param name="voterChoices">The collection of all choices that each voter did rank.</param>
         /// <param name="allVotes">The list of all possible vote options.</param>
         /// <returns>Returns a dictionary collection of all options each voter did not rank.</returns>
-        private static Dictionary<string, List<string>> GetNonChoices(Dictionary<string, List<string>> voterChoices, List<string> allVotes)
+        private static Dictionary<string, List<string>> GetNonChoices(Dictionary<string, List<string>> voterChoices, HashSet<string> allVotes)
         {
             Dictionary<string, List<string>> voterNonChoices = new Dictionary<string, List<string>>();
 
@@ -149,12 +155,13 @@ namespace NetTally
         private static string GetTopRank(Dictionary<string, List<string>> voterChoices,
             Dictionary<string, List<string>> voterNonChoices,
             Dictionary<string, List<string>> originalVotersChoices,
-            List<string> voteList)
+            HashSet<string> voteList)
         {
             // Skip processing if there's nothing to count.
             if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
                 return string.Empty;
 
+            int loopLimit = voterChoices.Count(a => a.Value.Count > 0) + 10;
             // Limit to 10 iterations, to ensure there are no infinite loops
             int loop = 0;
 
@@ -176,7 +183,7 @@ namespace NetTally
                 }
 
                 // If we're out of other choices, or we've gone too many loops, use what we have.
-                if (OnlyOneChoiceLeft(voterChoices) || ++loop > 9)
+                if (OnlyOneChoiceLeft(voterChoices) || ++loop >= loopLimit)
                 {
                     return bestChoice;
                 }
@@ -219,18 +226,17 @@ namespace NetTally
         }
 
         private static string GetLastChoice(Dictionary<string, List<string>> voterChoices,
-            Dictionary<string, List<string>> voterNonChoices, List<string> voteList)
+            Dictionary<string, List<string>> voterNonChoices, HashSet<string> voteList)
         {
-            Dictionary<string, int> votesWeight = new Dictionary<string, int>();
-            var distinctVotes = voteList.Distinct();
-            int distinctCount = distinctVotes.Count();
+            Dictionary<string, int> votesWeight = new Dictionary<string, int>(StringUtility.AgnosticStringComparer);
+            int distinctCount = voteList.Count();
 
             int highestNumberOfChoices = voterChoices.Max(a => a.Value.Count);
             int nonChoiceWeight = distinctCount > highestNumberOfChoices ? highestNumberOfChoices + 1 : distinctCount;
 
-            HashSet<string> lastPlaceList = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> lastPlaceList = new HashSet<string>(StringUtility.AgnosticStringComparer);
 
-            foreach (var vote in distinctVotes)
+            foreach (var vote in voteList)
             {
                 votesWeight[vote] = 0;
             }
