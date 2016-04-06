@@ -594,10 +594,19 @@ namespace NetTally
             if (fromVote == toVote)
                 return false;
 
+            bool merged = false;
+
             if (voteType == VoteType.Rank)
-                return MergeRanks(fromVote, toVote);
+                merged = MergeRanks(fromVote, toVote);
             else
-                return MergeVotes(fromVote, toVote);
+                merged = MergeVotes(fromVote, toVote);
+
+            if (merged)
+            {
+                OnPropertyChanged("Votes");
+            }
+
+            return merged;
         }
 
         /// <summary>
@@ -634,8 +643,6 @@ namespace NetTally
                 {
                     Rename(merge.Key, merge.Value, VoteType.Rank);
                 }
-
-                OnPropertyChanged("Votes");
 
                 return true;
             }
@@ -720,8 +727,6 @@ namespace NetTally
                 votes.Remove(vote.Key);
             }
 
-            OnPropertyChanged("Votes");
-
             return true;
         }
 
@@ -752,7 +757,6 @@ namespace NetTally
             var priorVotes = votes.Where(v => v.Value.Any(u => voters.Contains(u)));
             var voterIDList = GetVotersCollection(voteType);
             UndoBuffer.Push(new UndoAction(UndoActionType.Join, voteType, voterIDList, voters, priorVotes));
-
 
             foreach (string voter in voters)
             {
