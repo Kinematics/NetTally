@@ -105,7 +105,7 @@ namespace NetTally
             string enumString = enumerationValue.ToString();
 
             var enumInfo = enumerationValue.GetType().GetTypeInfo();
-            var enumAttribute = enumInfo.GetField(enumString)?.GetCustomAttribute<EnumDescriptionAttribute>();
+            var enumAttribute = enumInfo.GetDeclaredField(enumString)?.GetCustomAttribute<EnumDescriptionAttribute>();
 
             return enumAttribute?.Description ?? enumString;
         }
