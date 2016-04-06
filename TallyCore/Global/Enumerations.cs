@@ -36,17 +36,17 @@ namespace NetTally
     /// </summary>
     public enum DisplayMode
     {
-        [Description("Normal")]
+        [EnumDescription("Normal")]
         Normal,
-        [Description("Spoiler Voters")]
+        [EnumDescription("Spoiler Voters")]
         SpoilerVoters,
-        [Description("Spoiler All")]
+        [EnumDescription("Spoiler All")]
         SpoilerAll,
-        [Description("Normal, No Voters")]
+        [EnumDescription("Normal, No Voters")]
         NormalNoVoters,
-        [Description("Compact")]
+        [EnumDescription("Compact")]
         Compact,
-        [Description("Compact, No Voters")]
+        [EnumDescription("Compact, No Voters")]
         CompactNoVoters
     }
 
@@ -55,15 +55,15 @@ namespace NetTally
     /// </summary>
     public enum PartitionMode
     {
-        [Description("No Partitioning")]
+        [EnumDescription("No Partitioning")]
         None,
-        [Description("Partition By Line")]
+        [EnumDescription("Partition By Line")]
         ByLine,
-        [Description("Partition By Line (+Task)")]
+        [EnumDescription("Partition By Line (+Task)")]
         ByLineTask,
-        [Description("Partition By Block")]
+        [EnumDescription("Partition By Block")]
         ByBlock,
-        [Description("Partition (Plans) By Block")]
+        [EnumDescription("Partition (Plans) By Block")]
         ByBlockAll,
     }
 
@@ -74,6 +74,21 @@ namespace NetTally
     {
         UseCache,
         BypassCache
+    }
+
+    /// <summary>
+    /// Custom attribute that will be available to derived mobile projects,
+    /// since the standard DescriptionAttribute is not available.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
+    [AttributeUsage(AttributeTargets.Field)]
+    public class EnumDescriptionAttribute : Attribute
+    {
+        public string Description { get; }
+        public EnumDescriptionAttribute(string description)
+        {
+            Description = description;
+        }
     }
 
     public static class Enumerations
@@ -87,29 +102,12 @@ namespace NetTally
         /// in the original definition.</returns>
         public static string GetDescription(this Enum enumerationValue)
         {
-            if (enumerationValue == null)
-                return null;
-
             string enumString = enumerationValue.ToString();
 
-            var field = enumerationValue.GetType().GetTypeInfo().DeclaredFields.FirstOrDefault(f => f.Name == enumString);
+            var enumInfo = enumerationValue.GetType().GetTypeInfo();
+            var enumAttribute = enumInfo.GetField(enumString)?.GetCustomAttribute<EnumDescriptionAttribute>();
 
-            if (field != null)
-            {
-                var fieldAtt = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "DescriptionAttribute");
-
-                if (fieldAtt != null && fieldAtt.ConstructorArguments.Count > 0)
-                {
-                    var fieldDes = fieldAtt.ConstructorArguments.First().Value as string;
-
-                    if (fieldDes != null)
-                    {
-                        return fieldDes;
-                    }
-                }
-            }
-
-            return enumString;
+            return enumAttribute?.Description ?? enumString;
         }
 
         /// <summary>
@@ -120,30 +118,21 @@ namespace NetTally
         /// <returns>Returns the enum matching the description, or the default enum value.</returns>
         public static T GetValueFromDescription<T>(string description)
         {
-            var type = typeof(T);
-            var typeInfo = type.GetTypeInfo();
+            var typeInfo = typeof(T).GetTypeInfo();
 
             if (!typeInfo.IsEnum)
                 throw new InvalidOperationException();
 
-            foreach (var field in typeInfo.DeclaredFields)
+            foreach (var fieldInfo in typeInfo.DeclaredFields)
             {
-                var fieldAtt = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "DescriptionAttribute");
+                EnumDescriptionAttribute fieldAttribute = (EnumDescriptionAttribute)Attribute.GetCustomAttribute(fieldInfo, typeof(EnumDescriptionAttribute));
 
-                if (fieldAtt != null && fieldAtt.ConstructorArguments.Count > 0)
+                if (fieldAttribute.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
                 {
-                    if (fieldAtt.ConstructorArguments[0].Value as string == description)
-                    {
-                        return (T)field.GetValue(null);
-                    }
-                }
-                else if (field.Name == description)
-                {
-                    return (T)field.GetValue(null);
+                    return (T)fieldInfo.GetValue(null);
                 }
             }
 
-            //throw new ArgumentException("Not found.", nameof(description));
             return default(T);
         }
 
