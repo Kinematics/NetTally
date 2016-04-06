@@ -424,8 +424,16 @@ namespace NetTally.ViewModels
 
             if (voteType == VoteType.Rank)
             {
-                var condensedVoters = votes.Where(k => VoteString.CondenseVote(k.Key) == vote).Select(k => k.Value).FirstOrDefault();
-                return condensedVoters;
+                var condensedVoters = votes.Where(k => StringUtility.AgnosticStringComparer.Equals(VoteString.CondenseVote(k.Key), vote)).Select(k => k.Value);
+
+                HashSet<string> condensedHash = new HashSet<string>();
+
+                foreach (var cond in condensedVoters)
+                {
+                    condensedHash.UnionWith(cond);
+                }
+
+                return condensedHash;
             }
 
             return null;
