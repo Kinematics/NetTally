@@ -371,12 +371,15 @@ namespace NetTally
 
         /// <summary>
         /// If the text box loses focus, make sure to try to confirm any edits made before
-        /// other controls activate.
+        /// other controls activate, unless we're switching focus to a different edit box.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void textEntry_LostFocus(object sender, RoutedEventArgs e)
+        private void editQuest_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
+            if (e.NewFocus == editQuestThread || e.NewFocus == editNameButton)
+                return;
+
             TryConfirmEdit();
         }
 
