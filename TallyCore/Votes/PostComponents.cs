@@ -11,7 +11,7 @@ namespace NetTally
     /// Class to hold an immutable rendition of a given post, including all of its
     /// vote-specific lines, for later comparison and re-use.
     /// </summary>
-    public class PostComponents : IComparable, IComparer<PostComponents>
+    public class PostComponents : IComparable, IComparable<PostComponents>
     {
         public string Author { get; }
         public int Number { get; }
@@ -221,35 +221,66 @@ namespace NetTally
         #endregion
 
         #region Compare Interface Functions
-        /// <summary>
-        /// IComparer function.
-        /// </summary>
-        /// <param name="x">The first object being compared.</param>
-        /// <param name="y">The second object being compared.</param>
-        /// <returns>Returns a negative value if x is 'before' y, 0 if they're equal, and
-        /// a positive value if x is 'after' y.</returns>
-        public int Compare(PostComponents x, PostComponents y)
-        {
-            if (x == null && y == null)
-                return 0;
-            if (x == null)
-                return -1;
-            if (y == null)
-                return 1;
-
-            if (x.IDValue == 0 || y.IDValue == 0)
-                return string.Compare(x.ID, y.ID, StringComparison.Ordinal);
-
-            return x.IDValue - y.IDValue;
-        }
 
         /// <summary>
         /// IComparable function.
         /// </summary>
         /// <param name="obj"></param>
-        /// <returns>Returns a negative value if this is 'before' y, 0 if they're equal, and
-        /// a positive value if this is 'after' y.</returns>
+        /// <returns>Returns a negative value if this is 'before' obj, 0 if they're equal, and
+        /// a positive value if this is 'after' obj.</returns>
         public int CompareTo(object obj) => Compare(this, obj as PostComponents);
+
+        public int CompareTo(PostComponents other) => Compare(this, other);
+
+        public override bool Equals(object obj)
+        {
+            PostComponents other = obj as PostComponents; //avoid double casting
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            return CompareTo(other) == 0;
+        }
+
+        // Omitting getHashCode violates rule: OverrideGetHashCodeOnOverridingEquals.
+        public override int GetHashCode() => Author.GetHashCode() ^ IDValue.GetHashCode();
+
+        /// <summary>
+        /// IComparer function.
+        /// </summary>
+        /// <param name="left">The first object being compared.</param>
+        /// <param name="right">The second object being compared.</param>
+        /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
+        /// a positive value if left is 'after' right.</returns>
+        public static int Compare(PostComponents left, PostComponents right)
+        {
+            if (ReferenceEquals(left, right))
+                return 0;
+            if (ReferenceEquals(left, null))
+                return -1;
+            if (ReferenceEquals(right, null))
+                return 1;
+
+            if (left.IDValue == 0 || right.IDValue == 0)
+                return string.Compare(left.ID, right.ID, StringComparison.Ordinal);
+
+            return left.IDValue - right.IDValue;
+        }
+
+        public static bool operator ==(PostComponents left, PostComponents right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PostComponents left, PostComponents right) => !(left == right);
+
+        public static bool operator <(PostComponents left, PostComponents right) => (Compare(left, right) < 0);
+
+        public static bool operator >(PostComponents left, PostComponents right) => (Compare(left, right) > 0);
         #endregion
     }
 }
