@@ -465,14 +465,6 @@ namespace NetTally
             if (ReferenceEquals(right, null))
                 return 1;
 
-            int c1 = string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(left.ThreadName),
-                CultureInfo.InvariantCulture.TextInfo.ToLower(right.ThreadName), StringComparison.Ordinal);
-
-            if (c1 != 0)
-            {
-                return c1;
-            }
-
             return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(left.DisplayName),
                 CultureInfo.InvariantCulture.TextInfo.ToLower(right.DisplayName), StringComparison.Ordinal);
         }
