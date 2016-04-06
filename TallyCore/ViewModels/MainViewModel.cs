@@ -357,7 +357,7 @@ namespace NetTally.ViewModels
 
                 List<string> votes = votesWithSupporters.Keys
                     .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                    .Distinct().ToList();
+                    .Distinct(StringUtility.AgnosticStringComparer).ToList();
 
                 AllVotesCollection.Replace(votes);
 
