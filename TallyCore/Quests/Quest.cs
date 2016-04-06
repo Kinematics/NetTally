@@ -441,10 +441,17 @@ namespace NetTally
         {
             IQuest other = obj as IQuest;
             if (ReferenceEquals(other, null))
-            {
                 return false;
-            }
-            return Compare(this, other) == 0;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(ThreadName),
+                CultureInfo.InvariantCulture.TextInfo.ToLower(other.ThreadName), StringComparison.Ordinal) != 0)
+                return false;
+
+            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(DisplayName),
+                CultureInfo.InvariantCulture.TextInfo.ToLower(other.DisplayName), StringComparison.Ordinal) == 0;
         }
 
         public override int GetHashCode() => DisplayName.GetHashCode();
