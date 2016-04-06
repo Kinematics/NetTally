@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetTally.ViewModels
 {
@@ -15,7 +11,7 @@ namespace NetTally.ViewModels
         /// The thread context that this class was originally created in, so that we
         /// can send notifications back on that same thread.
         /// </summary>
-        SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+        readonly SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
 
         /// <summary>
         /// Event for INotifyPropertyChanged.
@@ -57,10 +53,10 @@ namespace NetTally.ViewModels
         /// Generic handling to set property values and raise the property changed event.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="storage">The storage.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="propertyName">Name of the property.</param>
-        /// <returns></returns>
+        /// <param name="storage">A reference to the backing property being set.</param>
+        /// <param name="value">The value to be stored.</param>
+        /// <param name="propertyName">Name of the property being set.</param>
+        /// <returns>Returns true if the value was updated, or false if no change was made.</returns>
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Object.Equals(storage, value))
