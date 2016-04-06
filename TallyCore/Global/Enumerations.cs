@@ -125,9 +125,9 @@ namespace NetTally
 
             foreach (var fieldInfo in typeInfo.DeclaredFields)
             {
-                EnumDescriptionAttribute fieldAttribute = (EnumDescriptionAttribute)Attribute.GetCustomAttribute(fieldInfo, typeof(EnumDescriptionAttribute));
+                EnumDescriptionAttribute fieldAttribute = fieldInfo.GetCustomAttribute<EnumDescriptionAttribute>();
 
-                if (fieldAttribute.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
+                if (fieldAttribute?.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
                 {
                     return (T)fieldInfo.GetValue(null);
                 }
