@@ -242,7 +242,6 @@ namespace NetTally
             return CompareTo(other) == 0;
         }
 
-        // Omitting getHashCode violates rule: OverrideGetHashCodeOnOverridingEquals.
         public override int GetHashCode() => Author.GetHashCode() ^ IDValue.GetHashCode();
 
         /// <summary>

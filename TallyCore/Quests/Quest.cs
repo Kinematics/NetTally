@@ -422,7 +422,7 @@ namespace NetTally
         }
         #endregion
 
-        #region IComparable implementation        
+        #region IComparable implementation
         /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that
         /// indicates whether the current instance precedes, follows, or occurs in the same position in the
@@ -433,16 +433,65 @@ namespace NetTally
         /// <returns>
         /// Returns -1 if this is before obj, 0 if it's the same, and 1 if it's after obj.
         /// </returns>
-        public int CompareTo(object obj)
-        {
-            IQuest q = obj as IQuest;
+        public int CompareTo(object obj) => Compare(this, obj as IQuest);
 
-            if (q == null)
+        public int CompareTo(IQuest other) => Compare(this, other);
+
+        public override bool Equals(object obj)
+        {
+            IQuest other = obj as IQuest;
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            return Compare(this, other) == 0;
+        }
+
+        public override int GetHashCode() => DisplayName.GetHashCode();
+
+        /// <summary>
+        /// IComparer function.
+        /// </summary>
+        /// <param name="left">The first object being compared.</param>
+        /// <param name="right">The second object being compared.</param>
+        /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
+        /// a positive value if left is 'after' right.</returns>
+        public static int Compare(IQuest left, IQuest right)
+        {
+            if (ReferenceEquals(left, right))
+                return 0;
+            if (ReferenceEquals(left, null))
+                return -1;
+            if (ReferenceEquals(right, null))
                 return 1;
 
-            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(DisplayName),
-                CultureInfo.InvariantCulture.TextInfo.ToLower(q.DisplayName), StringComparison.Ordinal);
+            int c1 = string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(left.ThreadName),
+                CultureInfo.InvariantCulture.TextInfo.ToLower(right.ThreadName), StringComparison.Ordinal);
+
+            if (c1 != 0)
+            {
+                return c1;
+            }
+
+            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(left.DisplayName),
+                CultureInfo.InvariantCulture.TextInfo.ToLower(right.DisplayName), StringComparison.Ordinal);
         }
+
+        public static bool operator ==(Quest left, Quest right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Quest left, Quest right) => !(left == right);
+
+        public static bool operator <(Quest left, Quest right) => (Compare(left, right) < 0);
+
+        public static bool operator >(Quest left, Quest right) => (Compare(left, right) > 0);
+
         #endregion
     }
 }
