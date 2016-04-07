@@ -13,6 +13,7 @@ namespace NetTally
         static string productName = null;
         static string productVersion = null;
         static Version fileVersion = null;
+        static Version assemblyVersion = null;
 
         /// <summary>
         /// Gets the name of the product.
@@ -72,6 +73,25 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Gets the file version of the product.
+        /// </summary>
+        /// <value>
+        /// The file version as a Version object.
+        /// </value>
+        public static Version AssemblyVersion
+        {
+            get
+            {
+                if (!hasRun)
+                {
+                    DefineNameAndVersion();
+                }
+
+                return assemblyVersion;
+            }
+        }
+
+        /// <summary>
         /// Defines the name and version.
         /// Runs once per program execution.
         /// </summary>
@@ -89,6 +109,7 @@ namespace NetTally
                 var prod = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyProductAttribute));
                 var ver = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyInformationalVersionAttribute));
                 var fVer = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyFileVersionAttribute));
+                assemblyVersion = assembly.GetName().Version;
 
                 if (prod != null && prod.ConstructorArguments.Count > 0)
                 {
