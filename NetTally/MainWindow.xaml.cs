@@ -173,7 +173,7 @@ namespace NetTally
 
             try
             {
-                await mainViewModel.RunTally();
+                //await mainViewModel.RunTally();
             }
             catch (Exception ex)
             {
@@ -187,40 +187,6 @@ namespace NetTally
                 MessageBox.Show(exmsg, "Error");
                 if (!(ex.Data.Contains("Application")))
                     ErrorLog.Log(ex);
-            }
-        }
-
-        /// <summary>
-        /// Cancel the cancellation token, if present.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cancelTally_Click(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.CancelTally();
-        }
-
-        /// <summary>
-        /// Clear the page cache so that subsequent tally requests load the pages from the network
-        /// rather than from the cache.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void clearTallyCacheButton_Click(object sender, RoutedEventArgs e)
-        {
-            tallyButton.IsEnabled = false;
-
-            try
-            {
-                mainViewModel.ClearCache();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                tallyButton.IsEnabled = true;
             }
         }
 

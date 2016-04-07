@@ -222,8 +222,8 @@
             </ComboBox.ToolTip>
         </ComboBox>
 
-        <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" Click="clearTallyCacheButton_Click" HorizontalAlignment="Right" Width="49"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+        <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="49"
+                Command="{Binding Path=ClearTallyCacheCommand}">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
             <Button.ToolTip>
                 <ToolTip>
@@ -234,13 +234,12 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Click="tallyButton_Click" Width="158" HorizontalAlignment="Right">
+        <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Width="158" HorizontalAlignment="Right"
+                Command="{Binding Path=RunTallyCommand}">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding ElementName="questList" Path="HasItems" Mode="OneWay" />
                     <Binding ElementName="startPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                     <Binding ElementName="endPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
             <Button.ToolTip>
@@ -253,7 +252,7 @@
             </Button.ToolTip>
         </Button>
         <Button x:Name="cancelTally" Content="Cancel" Height="30" Margin="0,66,128,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="94"
-                IsEnabled="{Binding Path=TallyIsRunning, Mode=OneWay}" Click="cancelTally_Click" ToolTipService.ShowOnDisabled="True">
+                ToolTipService.ShowOnDisabled="True" Command="{Binding Path=CancelTallyCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
