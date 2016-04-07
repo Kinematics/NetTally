@@ -58,6 +58,7 @@ namespace NetTally
                 mainViewModel = new MainViewModel(config);
                 DataContext = mainViewModel;
                 mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
             }
             catch (Exception e)
             {
@@ -72,11 +73,13 @@ namespace NetTally
                         mainViewModel = new MainViewModel(null);
                         DataContext = mainViewModel;
                         mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                        mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
                     }
                 }
                 catch (Exception e2)
                 {
                     ErrorLog.Log(e2);
+                    this.Close();
                 }
             }
         }
@@ -157,39 +160,35 @@ namespace NetTally
                 StartEdit(false);
             }
         }
+
+        /// <summary>
+        /// Handles the ExceptionRaised event of the MainViewModel control.
+        /// This is called anytime there's an exception generated that needs
+        /// to propogate up to the UI.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
+        private void MainViewModel_ExceptionRaised(object sender, ExceptionEventArgs e)
+        {
+            Exception ex = e.Exception;
+
+            string exmsg = ex.Message;
+            var innerEx = ex.InnerException;
+            while (innerEx != null)
+            {
+                exmsg = exmsg + "\n" + innerEx.Message;
+                innerEx = innerEx.InnerException;
+            }
+            MessageBox.Show(exmsg, "Error");
+            if (!(ex.Data.Contains("Application")))
+                ErrorLog.Log(ex);
+
+            e.Handled = true;
+        }
         #endregion
 
         #region UI Events
         #region User action events
-        /// <summary>
-        /// Start running the tally on the currently selected quest and post range.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void tallyButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (mainViewModel.SelectedQuest == null)
-                return;
-
-            try
-            {
-                //await mainViewModel.RunTally();
-            }
-            catch (Exception ex)
-            {
-                string exmsg = ex.Message;
-                var innerEx = ex.InnerException;
-                while (innerEx != null)
-                {
-                    exmsg = exmsg + "\n" + innerEx.Message;
-                    innerEx = innerEx.InnerException;
-                }
-                MessageBox.Show(exmsg, "Error");
-                if (!(ex.Data.Contains("Application")))
-                    ErrorLog.Log(ex);
-            }
-        }
-
         /// <summary>
         /// Event to cause the program to copy the current contents of the the tally
         /// results (ie: what's shown in the main text window) to the clipboard.
