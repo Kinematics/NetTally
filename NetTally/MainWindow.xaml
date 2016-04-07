@@ -18,13 +18,8 @@
     </Window.Resources>
 
     <Grid>
-        <Button x:Name="addQuestButton" Content="New" HorizontalAlignment="Left" Height="30" Margin="10,45,0,0" VerticalAlignment="Top" Width="60" Click="addQuestButton_Click">
-            <Button.IsEnabled>
-                <MultiBinding Converter="{StaticResource MultiBoolOrConverter}" Mode="OneWay">
-                    <Binding ElementName="questList" Path="HasItems" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
-                    <Binding ElementName="tallyButton" Path="IsEnabled" Mode="OneWay" />
-                </MultiBinding>
-            </Button.IsEnabled>
+        <Button x:Name="addQuestButton" Content="New" HorizontalAlignment="Left" Height="30" Margin="10,45,0,0" VerticalAlignment="Top" Width="60"
+                Command="{Binding Path=AddQuestCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

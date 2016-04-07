@@ -57,6 +57,7 @@ namespace NetTally
 
                 mainViewModel = new MainViewModel(config);
                 DataContext = mainViewModel;
+                mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
             }
             catch (Exception e)
             {
@@ -70,6 +71,7 @@ namespace NetTally
                     {
                         mainViewModel = new MainViewModel(null);
                         DataContext = mainViewModel;
+                        mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
                     }
                 }
                 catch (Exception e2)
@@ -139,6 +141,21 @@ namespace NetTally
             }
 
             _disposed = true;
+        }
+        #endregion
+
+        #region Watched Events        
+        /// <summary>
+        /// Handles the PropertyChanged event of the MainViewModel control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "AddQuest")
+            {
+                StartEdit(false);
+            }
         }
         #endregion
 
@@ -231,18 +248,6 @@ namespace NetTally
                     ErrorLog.Log("Second clipboard failure", ex2);
                 }
             }
-        }
-
-        /// <summary>
-        /// Event handler for adding a new quest.
-        /// Create a new quest, and make the edit textbox visible so that the user can rename it.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void addQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (mainViewModel.AddNewQuest())
-                StartEdit(true);
         }
 
         /// <summary>

@@ -179,27 +179,46 @@ namespace NetTally.ViewModels
             return true;
         }
 
-        public bool RemoveQuest()
+        #region Add Quest
+        /// <summary>
+        /// Command property for adding a new quest to the quest list.
+        /// </summary>
+        public ICommand AddQuestCommand { get; private set; }
+
+        /// <summary>
+        /// Determines whether it's valid to add a new quest right now.
+        /// </summary>
+        /// <returns>Returns true if it's valid to execute the command.</returns>
+        private bool CanAddQuest(object parameter) => !TallyIsRunning;
+
+        /// <summary>
+        /// Adds a new quest to the quest list, selects it, and notifies any
+        /// listeners that it happened.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private void DoAddQuest(object parameter)
         {
-            if (SelectedQuest == null)
-                return false;
+            IQuest newEntry = QuestList.AddNewQuest();
 
-            int index = QuestList.IndexOf(SelectedQuest);
-            QuestList.Remove(SelectedQuest);
-
-            if (index >= QuestList.Count)
-                index = QuestList.Count - 1;
-
-            if (index < 0)
-                SelectedQuest = null;
-            else
-                SelectedQuest = QuestList[index];
-
-            return true;
+            if (newEntry != null)
+            {
+                SelectedQuest = newEntry;
+                OnPropertyChanged("AddQuest");
+            }
         }
+        #endregion
 
+        #region Remove Quest
+        /// <summary>
+        /// Command property for removing a quest from the quest list.
+        /// </summary>
         public ICommand RemoveQuestCommand { get; private set; }
 
+        /// <summary>
+        /// Determines whether it's valid to remove the current or requested quest.
+        /// </summary>
+        /// <param name="parameter">The parameter to signal which quest is being removed.</param>
+        /// <returns>Returns true if it's valid to execute the command.</returns>
         private bool CanRemoveQuest(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
 
         /// <summary>
@@ -228,41 +247,11 @@ namespace NetTally.ViewModels
                 SelectedQuest = QuestList.LastOrDefault();
             else
                 SelectedQuest = QuestList[index];
+
+            OnPropertyChanged("RemoveQuest");
         }
+        #endregion
 
-
-
-        /// <summary>
-        /// Get the specified quest.
-        /// If the parameter is null, returns the currently SelectedQuest.
-        /// If the parameter is a quest, returns that.
-        /// If the parameter is a string, returns a quest with that DisplayName.
-        /// </summary>
-        /// <param name="parameter">Indicator of what quest is being requested.</param>
-        /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
-        private IQuest GetThisQuest(object parameter)
-        {
-            IQuest thisQuest;
-
-            if (parameter == null)
-            {
-                thisQuest = SelectedQuest;
-            }
-            else
-            {
-                thisQuest = parameter as IQuest;
-                if (thisQuest == null)
-                {
-                    string questName = parameter as string;
-                    if (!string.IsNullOrEmpty(questName))
-                    {
-                        thisQuest = QuestList.FirstOrDefault(a => questName == a.DisplayName);
-                    }
-                }
-            }
-
-            return thisQuest;
-        }
         #endregion
 
         #region Section: Tally & Results Binding
@@ -482,8 +471,44 @@ namespace NetTally.ViewModels
         #region Section: Command Setup
         private void SetupCommands()
         {
+            AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
         }
+        #endregion
+
+        #region Section: Command Utility
+        /// <summary>
+        /// Get the specified quest.
+        /// If the parameter is null, returns the currently SelectedQuest.
+        /// If the parameter is a quest, returns that.
+        /// If the parameter is a string, returns a quest with that DisplayName.
+        /// </summary>
+        /// <param name="parameter">Indicator of what quest is being requested.</param>
+        /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
+        private IQuest GetThisQuest(object parameter)
+        {
+            IQuest thisQuest;
+
+            if (parameter == null)
+            {
+                thisQuest = SelectedQuest;
+            }
+            else
+            {
+                thisQuest = parameter as IQuest;
+                if (thisQuest == null)
+                {
+                    string questName = parameter as string;
+                    if (!string.IsNullOrEmpty(questName))
+                    {
+                        thisQuest = QuestList.FirstOrDefault(a => questName == a.DisplayName);
+                    }
+                }
+            }
+
+            return thisQuest;
+        }
+
         #endregion
     }
 }
