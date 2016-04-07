@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,13 +41,41 @@ namespace NetTally
                 this.Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
                 // Set up data contexts
-                mainViewModel = new MainViewModel(NetTallyConfig.Load());
+                QuestCollectionWrapper config;
+                try
+                {
+                    config = NetTallyConfig.Load();
+                }
+                catch (ConfigurationErrorsException e)
+                {
+                    string file = ErrorLog.Log(e);
+
+                    string message = $"{e.Message}\n\nError log saved to:\n{file ?? "(unable to write log file)"}";
+                    MessageBox.Show(message, "Error in configuration", MessageBoxButton.OK, MessageBoxImage.Error);
+                    config = null;
+                }
+
+                mainViewModel = new MainViewModel(config);
                 DataContext = mainViewModel;
             }
             catch (Exception e)
             {
                 string file = ErrorLog.Log(e);
                 MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in startup", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                try
+                {
+                    // If mainViewModel failed to be set via config, just create a null-config version.
+                    if (mainViewModel == null)
+                    {
+                        mainViewModel = new MainViewModel(null);
+                        DataContext = mainViewModel;
+                    }
+                }
+                catch (Exception e2)
+                {
+                    ErrorLog.Log(e2);
+                }
             }
         }
 
@@ -74,9 +103,9 @@ namespace NetTally
         {
             try
             {
-                string selectedQuest = mainViewModel.SelectedQuest?.ThreadName ?? "";
+                string selectedQuest = mainViewModel?.SelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(mainViewModel.QuestList, selectedQuest);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(mainViewModel?.QuestList, selectedQuest);
                 NetTallyConfig.Save(wrapper);
             }
             catch (Exception ex)
