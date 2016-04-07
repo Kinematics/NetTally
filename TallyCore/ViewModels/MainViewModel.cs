@@ -334,7 +334,8 @@ namespace NetTally.ViewModels
             }
             catch (Exception e)
             {
-                OnExceptionRaised(e);
+                if (!OnExceptionRaised(e).Handled)
+                    throw;
             }
             finally
             {

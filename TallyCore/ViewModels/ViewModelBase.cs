@@ -62,7 +62,7 @@ namespace NetTally.ViewModels
         /// Make sure we're in the proper synchronization context before sending.
         /// </summary>
         /// <param name="e">The exception that was raised.</param>
-        protected void OnExceptionRaised(Exception e)
+        protected ExceptionEventArgs OnExceptionRaised(Exception e)
         {
             ExceptionEventArgs args = new ExceptionEventArgs(e);
 
@@ -76,6 +76,8 @@ namespace NetTally.ViewModels
                 // Raises the PropertyChanged event on the creator thread
                 _synchronizationContext.Send(RaiseExceptionRaised, args);
             }
+
+            return args;
         }
 
         /// <summary>
@@ -84,13 +86,8 @@ namespace NetTally.ViewModels
         /// <param name="param">The parameter.</param>
         private void RaiseExceptionRaised(object param)
         {
-            ExceptionEventArgs args = (ExceptionEventArgs)param;
-
             // We are in the creator thread, call the base implementation directly
-            ExceptionRaised?.Invoke(this, args);
-
-            if (!args.Handled)
-                throw args.Exception;
+            ExceptionRaised?.Invoke(this, (ExceptionEventArgs)param);
         }
         #endregion
 
