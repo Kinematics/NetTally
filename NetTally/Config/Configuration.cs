@@ -205,7 +205,7 @@ namespace NetTally
                        where dir.Name != defaultDir.Name &&
                           dir.EnumerateFiles().Any(de => de.Name == "user.config")
                        let v = DirectoryVersion(dir)
-                       where v.Major > 0
+                       where v.Major > 0 && v <= ProductInfo.AssemblyVersion
                        orderby v
                        select dir;
 
