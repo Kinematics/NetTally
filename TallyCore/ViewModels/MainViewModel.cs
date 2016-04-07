@@ -143,6 +143,7 @@ namespace NetTally.ViewModels
             }
         }
 
+        #region Manage Events from the Quest
         private void BindQuest(IQuest quest)
         {
             if (quest != null)
@@ -166,18 +167,7 @@ namespace NetTally.ViewModels
                 QuestList.Sort();
             }
         }
-
-        public bool AddNewQuest()
-        {
-            IQuest newEntry = QuestList.AddNewQuest();
-
-            if (newEntry == null)
-                return false;
-
-            SelectedQuest = newEntry;
-
-            return true;
-        }
+        #endregion
 
         #region Add Quest
         /// <summary>
@@ -302,10 +292,31 @@ namespace NetTally.ViewModels
         CancellationTokenSource cts;
 
         /// <summary>
-        /// Runs a tally on the currently selected quest.
+        /// Requests that the tally class update its current results.
         /// </summary>
-        /// <returns></returns>
-        public async Task RunTally()
+        public void UpdateOutput()
+        {
+            tally.UpdateResults();
+        }
+
+        #region Run the Tally
+        /// <summary>
+        /// Command property for adding a new quest to the quest list.
+        /// </summary>
+        public ICommand RunTallyCommand { get; private set; }
+
+        /// <summary>
+        /// Determines whether it's valid to add a new quest right now.
+        /// </summary>
+        /// <returns>Returns true if it's valid to execute the command.</returns>
+        private bool CanRunTally(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+
+        /// <summary>
+        /// Adds a new quest to the quest list, selects it, and notifies any
+        /// listeners that it happened.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private async Task DoRunTally(object parameter)
         {
             try
             {
@@ -319,16 +330,6 @@ namespace NetTally.ViewModels
                     {
                         // Got a cancel request somewhere.  No special handling needed.
                     }
-                    catch (Exception)
-                    {
-                        // Re-throw exceptions if we didn't request a cancellation.
-                        if (!cts.IsCancellationRequested)
-                        {
-                            // If an exception happened and we haven't already requested a cancellation, do so.
-                            cts.Cancel();
-                            throw;
-                        }
-                    }
                 }
             }
             finally
@@ -336,30 +337,54 @@ namespace NetTally.ViewModels
                 cts = null;
             }
         }
+        #endregion
+
+        #region Cancel the Tally
+        /// <summary>
+        /// Command property for adding a new quest to the quest list.
+        /// </summary>
+        public ICommand CancelTallyCommand { get; private set; }
 
         /// <summary>
-        /// Cancels the currently running tally, if any.
+        /// Determines whether it's valid to add a new quest right now.
         /// </summary>
-        public void CancelTally()
+        /// <returns>Returns true if it's valid to execute the command.</returns>
+        private bool CanCancelTally(object parameter) => TallyIsRunning;
+
+        /// <summary>
+        /// Adds a new quest to the quest list, selects it, and notifies any
+        /// listeners that it happened.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private void DoCancelTally(object parameter)
         {
             cts?.Cancel();
         }
+        #endregion
+
+        #region Clear the Tally Cache
+        /// <summary>
+        /// Command property for adding a new quest to the quest list.
+        /// </summary>
+        public ICommand ClearTallyCacheCommand { get; private set; }
 
         /// <summary>
-        /// Requests that the tally class clear its cache.
+        /// Determines whether it's valid to add a new quest right now.
         /// </summary>
-        public void ClearCache()
+        /// <returns>Returns true if it's valid to execute the command.</returns>
+        private bool CanClearTallyCache(object parameter) => !TallyIsRunning;
+
+        /// <summary>
+        /// Adds a new quest to the quest list, selects it, and notifies any
+        /// listeners that it happened.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private void DoClearTallyCache(object parameter)
         {
             tally.ClearPageCache();
         }
+        #endregion
 
-        /// <summary>
-        /// Requests that the tally class update its current results.
-        /// </summary>
-        public void UpdateOutput()
-        {
-            tally.UpdateResults();
-        }
 
         #endregion
 
@@ -473,6 +498,10 @@ namespace NetTally.ViewModels
         {
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
+
+            RunTallyCommand = new AsyncRelayCommand(this, DoRunTally, CanRunTally);
+            CancelTallyCommand = new RelayCommand(this, DoCancelTally, CanCancelTally);
+            ClearTallyCacheCommand = new RelayCommand(this, DoClearTallyCache, CanClearTallyCache);
         }
         #endregion
 
