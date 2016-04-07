@@ -332,6 +332,10 @@ namespace NetTally.ViewModels
                     }
                 }
             }
+            catch (Exception e)
+            {
+                OnExceptionRaised(e);
+            }
             finally
             {
                 cts = null;
