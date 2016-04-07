@@ -454,7 +454,8 @@ namespace NetTally
                 CultureInfo.InvariantCulture.TextInfo.ToLower(other.DisplayName), StringComparison.Ordinal) == 0;
         }
 
-        public override int GetHashCode() => DisplayName.GetHashCode();
+        // Note: Do not implement GetHashCode based on mutable properties.  It will break combobox binding.
+        //public override int GetHashCode() => DisplayName.GetHashCode();
 
         /// <summary>
         /// IComparer function.
