@@ -6,7 +6,7 @@
     /// </summary>
     public class QuestCollectionWrapper
     {
-        public QuestCollection QuestCollection { get; set; }
+        public QuestCollection QuestCollection { get; }
         public string CurrentQuest { get; set; }
 
         public QuestCollectionWrapper()
@@ -17,8 +17,16 @@
 
         public QuestCollectionWrapper(QuestCollection questCollection, string currentQuest)
         {
-            QuestCollection = questCollection;
-            CurrentQuest = currentQuest;
+            if (questCollection == null)
+            {
+                QuestCollection = new QuestCollection();
+                CurrentQuest = null;
+            }
+            else
+            {
+                QuestCollection = questCollection;
+                CurrentQuest = currentQuest;
+            }
         }
     }
 }

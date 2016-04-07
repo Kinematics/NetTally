@@ -142,9 +142,6 @@ namespace NetTally
             if (IgnoreSymbols == false)
                 AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = true;
 
-            if (questWrapper.QuestCollection == null)
-                questWrapper.QuestCollection = new QuestCollection();
-
             questWrapper.CurrentQuest = CurrentQuest;
 
             foreach (QuestElement questElement in Quests)
