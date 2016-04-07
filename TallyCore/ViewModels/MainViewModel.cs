@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-
-using NetTally;
 using NetTally.Utility;
 
 namespace NetTally.ViewModels
@@ -390,7 +386,6 @@ namespace NetTally.ViewModels
         }
         #endregion
 
-
         #endregion
 
         #region Section: Vote Counter
@@ -498,7 +493,10 @@ namespace NetTally.ViewModels
         }
         #endregion
 
-        #region Section: Command Setup
+        #region Section: Command Setup        
+        /// <summary>
+        /// Setups the commands to attach to the view model.
+        /// </summary>
         private void SetupCommands()
         {
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
@@ -542,7 +540,6 @@ namespace NetTally.ViewModels
 
             return thisQuest;
         }
-
         #endregion
     }
 }
