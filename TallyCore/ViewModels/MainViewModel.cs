@@ -16,12 +16,17 @@ namespace NetTally.ViewModels
     {
         public MainViewModel(QuestCollectionWrapper config)
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-
-            QuestList = config.QuestCollection;
-            QuestList.Sort();
-            SelectedQuest = QuestList[config.CurrentQuest];
+            if (config != null)
+            {
+                QuestList = config.QuestCollection;
+                QuestList.Sort();
+                SelectedQuest = QuestList[config.CurrentQuest];
+            }
+            else
+            {
+                QuestList = new QuestCollection();
+                SelectedQuest = null;
+            }
 
             BindCheckForNewRelease();
             BindTally();
