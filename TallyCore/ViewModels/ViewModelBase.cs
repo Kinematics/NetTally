@@ -13,6 +13,7 @@ namespace NetTally.ViewModels
         /// </summary>
         readonly SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
 
+        #region INotifyPropertyChanged event
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
@@ -48,7 +49,47 @@ namespace NetTally.ViewModels
             // We are in the creator thread, call the base implementation directly
             PropertyChanged?.Invoke(this, (PropertyChangedEventArgs)param);
         }
+        #endregion
 
+        #region Exception handling event
+        /// <summary>
+        /// Event for raised exceptions that need to be propagated from the view model to the view.
+        /// </summary>
+        public event EventHandler<ExceptionEventArgs> ExceptionRaised;
+
+        /// <summary>
+        /// Function to raise events when an exception has been raised.
+        /// Make sure we're in the proper synchronization context before sending.
+        /// </summary>
+        /// <param name="e">The exception that was raised.</param>
+        protected void OnExceptionRaised(Exception e)
+        {
+            ExceptionEventArgs args = new ExceptionEventArgs(e);
+
+            if (SynchronizationContext.Current == _synchronizationContext)
+            {
+                // Execute the PropertyChanged event on the current thread
+                RaiseExceptionRaised(args);
+            }
+            else
+            {
+                // Raises the PropertyChanged event on the creator thread
+                _synchronizationContext.Send(RaiseExceptionRaised, args);
+            }
+        }
+
+        /// <summary>
+        /// Function to actually invoke the delegate, after synchronization is checked.
+        /// </summary>
+        /// <param name="param">The parameter.</param>
+        private void RaiseExceptionRaised(object param)
+        {
+            // We are in the creator thread, call the base implementation directly
+            ExceptionRaised?.Invoke(this, (ExceptionEventArgs)param);
+        }
+        #endregion
+
+        #region Generic Property Setting
         /// <summary>
         /// Generic handling to set property values and raise the property changed event.
         /// </summary>
@@ -67,5 +108,6 @@ namespace NetTally.ViewModels
 
             return true;
         }
+        #endregion
     }
 }
