@@ -246,16 +246,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Remove the current quest from the quest list.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void removeQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.RemoveQuest();
-        }
-
-        /// <summary>
         /// Button event handler for editing the quest name and URL.
         /// </summary>
         /// <param name="sender"></param>

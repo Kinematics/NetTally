@@ -34,8 +34,8 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60" Click="removeQuestButton_Click"
-                IsEnabled="{Binding ElementName=tallyButton, Path=IsEnabled, Converter={StaticResource BoolConverter}, ConverterParameter=Normal, Mode=OneWay}">
+        <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60"
+                Command="{Binding Path=RemoveQuestCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
