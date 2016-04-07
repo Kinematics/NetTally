@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 using NetTally;
 using NetTally.Utility;
@@ -29,12 +30,15 @@ namespace NetTally.ViewModels
             }
 
             BindCheckForNewRelease();
+
             BindTally();
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
             BindVoteCounter();
+
+            SetupCommands();
         }
 
         #region IDisposable
@@ -192,6 +196,72 @@ namespace NetTally.ViewModels
                 SelectedQuest = QuestList[index];
 
             return true;
+        }
+
+        public ICommand RemoveQuestCommand { get; private set; }
+
+        private bool CanRemoveQuest(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+
+        /// <summary>
+        /// Removes either the currently selected quest, or the quest specified
+        /// in the provided parameter (if it can be found).
+        /// </summary>
+        /// <param name="parameter">Either an IQuest object or a string specifying
+        /// the quest's DisplayName.  If null, will instead use the current
+        /// SelectedQuest.</param>
+        private void DoRemoveQuest(object parameter)
+        {
+            int index = -1;
+            IQuest questToRemove = GetThisQuest(parameter);
+
+            if (questToRemove == null)
+                return;
+
+            index = QuestList.IndexOf(questToRemove);
+
+            if (index < 0)
+                return;
+
+            QuestList.RemoveAt(index);
+
+            if (QuestList.Count <= index)
+                SelectedQuest = QuestList.LastOrDefault();
+            else
+                SelectedQuest = QuestList[index];
+        }
+
+
+
+        /// <summary>
+        /// Get the specified quest.
+        /// If the parameter is null, returns the currently SelectedQuest.
+        /// If the parameter is a quest, returns that.
+        /// If the parameter is a string, returns a quest with that DisplayName.
+        /// </summary>
+        /// <param name="parameter">Indicator of what quest is being requested.</param>
+        /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
+        private IQuest GetThisQuest(object parameter)
+        {
+            IQuest thisQuest;
+
+            if (parameter == null)
+            {
+                thisQuest = SelectedQuest;
+            }
+            else
+            {
+                thisQuest = parameter as IQuest;
+                if (thisQuest == null)
+                {
+                    string questName = parameter as string;
+                    if (!string.IsNullOrEmpty(questName))
+                    {
+                        thisQuest = QuestList.FirstOrDefault(a => questName == a.DisplayName);
+                    }
+                }
+            }
+
+            return thisQuest;
         }
         #endregion
 
@@ -406,6 +476,13 @@ namespace NetTally.ViewModels
         public bool VoteExists(string vote, VoteType voteType)
         {
             return VoteCounter.Instance.HasVote(vote, voteType);
+        }
+        #endregion
+
+        #region Section: Command Setup
+        private void SetupCommands()
+        {
+            RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
         }
         #endregion
     }
