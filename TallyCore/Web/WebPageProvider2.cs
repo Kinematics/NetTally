@@ -276,9 +276,6 @@ namespace NetTally.Web
             webHandler = new HttpClientHandler();
 
             webHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-            // Increase the max simultaneous connections for the underlying service.
-            ServicePointManager.DefaultConnectionLimit = maxSimultaneousConnections;
         }
 
         /// <summary>

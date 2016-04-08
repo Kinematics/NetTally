@@ -36,6 +36,8 @@ namespace NetTally
 
                 ErrorLog.Initialize(new WindowsErrorLog());
 
+                PlatformSetup();
+
                 InitializeComponent();
 
                 this.Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
@@ -82,6 +84,12 @@ namespace NetTally
                     this.Close();
                 }
             }
+        }
+
+        private void PlatformSetup()
+        {
+            // Increase the max simultaneous connections for the underlying service.
+            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
         }
 
         /// <summary>
