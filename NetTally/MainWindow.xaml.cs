@@ -157,7 +157,7 @@ namespace NetTally
         {
             if (e.PropertyName == "AddQuest")
             {
-                StartEdit(false);
+                StartEdit(true);
             }
         }
 
