@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -185,7 +186,7 @@ namespace NetTally.Web
                             UpdateStatus(StatusType.Retry, shortDescrip);
                         }
 
-                        using (response = await client.GetAsync(url, token).ConfigureAwait(false))
+                        using (response = await client.GetAsync(uri, token).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -306,8 +307,15 @@ namespace NetTally.Web
             client.Timeout = TimeSpan.FromSeconds(10);
             client.DefaultRequestHeaders.Add("Accept", "text/html");
             client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
             client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+
+            var handlerInfo = webHandler.GetType().GetTypeInfo();
+            var infoName = handlerInfo.FullName;
+
+            // Native client handler breaks if we set the accept-encoding.
+            // It handles auto-compression on its own.
+            if (infoName != "ModernHttpClient.NativeMessageHandler")
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
         }
 
         /// <summary>
