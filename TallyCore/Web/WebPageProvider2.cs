@@ -38,7 +38,7 @@ namespace NetTally.Web
         static readonly Regex baseAddressRegex = new Regex(@"^(?<baseAddress>https?://\w+(\.\w+)+(:\d+)?/)");
 
         WebCache Cache { get; } = WebCache.Instance;
-        string UserAgent { get; set; }
+        string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
 
         IClock Clock { get; }
 
@@ -54,7 +54,6 @@ namespace NetTally.Web
 
         public WebPageProvider2(HttpClientHandler handler, IClock clock)
         {
-            SetupUserAgent();
             SetupHandler(handler);
             SetupClient();
 
@@ -278,14 +277,6 @@ namespace NetTally.Web
         #endregion
 
         #region Private support functions
-        /// <summary>
-        /// Setup the user agent string to be used when making requests.
-        /// </summary>
-        private void SetupUserAgent()
-        {
-            UserAgent = $"{ProductInfo.Name} ({ProductInfo.Version})";
-        }
-
         /// <summary>
         /// Set up the HTTP client handler object for use in managing underlying connections.
         /// </summary>
