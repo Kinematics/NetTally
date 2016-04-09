@@ -63,6 +63,7 @@ namespace NetTally.ViewModels
             if (itIsSafeToAlsoFreeManagedObjects)
             {
                 tally.Dispose();
+                PageProvider.Dispose();
             }
 
             _disposed = true;
@@ -70,13 +71,13 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Networking
-        internal HttpClientHandler HttpClientHandler { get; private set; }
         public IPageProvider PageProvider { get; private set; }
 
         private void SetupNetwork(HttpClientHandler handler)
         {
-            HttpClientHandler = handler ?? new HttpClientHandler();
-            PageProvider = new WebPageProvider2(HttpClientHandler);
+            if (handler == null)
+                handler = new HttpClientHandler();
+            PageProvider = new WebPageProvider2(handler);
         }
         #endregion
 
