@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -33,6 +34,7 @@ namespace NetTally.Web
 
         HttpClientHandler webHandler;
         HttpClient client;
+        static readonly Regex baseAddressRegex = new Regex(@"^(?<baseAddress>https?://\w+(\.\w+)+(:\d+)?/)");
 
         WebCache Cache { get; } = WebCache.Instance;
         string UserAgent { get; set; }
@@ -153,6 +155,12 @@ namespace NetTally.Web
             try
             {
                 Uri uri = new Uri(url);
+
+                Match m = baseAddressRegex.Match(url);
+                if (m.Success)
+                {
+                    client.BaseAddress = new Uri(m.Groups["baseAddress"].Value);
+                }
 
                 Cookie cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
