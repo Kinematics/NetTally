@@ -95,7 +95,7 @@ namespace NetTally.Adapters
             bool localPageProvider = pageProvider == null;
 
             if (localPageProvider)
-                pageProvider = new WebPageProvider2();
+                pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
 
             try
             {

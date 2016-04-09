@@ -17,7 +17,7 @@ namespace NetTally
     public partial class MainWindow : Window, IDisposable
     {
         #region Fields and Properties
-        readonly MainViewModel mainViewModel;
+        public MainViewModel MainViewModel { get; private set; }
 
         bool _disposed = false;
         #endregion
@@ -35,8 +35,6 @@ namespace NetTally
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
                 ErrorLog.Initialize(new WindowsErrorLog());
-
-                PlatformSetup();
 
                 InitializeComponent();
 
@@ -57,10 +55,7 @@ namespace NetTally
                     config = null;
                 }
 
-                mainViewModel = new MainViewModel(config);
-                DataContext = mainViewModel;
-                mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
+                SetupModel(config);
             }
             catch (Exception e)
             {
@@ -70,13 +65,7 @@ namespace NetTally
                 try
                 {
                     // If mainViewModel failed to be set via config, just create a null-config version.
-                    if (mainViewModel == null)
-                    {
-                        mainViewModel = new MainViewModel(null);
-                        DataContext = mainViewModel;
-                        mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                        mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
-                    }
+                    SetupModel(null);
                 }
                 catch (Exception e2)
                 {
@@ -86,10 +75,25 @@ namespace NetTally
             }
         }
 
+        private void SetupModel(QuestCollectionWrapper config)
+        {
+            if (MainViewModel == null)
+            {
+                MainViewModel = new MainViewModel(config);
+                DataContext = MainViewModel;
+                MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
+            }
+
+            PlatformSetup();
+        }
+
         private void PlatformSetup()
         {
             // Increase the max simultaneous connections for the underlying service.
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+            MainViewModel.CheckForNewRelease();
+            ViewModelLocator.MainViewModel = MainViewModel;
         }
 
         /// <summary>
@@ -116,9 +120,9 @@ namespace NetTally
         {
             try
             {
-                string selectedQuest = mainViewModel?.SelectedQuest?.ThreadName ?? "";
+                string selectedQuest = MainViewModel?.SelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(mainViewModel?.QuestList, selectedQuest);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(MainViewModel?.QuestList, selectedQuest);
                 NetTallyConfig.Save(wrapper);
             }
             catch (Exception ex)
@@ -148,7 +152,7 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                mainViewModel.Dispose();
+                MainViewModel.Dispose();
             }
 
             _disposed = true;
@@ -207,14 +211,14 @@ namespace NetTally
         {
             try
             {
-                Clipboard.SetText(mainViewModel.Output);
+                Clipboard.SetText(MainViewModel.Output);
             }
             catch (Exception ex1)
             {
                 ErrorLog.Log("First clipboard failure", ex1);
                 try
                 {
-                    Clipboard.SetDataObject(mainViewModel.Output, false);
+                    Clipboard.SetDataObject(MainViewModel.Output, false);
                 }
                 catch (Exception ex2)
                 {
@@ -240,14 +244,14 @@ namespace NetTally
         /// <param name="e"></param>
         private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow(mainViewModel)
+            ManageVotesWindow manageWindow = new ManageVotesWindow(MainViewModel)
             {
                 Owner = Application.Current.MainWindow,
             };
 
             manageWindow.ShowDialog();
 
-            mainViewModel.UpdateOutput();
+            MainViewModel.UpdateOutput();
         }
 
         /// <summary>
@@ -260,7 +264,7 @@ namespace NetTally
             GlobalOptionsWindow options = new GlobalOptionsWindow()
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = mainViewModel.Options
+                DataContext = MainViewModel.Options
             };
 
             options.ShowDialog();
@@ -276,7 +280,7 @@ namespace NetTally
             QuestOptionsWindow options = new QuestOptionsWindow()
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = mainViewModel
+                DataContext = MainViewModel
             };
 
             options.ShowDialog();
@@ -411,7 +415,7 @@ namespace NetTally
         /// <param name="startWithThread">If set to <c>true</c> [start with thread].</param>
         private void StartEdit(bool startWithThread = false)
         {
-            if (mainViewModel.SelectedQuest == null)
+            if (MainViewModel.SelectedQuest == null)
             {
                 HideEditBoxes();
                 return;
@@ -487,7 +491,7 @@ namespace NetTally
         {
             BindingExpression be = GetCurrentEditBinding();
 
-            if (be != null && mainViewModel.SelectedQuest != null)
+            if (be != null && MainViewModel.SelectedQuest != null)
                 be.UpdateTarget();
         }
 
@@ -498,7 +502,7 @@ namespace NetTally
         {
             BindingExpression be = GetCurrentEditBinding();
 
-            if (be != null && mainViewModel.SelectedQuest != null)
+            if (be != null && MainViewModel.SelectedQuest != null)
                 be.UpdateSource();
         }
 

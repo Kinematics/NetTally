@@ -78,6 +78,7 @@
     <Compile Include="ViewModels\Utility\RelayCommand.cs" />
     <Compile Include="ViewModels\Utility\ExceptionEventArgs.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />

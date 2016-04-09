@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NetTally.Utility;
+using NetTally.Web;
 
 namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(QuestCollectionWrapper config)
+        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler = null)
         {
             if (config != null)
             {
@@ -24,6 +26,8 @@ namespace NetTally.ViewModels
                 QuestList = new QuestCollection();
                 SelectedQuest = null;
             }
+
+            SetupNetwork(handler);
 
             BindCheckForNewRelease();
 
@@ -65,6 +69,17 @@ namespace NetTally.ViewModels
         }
         #endregion
 
+        #region Networking
+        internal HttpClientHandler HttpClientHandler { get; private set; }
+        public IPageProvider PageProvider { get; private set; }
+
+        private void SetupNetwork(HttpClientHandler handler)
+        {
+            HttpClientHandler = handler ?? new HttpClientHandler();
+            PageProvider = new WebPageProvider2(HttpClientHandler);
+        }
+        #endregion
+
         #region Section: Check for New Release
         /// Fields for this section
         CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
@@ -75,7 +90,11 @@ namespace NetTally.ViewModels
         private void BindCheckForNewRelease()
         {
             checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
-            checkForNewRelease.Update();
+        }
+
+        public void CheckForNewRelease()
+        {
+            checkForNewRelease.Update(PageProvider);
         }
 
         /// <summary>
@@ -242,13 +261,14 @@ namespace NetTally.ViewModels
 
         #region Section: Tally & Results Binding
         /// Tally class object.
-        Tally tally = new Tally();
+        Tally tally;
 
         /// <summary>
         /// Bind event watcher to the class that handles running the tallies.
         /// </summary>
         private void BindTally()
         {
+            tally = new Tally(PageProvider);
             tally.PropertyChanged += Tally_PropertyChanged;
         }
 

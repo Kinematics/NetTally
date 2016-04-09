@@ -15,6 +15,7 @@ namespace NetTally
     {
         bool newRelease = false;
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
+        IPageProvider PageProvider { get; set; }
 
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
@@ -52,8 +53,9 @@ namespace NetTally
         /// <summary>
         /// Do the version check update.
         /// </summary>
-        public void Update()
+        public void Update(IPageProvider pageProvider)
         {
+            PageProvider = pageProvider ?? ViewModels.ViewModelLocator.MainViewModel.PageProvider;
             // Store result in a task, but don't await it.
             var result = DoVersionCheck();
         }
@@ -169,10 +171,7 @@ namespace NetTally
 
             try
             {
-                using (IPageProvider webPageProvider = new WebPageProvider2())
-                {
-                    doc = await webPageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true).ConfigureAwait(false);
-                }
+                doc = await PageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true).ConfigureAwait(false);
             }
             catch (Exception e)
             {

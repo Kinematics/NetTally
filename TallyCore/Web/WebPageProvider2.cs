@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +12,7 @@ namespace NetTally.Web
 {
     public class WebPageProvider2 : IPageProvider
     {
+        #region Fields
         private enum StatusType
         {
             None,
@@ -40,15 +40,24 @@ namespace NetTally.Web
         IClock Clock { get; }
 
         bool _disposed = false;
+        #endregion
 
-        public WebPageProvider2(IClock clock = null)
+        #region Constructor
+        public WebPageProvider2(HttpClientHandler handler)
+            : this(handler, new DefaultClock())
+        {
+
+        }
+
+        public WebPageProvider2(HttpClientHandler handler, IClock clock)
         {
             SetupUserAgent();
-            SetupHandler();
+            SetupHandler(handler);
             SetupClient();
 
             Clock = clock ?? new DefaultClock();
         }
+        #endregion
 
         #region Disposal
         ~WebPageProvider2()
@@ -271,9 +280,9 @@ namespace NetTally.Web
         /// <summary>
         /// Set up the HTTP client handler object for use in managing underlying connections.
         /// </summary>
-        private void SetupHandler()
+        private void SetupHandler(HttpClientHandler handler)
         {
-            webHandler = new HttpClientHandler();
+            webHandler = handler ?? new HttpClientHandler();
 
             webHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         }

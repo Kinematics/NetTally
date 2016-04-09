@@ -33,14 +33,26 @@ namespace NetTally
         #endregion
 
         #region Construction
+        public Tally()
+            : this(null, null)
+        {
+
+        }
+
+        public Tally(IPageProvider pageProvider)
+            : this(pageProvider, null)
+        {
+
+        }
+
         /// <summary>
         /// Constructor that allows overriding the default PageProvider.
         /// </summary>
         /// <param name="pageProvider">Alternate PageProvider.</param>
-        public Tally(IPageProvider pageProvider = null, ITextResultsProvider textResults = null)
+        public Tally(IPageProvider pageProvider, ITextResultsProvider textResults)
         {
             // Defaults if none specified
-            PageProvider = pageProvider ?? new WebPageProvider2();
+            PageProvider = pageProvider ?? ViewModels.ViewModelLocator.MainViewModel.PageProvider;
             TextResults = textResults ?? new TallyOutput();
 
             // Hook up to event notifications
