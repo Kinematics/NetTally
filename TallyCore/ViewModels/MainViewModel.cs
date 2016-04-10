@@ -159,6 +159,10 @@ namespace NetTally.ViewModels
             }
         }
 
+        public bool IsQuestSelected => SelectedQuest != null;
+
+        public bool IsSafeToEnable => IsQuestSelected && !TallyIsRunning;
+
         #region Manage Events from the Quest
         private void BindQuest(IQuest quest)
         {
