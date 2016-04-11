@@ -53,6 +53,19 @@ namespace NetTally
         bool debugMode = false;
         #endregion
 
+        #region Constants for string descriptions
+        public const string _displayMode = "displayMode";
+        public const string _allowRankedVotes = "allowRankedVotes";
+        public const string _forbidVoteLabelPlanNames = "forbidVoteLabelPlanNames";
+        public const string _whitespaceAndPunctuationIsSignificant = "whitespaceAndPunctuationIsSignificant";
+        public const string _disableProxyVotes = "disableProxyVotes";
+        public const string _forcePinnedProxyVotes = "forcePinnedProxyVotes";
+        public const string _ignoreSpoilers = "ignoreSpoilers";
+        public const string _trimExtendedText = "trimExtendedText";
+        public const string _globalSpoilers = "globalSpoilers";
+        public const string _debugMode = "debugMode";
+        #endregion
+
         #region General Options
         /// <summary>
         /// Whether or not to parse ranked votes in a tally.
