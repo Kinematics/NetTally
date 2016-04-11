@@ -19,12 +19,12 @@ namespace NetTally.ViewModels
             {
                 QuestList = config.QuestCollection;
                 QuestList.Sort();
-                SelectedQuest = QuestList[config.CurrentQuest];
+                SelectQuest(config.CurrentQuest);
             }
             else
             {
                 QuestList = new QuestCollection();
-                SelectedQuest = null;
+                SelectQuest(null);
             }
 
             SetupNetwork(handler);
@@ -158,6 +158,18 @@ namespace NetTally.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged("IsQuestSelected");
                 OnPropertyChanged("IsSafeToEnable");
+            }
+        }
+
+        public void SelectQuest(string threadName)
+        {
+            if (string.IsNullOrEmpty(threadName))
+            {
+                SelectedQuest = null;
+            }
+            else
+            {
+                SelectedQuest = QuestList[threadName];
             }
         }
 
