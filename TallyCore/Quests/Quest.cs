@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using HtmlAgilityPack;
 using NetTally.Adapters;
 using NetTally.Utility;
@@ -47,11 +48,13 @@ namespace NetTally
 
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
 
+        [XmlIgnore]
         public IForumAdapter ForumAdapter { get; private set; } = null;
 
 
         string threadName = string.Empty;
         string displayName = string.Empty;
+        [XmlIgnore]
         public string ThreadTitle { get; private set; } = string.Empty;
 
         int postsPerPage = 0;
@@ -311,6 +314,7 @@ namespace NetTally
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
+        [XmlIgnore]
         public bool ReadToEndOfThread => EndPost == 0 || ThreadmarkPost != 0;
 
         /// <summary>
@@ -323,6 +327,7 @@ namespace NetTally
         /// <summary>
         /// Property to store any found threadmark post number.
         /// </summary>
+        [XmlIgnore]
         public int ThreadmarkPost { get; set; } = 0;
 
         /// <summary>

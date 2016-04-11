@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace NetTally
 {
@@ -12,8 +15,6 @@ namespace NetTally
     [KnownType(typeof(Quest))]
     public class QuestCollection : ObservableCollection<IQuest>
     {
-        const string defaultSite = "http://forums.sufficientvelocity.com/";
-
         /// <summary>
         /// Indexer into the collection by quest name.
         /// </summary>
@@ -52,5 +53,51 @@ namespace NetTally
 
             base.InsertItem(index, item);
         }
+
+
+        #region XML Serialization
+        public string GetAsSerializedXml()
+        {
+            string xml;
+
+            var questList = GetAsQuestType();
+
+            XmlSerializer ser = new XmlSerializer(questList.GetType());
+
+            using (StringWriter textWriter = new StringWriter())
+            {
+                ser.Serialize(textWriter, questList);
+                xml = textWriter.ToString();
+            }
+
+            return xml;
+        }
+
+        public List<Quest> GetAsQuestType()
+        {
+            var a = this.Select(q => q as Quest);
+            return a.ToList();
+        }
+
+        public void DeserializeFromXml(string xml)
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(List<Quest>));
+
+            List<Quest> questList;
+
+            using (StringReader textReader = new StringReader(xml))
+            {
+                questList = (List<Quest>)ser.Deserialize(textReader);
+            }
+
+            AddQuests(questList);
+        }
+
+        public void AddQuests(IEnumerable<Quest> quests)
+        {
+            foreach (var quest in quests)
+                Add(quest);
+        }
+        #endregion
     }
 }
