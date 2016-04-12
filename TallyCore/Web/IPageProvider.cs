@@ -16,9 +16,10 @@ namespace NetTally
         /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
         /// <param name="token">Cancellation token.</param>
         /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="suppressNotifyMessages">Indicates whether notification messages should be sent to output.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, CancellationToken token, bool shouldCache);
+        Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, CancellationToken token, bool shouldCache, bool suppressNotifyMessages = false);
 
         /// <summary>
         /// Have an event that can be watched for status messages.
