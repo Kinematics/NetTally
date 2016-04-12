@@ -600,7 +600,7 @@ namespace NetTally
             Match m = referenceNameRegex.Match(contents);
             if (m.Success)
             {
-                string label = CultureInfo.InvariantCulture.TextInfo.ToLower(m.Groups["label"].Value);
+                string label = m.Groups["label"].Value.ToLowerInvariant();
                 string name = m.Groups["reference"].Value;
                 string pName = $"{StringUtility.PlanNameMarker}{name}";
 

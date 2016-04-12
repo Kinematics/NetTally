@@ -457,12 +457,10 @@ namespace NetTally
             if (ReferenceEquals(this, other))
                 return true;
 
-            if (string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(ThreadName),
-                CultureInfo.InvariantCulture.TextInfo.ToLower(other.ThreadName), StringComparison.Ordinal) != 0)
+            if (string.Compare(ThreadName.ToLowerInvariant(), other.ThreadName.ToLowerInvariant(), StringComparison.Ordinal) != 0)
                 return false;
 
-            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(DisplayName),
-                CultureInfo.InvariantCulture.TextInfo.ToLower(other.DisplayName), StringComparison.Ordinal) == 0;
+            return string.Compare(DisplayName.ToLowerInvariant(), other.DisplayName.ToLowerInvariant(), StringComparison.Ordinal) == 0;
         }
 
         // Note: Do not implement GetHashCode based on mutable properties.  It will break combobox binding.
@@ -484,8 +482,7 @@ namespace NetTally
             if (ReferenceEquals(right, null))
                 return 1;
 
-            return string.Compare(CultureInfo.InvariantCulture.TextInfo.ToLower(left.DisplayName),
-                CultureInfo.InvariantCulture.TextInfo.ToLower(right.DisplayName), StringComparison.Ordinal);
+            return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
         }
 
         public static bool operator ==(Quest left, Quest right)
