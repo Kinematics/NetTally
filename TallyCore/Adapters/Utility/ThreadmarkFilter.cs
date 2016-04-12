@@ -8,8 +8,8 @@ namespace NetTally.Adapters
     {
         static readonly Regex omakeRegex = new Regex(@"\bomake\b", RegexOptions.IgnoreCase);
 
-        bool useCustomRegex = false;
-        Regex customRegex = null;
+        bool useCustomRegex;
+        Regex customRegex;
 
         /// <summary>
         /// Constructor.

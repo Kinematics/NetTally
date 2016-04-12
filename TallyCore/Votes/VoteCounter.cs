@@ -194,10 +194,8 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Construct the tally results based on the provided list of posts.
+        /// Construct the tally results based on the stored list of posts.
         /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="PostsList">The list of PostComponents that define valid vote posts.</param>
         public void TallyPosts()
         {
             Reset();
@@ -956,7 +954,7 @@ namespace NetTally
         /// Remove the voter's support for any existing votes.
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
-        /// <param name="votesDict">Vote support dictionary to remove voter support from.</param>
+        /// <param name="voteType">Type of the vote.</param>
         private void RemoveSupport(string voter, VoteType voteType)
         {
             var votes = GetVotesCollection(voteType);

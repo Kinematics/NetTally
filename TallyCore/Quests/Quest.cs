@@ -350,8 +350,14 @@ namespace NetTally
         /// <summary>
         /// Load the pages for the given quest asynchronously.
         /// </summary>
-        /// <param name="quest">Quest object containing query parameters.</param>
-        /// <returns>Returns a list of web pages as HTML Documents.</returns>
+        /// <param name="threadRangeInfo">Info on which pages to load.</param>
+        /// <param name="pageProvider">The page provider to use to load the pages.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>
+        /// Returns a list of web pages as HTML Document tasks.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">Throws an exception if it is
+        /// unable to load even the first requested page.</exception>
         public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
         {
             // We will store the loaded pages in a new List.

@@ -28,7 +28,7 @@ namespace NetTally.Tests
     {
         #region Local vars, setup, and teardown
         protected IQuest quest;
-        bool notified = false;
+        bool notified;
         readonly List<string> propertiesRaised = new List<string>();
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace NetTally.Web
 
         IClock Clock { get; }
 
-        bool _disposed = false;
+        bool _disposed;
 
         public WebPageProvider(IClock clock = null)
         {

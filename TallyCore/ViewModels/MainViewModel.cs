@@ -42,7 +42,7 @@ namespace NetTally.ViewModels
         }
 
         #region IDisposable
-        bool _disposed = false;
+        bool _disposed;
 
         ~MainViewModel()
         {
@@ -489,25 +489,13 @@ namespace NetTally.ViewModels
 
         public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
 
-        public bool MergeVotes(string fromVote, string toVote, VoteType voteType)
-        {
-            return VoteCounter.Instance.Merge(fromVote, toVote, voteType);
-        }
+        public bool MergeVotes(string fromVote, string toVote, VoteType voteType) => VoteCounter.Instance.Merge(fromVote, toVote, voteType);
 
-        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType)
-        {
-            return VoteCounter.Instance.Join(voters, voterToJoin, voteType);
-        }
+        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType) => VoteCounter.Instance.Join(voters, voterToJoin, voteType);
 
-        public bool DeleteVote(string vote, VoteType voteType)
-        {
-            return VoteCounter.Instance.Delete(vote, voteType);
-        }
+        public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Instance.Delete(vote, voteType);
 
-        public bool UndoVoteModification()
-        {
-            return VoteCounter.Instance.Undo();
-        }
+        public bool UndoVoteModification() => VoteCounter.Instance.Undo();
 
         public HashSet<string> GetVoterListForVote(string vote, VoteType voteType)
         {
@@ -532,10 +520,7 @@ namespace NetTally.ViewModels
             return null;
         }
 
-        public bool VoteExists(string vote, VoteType voteType)
-        {
-            return VoteCounter.Instance.HasVote(vote, voteType);
-        }
+        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.Instance.HasVote(vote, voteType);
         #endregion
 
         #region Section: Command Setup        

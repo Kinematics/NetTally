@@ -53,7 +53,7 @@ namespace NetTally.Web
         #endregion
 
         #region Disposal
-        protected bool _disposed = false;
+        protected bool _disposed;
 
         ~PageProviderBase()
         {

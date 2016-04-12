@@ -13,7 +13,7 @@ namespace NetTally.Adapters
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="site">The URI of the thread this adapter will be handling.</param>
+        /// <param name="uri">The URI of the quest thread.</param>
         public vBulletinAdapter4(Uri uri)
         {
             Site = uri;
@@ -203,7 +203,7 @@ namespace NetTally.Adapters
         /// <summary>
         /// Get a completed post from the provided HTML list item node.
         /// </summary>
-        /// <param name="postDiv">List item node that contains the post.</param>
+        /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
         private static PostComponents GetPost(HtmlNode li)
         {

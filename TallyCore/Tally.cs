@@ -18,14 +18,14 @@ namespace NetTally
     {
         #region Local State
         // Disposal
-        bool _disposed = false;
+        bool _disposed;
 
         // Depdendency references
         IPageProvider PageProvider { get; }
         ITextResultsProvider TextResults { get; }
 
         // State
-        bool tallyIsRunning = false;
+        bool tallyIsRunning;
         string results = string.Empty;
 
         // User data

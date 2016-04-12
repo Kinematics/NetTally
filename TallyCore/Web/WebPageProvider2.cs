@@ -42,7 +42,7 @@ namespace NetTally.Web
 
         IClock Clock { get; }
 
-        bool _disposed = false;
+        bool _disposed;
         #endregion
 
         #region Constructor

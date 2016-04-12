@@ -9,11 +9,11 @@ namespace NetTally
     /// </summary>
     public static class ProductInfo
     {
-        static bool hasRun = false;
-        static string productName = null;
-        static string productVersion = null;
-        static Version fileVersion = null;
-        static Version assemblyVersion = null;
+        static bool hasRun;
+        static string productName;
+        static string productVersion;
+        static Version fileVersion;
+        static Version assemblyVersion;
 
         /// <summary>
         /// Gets the name of the product.

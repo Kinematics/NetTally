@@ -32,7 +32,7 @@ namespace NetTally.Output
         /// <summary>
         /// Property to get the total number of normal voters in the tally.
         /// </summary>
-        public static int NormalVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Where(voter => StringUtility.IsPlanName(voter.Key) == false).Count();
+        public static int NormalVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count(voter => StringUtility.IsPlanName(voter.Key) == false);
 
         /// <summary>
         /// Calculate the number of non-plan voters in the provided vote object.

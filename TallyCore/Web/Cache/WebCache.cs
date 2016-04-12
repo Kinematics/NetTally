@@ -64,7 +64,7 @@ namespace NetTally.Web
         #endregion
 
         #region Local storage
-        bool _disposed = false;
+        bool _disposed;
 
         IClock Clock { get; set; }
 

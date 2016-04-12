@@ -45,7 +45,6 @@ namespace NetTally.Votes
         /// General new line constructor.  Only called from Create().
         /// Initializes a new instance of the <see cref="VoteLine"/> class.
         /// </summary>
-        /// <param name="m1">The m1.</param>
         /// <param name="textLine">The text line.</param>
         /// <param name="textWithoutBBCode">The text without bb code.</param>
         /// <exception cref="System.ArgumentException">Failed to extract data from vote line.</exception>

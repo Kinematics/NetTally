@@ -246,7 +246,7 @@ namespace NetTally
         {
             ManageVotesWindow manageWindow = new ManageVotesWindow(MainViewModel)
             {
-                Owner = Application.Current.MainWindow,
+                Owner = Application.Current.MainWindow
             };
 
             manageWindow.ShowDialog();
@@ -261,7 +261,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            GlobalOptionsWindow options = new GlobalOptionsWindow()
+            GlobalOptionsWindow options = new GlobalOptionsWindow
             {
                 Owner = Application.Current.MainWindow,
                 DataContext = MainViewModel.Options
@@ -277,7 +277,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            QuestOptionsWindow options = new QuestOptionsWindow()
+            QuestOptionsWindow options = new QuestOptionsWindow
             {
                 Owner = Application.Current.MainWindow,
                 DataContext = MainViewModel
@@ -307,20 +307,20 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F2)
+            switch (e.Key)
             {
-                StartEdit();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Escape)
-            {
-                TryCancelEdit();
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Enter)
-            {
-                TryConfirmEdit(true);
-                e.Handled = true;
+                case Key.F2:
+                    StartEdit();
+                    e.Handled = true;
+                    break;
+                case Key.Escape:
+                    TryCancelEdit();
+                    e.Handled = true;
+                    break;
+                case Key.Enter:
+                    TryConfirmEdit(true);
+                    e.Handled = true;
+                    break;
             }
         }
 

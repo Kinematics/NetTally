@@ -442,7 +442,7 @@ namespace NetTally
         /// Determine if there are any references to future (unprocessed) votes
         /// within the current vote.
         /// </summary>
-        /// <param name="vote">List of lines for the current vote.</param>
+        /// <param name="post">Post containing the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
         private static bool HasFutureReference(PostComponents post)
         {
@@ -504,7 +504,6 @@ namespace NetTally
         /// <summary>
         /// Partition the vote and store the vote and voter.
         /// </summary>
-        /// <param name="vote">The vote to process.</param>
         /// <param name="post">The post it was derived from.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
         private static void ProcessVote(PostComponents post, PartitionMode partitionMode)
@@ -524,8 +523,10 @@ namespace NetTally
         /// May pull either the direct values, if provided, or copy a referenced
         /// users vote if available.
         /// </summary>
-        /// <param name="voteStrings">The vote being checked.</param>
-        /// <returns>Returns any ranked vote lines in the vote.</returns>
+        /// <param name="post">The post.</param>
+        /// <returns>
+        /// Returns any ranked vote lines in the vote.
+        /// </returns>
         private static List<string> GetRankingsFromPost(PostComponents post)
         {
             // If there are any explicit rank vote lines, return those.
@@ -554,7 +555,7 @@ namespace NetTally
         /// Get the name of a voter that is referenced if that is the only
         /// reference in the vote.
         /// </summary>
-        /// <param name="voteStrings">The standard vote partitions.</param>
+        /// <param name="post">The post.</param>
         /// <returns></returns>
         private static string GetPureRankReference(PostComponents post)
         {
@@ -575,7 +576,6 @@ namespace NetTally
         /// </summary>
         /// <param name="ranksList">A list of all rank votes in the post.</param>
         /// <param name="post">The components of the original post.</param>
-        /// <param name="partitionMode">The partition mode being used.</param>
         private static void ProcessRankings(List<string> ranksList, PostComponents post)
         {
             if (ranksList.Count > 0)

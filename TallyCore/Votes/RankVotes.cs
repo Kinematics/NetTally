@@ -150,8 +150,13 @@ namespace NetTally
         /// <summary>
         /// Select the top option out of the votes cast for a given task.
         /// </summary>
-        /// <param name="task">Collection of votes designated for a particular task.</param>
-        /// <returns>Returns the top voter choice for the task.</returns>
+        /// <param name="voterChoices">The voter choices.</param>
+        /// <param name="voterNonChoices">The voter non choices.</param>
+        /// <param name="originalVotersChoices">The original voters choices.</param>
+        /// <param name="voteList">The vote list.</param>
+        /// <returns>
+        /// Returns the top voter choice for the task.
+        /// </returns>
         private static string GetTopRank(Dictionary<string, List<string>> voterChoices,
             Dictionary<string, List<string>> voterNonChoices,
             Dictionary<string, List<string>> originalVotersChoices,
