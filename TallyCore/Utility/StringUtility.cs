@@ -127,32 +127,37 @@ namespace NetTally.Utility
         /// Create a hash value that creates the minimal comparison possible, to
         /// see if two strings are different.
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="str"></param>
         /// <returns></returns>
-        public int GetHashCode(string obj)
+        public int GetHashCode(string str)
         {
-            if (string.IsNullOrEmpty(obj))
+            if (string.IsNullOrEmpty(str))
                 return 0;
 
-            // Different casings don't guarantee uniqueness.
-            string lowered = obj.ToLowerInvariant();
+            SortKey sortOrder = CompareInfo.GetSortKey(str, Options);
 
-            // Different accents don't guarantee uniqueness.
-            // Decompose a unicode string so that 'accented' charaters are broken
-            // into their original + accent marks as separate character entities.
-            // EG: á becomes a + ́
-            string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
+            int hash = GetByteArrayHash(sortOrder.KeyData);
 
-            // Different spacing/punctuation doesn't guarantee uniqueness.
-            var decArr = decomposed.ToCharArray();
-            var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
+            return hash;
+        }
 
-            // Convert the LINQ results to a new string.
-            string check = new string(filtered.ToArray());
+        private int GetByteArrayHash(byte[] keyData)
+        {
+            unchecked
+            {
+                const int p = 16777619;
+                int hash = (int)2166136261;
 
-            // And if this hash code comes out different, we can be certain that
-            // two strings that are compared will be different.
-            return check.GetHashCode();
+                for (int i = 0; i < keyData.Length; i++)
+                    hash = (hash ^ keyData[i]) * p;
+
+                hash += hash << 13;
+                hash ^= hash >> 7;
+                hash += hash << 3;
+                hash ^= hash >> 17;
+                hash += hash << 5;
+                return hash;
+            }
         }
 
         int IComparer.Compare(object x, object y) => Compare(x as string, y as string);
