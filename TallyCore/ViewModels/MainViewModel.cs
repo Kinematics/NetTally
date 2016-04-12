@@ -77,7 +77,7 @@ namespace NetTally.ViewModels
         {
             if (handler == null)
                 handler = new HttpClientHandler();
-            PageProvider = new WebPageProvider2(handler);
+            PageProvider = new WebPageProvider3(handler);
         }
         #endregion
 
