@@ -149,18 +149,14 @@ namespace NetTally.Web
 
             UpdateStatus(StatusType.Requested, url);
 
+            
+
             // Limit to no more than N parallel requests
             await ss.WaitAsync(token).ConfigureAwait(false);
 
             try
             {
                 Uri uri = new Uri(url);
-
-                Match m = baseAddressRegex.Match(url);
-                if (m.Success)
-                {
-                    client.BaseAddress = new Uri(m.Groups["baseAddress"].Value);
-                }
 
                 Cookie cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
@@ -307,6 +303,9 @@ namespace NetTally.Web
             // It handles auto-compression on its own.
             if (infoName != "ModernHttpClient.NativeMessageHandler")
                 client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
+
+            Uri baseUri = new Uri("http://forums.sufficientvelocity.com/");
+            client.BaseAddress = baseUri;
         }
 
         /// <summary>
