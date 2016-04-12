@@ -88,8 +88,8 @@ namespace NetTally.Utility
     /// </summary>
     public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
     {
-        readonly CompareInfo myComp;
-        readonly CompareOptions myOptions = CompareOptions.None;
+        public CompareInfo CompareInfo { get; }
+        public CompareOptions CompareOptions { get; }
 
         /// <summary>
         /// Constructs a comparer using the specified CompareOptions.
@@ -98,8 +98,8 @@ namespace NetTally.Utility
         /// <param name="options">CompareOptions to use.</param>
         public CustomStringComparer(CompareInfo cmpi, CompareOptions options)
         {
-            myComp = cmpi;
-            myOptions = options;
+            CompareInfo = cmpi;
+            CompareOptions = options;
         }
 
         /// <summary>
@@ -116,15 +116,19 @@ namespace NetTally.Utility
             if (x == null) return -1;
             if (y == null) return 1;
 
-            return myComp.Compare(x, y, myOptions);
+            return CompareInfo.Compare(x, y, CompareOptions);
         }
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
 
-        // The hash code represents a number that either guarantees that two
-        // strings are different, or allows that two strings -might- be the same.
-        // Create a hash value that creates the minimal comparison possible, to
-        // see if two strings are different.
+        /// <summary>
+        /// The hash code represents a number that either guarantees that two
+        /// strings are different, or allows that two strings -might- be the same.
+        /// Create a hash value that creates the minimal comparison possible, to
+        /// see if two strings are different.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public int GetHashCode(string obj)
         {
             if (string.IsNullOrEmpty(obj))
@@ -151,59 +155,10 @@ namespace NetTally.Utility
             return check.GetHashCode();
         }
 
-
-        /// <summary>
-        /// Compares strings with the CompareOptions specified in the constructor.
-        /// Implements the non-generic IComparer interface, explicitly.
-        /// </summary>
-        /// <param name="x">The first string.</param>
-        /// <param name="y">The second string.</param>
-        /// <returns>Returns -1 if the first string is less than the second;
-        /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
-        int IComparer.Compare(object x, object y)
-        {
-            if (x == y) return 0;
-            if (x == null) return -1;
-            if (y == null) return 1;
-
-            String sx = x as String;
-            String sy = y as String;
-            if (sx != null && sy != null)
-                return myComp.Compare(sx, sy, myOptions);
-            throw new ArgumentException("x and y should be strings.");
-        }
+        int IComparer.Compare(object x, object y) => Compare(x as string, y as string);
 
         bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
 
-        // The hash code represents a number that either guarantees that two
-        // strings are different, or allows that two strings -might- be the same.
-        // Create a hash value that creates the minimal comparison possible, to
-        // see if two strings are different.
-        int IEqualityComparer.GetHashCode(object obj)
-        {
-            string input = obj as string;
-            if (input == null)
-                return obj?.GetHashCode() ?? 0;
-
-            // Different casings don't guarantee uniqueness.
-            string lowered = input.ToLowerInvariant();
-
-            // Different accents don't guarantee uniqueness.
-            // Decompose a unicode string so that 'accented' charaters are broken
-            // into their original + accent marks as separate character entities.
-            // EG: á becomes a + ́
-            string decomposed = lowered.Normalize(System.Text.NormalizationForm.FormD);
-
-            // Different spacing/punctuation doesn't guarantee uniqueness.
-            var decArr = decomposed.ToCharArray();
-            var filtered = decArr.Where(c => char.IsLetterOrDigit(c));
-
-            // Convert the LINQ results to a new string.
-            string check = new string(filtered.ToArray());
-
-            // And if this hash code comes out different, we can be certain that
-            // two strings that are compared will be different.
-            return check.GetHashCode();
-        }
+        int IEqualityComparer.GetHashCode(object obj) => this.GetHashCode(obj as string);
     }
 }
