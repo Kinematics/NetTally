@@ -112,9 +112,9 @@ namespace NetTally.Utility
         /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
         public int Compare(string x, string y)
         {
-            if (x == y) return 0;
-            if (x == null) return -1;
-            if (y == null) return 1;
+            if (ReferenceEquals(x, y)) return 0;
+            if (ReferenceEquals(x, null)) return -1;
+            if (ReferenceEquals(y, null)) return 1;
 
             return CompareInfo.Compare(x, y, CompareOptions);
         }
