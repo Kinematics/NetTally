@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Web;
+using HtmlAgilityPack;
 
 namespace NetTally.Adapters
 {
@@ -92,67 +93,74 @@ namespace NetTally.Adapters
         /// <exception cref="InvalidOperationException">If <paramref name="uri"/> is not an absolute uri.</exception>
         private async static Task<IForumAdapter> GetUnknownForumAdapter(Uri uri, CancellationToken token, IPageProvider pageProvider)
         {
-            bool localPageProvider = pageProvider == null;
-
-            if (localPageProvider)
+            if (pageProvider == null)
                 pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+
+            if (pageProvider == null)
+                throw new ArgumentNullException(nameof(pageProvider));
+
+            HtmlDocument page = null;
 
             try
             {
-                var page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, CachingMode.UseCache, token, true);
+                page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, CachingMode.UseCache, token, true);
+            }
+            catch (OperationCanceledException e)
+            {
+                return null;
+            }
+            catch (Exception e)
+            {
+                ErrorLog.Log(e);
+                return null;
+            }
 
-                if (page == null)
-                    return null;
+            if (page == null)
+                return null;
 
-                if (token.IsCancellationRequested)
-                    return null;
+            if (token.IsCancellationRequested)
+                return null;
 
-                // Do automatic checks against any class in this library that implements
-                // IForumAdapter, and the static method, "CanHandlePage".
-                const string detectMethodName = "CanHandlePage";
+            // Do automatic checks against any class in this library that implements
+            // IForumAdapter, and the static method, "CanHandlePage".
+            const string detectMethodName = "CanHandlePage";
 
-                TypeInfo ti = typeof(IForumAdapter).GetTypeInfo();
+            TypeInfo ti = typeof(IForumAdapter).GetTypeInfo();
 
-                Assembly assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
+            Assembly assembly = typeof(ForumAdapterFactory).GetTypeInfo().Assembly;
 
-                // Get the list of all adapter classes built off of the IForumAdapter interface.
-                var adapterList = from t in assembly.DefinedTypes
-                                  where (!t.IsInterface && ti.IsAssignableFrom(t))
-                                  select t;
+            // Get the list of all adapter classes built off of the IForumAdapter interface.
+            var adapterList = from t in assembly.DefinedTypes
+                                where (!t.IsInterface && ti.IsAssignableFrom(t))
+                                select t;
 
-                foreach (var adapterClassInfo in adapterList)
+            foreach (var adapterClassInfo in adapterList)
+            {
+                try
                 {
-                    try
+                    // Check that the class has the method for determining whether it can handle a page type.
+                    var methods = adapterClassInfo.DeclaredMethods;
+                    var handleMethods = methods.Where(m => m.Name == detectMethodName && m.ReturnType.Name == "Boolean");
+
+                    if (handleMethods.Any())
                     {
-                        // Check that the class has the method for determining whether it can handle a page type.
-                        var methods = adapterClassInfo.DeclaredMethods;
-                        var handleMethods = methods.Where(m => m.Name == detectMethodName && m.ReturnType.Name == "Boolean");
+                        var handleMethod = handleMethods.First();
 
-                        if (handleMethods.Any())
+                        // Run the check, and return an instance of this class if it returns true.
+                        bool canHandle = (bool)handleMethod.Invoke(null, new object[] { page });
+
+                        if (canHandle)
                         {
-                            var handleMethod = handleMethods.First();
+                            var adapter = (IForumAdapter)Activator.CreateInstance(adapterClassInfo.AsType(), new object[] { uri });
 
-                            // Run the check, and return an instance of this class if it returns true.
-                            bool canHandle = (bool)handleMethod.Invoke(null, new object[] { page });
-
-                            if (canHandle)
-                            {
-                                var adapter = (IForumAdapter)Activator.CreateInstance(adapterClassInfo.AsType(), new object[] { uri });
-
-                                return adapter;
-                            }
+                            return adapter;
                         }
                     }
-                    catch (Exception e)
-                    {
-                        ErrorLog.Log(e);
-                    }
                 }
-            }
-            finally
-            {
-                if (localPageProvider)
-                    pageProvider?.Dispose();
+                catch (Exception e)
+                {
+                    ErrorLog.Log(e);
+                }
             }
 
             // If nothing was found, return null.
