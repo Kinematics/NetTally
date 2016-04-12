@@ -89,7 +89,7 @@ namespace NetTally.Utility
     public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
     {
         public CompareInfo CompareInfo { get; }
-        public CompareOptions CompareOptions { get; }
+        public CompareOptions Options { get; }
 
         /// <summary>
         /// Constructs a comparer using the specified CompareOptions.
@@ -99,7 +99,7 @@ namespace NetTally.Utility
         public CustomStringComparer(CompareInfo cmpi, CompareOptions options)
         {
             CompareInfo = cmpi;
-            CompareOptions = options;
+            Options = options;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace NetTally.Utility
             if (ReferenceEquals(x, null)) return -1;
             if (ReferenceEquals(y, null)) return 1;
 
-            return CompareInfo.Compare(x, y, CompareOptions);
+            return CompareInfo.Compare(x, y, Options);
         }
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
