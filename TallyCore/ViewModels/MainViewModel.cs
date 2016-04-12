@@ -313,6 +313,11 @@ namespace NetTally.ViewModels
         public bool TallyIsRunning => tally.TallyIsRunning;
 
         /// <summary>
+        /// Shortcut version while there are issues with data converters in the xaml.
+        /// </summary>
+        public bool TallyIsNotRunning => !TallyIsRunning;
+
+        /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
         /// </summary>
