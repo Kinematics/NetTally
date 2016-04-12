@@ -7,8 +7,7 @@ namespace NetTally.Adapters
     public class ThreadmarkFilter
     {
         static readonly Regex omakeRegex = new Regex(@"\bomake\b", RegexOptions.IgnoreCase);
-
-        bool useCustomRegex;
+        readonly bool useCustomRegex;
         Regex customRegex;
 
         /// <summary>
