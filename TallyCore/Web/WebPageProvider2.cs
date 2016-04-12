@@ -142,13 +142,12 @@ namespace NetTally.Web
 
                 if (page != null)
                 {
-                    UpdateStatus(StatusType.Cached, shortDescrip);
+                    NotifyResult(StatusType.Cached, shortDescrip, suppress);
                     return page;
                 }
             }
 
-            UpdateStatus(StatusType.Requested, url);
-
+            NotifyRequest(url, suppress);
             
 
             // Limit to no more than N parallel requests
@@ -178,7 +177,7 @@ namespace NetTally.Web
                         {
                             // If we have to retry loading the page, give it a short delay.
                             await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                            UpdateStatus(StatusType.Retry, shortDescrip);
+                            NotifyResult(StatusType.Retry, shortDescrip, suppress);
                         }
 
                         using (response = await client.GetAsync(uri, token).ConfigureAwait(false))
@@ -232,7 +231,7 @@ namespace NetTally.Web
                 }
                 catch (HttpRequestException e)
                 {
-                    UpdateStatus(StatusType.Error, shortDescrip, e);
+                    NotifyError(shortDescrip, e);
                     throw;
                 }
                 catch (OperationCanceledException e)
@@ -251,7 +250,7 @@ namespace NetTally.Web
 
                 if (result == null)
                 {
-                    UpdateStatus(StatusType.Failed, failureDescrip ?? shortDescrip);
+                    NotifyResult(StatusType.Failed, failureDescrip ?? shortDescrip, suppress);
                     return null;
                 }
 
@@ -261,7 +260,7 @@ namespace NetTally.Web
                 if (shouldCache)
                     Cache.Add(url, result);
 
-                UpdateStatus(StatusType.Loaded, shortDescrip);
+                NotifyResult(StatusType.Loaded, shortDescrip, suppress);
 
                 return htmldoc;
             }
@@ -308,59 +307,78 @@ namespace NetTally.Web
             client.BaseAddress = baseUri;
         }
 
+
         /// <summary>
-        /// Handle generating messages to send to OnStatusChanged handler.
+        /// Send status update when requesting a page URL.
         /// </summary>
-        /// <param name="status">The type of status message being raised.</param>
-        /// <param name="details">The details that get inserted into the status message.</param>
-        /// <param name="e">The exception, for an error message.</param>
-        private void UpdateStatus(StatusType status, string details = null, Exception e = null)
+        /// <param name="url">The URL.</param>
+        /// <param name="suppress">if set to <c>true</c> [suppress].</param>
+        private void NotifyRequest(string url, bool suppress)
         {
+            if (!suppress && !string.IsNullOrEmpty(url))
+            {
+                OnStatusChanged($"{url}\n");
+            }
+        }
+
+        /// <summary>
+        /// Sends a status update that the tally was cancelled.
+        /// </summary>
+        private void NotifyCancel()
+        {
+            OnStatusChanged($"Tally cancelled!\n");
+        }
+
+        /// <summary>
+        /// Sends a status update indicating that there was an error.
+        /// </summary>
+        /// <param name="shortDescrip">The short descrip.</param>
+        /// <param name="e">The e.</param>
+        private void NotifyError(string shortDescrip, Exception e)
+        {
+            if (string.IsNullOrEmpty(shortDescrip))
+                return;
+
+            OnStatusChanged($"{shortDescrip}: {e?.Message ?? "(unknown error)"}");
+        }
+
+        /// <summary>
+        /// Sends a status update for a load attempt result.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="shortDescrip">The short descrip.</param>
+        /// <param name="suppress">if set to <c>true</c> [suppress].</param>
+        private void NotifyResult(StatusType status, string shortDescrip, bool suppress)
+        {
+            if (string.IsNullOrEmpty(shortDescrip) || suppress)
+                return;
+
             StringBuilder sb = new StringBuilder();
 
-            if (status == StatusType.Cancelled)
+            switch (status)
             {
-                sb.Append("Tally cancelled!");
-            }
-            else
-            {
-                if (details?.Length > 0)
-                {
-                    switch (status)
-                    {
-                        case StatusType.Requested:
-                            sb.Append(details);
-                            break;
-                        case StatusType.Retry:
-                            sb.Append("Retrying: ");
-                            sb.Append(details);
-                            break;
-                        case StatusType.Error:
-                            sb.Append(details);
-                            sb.Append(" : ");
-                            sb.Append(e?.Message);
-                            break;
-                        case StatusType.Failed:
-                            sb.Append("Failed to load: ");
-                            sb.Append(details);
-                            break;
-                        case StatusType.Cached:
-                            sb.Append(details);
-                            sb.Append(" loaded from memory!");
-                            break;
-                        case StatusType.Loaded:
-                            sb.Append(details);
-                            sb.Append(" loaded!");
-                            break;
-                    }
-                }
+                case StatusType.Retry:
+                    sb.Append("Retrying: ");
+                    sb.Append(shortDescrip);
+                    break;
+                case StatusType.Failed:
+                    sb.Append("Failed to load: ");
+                    sb.Append(shortDescrip);
+                    break;
+                case StatusType.Cached:
+                    sb.Append(shortDescrip);
+                    sb.Append(" loaded from memory!");
+                    break;
+                case StatusType.Loaded:
+                    sb.Append(shortDescrip);
+                    sb.Append(" loaded!");
+                    break;
+                default:
+                    return;
             }
 
-            if (sb.Length > 0)
-            {
-                sb.Append("\n");
-                OnStatusChanged(sb.ToString());
-            }
+            sb.Append("\n");
+            OnStatusChanged(sb.ToString());
         }
         #endregion
     }
