@@ -73,13 +73,33 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> AgnosticStringComparer => AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? AgnosticStringComparer1 : AgnosticStringComparer2;
+        public static IEqualityComparer<string> AgnosticStringComparer
+        {
+            get {
+                var comparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? AgnosticStringComparer1 : AgnosticStringComparer2;
+                if (comparer == null)
+                    throw new InvalidOperationException("Agnostic string comparers have not been initialized.");
+                return comparer;
+            }
+        }
 
-        private static IEqualityComparer<string> AgnosticStringComparer1 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+        /// <summary>
+        /// Initialize the agnostic string comparers using the provided hash function.
+        /// Injects the function from the non-PCL assembly, to get around PCL limitations.
+        /// MUST be run before other objects are constructed.
+        /// </summary>
+        /// <param name="hashFunction"></param>
+        public static void InitStringComparers(Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        {
+            AgnosticStringComparer1 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+            AgnosticStringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+        }
 
-        private static IEqualityComparer<string> AgnosticStringComparer2 { get; } = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-            CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth);
+        private static IEqualityComparer<string> AgnosticStringComparer1 { get; set; }
+
+        private static IEqualityComparer<string> AgnosticStringComparer2 { get; set; }
     }
 
     /// <summary>
@@ -90,16 +110,18 @@ namespace NetTally.Utility
     {
         public CompareInfo Info { get; }
         public CompareOptions Options { get; }
+        public Func<string, CompareInfo, CompareOptions, int> HashFunction { get; }
 
         /// <summary>
         /// Constructs a comparer using the specified CompareOptions.
         /// </summary>
-        /// <param name="cmpi">CompareInfo to use.</param>
+        /// <param name="info">CompareInfo to use.</param>
         /// <param name="options">CompareOptions to use.</param>
-        public CustomStringComparer(CompareInfo cmpi, CompareOptions options)
+        public CustomStringComparer(CompareInfo info, CompareOptions options, Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
-            Info = cmpi;
+            Info = info;
             Options = options;
+            HashFunction = hashFunction;
         }
 
         /// <summary>
@@ -119,51 +141,22 @@ namespace NetTally.Utility
             return Info.Compare(x, y, Options);
         }
 
-        public bool Equals(string x, string y) => Compare(x, y) == 0;
-
         /// <summary>
         /// The hash code represents a number that either guarantees that two
         /// strings are different, or allows that two strings -might- be the same.
         /// Create a hash value that creates the minimal comparison possible, to
         /// see if two strings are different.
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="str">The string to get the hash code for.</param>
         /// <returns></returns>
-        public int GetHashCode(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-                return 0;
-            
-            SortKey sortOrder = Info.GetSortKey(str, Options);
+        public int GetHashCode(string str) => HashFunction(str, Info, Options);
 
-            int hash = GetByteArrayHash(sortOrder.KeyData);
-
-            return hash;
-        }
-
-        private int GetByteArrayHash(byte[] keyData)
-        {
-            unchecked
-            {
-                const int p = 16777619;
-                int hash = (int)2166136261;
-
-                for (int i = 0; i < keyData.Length; i++)
-                    hash = (hash ^ keyData[i]) * p;
-
-                hash += hash << 13;
-                hash ^= hash >> 7;
-                hash += hash << 3;
-                hash ^= hash >> 17;
-                hash += hash << 5;
-                return hash;
-            }
-        }
+        public bool Equals(string x, string y) => Compare(x, y) == 0;
 
         int IComparer.Compare(object x, object y) => Compare(x as string, y as string);
 
-        bool IEqualityComparer.Equals(object x, object y) => ((IComparer)this).Compare(x, y) == 0;
+        bool IEqualityComparer.Equals(object x, object y) => Compare(x as string, y as string) == 0;
 
-        int IEqualityComparer.GetHashCode(object obj) => this.GetHashCode(obj as string);
+        int IEqualityComparer.GetHashCode(object obj) => GetHashCode(obj as string);
     }
 }
