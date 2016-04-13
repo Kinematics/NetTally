@@ -88,7 +88,7 @@ namespace NetTally.Utility
     /// </summary>
     public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
     {
-        public CompareInfo CompareInfo { get; }
+        public CompareInfo Info { get; }
         public CompareOptions Options { get; }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace NetTally.Utility
         /// <param name="options">CompareOptions to use.</param>
         public CustomStringComparer(CompareInfo cmpi, CompareOptions options)
         {
-            CompareInfo = cmpi;
+            Info = cmpi;
             Options = options;
         }
 
@@ -116,7 +116,7 @@ namespace NetTally.Utility
             if (ReferenceEquals(x, null)) return -1;
             if (ReferenceEquals(y, null)) return 1;
 
-            return CompareInfo.Compare(x, y, Options);
+            return Info.Compare(x, y, Options);
         }
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
@@ -133,8 +133,8 @@ namespace NetTally.Utility
         {
             if (string.IsNullOrEmpty(str))
                 return 0;
-
-            SortKey sortOrder = CompareInfo.GetSortKey(str, Options);
+            
+            SortKey sortOrder = Info.GetSortKey(str, Options);
 
             int hash = GetByteArrayHash(sortOrder.KeyData);
 
