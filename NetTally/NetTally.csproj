@@ -76,6 +76,7 @@
     <Compile Include="GlobalOptionsWindow.xaml.cs">
       <DependentUpon>GlobalOptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Misc\UnicodeHashFunction.cs" />
     <Compile Include="Misc\WindowsErrorLog.cs" />
     <Compile Include="QuestOptionsWindow.xaml.cs">
       <DependentUpon>QuestOptionsWindow.xaml</DependentUpon>
