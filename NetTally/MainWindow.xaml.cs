@@ -34,7 +34,7 @@ namespace NetTally
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-                ErrorLog.Initialize(new WindowsErrorLog());
+                PlatformSetup();
 
                 InitializeComponent();
 
@@ -75,25 +75,26 @@ namespace NetTally
             }
         }
 
+        private void PlatformSetup()
+        {
+            ErrorLog.Initialize(new WindowsErrorLog());
+            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+            Utility.StringUtility.InitStringComparers(UnicodeHashFunction.HashFunction);
+        }
+
         private void SetupModel(QuestCollectionWrapper config)
         {
             if (MainViewModel == null)
             {
                 MainViewModel = new MainViewModel(config);
+                ViewModelLocator.MainViewModel = MainViewModel;
+
                 DataContext = MainViewModel;
                 MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
                 MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
+
+                MainViewModel.CheckForNewRelease();
             }
-
-            PlatformSetup();
-        }
-
-        private void PlatformSetup()
-        {
-            // Increase the max simultaneous connections for the underlying service.
-            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-            MainViewModel.CheckForNewRelease();
-            ViewModelLocator.MainViewModel = MainViewModel;
         }
 
         /// <summary>
