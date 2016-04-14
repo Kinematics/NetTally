@@ -22,43 +22,32 @@ namespace NetTally
         readonly TimeSpan watermark;
         readonly string regionName;
         readonly bool accumulate;
+        readonly Action<string> writeFunction;
 
         readonly static Dictionary<string, double> accumulator = new Dictionary<string, double>();
         readonly static Dictionary<string, int> counter = new Dictionary<string, int>();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
-        /// </summary>
-        /// <param name="name">Name to identify this object when results are output.</param>
-        public RegionProfiler(string name)
-            : this(name, TimeSpan.Zero, false)
-        {
-        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
+        /// Initializes a new instance of the <see cref="RegionProfiler" /> class.
         /// </summary>
         /// <param name="name">Name to identify this object when results are output.</param>
-        /// <param name="accumulate">Flag for whether to accumulate results for this named region.</param>
-        public RegionProfiler(string name, bool accumulate)
-            : this(name, TimeSpan.Zero, accumulate)
+        /// <param name="watermark">The watermark.  Anything less than this amount of time is not output.</param>
+        /// <param name="accumulate">If set to <c>true</c>, tracks an accumulated value for the given profiler name across runs.</param>
+        /// <param name="writeFunction">An optional override for writing the output.  Use Trace in test functions so that output goes to the display window.</param>
+        public RegionProfiler(string name, TimeSpan? watermark = null, bool accumulate = false, Action<string> writeFunction = null)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RegionProfiler"/> class.
-        /// </summary>
-        /// <param name="name">Name to identify this object when results are output.</param>
-        /// <param name="watermark">The watermark param.</param>
-        /// <param name="accumulate">Flag for whether to accumulate results for this named region.</param>
-        public RegionProfiler(string name, TimeSpan watermark, bool accumulate)
-        {
+            this.watermark = watermark ?? TimeSpan.Zero;
             this.accumulate = accumulate;
-            this.watermark = watermark;
+
+            if (writeFunction == null)
+                this.writeFunction = s => Debug.WriteLine(s);
+            else
+                this.writeFunction = s => writeFunction(s);
 
             regionName = name;
             if (regionName != null && !accumulate)
-                Trace.WriteLine($"Start profiling in region [{regionName}]");
+                this.writeFunction($"Start profiling in region [{regionName}]");
 
             stopwatch.Start();
         }
@@ -103,11 +92,11 @@ namespace NetTally
                         counter[regionName]++;
                         accumulator[regionName] = accumulator[regionName] + stopwatch.Elapsed.TotalMilliseconds;
 
-                        Trace.WriteLine($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds} ms). Average: {accumulator[regionName]/counter[regionName]} ms.");
+                        writeFunction($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds} ms). Average: {accumulator[regionName] / counter[regionName]} ms.");
                     }
                     else
                     {
-                        Trace.WriteLine($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds} ms");
+                        writeFunction($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds} ms");
                     }
                 }
             }
