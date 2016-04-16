@@ -175,6 +175,8 @@ namespace NetTally.ViewModels
 
         public bool IsQuestSelected => SelectedQuest != null;
 
+        public bool HasQuests => QuestList.Count > 0;
+
         public bool IsSafeToEnable => IsQuestSelected && !TallyIsRunning;
 
         #region Manage Events from the Quest
@@ -228,6 +230,7 @@ namespace NetTally.ViewModels
             {
                 SelectedQuest = newEntry;
                 OnPropertyChanged("AddQuest");
+                OnPropertyChanged("HasQuests");
             }
         }
         #endregion
@@ -273,6 +276,7 @@ namespace NetTally.ViewModels
                 SelectedQuest = QuestList[index];
 
             OnPropertyChanged("RemoveQuest");
+            OnPropertyChanged("HasQuests");
         }
         #endregion
 
