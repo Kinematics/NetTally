@@ -263,7 +263,7 @@
             </Button.ToolTip>
         </Button>
         <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0" HorizontalAlignment="Right" Width="113"
-                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top">
+                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top" IsEnabled="{Binding Path=HasOutput}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

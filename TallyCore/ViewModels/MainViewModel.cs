@@ -304,6 +304,7 @@ namespace NetTally.ViewModels
             else if (e.PropertyName == "TallyResults")
             {
                 OnPropertyChanged("Output");
+                OnPropertyChanged("HasOutput");
             }
         }
 
@@ -322,6 +323,11 @@ namespace NetTally.ViewModels
         /// Creates a notification event if the contents change.
         /// </summary>
         public string Output => tally.TallyResults;
+
+        /// <summary>
+        /// Flag whether there's any text in the Output property.
+        /// </summary>
+        public bool HasOutput => !string.IsNullOrEmpty(Output);
 
         /// <summary>
         /// Redirection for user defined task values.
