@@ -77,7 +77,7 @@ namespace NetTally
 
         private void PlatformSetup()
         {
-            ErrorLog.Initialize(new WindowsErrorLog());
+            ErrorLog.LogUsing(new WindowsErrorLog());
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
             Utility.StringUtility.InitStringComparers(UnicodeHashFunction.HashFunction);
         }

@@ -30,7 +30,7 @@ namespace NetTally
         /// Initializes this class to use the specified error log.
         /// </summary>
         /// <param name="errorLog">The error log.</param>
-        public static void Initialize(IErrorLogger errorLog)
+        public static void LogUsing(IErrorLogger errorLog)
         {
             externalLogger = errorLog;
         }
