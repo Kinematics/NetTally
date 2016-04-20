@@ -9,8 +9,8 @@ namespace NetTally
     /// <summary>
     /// Class to implement logging on the basic windows OS.
     /// </summary>
-    /// <seealso cref="NetTally.IErrorLog" />
-    public class WindowsErrorLog : IErrorLog
+    /// <seealso cref="NetTally.IErrorLogger" />
+    public class WindowsErrorLog : IErrorLogger
     {
         /// <summary>
         /// Public function to log either a text message or an exception, or both.

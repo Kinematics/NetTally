@@ -11,12 +11,12 @@ namespace NetTally
     /// Interface that can be used to supply the static ErrorLog class with a logging
     /// implementation for the platform being run.
     /// </summary>
-    public interface IErrorLog
+    public interface IErrorLogger
     {
         string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null);
     }
 
-    public class EmptyLogger : IErrorLog
+    public class EmptyLogger : IErrorLogger
     {
         public string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null) => string.Empty;
     }
@@ -30,12 +30,12 @@ namespace NetTally
         /// Initializes this class to use the specified error log.
         /// </summary>
         /// <param name="errorLog">The error log.</param>
-        public static void Initialize(IErrorLog errorLog)
+        public static void Initialize(IErrorLogger errorLog)
         {
             externalLogger = errorLog;
         }
 
-        static IErrorLog externalLogger = new EmptyLogger();
+        static IErrorLogger externalLogger = new EmptyLogger();
 
         /// <summary>
         /// Shortcut function to log an exception.
