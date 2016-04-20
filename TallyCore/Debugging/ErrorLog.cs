@@ -16,6 +16,11 @@ namespace NetTally
         string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null);
     }
 
+    public class EmptyLogger : IErrorLog
+    {
+        public string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null) => string.Empty;
+    }
+
     /// <summary>
     /// Static entry point for logging error messages.
     /// </summary>
@@ -30,7 +35,7 @@ namespace NetTally
             externalLogger = errorLog;
         }
 
-        static IErrorLog externalLogger;
+        static IErrorLog externalLogger = new EmptyLogger();
 
         /// <summary>
         /// Shortcut function to log an exception.
