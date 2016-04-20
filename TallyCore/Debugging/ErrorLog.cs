@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
 using System.Runtime.CompilerServices;
 using NetTally.Utility;
 
@@ -16,6 +13,11 @@ namespace NetTally
         string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null);
     }
 
+    /// <summary>
+    /// Default version of the class so that failure to initialize the error logger class
+    /// won't cause things to crash.
+    /// </summary>
+    /// <seealso cref="NetTally.IErrorLogger" />
     public class EmptyLogger : IErrorLogger
     {
         public string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null) => string.Empty;
@@ -26,16 +28,16 @@ namespace NetTally
     /// </summary>
     public static class ErrorLog
     {
+        static IErrorLogger externalLogger = new EmptyLogger();
+
         /// <summary>
         /// Initializes this class to use the specified error log.
         /// </summary>
-        /// <param name="errorLog">The error log.</param>
+        /// <param name="errorLog">The error logger to use.</param>
         public static void LogUsing(IErrorLogger errorLog)
         {
             externalLogger = errorLog;
         }
-
-        static IErrorLogger externalLogger = new EmptyLogger();
 
         /// <summary>
         /// Shortcut function to log an exception.
