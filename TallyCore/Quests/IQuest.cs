@@ -53,6 +53,10 @@ namespace NetTally
         /// 'last threadmark found' checks.
         /// </summary>
         string CustomThreadmarkFilters { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to trim extended text descriptions from votes.
+        /// </summary>
+        bool TrimExtendedText { get; set; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.

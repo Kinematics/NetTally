@@ -65,6 +65,7 @@ namespace NetTally
         bool checkForLastThreadmark = true;
         bool useCustomThreadmarkFilters = false;
         string customThreadmarkFilters = string.Empty;
+        bool trimExtendedText = false;
 
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
@@ -309,6 +310,20 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to trim extended text descriptions from votes.
+        /// </summary>
+        public bool TrimExtendedText
+        {
+            get { return trimExtendedText; }
+            set
+            {
+                trimExtendedText = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end
