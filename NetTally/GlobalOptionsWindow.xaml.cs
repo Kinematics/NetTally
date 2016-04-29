@@ -26,7 +26,6 @@ namespace NetTally
             disableProxyVotes.IsChecked = false;
             forcePinnedProxyVotes.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
-            trimExtendedText.IsChecked = false;
 
             globalSpoilers.IsChecked = false;
 

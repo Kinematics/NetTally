@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Global Options" Height="480" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Global Options" Height="453.559" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
@@ -40,15 +40,13 @@
                   IsChecked="{Binding Path=ForcePinnedProxyVotes}"/>
         <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,159,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=IgnoreSpoilers}" />
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=TrimExtendedText}" />
 
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,201,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,227,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,180,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,206,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=GlobalSpoilers}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,248,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,274,0,0" VerticalAlignment="Top"
+        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,227,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,253,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -81,12 +79,6 @@
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=ignoreSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ignore Spoilers"/>
             <TextBlock TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within posts.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trimExtendedText, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Trim Extended Vote Descriptions"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Experimental."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
 
