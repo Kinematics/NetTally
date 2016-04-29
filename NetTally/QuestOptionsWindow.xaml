@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="290" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="263.03" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -31,21 +31,18 @@
         <TextBlock x:Name="describePostsPerPage" Margin="86,47,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
 
-        <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filtering values" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filtering values" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=SelectedQuest.UseCustomThreadmarkFilters}">
             <CheckBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Use Custom Threadmark Filters</TextBlock>
-                        <TextBlock>Set whether to use the threadmark filters defined in the textbox below.</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Width="600">Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                   Text="Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used." />
-        
-        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,183,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="27,121,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                  Text="{Binding Path=SelectedQuest.CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -56,6 +53,17 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
+        <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top"
+        	IsChecked="{Binding SelectedQuest.TrimExtendedText}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Trim Extended Text</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Width="600">When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses).</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
 
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
