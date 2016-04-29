@@ -38,7 +38,8 @@ namespace NetTally
         public void Add(IQuest quest)
         {
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters);
+                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters,
+                quest.TrimExtendedText);
             BaseAdd(questElement, false);
         }
 
