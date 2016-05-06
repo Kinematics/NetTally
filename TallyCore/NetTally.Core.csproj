@@ -79,6 +79,14 @@
     <Compile Include="ViewModels\Utility\ExceptionEventArgs.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\BaseRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\BordaFractionRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\BordaRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\CoombsRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\IBaseVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\InstantRunoffRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\SchulzeRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\VoteCounterLocator.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />

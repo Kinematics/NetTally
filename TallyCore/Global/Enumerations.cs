@@ -14,7 +14,34 @@ namespace NetTally
     {
         Vote,
         Plan,
-        Rank
+        Rank,
+        Approval
+    }
+
+    public enum RankVoteCounterMethod
+    {
+        [EnumDescription("Default (Coombs)")]
+        Default,
+        [EnumDescription("Borda")]
+        BordaCount,
+        [EnumDescription("Borda (Fraction)")]
+        BordaFraction,
+        [EnumDescription("Coombs'")]
+        Coombs,
+        [EnumDescription("Instant Runoff")]
+        InstantRunoff,
+        [EnumDescription("Schulze")]
+        Schulze,
+    }
+
+    public enum StandardVoteCounterMethod
+    {
+        Default
+    }
+
+    public enum ApprovalVoteCounterMethod
+    {
+        Default
     }
 
     public enum ReferenceType
