@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetTally.VoteCounting
 {
@@ -50,6 +48,8 @@ namespace NetTally.VoteCounting
         {
             double voteValue = 0;
 
+            // Add up the sum of the number of voters times the value of each rank.
+            // If any voter didn't vote for an option, they effectively add a 0 (rank #10) for that option.
             foreach (var r in ranks)
             {
                 voteValue += ValueOfRank(r.Rank) * r.Voters.Count();
