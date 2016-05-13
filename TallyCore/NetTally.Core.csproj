@@ -86,6 +86,7 @@
     <Compile Include="VoteCounting\IBaseVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\InstantRunoffRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\SchulzeRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\Utility\GroupRankVotes.cs" />
     <Compile Include="VoteCounting\VoteCounterLocator.cs" />
     <Compile Include="Votes\Utility\UndoAction.cs" />
     <Compile Include="Votes\Utility\VoteCounterSingleton.cs" />
