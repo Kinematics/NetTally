@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetTally.VoteCounting
 {
@@ -41,23 +39,30 @@ namespace NetTally.VoteCounting
             return orderedVotes.Select(a => a.Vote).ToList();
         }
 
+        /// <summary>
+        /// Ranks the vote.
+        /// </summary>
+        /// <param name="ranks">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
+        /// <returns>Returns a numeric evaluation of the overall rank of the vote.</returns>
         private int RankVote(IEnumerable<RankedVoters> ranks)
         {
-            var rankVals = from r in ranks
-                           select ValueOfRank(r.Rank);
-
             int voteValue = 0;
 
             foreach (var r in ranks)
             {
-                int rankValue = ValueOfRank(r.Rank);
-
-                voteValue += rankValue * r.Voters.Count();
+                voteValue += ValueOfRank(r.Rank) * r.Voters.Count();
             }
 
             return voteValue;
         }
 
+        /// <summary>
+        /// Get the numeric value of a given rank. 
+        /// </summary>
+        /// <param name="rank">The rank being evaluated.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         private int ValueOfRank(string rank)
         {
             if (string.IsNullOrEmpty(rank))
@@ -73,8 +78,5 @@ namespace NetTally.VoteCounting
 
             return rankValue;
         }
-
     }
-
-
 }
