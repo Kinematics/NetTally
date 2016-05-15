@@ -21,23 +21,64 @@ namespace NetTally.VoteCounting
         public IEnumerable<string> Voters { get; set; }
     }
 
+    public class RankedVote
+    {
+        public int Rank { get; set; }
+        public string Vote { get; set; }
+    }
+
+    public class VoterRankings
+    {
+        public string Voter { get; set; }
+        public IEnumerable<RankedVote> RankedVotes { get; set; }
+    }
+
     public static class GroupRankVotes
     {
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
         {
-            var res2 = from vote in task
-                       let content = VoteString.GetVoteContent(vote.Key)
-                       let rank = VoteString.GetVoteMarker(vote.Key)
-                       group vote by content into votes
-                       select new RankGroupedVoters
-                       {
-                           VoteContent = votes.Key,
-                           Ranks = from v in votes
-                                   group v by VoteString.GetVoteMarker(v.Key) into vr
-                                   select new RankedVoters { Rank = vr.Key, Voters = vr.SelectMany(a => a.Value) }
-                       };
+            var res = from vote in task
+                      let content = VoteString.GetVoteContent(vote.Key)
+                      group vote by content into votes
+                      select new RankGroupedVoters
+                      {
+                          VoteContent = votes.Key,
+                          Ranks = from v in votes
+                                  group v by VoteString.GetVoteMarker(v.Key) into vr
+                                  select new RankedVoters { Rank = vr.Key, Voters = vr.SelectMany(a => a.Value) }
+                      };
 
-            return res2;
+            return res;
+        }
+
+        public static IEnumerable<VoterRankings> GroupByVoterAndRank(GroupedVotesByTask task)
+        {
+            var res = from vote in task
+                      from voter in vote.Value
+                      group vote by voter into voters
+                      select new VoterRankings
+                      {
+                          Voter = voters.Key,
+                          RankedVotes = from v in voters
+                                        select new RankedVote
+                                        {
+                                            Rank = RankAsInt(VoteString.GetVoteMarker(v.Key)),
+                                            Vote = VoteString.GetVoteContent(v.Key)
+                                        }
+                      };
+
+            return res;
+
+        }
+
+        private static int RankAsInt(string rank)
+        {
+            if (string.IsNullOrEmpty(rank))
+                throw new ArgumentNullException(nameof(rank));
+
+            int rankAsInt = int.Parse(rank);
+
+            return rankAsInt;
         }
     }
 }
