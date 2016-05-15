@@ -24,7 +24,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
-            var groupVotes = GroupRankVotes.GroupVotesByVoteAndRank(task);
+            var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
 
             var rankedVotes = from vote in groupVotes
                               select new { Vote = vote.VoteContent, Rank = RankVote(vote.Ranks) };

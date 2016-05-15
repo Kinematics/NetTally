@@ -23,7 +23,7 @@ namespace NetTally.VoteCounting
 
     public static class GroupRankVotes
     {
-        public static IEnumerable<RankGroupedVoters> GroupVotesByVoteAndRank(GroupedVotesByTask task)
+        public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
         {
             var res2 = from vote in task
                        let content = VoteString.GetVoteContent(vote.Key)
