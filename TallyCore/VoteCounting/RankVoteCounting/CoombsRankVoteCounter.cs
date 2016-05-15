@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
+            Debug.WriteLine(">>Coombs Runoff<<");
+
             HashSet<string> allVotes = GetVoteList(task);
             var voterChoices = ConvertVotesToVoters(task, allVotes);
             var voterNonChoices = GetNonChoices(voterChoices, allVotes);

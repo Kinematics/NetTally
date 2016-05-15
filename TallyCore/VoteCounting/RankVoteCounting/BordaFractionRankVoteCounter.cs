@@ -24,6 +24,8 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
+            Debug.WriteLine(">>Borda Fractions<<");
+
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
 
             var rankedVotes = from vote in groupVotes
