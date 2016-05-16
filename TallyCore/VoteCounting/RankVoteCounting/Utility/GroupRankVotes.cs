@@ -30,12 +30,6 @@ namespace NetTally.VoteCounting
     public class VoterRankings
     {
         public string Voter { get; set; }
-        public IEnumerable<RankedVote> RankedVotes { get; set; }
-    }
-
-    public class VoterRankingsL
-    {
-        public string Voter { get; set; }
         public List<RankedVote> RankedVotes { get; set; }
     }
 
@@ -65,12 +59,12 @@ namespace NetTally.VoteCounting
                       select new VoterRankings
                       {
                           Voter = voters.Key,
-                          RankedVotes = from v in voters
-                                        select new RankedVote
-                                        {
-                                            Rank = RankAsInt(VoteString.GetVoteMarker(v.Key)),
-                                            Vote = VoteString.GetVoteContent(v.Key)
-                                        }
+                          RankedVotes = (from v in voters
+                                         select new RankedVote
+                                         {
+                                             Rank = RankAsInt(VoteString.GetVoteMarker(v.Key)),
+                                             Vote = VoteString.GetVoteContent(v.Key)
+                                         }).ToList()
                       };
 
             return res;

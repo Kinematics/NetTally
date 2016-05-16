@@ -121,7 +121,7 @@ namespace NetTally.VoteCounting
                       select new VoterRankings
                       {
                           Voter = voter.Voter,
-                          RankedVotes = voter.RankedVotes.Where(v => v.Vote != choice)
+                          RankedVotes = voter.RankedVotes.Where(v => v.Vote != choice).ToList()
                       };
 
             return res;

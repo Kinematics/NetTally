@@ -89,7 +89,7 @@ namespace NetTally.VoteCounting
                 throw new ArgumentNullException(nameof(chosenChoices));
 
             // Initial conversion from enumerable to list
-            List<VoterRankingsL> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
+            List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
 
             AddUnselectedRankings(localRankings, allChoices);
 
@@ -127,10 +127,10 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
         /// <returns>Returns the results as a list.</returns>
-        private List<VoterRankingsL> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        private List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
         {
             var res = from voter in voterRankings
-                      select new VoterRankingsL
+                      select new VoterRankings
                       {
                           Voter = voter.Voter,
                           RankedVotes = voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
@@ -145,7 +145,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <param name="allChoices">All available choices.</param>
-        private void AddUnselectedRankings(List<VoterRankingsL> localRankings, RankResults allChoices)
+        private void AddUnselectedRankings(List<VoterRankings> localRankings, RankResults allChoices)
         {
             foreach (var ranker in localRankings)
             {
@@ -167,7 +167,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The votes to filter.</param>
         /// <param name="choice">The choice to remove.</param>
-        private void RemoveChoiceFromVotes(List<VoterRankingsL> voterRankings, string choice)
+        private void RemoveChoiceFromVotes(List<VoterRankings> voterRankings, string choice)
         {
             foreach (var ranker in voterRankings)
             {
@@ -180,7 +180,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
-        private string GetLeastPreferredChoice(List<VoterRankingsL> localRankings)
+        private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
             Dictionary<string, int> rankTotals = new Dictionary<string, int>();
 
@@ -206,7 +206,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankingsL> voterRankings)
+        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = voter.RankedVotes.First().Vote
