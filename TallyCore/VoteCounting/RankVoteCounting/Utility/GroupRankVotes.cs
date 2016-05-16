@@ -33,6 +33,12 @@ namespace NetTally.VoteCounting
         public IEnumerable<RankedVote> RankedVotes { get; set; }
     }
 
+    public class VoterRankingsL
+    {
+        public string Voter { get; set; }
+        public List<RankedVote> RankedVotes { get; set; }
+    }
+
     public static class GroupRankVotes
     {
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
