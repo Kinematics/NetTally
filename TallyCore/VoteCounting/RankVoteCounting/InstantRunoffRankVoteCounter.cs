@@ -91,7 +91,7 @@ namespace NetTally.VoteCounting
 
             while (true)
             {
-                var preferredVotes = GetPrefferredCounts(localRankings);
+                var preferredVotes = GetPreferredCounts(localRankings);
 
                 if (!preferredVotes.Any())
                     break;
@@ -133,7 +133,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private IEnumerable<ChoiceCount> GetPrefferredCounts(IEnumerable<VoterRankings> voterRankings)
+        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = GetPreferredVote(voter.RankedVotes)
