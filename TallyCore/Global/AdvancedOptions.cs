@@ -36,6 +36,7 @@ namespace NetTally
         DisplayMode displayMode = DisplayMode.Normal;
 
         bool allowRankedVotes = true;
+        RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
 
         [Obsolete("Invert usage")]
         bool allowVoteLabelPlanNames = true;
@@ -56,6 +57,7 @@ namespace NetTally
         #region Constants for string descriptions
         public const string _displayMode = "displayMode";
         public const string _allowRankedVotes = "allowRankedVotes";
+        public const string _rankVoteCounterMethod = "rankVoteCounterMethod";
         public const string _forbidVoteLabelPlanNames = "forbidVoteLabelPlanNames";
         public const string _whitespaceAndPunctuationIsSignificant = "whitespaceAndPunctuationIsSignificant";
         public const string _disableProxyVotes = "disableProxyVotes";
@@ -76,6 +78,22 @@ namespace NetTally
             set
             {
                 allowRankedVotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the rank vote counter method.
+        /// </summary>
+        /// <value>
+        /// The rank vote counter method.
+        /// </value>
+        public RankVoteCounterMethod RankVoteCounterMethod
+        {
+            get { return rankVoteCounterMethod; }
+            set
+            {
+                rankVoteCounterMethod = value;
                 OnPropertyChanged();
             }
         }
