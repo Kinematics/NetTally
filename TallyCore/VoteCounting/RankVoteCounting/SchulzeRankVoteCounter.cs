@@ -202,8 +202,6 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a list of all the choices in the task.</returns>
         private List<string> GetAllChoices(GroupedVotesByTask task)
         {
-            HashSet<string> choices = new HashSet<string>();
-
             var res = from vote in task
                       group vote by VoteString.GetVoteContent(vote.Key) into votes
                       select votes.Key;
