@@ -265,7 +265,7 @@ namespace NetTally
             GlobalOptionsWindow options = new GlobalOptionsWindow
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = MainViewModel.Options
+                DataContext = MainViewModel
             };
 
             options.ShowDialog();
