@@ -72,19 +72,14 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the winning vote, if any.  Otherwise, null.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, IEnumerable<string> chosenChoices)
+        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices)
         {
             if (voterRankings == null)
                 throw new ArgumentNullException(nameof(voterRankings));
             if (chosenChoices == null)
                 throw new ArgumentNullException(nameof(chosenChoices));
 
-            var localRankings = voterRankings;
-
-            foreach (var choice in chosenChoices)
-            {
-                localRankings = RemoveChoiceFromVotes(localRankings, choice);
-            }
+            List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
 
             int voterCount = localRankings.Count(v => v.RankedVotes.Any());
             int winCount = (int)Math.Ceiling(voterCount * 0.50011);
@@ -103,10 +98,29 @@ namespace NetTally.VoteCounting
 
                 var worst = preferredVotes.MinObject(a => a.Count);
 
-                localRankings = RemoveChoiceFromVotes(localRankings, worst.Choice); 
+                RemoveChoiceFromVotes(localRankings, worst.Choice); 
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Removes a list of choices from voter rankings.
+        /// These are the choices that have already won a rank spot.
+        /// </summary>
+        /// <param name="voterRankings">The voter rankings.</param>
+        /// <param name="chosenChoices">The already chosen choices.</param>
+        /// <returns>Returns the results as a list.</returns>
+        private List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        {
+            var res = from voter in voterRankings
+                      select new VoterRankings
+                      {
+                          Voter = voter.Voter,
+                          RankedVotes = voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
+                      };
+
+            return res.ToList();
         }
 
         /// <summary>
@@ -115,16 +129,12 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The votes to filter.</param>
         /// <param name="choice">The choice to remove.</param>
         /// <returns>Returns the list without the given choice in the voters' rankings.</returns>
-        private IEnumerable<VoterRankings> RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
+        private void RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
         {
-            var res = from voter in voterRankings
-                      select new VoterRankings
-                      {
-                          Voter = voter.Voter,
-                          RankedVotes = voter.RankedVotes.Where(v => v.Vote != choice).ToList()
-                      };
-
-            return res;
+            foreach (var ranker in voterRankings)
+            {
+                ranker.RankedVotes.RemoveAll(v => v.Vote == choice);
+            }
         }
 
         /// <summary>
