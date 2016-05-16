@@ -20,6 +20,7 @@ namespace NetTally
         private void resetAllButton_Click(object sender, RoutedEventArgs e)
         {
             allowRankedVotes.IsChecked = true;
+            rankedVoteAlgorithm.SelectedIndex = 0;
 
             forbidVoteLabelPlanNames.IsChecked = false;
             whitespaceAndPunctuationIsSignificant.IsChecked = false;
