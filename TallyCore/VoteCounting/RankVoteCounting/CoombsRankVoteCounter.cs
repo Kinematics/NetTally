@@ -18,13 +18,19 @@ namespace NetTally.VoteCounting
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
 
-    /// <summary>
-    /// Class to handle counting ranked votes, with winners determined using
-    /// instant runoff elimination with Coombs' method.
-    /// </summary>
-    /// <seealso cref="NetTally.VoteCounting.IRankVoteCounter" />
     public class CoombsRankVoteCounter : BaseRankVoteCounter
     {
+        /// <summary>
+        /// Local class to store a choice/count combo of fields for LINQ.
+        /// </summary>
+        protected class ChoiceCount
+        {
+            public string Choice { get; set; }
+            public int Count { get; set; }
+
+            public override string ToString() => $"{Choice}: {Count}";
+        }
+
         /// <summary>
         /// Implementation to generate the ranking list for the provided set
         /// of votes for a specific task.
@@ -33,418 +39,193 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
-            Debug.WriteLine(">>Coombs Runoff<<");
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
 
-            HashSet<string> allVotes = GetVoteList(task);
-            var voterChoices = ConvertVotesToVoters(task, allVotes);
-            var voterNonChoices = GetNonChoices(voterChoices, allVotes);
+            List<string> winningChoices = new List<string>();
 
-            // 1st, 2nd, 3rd, and 4th place results
-            List<string> topChoices = new List<string>(9);
-
-            for (int i = 0; i < 9; i++)
+            if (task.Any())
             {
-                System.Diagnostics.Debug.WriteLine($"- Loop [{i}]");
+                Debug.WriteLine(">>Coombs Runoff<<");
 
-                // Create copies, because the vars we pass to the calculation
-                // functions will be modified during the process.
-                var voterChoicesCopy = voterChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
-                var voterNonChoicesCopy = voterNonChoices.ToDictionary(a => a.Key, a => a.Value.ToList());
+                var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
+                var allChoices = GetAllChoices(voterRankings);
 
-                // The best result each time through the loop gets added to the result list...
-                string topChoice = GetTopRank(voterChoicesCopy, voterNonChoicesCopy, voterChoices, allVotes);
-
-                if (string.IsNullOrEmpty(topChoice))
+                for (int i = 1; i <= 9; i++)
                 {
-                    break;
-                }
+                    string winner = GetWinningVote(voterRankings, winningChoices, allChoices);
+   
+                    if (winner == null)
+                        break;
 
-                System.Diagnostics.Debug.WriteLine($"-- Top choice: [{topChoice}]");
+                    winningChoices.Add(winner);
+                    allChoices.Remove(winner);
 
-                topChoices.Add(topChoice);
+                    Debug.WriteLine($"- {winner}");
 
-                // ... and removed from the active choice list, for the next time through the loop.
-                RemoveChoice(topChoice, voterChoices);
-            }
-
-            return topChoices;
-        }
-
-        
-        /// <summary>
-        /// Gets the list of all votes (as vote contents), for use in identifying
-        /// vote selections that were not ranked by any given voter.
-        /// </summary>
-        /// <param name="task">The list of all votes for a task.</param>
-        /// <returns>Returns a list of all votes.</returns>
-        private static HashSet<string> GetVoteList(GroupedVotesByTask task)
-        {
-            var votes = task.Select(vote => VoteString.GetVoteContent(vote.Key));
-
-            return new HashSet<string>(votes, StringUtility.AgnosticStringComparer);
-        }
-
-        /// <summary>
-        /// Convert the original grouping of voters per vote into a grouping of votes per voter,
-        /// ordered by voter preference for each vote.
-        /// </summary>
-        /// <param name="task">All votes provided for a given task.</param>
-        /// <returns>Returns a grouping of votes per user.</returns>
-        private static Dictionary<string, List<string>> ConvertVotesToVoters(GroupedVotesByTask task,
-            HashSet<string> allVotes)
-        {
-            var ordered = task.OrderBy(a => VoteString.GetVoteMarker(a.Key));
-
-            Dictionary<string, List<string>> voters = new Dictionary<string, List<string>>();
-
-            var allVoters = task.SelectMany(a => a.Value);
-
-            foreach (var voter in allVoters)
-            {
-                voters[voter] = new List<string>();
-            }
-
-            foreach (var vote in ordered)
-            {
-                string voteContent = VoteString.GetVoteContent(vote.Key);
-
-                string normVote = allVotes.FirstOrDefault(v => StringUtility.AgnosticStringComparer.Equals(v, voteContent)) ?? voteContent;
-
-                foreach (var voter in vote.Value)
-                {
-                    voters[voter].Add(normVote);
+                    if (!allChoices.Any())
+                        break;
                 }
             }
 
-            return voters;
+            return winningChoices;
         }
 
         /// <summary>
-        /// Gets a dictionary of lists of all vote options that each voter did not rank.
+        /// Gets the winning vote.
+        /// Excludes any already chosen votes from the process.
         /// </summary>
-        /// <param name="voterChoices">The collection of all choices that each voter did rank.</param>
-        /// <param name="allVotes">The list of all possible vote options.</param>
-        /// <returns>Returns a dictionary collection of all options each voter did not rank.</returns>
-        private static Dictionary<string, List<string>> GetNonChoices(Dictionary<string, List<string>> voterChoices, HashSet<string> allVotes)
+        /// <param name="voterRankings">The voter rankings.</param>
+        /// <param name="chosenChoices">The already chosen choices.</param>
+        /// <param name="allChoices">All remaining choices.</param>
+        /// <returns>Returns the winning vote.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// </exception>
+        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, RankResults allChoices)
         {
-            Dictionary<string, List<string>> voterNonChoices = new Dictionary<string, List<string>>();
+            if (voterRankings == null)
+                throw new ArgumentNullException(nameof(voterRankings));
+            if (chosenChoices == null)
+                throw new ArgumentNullException(nameof(chosenChoices));
 
-            foreach (var voter in voterChoices)
-            {
-                var nonChoices = allVotes.Except(voter.Value);
-                voterNonChoices.Add(voter.Key, nonChoices.ToList());
-            }
+            // Initial conversion from enumerable to list
+            List<VoterRankingsL> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
 
-            return voterNonChoices;
-        }
+            AddUnselectedRankings(localRankings, allChoices);
 
-        /// <summary>
-        /// Select the top option out of the votes cast for a given task.
-        /// </summary>
-        /// <param name="voterChoices">The voter choices.</param>
-        /// <param name="voterNonChoices">The voter non choices.</param>
-        /// <param name="originalVotersChoices">The original voters choices.</param>
-        /// <param name="voteList">The vote list.</param>
-        /// <returns>
-        /// Returns the top voter choice for the task.
-        /// </returns>
-        private static string GetTopRank(Dictionary<string, List<string>> voterChoices,
-            Dictionary<string, List<string>> voterNonChoices,
-            Dictionary<string, List<string>> originalVotersChoices,
-            HashSet<string> voteList)
-        {
-            // Skip processing if there's nothing to count.
-            if (voterChoices == null || voterChoices.Count == 0 || voterChoices.All(a => a.Value.Count == 0))
-                return string.Empty;
-
-            int loopLimit = voterChoices.Count(a => a.Value.Count > 0) + 10;
-            // Limit to 10 iterations, to ensure there are no infinite loops
-            int loop = 0;
+            int voterCount = localRankings.Count();
+            int winCount = (int)Math.Ceiling(voterCount * 0.50011);
 
             while (true)
             {
-                // First see if any options has a majority of #1 votes
-                // Get a list of all top-choice votes, and how many votes for each option.
-                var firstChoices = CountFirstPlaceVotes(voterChoices);
+                var preferredVotes = GetPreferredCounts(localRankings);
 
-                // Of those, get the 'best' choice, which is the one with the
-                // most votes, or, in the case of a tie, the one with the highest
-                // ranking score.
-                var bestChoice = GetFirstChoice(firstChoices, originalVotersChoices);
+                if (!preferredVotes.Any())
+                    break;
 
-                // If we have a majority selection, that's the winner.
-                if (IsMajority(firstChoices[bestChoice], voterChoices.Count))
+                ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
+
+                if (best.Count >= winCount)
+                    return best.Choice;
+
+                // If no more choice removals will bump up lower prefs to higher prefs, return the best of what's left.
+                if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
+                    return best.Choice;
+
+                string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
+
+                RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Removes a list of choices from voter rankings.
+        /// These are the choices that have already won a rank spot.
+        /// </summary>
+        /// <param name="voterRankings">The voter rankings.</param>
+        /// <param name="chosenChoices">The already chosen choices.</param>
+        /// <returns>Returns the results as a list.</returns>
+        private List<VoterRankingsL> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        {
+            var res = from voter in voterRankings
+                      select new VoterRankingsL
+                      {
+                          Voter = voter.Voter,
+                          RankedVotes = voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
+                      };
+
+            return res.ToList();
+        }
+
+        /// <summary>
+        /// Adds ranking entries for any choices that users did not explictly rank.
+        /// Modifies the provided list.
+        /// </summary>
+        /// <param name="localRankings">The vote rankings.</param>
+        /// <param name="allChoices">All available choices.</param>
+        private void AddUnselectedRankings(List<VoterRankingsL> localRankings, RankResults allChoices)
+        {
+            foreach (var ranker in localRankings)
+            {
+                if (ranker.RankedVotes.Count == allChoices.Count)
+                    continue;
+
+                var extras = allChoices.Except(ranker.RankedVotes.Select(v => v.Vote));
+
+                foreach (var extra in extras)
                 {
-                    return bestChoice;
+                    ranker.RankedVotes.Add(new RankedVote { Vote = extra, Rank = 10 });
                 }
-
-                // If we're out of other choices, or we've gone too many loops, use what we have.
-                if (OnlyOneChoiceLeft(voterChoices) || ++loop >= loopLimit)
-                {
-                    return bestChoice;
-                }
-
-                System.Diagnostics.Debug.WriteLine("-- No majority option.");
-
-                // If no option has an absolute majority, find the most-disliked option
-                // and remove it from all voters' option lists, in preparation of another
-                // round of checks.
-                string lastChoice = GetLastChoice(voterChoices, voterNonChoices, voteList);
-
-                // Remove the last place option before running another round
-                RemoveLastPlaceOption(lastChoice, voterChoices, voterNonChoices);
             }
         }
 
         /// <summary>
-        /// 
+        /// Filter the provided list of voter rankings to remove any instances of the specified choice.
+        /// Modifies the provided list.
         /// </summary>
-        /// <param name="choices"></param>
-        /// <param name="originalVotersChoices"></param>
-        /// <returns></returns>
-        private static string GetFirstChoice(Dictionary<string, int> choices,
-            Dictionary<string, List<string>> originalVotersChoices)
-        {
-            foreach (var c in choices)
-            {
-                System.Diagnostics.Debug.WriteLine($"--- {c.Key} @ {c.Value}");
-            }
-
-            int highestNumberOfChoices = choices.Max(a => a.Value);
-
-            // Get the list of all choices that have the same total (max) number of selections
-            var choicesWithMostVotes = choices.Where(a => a.Value == highestNumberOfChoices).Select(b => b.Key);
-
-            if (choicesWithMostVotes.Count() == 1)
-                return choicesWithMostVotes.First();
-
-            return GetHighestScoreOption(choicesWithMostVotes, originalVotersChoices);
-        }
-
-        private static string GetLastChoice(Dictionary<string, List<string>> voterChoices,
-            Dictionary<string, List<string>> voterNonChoices, HashSet<string> voteList)
-        {
-            Dictionary<string, int> votesWeight = new Dictionary<string, int>(StringUtility.AgnosticStringComparer);
-            int distinctCount = voteList.Count();
-
-            int highestNumberOfChoices = voterChoices.Max(a => a.Value.Count);
-            int nonChoiceWeight = distinctCount > highestNumberOfChoices ? highestNumberOfChoices + 1 : distinctCount;
-
-            HashSet<string> lastPlaceList = new HashSet<string>(StringUtility.AgnosticStringComparer);
-
-            foreach (var vote in voteList)
-            {
-                votesWeight[vote] = 0;
-            }
-
-            foreach (var voter in voterChoices)
-            {
-                int index = 1;
-                foreach (var vote in voter.Value)
-                {
-                    votesWeight[vote] += index++;
-                }
-
-                if (voterNonChoices[voter.Key].Count == 0 && voter.Value.Count > 0)
-                {
-                    lastPlaceList.Add(voter.Value.Last());
-                }
-            }
-
-            foreach (var voter in voterNonChoices)
-            {
-                foreach (var vote in voter.Value)
-                {
-                    votesWeight[vote] += nonChoiceWeight;
-
-                    lastPlaceList.Add(vote);
-                }
-            }
-
-            var least = votesWeight.Where(a => lastPlaceList.Contains(a.Key)).
-                OrderByDescending(a => a.Value).First().Key;
-
-            return least;
-        }
-
-
-        private static string GetHighestScoreOption(IEnumerable<string> choices,
-            Dictionary<string, List<string>> originalVotersChoices)
-        {
-            var scores = from a in choices
-                         select new { Choice = a, Score = GetScore(a, originalVotersChoices) };
-
-            int maxScore = scores.Max(a => a.Score);
-
-            var withMaxScore = scores.Where(a => a.Score == maxScore);
-
-            var pick = withMaxScore.OrderBy(a => a.Choice).Last();
-
-            return pick.Choice;
-        }
-
-        private static string GetLowestScoreOption(IEnumerable<string> choices,
-            Dictionary<string, List<string>> originalVotersChoices)
-        {
-            var scores = from a in choices
-                         select new { Choice = a, Score = GetScore(a, originalVotersChoices) };
-
-            int minScore = scores.Min(a => a.Score);
-
-            var withMinScore = scores.Where(a => a.Score == minScore);
-
-            var pick = withMinScore.OrderBy(a => a.Choice).Last();
-
-            return pick.Choice;
-        }
-
-        private static int GetScore(string choice, Dictionary<string, List<string>> originalVotersChoices)
-        {
-            int score = 0;
-
-            foreach (var voter in originalVotersChoices)
-            {
-                int index = voter.Value.IndexOf(choice);
-                if (index >= 0)
-                {
-                    score += (10 - index);
-                }
-            }
-
-            return score;
-        }
-
-        /// <summary>
-        /// Count up the first choice options for all voters, and return a tally.
-        /// </summary>
-        /// <param name="voterList">The list of all voters and their ranked choices.</param>
-        /// <returns>Returns the number of votes for each of the first-ranked vote options.</returns>
-        private static Dictionary<string, int> CountFirstPlaceVotes(Dictionary<string, List<string>> voterList)
-        {
-            Dictionary<string, int> voteCount = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-            int count = 0;
-
-            foreach (var vote in voterList)
-            {
-                if (vote.Value.Count > 0)
-                {
-                    string firstVote = vote.Value.First();
-
-                    if (!voteCount.TryGetValue(firstVote, out count))
-                    {
-                        count = 0;
-                    }
-
-                    voteCount[firstVote] = ++count;
-                }
-            }
-
-            return voteCount;
-        }
-
-        /// <summary>
-        /// Count up the last choice options for all voters, and return a tally.
-        /// </summary>
-        /// <param name="voterList">The list of all voters and their ranked choices.</param>
-        /// <returns>Returns the number of votes for each of the last-ranked vote options.</returns>
-        private static Dictionary<string, int> CountLastPlaceVotes(Dictionary<string, List<string>> voterList,
-            Dictionary<string, List<string>> voterNonChoices)
-        {
-            Dictionary<string, int> voteCount = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-            int count = 0;
-
-            foreach (var voter in voterList)
-            {
-                var nonChoices = voterNonChoices[voter.Key];
-
-                if (nonChoices.Count > 0)
-                {
-                    foreach (var nonChoice in nonChoices)
-                    {
-                        if (!voteCount.TryGetValue(nonChoice, out count))
-                        {
-                            count = 0;
-                        }
-
-                        voteCount[nonChoice] = ++count;
-                    }
-                }
-                else
-                {
-                    string lastVote = voter.Value.Last();
-
-                    if (!voteCount.TryGetValue(lastVote, out count))
-                    {
-                        count = 0;
-                    }
-
-                    voteCount[lastVote] = ++count;
-                }
-            }
-
-            return voteCount;
-        }
-
-        /// <summary>
-        /// Remove the specified vote option from all voters' option lists.
-        /// May not remove the last vote option from a voter.
-        /// </summary>
-        /// <param name="bottomChoice">The last place option that's being removed.</param>
-        /// <param name="voterList">The list of all voters.</param>
-        private static void RemoveLastPlaceOption(string bottomChoice, Dictionary<string, List<string>> voterList,
-            Dictionary<string, List<string>> voterNonChoices)
-        {
-            System.Diagnostics.Debug.WriteLine($"-- Eliminate [{bottomChoice}]");
-
-            foreach (var voter in voterList)
-            {
-                if (voter.Value.Count > 1)
-                {
-                    voter.Value.Remove(bottomChoice);
-                }
-            }
-
-            foreach (var voter in voterNonChoices)
-            {
-                voter.Value.Remove(bottomChoice);
-            }
-        }
-
-        /// <summary>
-        /// Remove an entry unconditionally from the list of voter choices.
-        /// </summary>
+        /// <param name="voterRankings">The votes to filter.</param>
         /// <param name="choice">The choice to remove.</param>
-        /// <param name="voterChoices">The list of all voter ranked choices.</param>
-        private static void RemoveChoice(string choice, Dictionary<string, List<string>> voterChoices)
+        private void RemoveChoiceFromVotes(List<VoterRankingsL> voterRankings, string choice)
         {
-            foreach (var voter in voterChoices)
+            foreach (var ranker in voterRankings)
             {
-                voter.Value.RemoveAll(a => a == choice);
+                ranker.RankedVotes.RemoveAll(v => v.Vote == choice);
             }
         }
 
         /// <summary>
-        /// Check to see if all voters only have one voting option left.
+        /// Gets the least preferred choice.
         /// </summary>
-        /// <param name="voterList">List of all voters and their choices.</param>
-        /// <returns>Returns true if all voters only have one choice left.</returns>
-        private static bool OnlyOneChoiceLeft(Dictionary<string, List<string>> voterList)
+        /// <param name="localRankings">The vote rankings.</param>
+        /// <returns>Returns the vote string for the least preferred vote.</returns>
+        private string GetLeastPreferredChoice(List<VoterRankingsL> localRankings)
         {
-            if (voterList.All(a => a.Value.Count == 1))
-                return true;
+            Dictionary<string, int> rankTotals = new Dictionary<string, int>();
 
-            return false;
+            foreach (var voter in localRankings)
+            {
+                foreach (var rank in voter.RankedVotes)
+                {
+                    if (!rankTotals.ContainsKey(rank.Vote))
+                        rankTotals[rank.Vote] = 0;
+
+                    rankTotals[rank.Vote] += rank.Rank;
+                }
+            }
+
+            var maxRank = rankTotals.MaxObject(a => a.Value);
+
+            return maxRank.Key;
         }
 
         /// <summary>
-        /// Determine if the given number of voters qualifies as a majority out of
-        /// all possible voters.
+        /// Gets the count of the number of times a given vote is the most preferred option
+        /// among the provided voters.
         /// </summary>
-        /// <param name="voters">Number of voters being checked.</param>
-        /// <param name="totalVoters">Total number of voters.</param>
-        /// <returns>Returns true if the number of voters qualifies as a majority.</returns>
-        private static bool IsMajority(int voters, int totalVoters) => ((double)voters / totalVoters) > 0.5;
+        /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
+        /// <returns>Returns a collection of Choice/Count objects.</returns>
+        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankingsL> voterRankings)
+        {
+            var preferredVotes = from voter in voterRankings
+                                 let preferred = voter.RankedVotes.First().Vote
+                                 group voter by preferred into preffed
+                                 select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
+
+            return preferredVotes;
+        }
+
+        /// <summary>
+        /// Gets all choices from all user votes.
+        /// </summary>
+        /// <param name="rankings">The collection of user votes.</param>
+        /// <returns>Returns a list of all the choices in the task.</returns>
+        private List<string> GetAllChoices(IEnumerable<VoterRankings> rankings)
+        {
+            var res = rankings.SelectMany(r => r.RankedVotes).Select(r => r.Vote).Distinct();
+
+            return res.ToList();
+        }
     }
 }
