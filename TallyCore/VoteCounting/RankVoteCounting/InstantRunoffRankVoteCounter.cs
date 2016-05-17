@@ -78,24 +78,45 @@ namespace NetTally.VoteCounting
             int voterCount = localRankings.Count(v => v.RankedVotes.Any());
             int winCount = (int)Math.Ceiling(voterCount * 0.50011);
 
-            while (true)
+            try
             {
-                var preferredVotes = GetPreferredCounts(localRankings);
+                Debug.Write("Eliminations: [");
+                bool eliminateOne = false;
 
-                if (!preferredVotes.Any())
-                    break;
+                while (true)
+                {
+                    var preferredVotes = GetPreferredCounts(localRankings);
 
-                var best = preferredVotes.MaxObject(a => a.Count);
+                    if (!preferredVotes.Any())
+                        break;
 
-                if (best.Count >= winCount)
-                    return best.Choice;
+                    var best = preferredVotes.MaxObject(a => a.Count);
 
-                var worst = preferredVotes.MinObject(a => a.Count);
+                    if (best.Count >= winCount)
+                        return best.Choice;
 
-                RemoveChoiceFromVotes(localRankings, worst.Choice); 
+                    var worst = preferredVotes.MinObject(a => a.Count);
+
+                    Debug.Write($"{Comma(eliminateOne)}{worst.Choice}");
+
+                    RemoveChoiceFromVotes(localRankings, worst.Choice);
+                    eliminateOne = true;
+                }
+            }
+            finally
+            {
+                Debug.WriteLine("]");
             }
 
             return null;
+        }
+
+        private string Comma(bool addComma)
+        {
+            if (addComma)
+                return ", ";
+            else
+                return "";
         }
 
         /// <summary>

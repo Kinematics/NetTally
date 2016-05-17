@@ -90,29 +90,51 @@ namespace NetTally.VoteCounting
             int voterCount = localRankings.Count();
             int winCount = (int)Math.Ceiling(voterCount * 0.50011);
 
-            while (true)
+            try
             {
-                var preferredVotes = GetPreferredCounts(localRankings);
+                Debug.Write("Eliminations: [");
+                bool eliminateOne = false;
 
-                if (!preferredVotes.Any())
-                    break;
+                while (true)
+                {
+                    var preferredVotes = GetPreferredCounts(localRankings);
 
-                ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
+                    if (!preferredVotes.Any())
+                        break;
 
-                if (best.Count >= winCount)
-                    return best.Choice;
+                    ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
 
-                // If no more choice removals will bump up lower prefs to higher prefs, return the best of what's left.
-                if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
-                    return best.Choice;
+                    if (best.Count >= winCount)
+                        return best.Choice;
 
-                string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
+                    // If no more choice removals will bump up lower prefs to higher prefs, return the best of what's left.
+                    if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
+                        return best.Choice;
 
-                RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
+                    string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
+
+                    Debug.Write($"{Comma(eliminateOne)}{leastPreferredChoice}");
+
+                    RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
+                    eliminateOne = true;
+                }
+            }
+            finally
+            {
+                Debug.WriteLine("]");
             }
 
             return null;
         }
+
+        private string Comma(bool addComma)
+        {
+            if (addComma)
+                return ", ";
+            else
+                return "";
+        }
+
 
         /// <summary>
         /// Removes a list of choices from voter rankings.
