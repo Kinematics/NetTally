@@ -92,23 +92,8 @@ namespace NetTally.VoteCounting
         {
             int[,] strongestPaths = new int[choicesCount, choicesCount];
 
-            for (int i = 0; i < choicesCount; i++)
-            {
-                for (int j = 0; j < choicesCount; j++)
-                {
-                    if (i != j)
-                    {
-                        if (pairwisePreferences[i, j] >= pairwisePreferences[j, i])
-                        {
-                            strongestPaths[i, j] = pairwisePreferences[i, j];
-                        }
-                        else
-                        {
-                            strongestPaths[i, j] = 0;
-                        }
-                    }
-                }
-            }
+            int bytesInArray = strongestPaths.Length * sizeof(Int32);
+            Buffer.BlockCopy(pairwisePreferences, 0, strongestPaths, 0, bytesInArray);
 
             for (int i = 0; i < choicesCount; i++)
             {
