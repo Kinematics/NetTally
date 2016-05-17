@@ -14,6 +14,13 @@ namespace NetTally.VoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
+    /// <summary>
+    /// Borda is being removed as a valid option from the list of rank vote options.
+    /// Aside from systemic failures of the method itself, it cannot give proper
+    /// valuation to unranked options, which intrinsically makes it a bad fit
+    /// for handling user-entered quest voting schemes.
+    /// </summary>
+    /// <seealso cref="NetTally.VoteCounting.BaseRankVoteCounter" />
     public class BordaRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>

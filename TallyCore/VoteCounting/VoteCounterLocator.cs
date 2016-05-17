@@ -43,10 +43,6 @@ namespace NetTally.VoteCounting
             {
                 case RankVoteCounterMethod.Coombs:
                     return new CoombsRankVoteCounter();
-                case RankVoteCounterMethod.BordaCount:
-                    return new BordaRankVoteCounter();
-                case RankVoteCounterMethod.BordaFraction:
-                    return new BordaFractionRankVoteCounter();
                 case RankVoteCounterMethod.InstantRunoff:
                     return new InstantRunoffRankVoteCounter();
                 case RankVoteCounterMethod.Schulze:
