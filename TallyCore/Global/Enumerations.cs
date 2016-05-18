@@ -22,6 +22,8 @@ namespace NetTally
     {
         [EnumDescription("Default (Coombs)")]
         Default,
+        [EnumDescription("Borda Count")]
+        Borda,
         [EnumDescription("Instant Runoff")]
         InstantRunoff,
         [EnumDescription("Coombs' Method")]
