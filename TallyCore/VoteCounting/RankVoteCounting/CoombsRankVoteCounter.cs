@@ -198,20 +198,22 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the vote string for the least preferred vote.</returns>
         private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
-            Dictionary<string, int> rankTotals = new Dictionary<string, int>();
+            Dictionary<string, int> rankCount = new Dictionary<string, int>();
 
             foreach (var voter in localRankings)
             {
-                foreach (var rank in voter.RankedVotes)
-                {
-                    if (!rankTotals.ContainsKey(rank.Vote))
-                        rankTotals[rank.Vote] = 0;
+                var lowestRanked = voter.RankedVotes.MaxObject(a => a.Rank);
 
-                    rankTotals[rank.Vote] += rank.Rank;
-                }
+                if (lowestRanked == null)
+                    continue;
+
+                if (!rankCount.ContainsKey(lowestRanked.Vote))
+                    rankCount[lowestRanked.Vote] = 0;
+
+                rankCount[lowestRanked.Vote]++;
             }
 
-            var maxRank = rankTotals.MaxObject(a => a.Value);
+            var maxRank = rankCount.MaxObject(a => a.Value);
 
             return maxRank.Key;
         }
