@@ -71,7 +71,6 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
-        /// <param name="allChoices">All remaining choices.</param>
         /// <returns>Returns the winning vote.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
@@ -200,7 +199,8 @@ namespace NetTally.VoteCounting
         /// that are ranked in all votes.
         /// We then need to scale it relative to the number of instances of that option appearing, to deal
         /// with truncated rankings (where there are more options than rankings allowed).
-        /// An option ranked infrequently can be scaled up relative to its rate of occurance.
+        /// An option ranked infrequently can be scaled up relative to its rate of occurance for
+        /// a high likelihood of elimination.
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
