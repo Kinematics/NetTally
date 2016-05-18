@@ -47,7 +47,7 @@ namespace NetTally.VoteCounting
 
                 for (int i = 1; i <= 9; i++)
                 {
-                    string winner = GetWinningVote(voterRankings, winningChoices, allChoices);
+                    string winner = GetWinningVote(voterRankings, winningChoices);
 
                     if (winner == null)
                         break;
@@ -75,7 +75,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the winning vote.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, RankResults allChoices)
+        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices)
         {
             if (voterRankings == null)
                 throw new ArgumentNullException(nameof(voterRankings));
@@ -84,8 +84,6 @@ namespace NetTally.VoteCounting
 
             // Initial conversion from enumerable to list
             List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
-
-            AddUnselectedRankings(localRankings, allChoices);
 
             int voterCount = localRankings.Count();
             int winCount = voterCount / 2 + 1;
@@ -246,7 +244,8 @@ namespace NetTally.VoteCounting
         private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
-                                 let preferred = voter.RankedVotes.First().Vote
+                                 let preferred = voter.RankedVotes.FirstOrDefault()?.Vote
+                                 where preferred != null
                                  group voter by preferred into preffed
                                  select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
 
