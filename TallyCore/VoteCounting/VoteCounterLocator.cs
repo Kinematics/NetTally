@@ -49,6 +49,8 @@ namespace NetTally.VoteCounting
                     return new InstantRunoffRankVoteCounter();
                 case RankVoteCounterMethod.Borda:
                     return new BordaRankVoteCounter();
+                case RankVoteCounterMethod.Pairwise:
+                    return new PairwiseRankVoteCounter();
                 case RankVoteCounterMethod.Schulze:
                     return new SchulzeRankVoteCounter();
                 default:

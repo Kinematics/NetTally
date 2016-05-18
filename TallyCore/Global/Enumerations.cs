@@ -30,6 +30,8 @@ namespace NetTally
         Coombs,
         [EnumDescription("Baldwin Method")]
         Baldwin,
+        [EnumDescription("Pairwise Elimination")]
+        Pairwise,
         [EnumDescription("Schulze Method")]
         Schulze,
     }
