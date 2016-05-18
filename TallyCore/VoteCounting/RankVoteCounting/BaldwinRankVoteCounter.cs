@@ -40,7 +40,7 @@ namespace NetTally.VoteCounting
 
             if (task.Any())
             {
-                Debug.WriteLine(">>Coombs Runoff<<");
+                Debug.WriteLine(">>Baldwin Runoff<<");
 
                 var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
                 var allChoices = GetAllChoices(voterRankings);
@@ -193,12 +193,22 @@ namespace NetTally.VoteCounting
 
         /// <summary>
         /// Gets the least preferred choice.
+        /// This is normally determined by selecting the option with the lowest Borda count.
+        /// This is inverted because we don't want to convert ranks to Borda values (it gains us nothing).
+        /// It then needs to be averaged across the number of instances of each vote, to 
+        /// account for unranked options.  This allows apples-to-apples comparisons against options
+        /// that are ranked in all votes.
+        /// We then need to scale it relative to the number of instances of that option appearing, to deal
+        /// with truncated rankings (where there are more options than rankings allowed).
+        /// An option ranked infrequently can be scaled up relative to its rate of occurance.
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
         private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
-            Dictionary<string, int> rankTotals = new Dictionary<string, int>();
+            Dictionary<string, double> rankTotals = new Dictionary<string, double>();
+            Dictionary<string, int> rankInstances = new Dictionary<string, int>();
+            HashSet<string> choices = new HashSet<string>();
 
             foreach (var voter in localRankings)
             {
@@ -206,14 +216,25 @@ namespace NetTally.VoteCounting
                 {
                     if (!rankTotals.ContainsKey(rank.Vote))
                         rankTotals[rank.Vote] = 0;
+                    if (!rankInstances.ContainsKey(rank.Vote))
+                        rankInstances[rank.Vote] = 0;
 
                     rankTotals[rank.Vote] += rank.Rank;
+                    rankInstances[rank.Vote]++;
+                    choices.Add(rank.Vote);
                 }
             }
 
-            var maxRank = rankTotals.MaxObject(a => a.Value);
+            var rankScaling = from choice in choices
+                              select new
+                              {
+                                  Choice = choice,
+                                  Value = rankTotals[choice] / rankInstances[choice] / rankInstances[choice]
+                              };
 
-            return maxRank.Key;
+            var maxResult = rankScaling.MaxObject(a => a.Value);
+
+            return maxResult.Choice;
         }
 
         /// <summary>
