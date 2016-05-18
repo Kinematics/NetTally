@@ -54,7 +54,7 @@ namespace NetTally.VoteCounting
                 case RankVoteCounterMethod.Schulze:
                     return new SchulzeRankVoteCounter();
                 default:
-                    return new CoombsRankVoteCounter();
+                    return new BaldwinRankVoteCounter();
             }
         }
 

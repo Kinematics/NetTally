@@ -20,7 +20,7 @@ namespace NetTally
 
     public enum RankVoteCounterMethod
     {
-        [EnumDescription("Default (Coombs)")]
+        [EnumDescription("Default (Baldwin)")]
         Default,
         [EnumDescription("Borda Count")]
         Borda,
