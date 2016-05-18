@@ -67,7 +67,7 @@ namespace NetTally.VoteCounting
                     // Each choice matching or beating the ranks of other ranked choices is marked.
                     foreach (var otherChoice in voter.RankedVotes)
                     {
-                        if ((choice.Vote != otherChoice.Vote) && (choice.Rank < otherChoice.Rank))
+                        if ((choice.Vote != otherChoice.Vote) && (choice.Rank <= otherChoice.Rank))
                         {
                             pairwisePreferences[choiceIndexes[choice.Vote], choiceIndexes[otherChoice.Vote]]++;
                         }
