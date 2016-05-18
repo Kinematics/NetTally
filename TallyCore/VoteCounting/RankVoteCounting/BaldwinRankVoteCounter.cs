@@ -109,9 +109,11 @@ namespace NetTally.VoteCounting
                     if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
                         return best.Choice;
 
+                    Debug.Write($"{Comma(eliminateOne)}");
+
                     string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
 
-                    Debug.Write($"{Comma(eliminateOne)}{leastPreferredChoice}");
+                    Debug.Write($"{leastPreferredChoice}");
 
                     RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
                     eliminateOne = true;
@@ -231,6 +233,8 @@ namespace NetTally.VoteCounting
                               };
 
             var maxResult = rankScaling.MaxObject(a => a.Value);
+
+            Debug.Write($"({maxResult.Value:f5}) ");
 
             return maxResult.Choice;
         }
