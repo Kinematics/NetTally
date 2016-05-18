@@ -111,9 +111,11 @@ namespace NetTally.VoteCounting
                     if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
                         return best.Choice;
 
+                    Debug.Write($"{Comma(eliminateOne)}");
+
                     string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
 
-                    Debug.Write($"{Comma(eliminateOne)}{leastPreferredChoice}");
+                    Debug.Write($"{leastPreferredChoice}");
 
                     RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
                     eliminateOne = true;
@@ -202,18 +204,25 @@ namespace NetTally.VoteCounting
 
             foreach (var voter in localRankings)
             {
-                var lowestRanked = voter.RankedVotes.MaxObject(a => a.Rank);
+                if (voter.RankedVotes.Any())
+                {
+                    int lowestRank = voter.RankedVotes.Max(a => a.Rank);
 
-                if (lowestRanked == null)
-                    continue;
+                    var lowestRankedOptions = voter.RankedVotes.Where(v => v.Rank == lowestRank);
 
-                if (!rankCount.ContainsKey(lowestRanked.Vote))
-                    rankCount[lowestRanked.Vote] = 0;
+                    foreach (var lowest in lowestRankedOptions)
+                    {
+                        if (!rankCount.ContainsKey(lowest.Vote))
+                            rankCount[lowest.Vote] = 0;
 
-                rankCount[lowestRanked.Vote]++;
+                        rankCount[lowest.Vote]++;
+                    }
+                }
             }
 
             var maxRank = rankCount.MaxObject(a => a.Value);
+
+            Debug.Write($"({maxRank.Value}) ");
 
             return maxRank.Key;
         }
@@ -227,7 +236,8 @@ namespace NetTally.VoteCounting
         private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
-                                 let preferred = voter.RankedVotes.First().Vote
+                                 let preferred = voter.RankedVotes.FirstOrDefault()?.Vote
+                                 where preferred != null
                                  group voter by preferred into preffed
                                  select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
 
