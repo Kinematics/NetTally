@@ -28,6 +28,8 @@ namespace NetTally
         InstantRunoff,
         [EnumDescription("Coombs' Method")]
         Coombs,
+        [EnumDescription("Legacy Coombs")]
+        LegacyCoombs,
         [EnumDescription("Baldwin Method")]
         Baldwin,
         [EnumDescription("Pairwise Elimination")]
