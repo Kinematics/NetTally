@@ -79,6 +79,7 @@
     <Compile Include="ViewModels\Utility\ExceptionEventArgs.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\BaldwinRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BaseRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BordaFractionRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BordaRankVoteCounter.cs" />

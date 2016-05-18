@@ -22,10 +22,12 @@ namespace NetTally
     {
         [EnumDescription("Default (Coombs)")]
         Default,
-        [EnumDescription("Coombs' Runoff")]
-        Coombs,
         [EnumDescription("Instant Runoff")]
         InstantRunoff,
+        [EnumDescription("Coombs' Method")]
+        Coombs,
+        [EnumDescription("Baldwin Method")]
+        Baldwin,
         [EnumDescription("Schulze Method")]
         Schulze,
     }
