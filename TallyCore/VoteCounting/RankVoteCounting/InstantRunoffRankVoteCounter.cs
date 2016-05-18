@@ -76,7 +76,7 @@ namespace NetTally.VoteCounting
             List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
 
             int voterCount = localRankings.Count(v => v.RankedVotes.Any());
-            int winCount = (int)Math.Ceiling(voterCount * 0.50011);
+            int winCount = voterCount / 2 + 1;
 
             try
             {

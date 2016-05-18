@@ -88,7 +88,7 @@ namespace NetTally.VoteCounting
             AddUnselectedRankings(localRankings, allChoices);
 
             int voterCount = localRankings.Count();
-            int winCount = (int)Math.Ceiling(voterCount * 0.50011);
+            int winCount = voterCount / 2 + 1;
 
             try
             {
