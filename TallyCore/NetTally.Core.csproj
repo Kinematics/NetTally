@@ -82,6 +82,7 @@
     <Compile Include="VoteCounting\RankVoteCounting\BaldwinRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BaseRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BordaFractionRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\BordaNormalizedRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BordaRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\CoombsRankVoteCounter.cs" />
     <Compile Include="VoteCounting\IBaseVoteCounter.cs" />
