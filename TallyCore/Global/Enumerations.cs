@@ -22,6 +22,8 @@ namespace NetTally
     {
         [EnumDescription("Default (Baldwin)")]
         Default,
+        [EnumDescription("Distance Scoring")]
+        Distance,
         [EnumDescription("Borda Count")]
         Borda,
         [EnumDescription("Borda Normalized")]

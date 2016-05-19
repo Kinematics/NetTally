@@ -57,6 +57,8 @@ namespace NetTally.VoteCounting
                     return new PairwiseRankVoteCounter();
                 case RankVoteCounterMethod.Schulze:
                     return new SchulzeRankVoteCounter();
+                case RankVoteCounterMethod.Distance:
+                    return new DistanceRankVoteCounter();
                 default:
                     return new BaldwinRankVoteCounter();
             }
