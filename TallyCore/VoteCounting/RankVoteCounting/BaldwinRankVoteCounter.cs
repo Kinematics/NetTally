@@ -219,7 +219,7 @@ namespace NetTally.VoteCounting
                     if (!rankInstances.ContainsKey(rank.Vote))
                         rankInstances[rank.Vote] = 0;
 
-                    rankTotals[rank.Vote] += rank.Rank;
+                    rankTotals[rank.Vote] += rank.Rank + 1;
                     rankInstances[rank.Vote]++;
                     choices.Add(rank.Vote);
                 }
