@@ -90,6 +90,7 @@
     <Compile Include="VoteCounting\RankVoteCounting\InstantRunoffRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\LegacyCoombsRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\PairwiseRankVoteCounter.cs" />
+    <Compile Include="VoteCounting\RankVoteCounting\RIRVRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\SchulzeRankVoteCounter.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\Utility\GroupRankVotes.cs" />
     <Compile Include="VoteCounting\VoteCounterLocator.cs" />

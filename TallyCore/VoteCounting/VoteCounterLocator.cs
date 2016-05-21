@@ -49,6 +49,8 @@ namespace NetTally.VoteCounting
                     return new BaldwinRankVoteCounter();
                 case RankVoteCounterMethod.InstantRunoff:
                     return new InstantRunoffRankVoteCounter();
+                case RankVoteCounterMethod.RIRV:
+                    return new RIRVRankVoteCounter();
                 case RankVoteCounterMethod.Borda:
                     return new BordaRankVoteCounter();
                 case RankVoteCounterMethod.BordaNormalized:

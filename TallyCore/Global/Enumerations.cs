@@ -36,6 +36,8 @@ namespace NetTally
         LegacyCoombs,
         [EnumDescription("Baldwin Method")]
         Baldwin,
+        [EnumDescription("Rated Instant Runoff")]
+        RIRV,
         [EnumDescription("Pairwise Elimination")]
         Pairwise,
         [EnumDescription("Schulze Method")]
