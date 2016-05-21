@@ -200,7 +200,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the vote string for the least preferred vote.</returns>
         private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
-            Dictionary<string, int> rankCount = new Dictionary<string, int>();
+            Dictionary<string, double> rankCount = new Dictionary<string, double>();
 
             foreach (var voter in localRankings)
             {
@@ -210,12 +210,22 @@ namespace NetTally.VoteCounting
 
                     var lowestRankedOptions = voter.RankedVotes.Where(v => v.Rank == lowestRank);
 
+                    int lowestRankCount = lowestRankedOptions.Count();
+
                     foreach (var lowest in lowestRankedOptions)
                     {
                         if (!rankCount.ContainsKey(lowest.Vote))
                             rankCount[lowest.Vote] = 0;
 
-                        rankCount[lowest.Vote]++;
+                        // Unranked options get fractional additions to the effective rank count.
+                        if (lowestRank == 10)
+                        {
+                            rankCount[lowest.Vote] += 1.0 / lowestRankCount;
+                        }
+                        else
+                        {
+                            rankCount[lowest.Vote] += 1.0;
+                        }
                     }
                 }
             }
