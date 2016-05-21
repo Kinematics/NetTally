@@ -12,14 +12,7 @@ namespace NetTally.VoteCounting
 
     public class DistanceData
     {
-        public int[,] NormalPaths { get; set; }
-        public int[,] UnknownPaths { get; set; }
-    }
-
-    public class WinningChoices
-    {
-        public RankResults WinningNormalChoices { get; set; }
-        public RankResults WinningUnknownChoices { get; set; }
+        public int[,] Paths { get; set; }
     }
 
     public class DistanceRankVoteCounter : BaseRankVoteCounter
@@ -48,9 +41,9 @@ namespace NetTally.VoteCounting
 
             DistanceData winningPaths = GetWinningPaths(strengthData, listOfChoices.Count);
 
-            WinningChoices winningChoices = GetResultsInOrder(winningPaths, listOfChoices);
+            RankResults winningChoices = GetResultsInOrder(winningPaths, listOfChoices);
 
-            return winningChoices.WinningNormalChoices;
+            return winningChoices;
         }
 
         #region Distance Algorithm (based on Schulze+Range)
@@ -67,8 +60,7 @@ namespace NetTally.VoteCounting
         {
             DistanceData data = new DistanceData
             {
-                NormalPaths = new int[listOfChoices.Count, listOfChoices.Count],
-                UnknownPaths = new int[listOfChoices.Count, listOfChoices.Count],
+                Paths = new int[listOfChoices.Count, listOfChoices.Count]
             };
 
             var choiceIndexes = GetChoicesIndexes(listOfChoices);
@@ -87,7 +79,7 @@ namespace NetTally.VoteCounting
                         // corresponding table entry.
                         if (choice.Vote != otherChoice.Vote && choice.Rank < otherChoice.Rank)
                         {
-                            data.NormalPaths[choiceIndexes[choice.Vote], choiceIndexes[otherChoice.Vote]] += otherChoice.Rank - choice.Rank;
+                            data.Paths[choiceIndexes[choice.Vote], choiceIndexes[otherChoice.Vote]] += otherChoice.Rank - choice.Rank;
                         }
                     }
 
@@ -97,7 +89,7 @@ namespace NetTally.VoteCounting
                     // Unranked options are agnostic choices.
                     foreach (var nonChoice in unrankedChoices)
                     {
-                        data.NormalPaths[choiceIndexes[choice.Vote], choiceIndexes[nonChoice]]++;
+                        data.Paths[choiceIndexes[choice.Vote], choiceIndexes[nonChoice]]++;
                     }
                 }
 
@@ -118,12 +110,11 @@ namespace NetTally.VoteCounting
         {
             DistanceData data = new DistanceData
             {
-                NormalPaths = new int[choicesCount, choicesCount],
-                UnknownPaths = new int[choicesCount, choicesCount]
+                Paths = new int[choicesCount, choicesCount]
             };
 
-            int bytesInArray = data.NormalPaths.Length * sizeof(Int32);
-            Buffer.BlockCopy(pairwiseData.NormalPaths, 0, data.NormalPaths, 0, bytesInArray);
+            int bytesInArray = data.Paths.Length * sizeof(Int32);
+            Buffer.BlockCopy(pairwiseData.Paths, 0, data.Paths, 0, bytesInArray);
 
             for (int i = 0; i < choicesCount; i++)
             {
@@ -135,7 +126,7 @@ namespace NetTally.VoteCounting
                         {
                             if (i != k && j != k)
                             {
-                                data.NormalPaths[j, k] = Math.Max(data.NormalPaths[j, k], Math.Min(data.NormalPaths[j, i], data.NormalPaths[i, k]));
+                                data.Paths[j, k] = Math.Max(data.Paths[j, k], Math.Min(data.Paths[j, i], data.Paths[i, k]));
                             }
                         }
                     }
@@ -148,15 +139,14 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Gets the winning paths - The strongest of the strongest paths, for each pair option.
         /// </summary>
-        /// <param name="paths">The strongest paths.</param>
+        /// <param name="strengthData">The strongest paths.</param>
         /// <param name="choicesCount">The choices count (size of table).</param>
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
-        private DistanceData GetWinningPaths(DistanceData paths, int choicesCount)
+        private DistanceData GetWinningPaths(DistanceData strengthData, int choicesCount)
         {
             DistanceData winningData = new DistanceData
             {
-                NormalPaths = new int[choicesCount, choicesCount],
-                UnknownPaths = new int[choicesCount, choicesCount]
+                Paths = new int[choicesCount, choicesCount]
             };
 
             for (int i = 0; i < choicesCount; i++)
@@ -165,18 +155,7 @@ namespace NetTally.VoteCounting
                 {
                     if (i != j)
                     {
-                        winningData.NormalPaths[i, j] = paths.NormalPaths[i, j] - paths.NormalPaths[j, i];
-
-                        /*
-                        if (paths.NormalPaths[i, j] > 0 && paths.NormalPaths[i, j] >= paths.NormalPaths[j, i])
-                        {
-                            winningData.NormalPaths[i, j] = paths.NormalPaths[i, j];
-                        }
-                        else
-                        {
-                            winningData.NormalPaths[i, j] = 0;
-                        }
-                        */
+                        winningData.Paths[i, j] = strengthData.Paths[i, j] - strengthData.Paths[j, i];
                     }
                 }
             }
@@ -190,7 +169,7 @@ namespace NetTally.VoteCounting
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private WinningChoices GetResultsInOrder(DistanceData winningPaths, List<string> listOfChoices)
+        private RankResults GetResultsInOrder(DistanceData winningPaths, List<string> listOfChoices)
         {
             int count = listOfChoices.Count;
 
@@ -201,8 +180,8 @@ namespace NetTally.VoteCounting
                              {
                                  Index = index,
                                  Choice = listOfChoices[index],
-                                 Count = GetPositivePathCount(winningPaths.NormalPaths, index, count),
-                                 Sum = GetPathSum(winningPaths.NormalPaths, index, count),
+                                 Count = GetPositivePathCount(winningPaths.Paths, index, count),
+                                 Sum = GetPathSum(winningPaths.Paths, index, count),
                              };
 
             var orderPaths = pathCounts.OrderByDescending(p => p.Sum).ThenByDescending(p => p.Count).ThenBy(p => p.Choice);
@@ -212,12 +191,7 @@ namespace NetTally.VoteCounting
                 Debug.WriteLine($"- {path.Choice} [{path.Count}/{path.Sum}]");
             }
 
-            WinningChoices results = new WinningChoices()
-            {
-                WinningNormalChoices = orderPaths.Select(r => listOfChoices[r.Index]).ToList(),
-            };
-
-            return results;
+            return orderPaths.Select(r => listOfChoices[r.Index]).ToList();
         }
         #endregion
 
