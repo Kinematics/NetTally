@@ -169,7 +169,7 @@ namespace NetTally.Adapters
                 throw new InvalidOperationException("Cannot find content on page.");
 
             // Find the thread author
-            HtmlNode titleBar = pageContent.GetChildWithClass("titleBar");
+            HtmlNode titleBar = pageContent.GetDescendantWithClass("titleBar");
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
             if (titleBar == null)
