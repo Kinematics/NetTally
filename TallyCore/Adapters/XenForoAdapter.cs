@@ -468,7 +468,7 @@ namespace NetTally.Adapters
             {
                 var content = GetPageContent(page, PageType.Threadmarks);
 
-                var section = content.GetChildWithClass("div", "section");
+                var section = content.GetDescendantWithClass("div", "section");
 
                 // Check a few different locations for the HTML list.
                 var list = section.Element("ol") ?? section.Descendants("ul").FirstOrDefault() ?? section.Descendants("ol").FirstOrDefault();
