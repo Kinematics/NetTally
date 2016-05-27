@@ -31,9 +31,9 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Magic character (currently ◈) to flag a user name as a base plan.
+        /// Magic character (currently ◈, \u25C8) to flag a user name as a base plan.
         /// </summary>
-        public static string PlanNameMarker { get; } = "\u25C8";
+        public static string PlanNameMarker { get; } = "◈";
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
