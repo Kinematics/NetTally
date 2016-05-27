@@ -182,7 +182,7 @@ namespace NetTally.Adapters
             author = PostText.CleanupWebString(authorNode?.InnerText);
 
             // Find the number of pages in the thread
-            var pageNavLinkGroup = pageContent.GetChildWithClass("pageNavLinkGroup");
+            var pageNavLinkGroup = pageContent.GetDescendantWithClass("div", "pageNavLinkGroup");
             var pageNav = pageNavLinkGroup?.GetChildWithClass("PageNav");
             string lastPage = pageNav?.GetAttributeValue("data-last", "");
 
