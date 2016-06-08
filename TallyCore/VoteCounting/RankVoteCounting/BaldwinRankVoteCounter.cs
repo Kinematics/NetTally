@@ -112,8 +112,6 @@ namespace NetTally.VoteCounting
 
                     string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
 
-                    Debug.Write($"{leastPreferredChoice}");
-
                     RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
                     eliminateOne = true;
                 }
@@ -148,7 +146,11 @@ namespace NetTally.VoteCounting
                       select new VoterRankings
                       {
                           Voter = voter.Voter,
-                          RankedVotes = voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
+                          RankedVotes = voter.RankedVotes
+                              .Where(v => chosenChoices.Contains(v.Vote) == false)
+                              .OrderBy(v => v.Rank)
+                              .Select((a, b) => new RankedVote { Vote = a.Vote, Rank = b + 1 })
+                              .ToList()
                       };
 
             return res.ToList();
@@ -206,37 +208,16 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the vote string for the least preferred vote.</returns>
         private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
-            Dictionary<string, double> rankTotals = new Dictionary<string, double>();
-            Dictionary<string, int> rankInstances = new Dictionary<string, int>();
-            HashSet<string> choices = new HashSet<string>();
+            var groupVotes = GroupRankVotes.GroupByVoteAndRank(localRankings);
 
-            foreach (var voter in localRankings)
-            {
-                foreach (var rank in voter.RankedVotes)
-                {
-                    if (!rankTotals.ContainsKey(rank.Vote))
-                        rankTotals[rank.Vote] = 0;
-                    if (!rankInstances.ContainsKey(rank.Vote))
-                        rankInstances[rank.Vote] = 0;
+            var rankedVotes = from vote in groupVotes
+                              select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
 
-                    rankTotals[rank.Vote] += rank.Rank + 1;
-                    rankInstances[rank.Vote]++;
-                    choices.Add(rank.Vote);
-                }
-            }
+            var worstVote = rankedVotes.MinObject(a => a.Rank);
 
-            var rankScaling = from choice in choices
-                              select new
-                              {
-                                  Choice = choice,
-                                  Value = rankTotals[choice] / rankInstances[choice] / rankInstances[choice]
-                              };
+            Debug.Write($"({worstVote.Rank:f5}) {worstVote.Vote}");
 
-            var maxResult = rankScaling.MaxObject(a => a.Value);
-
-            Debug.Write($"({maxResult.Value:f5}) ");
-
-            return maxResult.Choice;
+            return worstVote.Vote;
         }
 
         /// <summary>
