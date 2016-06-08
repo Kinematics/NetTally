@@ -51,6 +51,29 @@ namespace NetTally.VoteCounting
             return res;
         }
 
+        public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(IEnumerable<VoterRankings> rankings)
+        {
+            var q = from v in rankings
+                    from w in v.RankedVotes
+                    group w by w.Vote into wv
+                    select new RankGroupedVoters
+                    {
+                        VoteContent = wv.Key,
+                        Ranks = from v2 in rankings
+                                let voter = v2.Voter
+                                from r in v2.RankedVotes
+                                where r.Vote == wv.Key
+                                group voter by r.Rank into vs2
+                                select new RankedVoters
+                                {
+                                    Rank = vs2.Key,
+                                    Voters = vs2.Select(g2 => g2)
+                                }
+                    };
+
+            return q;
+        }
+
         public static IEnumerable<VoterRankings> GroupByVoterAndRank(GroupedVotesByTask task)
         {
             var res = from vote in task
