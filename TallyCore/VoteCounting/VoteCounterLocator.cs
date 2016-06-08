@@ -55,6 +55,8 @@ namespace NetTally.VoteCounting
                     return new BordaRankVoteCounter();
                 case RankVoteCounterMethod.BordaNormalized:
                     return new BordaNormalizedRankVoteCounter();
+                case RankVoteCounterMethod.Wilson:
+                    return new WilsonRankVoteCounter();
                 case RankVoteCounterMethod.Pairwise:
                     return new PairwiseRankVoteCounter();
                 case RankVoteCounterMethod.Schulze:

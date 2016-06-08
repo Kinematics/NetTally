@@ -28,6 +28,8 @@ namespace NetTally
         Borda,
         [EnumDescription("Borda Normalized")]
         BordaNormalized,
+        [EnumDescription("Wilson Scoring")]
+        Wilson,
         [EnumDescription("Instant Runoff")]
         InstantRunoff,
         [EnumDescription("Coombs' Method")]
