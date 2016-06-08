@@ -66,7 +66,7 @@ namespace NetTally.VoteCounting
 
             foreach (var r in ranks)
             {
-                voteValue += (ValueOfRank(r.Rank) + 1.0) * r.Voters.Count();
+                voteValue += (r.Rank + 1.0) * r.Voters.Count();
             }
 
             int totalRankings = ranks.Sum(a => a.Voters.Count());
@@ -74,26 +74,6 @@ namespace NetTally.VoteCounting
             voteValue = voteValue / totalRankings / totalRankings;
 
             return voteValue;
-        }
-
-        /// <summary>
-        /// Get the numeric value of a given rank. 
-        /// </summary>
-        /// <param name="rank">The rank being evaluated.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        private int ValueOfRank(string rank)
-        {
-            if (string.IsNullOrEmpty(rank))
-                throw new ArgumentNullException(nameof(rank));
-
-            int rankAsInt = int.Parse(rank);
-
-            if (rankAsInt < 1 || rankAsInt > 9)
-                throw new ArgumentOutOfRangeException(nameof(rank));
-
-            return rankAsInt;
         }
     }
 }

@@ -61,33 +61,10 @@ namespace NetTally.VoteCounting
             // If any voter didn't vote for an option, they effectively add a 0 (rank #6) for that option.
             foreach (var r in ranks)
             {
-                voteValue += ValueOfRank(r.Rank) * r.Voters.Count();
+                voteValue += (6 - r.Rank) * r.Voters.Count();
             }
 
             return voteValue;
-        }
-
-        /// <summary>
-        /// Get the numeric value of a given rank. 
-        /// </summary>
-        /// <param name="rank">The rank being evaluated.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        private int ValueOfRank(string rank)
-        {
-            if (string.IsNullOrEmpty(rank))
-                throw new ArgumentNullException(nameof(rank));
-
-            int rankAsInt = int.Parse(rank);
-
-            if (rankAsInt < 1 || rankAsInt > 9)
-                throw new ArgumentOutOfRangeException(nameof(rank));
-
-            // Ranks valued at 5 for #1, then -1 per rank below that, to a minimum of -3.
-            int rankValue = (6 - rankAsInt);
-
-            return rankValue;
         }
     }
 }

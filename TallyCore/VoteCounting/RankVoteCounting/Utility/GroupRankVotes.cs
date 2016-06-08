@@ -17,7 +17,7 @@ namespace NetTally.VoteCounting
 
     public class RankedVoters
     {
-        public string Rank { get; set; }
+        public int Rank { get; set; }
         public IEnumerable<string> Voters { get; set; }
     }
 
@@ -45,7 +45,7 @@ namespace NetTally.VoteCounting
                           VoteContent = votes.Key,
                           Ranks = from v in votes
                                   group v by VoteString.GetVoteMarker(v.Key) into vr
-                                  select new RankedVoters { Rank = vr.Key, Voters = vr.SelectMany(a => a.Value) }
+                                  select new RankedVoters { Rank = int.Parse(vr.Key), Voters = vr.SelectMany(a => a.Value) }
                       };
 
             return res;
