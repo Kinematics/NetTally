@@ -41,28 +41,28 @@ namespace NetTally.VoteCounting
         {
             switch (method)
             {
-                case RankVoteCounterMethod.Coombs:
-                    return new CoombsRankVoteCounter();
-                case RankVoteCounterMethod.LegacyCoombs:
-                    return new LegacyCoombsRankVoteCounter();
+                //case RankVoteCounterMethod.Coombs:
+                //    return new CoombsRankVoteCounter();
+                //case RankVoteCounterMethod.LegacyCoombs:
+                //    return new LegacyCoombsRankVoteCounter();
+                //case RankVoteCounterMethod.InstantRunoff:
+                //    return new InstantRunoffRankVoteCounter();
+                //case RankVoteCounterMethod.Borda:
+                //    return new BordaRankVoteCounter();
+                //case RankVoteCounterMethod.BordaNormalized:
+                //    return new BordaNormalizedRankVoteCounter();
+                //case RankVoteCounterMethod.Pairwise:
+                //    return new PairwiseRankVoteCounter();
                 case RankVoteCounterMethod.Baldwin:
                     return new BaldwinRankVoteCounter();
-                case RankVoteCounterMethod.InstantRunoff:
-                    return new InstantRunoffRankVoteCounter();
-                case RankVoteCounterMethod.RIRV:
-                    return new RIRVRankVoteCounter();
-                case RankVoteCounterMethod.Borda:
-                    return new BordaRankVoteCounter();
-                case RankVoteCounterMethod.BordaNormalized:
-                    return new BordaNormalizedRankVoteCounter();
                 case RankVoteCounterMethod.Wilson:
                     return new WilsonRankVoteCounter();
-                case RankVoteCounterMethod.Pairwise:
-                    return new PairwiseRankVoteCounter();
-                case RankVoteCounterMethod.Schulze:
-                    return new SchulzeRankVoteCounter();
                 case RankVoteCounterMethod.Distance:
                     return new DistanceRankVoteCounter();
+                case RankVoteCounterMethod.Schulze:
+                    return new SchulzeRankVoteCounter();
+                case RankVoteCounterMethod.RIRV:
+                    return new RIRVRankVoteCounter();
                 default:
                     return new BaldwinRankVoteCounter();
             }

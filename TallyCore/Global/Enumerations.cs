@@ -24,26 +24,28 @@ namespace NetTally
         Default,
         [EnumDescription("Distance Scoring")]
         Distance,
-        [EnumDescription("Borda Count")]
-        Borda,
-        [EnumDescription("Borda Normalized")]
-        BordaNormalized,
         [EnumDescription("Wilson Scoring")]
         Wilson,
-        [EnumDescription("Instant Runoff")]
-        InstantRunoff,
-        [EnumDescription("Coombs' Method")]
-        Coombs,
-        [EnumDescription("Legacy Coombs")]
-        LegacyCoombs,
-        [EnumDescription("Baldwin Method")]
+        [EnumDescription("Baldwin Runoff")]
         Baldwin,
         [EnumDescription("Rated Instant Runoff")]
         RIRV,
-        [EnumDescription("Pairwise Elimination")]
-        Pairwise,
-        [EnumDescription("Schulze Method")]
+        [EnumDescription("Schulze (Condorcet)")]
         Schulze,
+        //[EnumDescription("Borda Count")]
+        //Borda,
+        //[EnumDescription("Borda Normalized")]
+        //BordaNormalized,
+        //[EnumDescription("Borda Fraction")]
+        //BordaFraction,
+        //[EnumDescription("Instant Runoff")]
+        //InstantRunoff,
+        //[EnumDescription("Coombs' Method")]
+        //Coombs,
+        //[EnumDescription("Legacy Coombs")]
+        //LegacyCoombs,
+        //[EnumDescription("Pairwise Elimination")]
+        //Pairwise,
     }
 
     public enum StandardVoteCounterMethod
