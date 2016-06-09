@@ -77,7 +77,9 @@ namespace NetTally.VoteCounting
 
             GetTopTwoRatedOptions(rankedVotes, out option1, out option2);
 
-            return GetOptionWithHigherPrefCount(voterRankings, option1, option2);
+            string winner = GetOptionWithHigherPrefCount(voterRankings, option1, option2);
+
+            return winner;
         }
 
         /// <summary>
@@ -125,6 +127,9 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the winning option.</returns>
         private string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings, string option1, string option2)
         {
+            if (string.IsNullOrEmpty(option2))
+                return option1;
+
             int count1 = 0;
             int count2 = 0;
 
