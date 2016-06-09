@@ -27,7 +27,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
-            Debug.WriteLine(">>Wilson Limit<<");
+            Debug.WriteLine(">>Wilson Scoring<<");
 
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
 
