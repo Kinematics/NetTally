@@ -215,9 +215,7 @@ namespace NetTally.VoteCounting
                       {
                           Voter = voter.Voter,
                           RankedVotes = voter.RankedVotes
-                              .Where(v => choice != v.Vote)
-                              .OrderBy(v => v.Rank)
-                              .Select((a, b) => new RankedVote { Vote = a.Vote, Rank = b + 1 })
+                              .Where(v => v.Vote != choice)
                               .ToList()
                       };
 
