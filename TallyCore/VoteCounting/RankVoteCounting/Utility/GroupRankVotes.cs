@@ -7,22 +7,16 @@ namespace NetTally.VoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public class RankGroupedVoters
-    {
-        public string VoteContent { get; set; }
-        public IEnumerable<RankedVoters> Ranks { get; set; }
-    }
-
-    public class RankedVoters
-    {
-        public int Rank { get; set; }
-        public IEnumerable<string> Voters { get; set; }
-    }
-
     public class RankedVote
     {
-        public int Rank { get; set; }
         public string Vote { get; set; }
+        public int Rank { get; set; }
+    }
+
+    public class RatedVote
+    {
+        public string Vote { get; set; }
+        public double Rating { get; set; }
     }
 
     public class VoterRankings
@@ -31,6 +25,22 @@ namespace NetTally.VoteCounting
         public List<RankedVote> RankedVotes { get; set; }
     }
 
+    public class RankedVoters
+    {
+        public int Rank { get; set; }
+        public IEnumerable<string> Voters { get; set; }
+    }
+
+    public class RankGroupedVoters
+    {
+        public string VoteContent { get; set; }
+        public IEnumerable<RankedVoters> Ranks { get; set; }
+    }
+
+    /// <summary>
+    /// Static class to take known input lists and convert them to an
+    /// enumerable list of one of the above types.
+    /// </summary>
     public static class GroupRankVotes
     {
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
@@ -83,23 +93,13 @@ namespace NetTally.VoteCounting
                           RankedVotes = (from v in voters
                                          select new RankedVote
                                          {
-                                             Rank = RankAsInt(VoteString.GetVoteMarker(v.Key)),
+                                             Rank = int.Parse(VoteString.GetVoteMarker(v.Key)),
                                              Vote = VoteString.GetVoteContent(v.Key)
                                          }).ToList()
                       };
 
             return res;
 
-        }
-
-        private static int RankAsInt(string rank)
-        {
-            if (string.IsNullOrEmpty(rank))
-                throw new ArgumentNullException(nameof(rank));
-
-            int rankAsInt = int.Parse(rank);
-
-            return rankAsInt;
         }
     }
 }
