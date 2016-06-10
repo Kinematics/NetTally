@@ -102,4 +102,10 @@ namespace NetTally.VoteCounting
 
         }
     }
+
+    public class DistanceData
+    {
+        public int[,] Paths { get; set; }
+    }
+
 }

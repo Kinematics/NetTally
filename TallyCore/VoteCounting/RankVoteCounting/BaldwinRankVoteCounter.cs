@@ -124,13 +124,7 @@ namespace NetTally.VoteCounting
             return null;
         }
 
-        private string Comma(bool addComma)
-        {
-            if (addComma)
-                return ", ";
-            else
-                return "";
-        }
+        private string Comma(bool addComma) => addComma ? ", " : "";
 
 
         /// <summary>
@@ -154,28 +148,6 @@ namespace NetTally.VoteCounting
                       };
 
             return res.ToList();
-        }
-
-        /// <summary>
-        /// Adds ranking entries for any choices that users did not explictly rank.
-        /// Modifies the provided list.
-        /// </summary>
-        /// <param name="localRankings">The vote rankings.</param>
-        /// <param name="allChoices">All available choices.</param>
-        private void AddUnselectedRankings(List<VoterRankings> localRankings, RankResults allChoices)
-        {
-            foreach (var ranker in localRankings)
-            {
-                if (ranker.RankedVotes.Count == allChoices.Count)
-                    continue;
-
-                var extras = allChoices.Except(ranker.RankedVotes.Select(v => v.Vote));
-
-                foreach (var extra in extras)
-                {
-                    ranker.RankedVotes.Add(new RankedVote { Vote = extra, Rank = 10 });
-                }
-            }
         }
 
         /// <summary>

@@ -10,11 +10,6 @@ namespace NetTally.VoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public class DistanceData
-    {
-        public int[,] Paths { get; set; }
-    }
-
     public class DistanceRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
@@ -50,8 +45,8 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Fills the pairwise preferences.
         /// This goes through each voter's ranking options and updates an array indicating
-        /// which options are preferred over which other options.  Each higher-ranked
-        /// option gains one point in 'beating' a lower-ranked option.
+        /// which options are preferred over which other options.
+        /// Each higher-ranked option gains the difference in ranking in 'beating' a lower-ranked option.
         /// </summary>
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="listOfChoices">The list of choices.</param>
