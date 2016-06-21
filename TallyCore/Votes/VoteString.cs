@@ -23,7 +23,7 @@ namespace NetTally
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\w))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
