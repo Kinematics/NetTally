@@ -22,8 +22,6 @@ namespace NetTally
     {
         [EnumDescription("Default (Baldwin)")]
         Default,
-        [EnumDescription("Distance Scoring")]
-        Distance,
         [EnumDescription("Wilson Scoring")]
         Wilson,
         [EnumDescription("Baldwin Runoff")]
@@ -38,6 +36,10 @@ namespace NetTally
         //BordaNormalized,
         //[EnumDescription("Borda Fraction")]
         //BordaFraction,
+        //[EnumDescription("Distance Scoring")]
+        //Distance,
+        //[EnumDescription("Distance Scoring (U0)")]
+        //DistanceU0,
         //[EnumDescription("Instant Runoff")]
         //InstantRunoff,
         //[EnumDescription("Coombs' Method")]
