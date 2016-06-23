@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="{Binding MyTitle, RelativeSource={RelativeSource Mode=Self}}"
         Height="617.588" Width="926" MinWidth="857" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>

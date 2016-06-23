@@ -7,6 +7,9 @@ using NetTally.Utility;
 
 namespace NetTally.Output
 {
+    // Task (string), Ordered list of ranked votes
+    using RankResultsByTask = Dictionary<string, List<string>>;
+
     /// <summary>
     /// Class to handle generating the output of a tally run, for display in the text box.
     /// </summary>
@@ -80,11 +83,13 @@ namespace NetTally.Output
         {
             if (VoteCounter.Instance.HasRankedVotes)
             {
-                // Get ranked results, and order them by task name
-                var results = RankVotes.Rank().OrderBy(a => a.Key);
+                VoteCounting.IRankVoteCounter counter = VoteCounting.VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
+                RankResultsByTask results = counter.CountVotes(VoteCounter.Instance.GetVotesCollection(VoteType.Rank));
+
+                var orderedRes = results.OrderBy(a => a.Key);
 
                 // Output the ranking results for each task
-                foreach (var task in results)
+                foreach (var task in orderedRes)
                 {
                     AddRankTask(task);
                     sb.AppendLine("");

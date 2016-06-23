@@ -177,7 +177,7 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Extension method to get the object with the minimum value from an enumerable list.
+        /// Extension method to get the object with the maximum value from an enumerable list.
         /// </summary>
         /// <typeparam name="T">The type of object the list contains.</typeparam>
         /// <param name="self">The list.</param>

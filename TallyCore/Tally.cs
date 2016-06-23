@@ -109,7 +109,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "DisplayMode")
+            if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
                 UpdateResults();
         }
 
