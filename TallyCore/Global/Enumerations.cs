@@ -20,16 +20,16 @@ namespace NetTally
 
     public enum RankVoteCounterMethod
     {
-        [EnumDescription("Default (Baldwin)")]
+        [EnumDescription("Default (RIR)")]
         Default,
         [EnumDescription("Wilson Scoring")]
         Wilson,
+        [EnumDescription("Schulze (Condorcet)")]
+        Schulze,
         [EnumDescription("Baldwin Runoff")]
         Baldwin,
         [EnumDescription("Rated Instant Runoff")]
         RIRV,
-        [EnumDescription("Schulze (Condorcet)")]
-        Schulze,
         //[EnumDescription("Borda Count")]
         //Borda,
         //[EnumDescription("Borda Normalized")]

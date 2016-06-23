@@ -53,18 +53,20 @@ namespace NetTally.VoteCounting
                 //    return new BordaNormalizedRankVoteCounter();
                 //case RankVoteCounterMethod.Pairwise:
                 //    return new PairwiseRankVoteCounter();
+                //case RankVoteCounterMethod.Distance:
+                //    return new DistanceRankVoteCounter();
+                //case RankVoteCounterMethod.DistanceU0:
+                //    return new DistanceU0RankVoteCounter();
                 case RankVoteCounterMethod.Baldwin:
                     return new BaldwinRankVoteCounter();
                 case RankVoteCounterMethod.Wilson:
                     return new WilsonRankVoteCounter();
-                case RankVoteCounterMethod.Distance:
-                    return new DistanceRankVoteCounter();
                 case RankVoteCounterMethod.Schulze:
                     return new SchulzeRankVoteCounter();
                 case RankVoteCounterMethod.RIRV:
                     return new RIRVRankVoteCounter();
                 default:
-                    return new BaldwinRankVoteCounter();
+                    return new RIRVRankVoteCounter();
             }
         }
 
