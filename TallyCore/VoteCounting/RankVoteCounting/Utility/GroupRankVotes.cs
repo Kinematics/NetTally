@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Utility;
 
 namespace NetTally.VoteCounting
 {
@@ -45,41 +46,37 @@ namespace NetTally.VoteCounting
     {
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
         {
-            var res = from vote in task
-                      let content = VoteString.GetVoteContent(vote.Key)
-                      group vote by content into votes
-                      select new RankGroupedVoters
-                      {
-                          VoteContent = votes.Key,
-                          Ranks = from v in votes
-                                  group v by VoteString.GetVoteMarker(v.Key) into vr
-                                  select new RankedVoters { Rank = int.Parse(vr.Key), Voters = vr.SelectMany(a => a.Value) }
-                      };
+
+            var res = task.GroupBy(vote => VoteString.GetVoteContent(vote.Key), StringUtility.AgnosticStringComparer)
+                .Select(votes => new RankGroupedVoters {
+                    VoteContent = votes.Key,
+                    Ranks = from v in votes
+                            group v by VoteString.GetVoteMarker(v.Key) into vr
+                            select new RankedVoters { Rank = int.Parse(vr.Key), Voters = vr.SelectMany(a => a.Value) }
+                });
 
             return res;
         }
 
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(IEnumerable<VoterRankings> rankings)
         {
-            var q = from v in rankings
-                    from w in v.RankedVotes
-                    group w by w.Vote into wv
-                    select new RankGroupedVoters
-                    {
-                        VoteContent = wv.Key,
-                        Ranks = from v2 in rankings
-                                let voter = v2.Voter
-                                from r in v2.RankedVotes
-                                where r.Vote == wv.Key
-                                group voter by r.Rank into vs2
-                                select new RankedVoters
-                                {
-                                    Rank = vs2.Key,
-                                    Voters = vs2.Select(g2 => g2)
-                                }
-                    };
+            var r1 = rankings.SelectMany(va => va.RankedVotes).GroupBy(vb => vb.Vote, StringUtility.AgnosticStringComparer)
+                .Select(vc => new RankGroupedVoters
+                {
+                    VoteContent = vc.Key,
+                    Ranks = from v2 in rankings
+                            let voter = v2.Voter
+                            from r in v2.RankedVotes
+                            where StringUtility.AgnosticStringComparer.Equals(r.Vote, vc.Key)
+                            group voter by r.Rank into vs2
+                            select new RankedVoters
+                            {
+                                Rank = vs2.Key,
+                                Voters = vs2.Select(g2 => g2)
+                            }
+                });
 
-            return q;
+            return r1;
         }
 
         public static IEnumerable<VoterRankings> GroupByVoterAndRank(GroupedVotesByTask task)
@@ -101,6 +98,51 @@ namespace NetTally.VoteCounting
             return res;
 
         }
+
+        /// <summary>
+        /// Gets all choices from all user votes.
+        /// </summary>
+        /// <param name="rankings">The collection of user votes.</param>
+        /// <returns>Returns a list of all the choices in the task.</returns>
+        public static List<string> GetAllChoices(IEnumerable<VoterRankings> rankings)
+        {
+            var res = rankings.SelectMany(r => r.RankedVotes).Select(r => r.Vote).Distinct(StringUtility.AgnosticStringComparer);
+
+            return res.ToList();
+        }
+
+        /// <summary>
+        /// Gets all choices from all user votes.
+        /// </summary>
+        /// <param name="task">The collection of user votes.</param>
+        /// <returns>Returns a list of all the choices in the task.</returns>
+        public static List<string> GetAllChoices(GroupedVotesByTask task)
+        {
+            var res = task.GroupBy(vote => VoteString.GetVoteContent(vote.Key), StringUtility.AgnosticStringComparer).Select(vg => vg.Key);
+
+            return res.ToList();
+        }
+
+        /// <summary>
+        /// Gets an indexer lookup for the list of choices, so it doesn't have to do
+        /// sequential lookups each time..
+        /// </summary>
+        /// <param name="listOfChoices">The list of choices.</param>
+        /// <returns>Returns a dictionary of choices vs list index.</returns>
+        public static Dictionary<string, int> GetChoicesIndexes(List<string> listOfChoices)
+        {
+            Dictionary<string, int> choiceIndexes = new Dictionary<string, int>(StringUtility.AgnosticStringComparer);
+            var distinctChoices = listOfChoices.Distinct(StringUtility.AgnosticStringComparer);
+
+            int index = 0;
+            foreach (var choice in distinctChoices)
+            {
+                choiceIndexes[choice] = index++;
+            }
+
+            return choiceIndexes;
+        }
+
     }
 
     public class DistanceData

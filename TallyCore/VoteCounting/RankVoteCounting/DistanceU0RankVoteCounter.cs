@@ -26,7 +26,7 @@ namespace NetTally.VoteCounting
 
             Debug.WriteLine(">>Distance U0 Scoring<<");
 
-            List<string> listOfChoices = GetAllChoices(task);
+            List<string> listOfChoices = GroupRankVotes.GetAllChoices(task);
 
             var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
 
@@ -58,7 +58,7 @@ namespace NetTally.VoteCounting
                 Paths = new int[listOfChoices.Count, listOfChoices.Count]
             };
 
-            var choiceIndexes = GetChoicesIndexes(listOfChoices);
+            var choiceIndexes = GroupRankVotes.GetChoicesIndexes(listOfChoices);
 
             foreach (var voter in voterRankings)
             {
@@ -191,38 +191,6 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Small Utility        
-        /// <summary>
-        /// Gets all choices from all user votes.
-        /// </summary>
-        /// <param name="task">The collection of user votes.</param>
-        /// <returns>Returns a list of all the choices in the task.</returns>
-        private List<string> GetAllChoices(GroupedVotesByTask task)
-        {
-            var res = from vote in task
-                      group vote by VoteString.GetVoteContent(vote.Key) into votes
-                      select votes.Key;
-
-            return res.ToList();
-        }
-
-        /// <summary>
-        /// Gets an indexer lookup for the list of choices, so it doesn't have to do
-        /// sequential lookups each time..
-        /// </summary>
-        /// <param name="listOfChoices">The list of choices.</param>
-        /// <returns>Returns a dictionary of choices vs list index.</returns>
-        private Dictionary<string, int> GetChoicesIndexes(RankResults listOfChoices)
-        {
-            Dictionary<string, int> choiceIndexes = new Dictionary<string, int>();
-            int index = 0;
-            foreach (var choice in listOfChoices)
-            {
-                choiceIndexes[choice] = index++;
-            }
-
-            return choiceIndexes;
-        }
-
         /// <summary>
         /// Gets the number of paths in the table with a value greater than 0.
         /// </summary>

@@ -43,7 +43,7 @@ namespace NetTally.VoteCounting
                 Debug.WriteLine(">>Coombs Runoff<<");
 
                 var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
-                var allChoices = GetAllChoices(voterRankings);
+                var allChoices = GroupRankVotes.GetAllChoices(voterRankings);
 
                 for (int i = 1; i <= 9; i++)
                 {
@@ -252,18 +252,6 @@ namespace NetTally.VoteCounting
                                  select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
 
             return preferredVotes;
-        }
-
-        /// <summary>
-        /// Gets all choices from all user votes.
-        /// </summary>
-        /// <param name="rankings">The collection of user votes.</param>
-        /// <returns>Returns a list of all the choices in the task.</returns>
-        private List<string> GetAllChoices(IEnumerable<VoterRankings> rankings)
-        {
-            var res = rankings.SelectMany(r => r.RankedVotes).Select(r => r.Vote).Distinct();
-
-            return res.ToList();
         }
     }
 }

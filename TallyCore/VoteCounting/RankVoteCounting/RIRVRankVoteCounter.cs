@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NetTally.Utility;
 
 namespace NetTally.VoteCounting
 {
@@ -40,7 +41,7 @@ namespace NetTally.VoteCounting
             // The voterRankings are used for the runoff
             var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
             // The full choices list is just to keep track of how many we have left.
-            var allChoices = GetAllChoices(voterRankings);
+            var allChoices = GroupRankVotes.GetAllChoices(voterRankings);
 
             for (int i = 1; i <= 9; i++)
             {
@@ -135,8 +136,8 @@ namespace NetTally.VoteCounting
 
             foreach (var voter in voterRankings)
             {
-                var rank1 = voter.RankedVotes.FirstOrDefault(a => a.Vote == option1);
-                var rank2 = voter.RankedVotes.FirstOrDefault(a => a.Vote == option2);
+                var rank1 = voter.RankedVotes.FirstOrDefault(a => StringUtility.AgnosticStringComparer.Equals(a.Vote, option1));
+                var rank2 = voter.RankedVotes.FirstOrDefault(a => StringUtility.AgnosticStringComparer.Equals(a.Vote, option2));
 
                 if (rank1 == null && rank2 == null)
                     continue;
@@ -175,19 +176,6 @@ namespace NetTally.VoteCounting
             return option1;
         }
 
-
-        /// <summary>
-        /// Gets all choices from all user votes.
-        /// </summary>
-        /// <param name="rankings">The collection of user votes.</param>
-        /// <returns>Returns a list of all the choices in the task.</returns>
-        private List<string> GetAllChoices(IEnumerable<VoterRankings> rankings)
-        {
-            var res = rankings.SelectMany(r => r.RankedVotes).Select(r => r.Vote).Distinct();
-
-            return res.ToList();
-        }
-
         /// <summary>
         /// Removes the specified vote choice from the list of ranked votes.
         /// </summary>
@@ -196,7 +184,7 @@ namespace NetTally.VoteCounting
         /// <returns></returns>
         private IEnumerable<RankGroupedVoters> RemoveChoiceFromRanks(IEnumerable<RankGroupedVoters> rankedVotes, string choice)
         {
-            var res = rankedVotes.Where(a => a.VoteContent != choice);
+            var res = rankedVotes.Where(a => !StringUtility.AgnosticStringComparer.Equals(a.VoteContent, choice));
 
             return res.ToList();
         }
@@ -215,7 +203,7 @@ namespace NetTally.VoteCounting
                       {
                           Voter = voter.Voter,
                           RankedVotes = voter.RankedVotes
-                              .Where(v => v.Vote != choice)
+                              .Where(v => !StringUtility.AgnosticStringComparer.Equals(v.Vote, choice))
                               .ToList()
                       };
 
