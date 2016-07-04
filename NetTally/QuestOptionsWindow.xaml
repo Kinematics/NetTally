@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="290" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="393.284" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -37,26 +37,50 @@
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Use Custom Threadmark Filters</TextBlock>
-                        <TextBlock>Set whether to use the threadmark filters defined in the textbox below.</TextBlock>
+                        <TextBlock>Set to use the threadmark filters defined in the textbox below.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
         <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used." />
-        
+
         <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,183,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding Path=SelectedQuest.CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Custom Threadmark Filters</TextBlock>
-                        <TextBlock>Comma-delimited list of words for threadmarks you want to skip when tallying this quest.</TextBlock>
+                        <TextBlock>Comma-delimited list of words for threadmarks you want to skip when tallying this quest. (You may also specify a regex.)</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
 
+        <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters" HorizontalAlignment="Left" Margin="10,238,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=SelectedQuest.UseCustomTaskFilters}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Use Custom Task Filters</TextBlock>
+                        <TextBlock>Set to use the task filters defined in the textbox below.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
+        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,272,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding Path=SelectedQuest.CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Custom Task Filters</TextBlock>
+                        <TextBlock>Comma-delimited list of tasks you want to process when tallying this quest. (You may also specify a regex.)  Any tasks not included will be skipped.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+
+        
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
     </Grid>
