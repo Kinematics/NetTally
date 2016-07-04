@@ -89,10 +89,10 @@ namespace NetTally.VoteCounting
 
             int voterCount = localRankings.Count();
             int winCount = voterCount / 2 + 1;
+            string eliminated = "";
 
             try
             {
-                Debug.Write("Eliminations: [");
                 bool eliminateOne = false;
 
                 while (true)
@@ -113,7 +113,7 @@ namespace NetTally.VoteCounting
 
                     string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
 
-                    Debug.Write($"{Comma(eliminateOne)}{leastPreferredChoice}");
+                    eliminated += Comma(eliminateOne) + leastPreferredChoice;
 
                     RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
                     eliminateOne = true;
@@ -121,7 +121,7 @@ namespace NetTally.VoteCounting
             }
             finally
             {
-                Debug.WriteLine("]");
+                Debug.WriteLine($"Eliminations: [{eliminated}]");
             }
 
             return null;
