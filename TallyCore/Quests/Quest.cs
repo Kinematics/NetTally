@@ -66,6 +66,9 @@ namespace NetTally
         bool useCustomThreadmarkFilters = false;
         string customThreadmarkFilters = string.Empty;
 
+        bool useCustomTaskFilters = false;
+        string customTaskFilters = string.Empty;
+
         PartitionMode partitionMode = PartitionMode.None;
         #endregion
 
@@ -306,6 +309,33 @@ namespace NetTally
             set
             {
                 customThreadmarkFilters = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to use custom threadmark filters to exclude threadmarks
+        /// from the list of valid 'last threadmark found' checks.
+        /// </summary>
+        public bool UseCustomTaskFilters
+        {
+            get { return useCustomTaskFilters; }
+            set
+            {
+                useCustomTaskFilters = value;
+                OnPropertyChanged();
+            }
+        }
+        /// <summary>
+        /// Custom threadmark filters to exclude threadmarks from the list of valid
+        /// 'last threadmark found' checks.
+        /// </summary>
+        public string CustomTaskFilters
+        {
+            get { return customTaskFilters; }
+            set
+            {
+                customTaskFilters = value;
                 OnPropertyChanged();
             }
         }

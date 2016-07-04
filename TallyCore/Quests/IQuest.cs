@@ -55,6 +55,15 @@ namespace NetTally
         string CustomThreadmarkFilters { get; set; }
 
         /// <summary>
+        /// Flag for whether to use custom filters to only process specified tasks.
+        /// </summary>
+        bool UseCustomTaskFilters { get; set; }
+        /// <summary>
+        /// List of custom tasks to process.
+        /// </summary>
+        string CustomTaskFilters { get; set; }
+
+        /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
         PartitionMode PartitionMode { get; set; }
