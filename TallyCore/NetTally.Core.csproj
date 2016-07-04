@@ -55,7 +55,8 @@
     <Compile Include="Adapters\phpBBAdapter.cs" />
     <Compile Include="Adapters\Utility\ExtendHtmlNode.cs" />
     <Compile Include="Adapters\Utility\ThreadInfo.cs" />
-    <Compile Include="Adapters\Utility\ThreadmarkFilter.cs" />
+    <Compile Include="Filters\BaseFilter.cs" />
+    <Compile Include="Filters\ThreadmarkFilter.cs" />
     <Compile Include="Adapters\Utility\ThreadRangeInfo.cs" />
     <Compile Include="Adapters\vBulletinAdapter3.cs" />
     <Compile Include="Adapters\vBulletinAdapter4.cs" />
