@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using NetTally.Filters;
 
-namespace NetTally.Adapters
+namespace NetTally.Filters
 {
     public class ThreadmarkFilter : BaseFilter
     {
