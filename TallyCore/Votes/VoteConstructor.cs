@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Filters;
 using NetTally.Utility;
 
 namespace NetTally
@@ -34,9 +35,11 @@ namespace NetTally
 
             var plans = GetAllPlansWithContent(post);
 
-            StorePlanReferences(plans);
+            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
 
-            ProcessPlans(plans, post, quest.PartitionMode);
+            StorePlanReferences(filteredPlans);
+
+            ProcessPlans(filteredPlans, post, quest.PartitionMode);
         }
 
         /// <summary>
@@ -59,9 +62,11 @@ namespace NetTally
 
             var plans = GetAllFullPostPlans(post);
 
-            StorePlanReferences(plans);
+            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
 
-            ProcessPlans(plans, post, quest.PartitionMode);
+            StorePlanReferences(filteredPlans);
+
+            ProcessPlans(filteredPlans, post, quest.PartitionMode);
         }
 
         /// <summary>
@@ -84,9 +89,11 @@ namespace NetTally
 
             var plans = GetAllOneLinePlans(post);
 
-            StorePlanReferences(plans);
+            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
 
-            ProcessPlans(plans, post, quest.PartitionMode);
+            StorePlanReferences(filteredPlans);
+
+            ProcessPlans(filteredPlans, post, quest.PartitionMode);
         }
 
         /// <summary>
@@ -123,8 +130,15 @@ namespace NetTally
                     return true;
                 }
 
-                // Process the actual vote.
-                ProcessVote(post, quest.PartitionMode);
+                // Get the list of all vote partitions, built according to current preferences.
+                // One of: By line, By block, or By post (ie: entire vote)
+                List<string> votePartitions = GetVotePartitions(post.WorkingVote, quest.PartitionMode, VoteType.Vote, post.Author);
+
+                var filteredPartitions = FilterVotesByTask(votePartitions, quest.TaskFilter);
+
+                // Add those to the vote counter.
+                VoteCounter.Instance.AddVotes(filteredPartitions, post.Author, post.ID, VoteType.Vote);
+
             }
 
             // Handle ranking votes, if applicable.
@@ -513,6 +527,46 @@ namespace NetTally
             List<string> votePartitions = GetVotePartitions(post.WorkingVote, partitionMode, VoteType.Vote, post.Author);
 
             VoteCounter.Instance.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
+        }
+
+        /// <summary>
+        /// Filters the plans by task.
+        /// </summary>
+        /// <param name="plans">The plans.</param>
+        /// <param name="taskFilter">The task filter.</param>
+        /// <returns>Returns the plans after filtering with the task filter.</returns>
+        private static List<List<string>> FilterPlansByTask(List<List<string>> plans, TaskFilter taskFilter)
+        {
+            if (taskFilter == null)
+                return plans;
+
+            var filtered = plans.Where(p => taskFilter.Filter(VoteString.GetVoteTask(p.First())));
+            return filtered.ToList();
+        }
+
+        /// <summary>
+        /// Filters the votes by task.
+        /// </summary>
+        /// <param name="lines">The lines.</param>
+        /// <param name="taskFilter">The task filter.</param>
+        /// <returns>Returns the votes after filtering with the task filter.</returns>
+        private static List<string> FilterVotesByTask(List<string> lines, TaskFilter taskFilter)
+        {
+            if (taskFilter == null)
+                return lines;
+
+            List<string> results = new List<string>();
+
+            foreach (var line in lines)
+            {
+                string firstLine = StringUtility.GetFirstLine(line);
+                string task = VoteString.GetVoteTask(firstLine);
+                bool check = taskFilter.Filter(task);
+                if (check)
+                    results.Add(line);
+            }
+
+            return results;
         }
 
         #endregion
