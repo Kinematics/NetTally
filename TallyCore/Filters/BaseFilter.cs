@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Filters
 {
     public class BaseFilter
     {
+        static readonly string emptyLine = "^$";
         readonly Regex defaultRegex;
         readonly Regex customRegex;
 
@@ -28,19 +30,34 @@ namespace NetTally.Filters
         /// list of words that can be used to create a custom filter.</param>
         protected static Regex CreateCustomRegex(string customFilterString)
         {
-            if (string.IsNullOrEmpty(customFilterString.Trim()))
+            if (customFilterString == null)
                 return null;
 
             string safeCustomFilters = Utility.StringUtility.SafeString(customFilterString);
 
             var splits = safeCustomFilters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            var options = splits.Aggregate((s, t) => s.Trim() + "|" + t.Trim());
+            StringBuilder sb = new StringBuilder();
+            string bar = "";
 
-            if (string.IsNullOrEmpty(options))
-                return null;
+            foreach (var split in splits)
+            {
+                string s = split.Trim();
+                if (!string.IsNullOrEmpty(s))
+                {
+                    sb.Append($"{bar}{s}");
+                    bar = "|";
+                }
+            }
 
-            string rString = $@"\b({options})\b";
+            string sbString = sb.ToString();
+
+            string rString;
+
+            if (string.IsNullOrEmpty(sbString))
+                rString = emptyLine;
+            else
+                rString = $@"\b({sbString})\b";
 
             try
             {
@@ -62,8 +79,15 @@ namespace NetTally.Filters
         /// If there is no currently active filter, and test has some value, will always return true.</returns>
         public bool Filter(string test)
         {
-            if (string.IsNullOrEmpty(test))
+            if (test == null)
+            {
                 return false;
+            }
+
+            if (string.IsNullOrEmpty(test))
+            {
+                return (customRegex != null && customRegex.ToString() == emptyLine);
+            }
 
             return customRegex?.Match(test).Success ?? defaultRegex?.Match(test).Success ?? true;
         }
