@@ -12,6 +12,7 @@ using System.Xml.Serialization;
 using HtmlAgilityPack;
 using NetTally.Adapters;
 using NetTally.Utility;
+using NetTally.Filters;
 
 namespace NetTally
 {
@@ -323,6 +324,7 @@ namespace NetTally
             set
             {
                 useCustomTaskFilters = value;
+                TaskFilter = new TaskFilter(this);
                 OnPropertyChanged();
             }
         }
@@ -336,9 +338,16 @@ namespace NetTally
             set
             {
                 customTaskFilters = value;
+                TaskFilter = new TaskFilter(this);
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Gets or sets the task filter, based on current task filter settings.
+        /// This is updated any time UseCustomTaskFilters or CustomTaskFilters properties change.
+        /// </summary>
+        public TaskFilter TaskFilter { get; set; }
 
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end

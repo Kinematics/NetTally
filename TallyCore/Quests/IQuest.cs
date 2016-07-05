@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Adapters;
+using NetTally.Filters;
 
 namespace NetTally
 {
@@ -62,6 +63,10 @@ namespace NetTally
         /// List of custom tasks to process.
         /// </summary>
         string CustomTaskFilters { get; set; }
+        /// <summary>
+        /// Gets or sets the task filter, based on current task filter settings.
+        /// </summary>
+        TaskFilter TaskFilter { get; set; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
