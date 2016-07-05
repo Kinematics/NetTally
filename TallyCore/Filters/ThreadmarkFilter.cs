@@ -28,7 +28,7 @@ namespace NetTally.Filters
         {
             if (quest != null && quest.UseCustomThreadmarkFilters)
             {
-                return CreateCustomRegex(quest.CustomThreadmarkFilters);
+                return CreateCustomRegex(quest.CustomThreadmarkFilters, false);
             }
 
             return null;

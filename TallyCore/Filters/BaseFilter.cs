@@ -28,7 +28,7 @@ namespace NetTally.Filters
         /// </summary>
         /// <param name="customFilterString">A string with a comma-delimited
         /// list of words that can be used to create a custom filter.</param>
-        protected static Regex CreateCustomRegex(string customFilterString)
+        protected static Regex CreateCustomRegex(string customFilterString, bool allowBlankLines)
         {
             if (customFilterString == null)
                 return null;
@@ -55,7 +55,10 @@ namespace NetTally.Filters
             string rString;
 
             if (string.IsNullOrEmpty(sbString))
-                rString = emptyLine;
+                if (allowBlankLines)
+                    rString = emptyLine;
+                else
+                    return null;
             else
                 rString = $@"\b({sbString})\b";
 

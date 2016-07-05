@@ -28,7 +28,7 @@ namespace NetTally.Filters
         {
             if (quest != null && quest.UseCustomTaskFilters)
             {
-                return CreateCustomRegex(quest.CustomTaskFilters);
+                return CreateCustomRegex(quest.CustomTaskFilters, true);
             }
 
             return null;
