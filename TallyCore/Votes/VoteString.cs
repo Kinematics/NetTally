@@ -57,6 +57,7 @@ namespace NetTally
 
         #region Other regexes
         static readonly Regex extendedTextRegex = new Regex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
+        static readonly Regex extendedTextSentenceRegex = new Regex(@"(?<!\([^)]*)(?<![pP][lL][aA][nN]\b.+)(((?<=\S{4,})|(?<=\s[\p{Ll}]\S+))([.?!])(?:\s+[^\p{Ll}]))");
         static readonly Regex wordCountRegex = new Regex(@"\S+\b");
         #endregion
 
@@ -397,6 +398,20 @@ namespace NetTally
                         if (CountWords(partial) > 1)
                             return m.Index;
                     }
+                }
+            }
+
+            // Alternate trimming that reduces the vote to only the first sentence.
+            matches = extendedTextSentenceRegex.Matches(lineContent);
+            // Sentences may be taken up to half the line length.
+            separatorLimit = lineContent.Length / 2;
+
+            if (matches.Count > 0)
+            {
+                Match m = matches[0];
+                if (m.Success && m.Index > 0 && m.Index < separatorLimit)
+                {
+                    return m.Index+1;
                 }
             }
 
