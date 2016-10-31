@@ -429,6 +429,11 @@ namespace NetTally.Adapters
 
             // On another branch of the primary content, we can get the post number.
             HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
+            // HTML parsing of the post was corrupted somehow.
+            if (messageMeta == null)
+            {
+                return null;
+            }
             HtmlNode publicControls = messageMeta.GetChildWithClass("publicControls");
             HtmlNode postNumber = publicControls.GetChildWithClass("postNumber");
 
