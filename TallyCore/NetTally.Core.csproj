@@ -73,6 +73,7 @@
     <Compile Include="Quests\QuestCollectionWrapper.cs" />
     <Compile Include="Utility\DefaultClock.cs" />
     <Compile Include="Utility\IClock.cs" />
+    <Compile Include="Utility\IListExtensions.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Utility\ObservableCollectionExtension.cs" />
     <Compile Include="ViewModels\Utility\AsyncRelayCommand.cs" />
