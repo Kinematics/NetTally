@@ -451,6 +451,7 @@ namespace NetTally.ViewModels
         #region Section: Vote Counter
         public ObservableCollectionExt<string> AllVotesCollection { get; }
         public ObservableCollectionExt<string> AllVotersCollection { get; }
+        public List<string> TaskList { get; set; }
 
         private void BindVoteCounter()
         {
@@ -468,6 +469,8 @@ namespace NetTally.ViewModels
                     .Distinct(StringUtility.AgnosticStringComparer).ToList();
 
                 AllVotesCollection.Replace(votes);
+
+                TaskList = KnownTasks.ToList();
 
                 var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
                 var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);

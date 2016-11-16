@@ -486,6 +486,18 @@ namespace NetTally
                 }
             }
         }
+
+        private void reorderTasks_Click(object sender, RoutedEventArgs e)
+        {
+            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            reorderWindow.ShowDialog();
+
+            MainViewModel.UpdateOutput();
+        }
         #endregion
 
         #region Watched Events        
@@ -649,8 +661,14 @@ namespace NetTally
             clearTask.Click += modifyTask_Click;
             clearTask.ToolTip = "Clear the task from the currently selected vote.";
 
+            MenuItem reorderTasks = new MenuItem();
+            reorderTasks.Header = "Re-Order Tasks";
+            reorderTasks.Click += reorderTasks_Click;
+            reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
+
             ContextMenuCommands.Add(newTask);
             ContextMenuCommands.Add(clearTask);
+            ContextMenuCommands.Add(reorderTasks);
         }
 
         /// <summary>
