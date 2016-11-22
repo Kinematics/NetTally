@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="393.284" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="398.792" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -68,7 +68,9 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,272,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="30,259,0,0" TextWrapping="Wrap" Text="Limit tally results to the specified tasks only.  This value is not saved across sessions."
+                   VerticalAlignment="Top" Width="441"/>
+        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,296,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding Path=SelectedQuest.CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -80,7 +82,7 @@
             </TextBox.ToolTip>
         </TextBox>
 
-        
+
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
     </Grid>
