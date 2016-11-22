@@ -27,7 +27,6 @@ namespace NetTally.Adapters
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
-
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
@@ -48,7 +47,6 @@ namespace NetTally.Adapters
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
-
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
@@ -58,7 +56,7 @@ namespace NetTally.Adapters
             else
                 children = node.Elements(element);
 
-            return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(@class));
+            return children.FirstOrDefault(n => n.HasClass(@class));
         }
 
         /// <summary>
@@ -93,7 +91,7 @@ namespace NetTally.Adapters
             else
                 children = node.Descendants(element);
 
-            return children.FirstOrDefault(n => n.GetAttributeValue("class", "").Split(' ').Contains(@class));
+            return children.FirstOrDefault(n => n.HasClass(@class));
         }
 
         /// <summary>
