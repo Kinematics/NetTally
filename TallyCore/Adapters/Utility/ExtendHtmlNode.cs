@@ -10,6 +10,31 @@ namespace NetTally.Adapters
     public static class ExtendHtmlNode
     {
         /// <summary>
+        /// Determines whether the specified HTML node has the named class.
+        /// Allows for multiple classes in the class attribute, separated by spaces.
+        /// </summary>
+        /// <param name="node">The HTML node.</param>
+        /// <param name="class">The class name to check for.</param>
+        /// <returns>
+        ///   <c>true</c> if the node has the specified class; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// node
+        /// or
+        /// class
+        /// </exception>
+        public static bool HasClass(this HtmlNode node, string @class)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            if (string.IsNullOrEmpty(@class))
+                throw new ArgumentNullException(nameof(@class));
+
+            return node.GetAttributeValue("class", "").Split(' ').Contains(@class);
+        }
+
+        /// <summary>
         /// Get the single HTML node result for searching for a direct child element
         /// that has the specified class attribute.
         /// </summary>
@@ -23,6 +48,7 @@ namespace NetTally.Adapters
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
+
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
