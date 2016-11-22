@@ -76,20 +76,15 @@ namespace NetTally.Filters
         /// the custom filter regex.
         /// </summary>
         /// <param name="test">The string to test.</param>
-        /// <returns>Returns true if the provided string matches the currently active filter.
-        /// If the test string is null or empty, will always return false.
-        /// If there is no currently active filter, and test has some value, will always return true.</returns>
+        /// <returns>
+        /// Returns true if the provided string matches the current (or default) filter.
+        /// Always returns false if the test string is null.
+        /// If the custom and default filters are null, returns true.</returns>
         public bool Filter(string test)
         {
+            // Test string should never be null.  If it is, return false.
             if (test == null)
-            {
                 return false;
-            }
-
-            if (string.IsNullOrEmpty(test))
-            {
-                return (customRegex != null && customRegex.ToString() == emptyLine);
-            }
 
             return customRegex?.Match(test).Success ?? defaultRegex?.Match(test).Success ?? true;
         }
