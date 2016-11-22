@@ -210,7 +210,7 @@ namespace NetTally.Adapters
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
         {
             var posts = from li in GetPostsList(page)
-                        where li.HasClass("stickyFirstContainer") == false
+                        //where li.HasClass("stickyFirstContainer") == false
                         select GetPost(li);
 
             return posts;

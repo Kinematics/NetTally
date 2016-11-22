@@ -176,7 +176,7 @@ namespace NetTally
                 PostsList.AddRange(posts);
             }
 
-            PostsList = PostsList.OrderBy(p => p.Number).ToList();
+            PostsList = PostsList.Distinct().OrderBy(p => p.Number).ToList();
 
             TallyPosts();
 
