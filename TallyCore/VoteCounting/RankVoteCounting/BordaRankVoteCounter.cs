@@ -53,7 +53,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="ranks">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
         /// <returns>Returns a numeric evaluation of the overall rank of the vote.</returns>
-        private int RankVote(IEnumerable<RankedVoters> ranks)
+        private static int RankVote(IEnumerable<RankedVoters> ranks)
         {
             int voteValue = 0;
 

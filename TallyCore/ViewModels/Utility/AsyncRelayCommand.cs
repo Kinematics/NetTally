@@ -10,8 +10,8 @@ namespace NetTally.ViewModels
     /// </summary>
     public interface IAsyncCommand
     {
-        Task ExecuteAsync(object obj);
-        bool CanExecute(object obj);
+        Task ExecuteAsync(object value);
+        bool CanExecute(object value);
     }
 
     /// <summary>
@@ -59,24 +59,24 @@ namespace NetTally.ViewModels
         /// Defines the method to be called when the command is invoked.
         /// Ignore warning about async void.
         /// </summary>
-        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        public async void Execute(object parameter)
+        /// <param name="value">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+        public async void Execute(object value)
         {
-            await ExecuteAsync(parameter);
+            await ExecuteAsync(value);
         }
 
         /// <summary>
         /// Executes the command asynchronously.
         /// </summary>
-        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+        /// <param name="value">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         /// <returns></returns>
-        public async Task ExecuteAsync(object parameter)
+        public async Task ExecuteAsync(object value)
         {
             try
             {
                 isExecuting = true;
                 OnCanExecuteChanged();
-                await execute(parameter);
+                await execute(value);
             }
             finally
             {

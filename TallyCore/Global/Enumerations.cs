@@ -125,7 +125,7 @@ namespace NetTally
     /// </summary>
     /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Field)]
-    public class EnumDescriptionAttribute : Attribute
+    public sealed class EnumDescriptionAttribute : Attribute
     {
         public string Description { get; }
         public EnumDescriptionAttribute(string description)

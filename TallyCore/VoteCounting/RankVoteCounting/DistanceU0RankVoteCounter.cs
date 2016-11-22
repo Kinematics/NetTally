@@ -51,7 +51,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a filled-in preferences array.</returns>
-        private DistanceData GetPairwiseData(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
+        private static DistanceData GetPairwiseData(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
         {
             DistanceData data = new DistanceData
             {
@@ -82,10 +82,10 @@ namespace NetTally.VoteCounting
                     // There is no relative preference, nor does it place unranked options 'beneath'
                     // ranked options, such that higher ranked options have greater distance from them.
                     // Unranked options are agnostic choices.
-                    foreach (var nonChoice in unrankedChoices)
-                    {
-                        //data.Paths[choiceIndexes[choice.Vote], choiceIndexes[nonChoice]]++;
-                    }
+                    //foreach (var nonChoice in unrankedChoices)
+                    //{
+                    //    //data.Paths[choiceIndexes[choice.Vote], choiceIndexes[nonChoice]]++;
+                    //}
                 }
 
                 // All unranked options are at distance 0 from each other, and thus have no effect
@@ -101,7 +101,7 @@ namespace NetTally.VoteCounting
         /// <param name="pairwiseData">The pairwise data.</param>
         /// <param name="choicesCount">The choices count (size of the table).</param>
         /// <returns>Returns a table with the strongest paths between each pairwise choice.</returns>
-        private DistanceData GetStrongestPaths(DistanceData pairwiseData, int choicesCount)
+        private static DistanceData GetStrongestPaths(DistanceData pairwiseData, int choicesCount)
         {
             DistanceData data = new DistanceData
             {
@@ -137,7 +137,7 @@ namespace NetTally.VoteCounting
         /// <param name="strengthData">The strongest paths.</param>
         /// <param name="choicesCount">The choices count (size of table).</param>
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
-        private DistanceData GetWinningPaths(DistanceData strengthData, int choicesCount)
+        private static DistanceData GetWinningPaths(DistanceData strengthData, int choicesCount)
         {
             DistanceData winningData = new DistanceData
             {
@@ -198,7 +198,7 @@ namespace NetTally.VoteCounting
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns a count of the number of positive path strength values.</returns>
-        private int GetPositivePathCount(int[,] paths, int row, int count)
+        private static int GetPositivePathCount(int[,] paths, int row, int count)
         {
             int pathCount = 0;
 
@@ -218,7 +218,7 @@ namespace NetTally.VoteCounting
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns the sum of the given path.</returns>
-        private int GetPathSum(int[,] paths, int row, int count)
+        private static int GetPathSum(int[,] paths, int row, int count)
         {
             int pathSum = 0;
 

@@ -33,7 +33,7 @@ namespace NetTally.VoteCounting
         {
             Debug.WriteLine(">>Normalized Borda Counting<<");
 
-            var voterCount = task.SelectMany(t => t.Value).Distinct().Count();
+            //var voterCount = task.SelectMany(t => t.Value).Distinct().Count();
 
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
 
@@ -55,7 +55,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="ranks">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
         /// <returns>Returns a numeric evaluation of the overall rank of the vote.</returns>
-        private double RankVote(IEnumerable<RankedVoters> ranks)
+        private static double RankVote(IEnumerable<RankedVoters> ranks)
         {
             double voteValue = 0;
 

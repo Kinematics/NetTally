@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,7 +6,7 @@ namespace NetTally.Filters
 {
     public class BaseFilter
     {
-        static readonly string emptyLine = "^$";
+        const string emptyLine = "^$";
         readonly Regex defaultRegex;
         readonly Regex customRegex;
 

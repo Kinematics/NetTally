@@ -124,7 +124,7 @@ namespace NetTally.VoteCounting
             return null;
         }
 
-        private string Comma(bool addComma) => addComma ? ", " : "";
+        private static string Comma(bool addComma) => addComma ? ", " : "";
 
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
         /// <returns>Returns the results as a list.</returns>
-        private List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        private static List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
         {
             var res = from voter in voterRankings
                       select new VoterRankings
@@ -156,7 +156,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The votes to filter.</param>
         /// <param name="choice">The choice to remove.</param>
-        private void RemoveChoiceFromVotes(List<VoterRankings> voterRankings, string choice)
+        private static void RemoveChoiceFromVotes(List<VoterRankings> voterRankings, string choice)
         {
             foreach (var ranker in voterRankings)
             {
@@ -178,7 +178,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
-        private string GetLeastPreferredChoice(List<VoterRankings> localRankings)
+        private static string GetLeastPreferredChoice(List<VoterRankings> localRankings)
         {
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(localRankings);
 
@@ -198,7 +198,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
+        private static IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = voter.RankedVotes.FirstOrDefault()?.Vote

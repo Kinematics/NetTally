@@ -52,7 +52,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a filled-in preferences array.</returns>
-        private int[,] GetPairwisePreferences(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
+        private static int[,] GetPairwisePreferences(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
         {
             int[,] pairwisePreferences = new int[listOfChoices.Count, listOfChoices.Count];
 
@@ -124,7 +124,7 @@ namespace NetTally.VoteCounting
         /// <param name="strongestPaths">The strongest paths.</param>
         /// <param name="choicesCount">The choices count (size of table).</param>
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
-        private int[,] GetWinningPaths(int[,] strongestPaths, int choicesCount)
+        private static int[,] GetWinningPaths(int[,] strongestPaths, int choicesCount)
         {
             int[,] winningPaths = new int[choicesCount, choicesCount];
 
@@ -191,7 +191,7 @@ namespace NetTally.VoteCounting
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns a count of the number of positive path strength values.</returns>
-        private int GetPositivePathCount(int[,] paths, int row, int count)
+        private static int GetPositivePathCount(int[,] paths, int row, int count)
         {
             int pathCount = 0;
 
@@ -211,7 +211,7 @@ namespace NetTally.VoteCounting
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns the sum of the given path.</returns>
-        private int GetPathSum(int[,] paths, int row, int count)
+        private static int GetPathSum(int[,] paths, int row, int count)
         {
             int pathSum = 0;
 

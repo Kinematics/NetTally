@@ -89,7 +89,7 @@ namespace NetTally.VoteCounting
         /// <param name="rankedVotes">The group votes.</param>
         /// <param name="option1">The top rated option. Null if there aren't any options available.</param>
         /// <param name="option2">The second rated option.  Null if there is only one option available.</param>
-        private void GetTopTwoRatedOptions(IEnumerable<RankGroupedVoters> rankedVotes, out string option1, out string option2)
+        private static void GetTopTwoRatedOptions(IEnumerable<RankGroupedVoters> rankedVotes, out string option1, out string option2)
         {
             var scoredVotes = from vote in rankedVotes
                               select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
@@ -126,7 +126,7 @@ namespace NetTally.VoteCounting
         /// <param name="option1">The first option up for consideration.</param>
         /// <param name="option2">The second option up for consideration.</param>
         /// <returns>Returns the winning option.</returns>
-        private string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings, string option1, string option2)
+        private static string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings, string option1, string option2)
         {
             if (string.IsNullOrEmpty(option2))
                 return option1;
@@ -182,7 +182,7 @@ namespace NetTally.VoteCounting
         /// <param name="rankedVotes">The ranked votes.</param>
         /// <param name="choice">The choice being removed.</param>
         /// <returns></returns>
-        private IEnumerable<RankGroupedVoters> RemoveChoiceFromRanks(IEnumerable<RankGroupedVoters> rankedVotes, string choice)
+        private static IEnumerable<RankGroupedVoters> RemoveChoiceFromRanks(IEnumerable<RankGroupedVoters> rankedVotes, string choice)
         {
             var res = rankedVotes.Where(a => !StringUtility.AgnosticStringComparer.Equals(a.VoteContent, choice));
 
@@ -196,7 +196,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="choice">The already chosen choices.</param>
         /// <returns>Returns the results as a list.</returns>
-        private IEnumerable<VoterRankings> RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
+        private static IEnumerable<VoterRankings> RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
         {
             var res = from voter in voterRankings
                       select new VoterRankings

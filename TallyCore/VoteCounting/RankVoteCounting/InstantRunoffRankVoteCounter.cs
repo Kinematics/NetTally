@@ -111,7 +111,7 @@ namespace NetTally.VoteCounting
             return null;
         }
 
-        private string Comma(bool addComma)
+        private static string Comma(bool addComma)
         {
             if (addComma)
                 return ", ";
@@ -126,7 +126,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
         /// <returns>Returns the results as a list.</returns>
-        private List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        private static List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
         {
             var res = from voter in voterRankings
                       select new VoterRankings
@@ -144,7 +144,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">The votes to filter.</param>
         /// <param name="choice">The choice to remove.</param>
         /// <returns>Returns the list without the given choice in the voters' rankings.</returns>
-        private void RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
+        private static void RemoveChoiceFromVotes(IEnumerable<VoterRankings> voterRankings, string choice)
         {
             foreach (var ranker in voterRankings)
             {
@@ -175,7 +175,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterRankings">A voter's rankings.</param>
         /// <returns>Returns the vote component of the most preferred vote in the list,
         /// or null if none are present.</returns>
-        private string GetPreferredVote(IEnumerable<RankedVote> voterRankings)
+        private static string GetPreferredVote(IEnumerable<RankedVote> voterRankings)
         {
             var choice = voterRankings.OrderBy(a => a.Rank).FirstOrDefault()?.Vote;
             return choice;
