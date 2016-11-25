@@ -381,7 +381,7 @@ namespace NetTally
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
 
-            var startInfo = await ForumAdapter.GetStartingPostNumber(this, pageProvider, token);
+            var startInfo = await ForumAdapter.GetStartingPostNumberAsync(this, pageProvider, token);
 
             return startInfo;
         }
