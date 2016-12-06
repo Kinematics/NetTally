@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using NetTally.CustomEventArgs;
 
 namespace NetTally.ViewModels
 {

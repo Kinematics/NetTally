@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Utility;
+using NetTally.CustomEventArgs;
 
 namespace NetTally.Web
 {

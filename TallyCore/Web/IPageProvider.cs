@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Threading;
 using HtmlAgilityPack;
-using NetTally.Web;
+using NetTally.CustomEventArgs;
 
 namespace NetTally
 {
