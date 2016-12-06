@@ -95,7 +95,7 @@
     <Compile Include="Global\Utility\CheckForNewRelease.cs" />
     <Compile Include="Input\Web\Cache\CachedPage.cs" />
     <Compile Include="Input\Web\Cache\WebCache.cs" />
-    <Compile Include="Input\Web\Utility\ForumCookies.cs" />
+    <Compile Include="Input\Web\ForumCookies.cs" />
     <Compile Include="Input\Web\IPageProvider.cs" />
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
@@ -119,8 +119,6 @@
     <Compile Include="Input\VoteConstructor.cs" />
     <Compile Include="VoteCounting\VoteCounter.cs" />
     <Compile Include="Input\Web\PageProviderBase.cs" />
-    <Compile Include="Input\Web\WebPageProvider.cs" />
-    <Compile Include="Input\Web\WebPageProvider2.cs" />
     <Compile Include="Input\Web\WepPageProvider3.cs" />
   </ItemGroup>
   <ItemGroup>
