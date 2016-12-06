@@ -19,11 +19,12 @@ namespace NetTally.Utility
         static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
 
         /// <summary>
-        /// Filter unsafe characters from the provided string.
+        /// Remove unsafe UTF control characters from the provided string.
+        /// Returns an empty string if given null.
         /// </summary>
-        /// <param name="input">The string to filter.</param>
-        /// <returns>The input string with all unicode control characters (except cr/lf) removed.</returns>
-        public static string SafeString(string input)
+        /// <param name="input">Any string.</param>
+        /// <returns>Returns the input string with all unicode control characters (except cr/lf) removed.</returns>
+        public static string RemoveUnsafeCharacters(this string input)
         {
             if (string.IsNullOrEmpty(input))
                 return "";

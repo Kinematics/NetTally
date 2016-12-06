@@ -164,7 +164,7 @@ namespace NetTally
             }
             set
             {
-                displayName = StringUtility.SafeString(value);
+                displayName = value.RemoveUnsafeCharacters();
                 OnPropertyChanged();
             }
         }
@@ -194,7 +194,7 @@ namespace NetTally
             if (m.Success)
                 url = m.Groups["base"].Value;
 
-            return StringUtility.SafeString(url);
+            return url.RemoveUnsafeCharacters();
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
 namespace NetTally.Filters
 {
@@ -32,7 +33,7 @@ namespace NetTally.Filters
             if (customFilterString == null)
                 return null;
 
-            string safeCustomFilters = Utility.StringUtility.SafeString(customFilterString);
+            string safeCustomFilters = customFilterString.RemoveUnsafeCharacters();
 
             var splits = safeCustomFilters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
