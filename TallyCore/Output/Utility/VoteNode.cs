@@ -127,7 +127,7 @@ namespace NetTally.Output
                 {
                     string link;
 
-                    VoteType voteType = StringUtility.IsPlanName(firstVoter) ? VoteType.Plan : VoteType.Vote;
+                    VoteType voteType = firstVoter.IsPlanName() ? VoteType.Plan : VoteType.Vote;
                     link = VoteInfo.GetVoterUrl(firstVoter, voteType);
 
                     sb.Append(" — ");

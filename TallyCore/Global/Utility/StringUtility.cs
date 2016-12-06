@@ -42,7 +42,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="name">The name to check.</param>
         /// <returns>Returns true if the name starts with the plan name marker.</returns>
-        public static bool IsPlanName(string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
+        public static bool IsPlanName(this string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
 
         /// <summary>
         /// Static array for use in GetStringLines.
