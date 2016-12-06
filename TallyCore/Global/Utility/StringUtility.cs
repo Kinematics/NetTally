@@ -12,9 +12,11 @@ namespace NetTally.Utility
     /// </summary>
     public static class StringUtility
     {
-        // Regex for control and formatting characters that we don't want to allow processing of.
-        // EG: \u200B, non-breaking space
-        // Do not remove CR/LF characters
+        /// <summary>
+        /// Regex for control and formatting characters that we don't want to allow processing of.
+        /// EG: \u200B, non-breaking space
+        /// Regex is the character set of all control characters {C}, except for CR/LF.
+        /// </summary>
         static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
 
         /// <summary>
@@ -31,7 +33,7 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Magic character (currently ◈, \u25C8) to flag a user name as a base plan.
+        /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
         /// </summary>
         public static string PlanNameMarker { get; } = "◈";
 
@@ -42,6 +44,9 @@ namespace NetTally.Utility
         /// <returns>Returns true if the name starts with the plan name marker.</returns>
         public static bool IsPlanName(string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
 
+        /// <summary>
+        /// Static array for use in GetStringLines.
+        /// </summary>
         static char[] newLines = new[] { '\r', '\n' };
 
         /// <summary>
@@ -57,6 +62,7 @@ namespace NetTally.Utility
                 return new List<string>();
 
             string[] split = input.Split(newLines, StringSplitOptions.RemoveEmptyEntries);
+
             return new List<string>(split);
         }
 
