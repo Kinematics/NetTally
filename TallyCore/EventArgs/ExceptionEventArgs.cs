@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NetTally.ViewModels
+namespace NetTally.CustomEventArgs
 {
     /// <summary>
-    /// EventArgs custom class to pass a message string.
+    /// Custom EventArgs class to pass an exception, and mark whether it was handled.
     /// </summary>
     public class ExceptionEventArgs : EventArgs
     {

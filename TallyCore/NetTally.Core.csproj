@@ -75,10 +75,10 @@
     <Compile Include="Utility\IClock.cs" />
     <Compile Include="Utility\LinqExtensions.cs" />
     <Compile Include="Utility\ObservableCollectionExtension.cs" />
-    <Compile Include="ViewModels\Utility\AsyncRelayCommand.cs" />
+    <Compile Include="ViewModels\Commands\AsyncRelayCommand.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\Utility\RelayCommand.cs" />
-    <Compile Include="ViewModels\Utility\ExceptionEventArgs.cs" />
+    <Compile Include="ViewModels\Commands\RelayCommand.cs" />
+    <Compile Include="EventArgs\ExceptionEventArgs.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="VoteCounting\RankVoteCounting\BaldwinRankVoteCounter.cs" />
@@ -110,7 +110,7 @@
     <Compile Include="Quests\IQuest.cs" />
     <Compile Include="Output\ITextResultsProvider.cs" />
     <Compile Include="Votes\IVoteCounter.cs" />
-    <Compile Include="Web\Utility\MessageEventArgs.cs" />
+    <Compile Include="EventArgs\MessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestCollection.cs" />
