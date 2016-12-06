@@ -6,13 +6,17 @@ using NetTally.CustomEventArgs;
 
 namespace NetTally.ViewModels
 {
+    /// <summary>
+    /// Base class for view models in order to contain various syncronization methods for
+    /// when properties are changed or events are raised.
+    /// </summary>
     public class ViewModelBase : INotifyPropertyChanged
     {
         /// <summary>
         /// The thread context that this class was originally created in, so that we
         /// can send notifications back on that same thread.
         /// </summary>
-        readonly SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+        readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
 
         #region INotifyPropertyChanged event
         /// <summary>
@@ -29,7 +33,7 @@ namespace NetTally.ViewModels
         {
             PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
 
-            if (SynchronizationContext.Current == _synchronizationContext)
+            if (SynchronizationContext.Current == synchronizationContext)
             {
                 // Execute the PropertyChanged event on the current thread
                 RaisePropertyChanged(e);
@@ -37,7 +41,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                _synchronizationContext.Send(RaisePropertyChanged, e);
+                synchronizationContext.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -67,7 +71,7 @@ namespace NetTally.ViewModels
         {
             ExceptionEventArgs args = new ExceptionEventArgs(e);
 
-            if (SynchronizationContext.Current == _synchronizationContext)
+            if (SynchronizationContext.Current == synchronizationContext)
             {
                 // Execute the PropertyChanged event on the current thread
                 RaiseExceptionRaised(args);
@@ -75,7 +79,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                _synchronizationContext.Send(RaiseExceptionRaised, args);
+                synchronizationContext.Send(RaiseExceptionRaised, args);
             }
 
             return args;
