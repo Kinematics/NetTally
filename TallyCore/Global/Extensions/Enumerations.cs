@@ -1,139 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-
 
 namespace NetTally
 {
     /// <summary>
-    /// Enum for separating vote categories
+    /// Static class that can be used for extension methods on enums, in order to use
+    /// user-friendly description attributes in the UI.
     /// </summary>
-    public enum VoteType
-    {
-        Vote,
-        Plan,
-        Rank,
-        Approval
-    }
-
-    public enum RankVoteCounterMethod
-    {
-        [EnumDescription("Default (RIR)")]
-        Default,
-        [EnumDescription("Wilson Scoring")]
-        Wilson,
-        [EnumDescription("Schulze (Condorcet)")]
-        Schulze,
-        [EnumDescription("Baldwin Runoff")]
-        Baldwin,
-        [EnumDescription("Rated Instant Runoff")]
-        RIRV,
-        //[EnumDescription("Borda Count")]
-        //Borda,
-        //[EnumDescription("Borda Normalized")]
-        //BordaNormalized,
-        //[EnumDescription("Borda Fraction")]
-        //BordaFraction,
-        //[EnumDescription("Distance Scoring")]
-        //Distance,
-        //[EnumDescription("Distance Scoring (U0)")]
-        //DistanceU0,
-        //[EnumDescription("Instant Runoff")]
-        //InstantRunoff,
-        //[EnumDescription("Coombs' Method")]
-        //Coombs,
-        //[EnumDescription("Legacy Coombs")]
-        //LegacyCoombs,
-        //[EnumDescription("Pairwise Elimination")]
-        //Pairwise,
-    }
-
-    public enum StandardVoteCounterMethod
-    {
-        Default
-    }
-
-    public enum ApprovalVoteCounterMethod
-    {
-        Default
-    }
-
-    public enum ReferenceType
-    {
-        Label,
-        Any,
-        Voter,
-        Plan,
-    }
-
-    public enum PageType
-    {
-        Thread,
-        Threadmarks,
-    }
-
-    /// <summary>
-    /// Enum for various modes of constructing the final tally display.
-    /// </summary>
-    public enum DisplayMode
-    {
-        [EnumDescription("Normal")]
-        Normal,
-        [EnumDescription("Spoiler Voters")]
-        SpoilerVoters,
-        [EnumDescription("Spoiler All")]
-        SpoilerAll,
-        [EnumDescription("Normal, No Voters")]
-        NormalNoVoters,
-        [EnumDescription("Compact")]
-        Compact,
-        [EnumDescription("Compact, No Voters")]
-        CompactNoVoters
-    }
-
-    /// <summary>
-    /// Enum for various modes of constructing the final tally display.
-    /// </summary>
-    public enum PartitionMode
-    {
-        [EnumDescription("No Partitioning")]
-        None,
-        [EnumDescription("Partition By Line")]
-        ByLine,
-        [EnumDescription("Partition By Line (+Task)")]
-        ByLineTask,
-        [EnumDescription("Partition By Block")]
-        ByBlock,
-        [EnumDescription("Partition (Plans) By Block")]
-        ByBlockAll,
-    }
-
-    /// <summary>
-    /// Enum for whether to use the cache when loading a web page.
-    /// </summary>
-    public enum CachingMode
-    {
-        UseCache,
-        BypassCache
-    }
-
-    /// <summary>
-    /// Custom attribute that will be available to derived mobile projects,
-    /// since the standard DescriptionAttribute is not available.
-    /// </summary>
-    /// <seealso cref="System.Attribute" />
-    [AttributeUsage(AttributeTargets.Field)]
-    public sealed class EnumDescriptionAttribute : Attribute
-    {
-        public string Description { get; }
-        public EnumDescriptionAttribute(string description)
-        {
-            Description = description;
-        }
-    }
-
     public static class Enumerations
     {
         /// <summary>

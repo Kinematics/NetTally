@@ -38,6 +38,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Global\Comparers\CustomStringComparer.cs" />
+    <Compile Include="Global\Extensions\EnumDescriptionAttribute.cs" />
+    <Compile Include="Global\Extensions\Enumerations.cs" />
     <Compile Include="Input\Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Input\Adapters\IForumAdapter.cs" />
     <Compile Include="Input\Adapters\NodeBBAdapter.cs" />
@@ -103,7 +105,7 @@
     <Compile Include="Quests\QuestCollection.cs" />
     <Compile Include="VoteCounting\RankVotes.cs" />
     <Compile Include="VoteCounting\Tally.cs" />
-    <Compile Include="Global\Enumerations.cs" />
+    <Compile Include="Global\Enums.cs" />
     <Compile Include="Global\Utility\ProductInfo.cs" />
     <Compile Include="Global\Utility\StringUtility.cs" />
     <Compile Include="Input\PostComponents.cs" />
