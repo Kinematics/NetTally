@@ -1,16 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Web;
-using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Utility
 {
     public class CheckForNewRelease : INotifyPropertyChanged
     {
