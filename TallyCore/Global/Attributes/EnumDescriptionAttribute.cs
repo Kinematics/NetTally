@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally
+namespace NetTally.Attributes
 {
     /// <summary>
     /// Custom attribute to be used on enums, to provide user-friendly values.
