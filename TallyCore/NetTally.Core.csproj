@@ -119,7 +119,7 @@
     <Compile Include="Input\VoteConstructor.cs" />
     <Compile Include="VoteCounting\VoteCounter.cs" />
     <Compile Include="Input\Web\PageProviderBase.cs" />
-    <Compile Include="Input\Web\WepPageProvider3.cs" />
+    <Compile Include="Input\Web\WebPageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

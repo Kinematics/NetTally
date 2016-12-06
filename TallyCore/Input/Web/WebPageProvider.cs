@@ -10,7 +10,7 @@ using NetTally.Utility;
 
 namespace NetTally.Web
 {
-    public class WebPageProvider3 : PageProviderBase
+    public class WebPageProvider : PageProviderBase
     {
         #region Fields
         HttpClient client;
@@ -18,31 +18,31 @@ namespace NetTally.Web
         #endregion
 
         #region Constructor/Disposal
-        public WebPageProvider3()
+        public WebPageProvider()
             : this(null, null, null)
         {
 
         }
 
-        public WebPageProvider3(HttpClientHandler handler)
+        public WebPageProvider(HttpClientHandler handler)
             : this(handler, null, null)
         {
 
         }
 
-        public WebPageProvider3(HttpClientHandler handler, WebCache cache)
+        public WebPageProvider(HttpClientHandler handler, WebCache cache)
             : this(handler, cache, null)
         {
 
         }
 
-        public WebPageProvider3(HttpClientHandler handler, IClock clock)
+        public WebPageProvider(HttpClientHandler handler, IClock clock)
             : this(handler, null, clock)
         {
 
         }
 
-        public WebPageProvider3(HttpClientHandler handler, WebCache cache, IClock clock)
+        public WebPageProvider(HttpClientHandler handler, WebCache cache, IClock clock)
             : base(handler, cache, clock)
         {
             SetupHandler();
