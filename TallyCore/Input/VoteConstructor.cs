@@ -559,7 +559,7 @@ namespace NetTally
 
             foreach (var line in lines)
             {
-                string firstLine = StringUtility.GetFirstLine(line);
+                string firstLine = line.GetFirstLine();
                 string task = VoteString.GetVoteTask(firstLine);
                 bool check = taskFilter.Filter(task);
                 if (check)

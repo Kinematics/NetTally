@@ -99,7 +99,7 @@ namespace NetTally.Output
         /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
         public static IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(StringUtility.GetFirstLine(v.Key)), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
+            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
 
             return grouped;
         }
@@ -113,7 +113,7 @@ namespace NetTally.Output
         /// <returns>Returns a list of VoteNodes that collapse similar votes.</returns>
         public static IEnumerable<VoteNode> GetVoteNodes(IGrouping<string, KeyValuePair<string, HashSet<string>>> taskGroup)
         {
-            var groupByFirstLine = taskGroup.GroupBy(v => StringUtility.GetFirstLine(v.Key), StringUtility.AgnosticStringComparer);
+            var groupByFirstLine = taskGroup.GroupBy(v => v.Key.GetFirstLine(), StringUtility.AgnosticStringComparer);
 
             List<VoteNode> nodeList = new List<VoteNode>();
             VoteNode parent;
