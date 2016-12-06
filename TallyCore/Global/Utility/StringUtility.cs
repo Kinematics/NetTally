@@ -42,6 +42,8 @@ namespace NetTally.Utility
         /// <returns>Returns true if the name starts with the plan name marker.</returns>
         public static bool IsPlanName(string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
 
+        static char[] newLines = new[] { '\r', '\n' };
+
         /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
         /// and splits it up into a List of strings of one text line each.
@@ -54,7 +56,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(input))
                 return new List<string>();
 
-            string[] split = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] split = input.Split(newLines, StringSplitOptions.RemoveEmptyEntries);
             return new List<string>(split);
         }
 
