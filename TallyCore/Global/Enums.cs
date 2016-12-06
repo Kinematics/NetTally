@@ -1,4 +1,4 @@
-﻿using System;
+﻿using NetTally.Attributes;
 
 namespace NetTally
 {

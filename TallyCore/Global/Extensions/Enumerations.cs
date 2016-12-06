@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NetTally.Attributes;
 
-namespace NetTally
+namespace NetTally.Extensions
 {
     /// <summary>
     /// Static class that can be used for extension methods on enums, in order to use

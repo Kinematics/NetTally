@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace NetTally
+namespace NetTally.Utility
 {
     /// <summary>
     /// Class to access program attribute information.
