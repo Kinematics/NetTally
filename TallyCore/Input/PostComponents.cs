@@ -66,7 +66,7 @@ namespace NetTally
             if (IsTallyPost(text))
                 return;
 
-            var lines = StringUtility.GetStringLines(text);
+            var lines = text.GetStringLines();
             var voteLines = lines.Where(a => voteLineRegex.Match(VoteString.RemoveBBCode(a)).Success);
 
             if (voteLines.Any())

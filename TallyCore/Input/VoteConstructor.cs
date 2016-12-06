@@ -791,7 +791,7 @@ namespace NetTally
                     foreach (var referral in referralVotes)
                         sb.Append(referral);
 
-                    referralVotes = referralVotes.SelectMany(a => StringUtility.GetStringLines(a)).ToList();
+                    referralVotes = referralVotes.SelectMany(a => a.GetStringLines()).ToList();
                     if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
@@ -959,7 +959,7 @@ namespace NetTally
 
                     partitions.AddRange(referralVotes);
 
-                    referralVotes = referralVotes.SelectMany(a => StringUtility.GetStringLines(a)).ToList();
+                    referralVotes = referralVotes.SelectMany(a => a.GetStringLines()).ToList();
                     if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();

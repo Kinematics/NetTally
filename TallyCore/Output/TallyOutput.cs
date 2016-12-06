@@ -370,7 +370,7 @@ namespace NetTally.Output
         /// <param name="vote">The vote to add.</param>
         private void AddCompactVote(KeyValuePair<string, HashSet<string>> vote)
         {
-            List<string> voteLines = StringUtility.GetStringLines(vote.Key);
+            List<string> voteLines = vote.Key.GetStringLines();
 
             if (voteLines.Count == 0)
                 return;

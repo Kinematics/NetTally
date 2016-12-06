@@ -136,7 +136,7 @@ namespace NetTally.Output
 
                 foreach (var vote in voteGroup)
                 {
-                    var lines = StringUtility.GetStringLines(vote.Key);
+                    var lines = vote.Key.GetStringLines();
 
                     if (parent == null)
                     {

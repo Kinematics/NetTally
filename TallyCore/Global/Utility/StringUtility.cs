@@ -56,7 +56,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="input">The input text.</param>
         /// <returns>The list of all string lines in the input.</returns>
-        public static List<string> GetStringLines(string input)
+        public static List<string> GetStringLines(this string input)
         {
             if (string.IsNullOrEmpty(input))
                 return new List<string>();

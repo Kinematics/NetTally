@@ -73,7 +73,7 @@ namespace NetTally.Output
         /// <returns>Returns a string representation of the current vote node.</returns>
         public string GetLine(DisplayMode displayMode)
         {
-            var lines = StringUtility.GetStringLines(Text);
+            var lines = Text.GetStringLines();
             if (lines.Count == 0)
                 return string.Empty;
 
