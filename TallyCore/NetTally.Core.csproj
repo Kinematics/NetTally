@@ -92,7 +92,7 @@
     <Compile Include="VoteCounting\Utility\UndoAction.cs" />
     <Compile Include="VoteCounting\Utility\VoteCounterSingleton.cs" />
     <Compile Include="Votes\Objects\VoteLineSequence.cs" />
-    <Compile Include="Input\Web\Utility\CheckForNewRelease.cs" />
+    <Compile Include="Global\Utility\CheckForNewRelease.cs" />
     <Compile Include="Input\Web\Cache\CachedPage.cs" />
     <Compile Include="Input\Web\Cache\WebCache.cs" />
     <Compile Include="Input\Web\Utility\ForumCookies.cs" />
@@ -118,7 +118,7 @@
     <Compile Include="VoteCounting\VoteString.cs" />
     <Compile Include="Input\VoteConstructor.cs" />
     <Compile Include="VoteCounting\VoteCounter.cs" />
-    <Compile Include="Input\Web\Utility\PageProviderBase.cs" />
+    <Compile Include="Input\Web\PageProviderBase.cs" />
     <Compile Include="Input\Web\WebPageProvider.cs" />
     <Compile Include="Input\Web\WebPageProvider2.cs" />
     <Compile Include="Input\Web\WepPageProvider3.cs" />
