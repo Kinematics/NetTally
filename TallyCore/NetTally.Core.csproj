@@ -40,6 +40,7 @@
     <Compile Include="Global\Comparers\CustomStringComparer.cs" />
     <Compile Include="Global\Attributes\EnumDescriptionAttribute.cs" />
     <Compile Include="Global\Extensions\Enumerations.cs" />
+    <Compile Include="Global\Extensions\GroupOfAdjacent.cs" />
     <Compile Include="Input\Adapters\ForumAdapterFactory.cs" />
     <Compile Include="Input\Adapters\IForumAdapter.cs" />
     <Compile Include="Input\Adapters\NodeBBAdapter.cs" />

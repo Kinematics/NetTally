@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,26 +6,6 @@ using NetTally.Utility;
 
 namespace NetTally
 {
-    public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
-    {
-        public TKey Key { get; }
-        private List<TSource> GroupList { get; }
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TSource>)this).GetEnumerator();
-
-        public IEnumerator<TSource> GetEnumerator()
-        {
-            foreach (var s in GroupList)
-                yield return s;
-        }
-
-        public GroupOfAdjacent(List<TSource> source, TKey key)
-        {
-            GroupList = source;
-            Key = key;
-        }
-    }
-
     public static class LinqExtensions
     {
         /// <summary>
