@@ -88,7 +88,7 @@ namespace NetTally
         /// Runs async, but doesn't need a cancellation token.
         /// </summary>
         /// <returns>Returns nothing.</returns>
-        Task InitForumAdapter();
+        Task InitForumAdapterAsync();
 
         /// <summary>
         /// Initialize the forum adapter needed to read results from the web site this quest is for.
@@ -96,7 +96,7 @@ namespace NetTally
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns nothing.</returns>
-        Task InitForumAdapter(CancellationToken token);
+        Task InitForumAdapterAsync(CancellationToken token);
 
         /// <summary>
         /// Get the forum adapter being used by this quest.
@@ -113,7 +113,7 @@ namespace NetTally
         /// Get the first page number of the thread, where we should start reading, based on
         /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
         /// </summary>
-        Task<ThreadRangeInfo> GetStartInfo(IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadRangeInfo> GetStartInfoAsync(IPageProvider pageProvider, CancellationToken token);
 
         /// <summary>
         /// Asynchronously load pages for the specified quest.
@@ -121,6 +121,6 @@ namespace NetTally
         /// <param name="pageProvider">The page provider to use to load the pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token);
+        Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token);
     }
 }

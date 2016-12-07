@@ -75,14 +75,14 @@ namespace NetTally
         /// Gets the expected forum adapter for this quest.
         /// </summary>
         /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
-        public async Task InitForumAdapter() => await InitForumAdapter(CancellationToken.None).ConfigureAwait(false);
+        public async Task InitForumAdapterAsync() => await InitForumAdapterAsync(CancellationToken.None).ConfigureAwait(false);
 
         /// <summary>
         /// Gets the expected forum adapter for this quest, with option to cancel.
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an IForumAdapter to read the quest thread.</returns>
-        public async Task InitForumAdapter(CancellationToken token)
+        public async Task InitForumAdapterAsync(CancellationToken token)
         {
             if (ForumAdapter == null)
             {
@@ -371,12 +371,12 @@ namespace NetTally
         /// <param name="pageProvider">The page provider that can be used to load web pages.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the number of the first page we should start loading.</returns>
-        public async Task<ThreadRangeInfo> GetStartInfo(IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadRangeInfo> GetStartInfoAsync(IPageProvider pageProvider, CancellationToken token)
         {
             if (pageProvider == null)
                 throw new ArgumentNullException(nameof(pageProvider));
 
-            var startInfo = await ForumAdapter.GetStartingPostNumber(this, pageProvider, token);
+            var startInfo = await ForumAdapter.GetStartingPostNumberAsync(this, pageProvider, token);
 
             return startInfo;
         }
@@ -392,7 +392,7 @@ namespace NetTally
         /// </returns>
         /// <exception cref="System.InvalidOperationException">Throws an exception if it is
         /// unable to load even the first requested page.</exception>
-        public async Task<List<Task<HtmlDocument>>> LoadQuestPages(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
+        public async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
         {
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();

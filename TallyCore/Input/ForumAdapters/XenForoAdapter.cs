@@ -225,7 +225,7 @@ namespace NetTally.Adapters
         /// <param name="pageProvider">A page provider to allow loading the threadmark page.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns data indicating where to begin tallying the thread.</returns>
-        public async Task<ThreadRangeInfo> GetStartingPostNumber(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadRangeInfo> GetStartingPostNumberAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));

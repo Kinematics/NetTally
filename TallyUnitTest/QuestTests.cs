@@ -415,7 +415,7 @@ namespace NetTally.Tests
         {
             Assert.IsNull(quest.ForumAdapter);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapter();
+            await quest.InitForumAdapterAsync();
             Assert.IsNotNull(quest.ForumAdapter);
         }
 
@@ -424,10 +424,10 @@ namespace NetTally.Tests
         {
             Assert.IsNull(quest.ForumAdapter);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapter();
+            await quest.InitForumAdapterAsync();
             Assert.IsNotNull(quest.ForumAdapter);
             var fa = quest.ForumAdapter;
-            await quest.InitForumAdapter();
+            await quest.InitForumAdapterAsync();
 #pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
             Assert.ReferenceEquals(fa, quest.ForumAdapter);
 #pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
@@ -438,7 +438,7 @@ namespace NetTally.Tests
         {
             Assert.IsNull(quest.ForumAdapter);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapter();
+            await quest.InitForumAdapterAsync();
             Assert.IsNotNull(quest.ForumAdapter);
             var fa = quest.ForumAdapter;
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
@@ -452,7 +452,7 @@ namespace NetTally.Tests
         {
             Assert.IsNull(quest.ForumAdapter);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapter();
+            await quest.InitForumAdapterAsync();
             Assert.IsNotNull(quest.ForumAdapter);
             var fa = quest.ForumAdapter;
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
