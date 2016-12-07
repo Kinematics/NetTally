@@ -45,7 +45,7 @@
     <Compile Include="Input\ForumAdapters\IForumAdapter.cs" />
     <Compile Include="Input\ForumAdapters\NodeBBAdapter.cs" />
     <Compile Include="Input\ForumAdapters\phpBBAdapter.cs" />
-    <Compile Include="Input\ForumAdapters\Utility\ExtendHtmlNode.cs" />
+    <Compile Include="Global\Extensions\HtmlNodeExtensions.cs" />
     <Compile Include="Input\ForumAdapters\Utility\ThreadInfo.cs" />
     <Compile Include="Input\Filters\BaseFilter.cs" />
     <Compile Include="Input\Filters\TaskFilter.cs" />
