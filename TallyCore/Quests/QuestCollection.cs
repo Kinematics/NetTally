@@ -11,8 +11,6 @@ namespace NetTally
     /// Generic observable collection for Quest items.
     /// Can be serialized via Data Contract.
     /// </summary>
-    [CollectionDataContract(ItemName ="Quest")]
-    [KnownType(typeof(Quest))]
     public class QuestCollection : ObservableCollection<IQuest>
     {
         /// <summary>
@@ -56,22 +54,22 @@ namespace NetTally
 
 
         #region XML Serialization
-        public string GetAsSerializedXml()
-        {
-            string xml;
+        //public string GetAsSerializedXml()
+        //{
+        //    string xml;
 
-            var questList = GetAsQuestType();
+        //    var questList = GetAsQuestType();
 
-            XmlSerializer ser = new XmlSerializer(questList.GetType());
+        //    XmlSerializer ser = new XmlSerializer(questList.GetType());
 
-            using (StringWriter textWriter = new StringWriter())
-            {
-                ser.Serialize(textWriter, questList);
-                xml = textWriter.ToString();
-            }
+        //    using (StringWriter textWriter = new StringWriter())
+        //    {
+        //        ser.Serialize(textWriter, questList);
+        //        xml = textWriter.ToString();
+        //    }
 
-            return xml;
-        }
+        //    return xml;
+        //}
 
         public List<Quest> GetAsQuestType()
         {
@@ -79,19 +77,19 @@ namespace NetTally
             return a.ToList();
         }
 
-        public void DeserializeFromXml(string xml)
-        {
-            XmlSerializer ser = new XmlSerializer(typeof(List<Quest>));
+        //public void DeserializeFromXml(string xml)
+        //{
+        //    XmlSerializer ser = new XmlSerializer(typeof(List<Quest>));
 
-            List<Quest> questList;
+        //    List<Quest> questList;
 
-            using (StringReader textReader = new StringReader(xml))
-            {
-                questList = (List<Quest>)ser.Deserialize(textReader);
-            }
+        //    using (StringReader textReader = new StringReader(xml))
+        //    {
+        //        questList = (List<Quest>)ser.Deserialize(textReader);
+        //    }
 
-            AddQuests(questList);
-        }
+        //    AddQuests(questList);
+        //}
 
         public void AddQuests(IEnumerable<Quest> quests)
         {
