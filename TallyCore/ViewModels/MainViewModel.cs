@@ -14,7 +14,13 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler = null)
+        public MainViewModel(QuestCollectionWrapper config)
+            : this(config, null)
+        {
+
+        }
+
+        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler)
         {
             if (config != null)
             {
