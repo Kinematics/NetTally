@@ -211,7 +211,7 @@ namespace NetTally
             }
             set
             {
-                filter1String = StringUtility.SafeString(value);
+                filter1String = value.RemoveUnsafeCharacters();
                 OnPropertyChanged();
 
                 IsFilter1Empty = filter1String == string.Empty;
@@ -232,7 +232,7 @@ namespace NetTally
             }
             set
             {
-                filter2String = StringUtility.SafeString(value);
+                filter2String = value.RemoveUnsafeCharacters();
                 OnPropertyChanged();
 
                 IsFilter2Empty = filter2String == string.Empty;
@@ -418,7 +418,7 @@ namespace NetTally
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
             InputBox.Visibility = Visibility.Collapsed;
 
-            string newTask = StringUtility.SafeString(InputTextBox.Text).Trim();
+            string newTask = InputTextBox.Text.RemoveUnsafeCharacters().Trim();
 
             // Clear InputBox.
             InputTextBox.Text = String.Empty;
