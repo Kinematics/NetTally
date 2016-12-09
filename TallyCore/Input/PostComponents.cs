@@ -192,6 +192,26 @@ namespace NetTally
                 else
                     VoteLines.Add(line);
             }
+
+            // If we have ranked vote options, make sure we don't have duplicate entries,
+            // or the same option voted on different ranks.
+            if (RankLines.Count > 0)
+            {
+                var groupRankLinesMulti = RankLines.GroupBy(line => VoteString.GetVoteContent(line), StringUtility.AgnosticStringComparer)
+                    .Where(group => group.Count() > 1);
+
+                // If there are any, remove all but the top ranked option.
+                foreach (var lineGroup in groupRankLinesMulti)
+                {
+                    var topOption = lineGroup.MinObject(a => VoteString.GetVoteMarker(a));
+                    var otherOptions = lineGroup.Where(a => a != topOption).ToList();
+
+                    foreach (string otherOption in otherOptions)
+                    {
+                        RankLines.Remove(otherOption);
+                    }
+                }
+            }
         }
 
         /// <summary>
