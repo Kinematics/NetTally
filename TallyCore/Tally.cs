@@ -196,13 +196,13 @@ namespace NetTally
                 if (VoteCounter.Instance.Quest?.DisplayName != quest.DisplayName)
                     UserDefinedTasks.Clear();
 
-                await quest.InitForumAdapter(token).ConfigureAwait(false);
+                await quest.InitForumAdapterAsync(token).ConfigureAwait(false);
 
                 // Figure out what page to start from
-                var startInfo = await quest.GetStartInfo(PageProvider, token);
+                var startInfo = await quest.GetStartInfoAsync(PageProvider, token);
 
                 // Load pages from the website
-                loadedPages = await quest.LoadQuestPages(startInfo, PageProvider, token).ConfigureAwait(false);
+                loadedPages = await quest.LoadQuestPagesAsync(startInfo, PageProvider, token).ConfigureAwait(false);
 
                 if (loadedPages != null && loadedPages.Count > 0)
                 {
