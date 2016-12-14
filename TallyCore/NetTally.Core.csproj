@@ -1,136 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{037E6032-88E9-4861-AB1F-42EC39859ECB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup Label="Configuration">
     <RootNamespace>NetTally</RootNamespace>
-    <AssemblyName>NetTally.Core</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>TallyCore.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>TallyCore.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputType>library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Global\Comparers\CustomStringComparer.cs" />
-    <Compile Include="Global\Attributes\EnumDescriptionAttribute.cs" />
-    <Compile Include="Global\Extensions\Enumerations.cs" />
-    <Compile Include="Global\Extensions\GroupOfAdjacent.cs" />
-    <Compile Include="Input\ForumAdapters\ForumAdapterFactory.cs" />
-    <Compile Include="Input\ForumAdapters\IForumAdapter.cs" />
-    <Compile Include="Input\ForumAdapters\NodeBBAdapter.cs" />
-    <Compile Include="Input\ForumAdapters\phpBBAdapter.cs" />
-    <Compile Include="Global\Extensions\HtmlNodeExtensions.cs" />
-    <Compile Include="Input\ForumAdapters\Utility\ThreadInfo.cs" />
-    <Compile Include="Input\Filters\BaseFilter.cs" />
-    <Compile Include="Input\Filters\TaskFilter.cs" />
-    <Compile Include="Input\Filters\ThreadmarkFilter.cs" />
-    <Compile Include="Input\ForumAdapters\Utility\ThreadRangeInfo.cs" />
-    <Compile Include="Input\ForumAdapters\vBulletinAdapter3.cs" />
-    <Compile Include="Input\ForumAdapters\vBulletinAdapter4.cs" />
-    <Compile Include="Input\ForumAdapters\vBulletinAdapter5.cs" />
-    <Compile Include="Input\ForumAdapters\XenForoAdapter.cs" />
-    <Compile Include="Global\Options.cs" />
-    <Compile Include="Output\TallyOutput.cs" />
-    <Compile Include="Output\Utility\SpoilerBBCode.cs" />
-    <Compile Include="Output\Utility\VoteInfo.cs" />
-    <Compile Include="Output\Utility\VoteNode.cs" />
-    <Compile Include="Debugging\ErrorLog.cs" />
-    <Compile Include="Quests\QuestCollectionWrapper.cs" />
-    <Compile Include="Global\Utility\IClock.cs" />
-    <Compile Include="Global\Extensions\LinqExtensions.cs" />
-    <Compile Include="Global\Extensions\ObservableCollectionExtension.cs" />
-    <Compile Include="ViewModels\Commands\AsyncRelayCommand.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\Commands\RelayCommand.cs" />
-    <Compile Include="Global\EventArgs\ExceptionEventArgs.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
-    <Compile Include="ViewModels\ViewModelLocator.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\BaldwinRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\BaseRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\BordaFractionRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\BordaNormalizedRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\BordaRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\CoombsRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\IBaseVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\DistanceRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\DistanceU0RankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\InstantRunoffRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\LegacyCoombsRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\PairwiseRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\RIRVRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\SchulzeRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\Utility\GroupRankVotes.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\Utility\RankScoring.cs" />
-    <Compile Include="VoteCounting\RankVoteCounting\WilsonRankVoteCounter.cs" />
-    <Compile Include="VoteCounting\VoteCounterLocator.cs" />
-    <Compile Include="VoteCounting\Utility\UndoAction.cs" />
-    <Compile Include="VoteCounting\Utility\VoteCounterSingleton.cs" />
-    <Compile Include="Votes\Objects\VoteLineSequence.cs" />
-    <Compile Include="Global\Utility\CheckForNewRelease.cs" />
-    <Compile Include="Input\Web\Cache\CachedPage.cs" />
-    <Compile Include="Input\Web\Cache\WebCache.cs" />
-    <Compile Include="Input\Web\ForumCookies.cs" />
-    <Compile Include="Input\Web\IPageProvider.cs" />
-    <Compile Include="Quests\IQuest.cs" />
-    <Compile Include="Output\ITextResultsProvider.cs" />
-    <Compile Include="VoteCounting\IVoteCounter.cs" />
-    <Compile Include="Global\EventArgs\MessageEventArgs.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Quests\Quest.cs" />
-    <Compile Include="Quests\QuestCollection.cs" />
-    <Compile Include="VoteCounting\RankVotes.cs" />
-    <Compile Include="VoteCounting\Tally.cs" />
-    <Compile Include="Global\Enums.cs" />
-    <Compile Include="Global\Utility\ProductInfo.cs" />
-    <Compile Include="Global\Utility\StringUtility.cs" />
-    <Compile Include="Input\PostComponents.cs" />
-    <Compile Include="Input\ForumAdapters\Utility\PostText.cs" />
-    <Compile Include="Debugging\RegionProfiler.cs" />
-    <Compile Include="Global\Comparers\CustomVoteSort.cs" />
-    <Compile Include="Votes\Objects\Vote.cs" />
-    <Compile Include="Votes\Objects\VoteLine.cs" />
-    <Compile Include="VoteCounting\VoteString.cs" />
-    <Compile Include="Input\VoteConstructor.cs" />
-    <Compile Include="VoteCounting\VoteCounter.cs" />
-    <Compile Include="Input\Web\PageProviderBase.cs" />
-    <Compile Include="Input\Web\WebPageProvider.cs" />
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="project.json" />
-    <None Include="TallyCore.ruleset" />
+    <PackageReference Include="HtmlAgilityPack.NetCore" Version="1.5.0.1" />
+    <PackageReference Include="NETStandard.Library" Version="1.6.1" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
