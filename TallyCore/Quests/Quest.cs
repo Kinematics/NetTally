@@ -534,5 +534,9 @@ namespace NetTally
         public static bool operator >(Quest left, Quest right) => (Compare(left, right) > 0);
 
         #endregion
+
+
+        public ForumType ForumType { get; set; }
+
     }
 }

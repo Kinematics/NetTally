@@ -100,4 +100,16 @@ namespace NetTally
         [EnumDescription("Partition (Plans) By Block")]
         ByBlockAll,
     }
+
+
+    public enum ForumType
+    {
+        Unknown,
+        XenForo,
+        vBulletin3,
+        vBulletin4,
+        vBulletin5,
+        phpBB,
+        NodeBB
+    }
 }

@@ -83,6 +83,9 @@ namespace NetTally
         /// </summary>
         int ThreadmarkPost { get; set; }
 
+
+        ForumType ForumType { get; set; }
+
         /// <summary>
         /// Initialize the forum adapter needed to read results from the web site this quest is for.
         /// Runs async, but doesn't need a cancellation token.
