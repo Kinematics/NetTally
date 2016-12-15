@@ -340,5 +340,12 @@ namespace NetTally
         }
         #endregion
         #endregion
+
+        #region Object overrides
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+        #endregion
     }
 }
