@@ -35,7 +35,7 @@ namespace NetTally
 
             var plans = GetAllPlansWithContent(post);
 
-            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
+            var filteredPlans = FilterPlansByTask(plans, quest);
 
             StorePlanReferences(filteredPlans);
 
@@ -62,7 +62,7 @@ namespace NetTally
 
             var plans = GetAllFullPostPlans(post);
 
-            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
+            var filteredPlans = FilterPlansByTask(plans, quest);
 
             StorePlanReferences(filteredPlans);
 
@@ -89,7 +89,7 @@ namespace NetTally
 
             var plans = GetAllOneLinePlans(post);
 
-            var filteredPlans = FilterPlansByTask(plans, quest.TaskFilter);
+            var filteredPlans = FilterPlansByTask(plans, quest);
 
             StorePlanReferences(filteredPlans);
 
@@ -134,7 +134,7 @@ namespace NetTally
                 // One of: By line, By block, or By post (ie: entire vote)
                 List<string> votePartitions = GetVotePartitions(post.WorkingVote, quest.PartitionMode, VoteType.Vote, post.Author);
 
-                var filteredPartitions = FilterVotesByTask(votePartitions, quest.TaskFilter);
+                var filteredPartitions = FilterVotesByTask(votePartitions, quest);
 
                 // Add those to the vote counter.
                 VoteCounter.Instance.AddVotes(filteredPartitions, post.Author, post.ID, VoteType.Vote);
@@ -535,12 +535,14 @@ namespace NetTally
         /// <param name="plans">The plans.</param>
         /// <param name="taskFilter">The task filter.</param>
         /// <returns>Returns the plans after filtering with the task filter.</returns>
-        private static List<List<string>> FilterPlansByTask(List<List<string>> plans, TaskFilter taskFilter)
+        private static List<List<string>> FilterPlansByTask(List<List<string>> plans, IQuest quest)
         {
-            if (taskFilter == null)
+            if (!quest.UseCustomTaskFilters)
                 return plans;
 
-            var filtered = plans.Where(p => taskFilter.Filter(VoteString.GetVoteTask(p.First())));
+            // Include lines where the task filter matches
+            var filtered = plans.Where(p => quest.TaskFilter.Match(VoteString.GetVoteTask(p.First())));
+
             return filtered.ToList();
         }
 
@@ -550,9 +552,9 @@ namespace NetTally
         /// <param name="lines">The lines.</param>
         /// <param name="taskFilter">The task filter.</param>
         /// <returns>Returns the votes after filtering with the task filter.</returns>
-        private static List<string> FilterVotesByTask(List<string> lines, TaskFilter taskFilter)
+        private static List<string> FilterVotesByTask(List<string> lines, IQuest quest)
         {
-            if (taskFilter == null)
+            if (!quest.UseCustomTaskFilters)
                 return lines;
 
             List<string> results = new List<string>();
@@ -561,7 +563,7 @@ namespace NetTally
             {
                 string firstLine = line.GetFirstLine();
                 string task = VoteString.GetVoteTask(firstLine);
-                bool check = taskFilter.Filter(task);
+                bool check = quest.TaskFilter.Match(task);
                 if (check)
                     results.Add(line);
             }
