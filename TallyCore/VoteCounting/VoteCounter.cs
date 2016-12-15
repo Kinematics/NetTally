@@ -193,6 +193,14 @@ namespace NetTally
             TallyPosts();
         }
 
+        public void TallyPosts(IEnumerable<PostComponents> posts, IQuest quest)
+        {
+            Quest = quest;
+            PostsList.Clear();
+            PostsList.AddRange(posts);
+            TallyPosts();
+        }
+
         /// <summary>
         /// Construct the tally results based on the stored list of posts.
         /// </summary>
