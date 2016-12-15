@@ -36,6 +36,7 @@ namespace NetTally
         static readonly Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
+        Uri threadUri = null;
 
         /// <summary>
         /// The URL of the quest.
@@ -52,7 +53,17 @@ namespace NetTally
                 if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
                     throw new ArgumentException($"URL ({value}) is not well formed.", nameof(value));
 
-                threadName = CleanupThreadName(value);
+                string cleanValue = CleanupThreadName(value);
+
+                Uri newUri = new Uri(cleanValue);
+
+                if (threadUri == null || threadUri.Host != newUri.Host)
+                {
+                    ForumType = ForumType.Unknown;
+                }
+
+                threadName = cleanValue;
+                threadUri = newUri;
 
                 OnPropertyChanged();
             }
