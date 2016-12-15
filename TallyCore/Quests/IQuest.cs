@@ -66,7 +66,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
-        TaskFilter TaskFilter { get; set; }
+        TaskFilter TaskFilter { get; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
