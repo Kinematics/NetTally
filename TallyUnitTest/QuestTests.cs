@@ -100,7 +100,7 @@ namespace NetTally.Tests
 
         #region Thread Name
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Null()
         {
             quest.ThreadName = null;
@@ -114,7 +114,7 @@ namespace NetTally.Tests
                 quest.ThreadName = null;
                 Assert.Fail("An exception should have been thrown.");
             }
-            catch (ArgumentNullException)
+            catch (ArgumentException)
             {
 
             }
