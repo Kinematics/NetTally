@@ -142,6 +142,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Host()
         {
             quest.ThreadName = "/forums.sufficientvelocity.com/";
