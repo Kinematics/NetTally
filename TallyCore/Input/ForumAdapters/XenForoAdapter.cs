@@ -482,9 +482,7 @@ namespace NetTally.Adapters
 
                 if (list != null)
                 {
-                    var filter = new ThreadmarkFilter(quest);
-
-                    Predicate<HtmlNode> filterLambda = (n) => filter.Filter(n.InnerText);
+                    Predicate<HtmlNode> filterLambda = (n) => quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText);
 
                     Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
 
