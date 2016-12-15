@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NetTally.Utility;
 
 namespace NetTally.Tests
 {
@@ -16,6 +17,8 @@ namespace NetTally.Tests
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
+            StringUtility.InitStringComparers(UnicodeHashFunction.HashFunction);
+
             sampleQuest = new Quest();
         }
 
