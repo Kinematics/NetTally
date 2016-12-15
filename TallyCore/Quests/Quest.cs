@@ -61,6 +61,7 @@ namespace NetTally
                 if (ThreadUri == null || ThreadUri.Host != newUri.Host)
                 {
                     ForumType = ForumType.Unknown;
+                    ForumAdapter = null;
                 }
 
                 threadName = cleanValue;
