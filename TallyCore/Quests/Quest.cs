@@ -19,9 +19,9 @@ namespace NetTally
     /// The quest class is for storing a quest's thread name, and the starting and
     /// ending posts that are being used to construct a tally.
     /// </summary>
-    public class Quest : IQuest
+    public class QuestOld : IQuest
     {
-        public Quest()
+        public QuestOld()
         {
             ThreadName = NewThreadEntry;
             CustomTaskFilters = string.Empty;
@@ -525,7 +525,7 @@ namespace NetTally
             return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
         }
 
-        public static bool operator ==(Quest left, Quest right)
+        public static bool operator ==(QuestOld left, QuestOld right)
         {
             if (ReferenceEquals(left, null))
             {
@@ -534,11 +534,11 @@ namespace NetTally
             return left.Equals(right);
         }
 
-        public static bool operator !=(Quest left, Quest right) => !(left == right);
+        public static bool operator !=(QuestOld left, QuestOld right) => !(left == right);
 
-        public static bool operator <(Quest left, Quest right) => (Compare(left, right) < 0);
+        public static bool operator <(QuestOld left, QuestOld right) => (Compare(left, right) < 0);
 
-        public static bool operator >(Quest left, Quest right) => (Compare(left, right) > 0);
+        public static bool operator >(QuestOld left, QuestOld right) => (Compare(left, right) > 0);
 
         #endregion
 

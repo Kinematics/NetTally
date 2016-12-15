@@ -6,9 +6,9 @@ using System.Threading;
 namespace NetTally
 {
     /// <summary>
-    /// Implement <see cref="IComparable"/> for <see cref="Quest2"/> class.
+    /// Implement <see cref="IComparable"/> for <see cref="NetTally.Quest"/> class.
     /// </summary>
-    public partial class Quest2 : IQuest
+    public partial class Quest : IQuest
     {
         /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that
@@ -64,7 +64,7 @@ namespace NetTally
             return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
         }
 
-        public static bool operator ==(Quest2 left, Quest2 right)
+        public static bool operator ==(Quest left, Quest right)
         {
             if (ReferenceEquals(left, null))
             {
@@ -73,11 +73,11 @@ namespace NetTally
             return left.Equals(right);
         }
 
-        public static bool operator !=(Quest2 left, Quest2 right) => !(left == right);
+        public static bool operator !=(Quest left, Quest right) => !(left == right);
 
-        public static bool operator <(Quest2 left, Quest2 right) => (Compare(left, right) < 0);
+        public static bool operator <(Quest left, Quest right) => (Compare(left, right) < 0);
 
-        public static bool operator >(Quest2 left, Quest2 right) => (Compare(left, right) > 0);
+        public static bool operator >(Quest left, Quest right) => (Compare(left, right) > 0);
 
     }
 }

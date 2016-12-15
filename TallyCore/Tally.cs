@@ -188,33 +188,15 @@ namespace NetTally
                 quest.PropertyChanged -= Quest_PropertyChanged;
                 quest.PropertyChanged += Quest_PropertyChanged;
 
-                List<Task<HtmlDocument>> loadedPages;
-
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
 
                 if (VoteCounter.Instance.Quest?.DisplayName != quest.DisplayName)
                     UserDefinedTasks.Clear();
 
-                await quest.InitForumAdapterAsync(token).ConfigureAwait(false);
-
-                // Figure out what page to start from
-                var startInfo = await quest.GetStartInfoAsync(PageProvider, token);
-
-                // Load pages from the website
-                loadedPages = await quest.LoadQuestPagesAsync(startInfo, PageProvider, token).ConfigureAwait(false);
-
-                if (loadedPages != null && loadedPages.Count > 0)
-                {
-                    // Tally the votes from the loaded pages.
-                    bool completed = await VoteCounter.Instance.TallyVotes(quest, startInfo, loadedPages).ConfigureAwait(false);
-
-                    if (completed)
-                    {
-                        // Compose the final result string from the compiled votes.
-                        UpdateResults();
-                    }
-                }
+                var posts = await Forums.ForumReader.Instance.ReadQuestAsync(quest, token);
+                VoteCounter.Instance.TallyPosts(posts, quest);
+                UpdateResults();
             }
             catch (Exception)
             {

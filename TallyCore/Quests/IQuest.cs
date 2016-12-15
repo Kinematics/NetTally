@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
 using NetTally.Adapters;
 using NetTally.Filters;
 
@@ -94,48 +90,5 @@ namespace NetTally
         /// </summary>
         bool ReadToEndOfThread { get; }
 
-
-        // Obsolete:
-
-
-
-        /// <summary>
-        /// Store the found threadmark post number.
-        /// </summary>
-        int ThreadmarkPost { get; set; }
-
-        /// <summary>
-        /// The quest title as derived from the thread name.
-        /// </summary>
-        string ThreadTitle { get; }
-
-        /// <summary>
-        /// Initialize the forum adapter needed to read results from the web site this quest is for.
-        /// Runs async, but doesn't need a cancellation token.
-        /// </summary>
-        /// <returns>Returns nothing.</returns>
-        Task InitForumAdapterAsync();
-
-        /// <summary>
-        /// Initialize the forum adapter needed to read results from the web site this quest is for.
-        /// Runs async, with a cancellation token.
-        /// </summary>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns nothing.</returns>
-        Task InitForumAdapterAsync(CancellationToken token);
-
-        /// <summary>
-        /// Get the first page number of the thread, where we should start reading, based on
-        /// current quest parameters.  Forum adapter handles checking for threadmarks and such.
-        /// </summary>
-        Task<ThreadRangeInfo> GetStartInfoAsync(IPageProvider pageProvider, CancellationToken token);
-
-        /// <summary>
-        /// Asynchronously load pages for the specified quest.
-        /// </summary>
-        /// <param name="pageProvider">The page provider to use to load the pages.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns a list of HTML documents defined by the requested quest.</returns>
-        Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token);
     }
 }

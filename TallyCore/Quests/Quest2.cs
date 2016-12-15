@@ -14,9 +14,9 @@ namespace NetTally
     /// A Quest is a named forum thread, along with all the configuration properties that
     /// are used to determine how to go about tallying that thread.
     /// </summary>
-    public partial class Quest2 : IQuest
+    public partial class Quest : IQuest
     {
-        public Quest2()
+        public Quest()
         {
             questHash = indexer.Next();
             ThreadName = NewThreadEntry;
@@ -244,7 +244,6 @@ namespace NetTally
         /// <param name="postNumber">The post number of the thread.</param>
         /// <returns>Returns the page number of the thread that the post should be on.</returns>
         public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
-
 
         #endregion
 

@@ -5,9 +5,9 @@ using System.Runtime.CompilerServices;
 namespace NetTally
 {
     /// <summary>
-    /// Implement <see cref="INotifyPropertyChanged"/> for <see cref="Quest2"/> class.
+    /// Implement <see cref="INotifyPropertyChanged"/> for <see cref="NetTally.Quest"/> class.
     /// </summary>
-    public partial class Quest2 : IQuest
+    public partial class Quest : IQuest
     {
         /// <summary>
         /// Event for INotifyPropertyChanged.

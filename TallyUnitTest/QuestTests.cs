@@ -2,7 +2,9 @@
 using System;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using NetTally.Forums;
 
 namespace NetTally.Tests
 {
@@ -89,7 +91,6 @@ namespace NetTally.Tests
             Assert.AreEqual(0, quest.EndPost);
             Assert.AreEqual(true, quest.ReadToEndOfThread);
             Assert.AreEqual(true, quest.CheckForLastThreadmark);
-            Assert.AreEqual(0, quest.ThreadmarkPost);
             Assert.AreEqual(PartitionMode.None, quest.PartitionMode);
             Assert.IsNull(quest.ForumAdapter);
 
@@ -196,7 +197,7 @@ namespace NetTally.Tests
         public void IQuest_DisplayName_Null()
         {
             quest.DisplayName = null;
-            Assert.AreEqual(quest.ThreadTitle, quest.DisplayName);
+            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -204,7 +205,7 @@ namespace NetTally.Tests
         public void IQuest_DisplayName_Blank()
         {
             quest.DisplayName = "";
-            Assert.AreEqual(quest.ThreadTitle, quest.DisplayName);
+            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -245,7 +246,7 @@ namespace NetTally.Tests
         {
             quest.DisplayName = "My Quest";
             quest.DisplayName = null;
-            Assert.AreEqual(quest.ThreadTitle, quest.DisplayName);
+            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -253,8 +254,8 @@ namespace NetTally.Tests
         public void IQuest_DisplayName_ResetEmpty()
         {
             quest.DisplayName = "My Quest";
-            quest.DisplayName = null;
-            Assert.AreEqual(quest.ThreadTitle, quest.DisplayName);
+            quest.DisplayName = "";
+            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
         #endregion
@@ -404,8 +405,7 @@ namespace NetTally.Tests
         {
             quest.EndPost = 100;
             quest.CheckForLastThreadmark = true;
-            quest.ThreadmarkPost = 448100;
-            Assert.IsTrue(quest.ReadToEndOfThread);
+            Assert.IsFalse(quest.ReadToEndOfThread);
         }
         #endregion
 
@@ -413,50 +413,41 @@ namespace NetTally.Tests
         [TestMethod]
         public async Task IQuest_InitForumAdapter()
         {
-            Assert.IsNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapterAsync();
-            Assert.IsNotNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
+            await Task.Delay(1);
         }
 
         [TestMethod]
         public async Task IQuest_InitForumAdapter_ReInit()
         {
-            Assert.IsNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapterAsync();
-            Assert.IsNotNull(quest.ForumAdapter);
-            var fa = quest.ForumAdapter;
-            await quest.InitForumAdapterAsync();
-#pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
-            Assert.ReferenceEquals(fa, quest.ForumAdapter);
-#pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo, forumType);
         }
 
         [TestMethod]
         public async Task IQuest_InitForumAdapter_Change_SameHost()
         {
-            Assert.IsNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapterAsync();
-            Assert.IsNotNull(quest.ForumAdapter);
-            var fa = quest.ForumAdapter;
+            quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
-#pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
-            Assert.ReferenceEquals(fa, quest.ForumAdapter);
-#pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
+            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
         }
 
         [TestMethod]
         public async Task IQuest_InitForumAdapter_Change_DiffHost()
         {
-            Assert.IsNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            await quest.InitForumAdapterAsync();
-            Assert.IsNotNull(quest.ForumAdapter);
-            var fa = quest.ForumAdapter;
+            quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
-            Assert.IsNull(quest.ForumAdapter);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
         }
         #endregion
 
