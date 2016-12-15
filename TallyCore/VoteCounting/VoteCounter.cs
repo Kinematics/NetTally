@@ -111,88 +111,10 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Construct the votes Results from the provided list of HTML pages.
+        /// Run the tally using the provided posts, for the selected quest.
         /// </summary>
+        /// <param name="posts">The posts to be tallied.</param>
         /// <param name="quest">The quest being tallied.</param>
-        /// <param name="startInfo">The start information.</param>
-        /// <param name="pages">The web pages that have been loaded for the quest.</param>
-        /// <returns>Returns true if processing was successfully completed.  Otherwise false.</returns>
-        /// <exception cref="ArgumentNullException">If quest or pages is null.</exception>
-        /// <exception cref="Exception">If not all pages loaded.</exception>
-        public async Task<bool> TallyVotes(IQuest quest, ThreadRangeInfo startInfo, List<Task<HtmlDocument>> pages)
-        {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (pages == null)
-                throw new ArgumentNullException(nameof(pages));
-
-            if (pages.Count == 0)
-                return false;
-
-            Quest = quest;
-
-            var firstPage = await pages.First();
-
-            if (firstPage == null)
-                return false;
-
-            // Use the title of the first page for the descriptive output.
-            ThreadInfo threadInfo = Quest.ForumAdapter.GetThreadInfo(firstPage);
-            Title = threadInfo.Title;
-
-            PostsList = new List<PostComponents>();
-
-            while (pages.Count > 0)
-            {
-                var finishedPage = await Task.WhenAny(pages);
-                pages.Remove(finishedPage);
-
-                if (finishedPage.IsFaulted)
-                {
-                    var canceled = finishedPage.Exception.InnerExceptions.FirstOrDefault(e => e is OperationCanceledException);
-                    if (canceled != null)
-                        throw canceled;
-
-                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
-                    ae.Data["Application"] = true;
-                    throw ae;
-                }
-
-                var page = await finishedPage;
-
-                if (page == null)
-                {
-                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
-                    ae.Data["Application"] = true;
-                    throw ae;
-                }
-
-                var posts = from post in Quest.ForumAdapter.GetPosts(page)
-                            where post != null && post.IsVote && post.Author != threadInfo.Author &&
-                                post.IsAfterStart(startInfo) &&
-                                (Quest.ReadToEndOfThread || post.Number <= Quest.EndPost)
-                            select post;
-
-                PostsList.AddRange(posts);
-            }
-
-            PostsList = PostsList.Distinct().OrderBy(p => p.Number).ToList();
-
-            TallyPosts();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Run TallyPosts using the provided quest.
-        /// </summary>
-        /// <param name="quest">The quest that will be used for tallying parameters.</param>
-        public void TallyPosts(IQuest quest)
-        {
-            Quest = quest;
-            TallyPosts();
-        }
-
         public void TallyPosts(IEnumerable<PostComponents> posts, IQuest quest)
         {
             Quest = quest;
