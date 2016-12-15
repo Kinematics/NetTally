@@ -39,9 +39,10 @@ namespace NetTally.Tests
             int postNumber = 100;
 
             PostComponents post = new PostComponents(author, postId, vote, postNumber);
-            VoteCounter.Instance.PostsList.Add(post);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(post);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -56,16 +57,18 @@ namespace NetTally.Tests
 
         public void TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
         {
+            List<PostComponents> posts = new List<PostComponents>();
+
             for (int i = 0; i < votes.Count; i++)
             {
                 string postID = $"{12345 + i}";
                 int postNumber = 100 + i;
 
                 PostComponents post = new PostComponents(authors[i], postID, votes[i], postNumber);
-                VoteCounter.Instance.PostsList.Add(post);
+                posts.Add(post);
             }
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             for (int i = 0; i < results.Count; i++)
             {

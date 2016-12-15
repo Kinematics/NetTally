@@ -165,7 +165,11 @@ namespace NetTally.Tests
             VoteCounter.Instance.PostsList.Add(p1);
             VoteCounter.Instance.PostsList.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
+
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -198,10 +202,11 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -234,10 +239,11 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -271,10 +277,11 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -308,10 +315,11 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -346,10 +354,11 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            List<PostComponents> posts = new List<PostComponents>();
+            posts.Add(p1);
+            posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
