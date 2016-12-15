@@ -74,7 +74,7 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        public Uri ThreadUri { get; private set; } = null;
+        public Uri ThreadUri { get; private set; }
 
         /// <summary>
         /// The type of forum used at the URI site.
@@ -85,7 +85,7 @@ namespace NetTally
         /// Get the forum adapter being used by this quest.
         /// Gets set when the ForumType is determined.
         /// </summary>
-        public IForumAdapter ForumAdapter { get; set; } = null;
+        public IForumAdapter ForumAdapter { get; set; }
 
         /// <summary>
         /// The friendly display name to show for the quest.
@@ -340,37 +340,5 @@ namespace NetTally
         }
         #endregion
         #endregion
-
-
-
-
-        #region obsolete, remove
-        public int ThreadmarkPost { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public string ThreadTitle => throw new NotImplementedException();
-
-
-        public Task InitForumAdapterAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task InitForumAdapterAsync(CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ThreadRangeInfo> GetStartInfoAsync(IPageProvider pageProvider, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-
-
     }
 }
