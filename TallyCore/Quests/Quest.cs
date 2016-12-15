@@ -24,6 +24,8 @@ namespace NetTally
         public Quest()
         {
             ThreadName = NewThreadEntry;
+            CustomTaskFilters = string.Empty;
+            CustomThreadmarkFilters = string.Empty;
         }
 
         #region IPropertyChanged interface implementation
@@ -306,9 +308,15 @@ namespace NetTally
             set
             {
                 customThreadmarkFilters = value;
+                ThreadmarkFilter = new Filter(customThreadmarkFilters, "omake");
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Gets or sets the threadmark filter, based on current threadmark filter settings.
+        /// </summary>
+        public Filter ThreadmarkFilter { get; private set; }
 
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
@@ -320,7 +328,6 @@ namespace NetTally
             set
             {
                 useCustomTaskFilters = value;
-                TaskFilter = new TaskFilter(this);
                 OnPropertyChanged();
             }
         }
@@ -334,7 +341,7 @@ namespace NetTally
             set
             {
                 customTaskFilters = value;
-                TaskFilter = new TaskFilter(this);
+                TaskFilter = new Filter(customTaskFilters, null);
                 OnPropertyChanged();
             }
         }
@@ -343,7 +350,7 @@ namespace NetTally
         /// Gets or sets the task filter, based on current task filter settings.
         /// This is updated any time UseCustomTaskFilters or CustomTaskFilters properties change.
         /// </summary>
-        public TaskFilter TaskFilter { get; set; }
+        public Filter TaskFilter { get; private set; }
 
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end

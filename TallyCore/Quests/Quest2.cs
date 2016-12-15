@@ -20,6 +20,8 @@ namespace NetTally
         {
             questHash = indexer.Next();
             ThreadName = NewThreadEntry;
+            CustomThreadmarkFilters = string.Empty;
+            CustomTaskFilters = string.Empty;
         }
 
         #region Hashing
@@ -72,6 +74,11 @@ namespace NetTally
         /// The URI that represents the thread URL string.
         /// </summary>
         public Uri ThreadUri { get; private set; } = null;
+
+        /// <summary>
+        /// The type of forum used at the URI site.
+        /// </summary>
+        public ForumType ForumType { get; set; }
 
         /// <summary>
         /// The friendly display name to show for the quest.
@@ -298,7 +305,7 @@ namespace NetTally
             set
             {
                 customTaskFilters = value;
-                TaskFilterA = new Filter(customTaskFilters, null);
+                TaskFilter = new Filter(customTaskFilters, null);
                 OnPropertyChanged();
             }
         }
@@ -306,8 +313,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
-        public Filter TaskFilterA { get; private set; }
-        public TaskFilter TaskFilter { get; private set; }
+        public Filter TaskFilter { get; private set; }
 
         #endregion
 
@@ -331,14 +337,11 @@ namespace NetTally
 
 
 
+
+        #region obsolete, remove
         public int ThreadmarkPost { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public string ThreadTitle => throw new NotImplementedException();
-
-
-
-        public ForumType ForumType { get; set; }
-
 
         public IForumAdapter ForumAdapter => throw new NotImplementedException();
 
@@ -361,7 +364,7 @@ namespace NetTally
         {
             throw new NotImplementedException();
         }
-
+        #endregion
 
 
     }

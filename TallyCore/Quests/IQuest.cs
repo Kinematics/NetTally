@@ -20,10 +20,18 @@ namespace NetTally
         /// </summary>
         string DisplayName { get; set; }
         /// <summary>
-        /// The quest title as derived from the thread name.
+        /// The URI that represents the thread URL string.
         /// </summary>
-        string ThreadTitle { get; }
+        Uri ThreadUri { get; }
+        /// <summary>
+        /// The type of forum used at the URI site.
+        /// </summary>
+        ForumType ForumType { get; set; }
 
+        /// <summary>
+        /// The number of posts per page for this forum thread.
+        /// </summary>
+        int PostsPerPage { get; set; }
 
         /// <summary>
         /// Starting post to start tallying from.
@@ -33,17 +41,12 @@ namespace NetTally
         /// Ending post for the tally to run to.
         /// </summary>
         int EndPost { get; set; }
-
-        /// <summary>
-        /// The number of posts per page for this forum thread.
-        /// </summary>
-        int PostsPerPage { get; set; }
-
         /// <summary>
         /// Flag for whether to try to override the provided starting post by
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
         /// from the list of valid 'last threadmark found' checks.
@@ -54,6 +57,10 @@ namespace NetTally
         /// 'last threadmark found' checks.
         /// </summary>
         string CustomThreadmarkFilters { get; set; }
+        /// <summary>
+        /// Gets or sets the threadmark filter, based on current threadmark filter settings.
+        /// </summary>
+        Filter ThreadmarkFilter { get; }
 
         /// <summary>
         /// Flag for whether to use custom filters to only process specified tasks.
@@ -66,7 +73,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
-        TaskFilter TaskFilter { get; }
+        Filter TaskFilter { get; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
@@ -78,14 +85,20 @@ namespace NetTally
         /// </summary>
         bool ReadToEndOfThread { get; }
 
+
+        // Obsolete:
+
+
+
         /// <summary>
         /// Store the found threadmark post number.
         /// </summary>
         int ThreadmarkPost { get; set; }
 
-
-        ForumType ForumType { get; set; }
-        Uri ThreadUri { get; }
+        /// <summary>
+        /// The quest title as derived from the thread name.
+        /// </summary>
+        string ThreadTitle { get; }
 
         /// <summary>
         /// Initialize the forum adapter needed to read results from the web site this quest is for.
