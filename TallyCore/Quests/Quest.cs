@@ -104,7 +104,7 @@ namespace NetTally
                 if (string.IsNullOrEmpty(value))
                     displayName = GetDisplayNameFromThreadName();
                 else
-                    displayName = value;
+                    displayName = value.RemoveUnsafeCharacters();
 
                 OnPropertyChanged();
             }
