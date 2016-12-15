@@ -537,6 +537,6 @@ namespace NetTally
 
 
         public ForumType ForumType { get; set; }
-
+        public Uri ThreadUri { get; }
     }
 }

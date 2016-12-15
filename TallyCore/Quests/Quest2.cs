@@ -36,7 +36,6 @@ namespace NetTally
         static readonly Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
-        Uri threadUri = null;
 
         /// <summary>
         /// The URL of the quest.
@@ -57,17 +56,22 @@ namespace NetTally
 
                 Uri newUri = new Uri(cleanValue);
 
-                if (threadUri == null || threadUri.Host != newUri.Host)
+                if (ThreadUri == null || ThreadUri.Host != newUri.Host)
                 {
                     ForumType = ForumType.Unknown;
                 }
 
                 threadName = cleanValue;
-                threadUri = newUri;
+                ThreadUri = newUri;
 
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// The URI that represents the thread URL string.
+        /// </summary>
+        public Uri ThreadUri { get; private set; } = null;
 
         /// <summary>
         /// The friendly display name to show for the quest.

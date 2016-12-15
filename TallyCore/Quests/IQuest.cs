@@ -85,6 +85,7 @@ namespace NetTally
 
 
         ForumType ForumType { get; set; }
+        Uri ThreadUri { get; }
 
         /// <summary>
         /// Initialize the forum adapter needed to read results from the web site this quest is for.
