@@ -198,7 +198,7 @@ namespace NetTally
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
-        public bool ReadToEndOfThread => EndPost == 0 || ThreadmarkPost != 0;
+        public bool ReadToEndOfThread => EndPost == 0;
 
         /// <summary>
         /// The number of posts per page for this forum thread.
