@@ -57,6 +57,8 @@ namespace NetTally.Forums
 
             var adapter = ForumAdapterSelector.GetForumAdapter(quest.ForumType, quest.ThreadUri);
 
+            quest.ForumAdapter = adapter;
+
             return adapter;
         }
 

@@ -27,11 +27,20 @@ namespace NetTally
         /// The type of forum used at the URI site.
         /// </summary>
         ForumType ForumType { get; set; }
+        /// <summary>
+        /// Get the forum adapter being used by this quest.
+        /// Must be initialized first.
+        /// </summary>
+        IForumAdapter ForumAdapter { get; set; }
 
         /// <summary>
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }
+        /// <summary>
+        /// Converts a post number into a page number.
+        /// </summary>
+        int GetPageNumberOf(int postNumber);
 
         /// <summary>
         /// Starting post to start tallying from.
@@ -114,17 +123,6 @@ namespace NetTally
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns nothing.</returns>
         Task InitForumAdapterAsync(CancellationToken token);
-
-        /// <summary>
-        /// Get the forum adapter being used by this quest.
-        /// Must be initialized first.
-        /// </summary>
-        IForumAdapter ForumAdapter { get; }
-
-        /// <summary>
-        /// Converts a post number into a page number.
-        /// </summary>
-        int GetPageNumberOf(int postNumber);
 
         /// <summary>
         /// Get the first page number of the thread, where we should start reading, based on

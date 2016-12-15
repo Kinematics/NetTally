@@ -81,6 +81,12 @@ namespace NetTally
         public ForumType ForumType { get; set; }
 
         /// <summary>
+        /// Get the forum adapter being used by this quest.
+        /// Gets set when the ForumType is determined.
+        /// </summary>
+        public IForumAdapter ForumAdapter { get; set; } = null;
+
+        /// <summary>
         /// The friendly display name to show for the quest.
         /// If the backing var is empty, or if an attempt is made to set it to an empty value,
         /// automatically generates a value based on the thread URL.
@@ -343,7 +349,6 @@ namespace NetTally
 
         public string ThreadTitle => throw new NotImplementedException();
 
-        public IForumAdapter ForumAdapter => throw new NotImplementedException();
 
         public Task InitForumAdapterAsync()
         {
