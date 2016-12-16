@@ -6,19 +6,19 @@ namespace NetTally.Utility
     /// Class to save an object with an associated timestamp.
     /// Default use would be to cache loaded web pages.
     /// </summary>
-    public class CachedObject<T>
+    public class CacheObject<T>
     {
         private DefaultClock defaultClock;
 
         public DateTime Timestamp { get; }
         public T Store { get; }
 
-        public CachedObject(T store)
+        public CacheObject(T store)
             : this(store, new DefaultClock())
         {
         }
 
-        public CachedObject(T store, IClock clock)
+        public CacheObject(T store, IClock clock)
         {
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
