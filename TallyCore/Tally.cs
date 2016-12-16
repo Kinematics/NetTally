@@ -180,7 +180,7 @@ namespace NetTally
         /// </summary>
         /// <param name="quest">The quest to scan.</param>
         /// <param name="token">Cancellation token.</param>
-        public async Task Run(IQuest quest, CancellationToken token)
+        public async Task RunAsync(IQuest quest, CancellationToken token)
         {
             try
             {

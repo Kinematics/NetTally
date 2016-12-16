@@ -387,7 +387,7 @@ namespace NetTally.ViewModels
                 {
                     try
                     {
-                        await tally.Run(SelectedQuest, cts.Token);
+                        await tally.RunAsync(SelectedQuest, cts.Token);
                     }
                     catch (OperationCanceledException)
                     {
