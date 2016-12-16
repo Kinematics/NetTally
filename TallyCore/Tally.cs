@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 using NetTally.Output;
 using NetTally.CustomEventArgs;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -20,10 +20,6 @@ namespace NetTally
         // Disposal
         bool _disposed;
 
-        // Depdendency references
-        IPageProvider PageProvider { get; }
-        ITextResultsProvider TextResults { get; }
-
         // State
         bool tallyIsRunning;
         string results = string.Empty;
@@ -34,29 +30,9 @@ namespace NetTally
 
         #region Construction
         public Tally()
-            : this(null, null)
         {
-
-        }
-
-        public Tally(IPageProvider pageProvider)
-            : this(pageProvider, null)
-        {
-
-        }
-
-        /// <summary>
-        /// Constructor that allows overriding the default PageProvider.
-        /// </summary>
-        /// <param name="pageProvider">Alternate PageProvider.</param>
-        public Tally(IPageProvider pageProvider, ITextResultsProvider textResults)
-        {
-            // Defaults if none specified
-            PageProvider = pageProvider ?? ViewModels.ViewModelService.MainViewModel.PageProvider;
-            TextResults = textResults ?? new TallyOutput();
-
             // Hook up to event notifications
-            PageProvider.StatusChanged += PageProvider_StatusChanged;
+            ViewModelService.MainViewModel.PageProvider.StatusChanged += PageProvider_StatusChanged;
             AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
         }
         #endregion
@@ -80,9 +56,8 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                PageProvider.StatusChanged -= PageProvider_StatusChanged;
+                ViewModelService.MainViewModel.PageProvider.StatusChanged -= PageProvider_StatusChanged;
                 AdvancedOptions.Instance.PropertyChanged -= Options_PropertyChanged;
-                PageProvider.Dispose();
             }
 
             _disposed = true;
@@ -206,7 +181,7 @@ namespace NetTally
             finally
             {
                 TallyIsRunning = false;
-                PageProvider.DoneLoading();
+                ViewModelService.MainViewModel.PageProvider.DoneLoading();
 
                 GC.Collect();
             }
@@ -219,7 +194,7 @@ namespace NetTally
         public void UpdateResults()
         {
             if (VoteCounter.Instance.Quest != null)
-                TallyResults = TextResults.BuildOutput(AdvancedOptions.Instance.DisplayMode);
+                TallyResults = ViewModelService.MainViewModel.TextResultsProvider.BuildOutput(AdvancedOptions.Instance.DisplayMode);
         }
 
         /// <summary>
@@ -227,7 +202,7 @@ namespace NetTally
         /// </summary>
         public void ClearPageCache()
         {
-            PageProvider.ClearPageCache();
+            ViewModelService.MainViewModel.PageProvider.ClearPageCache();
         }
         #endregion
 

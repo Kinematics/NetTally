@@ -19,8 +19,6 @@ namespace NetTally
     public partial class MainWindow : Window, IDisposable
     {
         #region Fields and Properties
-        public MainViewModel MainViewModel { get; private set; }
-
         bool _disposed = false;
         #endregion
 
@@ -86,16 +84,19 @@ namespace NetTally
 
         private void SetupModel(QuestCollectionWrapper config)
         {
-            if (MainViewModel == null)
+            try
             {
-                MainViewModel = new MainViewModel(config);
-                ViewModelService.MainViewModel = MainViewModel;
+                ViewModelService.Instance.Configure(config).Build();
 
-                DataContext = MainViewModel;
-                MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
+                DataContext = ViewModelService.MainViewModel;
+                ViewModelService.MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                ViewModelService.MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
 
-                MainViewModel.CheckForNewRelease();
+                ViewModelService.MainViewModel.CheckForNewRelease();
+            }
+            catch (InvalidOperationException e)
+            {
+                ErrorLog.Log(e);
             }
         }
 
@@ -123,9 +124,9 @@ namespace NetTally
         {
             try
             {
-                string selectedQuest = MainViewModel?.SelectedQuest?.ThreadName ?? "";
+                string selectedQuest = ViewModelService.MainViewModel.SelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(MainViewModel?.QuestList, selectedQuest);
+                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(ViewModelService.MainViewModel.QuestList, selectedQuest);
                 NetTallyConfig.Save(wrapper);
             }
             catch (Exception ex)
@@ -155,7 +156,7 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                MainViewModel.Dispose();
+                ViewModelService.MainViewModel?.Dispose();
             }
 
             _disposed = true;
@@ -214,14 +215,14 @@ namespace NetTally
         {
             try
             {
-                Clipboard.SetText(MainViewModel.Output);
+                Clipboard.SetText(ViewModelService.MainViewModel.Output);
             }
             catch (Exception ex1)
             {
                 ErrorLog.Log("First clipboard failure", ex1);
                 try
                 {
-                    Clipboard.SetDataObject(MainViewModel.Output, false);
+                    Clipboard.SetDataObject(ViewModelService.MainViewModel.Output, false);
                 }
                 catch (Exception ex2)
                 {
@@ -247,14 +248,14 @@ namespace NetTally
         /// <param name="e"></param>
         private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow(MainViewModel)
+            ManageVotesWindow manageWindow = new ManageVotesWindow(ViewModelService.MainViewModel)
             {
                 Owner = Application.Current.MainWindow
             };
 
             manageWindow.ShowDialog();
 
-            MainViewModel.UpdateOutput();
+            ViewModelService.MainViewModel.UpdateOutput();
         }
 
         /// <summary>
@@ -267,7 +268,7 @@ namespace NetTally
             GlobalOptionsWindow options = new GlobalOptionsWindow
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = MainViewModel
+                DataContext = ViewModelService.MainViewModel
             };
 
             options.ShowDialog();
@@ -283,7 +284,7 @@ namespace NetTally
             QuestOptionsWindow options = new QuestOptionsWindow
             {
                 Owner = Application.Current.MainWindow,
-                DataContext = MainViewModel
+                DataContext = ViewModelService.MainViewModel
             };
 
             options.ShowDialog();
@@ -418,7 +419,7 @@ namespace NetTally
         /// <param name="startWithThread">If set to <c>true</c> [start with thread].</param>
         private void StartEdit(bool startWithThread = false)
         {
-            if (MainViewModel.SelectedQuest == null)
+            if (ViewModelService.MainViewModel.SelectedQuest == null)
             {
                 HideEditBoxes();
                 return;
@@ -494,7 +495,7 @@ namespace NetTally
         {
             BindingExpression be = GetCurrentEditBinding();
 
-            if (be != null && MainViewModel.SelectedQuest != null)
+            if (be != null && ViewModelService.MainViewModel.SelectedQuest != null)
                 be.UpdateTarget();
         }
 
@@ -505,7 +506,7 @@ namespace NetTally
         {
             BindingExpression be = GetCurrentEditBinding();
 
-            if (be != null && MainViewModel.SelectedQuest != null)
+            if (be != null && ViewModelService.MainViewModel.SelectedQuest != null)
                 be.UpdateSource();
         }
 

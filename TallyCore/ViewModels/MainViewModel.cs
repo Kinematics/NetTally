@@ -9,18 +9,14 @@ using System.Windows.Input;
 using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.Web;
+using NetTally.Output;
 
 namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(QuestCollectionWrapper config)
-            : this(config, null)
-        {
-
-        }
-
-        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler)
+        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler,
+            IPageProvider pageProvider, ITextResultsProvider textResults)
         {
             if (config != null)
             {
@@ -34,7 +30,8 @@ namespace NetTally.ViewModels
                 SelectQuest(null);
             }
 
-            SetupNetwork(handler);
+            SetupNetwork(pageProvider, handler);
+            SetupTextResults(textResults);
 
             BindCheckForNewRelease();
 
@@ -80,11 +77,9 @@ namespace NetTally.ViewModels
         #region Networking
         public IPageProvider PageProvider { get; private set; }
 
-        private void SetupNetwork(HttpClientHandler handler)
+        private void SetupNetwork(IPageProvider pageProvider, HttpClientHandler handler)
         {
-            if (handler == null)
-                handler = new HttpClientHandler();
-            PageProvider = new WebPageProvider(handler);
+            PageProvider = pageProvider ?? new WebPageProvider(handler ?? new HttpClientHandler());
         }
         #endregion
 
@@ -295,6 +290,13 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Section: Tally & Results Binding
+        public ITextResultsProvider TextResultsProvider { get; private set; }
+
+        private void SetupTextResults(ITextResultsProvider textResults)
+        {
+            TextResultsProvider = textResults ?? new TallyOutput();
+        }
+
         /// Tally class object.
         Tally tally;
 
@@ -303,7 +305,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void BindTally()
         {
-            tally = new Tally(PageProvider);
+            tally = new Tally();
             tally.PropertyChanged += Tally_PropertyChanged;
         }
 
