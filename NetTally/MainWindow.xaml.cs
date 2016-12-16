@@ -38,7 +38,7 @@ namespace NetTally
 
                 InitializeComponent();
 
-                this.Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
+                Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
                 // Set up data contexts
                 QuestCollectionWrapper config;
@@ -79,7 +79,7 @@ namespace NetTally
         {
             ErrorLog.LogUsing(new WindowsErrorLog());
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-            Utility.StringUtility.InitStringComparers(UnicodeHashFunction.HashFunction);
+            StringUtility.InitStringComparers(UnicodeHashFunction.HashFunction);
         }
 
         private void SetupModel(QuestCollectionWrapper config)

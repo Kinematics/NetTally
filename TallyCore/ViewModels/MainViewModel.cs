@@ -33,13 +33,11 @@ namespace NetTally.ViewModels
             SetupNetwork(pageProvider, handler);
             SetupTextResults(textResults);
 
-            BindCheckForNewRelease();
-
-            BindTally();
-
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
+            BindCheckForNewRelease();
+            BindTally();
             BindVoteCounter();
 
             SetupCommands();
@@ -97,7 +95,7 @@ namespace NetTally.ViewModels
 
         public void CheckForNewRelease()
         {
-            checkForNewRelease.Update(PageProvider);
+            var runAwait = checkForNewRelease.Update();
         }
 
         /// <summary>

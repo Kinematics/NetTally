@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.ViewModels;
 
 namespace NetTally.Utility
 {
@@ -13,7 +14,6 @@ namespace NetTally.Utility
     {
         bool newRelease = false;
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
-        IPageProvider PageProvider { get; set; }
 
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
@@ -49,13 +49,15 @@ namespace NetTally.Utility
 
         #region Public methods
         /// <summary>
-        /// Do the version check update.
+        /// Do the version check update.  Rerun the check every two days, if the program is kept open that long.
         /// </summary>
-        public void Update(IPageProvider pageProvider)
+        public async Task Update()
         {
-            PageProvider = pageProvider ?? ViewModels.ViewModelService.MainViewModel.PageProvider;
-            // Store result in a task, but don't await it.
-            var result = DoVersionCheck();
+            while (true)
+            {
+                await DoVersionCheckAsync().ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
+            }
         }
         #endregion
 
@@ -66,25 +68,19 @@ namespace NetTally.Utility
         /// If no newer version is found, it sets up a request to re-run this function in 2 days time.
         /// </summary>
         /// <returns>Returns nothing.  Just runs async.</returns>
-        private async Task DoVersionCheck()
+        private async Task DoVersionCheckAsync()
         {
             try
             {
                 Version currentVersion = ProductInfo.FileVersion;
-                Version latestVersion = await GetLatestVersion().ConfigureAwait(false);
+                Version latestVersion = await GetLatestVersionAsync().ConfigureAwait(false);
 
                 if (currentVersion == null || latestVersion == null)
                     return;
 
-                bool newer = latestVersion.CompareTo(currentVersion) > 0;
-
-                if (newer)
+                if (latestVersion.CompareTo(currentVersion) > 0)
                 {
-                    NewRelease = newer;
-                }
-                else
-                {
-                    var delay = DelayedAction(DoVersionCheck);
+                    NewRelease = true;
                 }
             }
             catch (Exception e)
@@ -94,28 +90,16 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Utility function to run an async function after a delay.
-        /// Delay is set to 2 days.
-        /// </summary>
-        /// <param name="action">The function to run.</param>
-        /// <returns>Returns nothing.  Just runs async.</returns>
-        private async Task DelayedAction(Func<Task> action)
-        {
-            await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
-            var result = action();
-        }
-
-        /// <summary>
         /// Get the current program version information, to compare with the latest version info.
         /// </summary>
         /// <returns>Returns the current version string.</returns>
-        private async Task<Version> GetLatestVersion()
+        private async Task<Version> GetLatestVersionAsync()
         {
             Version latestVersion = null;
 
             try
             {
-                string latestVersionString = await GetLatestVersionString().ConfigureAwait(false);
+                string latestVersionString = await GetLatestVersionStringAsync().ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(latestVersionString))
                     latestVersion = new Version(latestVersionString);
@@ -133,11 +117,11 @@ namespace NetTally.Utility
         /// the version number of the latest release.
         /// </summary>
         /// <returns>Returns the latest version string.</returns>
-        private async Task<string> GetLatestVersionString()
+        private async Task<string> GetLatestVersionStringAsync()
         {
             try
             {
-                HtmlDocument htmldoc = await GetLatestReleasePage().ConfigureAwait(false);
+                HtmlDocument htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
 
                 if (htmldoc != null)
                 {
@@ -162,14 +146,14 @@ namespace NetTally.Utility
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument> GetLatestReleasePage()
+        private async Task<HtmlDocument> GetLatestReleasePageAsync()
         {
             HtmlDocument doc = null;
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
             try
             {
-                doc = await PageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true, true).ConfigureAwait(false);
+                doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true, true).ConfigureAwait(false);
             }
             catch (Exception e)
             {
