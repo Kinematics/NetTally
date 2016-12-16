@@ -2,8 +2,6 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
 using NetTally.Utility;
 using NetTally.CustomEventArgs;
 
@@ -21,7 +19,7 @@ namespace NetTally.Web
         Cancelled,
     }
 
-    public abstract class PageProviderBase : IDisposable, IPageProvider
+    public abstract class PageProviderBase : IDisposable
     {
         #region Fields
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
@@ -100,11 +98,11 @@ namespace NetTally.Web
 
         #region Notification functions
 
-        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception e, bool suppress)
+        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception e, SuppressNotifications suppressNotifications)
         {
             if (status == PageRequestStatusType.Requested)
             {
-                NotifyRequest(url, suppress);
+                NotifyRequest(url, suppressNotifications);
                 return;
             }
 
@@ -120,7 +118,7 @@ namespace NetTally.Web
                 return;
             }
 
-            NotifyResult(status, shortDescrip, suppress);
+            NotifyResult(status, shortDescrip, suppressNotifications);
         }
 
 
@@ -129,12 +127,12 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyRequest(string url, bool suppress)
+        private void NotifyRequest(string url, SuppressNotifications suppressNotifications)
         {
-            if (!suppress && !string.IsNullOrEmpty(url))
-            {
-                OnStatusChanged($"{url}\n");
-            }
+            if (suppressNotifications == SuppressNotifications.Yes || string.IsNullOrEmpty(url))
+                return;
+
+            OnStatusChanged($"{url}\n");
         }
 
         /// <summary>
@@ -164,9 +162,9 @@ namespace NetTally.Web
         /// <param name="status">The status.</param>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyResult(PageRequestStatusType status, string shortDescrip, bool suppress)
+        private void NotifyResult(PageRequestStatusType status, string shortDescrip, SuppressNotifications suppressNotifications)
         {
-            if (string.IsNullOrEmpty(shortDescrip) || suppress)
+            if (string.IsNullOrEmpty(shortDescrip) || suppressNotifications == SuppressNotifications.Yes)
                 return;
 
             StringBuilder sb = new StringBuilder();
@@ -196,10 +194,6 @@ namespace NetTally.Web
             sb.Append("\n");
             OnStatusChanged(sb.ToString());
         }
-
-        public abstract Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, CancellationToken token, bool shouldCache, bool suppressNotifyMessages = false);
-        public abstract void ClearPageCache();
-        public abstract void DoneLoading();
         #endregion
     }
 }

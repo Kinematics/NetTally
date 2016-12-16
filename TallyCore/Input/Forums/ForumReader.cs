@@ -103,8 +103,8 @@ namespace NetTally.Forums
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var results = from pageNum in Enumerable.Range(scanInfo.firstPageNumber, scanInfo.pagesToScan)
                               let pageUrl = adapter.GetUrlForPage(pageNum, quest.PostsPerPage)
-                              let shouldCache = (pageNum != scanInfo.lastPageNumber)
-                              select pageProvider.GetPage(pageUrl, $"Page {pageNum}", CachingMode.UseCache, token, shouldCache);
+                              let shouldCache = (pageNum == scanInfo.lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
+                              select pageProvider.GetPage(pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
 
                 pages.AddRange(results.ToList());
             }
@@ -142,7 +142,8 @@ namespace NetTally.Forums
 
                 string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
 
-                HtmlDocument page = await pageProvider.GetPage(firstPageUrl, $"Page {firstPageNumber}", CachingMode.BypassCache, token, true, true)
+                HtmlDocument page = await pageProvider.GetPage(firstPageUrl, $"Page {firstPageNumber}", 
+                    CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.Yes, token)
                     .ConfigureAwait(false);
 
                 if (page == null)

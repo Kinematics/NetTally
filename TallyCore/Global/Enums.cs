@@ -24,6 +24,18 @@ namespace NetTally
         BypassCache
     }
 
+    public enum ShouldCache
+    {
+        Yes,
+        No
+    }
+
+    public enum SuppressNotifications
+    {
+        No,
+        Yes
+    }
+
     public enum StandardVoteCounterMethod
     {
         Default

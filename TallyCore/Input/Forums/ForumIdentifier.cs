@@ -100,7 +100,8 @@ namespace NetTally.Forums
 
             try
             {
-                HtmlDocument page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host, CachingMode.UseCache, token, true);
+                HtmlDocument page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host,
+                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token);
 
                 if (token.IsCancellationRequested)
                     return null;

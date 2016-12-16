@@ -153,7 +153,8 @@ namespace NetTally.Utility
 
             try
             {
-                doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "", CachingMode.BypassCache, CancellationToken.None, true, true).ConfigureAwait(false);
+                doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "", CachingMode.BypassCache, ShouldCache.Yes,
+                    SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -9,7 +9,7 @@ using NetTally.Utility;
 
 namespace NetTally.Web
 {
-    public class WebPageProvider : PageProviderBase
+    public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
         HttpClient client;
@@ -94,7 +94,7 @@ namespace NetTally.Web
         /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
-        public override void ClearPageCache()
+        public void ClearPageCache()
         {
             Cache.Clear();
         }
@@ -103,7 +103,7 @@ namespace NetTally.Web
         /// If we're notified that a given attempt to load pages is done, we can
         /// tell the web page cache to expire old data.
         /// </summary>
-        public override void DoneLoading()
+        public void DoneLoading()
         {
             Cache.ExpireCache(Clock.Now);
         }
@@ -119,7 +119,8 @@ namespace NetTally.Web
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
-        public override async Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, CancellationToken token, bool shouldCache, bool suppressNotifyMessages = false)
+        public async Task<HtmlDocument> GetPage(string url, string shortDescrip,
+            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
@@ -132,11 +133,11 @@ namespace NetTally.Web
             string result = null;
             string failureDescrip = null;
 
-            var (found, doc) = await TryGetCachedPageAsync(url, shortDescrip, caching, suppressNotifyMessages).ConfigureAwait(false);
+            var (found, doc) = await TryGetCachedPageAsync(url, shortDescrip, caching, suppressNotifications).ConfigureAwait(false);
             if (found)
                 return doc;
 
-            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifyMessages);
+            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
             // Limit to no more than N parallel requests
             await ss.WaitAsync(token).ConfigureAwait(false);
@@ -158,7 +159,7 @@ namespace NetTally.Web
                     {
                         // If we have to retry loading the page, give it a short delay.
                         await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifyMessages);
+                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
                     }
                     tries++;
 
@@ -186,7 +187,7 @@ namespace NetTally.Web
                     }
                     catch (HttpRequestException e)
                     {
-                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifyMessages);
+                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
                         throw;
                     }
 
@@ -205,20 +206,20 @@ namespace NetTally.Web
             if (result == null)
             {
                 if (string.IsNullOrEmpty(failureDescrip))
-                    NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifyMessages);
+                    NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
                 else
-                    NotifyStatusChange(PageRequestStatusType.Failed, url, failureDescrip, null, suppressNotifyMessages);
+                    NotifyStatusChange(PageRequestStatusType.Failed, url, failureDescrip, null, suppressNotifications);
 
                 return null;
             }
 
-            if (shouldCache)
+            if (shouldCache == ShouldCache.Yes)
                 Cache.Add(url, result);
 
             htmldoc = new HtmlDocument();
             htmldoc.LoadHtml(result);
 
-            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifyMessages);
+            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 
             return htmldoc;
         }
@@ -233,7 +234,7 @@ namespace NetTally.Web
         /// <param name="caching">The caching.</param>
         /// <param name="suppressNotifyMessages">if set to <c>true</c> [suppress notify messages].</param>
         /// <returns>Returns whether it found the cached document, and the document, if found.</returns>
-        private async Task<(bool found, HtmlDocument doc)> TryGetCachedPageAsync(string url, string shortDescrip, CachingMode caching, bool suppressNotifyMessages)
+        private async Task<(bool found, HtmlDocument doc)> TryGetCachedPageAsync(string url, string shortDescrip, CachingMode caching, SuppressNotifications suppressNotifications)
         {
             HtmlDocument htmldoc = null;
 
@@ -242,7 +243,7 @@ namespace NetTally.Web
                 htmldoc = await Cache.GetAsync(url).ConfigureAwait(false);
 
                 if (htmldoc != null)
-                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifyMessages);
+                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifications);
             }
 
             return (htmldoc != null, htmldoc);

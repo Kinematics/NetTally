@@ -207,7 +207,8 @@ namespace NetTally.Adapters
                 return new ThreadRangeInfo(true, quest.StartPost);
 
             // Load the threadmarks so that we can find the starting post page or number.
-            HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.BypassCache, token, false).ConfigureAwait(false);
+            HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.BypassCache,
+                ShouldCache.No, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
                 return new ThreadRangeInfo(true, quest.StartPost);
@@ -269,7 +270,7 @@ namespace NetTally.Adapters
                 string permalink = GetPermalinkForId(tmID);
 
                 // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
-                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, token, true).ConfigureAwait(false);
+                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
                 var threadInfo = GetThreadInfo(lastThreadmarkPage);
 
