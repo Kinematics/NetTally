@@ -391,7 +391,8 @@ namespace NetTally.ViewModels
                     }
                     catch (OperationCanceledException)
                     {
-                        // Got a cancel request somewhere.  No special handling needed.
+                        // Got a cancel request somewhere.  Add it to the output display.
+                        tally.TallyResults += "Tally Cancelled!\n";
                     }
                 }
             }
