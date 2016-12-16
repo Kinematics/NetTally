@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
+using NetTally.Forums;
 using NetTally.ViewModels;
 
 namespace NetTally
@@ -164,7 +165,7 @@ namespace NetTally
 
                 VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
-                var posts = await Forums.ForumReader.Instance.ReadQuestAsync(quest, token);
+                var posts = await ForumReader.Instance.ReadQuestAsync(quest, token);
                 VoteCounter.Instance.TallyPosts(posts, quest);
 
                 UpdateResults();

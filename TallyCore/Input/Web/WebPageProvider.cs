@@ -132,8 +132,9 @@ namespace NetTally.Web
             string result = null;
             string failureDescrip = null;
 
-            if (TryGetCachedPage(url, shortDescrip, caching, suppressNotifyMessages, out htmldoc))
-                return htmldoc;
+            var (found, doc) = await TryGetCachedPageAsync(url, shortDescrip, caching, suppressNotifyMessages).ConfigureAwait(false);
+            if (found)
+                return doc;
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifyMessages);
 
@@ -231,23 +232,20 @@ namespace NetTally.Web
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="caching">The caching.</param>
         /// <param name="suppressNotifyMessages">if set to <c>true</c> [suppress notify messages].</param>
-        /// <param name="htmldoc">The htmldoc.</param>
-        /// <returns>Returns true if it found the requested page.</returns>
-        private bool TryGetCachedPage(string url, string shortDescrip, CachingMode caching, bool suppressNotifyMessages, out HtmlDocument htmldoc)
+        /// <returns>Returns whether it found the cached document, and the document, if found.</returns>
+        private async Task<(bool found, HtmlDocument doc)> TryGetCachedPageAsync(string url, string shortDescrip, CachingMode caching, bool suppressNotifyMessages)
         {
-            htmldoc = null;
+            HtmlDocument htmldoc = null;
 
-            if (caching == CachingMode.BypassCache)
-                return false;
+            if (caching == CachingMode.UseCache)
+            {
+                htmldoc = await Cache.GetAsync(url).ConfigureAwait(false);
 
-            htmldoc = Cache.Get(url);
+                if (htmldoc != null)
+                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifyMessages);
+            }
 
-            if (htmldoc == null)
-                return false;
-
-            NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifyMessages);
-
-            return true;
+            return (htmldoc != null, htmldoc);
         }
 
         /// <summary>

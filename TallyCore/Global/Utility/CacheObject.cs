@@ -8,8 +8,6 @@ namespace NetTally.Utility
     /// </summary>
     public class CacheObject<T>
     {
-        private DefaultClock defaultClock;
-
         public DateTime Timestamp { get; }
         public T Store { get; }
 
