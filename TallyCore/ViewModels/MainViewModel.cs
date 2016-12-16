@@ -305,7 +305,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void BindTally()
         {
-            tally = new Tally();
+            tally = new Tally(PageProvider);
             tally.PropertyChanged += Tally_PropertyChanged;
         }
 

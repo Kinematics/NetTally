@@ -29,10 +29,10 @@ namespace NetTally
         #endregion
 
         #region Construction
-        public Tally()
+        public Tally(IPageProvider pageProvider)
         {
             // Hook up to event notifications
-            ViewModelService.MainViewModel.PageProvider.StatusChanged += PageProvider_StatusChanged;
+            pageProvider.StatusChanged += PageProvider_StatusChanged;
             AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
         }
         #endregion
