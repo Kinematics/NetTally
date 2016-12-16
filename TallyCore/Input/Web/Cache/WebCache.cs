@@ -63,7 +63,7 @@ namespace NetTally.Web
         }
         #endregion
 
-        #region Local storage
+        #region Local fields
         bool _disposed;
 
         IClock Clock { get; set; }
@@ -71,21 +71,11 @@ namespace NetTally.Web
         const int MaxCacheEntries = 50;
         readonly TimeSpan maxCacheDuration = TimeSpan.FromMinutes(30);
 
-        Dictionary<string, CachedPage> PageCache { get; } = new Dictionary<string, CachedPage>(MaxCacheEntries);
+        Dictionary<string, CacheObject<string>> PageCache { get; } = new Dictionary<string, CacheObject<string>>(MaxCacheEntries);
         readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
         #endregion
 
         #region Public functions
-        /// <summary>
-        /// Add a document to the cache.
-        /// </summary>
-        /// <param name="url">The URL the document was retrieved from.</param>
-        /// <param name="doc">The HTML document being cached.</param>
-        public void Add(string url, HtmlDocument doc)
-        {
-            AddCachedPage(url, new CachedPage(doc));
-        }
-
         /// <summary>
         /// Add the original HTML string to the cache.
         /// </summary>
@@ -93,7 +83,7 @@ namespace NetTally.Web
         /// <param name="html">The HTML string to cache.</param>
         public void Add(string url, string html)
         {
-            AddCachedPage(url, new CachedPage(html));
+            AddCachedPage(url, new CacheObject<string>(html));
         }
 
         /// <summary>
@@ -101,7 +91,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL the page was retrieved from.</param>
         /// <param name="cachedPage">The object to cache.</param>
-        void AddCachedPage(string url, CachedPage cachedPage)
+        void AddCachedPage(string url, CacheObject<string> cachedPage)
         {
             cacheLock.EnterWriteLock();
             try
@@ -128,24 +118,17 @@ namespace NetTally.Web
         /// Otherwise returns null.</returns>
         public HtmlDocument Get(string url)
         {
-            CachedPage cache;
-
             cacheLock.EnterReadLock();
             try
             {
-                if (PageCache.TryGetValue(url, out cache))
+                if (PageCache.TryGetValue(url, out CacheObject<string> cache))
                 {
                     var cacheAge = Clock.Now - cache.Timestamp;
 
                     if (cacheAge < maxCacheDuration)
                     {
-                        if (cache.Doc != null)
-                        {
-                            return cache.Doc;
-                        }
-
                         HtmlDocument doc = new HtmlDocument();
-                        doc.LoadHtml(cache.DocString);
+                        doc.LoadHtml(cache.Store);
                         return doc;
                     }
                 }
@@ -180,12 +163,12 @@ namespace NetTally.Web
         /// <param name="time">The reference time to use when determining the age of a page.</param>
         public void ExpireCache(DateTime time)
         {
-            DateTime expireLimitTime = time - maxCacheDuration;
+            DateTime oldestAllowedTime = time - maxCacheDuration;
 
             cacheLock.EnterWriteLock();
             try
             {
-                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= expireLimitTime).ToList();
+                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= oldestAllowedTime).ToList();
 
                 foreach (var page in pagesToRemove)
                 {
