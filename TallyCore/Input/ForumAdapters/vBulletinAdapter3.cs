@@ -36,32 +36,7 @@ namespace NetTally.Adapters
             }
             set
             {
-                // Must set a valid value
-                if (value == null)
-                    throw new ArgumentNullException(nameof(Site));
-
-                // If object doesn't have a value, just set and be done.
-                if (site == null)
-                {
-                    site = value;
-                    UpdateSiteData();
-                    return;
-                }
-
-                // If the URI didn't change, we don't need to do anything.
-                if (site.AbsoluteUri == value.AbsoluteUri)
-                {
-                    return;
-                }
-
-                // If the host *did* change, we can't consider this a valid adapter anymore.
-                if (site.Host != value.Host)
-                {
-                    throw new InvalidOperationException("Host has changed.");
-                }
-
-                // Otherwise, just update the site URI and data.
-                site = value;
+                site = value ?? throw new ArgumentNullException(nameof(Site));
                 UpdateSiteData();
             }
         }
@@ -71,9 +46,6 @@ namespace NetTally.Adapters
         /// </summary>
         private void UpdateSiteData()
         {
-            if (site == null)
-                throw new InvalidOperationException("Site value is null.");
-
             Match m = siteRegex.Match(site.AbsoluteUri);
             if (m.Success)
             {
