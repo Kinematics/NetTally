@@ -72,7 +72,7 @@ namespace NetTally.Forums
         /// <returns>Returns the quest's thread range info.</returns>
         private async Task<ThreadRangeInfo> GetStartInfoAsync(IQuest quest, IForumAdapter adapter, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
 
             ThreadRangeInfo rangeInfo = await adapter.GetStartingPostNumberAsync(quest, pageProvider, token).ConfigureAwait(false);
 
@@ -95,7 +95,7 @@ namespace NetTally.Forums
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
 
-            IPageProvider pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
 
             // Initiate the async tasks to load the pages
             if (scanInfo.pagesToScan > 0)
@@ -123,7 +123,7 @@ namespace NetTally.Forums
         private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
 
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
             int lastPageNumber = 0;

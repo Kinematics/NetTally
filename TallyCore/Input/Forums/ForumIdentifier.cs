@@ -96,7 +96,7 @@ namespace NetTally.Forums
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
         private async static Task<HtmlDocument> GetDocumentAsync(Uri uri, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
 
             try
             {

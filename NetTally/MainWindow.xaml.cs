@@ -89,7 +89,7 @@ namespace NetTally
             if (MainViewModel == null)
             {
                 MainViewModel = new MainViewModel(config);
-                ViewModelLocator.MainViewModel = MainViewModel;
+                ViewModelService.MainViewModel = MainViewModel;
 
                 DataContext = MainViewModel;
                 MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;

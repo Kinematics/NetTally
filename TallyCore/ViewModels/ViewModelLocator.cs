@@ -1,6 +1,6 @@
 ﻿namespace NetTally.ViewModels
 {
-    public static class ViewModelLocator
+    public static class ViewModelService
     {
         public static MainViewModel MainViewModel { get; set; }
     }

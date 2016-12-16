@@ -114,7 +114,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ForumAdapterFactoryUnitTest.cs" />
+    <Compile Include="ForumAdapterSelectorTests.cs" />
     <Compile Include="PostComponentsTests.cs" />
     <Compile Include="QuestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

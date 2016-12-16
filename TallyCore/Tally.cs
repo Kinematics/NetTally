@@ -52,7 +52,7 @@ namespace NetTally
         public Tally(IPageProvider pageProvider, ITextResultsProvider textResults)
         {
             // Defaults if none specified
-            PageProvider = pageProvider ?? ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            PageProvider = pageProvider ?? ViewModels.ViewModelService.MainViewModel.PageProvider;
             TextResults = textResults ?? new TallyOutput();
 
             // Hook up to event notifications

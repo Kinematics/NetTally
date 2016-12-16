@@ -53,7 +53,7 @@ namespace NetTally.Utility
         /// </summary>
         public void Update(IPageProvider pageProvider)
         {
-            PageProvider = pageProvider ?? ViewModels.ViewModelLocator.MainViewModel.PageProvider;
+            PageProvider = pageProvider ?? ViewModels.ViewModelService.MainViewModel.PageProvider;
             // Store result in a task, but don't await it.
             var result = DoVersionCheck();
         }
