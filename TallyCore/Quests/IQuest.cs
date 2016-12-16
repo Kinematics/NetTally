@@ -51,6 +51,10 @@ namespace NetTally
         /// looking for the last threadmark.
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
+        /// <summary>
+        /// Derived property.  Is true if EndPost is 0.
+        /// </summary>
+        bool ReadToEndOfThread { get; }
 
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
@@ -84,11 +88,6 @@ namespace NetTally
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
         PartitionMode PartitionMode { get; set; }
-
-        /// <summary>
-        /// Derived property.
-        /// </summary>
-        bool ReadToEndOfThread { get; }
 
     }
 }

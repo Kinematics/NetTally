@@ -86,13 +86,22 @@ namespace NetTally.Tests
         {
             Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
             Assert.AreEqual("fake-thread.00000", quest.DisplayName);
+            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadUri.AbsoluteUri);
+            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
+            Assert.IsNull(quest.ForumAdapter);
+
             Assert.AreEqual(0, quest.PostsPerPage);
             Assert.AreEqual(1, quest.StartPost);
             Assert.AreEqual(0, quest.EndPost);
             Assert.AreEqual(true, quest.ReadToEndOfThread);
             Assert.AreEqual(true, quest.CheckForLastThreadmark);
+
             Assert.AreEqual(PartitionMode.None, quest.PartitionMode);
-            Assert.IsNull(quest.ForumAdapter);
+
+            Assert.IsFalse(quest.UseCustomThreadmarkFilters);
+            Assert.IsFalse(quest.UseCustomTaskFilters);
+            Assert.AreEqual("", quest.CustomThreadmarkFilters);
+            Assert.AreEqual("", quest.CustomTaskFilters);
 
             Assert.AreEqual(quest.DisplayName, quest.ToString());
         }
@@ -412,7 +421,7 @@ namespace NetTally.Tests
 
         #region Forum Adapter
         [TestMethod]
-        public async Task IQuest_InitForumAdapter()
+        public async Task IQuest_SetThreadName()
         {
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
@@ -421,7 +430,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public async Task IQuest_InitForumAdapter_ReInit()
+        public async Task IQuest_IdentifyThread()
         {
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
@@ -430,7 +439,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public async Task IQuest_InitForumAdapter_Change_SameHost()
+        public async Task IQuest_IdentifyThread_Change_SameHost()
         {
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
