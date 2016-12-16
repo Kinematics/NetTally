@@ -1,19 +1,43 @@
 ﻿using System;
-using HtmlAgilityPack;
 
-namespace NetTally
+namespace NetTally.Utility
 {
     /// <summary>
-    /// Class to save a web page, and the time at which it was loaded.
+    /// Class to save an object with an associated timestamp.
+    /// Default use would be to cache loaded web pages.
     /// </summary>
-    public class CachedPage
+    public class CachedObject<T>
     {
-        public DateTime Timestamp { get; } = DateTime.Now;
-        public HtmlDocument Doc { get; }
+        private DefaultClock defaultClock;
 
-        public CachedPage(HtmlDocument doc)
+        public DateTime Timestamp { get; }
+        public T Store { get; }
+
+        public CachedObject(T store)
+            : this(store, new DefaultClock())
         {
-            Doc = doc;
+        }
+
+        public CachedObject(T store, IClock clock)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+
+            if (clock == null)
+                throw new ArgumentNullException(nameof(clock));
+
+            Timestamp = clock.Now;
+            Store = store;
+        }
+
+        public override int GetHashCode()
+        {
+            return Store.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Store.Equals(obj);
         }
     }
 }
