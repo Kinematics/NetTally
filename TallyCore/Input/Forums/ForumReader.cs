@@ -184,12 +184,13 @@ namespace NetTally.Forums
                 var finishedPage = await Task.WhenAny(pages).ConfigureAwait(false);
                 pages.Remove(finishedPage);
 
+                if (finishedPage.IsCanceled)
+                {
+                    throw new OperationCanceledException();
+                }
+
                 if (finishedPage.IsFaulted)
                 {
-                    var canceled = finishedPage.Exception.InnerExceptions.FirstOrDefault(e => e is OperationCanceledException);
-                    if (canceled != null)
-                        throw canceled;
-
                     Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
                     ae.Data["Application"] = true;
                     throw ae;
