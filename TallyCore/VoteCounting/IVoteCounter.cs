@@ -38,6 +38,8 @@ namespace NetTally
         bool HasUserEnteredVoter(string voterName, VoteType voteType);
         bool HasNewerVote(PostComponents post);
 
+        HashSet<string> UserDefinedTasks { get; }
+        void ResetUserDefinedTasks(string forQuestName);
 
         HashSet<string> ReferenceVoters { get; }
         Dictionary<string, string> ReferenceVoterPosts { get; }

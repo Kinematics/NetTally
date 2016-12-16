@@ -62,6 +62,8 @@ namespace NetTally
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
+        public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
@@ -108,6 +110,14 @@ namespace NetTally
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
             OnPropertyChanged("Votes");
+        }
+
+        public void ResetUserDefinedTasks(string forQuestName)
+        {
+            if (Quest == null || Quest.DisplayName != forQuestName)
+            {
+                UserDefinedTasks.Clear();
+            }
         }
 
         /// <summary>

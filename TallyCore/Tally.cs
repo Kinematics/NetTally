@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Output;
 using NetTally.CustomEventArgs;
 using NetTally.ViewModels;
 
@@ -23,9 +22,6 @@ namespace NetTally
         // State
         bool tallyIsRunning;
         string results = string.Empty;
-
-        // User data
-        public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         #endregion
 
         #region Construction
@@ -166,11 +162,11 @@ namespace NetTally
                 TallyIsRunning = true;
                 TallyResults = string.Empty;
 
-                if (VoteCounter.Instance.Quest?.DisplayName != quest.DisplayName)
-                    UserDefinedTasks.Clear();
+                VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
                 var posts = await Forums.ForumReader.Instance.ReadQuestAsync(quest, token);
                 VoteCounter.Instance.TallyPosts(posts, quest);
+
                 UpdateResults();
             }
             catch (Exception)

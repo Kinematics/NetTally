@@ -350,7 +350,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Redirection for user defined task values.
         /// </summary>
-        public HashSet<string> UserDefinedTasks => tally.UserDefinedTasks;
+        public HashSet<string> UserDefinedTasks => VoteCounter.Instance.UserDefinedTasks;
         #endregion
 
         #region Section: Tally Commands
