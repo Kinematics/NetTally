@@ -137,10 +137,13 @@ namespace NetTally
             AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
             AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
 
+            // Allow reading old config files.
+#pragma warning disable CS0618 // Type or member is obsolete
             if (AllowVoteLabelPlanNames == false)
                 AdvancedOptions.Instance.ForbidVoteLabelPlanNames = true;
             if (IgnoreSymbols == false)
                 AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = true;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             questWrapper.CurrentQuest = CurrentQuest;
 
