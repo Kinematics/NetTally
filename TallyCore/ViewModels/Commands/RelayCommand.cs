@@ -19,6 +19,7 @@ namespace NetTally.ViewModels
 
         /// <summary>
         /// Normal class constructor that takes execute and canExecute parameters.
+        /// If canExecute is null, stores a lambda which always returns true.
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
@@ -26,11 +27,14 @@ namespace NetTally.ViewModels
         {
             if (viewModel == null)
                 throw new ArgumentNullException(nameof(viewModel));
-            if (execute == null)
-                throw new ArgumentNullException(nameof(execute));
 
-            this.execute = execute;
-            this.canExecute = canExecute;
+            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+
+            if (canExecute == null)
+                this.canExecute = (arg1) => true;
+            else
+                this.canExecute = canExecute;
+
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
         #endregion
@@ -45,10 +49,7 @@ namespace NetTally.ViewModels
         /// Defines the method to be called when the command is invoked.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        public void Execute(object parameter)
-        {
-            execute(parameter);
-        }
+        public void Execute(object parameter) => execute(parameter);
         #endregion
 
         #region Can Execute        
@@ -64,7 +65,7 @@ namespace NetTally.ViewModels
         /// <returns>
         /// true if this command can be executed; otherwise, false.
         /// </returns>
-        public bool CanExecute(object parameter) => canExecute == null || canExecute(parameter);
+        public bool CanExecute(object parameter) => canExecute(parameter);
         #endregion
 
         #region Can Execute Changed Events
@@ -75,10 +76,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnCanExecuteChanged();
-        }
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e) => OnCanExecuteChanged();
 
         /// <summary>
         /// Event handler for notification of a possible change in CanExecute.
@@ -88,10 +86,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Called when [can execute] changed.
         /// </summary>
-        protected void OnCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, new EventArgs());
-        }
+        protected void OnCanExecuteChanged() => CanExecuteChanged?.Invoke(this, new EventArgs());
         #endregion
     }
 }
