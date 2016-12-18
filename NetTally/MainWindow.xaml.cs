@@ -367,8 +367,7 @@ namespace NetTally
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void textEntry_GotFocus(object sender, RoutedEventArgs e)
         {
-            TextBox tb = (sender as TextBox);
-            if (tb != null)
+            if (sender is TextBox tb)
             {
                 tb.SelectAll();
             }
@@ -397,9 +396,7 @@ namespace NetTally
         /// <param name="e"></param>
         private void textEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            TextBox tb = (sender as TextBox);
-
-            if (tb != null)
+            if (sender is TextBox tb)
             {
                 if (!tb.IsKeyboardFocusWithin)
                 {

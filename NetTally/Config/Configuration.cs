@@ -37,9 +37,10 @@ namespace NetTally
         /// <param name="questsWrapper">The quests wrapper to store data in.</param>
         private static void ReadConfigInformation(Configuration config, QuestCollectionWrapper questsWrapper)
         {
-            QuestsSection questsSection = config.Sections[QuestsSection.SectionName] as QuestsSection;
-
-            questsSection?.Load(questsWrapper);
+            if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+            {
+                questsSection.Load(questsWrapper);
+            }
         }
 
         /// <summary>
@@ -99,8 +100,10 @@ namespace NetTally
         /// <param name="config">The configuration file to save to.</param>
         private static void WriteConfigInformation(QuestCollectionWrapper questsWrapper, Configuration config)
         {
-            QuestsSection questSection = config.Sections[QuestsSection.SectionName] as QuestsSection;
-            questSection?.Save(questsWrapper);
+            if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+            {
+                questsSection.Save(questsWrapper);
+            }
 
             config.Save(ConfigurationSaveMode.Minimal);
         }

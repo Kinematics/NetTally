@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace NetTally
 {
@@ -11,10 +12,14 @@ namespace NetTally
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            QuestElement qe = element as QuestElement;
-            if (qe.ThreadName != "")
-                return qe.ThreadName;
-            return qe.DisplayName;
+            if (element is QuestElement qe)
+            {
+                if (qe.ThreadName != "")
+                    return qe.ThreadName;
+                return qe.DisplayName;
+            }
+
+            throw new ArgumentException("ConfigurationElement is not a QuestElement", nameof(element));
         }
 
         public new QuestElement this[string name] => (QuestElement)BaseGet(name);

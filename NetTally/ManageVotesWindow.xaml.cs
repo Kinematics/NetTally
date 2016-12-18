@@ -370,11 +370,9 @@ namespace NetTally
         #region Context Menu events
         private void newTask_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            if (mi != null)
+            if (sender is MenuItem mi)
             {
-                ContextMenu cm = mi.Parent as ContextMenu;
-                if (cm != null)
+                if (mi.Parent is ContextMenu cm)
                 {
                     newTaskBox = cm.PlacementTarget as ListBox;
                 }
@@ -458,18 +456,13 @@ namespace NetTally
 
         private void modifyTask_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            if (mi != null)
+            if (sender is MenuItem mi)
             {
-                ContextMenu cm = mi.Parent as ContextMenu;
-                if (cm != null)
+                if (mi.Parent is ContextMenu cm)
                 {
-                    ListBox box = cm.PlacementTarget as ListBox;
-                    if (box != null)
+                    if (cm.PlacementTarget is ListBox box)
                     {
-                        string selectedVote = box.SelectedItem?.ToString();
-
-                        if (selectedVote != null)
+                        if (box.SelectedItem?.ToString() is string selectedVote)
                         {
                             string changedVote = "";
 

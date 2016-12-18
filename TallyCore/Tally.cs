@@ -92,11 +92,12 @@ namespace NetTally
         /// <param name="e">Info about a property of the quest that changed.</param>
         private void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            IQuest quest = sender as IQuest;
-            if (quest != null && quest == VoteCounter.Instance.Quest)
+            if (sender is IQuest quest)
             {
-                if (e.PropertyName == "PartitionMode")
+                if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
+                {
                     UpdateTally();
+                }
             }
         }
         #endregion

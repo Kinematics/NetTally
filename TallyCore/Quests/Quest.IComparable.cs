@@ -26,17 +26,18 @@ namespace NetTally
 
         public override bool Equals(object obj)
         {
-            IQuest other = obj as IQuest;
-            if (ReferenceEquals(other, null))
-                return false;
+            if (obj is IQuest other)
+            {
+                if (ReferenceEquals(this, other))
+                    return true;
 
-            if (ReferenceEquals(this, other))
-                return true;
+                if (string.Compare(ThreadName.ToLowerInvariant(), other.ThreadName.ToLowerInvariant(), StringComparison.Ordinal) != 0)
+                    return false;
 
-            if (string.Compare(ThreadName.ToLowerInvariant(), other.ThreadName.ToLowerInvariant(), StringComparison.Ordinal) != 0)
-                return false;
+                return string.Compare(DisplayName.ToLowerInvariant(), other.DisplayName.ToLowerInvariant(), StringComparison.Ordinal) == 0;
+            }
 
-            return string.Compare(DisplayName.ToLowerInvariant(), other.DisplayName.ToLowerInvariant(), StringComparison.Ordinal) == 0;
+            return false;
         }
 
         /// <summary>

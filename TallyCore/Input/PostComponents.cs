@@ -254,12 +254,12 @@ namespace NetTally
 
         public override bool Equals(object obj)
         {
-            PostComponents other = obj as PostComponents; //avoid double casting
-            if (ReferenceEquals(other, null))
+            if (obj is PostComponents other)
             {
-                return false;
+                return CompareTo(other) == 0;
             }
-            return CompareTo(other) == 0;
+
+            return false;
         }
 
         public override int GetHashCode() => Author.GetHashCode() ^ IDValue.GetHashCode();

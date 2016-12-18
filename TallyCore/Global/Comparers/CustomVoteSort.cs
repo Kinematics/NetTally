@@ -22,7 +22,7 @@ namespace NetTally.Utility
 
             string ys = y as string;
             if (ys == null)
-                throw new ArgumentException("Parameter x is not a string.");
+                throw new ArgumentException("Parameter y is not a string.");
 
             string marker = VoteString.GetVoteMarker(xs);
             VoteType voteType = string.IsNullOrEmpty(marker) ? VoteType.Rank : VoteType.Plan;

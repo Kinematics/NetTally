@@ -575,26 +575,20 @@ namespace NetTally.ViewModels
         /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
         private IQuest GetThisQuest(object parameter)
         {
-            IQuest thisQuest;
-
-            if (parameter == null)
+            if (parameter is IQuest quest)
             {
-                thisQuest = SelectedQuest;
+                return quest;
             }
-            else
+            else if (parameter is string questName)
             {
-                thisQuest = parameter as IQuest;
-                if (thisQuest == null)
-                {
-                    string questName = parameter as string;
-                    if (!string.IsNullOrEmpty(questName))
-                    {
-                        thisQuest = QuestList.FirstOrDefault(a => questName == a.DisplayName);
-                    }
-                }
+                return QuestList.FirstOrDefault(a => questName == a.DisplayName);
+            }
+            else if (parameter is null)
+            {
+                return SelectedQuest;
             }
 
-            return thisQuest;
+            return null;
         }
         #endregion
     }
