@@ -379,7 +379,7 @@ namespace NetTally.ViewModels
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private async Task DoRunTally(object parameter)
+        private async Task DoRunTallyAsync(object parameter)
         {
             try
             {
@@ -558,7 +558,7 @@ namespace NetTally.ViewModels
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
 
-            RunTallyCommand = new AsyncRelayCommand(this, DoRunTally, CanRunTally);
+            RunTallyCommand = new AsyncRelayCommand(this, DoRunTallyAsync, CanRunTally);
             CancelTallyCommand = new RelayCommand(this, DoCancelTally, CanCancelTally);
             ClearTallyCacheCommand = new RelayCommand(this, DoClearTallyCache, CanClearTallyCache);
         }

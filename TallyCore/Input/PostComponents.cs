@@ -49,16 +49,13 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(author));
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
-            if (text == null)
-                throw new ArgumentNullException(nameof(text));
 
+            Text = text ?? throw new ArgumentNullException(nameof(text));
             Author = author;
             ID = id;
-            Text = text;
             Number = number;
 
-            int idnum;
-            if (int.TryParse(id, out idnum))
+            if (int.TryParse(id, out int idnum))
                 IDValue = idnum;
             else
                 IDValue = 0;
