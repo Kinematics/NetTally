@@ -10,7 +10,7 @@ namespace NetTally
     /// </summary>
     public interface IErrorLogger
     {
-        string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null);
+        string Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null);
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ namespace NetTally
     /// <seealso cref="NetTally.IErrorLogger" />
     public class EmptyLogger : IErrorLogger
     {
-        public string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null) => string.Empty;
+        public string Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => string.Empty;
     }
 
     /// <summary>
@@ -28,15 +28,15 @@ namespace NetTally
     /// </summary>
     public static class ErrorLog
     {
-        static IErrorLogger externalLogger = new EmptyLogger();
+        static IErrorLogger errorLogger = new EmptyLogger();
 
         /// <summary>
         /// Initializes this class to use the specified error log.
         /// </summary>
-        /// <param name="errorLog">The error logger to use.</param>
-        public static void LogUsing(IErrorLogger errorLog)
+        /// <param name="errorLogger">The error logger to use.</param>
+        public static void LogUsing(IErrorLogger errorLogger)
         {
-            externalLogger = errorLog;
+            ErrorLog.errorLogger = errorLogger ?? throw new ArgumentNullException(nameof(errorLogger));
         }
 
         /// <summary>
@@ -45,7 +45,8 @@ namespace NetTally
         /// <param name="e">Exception to be logged.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the error was logged to.</returns>
-        public static string Log(Exception e, [CallerMemberName] string callingMethod = "", IClock clock = null) => Log(exception: e, callingMethod: callingMethod, clock: clock);
+        public static string Log(Exception e, IClock clock = null, [CallerMemberName] string callingMethod = "") =>
+            Log(message: string.Empty, exception: e, clock: clock, callingMethod: callingMethod);
 
         /// <summary>
         /// Function to log either a text message or an exception, or both.
@@ -54,9 +55,9 @@ namespace NetTally
         /// <param name="exception">The exception to log.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the log was saved in.</returns>
-        public static string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null)
+        public static string Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
         {
-            return externalLogger?.Log(message, exception, callingMethod, clock);
+            return errorLogger?.Log(message, exception, clock, callingMethod);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace NetTally
         /// <param name="exception">The exception to log.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the log was saved in.</returns>
-        public string Log(string message = null, Exception exception = null, [CallerMemberName] string callingMethod = "", IClock clock = null)
+        public string Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
         {
             try
             {
