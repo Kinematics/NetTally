@@ -223,6 +223,70 @@ namespace NetTally.Web
 
             return htmldoc;
         }
+
+        public async Task<string> GetHeaderUrl(string url, string shortDescrip,
+            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
+
+            Uri uri = new Uri(url);
+
+            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
+
+            // Limit to no more than N parallel requests
+            await ss.WaitAsync(token).ConfigureAwait(false);
+
+            try
+            {
+                Cookie cookie = ForumCookies.GetCookie(uri);
+                if (cookie != null)
+                {
+                    ClientHandler.CookieContainer.Add(uri, cookie);
+                }
+
+                int tries = 0;
+                HttpResponseMessage response;
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
+
+                while (tries < retryLimit && token.IsCancellationRequested == false)
+                {
+                    if (tries > 0)
+                    {
+                        // If we have to retry loading the page, give it a short delay.
+                        await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
+                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
+                    }
+                    tries++;
+
+                    try
+                    {
+                        // As long as we got a response (whether 200 or 404), we can extract what
+                        // the server thinks the URL should be.
+                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
+                        {
+                            return response.RequestMessage.RequestUri.AbsoluteUri;
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
+                        throw;
+                    }
+
+                }
+            }
+            finally
+            {
+                ss.Release();
+            }
+
+            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
+            return null;
+        }
         #endregion
 
         #region Utility Functions        
