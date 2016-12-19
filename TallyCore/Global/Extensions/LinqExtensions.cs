@@ -28,6 +28,49 @@ namespace NetTally
         /// Group elements of a list together when a selector key is the same for each.
         /// </summary>
         /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
+        /// <typeparam name="int">The type to use for the key to the group.</typeparam>
+        /// <param name="source">Enumerable list we're working on.</param>
+        /// <param name="levelIndicator">Function that converts an element of the list to a key value.</param>
+        /// <returns></returns>
+        public static IEnumerable<IList<TSource>> GroupBlocks<TSource>(this IEnumerable<TSource> source,
+            Func<TSource, int> levelIndicator)
+        {
+            int? parentLevel = null;
+            List<TSource> list = new List<TSource>();
+
+            foreach (TSource s in source)
+            {
+                int k = levelIndicator(s);
+
+                if (parentLevel.HasValue)
+                {
+                    if (k > parentLevel)
+                    {
+                        list.Add(s);
+                    }
+                    else
+                    {
+                        yield return list;
+
+                        list = new List<TSource> { s };
+                        parentLevel = k;
+                    }
+                }
+                else
+                {
+                    list.Add(s);
+                    parentLevel = k;
+                }
+            }
+
+            if (parentLevel.HasValue)
+                yield return list;
+        }
+
+        /// <summary>
+        /// Group elements of a list together when a selector key is the same for each.
+        /// </summary>
+        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
         /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
         /// <param name="source">Enumerable list we're working on.</param>
         /// <param name="keySelector">Function that converts an element of the list to a key value.</param>

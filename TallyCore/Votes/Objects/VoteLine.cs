@@ -165,5 +165,20 @@ namespace NetTally.Votes
 
         public override string ToString() => BuildTrimmedText();
         #endregion
+
+        public override int GetHashCode()
+        {
+            return Text.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VoteLine other)
+            {
+                return Utility.StringUtility.AgnosticStringComparer.Equals(Text, other.Text);
+            }
+
+            return false;
+        }
     }
 }
