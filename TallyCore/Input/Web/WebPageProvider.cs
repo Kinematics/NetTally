@@ -217,7 +217,7 @@ namespace NetTally.Web
                 Cache.Add(url, result);
 
             htmldoc = new HtmlDocument();
-            htmldoc.LoadHtml(result);
+            await Task.Run(() => htmldoc.LoadHtml(result));
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 
