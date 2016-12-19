@@ -13,6 +13,11 @@ namespace NetTally.Adapters
     /// </summary>
     public class XenForoAdapter : IForumAdapter
     {
+        // May possibly end with /page-00#post-00
+        static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
+        // The short HREF version gives the post ID
+        static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -227,12 +232,26 @@ namespace NetTally.Adapters
 
             // The threadmark list might use the long version of the URL (including thread info),
             // or the short version (which only shows the post number).
-            // The long version lets us get the page number directly from the url,
-            // so we don't have to load another page to determine what it is.
 
-            // May possibly end with /page-00#post-00
-            Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
+            // If we're given the short version of the URL, just do a HEAD query to get the long version.
+            Match mShort = shortFragment.Match(threadmarkHref);
+            if (mShort.Success)
+            {
+                // Get the post ID for the threadmark
+                string tmID = mShort.Groups["tmID"].Value;
 
+                // The threadmark href might be a relative path, so make sure to
+                // create a proper absolute path to load.
+                string permalink = GetPermalinkForId(tmID);
+
+                // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
+                string fullUrl = await pageProvider.GetHeaderUrl(permalink, null, CachingMode.BypassCache, ShouldCache.No, SuppressNotifications.Yes, token).ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(fullUrl))
+                    threadmarkHref = fullUrl;
+            }
+
+            // If we have the long URL, we can extract the page number and post number from the URL itself.
             Match m1 = longFragment.Match(threadmarkHref);
             if (m1.Success)
             {
@@ -255,42 +274,6 @@ namespace NetTally.Adapters
 
                 // Otherwise, take the provided values.
                 return new ThreadRangeInfo(false, 0, page, post);
-            }
-
-            // If we get here, the long HREF search failed, and we'll need to load the page.
-            // The short HREF version gives the post ID
-            Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
-            Match m2 = shortFragment.Match(threadmarkHref);
-            if (m2.Success)
-            {
-                string tmID = m2.Groups["tmID"].Value;
-
-                // The threadmark href might be a relative path, so make sure to
-                // create a proper absolute path to load.
-                string permalink = GetPermalinkForId(tmID);
-
-                // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
-                var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
-
-                if (lastThreadmarkPage == null)
-                    return null;
-
-                var threadInfo = GetThreadInfo(lastThreadmarkPage);
-
-                // If we loaded a proper thread page, get the posts off the page and find
-                // the one with the ID that matches the threadmark.
-                string postID = $"post-{tmID}";
-
-                var tmPost = lastThreadmarkPage.GetElementbyId(postID);
-
-                if (tmPost != null)
-                {
-                    PostComponents postComp = GetPost(tmPost);
-                    if (postComp != null)
-                    {
-                        return new ThreadRangeInfo(true, postComp.Number, 0, postComp.IDValue, threadInfo.Pages);
-                    }
-                }
             }
 
             // If we can't figure out how to get the threadmark's page from the threadmark,
