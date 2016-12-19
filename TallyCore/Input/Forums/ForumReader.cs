@@ -31,11 +31,23 @@ namespace NetTally.Forums
         {
             IForumAdapter adapter = await GetForumAdapterAsync(quest, token).ConfigureAwait(false);
 
+            if (adapter == null)
+                throw new InvalidOperationException("Unable to acquire forum adapter for the quest.");
+
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, token).ConfigureAwait(false);
+
+            if (rangeInfo == null)
+                throw new InvalidOperationException("Unable to determine post range for the quest.");
 
             List<Task<HtmlDocument>> loadedPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, token).ConfigureAwait(false);
 
+            if (loadedPages == null)
+                throw new InvalidOperationException("Unable to load pages for the quest.");
+
             List<PostComponents> posts = await GetPostsFromPagesAsync(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
+
+            if (posts == null)
+                throw new InvalidOperationException("Unable to extract posts from quest pages.");
 
             return posts;
         }

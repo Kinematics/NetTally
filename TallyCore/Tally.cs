@@ -171,6 +171,10 @@ namespace NetTally
 
                 UpdateResults();
             }
+            catch (InvalidOperationException e)
+            {
+                TallyResults += $"\n{e.Message}";
+            }
             catch (Exception)
             {
                 VoteCounter.Instance.Quest = null;

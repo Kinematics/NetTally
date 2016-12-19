@@ -272,6 +272,9 @@ namespace NetTally.Adapters
                 // Attempt to load the threadmark's page.  Use cache if available, and cache the result as appropriate.
                 var lastThreadmarkPage = await pageProvider.GetPage(permalink, null, CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
+                if (lastThreadmarkPage == null)
+                    return null;
+
                 var threadInfo = GetThreadInfo(lastThreadmarkPage);
 
                 // If we loaded a proper thread page, get the posts off the page and find
