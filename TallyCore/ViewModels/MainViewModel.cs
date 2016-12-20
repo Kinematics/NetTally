@@ -329,13 +329,16 @@ namespace NetTally.ViewModels
         /// </summary>
         private void Tally_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "TallyIsRunning")
+            if (e.PropertyName == nameof(tally.TallyIsRunning))
             {
                 OnPropertyChanged(nameof(TallyIsRunning));
             }
-            else if (e.PropertyName == "TallyResults")
+            else if (e.PropertyName == nameof(tally.TallyResults))
             {
                 OnPropertyChanged(nameof(Output));
+            }
+            else if (e.PropertyName == nameof(tally.HasTallyResults))
+            {
                 OnPropertyChanged(nameof(HasOutput));
             }
         }
@@ -354,7 +357,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Flag whether there's any text in the Output property.
         /// </summary>
-        public bool HasOutput => !string.IsNullOrEmpty(Output);
+        public bool HasOutput => tally.HasTallyResults;
 
         /// <summary>
         /// Redirection for user defined task values.

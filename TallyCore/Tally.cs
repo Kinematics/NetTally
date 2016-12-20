@@ -135,16 +135,31 @@ namespace NetTally
         /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
+        /// If it changes to or from an empty string, the HasTallyResults property also changes.
         /// </summary>
         public string TallyResults
         {
             get { return results; }
             set
             {
+                if (string.IsNullOrEmpty(results))
+                {
+                    if (string.IsNullOrEmpty(value))
+                        return;
+                    else
+                        OnPropertyChanged(nameof(HasTallyResults));
+                }
+                else if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(results))
+                {
+                    OnPropertyChanged(nameof(HasTallyResults));
+                }
+
                 results = value;
                 OnPropertyChanged();
             }
         }
+
+        public bool HasTallyResults => !string.IsNullOrEmpty(results);
         #endregion
 
         #region Interface functions
