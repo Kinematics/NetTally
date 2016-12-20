@@ -169,7 +169,6 @@ namespace NetTally.ViewModels
                 BindQuest(selectedQuest);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsQuestSelected));
-                OnPropertyChanged(nameof(IsSafeToEnable));
             }
         }
 
@@ -188,8 +187,6 @@ namespace NetTally.ViewModels
         public bool IsQuestSelected => SelectedQuest != null;
 
         public bool HasQuests => QuestList.Count > 0;
-
-        public bool IsSafeToEnable => IsQuestSelected && !TallyIsRunning;
 
         #region Manage Events from the Quest
         private void BindQuest(IQuest quest)
@@ -322,7 +319,6 @@ namespace NetTally.ViewModels
             if (e.PropertyName == "TallyIsRunning")
             {
                 OnPropertyChanged(nameof(TallyIsRunning));
-                OnPropertyChanged(nameof(IsSafeToEnable));
             }
             else if (e.PropertyName == "TallyResults")
             {
