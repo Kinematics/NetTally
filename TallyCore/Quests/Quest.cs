@@ -84,7 +84,11 @@ namespace NetTally
                 OnPropertyChanged();
 
                 // Reset the display name if it's based on the URL.
-                if (!string.IsNullOrEmpty(displayName))
+                if (string.IsNullOrEmpty(displayName))
+                {
+                    OnPropertyChanged("DisplayName");
+                }
+                else
                 {
                     if (displayName == GetDisplayNameFromUrl(oldThreadName))
                         DisplayName = "";
