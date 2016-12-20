@@ -36,8 +36,6 @@ namespace NetTally.ViewModels
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
-            NonCommandPropertyChangedValues.Add("NewRelease");
-
             BuildCheckForNewRelease();
             BindTally();
             BindVoteCounter();
@@ -569,6 +567,8 @@ namespace NetTally.ViewModels
         /// </summary>
         private void SetupCommands()
         {
+            NonCommandPropertyChangedValues.Add("NewRelease");
+
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
 
