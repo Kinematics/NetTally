@@ -22,7 +22,6 @@ namespace NetTally
         {
             if (propertyName == "ThreadName")
             {
-                UpdateDisplayName();
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

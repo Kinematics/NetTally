@@ -60,10 +60,21 @@ namespace NetTally
                     ForumAdapter = null;
                 }
 
+                string oldThreadName = threadName;
+
                 threadName = cleanValue;
                 ThreadUri = newUri;
 
                 OnPropertyChanged();
+
+                // Reset the display name if it's based on the URL.
+                if (!string.IsNullOrEmpty(displayName))
+                {
+                    if (displayName == GetDisplayNameFromUrl(oldThreadName))
+                        DisplayName = "";
+                    else if (displayName == GetDisplayNameFromUrl(threadName))
+                        displayName = "";
+                }
             }
         }
 
@@ -92,13 +103,17 @@ namespace NetTally
         {
             get
             {
-                UpdateDisplayName();
+                if (string.IsNullOrEmpty(displayName))
+                {
+                    return GetDisplayNameFromThreadName();
+                }
+
                 return displayName;
             }
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    displayName = GetDisplayNameFromThreadName();
+                    displayName = value;
                 else
                     displayName = value.RemoveUnsafeCharacters();
 
@@ -129,24 +144,33 @@ namespace NetTally
         /// </summary>
         private void UpdateDisplayName()
         {
-            if (string.IsNullOrEmpty(displayName))
-            {
-                DisplayName = GetDisplayNameFromThreadName();
-            }
         }
 
         /// <summary>
-        /// Function to extract a display name from the current thread name, if possible.
-        /// If it fails, just returns the entire thread URL.
+        /// Shorthand function to get the display name for the current thread name.
         /// </summary>
         /// <returns>Returns a display name based on the current thread name.</returns>
         private string GetDisplayNameFromThreadName()
         {
-            Match m = displayNameRegex.Match(threadName);
+            return GetDisplayNameFromUrl(ThreadName);
+        }
+
+        /// <summary>
+        /// Function to extract a display name from the provided thread name, if possible.
+        /// If it fails, just returns the entire URL.
+        /// </summary>
+        /// <param name="url">The URL to extract a display name out of.</param>
+        /// <returns>Returns a name based on the provided URL.</returns>
+        private string GetDisplayNameFromUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return string.Empty;
+
+            Match m = displayNameRegex.Match(url);
             if (m.Success)
                 return m.Groups["displayName"].Value;
             else
-                return threadName;
+                return url;
         }
         #endregion
 
