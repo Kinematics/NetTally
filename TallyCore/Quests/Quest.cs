@@ -36,6 +36,22 @@ namespace NetTally
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
 
         /// <summary>
+        /// The URI that represents the thread URL string.
+        /// </summary>
+        public Uri ThreadUri { get; private set; }
+
+        /// <summary>
+        /// The type of forum used at the URI site.
+        /// </summary>
+        public ForumType ForumType { get; set; }
+
+        /// <summary>
+        /// Get the forum adapter being used by this quest.
+        /// Gets set when the ForumType is determined.
+        /// </summary>
+        public IForumAdapter ForumAdapter { get; set; }
+
+        /// <summary>
         /// The URL of the quest.
         /// Cannot be set to null or an empty string, and must be a well-formed URL.
         /// Automatically removes unsafe characters, and navigation elements from the URL.
@@ -79,22 +95,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// The URI that represents the thread URL string.
-        /// </summary>
-        public Uri ThreadUri { get; private set; }
-
-        /// <summary>
-        /// The type of forum used at the URI site.
-        /// </summary>
-        public ForumType ForumType { get; set; }
-
-        /// <summary>
-        /// Get the forum adapter being used by this quest.
-        /// Gets set when the ForumType is determined.
-        /// </summary>
-        public IForumAdapter ForumAdapter { get; set; }
-
-        /// <summary>
         /// The friendly display name to show for the quest.
         /// If the backing var is empty, or if an attempt is made to set it to an empty value,
         /// automatically generates a value based on the thread URL.
@@ -122,31 +122,6 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Remove unsafe characters from the provided URL, and strip navigation elements from the end.
-        /// </summary>
-        /// <param name="url">The URL to clean up.</param>
-        /// <returns>Returns the base URL without navigation elements.</returns>
-        private string CleanupThreadName(string url)
-        {
-            url = url.RemoveUnsafeCharacters();
-
-            Match m = pageNumberRegex.Match(url);
-            if (m.Success)
-                url = m.Groups["base"].Value;
-
-            return url;
-        }
-
-        /// <summary>
-        /// Function to update the display name based on the thread name, if the display name var
-        /// is empty.
-        /// Called when the display name is queried, and when the thread name is modified.
-        /// </summary>
-        private void UpdateDisplayName()
-        {
-        }
-
-        /// <summary>
         /// Shorthand function to get the display name for the current thread name.
         /// </summary>
         /// <returns>Returns a display name based on the current thread name.</returns>
@@ -171,6 +146,22 @@ namespace NetTally
                 return m.Groups["displayName"].Value;
             else
                 return url;
+        }
+
+        /// <summary>
+        /// Remove unsafe characters from the provided URL, and strip navigation elements from the end.
+        /// </summary>
+        /// <param name="url">The URL to clean up.</param>
+        /// <returns>Returns the base URL without navigation elements.</returns>
+        private string CleanupThreadName(string url)
+        {
+            url = url.RemoveUnsafeCharacters();
+
+            Match m = pageNumberRegex.Match(url);
+            if (m.Success)
+                url = m.Groups["base"].Value;
+
+            return url;
         }
         #endregion
 
