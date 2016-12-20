@@ -37,7 +37,7 @@ namespace NetTally.ViewModels
             AllVotersCollection = new ObservableCollectionExt<string>();
 
             BuildCheckForNewRelease();
-            BindTally();
+            BuildTally();
             BindVoteCounter();
 
             SetupCommands();
@@ -86,11 +86,6 @@ namespace NetTally.ViewModels
         CheckForNewRelease checkForNewRelease;
 
         /// <summary>
-        /// Pass-through flag indicating whether there is a newer release of the program available.
-        /// </summary>
-        public bool NewRelease => checkForNewRelease.NewRelease;
-
-        /// <summary>
         /// Create a new CheckForNewRelease object, and bind an event listener to it.
         /// </summary>
         private void BuildCheckForNewRelease()
@@ -98,6 +93,11 @@ namespace NetTally.ViewModels
             checkForNewRelease = new CheckForNewRelease();
             checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
         }
+
+        /// <summary>
+        /// Pass-through flag indicating whether there is a newer release of the program available.
+        /// </summary>
+        public bool NewRelease => checkForNewRelease.NewRelease;
 
         /// <summary>
         /// Handles the PropertyChanged event of the CheckForNewRelease control.
@@ -146,6 +146,8 @@ namespace NetTally.ViewModels
         public AdvancedOptions Options => AdvancedOptions.Instance;
         #endregion
 
+        #region Quests
+
         #region Section: Quest collection
         /// <summary>
         /// List of quests for binding.
@@ -172,6 +174,10 @@ namespace NetTally.ViewModels
             }
         }
 
+        /// <summary>
+        /// Allows directly setting a quest by its thread name.
+        /// </summary>
+        /// <param name="threadName">The thread name of the quest being selected.</param>
         public void SelectQuest(string threadName)
         {
             if (string.IsNullOrEmpty(threadName))
@@ -184,9 +190,16 @@ namespace NetTally.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets whether there's a valid selected quest.
+        /// </summary>
         public bool IsQuestSelected => SelectedQuest != null;
 
+        /// <summary>
+        /// Gets whether there are any quests available for selection.
+        /// </summary>
         public bool HasQuests => QuestList.Count > 0;
+        #endregion
 
         #region Manage Events from the Quest
         private void BindQuest(IQuest quest)
@@ -305,7 +318,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Bind event watcher to the class that handles running the tallies.
         /// </summary>
-        private void BindTally()
+        private void BuildTally()
         {
             tally = new Tally(PageProvider);
             tally.PropertyChanged += Tally_PropertyChanged;
@@ -331,11 +344,6 @@ namespace NetTally.ViewModels
         /// Flag whether the tally is currently running.
         /// </summary>
         public bool TallyIsRunning => tally.TallyIsRunning;
-
-        /// <summary>
-        /// Shortcut version while there are issues with data converters in the xaml.
-        /// </summary>
-        public bool TallyIsNotRunning => !TallyIsRunning;
 
         /// <summary>
         /// The string containing the current tally progress or results.
