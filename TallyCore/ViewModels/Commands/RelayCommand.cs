@@ -7,6 +7,8 @@ namespace NetTally.ViewModels
 {
     public class RelayCommand : ICommand
     {
+        ViewModelBase ViewModel { get; }
+
         #region Constructors        
         /// <summary>
         /// Default constructor with no canExecute check.
@@ -25,8 +27,7 @@ namespace NetTally.ViewModels
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
         public RelayCommand(ViewModelBase viewModel, Action<object> execute, Func<object, bool> canExecute)
         {
-            if (viewModel == null)
-                throw new ArgumentNullException(nameof(viewModel));
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
 
             this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
 
@@ -76,7 +77,13 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e) => OnCanExecuteChanged();
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (ViewModel.NonCommandPropertyChangedValues.Contains(e.PropertyName))
+                return;
+
+            OnCanExecuteChanged();
+        }
 
         /// <summary>
         /// Event handler for notification of a possible change in CanExecute.

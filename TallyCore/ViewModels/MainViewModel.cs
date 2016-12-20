@@ -36,6 +36,8 @@ namespace NetTally.ViewModels
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
+            NonCommandPropertyChangedValues.Add("NewRelease");
+
             BuildCheckForNewRelease();
             BindTally();
             BindVoteCounter();

@@ -26,6 +26,8 @@ namespace NetTally.ViewModels
         private bool isExecuting;
         public event EventHandler CanExecuteChanged;
 
+        ViewModelBase ViewModel { get; }
+
         #region Constructors
         /// <summary>
         /// Default constructor with no canExecute check.
@@ -43,13 +45,10 @@ namespace NetTally.ViewModels
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
         public AsyncRelayCommand(ViewModelBase viewModel, Func<object, Task> executeAsync, Func<object, bool> canExecute)
         {
-            if (viewModel == null)
-                throw new ArgumentNullException(nameof(viewModel));
-            if (executeAsync == null)
-                throw new ArgumentNullException(nameof(executeAsync));
-
-            this.execute = executeAsync;
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            this.execute = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));
             this.canExecute = canExecute;
+
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
         #endregion
@@ -105,6 +104,9 @@ namespace NetTally.ViewModels
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (ViewModel.NonCommandPropertyChangedValues.Contains(e.PropertyName))
+                return;
+
             OnCanExecuteChanged();
         }
 

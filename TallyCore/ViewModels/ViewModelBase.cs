@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -17,6 +18,12 @@ namespace NetTally.ViewModels
         /// can send notifications back on that same thread.
         /// </summary>
         readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
+
+        /// <summary>
+        /// A collection of any property changed notification values that should not be
+        /// treated as significant by any relay commands.
+        /// </summary>
+        public HashSet<string> NonCommandPropertyChangedValues { get; } = new HashSet<string>();
 
         #region INotifyPropertyChanged event
         /// <summary>
