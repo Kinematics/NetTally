@@ -155,7 +155,7 @@ namespace NetTally.Forums
                 string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
 
                 HtmlDocument page = await pageProvider.GetPage(firstPageUrl, $"Page {firstPageNumber}", 
-                    CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.Yes, token)
+                    CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 
                 if (page == null)
