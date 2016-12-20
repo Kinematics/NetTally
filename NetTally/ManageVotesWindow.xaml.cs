@@ -215,7 +215,7 @@ namespace NetTally
                 OnPropertyChanged();
 
                 IsFilter1Empty = filter1String == string.Empty;
-                OnPropertyChanged("IsFilter1Empty");
+                OnPropertyChanged(nameof(IsFilter1Empty));
 
                 VoteView1.Refresh();
             }
@@ -236,7 +236,7 @@ namespace NetTally
                 OnPropertyChanged();
 
                 IsFilter2Empty = filter2String == string.Empty;
-                OnPropertyChanged("IsFilter2Empty");
+                OnPropertyChanged(nameof(IsFilter2Empty));
 
                 VoteView2.Refresh();
             }
@@ -292,7 +292,7 @@ namespace NetTally
             {
                 if (MainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
                 {
-                    OnPropertyChanged("HasUndoActions");
+                    OnPropertyChanged(nameof(HasUndoActions));
                 }
             }
             catch (Exception ex)
@@ -312,7 +312,7 @@ namespace NetTally
             {
                 if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
                 {
-                    OnPropertyChanged("HasUndoActions");
+                    OnPropertyChanged(nameof(HasUndoActions));
                 }
             }
             catch (Exception ex)
@@ -332,7 +332,7 @@ namespace NetTally
             {
                 if (MainViewModel.UndoVoteModification())
                 {
-                    OnPropertyChanged("HasUndoActions");
+                    OnPropertyChanged(nameof(HasUndoActions));
                 }
             }
             catch (Exception ex)
@@ -615,7 +615,7 @@ namespace NetTally
             {
                 if (MainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
                 {
-                    OnPropertyChanged("HasUndoActions");
+                    OnPropertyChanged(nameof(HasUndoActions));
                 }
             }
             catch (ArgumentException ex)

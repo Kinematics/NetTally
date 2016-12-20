@@ -105,7 +105,7 @@ namespace NetTally.ViewModels
         {
             if (e.PropertyName == "NewRelease")
             {
-                OnPropertyChanged("NewReleaseAvailable");
+                OnPropertyChanged(nameof(NewReleaseAvailable));
             }
         }
 
@@ -157,12 +157,15 @@ namespace NetTally.ViewModels
             get { return selectedQuest; }
             set
             {
+                if (value == selectedQuest)
+                    return;
+
                 UnbindQuest(selectedQuest);
                 selectedQuest = value;
                 BindQuest(selectedQuest);
                 OnPropertyChanged();
-                OnPropertyChanged("IsQuestSelected");
-                OnPropertyChanged("IsSafeToEnable");
+                OnPropertyChanged(nameof(IsQuestSelected));
+                OnPropertyChanged(nameof(IsSafeToEnable));
             }
         }
 
@@ -235,7 +238,7 @@ namespace NetTally.ViewModels
             {
                 SelectedQuest = newEntry;
                 OnPropertyChanged("AddQuest");
-                OnPropertyChanged("HasQuests");
+                OnPropertyChanged(nameof(HasQuests));
             }
         }
         #endregion
@@ -281,7 +284,7 @@ namespace NetTally.ViewModels
                 SelectedQuest = QuestList[index];
 
             OnPropertyChanged("RemoveQuest");
-            OnPropertyChanged("HasQuests");
+            OnPropertyChanged(nameof(HasQuests));
         }
         #endregion
 
@@ -314,13 +317,13 @@ namespace NetTally.ViewModels
         {
             if (e.PropertyName == "TallyIsRunning")
             {
-                OnPropertyChanged("TallyIsRunning");
-                OnPropertyChanged("IsSafeToEnable");
+                OnPropertyChanged(nameof(TallyIsRunning));
+                OnPropertyChanged(nameof(IsSafeToEnable));
             }
             else if (e.PropertyName == "TallyResults")
             {
-                OnPropertyChanged("Output");
-                OnPropertyChanged("HasOutput");
+                OnPropertyChanged(nameof(Output));
+                OnPropertyChanged(nameof(HasOutput));
             }
         }
 
