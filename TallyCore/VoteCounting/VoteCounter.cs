@@ -67,6 +67,25 @@ namespace NetTally
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
+
+        bool voteCounterIsTallying = false;
+
+        /// <summary>
+        /// Flag whether the tally is currently running.
+        /// </summary>
+        public bool VoteCounterIsTallying
+        {
+            get { return voteCounterIsTallying; }
+            set
+            {
+                if (voteCounterIsTallying != value)
+                {
+                    voteCounterIsTallying = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Public Class Properties
@@ -109,7 +128,7 @@ namespace NetTally
             if (RankedVotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged("VoteCounter");
         }
 
         public void ResetUserDefinedTasks(string forQuestName)
@@ -138,62 +157,71 @@ namespace NetTally
         /// </summary>
         public void TallyPosts()
         {
-            Reset();
-
-            if (PostsList == null || PostsList.Count == 0)
-                return;
-
-            // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
-            foreach (var post in PostsList)
+            try
             {
-                ReferenceVoters.Add(post.Author);
-                ReferenceVoterPosts[post.Author] = post.ID;
-                VoteConstructor.PreprocessPlansWithContent(post, Quest);
-            }
+                VoteCounterIsTallying = true;
 
-            // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
-            // Total vote must have multiple lines.
-            foreach (var post in PostsList)
-            {
-                VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
-            }
+                Reset();
 
-            // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
-            // Total vote may be only one line.
-            foreach (var post in PostsList)
-            {
-                VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
-            }
+                if (PostsList == null || PostsList.Count == 0)
+                    return;
 
-            // Once all the plans are in place, set the working votes for each post.
-            foreach (var post in PostsList)
-            {
-                post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
-            }
-
-            var unprocessed = PostsList;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
-
-                // As long as some got processed, remove those from the unprocessed list
-                // and let the loop run again.
-                if (processed.Any())
+                // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
+                foreach (var post in PostsList)
                 {
-                    unprocessed = unprocessed.Except(processed).ToList();
+                    ReferenceVoters.Add(post.Author);
+                    ReferenceVoterPosts[post.Author] = post.ID;
+                    VoteConstructor.PreprocessPlansWithContent(post, Quest);
                 }
-                else
+
+                // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
+                // Total vote must have multiple lines.
+                foreach (var post in PostsList)
                 {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var p in unprocessed)
+                    VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
+                }
+
+                // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
+                // Total vote may be only one line.
+                foreach (var post in PostsList)
+                {
+                    VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
+                }
+
+                // Once all the plans are in place, set the working votes for each post.
+                foreach (var post in PostsList)
+                {
+                    post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
+                }
+
+                var unprocessed = PostsList;
+
+                // Loop as long as there are any more to process.
+                while (unprocessed.Any())
+                {
+                    // Get the list of the ones that were processed.
+                    var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
+
+                    // As long as some got processed, remove those from the unprocessed list
+                    // and let the loop run again.
+                    if (processed.Any())
                     {
-                        p.ForceProcess = true;
+                        unprocessed = unprocessed.Except(processed).ToList();
+                    }
+                    else
+                    {
+                        // If none got processed (and there must be at least some waiting on processing),
+                        // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                        foreach (var p in unprocessed)
+                        {
+                            p.ForceProcess = true;
+                        }
                     }
                 }
+            }
+            finally
+            {
+                VoteCounterIsTallying = false;
             }
         }
 
@@ -453,7 +481,8 @@ namespace NetTally
             var votes = GetVotesCollection(voteType);
 
             // Remove the voter from any existing votes
-            RemoveSupport(voter, voteType);
+            if (RemoveSupport(voter, voteType))
+                OnPropertyChanged("Voters");
 
             // Add/update all segments of the provided vote
             foreach (var part in voteParts)
@@ -462,9 +491,9 @@ namespace NetTally
             }
 
             // Cleanup any votes that no longer have any support
-            CleanupEmptyVotes(voteType);
+            if (CleanupEmptyVotes(voteType))
+                OnPropertyChanged("Votes");
 
-            OnPropertyChanged("Votes");
         }
 
         /// <summary>
@@ -488,12 +517,16 @@ namespace NetTally
             if (votes.ContainsKey(voteKey) == false)
             {
                 votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                OnPropertyChanged("Votes");
             }
 
-            // Update the supporters list.
+            // Update the supporters list if the voter isn't already in it.
+            if (votes[voteKey].Contains(voter))
+                return;
+
             votes[voteKey].Add(voter);
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged("Voters");
         }
 
         /// <summary>
@@ -541,7 +574,7 @@ namespace NetTally
 
             if (merged)
             {
-                OnPropertyChanged("Votes");
+                OnPropertyChanged("VoteCounter");
             }
 
             return merged;
@@ -712,7 +745,7 @@ namespace NetTally
 
             CleanupEmptyVotes(voteType);
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged("VoteCounter");
 
             return count > 0;
         }
@@ -759,7 +792,7 @@ namespace NetTally
                 }
             }
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged("VoteCounter");
 
             return removed;
         }
@@ -837,7 +870,7 @@ namespace NetTally
 
             CleanupEmptyVotes(undo.VoteType);
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged("VoteCounter");
 
             return true;
         }
@@ -895,31 +928,41 @@ namespace NetTally
         /// </summary>
         /// <param name="voter">The voter name to check for.</param>
         /// <param name="voteType">Type of the vote.</param>
-        private void RemoveSupport(string voter, VoteType voteType)
+        private bool RemoveSupport(string voter, VoteType voteType)
         {
+            bool removedAny = false;
+
             var votes = GetVotesCollection(voteType);
 
             // Remove the voter from any existing votes
             foreach (var vote in votes)
             {
-                vote.Value.Remove(voter);
+                if (vote.Value.Remove(voter))
+                    removedAny = true;
             }
+
+            return removedAny;
         }
 
         /// <summary>
         /// Removes any votes that no longer have any voter support.
         /// </summary>
         /// <param name="voteType">Type of the vote.</param>
-        private void CleanupEmptyVotes(VoteType voteType)
+        private bool CleanupEmptyVotes(VoteType voteType)
         {
+            bool removedAny = false;
+
             var votes = GetVotesCollection(voteType);
 
             // Any votes that no longer have any support can be removed
             var emptyVotes = votes.Where(v => v.Value.Count == 0).ToList();
             foreach (var emptyVote in emptyVotes)
             {
-                votes.Remove(emptyVote.Key);
+                if (votes.Remove(emptyVote.Key))
+                    removedAny = true;
             }
+
+            return removedAny;
         }
 
         /// <summary>

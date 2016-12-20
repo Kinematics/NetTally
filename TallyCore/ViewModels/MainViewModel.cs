@@ -444,7 +444,6 @@ namespace NetTally.ViewModels
             if (cts == null || cts.IsCancellationRequested)
             {
                 tally.TallyIsRunning = false;
-                OnPropertyChanged("CancelRequest");
             }
             else
             {
@@ -487,28 +486,58 @@ namespace NetTally.ViewModels
             VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
         }
 
+        /// <summary>
+        /// Update the observable collection of votes.
+        /// </summary>
+        private void UpdateVotesCollection()
+        {
+            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+
+            List<string> votes = votesWithSupporters.Keys
+                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
+                .Distinct(StringUtility.AgnosticStringComparer).ToList();
+
+            AllVotesCollection.Replace(votes);
+
+            OnPropertyChanged("AllVotes");
+        }
+
+        /// <summary>
+        /// Update the observable collection of voters.
+        /// </summary>
+        private void UpdateVotersCollection()
+        {
+            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
+
+            List<string> voters = voteVoters.Select(v => v.Key)
+                .Concat(rankVoters.Select(v => v.Key))
+                .Distinct().OrderBy(v => v).ToList();
+
+            AllVotersCollection.Replace(voters);
+
+            OnPropertyChanged("AllVoters");
+        }
+
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Votes")
+            if (!VoteCounter.Instance.VoteCounterIsTallying)
             {
-                var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-
-                List<string> votes = votesWithSupporters.Keys
-                    .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                    .Distinct(StringUtility.AgnosticStringComparer).ToList();
-
-                AllVotesCollection.Replace(votes);
-
-                var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-                var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
-
-                List<string> voters = voteVoters.Select(v => v.Key)
-                    .Concat(rankVoters.Select(v => v.Key))
-                    .Distinct().OrderBy(v => v).ToList();
-
-                AllVotersCollection.Replace(voters);
-
-                OnPropertyChanged("VotesFromTally");
+                if (e.PropertyName == nameof(VoteCounter.Instance.VoteCounterIsTallying))
+                {
+                    // Called when the vote counter has finished its tallying.
+                    // Update both observable collections.
+                    UpdateVotesCollection();
+                    UpdateVotersCollection();
+                }
+                else if (e.PropertyName == "Votes" || e.PropertyName == "VoteCounter")
+                {
+                    UpdateVotesCollection();
+                }
+                else if (e.PropertyName == "Voters" || e.PropertyName == "VoteCounter")
+                {
+                    UpdateVotersCollection();
+                }
             }
         }
 
@@ -529,6 +558,8 @@ namespace NetTally.ViewModels
                 return allTasks;
             }
         }
+
+        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.Instance.HasVote(vote, voteType);
 
         public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
 
@@ -565,7 +596,6 @@ namespace NetTally.ViewModels
             return null;
         }
 
-        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.Instance.HasVote(vote, voteType);
         #endregion
 
         #region Section: Command Setup        
