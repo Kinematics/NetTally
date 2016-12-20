@@ -499,7 +499,7 @@ namespace NetTally.ViewModels
 
             AllVotesCollection.Replace(votes);
 
-            OnPropertyChanged("AllVotes");
+            OnPropertyChanged(nameof(AllVotesCollection));
         }
 
         /// <summary>
@@ -516,7 +516,7 @@ namespace NetTally.ViewModels
 
             AllVotersCollection.Replace(voters);
 
-            OnPropertyChanged("AllVoters");
+            OnPropertyChanged(nameof(AllVotersCollection));
         }
 
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -530,11 +530,16 @@ namespace NetTally.ViewModels
                     UpdateVotesCollection();
                     UpdateVotersCollection();
                 }
-                else if (e.PropertyName == "Votes" || e.PropertyName == "VoteCounter")
+                else if (e.PropertyName == "VoteCounter")
+                {
+                    UpdateVotesCollection();
+                    UpdateVotersCollection();
+                }
+                else if (e.PropertyName == "Votes")
                 {
                     UpdateVotesCollection();
                 }
-                else if (e.PropertyName == "Voters" || e.PropertyName == "VoteCounter")
+                else if (e.PropertyName == "Voters")
                 {
                     UpdateVotersCollection();
                 }

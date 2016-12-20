@@ -489,7 +489,7 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AllVotes" || e.PropertyName == "AllVoters")
+            if (e.PropertyName == nameof(MainViewModel.AllVotesCollection) || e.PropertyName == nameof(MainViewModel.AllVotersCollection))
             {
                 UpdateCollections();
             }
