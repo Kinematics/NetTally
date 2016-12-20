@@ -142,20 +142,12 @@ namespace NetTally
             get { return results; }
             set
             {
-                if (string.IsNullOrEmpty(results))
-                {
-                    if (string.IsNullOrEmpty(value))
-                        return;
-                    else
-                        OnPropertyChanged(nameof(HasTallyResults));
-                }
-                else if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(results))
-                {
-                    OnPropertyChanged(nameof(HasTallyResults));
-                }
+                bool changed = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
 
                 results = value;
                 OnPropertyChanged();
+                if (changed)
+                    OnPropertyChanged(nameof(HasTallyResults));
             }
         }
 
