@@ -318,7 +318,7 @@
             </Hyperlink>
         </TextBlock>
         <TextBlock x:Name="newRelease" HorizontalAlignment="Left" Margin="140,0,0,3" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"
-                   Visibility="{Binding Path=NewReleaseAvailable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                   Visibility="{Binding Path=NewRelease, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/releases/latest" RequestNavigate="Hyperlink_RequestNavigate">
                 A newer version is available
             </Hyperlink>

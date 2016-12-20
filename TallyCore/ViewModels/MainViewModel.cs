@@ -36,7 +36,7 @@ namespace NetTally.ViewModels
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
-            BindCheckForNewRelease();
+            BuildCheckForNewRelease();
             BindTally();
             BindVoteCounter();
 
@@ -83,19 +83,20 @@ namespace NetTally.ViewModels
 
         #region Section: Check for New Release
         /// Fields for this section
-        CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
+        CheckForNewRelease checkForNewRelease;
 
         /// <summary>
-        /// Bind event watcher to the class that checks for new releases of the program.
+        /// Pass-through flag indicating whether there is a newer release of the program available.
         /// </summary>
-        private void BindCheckForNewRelease()
-        {
-            checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
-        }
+        public bool NewRelease => checkForNewRelease.NewRelease;
 
-        public void CheckForNewRelease()
+        /// <summary>
+        /// Create a new CheckForNewRelease object, and bind an event listener to it.
+        /// </summary>
+        private void BuildCheckForNewRelease()
         {
-            var runAwait = checkForNewRelease.Update();
+            checkForNewRelease = new CheckForNewRelease();
+            checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
         }
 
         /// <summary>
@@ -105,14 +106,17 @@ namespace NetTally.ViewModels
         {
             if (e.PropertyName == "NewRelease")
             {
-                OnPropertyChanged(nameof(NewReleaseAvailable));
+                OnPropertyChanged(nameof(NewRelease));
             }
         }
 
         /// <summary>
-        /// Flag indicating whether there is a newer release of the program available.
+        /// Public function to initiate a check for a new release.
         /// </summary>
-        public bool NewReleaseAvailable => checkForNewRelease.NewRelease;
+        public void CheckForNewRelease()
+        {
+            Task.Run(checkForNewRelease.Update);
+        }
         #endregion
 
         #region Section: Options        
