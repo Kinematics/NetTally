@@ -149,7 +149,7 @@ namespace NetTally
             Quest = quest;
             PostsList.Clear();
             PostsList.AddRange(posts);
-            await TallyPosts();
+            await TallyPosts().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -167,8 +167,8 @@ namespace NetTally
                 if (PostsList == null || PostsList.Count == 0)
                     return;
 
-                await Task.Run(() => PreprocessPlans());
-                await Task.Run(() => ProcessPosts());
+                await Task.Run(() => PreprocessPlans()).ConfigureAwait(false);
+                await Task.Run(() => ProcessPosts()).ConfigureAwait(false);
             }
             finally
             {

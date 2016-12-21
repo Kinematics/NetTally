@@ -82,7 +82,7 @@ namespace NetTally
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
-                await UpdateResults();
+                await UpdateResults().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NetTally
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    await UpdateTally();
+                    await UpdateTally().ConfigureAwait(false);
                 }
             }
         }
@@ -207,7 +207,7 @@ namespace NetTally
         public async Task UpdateResults()
         {
             if (VoteCounter.Instance.Quest != null)
-                TallyResults = await ViewModelService.MainViewModel.TextResultsProvider.BuildOutputAsync(AdvancedOptions.Instance.DisplayMode);
+                TallyResults = await ViewModelService.MainViewModel.TextResultsProvider.BuildOutputAsync(AdvancedOptions.Instance.DisplayMode).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -228,10 +228,10 @@ namespace NetTally
             if (VoteCounter.Instance.Quest != null)
             {
                 // Tally the votes from the loaded pages.
-                await VoteCounter.Instance.TallyPosts();
+                await VoteCounter.Instance.TallyPosts().ConfigureAwait(false);
 
                 // Compose the final result string from the compiled votes.
-                await UpdateResults();
+                await UpdateResults().ConfigureAwait(false);
             }
         }
         #endregion

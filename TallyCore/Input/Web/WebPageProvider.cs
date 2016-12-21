@@ -177,11 +177,11 @@ namespace NetTally.Web
 
                     try
                     {
-                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout))
+                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
-                                result = await response.Content.ReadAsStringAsync();
+                                result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                             }
                             else if (IsFailure(response))
                             {
@@ -199,7 +199,7 @@ namespace NetTally.Web
                             }
                             else
                             {
-                                await Task.Delay(retryDelay, token);
+                                await Task.Delay(retryDelay, token).ConfigureAwait(false);
                             }
                         }
                     }
@@ -245,7 +245,7 @@ namespace NetTally.Web
                 Cache.Add(url, result);
 
             htmldoc = new HtmlDocument();
-            await Task.Run(() => htmldoc.LoadHtml(result));
+            await Task.Run(() => htmldoc.LoadHtml(result)).ConfigureAwait(false);
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 

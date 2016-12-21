@@ -122,7 +122,7 @@ namespace NetTally.Web
                     if (cacheAge < maxCacheDuration)
                     {
                         HtmlDocument doc = new HtmlDocument();
-                        await Task.Run(() => doc.LoadHtml(cache.Store));
+                        await Task.Run(() => doc.LoadHtml(cache.Store)).ConfigureAwait(false);
                         return doc;
                     }
                 }

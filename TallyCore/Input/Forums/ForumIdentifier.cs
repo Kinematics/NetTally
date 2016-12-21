@@ -35,7 +35,7 @@ namespace NetTally.Forums
 
             if (!CheckForKnownHost(uri, out forum))
             {
-                HtmlDocument doc = await GetDocumentAsync(uri, token);
+                HtmlDocument doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
 
                 if (doc != null)
                 {
@@ -101,7 +101,8 @@ namespace NetTally.Forums
             try
             {
                 HtmlDocument page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host,
-                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token);
+                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token)
+                    .ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                     return null;

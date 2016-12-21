@@ -102,7 +102,7 @@ namespace NetTally.Forums
         private async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
-            var scanInfo = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token);
+            var scanInfo = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
 
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
@@ -204,7 +204,7 @@ namespace NetTally.Forums
 
                 // This will throw any pending exceptions that occurred while trying to load the page.
                 // This removes the need to check for finishedPage.IsFaulted.
-                var page = await finishedPage;
+                var page = await finishedPage.ConfigureAwait(false);
 
                 if (page == null)
                 {

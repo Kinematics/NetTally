@@ -373,7 +373,7 @@ namespace NetTally.ViewModels
         /// </summary>
         public async void UpdateOutput()
         {
-            await tally.UpdateResults();
+            await tally.UpdateResults().ConfigureAwait(false);
         }
 
         #region Run the Tally
@@ -401,7 +401,7 @@ namespace NetTally.ViewModels
                 {
                     try
                     {
-                        await tally.RunAsync(SelectedQuest, cts.Token);
+                        await tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {

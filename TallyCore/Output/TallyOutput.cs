@@ -37,7 +37,7 @@ namespace NetTally.Output
 
             sb = new StringBuilder();
 
-            await Task.Run(() => BuildGlobal());
+            await Task.Run(() => BuildGlobal()).ConfigureAwait(false);
 
             return sb.ToString();
         }
