@@ -79,10 +79,10 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
-                UpdateResults();
+                await UpdateResults();
         }
 
         /// <summary>
@@ -90,13 +90,13 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The quest that sent the notification.</param>
         /// <param name="e">Info about a property of the quest that changed.</param>
-        private void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (sender is IQuest quest)
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    UpdateTally();
+                    await UpdateTally();
                 }
             }
         }
@@ -173,10 +173,10 @@ namespace NetTally
 
                 VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
-                var posts = await ForumReader.Instance.ReadQuestAsync(quest, token);
-                VoteCounter.Instance.TallyPosts(posts, quest);
+                var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
+                await VoteCounter.Instance.TallyPosts(posts, quest).ConfigureAwait(false);
 
-                UpdateResults();
+                await UpdateResults().ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -204,10 +204,10 @@ namespace NetTally
         /// Compose the tallied results into a string to put in the TallyResults property,
         /// for display in the UI.
         /// </summary>
-        public void UpdateResults()
+        public async Task UpdateResults()
         {
             if (VoteCounter.Instance.Quest != null)
-                TallyResults = ViewModelService.MainViewModel.TextResultsProvider.BuildOutput(AdvancedOptions.Instance.DisplayMode);
+                TallyResults = await ViewModelService.MainViewModel.TextResultsProvider.BuildOutputAsync(AdvancedOptions.Instance.DisplayMode);
         }
 
         /// <summary>
@@ -223,15 +223,15 @@ namespace NetTally
         /// <summary>
         /// Process the results of the tally through the vote counter, and update the output.
         /// </summary>
-        private void UpdateTally()
+        private async Task UpdateTally()
         {
             if (VoteCounter.Instance.Quest != null)
             {
                 // Tally the votes from the loaded pages.
-                VoteCounter.Instance.TallyPosts();
+                await VoteCounter.Instance.TallyPosts();
 
                 // Compose the final result string from the compiled votes.
-                UpdateResults();
+                await UpdateResults();
             }
         }
         #endregion

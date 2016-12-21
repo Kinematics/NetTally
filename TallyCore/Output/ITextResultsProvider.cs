@@ -13,6 +13,6 @@ namespace NetTally
         /// </summary>
         /// <param name="displayMode">The mode requested for how to format the output.</param>
         /// <returns>Returns the full string to be displayed.</returns>
-        string BuildOutput(DisplayMode displayMode);
+        Task<string> BuildOutputAsync(DisplayMode displayMode);
     }
 }

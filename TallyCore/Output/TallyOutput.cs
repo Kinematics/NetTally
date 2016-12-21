@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using NetTally.Utility;
 
 namespace NetTally.Output
@@ -29,13 +31,13 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="displayMode">The mode requested for how to format the output.</param>
         /// <returns>Returns the full string to be displayed.</returns>
-        public string BuildOutput(DisplayMode displayMode)
+        public async Task<string> BuildOutputAsync(DisplayMode displayMode)
         {
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
 
-            BuildGlobal();
+            await Task.Run(() => BuildGlobal());
 
             return sb.ToString();
         }

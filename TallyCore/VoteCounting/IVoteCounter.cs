@@ -11,8 +11,8 @@ namespace NetTally
     {
         IQuest Quest { get; set; }
 
-        void TallyPosts();
-        void TallyPosts(IEnumerable<PostComponents> posts, IQuest quest);
+        Task TallyPosts();
+        Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest);
         List<PostComponents> PostsList { get; }
         void Reset();
         bool VoteCounterIsTallying { get; set; }

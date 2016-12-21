@@ -144,18 +144,18 @@ namespace NetTally
         /// </summary>
         /// <param name="posts">The posts to be tallied.</param>
         /// <param name="quest">The quest being tallied.</param>
-        public void TallyPosts(IEnumerable<PostComponents> posts, IQuest quest)
+        public async Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest)
         {
             Quest = quest;
             PostsList.Clear();
             PostsList.AddRange(posts);
-            TallyPosts();
+            await TallyPosts();
         }
 
         /// <summary>
         /// Construct the tally results based on the stored list of posts.
         /// </summary>
-        public void TallyPosts()
+        public async Task TallyPosts()
         {
             try
             {
