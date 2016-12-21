@@ -405,8 +405,18 @@ namespace NetTally.ViewModels
                     }
                     catch (OperationCanceledException)
                     {
-                        // Got a cancel request somewhere.  Add it to the output display.
-                        tally.TallyResults += "Tally Cancelled!\n";
+                        // Operation was cancelled.  Verify whether we requested the cancellation.
+                        if (cts.IsCancellationRequested)
+                        {
+                            // User requested cancellation. Add it to the output display.
+                            tally.TallyResults += "Tally Cancelled!\n";
+                        }
+                        else
+                        {
+                            // User did not request the cancellation. Make sure to propogate
+                            // the cancel to all tokens tied to us.
+                            cts.Cancel();
+                        }
                     }
                 }
             }
