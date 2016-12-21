@@ -418,12 +418,14 @@ namespace NetTally.ViewModels
                             cts.Cancel();
                         }
                     }
+                    catch (Exception e)
+                    {
+                        cts.Cancel();
+
+                        if (!OnExceptionRaised(e).Handled)
+                            throw;
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                if (!OnExceptionRaised(e).Handled)
-                    throw;
             }
             finally
             {
