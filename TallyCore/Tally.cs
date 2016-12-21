@@ -182,6 +182,10 @@ namespace NetTally
             {
                 TallyResults += $"\n{e.Message}";
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception)
             {
                 VoteCounter.Instance.Quest = null;
