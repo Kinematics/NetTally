@@ -202,14 +202,9 @@ namespace NetTally.Forums
                     throw new OperationCanceledException();
                 }
 
-                if (finishedPage.IsFaulted)
-                {
-                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
-                    ae.Data["Application"] = true;
-                    throw ae;
-                }
-
-                var page = finishedPage.Result;
+                // This will throw any pending exceptions that occurred while trying to load the page.
+                // This removes the need to check for finishedPage.IsFaulted.
+                var page = await finishedPage;
 
                 if (page == null)
                 {
