@@ -339,13 +339,17 @@ namespace NetTally.Web
 
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {
-                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})\nURL: {url}";
+                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
+                if (ViewModels.ViewModelService.MainViewModel.Options.DebugMode)
+                    failureDescrip += $"\nURL: {url}";
             }
             else
             {
                 // Fail all 400/500 level responses
                 // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
-                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})\nURL: {url}";
+                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
+                if (ViewModels.ViewModelService.MainViewModel.Options.DebugMode)
+                    failureDescrip += $"\nURL: {url}";
             }
 
             if (response.StatusCode == HttpStatusCode.Forbidden ||
