@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -13,7 +15,9 @@ namespace NetTally.Web
     {
         #region Fields
         HttpClient client;
-        const int retryLimit = 5;
+        const int retryLimit = 3;
+        TimeSpan timeout = TimeSpan.FromSeconds(10);
+        TimeSpan retryDelay = TimeSpan.FromSeconds(4);
         #endregion
 
         #region Constructor/Disposal
@@ -74,7 +78,7 @@ namespace NetTally.Web
             client = new HttpClient(ClientHandler);
 
             client.MaxResponseContentBufferSize = 1000000;
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.Timeout = timeout;
             client.DefaultRequestHeaders.Add("Accept", "text/html");
             client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
             client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
@@ -129,13 +133,21 @@ namespace NetTally.Web
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));
 
             Uri uri = new Uri(url);
-            HtmlDocument htmldoc;
+            HtmlDocument htmldoc = null;
             string result = null;
-            string failureDescrip = null;
+            int tries = 0;
 
-            var (found, doc) = await TryGetCachedPageAsync(url, shortDescrip, caching, suppressNotifications).ConfigureAwait(false);
-            if (found)
-                return doc;
+            // Try to load from cache first, if allowed.
+            if (caching == CachingMode.UseCache)
+            {
+                htmldoc = await Cache.GetAsync(url).ConfigureAwait(false);
+
+                if (htmldoc != null)
+                {
+                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifications);
+                    return htmldoc;
+                }
+            }
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
@@ -150,22 +162,22 @@ namespace NetTally.Web
                     ClientHandler.CookieContainer.Add(uri, cookie);
                 }
 
-                int tries = 0;
                 HttpResponseMessage response;
 
-                while (result == null && tries < retryLimit && token.IsCancellationRequested == false)
+                do
                 {
+                    token.ThrowIfCancellationRequested();
+
                     if (tries > 0)
                     {
-                        // If we have to retry loading the page, give it a short delay.
-                        await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
+                        // Notify the user if we're trying to load the page multiple times.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
                     }
                     tries++;
 
                     try
                     {
-                        using (response = await client.GetAsync(uri, token).ConfigureAwait(false))
+                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -173,8 +185,9 @@ namespace NetTally.Web
                             }
                             else if (IsFailure(response))
                             {
-                                failureDescrip = GetFailureMessage(response, shortDescrip, url);
-                                tries = retryLimit;
+                                NotifyStatusChange(PageRequestStatusType.Failed, url,
+                                    GetFailureMessage(response, shortDescrip, url), null, suppressNotifications);
+                                return null;
                             }
                             else if (response.StatusCode == HttpStatusCode.Moved ||
                                      response.StatusCode == HttpStatusCode.MovedPermanently ||
@@ -182,8 +195,17 @@ namespace NetTally.Web
                                      response.StatusCode == HttpStatusCode.TemporaryRedirect)
                             {
                                 url = response.Content.Headers.ContentLocation.AbsoluteUri;
+                                uri = new Uri(url);
+                            }
+                            else
+                            {
+                                await Task.Delay(retryDelay, token);
                             }
                         }
+                    }
+                    catch (TimeoutException)
+                    {
+                        Debug.WriteLine($"Attempt to load {shortDescrip} timed out. Tries={tries}");
                     }
                     catch (HttpRequestException e)
                     {
@@ -191,25 +213,31 @@ namespace NetTally.Web
                         throw;
                     }
 
+                } while (result == null && tries < retryLimit);
+
+                if (result == null && tries >= retryLimit)
+                    client.CancelPendingRequests();
+            }
+            catch (OperationCanceledException e)
+            {
+                // If it's not a user-requested cancellation, generate a failure message.
+                if (!token.IsCancellationRequested)
+                {
+                    NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
                 }
+
+                throw;
             }
             finally
             {
                 ss.Release();
             }
 
-            if (token.IsCancellationRequested)
-            {
-                return null;
-            }
+            token.ThrowIfCancellationRequested();
 
             if (result == null)
             {
-                if (string.IsNullOrEmpty(failureDescrip))
-                    NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
-                else
-                    NotifyStatusChange(PageRequestStatusType.Failed, url, failureDescrip, null, suppressNotifications);
-
+                NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
                 return null;
             }
 
