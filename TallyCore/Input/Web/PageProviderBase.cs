@@ -156,7 +156,7 @@ namespace NetTally.Web
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
 
-            OnStatusChanged($"{shortDescrip}: {e?.Message ?? "(unknown error)"}");
+            OnStatusChanged($"{shortDescrip}: {e?.Message ?? "(unknown error)"}\n");
         }
 
         /// <summary>
