@@ -371,9 +371,9 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Requests that the tally class update its current results.
         /// </summary>
-        public void UpdateOutput()
+        public async void UpdateOutput()
         {
-            tally.UpdateResults();
+            await tally.UpdateResults();
         }
 
         #region Run the Tally
