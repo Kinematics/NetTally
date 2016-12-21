@@ -154,6 +154,7 @@ namespace NetTally
 
         /// <summary>
         /// Construct the tally results based on the stored list of posts.
+        /// Run async so that it doesn't cause UI jank.
         /// </summary>
         public async Task TallyPosts()
         {
@@ -166,62 +167,79 @@ namespace NetTally
                 if (PostsList == null || PostsList.Count == 0)
                     return;
 
-                // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
-                foreach (var post in PostsList)
-                {
-                    ReferenceVoters.Add(post.Author);
-                    ReferenceVoterPosts[post.Author] = post.ID;
-                    VoteConstructor.PreprocessPlansWithContent(post, Quest);
-                }
-
-                // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
-                // Total vote must have multiple lines.
-                foreach (var post in PostsList)
-                {
-                    VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
-                }
-
-                // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
-                // Total vote may be only one line.
-                foreach (var post in PostsList)
-                {
-                    VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
-                }
-
-                // Once all the plans are in place, set the working votes for each post.
-                foreach (var post in PostsList)
-                {
-                    post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
-                }
-
-                var unprocessed = PostsList;
-
-                // Loop as long as there are any more to process.
-                while (unprocessed.Any())
-                {
-                    // Get the list of the ones that were processed.
-                    var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
-
-                    // As long as some got processed, remove those from the unprocessed list
-                    // and let the loop run again.
-                    if (processed.Any())
-                    {
-                        unprocessed = unprocessed.Except(processed).ToList();
-                    }
-                    else
-                    {
-                        // If none got processed (and there must be at least some waiting on processing),
-                        // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                        foreach (var p in unprocessed)
-                        {
-                            p.ForceProcess = true;
-                        }
-                    }
-                }
+                await Task.Run(() => PreprocessPlans());
+                await Task.Run(() => ProcessPosts());
             }
             finally
             {
                 VoteCounterIsTallying = false;
+            }
+        }
+
+        /// <summary>
+        /// The first half of tallying posts involves doing the preprocessing
+        /// work on the plans in the post list.
+        /// </summary>
+        private void PreprocessPlans()
+        {
+            // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
+            foreach (var post in PostsList)
+            {
+                ReferenceVoters.Add(post.Author);
+                ReferenceVoterPosts[post.Author] = post.ID;
+                VoteConstructor.PreprocessPlansWithContent(post, Quest);
+            }
+
+            // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
+            // Total vote must have multiple lines.
+            foreach (var post in PostsList)
+            {
+                VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
+            }
+
+            // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
+            // Total vote may be only one line.
+            foreach (var post in PostsList)
+            {
+                VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
+            }
+
+            // Once all the plans are in place, set the working votes for each post.
+            foreach (var post in PostsList)
+            {
+                post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
+            }
+        }
+
+        /// <summary>
+        /// The second half of tallying the posts involves cycling through for
+        /// as long as future references need to be handled.
+        /// </summary>
+        private void ProcessPosts()
+        {
+            var unprocessed = PostsList;
+
+            // Loop as long as there are any more to process.
+            while (unprocessed.Any())
+            {
+                // Get the list of the ones that were processed.
+                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
+
+                // As long as some got processed, remove those from the unprocessed list
+                // and let the loop run again.
+                if (processed.Any())
+                {
+                    unprocessed = unprocessed.Except(processed).ToList();
+                }
+                else
+                {
+                    // If none got processed (and there must be at least some waiting on processing),
+                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                    foreach (var p in unprocessed)
+                    {
+                        p.ForceProcess = true;
+                    }
+                }
             }
         }
 
