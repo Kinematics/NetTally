@@ -100,9 +100,12 @@ namespace NetTally.Web
 
         protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception e, SuppressNotifications suppressNotifications)
         {
+            if (suppressNotifications == SuppressNotifications.Yes)
+                return;
+
             if (status == PageRequestStatusType.Requested)
             {
-                NotifyRequest(url, suppressNotifications);
+                NotifyRequest(url);
                 return;
             }
 
@@ -118,7 +121,7 @@ namespace NetTally.Web
                 return;
             }
 
-            NotifyResult(status, shortDescrip, suppressNotifications);
+            NotifyResult(status, shortDescrip);
         }
 
 
@@ -127,9 +130,9 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyRequest(string url, SuppressNotifications suppressNotifications)
+        private void NotifyRequest(string url)
         {
-            if (suppressNotifications == SuppressNotifications.Yes || string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(url))
                 return;
 
             OnStatusChanged($"{url}\n");
@@ -162,9 +165,9 @@ namespace NetTally.Web
         /// <param name="status">The status.</param>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyResult(PageRequestStatusType status, string shortDescrip, SuppressNotifications suppressNotifications)
+        private void NotifyResult(PageRequestStatusType status, string shortDescrip)
         {
-            if (string.IsNullOrEmpty(shortDescrip) || suppressNotifications == SuppressNotifications.Yes)
+            if (string.IsNullOrEmpty(shortDescrip))
                 return;
 
             StringBuilder sb = new StringBuilder();
