@@ -55,8 +55,15 @@ namespace NetTally.Utility
         {
             while (true)
             {
-                await DoVersionCheckAsync().ConfigureAwait(false);
-                await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
+                try
+                {
+                    await DoVersionCheckAsync().ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromDays(2)).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    ErrorLog.Log(e);
+                }
             }
         }
         #endregion
@@ -70,22 +77,15 @@ namespace NetTally.Utility
         /// <returns>Returns nothing.  Just runs async.</returns>
         private async Task DoVersionCheckAsync()
         {
-            try
-            {
-                Version currentVersion = ProductInfo.FileVersion;
-                Version latestVersion = await GetLatestVersionAsync().ConfigureAwait(false);
+            Version currentVersion = ProductInfo.FileVersion;
+            Version latestVersion = await GetLatestVersionAsync().ConfigureAwait(false);
 
-                if (currentVersion == null || latestVersion == null)
-                    return;
+            if (currentVersion == null || latestVersion == null)
+                return;
 
-                if (latestVersion.CompareTo(currentVersion) > 0)
-                {
-                    NewRelease = true;
-                }
-            }
-            catch (Exception e)
+            if (latestVersion.CompareTo(currentVersion) > 0)
             {
-                ErrorLog.Log(e);
+                NewRelease = true;
             }
         }
 
@@ -97,17 +97,10 @@ namespace NetTally.Utility
         {
             Version latestVersion = null;
 
-            try
-            {
-                string latestVersionString = await GetLatestVersionStringAsync().ConfigureAwait(false);
+            string latestVersionString = await GetLatestVersionStringAsync().ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(latestVersionString))
-                    latestVersion = new Version(latestVersionString);
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Log(e);
-            }
+            if (!string.IsNullOrEmpty(latestVersionString))
+                latestVersion = new Version(latestVersionString);
 
             return latestVersion;
         }
@@ -119,23 +112,16 @@ namespace NetTally.Utility
         /// <returns>Returns the latest version string.</returns>
         private async Task<string> GetLatestVersionStringAsync()
         {
-            try
-            {
-                HtmlDocument htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
+            HtmlDocument htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
 
-                if (htmldoc != null)
+            if (htmldoc != null)
+            {
+                var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
+
+                if (h1ReleaseTitle != null)
                 {
-                    var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
-
-                    if (h1ReleaseTitle != null)
-                    {
-                        return GetVersionString(h1ReleaseTitle.InnerText);
-                    }
+                    return GetVersionString(h1ReleaseTitle.InnerText);
                 }
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Log(e);
             }
 
             return string.Empty;
@@ -151,15 +137,8 @@ namespace NetTally.Utility
             HtmlDocument doc = null;
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            try
-            {
-                doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
-                    SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Log(e);
-            }
+            doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+                SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;
         }
