@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Filters;
+using NetTally.Utility;
 
 namespace NetTally.Tests
 {
