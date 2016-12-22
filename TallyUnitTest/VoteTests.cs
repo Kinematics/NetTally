@@ -615,7 +615,7 @@ namespace NetTally.Tests
 
 
         [TestMethod]
-        public void Vote_Reference_Author_SelfReference()
+        public async Task Vote_Reference_Author_SelfReference()
         {
             List<string> votes = new List<string>
             {
@@ -640,7 +640,7 @@ namespace NetTally.Tests
 
             List<string> authors = new List<string> { "Kinematics", "Kinematics" };
 
-            TestReferencePostParsing(votes, authors, listOfExpected);
+            await TestReferencePostParsing(votes, authors, listOfExpected);
         }
 
 
