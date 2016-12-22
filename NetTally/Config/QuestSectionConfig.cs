@@ -127,6 +127,9 @@ namespace NetTally
         /// <param name="questWrapper">The quest wrapper.</param>
         public void Load(QuestCollectionWrapper questWrapper)
         {
+            if (questWrapper == null)
+                throw new ArgumentNullException(nameof(questWrapper));
+
             AdvancedOptions.Instance.DisplayMode = DisplayMode;
             AdvancedOptions.Instance.AllowRankedVotes = AllowRankedVotes;
             AdvancedOptions.Instance.IgnoreSpoilers = IgnoreSpoilers;
@@ -188,6 +191,9 @@ namespace NetTally
         /// <param name="questWrapper">The quest wrapper.</param>
         public void Save(QuestCollectionWrapper questWrapper)
         {
+            if (questWrapper == null)
+                throw new ArgumentNullException(nameof(questWrapper));
+
             DisplayMode = AdvancedOptions.Instance.DisplayMode;
             AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
             IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;

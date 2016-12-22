@@ -214,7 +214,7 @@ namespace NetTally
                 filter1String = value.RemoveUnsafeCharacters();
                 OnPropertyChanged();
 
-                IsFilter1Empty = filter1String == string.Empty;
+                IsFilter1Empty = string.IsNullOrEmpty(filter1String);
                 OnPropertyChanged(nameof(IsFilter1Empty));
 
                 VoteView1.Refresh();
@@ -235,7 +235,7 @@ namespace NetTally
                 filter2String = value.RemoveUnsafeCharacters();
                 OnPropertyChanged();
 
-                IsFilter2Empty = filter2String == string.Empty;
+                IsFilter2Empty = string.IsNullOrEmpty(filter2String);
                 OnPropertyChanged(nameof(IsFilter2Empty));
 
                 VoteView2.Refresh();

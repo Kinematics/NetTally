@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,6 +79,9 @@ namespace NetTally.Tests
 
         public static void TestReferencePostParsing(List<string> votes, List<List<string>> results)
         {
+            if (votes == null)
+                throw new ArgumentNullException(nameof(votes));
+
             List<string> authors = new List<string>();
             for (int i = 1; i <= votes.Count; i++)
             {

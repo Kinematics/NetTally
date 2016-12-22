@@ -14,7 +14,7 @@ namespace NetTally
         {
             if (element is QuestElement qe)
             {
-                if (qe.ThreadName != "")
+                if (!string.IsNullOrEmpty(qe.ThreadName))
                     return qe.ThreadName;
                 return qe.DisplayName;
             }
@@ -42,6 +42,9 @@ namespace NetTally
 
         public void Add(IQuest quest)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters);
             BaseAdd(questElement, false);

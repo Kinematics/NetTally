@@ -13,6 +13,7 @@ namespace NetTally.Tests
         public void Select_XenForo_NoUri()
         {
             var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, null);
+            Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
         [TestMethod]

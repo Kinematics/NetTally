@@ -29,7 +29,7 @@ namespace NetTally.Tests
     public abstract class IQuestTestBase
     {
         #region Local vars, setup, and teardown
-        protected IQuest quest;
+        protected IQuest quest { get; set; }
         bool notified;
         readonly List<string> propertiesRaised = new List<string>();
 
