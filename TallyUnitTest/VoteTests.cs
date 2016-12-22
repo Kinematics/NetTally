@@ -47,7 +47,7 @@ namespace NetTally.Tests
             CollectionAssert.AreEqual(results, votes);
         }
 
-        public List<string> GetVotesBy(string author, VoteType voteType)
+        public static List<string> GetVotesBy(string author, VoteType voteType)
         {
             var votes = VoteCounter.Instance.GetVotesCollection(voteType);
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
@@ -76,7 +76,7 @@ namespace NetTally.Tests
             }
         }
 
-        public void TestReferencePostParsing(List<string> votes, List<List<string>> results)
+        public static void TestReferencePostParsing(List<string> votes, List<List<string>> results)
         {
             List<string> authors = new List<string>();
             for (int i = 1; i <= votes.Count; i++)

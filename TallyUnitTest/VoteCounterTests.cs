@@ -275,7 +275,7 @@ namespace NetTally.Tests
         #endregion
 
         #region Matches
-        private void TestMatch(string line1, string line2)
+        private static void TestMatch(string line1, string line2)
         {
             string voter1 = "me";
             string postId1 = "1";
@@ -300,7 +300,7 @@ namespace NetTally.Tests
             Assert.AreEqual(postId2, VoteCounter.Instance.GetVotersCollection(voteType)[voter2]);
         }
 
-        private void TestMismatch(string line1, string line2)
+        private static void TestMismatch(string line1, string line2)
         {
             string voter1 = "me";
             string postId1 = "1";

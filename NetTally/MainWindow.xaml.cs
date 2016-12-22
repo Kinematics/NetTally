@@ -75,7 +75,7 @@ namespace NetTally
             }
         }
 
-        private void PlatformSetup()
+        private static void PlatformSetup()
         {
             ErrorLog.LogUsing(new WindowsErrorLog());
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
