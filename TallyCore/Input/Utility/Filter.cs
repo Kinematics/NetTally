@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetTally.Utility;
 
-namespace NetTally.Filters
+namespace NetTally.Utility
 {
     /// <summary>
-    /// Class to handle user-defined filters for different elements of a tally.
+    /// Class to handle user-defined filters, to be used against text input.
+    /// Example cases are for filtering threadmarks and tasks.
     /// </summary>
     public class Filter
     {
@@ -27,28 +26,15 @@ namespace NetTally.Filters
         /// <summary>
         /// Filter constructor.
         /// </summary>
-        /// <param name="filterRegex">An explicit regex to use for filtering.</param>
-        public Filter(Regex filterRegex)
+        /// <param name="inputRegex">An explicit regex to use for filtering.</param>
+        public Filter(Regex inputRegex)
         {
-            this.filterRegex = filterRegex;
-        }
-
-        /// <summary>
-        /// Function to test whether a provided string is matched by the current filter.
-        /// </summary>
-        /// <param name="input">The string to check against the filter.</param>
-        /// <returns>Returns true if the filter matches some part of the input string.</returns>
-        public bool Match(string input)
-        {
-            if (filterRegex == null)
-                return false;
-
-            return filterRegex.Match(input).Success;
+            filterRegex = inputRegex;
         }
 
         /// <summary>
         /// Function to create a regex based on a user-provided string of values to check for.
-        /// User-provided string is assumed to be comma-delimited, but may be a full regex
+        /// The user-provided string is assumed to be comma-delimited, but may be a full regex
         /// by itself (as long as it doesn't have any commas).
         /// If both the primary and default test strings are empty, uses the EmptyLine for the
         /// regex instead.
@@ -79,8 +65,9 @@ namespace NetTally.Filters
                 }
             }
 
-            // Add the default string value at the end.
-            sb.Append($"{bar}{defaultString}");
+            // Add the default string value (if any) at the end.
+            if (!string.IsNullOrEmpty(defaultString))
+                sb.Append($"{bar}{defaultString}");
 
             string sbString = sb.ToString();
 
@@ -94,5 +81,17 @@ namespace NetTally.Filters
             }
         }
 
+        /// <summary>
+        /// Function to test whether a provided string is matched by the current filter.
+        /// </summary>
+        /// <param name="input">The string to check against the filter.</param>
+        /// <returns>Returns true if the filter matches some part of the input string.</returns>
+        public bool Match(string input)
+        {
+            if (filterRegex == null)
+                return false;
+
+            return filterRegex.Match(input).Success;
+        }
     }
 }
