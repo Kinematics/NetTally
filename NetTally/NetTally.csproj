@@ -136,7 +136,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Config\BindingConverters.cs" />
     <Compile Include="Config\Configuration.cs" />
     <Compile Include="Config\QuestCollectionConfig.cs" />
     <Compile Include="Config\QuestConfig.cs" />
