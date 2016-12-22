@@ -3,15 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NetTally"
+        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
         Title="Manage Votes" Height="669.837" Width="862" MinWidth="828" MinHeight="445" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
     <Window.Resources>
-        <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
-        <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
-        <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
-        <local:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></local:MultiStringCompareConverter>
+        <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
+        <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></converters:MultiBoolOrConverter>
+        <converters:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></converters:MultiBoolAndConverter>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+        <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></converters:MultiStringCompareConverter>
 
         <ContextMenu x:Key="TaskContextMenu" x:Name="ContextMenuName">
         </ContextMenu>

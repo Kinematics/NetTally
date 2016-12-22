@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 
-namespace NetTally
+namespace NetTally.OldConverters
 {
     /// <summary>
     /// Data binding conversion class to convert the bool to either the same value,

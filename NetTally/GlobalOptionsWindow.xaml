@@ -3,13 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NetTally"
+        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
         Title="Global Options" Height="440.339" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
-        <local:RankCountingModeConverter x:Key="RankCountingModeConverter"></local:RankCountingModeConverter>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+        <converters:RankCountingModeConverter x:Key="RankCountingModeConverter"></converters:RankCountingModeConverter>
     </Window.Resources>
 
     <Grid>

@@ -141,6 +141,13 @@
     <Compile Include="Config\QuestCollectionConfig.cs" />
     <Compile Include="Config\QuestConfig.cs" />
     <Compile Include="Config\QuestSectionConfig.cs" />
+    <Compile Include="Converters\BoolConverter.cs" />
+    <Compile Include="Converters\DisplayModeConverter.cs" />
+    <Compile Include="Converters\MultiBoolConverter.cs" />
+    <Compile Include="Converters\MultiStringCompareConverter.cs" />
+    <Compile Include="Converters\PartitionModeConverter.cs" />
+    <Compile Include="Converters\RankCountingModeConverter.cs" />
+    <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="ManageVotesWindow.xaml.cs">
       <DependentUpon>ManageVotesWindow.xaml</DependentUpon>
     </Compile>

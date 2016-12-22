@@ -3,17 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NetTally"
+        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
         Height="617.588" Width="926" MinWidth="857" Closing="Window_Closing" MinHeight="200" Icon="CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
-        <local:BoolConverter x:Key="BoolConverter"></local:BoolConverter>
-        <local:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></local:MultiBoolOrConverter>
-        <local:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></local:MultiBoolAndConverter>
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></local:BoolToVisibilityConverter>
-        <local:DisplayModeConverter x:Key="DisplayModeConverter"></local:DisplayModeConverter>
-        <local:PartitionModeConverter x:Key="PartitionModeConverter"></local:PartitionModeConverter>
+        <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
+        <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></converters:MultiBoolOrConverter>
+        <converters:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></converters:MultiBoolAndConverter>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+        <converters:DisplayModeConverter x:Key="DisplayModeConverter"></converters:DisplayModeConverter>
+        <converters:PartitionModeConverter x:Key="PartitionModeConverter"></converters:PartitionModeConverter>
     </Window.Resources>
 
     <Grid>
