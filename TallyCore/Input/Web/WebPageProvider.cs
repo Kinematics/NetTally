@@ -177,7 +177,7 @@ namespace NetTally.Web
 
                     try
                     {
-                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout).ConfigureAwait(false))
+                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -218,7 +218,7 @@ namespace NetTally.Web
                 if (result == null && tries >= retryLimit)
                     client.CancelPendingRequests();
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
             {
                 // If it's not a user-requested cancellation, generate a failure message.
                 if (!token.IsCancellationRequested)

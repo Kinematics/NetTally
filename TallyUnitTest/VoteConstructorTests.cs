@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NetTally.Utility;
 
 namespace NetTally.Tests
@@ -137,7 +138,7 @@ namespace NetTally.Tests
 
 
         [TestMethod]
-        public void ProcessPostContentsWholeWithReferralTest1()
+        public async Task ProcessPostContentsWholeWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
@@ -169,7 +170,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -179,7 +180,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void ProcessPostContentsBlockWithReferralTest1()
+        public async Task ProcessPostContentsBlockWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -206,7 +207,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -216,7 +217,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void ProcessPostContentsLineWithReferralTest1()
+        public async Task ProcessPostContentsLineWithReferralTest1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -243,7 +244,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -254,7 +255,7 @@ namespace NetTally.Tests
 
 
         [TestMethod]
-        public void ProcessPostContentsWholeWithReferralTest2()
+        public async Task ProcessPostContentsWholeWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
@@ -281,7 +282,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -291,7 +292,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void ProcessPostContentsBlockWithReferralTest2()
+        public async Task ProcessPostContentsBlockWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -319,7 +320,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -330,7 +331,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void ProcessPostContentsLineWithReferralTest2()
+        public async Task ProcessPostContentsLineWithReferralTest2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -358,7 +359,7 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);

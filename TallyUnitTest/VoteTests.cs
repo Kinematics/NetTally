@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NetTally.Utility;
 
@@ -32,7 +30,7 @@ namespace NetTally.Tests
         #endregion
 
         #region Test Harness
-        public void TestSinglePostParsing(string vote, List<string> results)
+        public async Task TestSinglePostParsing(string vote, List<string> results)
         {
             string author = "User1";
             string postId = "123456";
@@ -42,7 +40,7 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(post);
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -55,7 +53,7 @@ namespace NetTally.Tests
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
-        public void TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
+        public async Task TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
         {
             List<PostComponents> posts = new List<PostComponents>();
 
@@ -68,7 +66,7 @@ namespace NetTally.Tests
                 posts.Add(post);
             }
 
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             for (int i = 0; i < results.Count; i++)
             {
@@ -90,7 +88,7 @@ namespace NetTally.Tests
 
         #region Single Vote Tests
         [TestMethod]
-        public void Vote_Parition_None_1()
+        public async Task Vote_Parition_None_1()
         {
             string testVote =
 @"[X]Run";
@@ -101,11 +99,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_None_2()
+        public async Task Vote_Parition_None_2()
         {
 
             string testVote =
@@ -119,11 +117,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_None_3()
+        public async Task Vote_Parition_None_3()
         {
             string testVote =
 @"[X] Ambush
@@ -136,11 +134,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_None_WithTask_1()
+        public async Task Vote_Parition_None_WithTask_1()
         {
             string testVote =
 @"[X][Plan]Run";
@@ -151,11 +149,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_None_WithTask_2()
+        public async Task Vote_Parition_None_WithTask_2()
         {
             string testVote =
 @"[X][Plan] Run
@@ -168,11 +166,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_None_WithTask_3()
+        public async Task Vote_Parition_None_WithTask_3()
         {
             string testVote =
 @"[X][Plan] Ambush
@@ -185,12 +183,12 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
         [TestMethod]
-        public void Vote_Parition_Line_1()
+        public async Task Vote_Parition_Line_1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -203,11 +201,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Line_2()
+        public async Task Vote_Parition_Line_2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -223,11 +221,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Line_3()
+        public async Task Vote_Parition_Line_3()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -243,11 +241,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Line_WithTask_1()
+        public async Task Vote_Parition_Line_WithTask_1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -260,11 +258,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Line_WithTask_2()
+        public async Task Vote_Parition_Line_WithTask_2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -280,11 +278,11 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Line_WithTask_3()
+        public async Task Vote_Parition_Line_WithTask_3()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -300,12 +298,12 @@ namespace NetTally.Tests
 "
         };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
         [TestMethod]
-        public void Vote_Parition_Line_WithTask_4()
+        public async Task Vote_Parition_Line_WithTask_4()
         {
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
@@ -327,12 +325,12 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
         [TestMethod]
-        public void Vote_Parition_Block_1()
+        public async Task Vote_Parition_Block_1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -345,11 +343,11 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Block_2()
+        public async Task Vote_Parition_Block_2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -365,12 +363,12 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
         [TestMethod]
-        public void Vote_Parition_Block_3()
+        public async Task Vote_Parition_Block_3()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -388,11 +386,11 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Block_WithTask_1()
+        public async Task Vote_Parition_Block_WithTask_1()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -405,11 +403,11 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
         [TestMethod]
-        public void Vote_Parition_Block_WithTask_2()
+        public async Task Vote_Parition_Block_WithTask_2()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -425,12 +423,12 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
         [TestMethod]
-        public void Vote_Parition_Block_WithTask_3()
+        public async Task Vote_Parition_Block_WithTask_3()
         {
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
@@ -448,14 +446,14 @@ namespace NetTally.Tests
 "
             };
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 
 
 
         [TestMethod]
-        public void Vote_Parition_BlockAll_WithTasks_1()
+        public async Task Vote_Parition_BlockAll_WithTasks_1()
         {
             string testVote =
 @"[X][Action] Plan One
@@ -479,7 +477,7 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByBlockAll;
 
-            TestSinglePostParsing(testVote, expected);
+            await TestSinglePostParsing(testVote, expected);
         }
 
 

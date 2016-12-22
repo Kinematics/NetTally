@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NetTally.Utility;
 
 namespace NetTally.Tests
@@ -509,7 +510,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void NameReferenceTest()
+        public async Task NameReferenceTest()
         {
             // Check for non-case sensitivity in referencing other voters.
             PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
@@ -517,7 +518,7 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(p1);
             posts.Add(p2);
-            VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
 
             Assert.AreEqual(2, VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count);
             Assert.AreEqual(1, VoteCounter.Instance.GetVotesCollection(VoteType.Vote).Count);
