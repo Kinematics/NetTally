@@ -35,7 +35,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiStringCompareConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiStringCompareConverter is a one-way converter.");
         }
     }
 }

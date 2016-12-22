@@ -43,7 +43,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolAndConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolAndConverter is a one-way converter.");
         }
     }
 
@@ -86,7 +86,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolOrConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolOrConverter is a one-way converter.");
         }
     }
 
@@ -126,7 +126,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolAllTrueConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolAllTrueConverter is a one-way converter.");
         }
     }
 
@@ -166,7 +166,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolAllNotTrueConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolAllNotTrueConverter is a one-way converter.");
         }
     }
 
@@ -206,7 +206,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolAnyTrueConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolAnyTrueConverter is a one-way converter.");
         }
     }
 
@@ -246,7 +246,7 @@ namespace NetTally.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("MultiBoolAnyNotTrueConverter is a OneWay converter.");
+            throw new NotSupportedException("MultiBoolAnyNotTrueConverter is a one-way converter.");
         }
     }
 
