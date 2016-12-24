@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NetTally.Output;
+﻿using System.Threading.Tasks;
 
-namespace NetTally
+namespace NetTally.Output
 {
     public interface ITextResultsProvider
     {

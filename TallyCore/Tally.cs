@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.ViewModels;
+using NetTally.Web;
 
 namespace NetTally.VoteCounting
 {
