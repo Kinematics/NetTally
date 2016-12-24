@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HtmlAgilityPack;
 
-namespace NetTally.Extensions.Html
+namespace NetTally.Extensions
 {
     /// <summary>
     /// Extension methods for HtmlNode objects.
