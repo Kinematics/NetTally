@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Extensions;
 using NetTally.Utility;
 using Nito.AsyncEx;
 

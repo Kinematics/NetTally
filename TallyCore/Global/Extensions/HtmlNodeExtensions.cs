@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 
-namespace NetTally.Adapters
+namespace NetTally.Extensions.Html
 {
-    public static class ExtendHtmlNode
+    /// <summary>
+    /// Extension methods for HtmlNode objects.
+    /// </summary>
+    public static class HtmlNodeEx
     {
         /// <summary>
         /// Determines whether the specified HTML node has the named class.

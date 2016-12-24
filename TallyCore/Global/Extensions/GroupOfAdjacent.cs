@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NetTally
+namespace NetTally.Extensions
 {
     /// <summary>
-    /// Generic class for containing a group of items that are identified with
-    /// the same key value.
+    /// Generic class for containing a group of items that are identified with the same key value.
+    /// Used with GroupingExtensions.
     /// </summary>
     /// <typeparam name="TSource">Type of objects to place in the group list.</typeparam>
     /// <typeparam name="TKey">Type of object used as a key for the grouping.</typeparam>

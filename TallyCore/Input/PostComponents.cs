@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NetTally.Utility;
 using NetTally.Adapters;
+using NetTally.Extensions;
+using NetTally.Utility;
 
 namespace NetTally
 {
