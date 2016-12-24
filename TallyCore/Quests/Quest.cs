@@ -294,7 +294,7 @@ namespace NetTally
             set
             {
                 customThreadmarkFilters = value;
-                ThreadmarkFilter = new Filter(customTaskFilters, OmakeFilter, false);
+                ThreadmarkFilter = new Filter(customThreadmarkFilters, OmakeFilter, false);
                 OnPropertyChanged();
             }
         }
