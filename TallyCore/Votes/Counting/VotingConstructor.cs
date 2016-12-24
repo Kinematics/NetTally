@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace NetTally.VoteCounting
+namespace NetTally.Votes.Experiment
 {
     public static class VotingConstructor
     {

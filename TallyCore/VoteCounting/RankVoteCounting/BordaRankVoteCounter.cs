@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {

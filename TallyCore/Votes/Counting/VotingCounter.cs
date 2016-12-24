@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace NetTally.VoteCounting
+namespace NetTally.Votes.Experiment
 {
     public class VotingCounter
     {

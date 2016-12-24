@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTally.Utility;
 
-namespace NetTally.VoteCounting
+namespace NetTally.VoteCounting.RankVoteCounting.Utility
 {
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
