@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
+using NetTally.Extensions;
 
 namespace NetTally.Output
 {

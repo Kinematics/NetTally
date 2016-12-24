@@ -40,7 +40,7 @@ namespace NetTally.Votes
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentNullException(nameof(input));
 
-            var lines = StringUtility.GetStringLines(input);
+            var lines = input.GetStringLines();
 
             return GetFragments(lines);
         }

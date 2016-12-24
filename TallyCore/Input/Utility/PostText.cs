@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using NetTally.Utility;
+using NetTally.Extensions;
 
 namespace NetTally.Adapters
 {
