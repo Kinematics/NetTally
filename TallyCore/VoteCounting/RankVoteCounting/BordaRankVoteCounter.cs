@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace NetTally.VoteCounting
+namespace NetTally.VoteCounting.RankVoteCounting
 {
     // List of preference results ordered by winner
     using RankResults = List<string>;
