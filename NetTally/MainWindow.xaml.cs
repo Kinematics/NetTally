@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using NetTally.ViewModels;
+using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Utility;
 

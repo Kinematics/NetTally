@@ -1,4 +1,4 @@
-﻿namespace NetTally
+﻿namespace NetTally.Collections
 {
     /// <summary>
     /// Wrapper class to allow XML serialization of both the quest collection and the

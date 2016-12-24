@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace NetTally
+namespace NetTally.Collections
 {
     /// <summary>
     /// Generic observable collection for Quest items.
