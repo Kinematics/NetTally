@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NetTally.Adapters;
 using NetTally.Extensions;
+using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.Votes;

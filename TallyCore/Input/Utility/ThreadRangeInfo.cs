@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally.Adapters
+namespace NetTally.Forums
 {
     /// <summary>
     /// Class to store info about where to start tallying a thread, and possibly

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Extensions;
+using NetTally.Forums;
 using NetTally.Web;
 
 namespace NetTally.Adapters
