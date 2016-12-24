@@ -120,14 +120,14 @@ namespace NetTally.Utility
 
             if (string.IsNullOrEmpty(defaultString))
             {
-                return new Regex(safeRegexString);
+                return new Regex(safeRegexString, RegexOptions.IgnoreCase);
             }
             else
             {
                 if (string.IsNullOrEmpty(safeRegexString))
-                    return new Regex(defaultString);
+                    return new Regex(defaultString, RegexOptions.IgnoreCase);
                 else
-                    return new Regex($"{safeRegexString}|{defaultString}");
+                    return new Regex($"{safeRegexString}|{defaultString}", RegexOptions.IgnoreCase);
             }
         }
         
