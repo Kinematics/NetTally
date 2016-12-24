@@ -508,7 +508,7 @@ namespace NetTally.ViewModels
 
             List<string> votes = votesWithSupporters.Keys
                 .Concat(VoteCounter.Instance.GetCondensedRankVotes())
-                .Distinct(StringUtility.AgnosticStringComparer).ToList();
+                .Distinct(Agnostic.AgnosticStringComparer).ToList();
 
             AllVotesCollection.Replace(votes);
 
@@ -599,7 +599,7 @@ namespace NetTally.ViewModels
 
             if (voteType == VoteType.Rank)
             {
-                var condensedVoters = votes.Where(k => StringUtility.AgnosticStringComparer.Equals(VoteString.CondenseVote(k.Key), vote)).Select(k => k.Value);
+                var condensedVoters = votes.Where(k => Agnostic.AgnosticStringComparer.Equals(VoteString.CondenseVote(k.Key), vote)).Select(k => k.Value);
 
                 HashSet<string> condensedHash = new HashSet<string>();
 

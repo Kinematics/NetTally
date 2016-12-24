@@ -205,7 +205,7 @@ namespace NetTally
             // Then check if the *entire post* should be treated as a complete plan.
             string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
             if (postPlanName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(postPlanName) &&
-                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), StringUtility.AgnosticStringComparer))
+                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Agnostic.AgnosticStringComparer))
             {
                 // Replace known plans with just the plan key.  They'll be expanded later.
                 vote.Add(post.VoteLines.First());
@@ -226,7 +226,7 @@ namespace NetTally
                         string planName = VoteString.GetPlanName(block.Key);
 
                         if (planName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(planName) &&
-                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), StringUtility.AgnosticStringComparer))
+                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Agnostic.AgnosticStringComparer))
                         {
                             // Replace known plans with just the plan key.  They'll be expanded later.
                             vote.Add(block.Key);
@@ -275,9 +275,9 @@ namespace NetTally
                         if (planname != null)
                         {
                             // Add a named vote that is named after a user only if it matches the post author's name.
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.AgnosticStringComparer))
                             {
-                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                if (Agnostic.AgnosticStringComparer.Equals(planname, post.Author))
                                 {
                                     results.Add(block.ToList());
                                 }
@@ -321,9 +321,9 @@ namespace NetTally
                         if (planname != null)
                         {
                             // If it's named after a user, it must be the post author.  Otherwise, anything is fine.
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.AgnosticStringComparer))
                             {
-                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                if (Agnostic.AgnosticStringComparer.Equals(planname, post.Author))
                                 {
                                     results.Add(post.VoteLines);
                                 }
@@ -361,9 +361,9 @@ namespace NetTally
 
                         if (planname != null)
                         {
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, StringUtility.AgnosticStringComparer))
+                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.AgnosticStringComparer))
                             {
-                                if (StringUtility.AgnosticStringComparer.Equals(planname, post.Author))
+                                if (Agnostic.AgnosticStringComparer.Equals(planname, post.Author))
                                 {
                                     results.Add(block.ToList());
                                 }
@@ -390,7 +390,7 @@ namespace NetTally
             {
                 string planName = VoteString.GetPlanName(plan.First());
 
-                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, StringUtility.AgnosticStringComparer))
+                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, Agnostic.AgnosticStringComparer))
                 {
                     VoteCounter.Instance.ReferencePlanNames.Add(planName);
                     VoteCounter.Instance.ReferencePlans[planName] = plan;
@@ -482,7 +482,7 @@ namespace NetTally
                 if (refNames[ReferenceType.Plan].Any(VoteCounter.Instance.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.Contains(n, StringUtility.AgnosticStringComparer))
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.Contains(n, Agnostic.AgnosticStringComparer))
                     ?.AgnosticMatch(VoteCounter.Instance.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
@@ -777,7 +777,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -794,7 +794,7 @@ namespace NetTally
                         sb.Append(referral);
 
                     referralVotes = referralVotes.SelectMany(a => a.GetStringLines()).ToList();
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -830,7 +830,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -845,7 +845,7 @@ namespace NetTally
                 {
                     partitions.AddRange(referralVotes);
 
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -880,7 +880,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -895,7 +895,7 @@ namespace NetTally
                 {
                     partitions.AddRange(referralVotes);
 
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -940,7 +940,7 @@ namespace NetTally
                 // skip the copy/pasted section.
                 if (referralVotes.Any())
                 {
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;
@@ -962,7 +962,7 @@ namespace NetTally
                     partitions.AddRange(referralVotes);
 
                     referralVotes = referralVotes.SelectMany(a => a.GetStringLines()).ToList();
-                    if (StringUtility.AgnosticStringComparer.Equals(line, referralVotes.First()))
+                    if (Agnostic.AgnosticStringComparer.Equals(line, referralVotes.First()))
                     {
                         referralVotes = referralVotes.Skip(1).ToList();
                         continue;

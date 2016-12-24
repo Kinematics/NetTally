@@ -178,7 +178,7 @@ namespace NetTally.Output
                 Where(v => VoteString.GetVoteTask(v.Key) == taskName).
                 Select(v => VoteString.GetVoteContent(v.Key));
 
-            HashSet<string> uniqueOptions = new HashSet<string>(voteContents, StringUtility.AgnosticStringComparer);
+            HashSet<string> uniqueOptions = new HashSet<string>(voteContents, Agnostic.AgnosticStringComparer);
 
             sb.AppendLine("[b]Options:[/b]");
 
@@ -203,7 +203,7 @@ namespace NetTally.Output
 
             var whoVoted = from v in votes
                            where VoteString.GetVoteTask(v.Key) == taskName &&
-                                 StringUtility.AgnosticStringComparer.Equals(VoteString.GetVoteContent(v.Key), choice)
+                                 Agnostic.AgnosticStringComparer.Equals(VoteString.GetVoteContent(v.Key), choice)
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
             var whoDidNotVote = from v in voters

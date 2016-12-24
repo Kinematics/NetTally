@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using NetTally.Utility;
 
 namespace NetTally.Votes
 {
@@ -175,7 +176,7 @@ namespace NetTally.Votes
         {
             if (obj is VoteLine other)
             {
-                return Utility.StringUtility.AgnosticStringComparer.Equals(Text, other.Text);
+                return Agnostic.AgnosticStringComparer.Equals(Text, other.Text);
             }
 
             return false;

@@ -91,11 +91,11 @@ namespace NetTally
         #region Public Class Properties
         public Dictionary<string, string> VoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> VotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(Agnostic.AgnosticStringComparer);
 
         public Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+        public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(Agnostic.AgnosticStringComparer);
 
         #endregion
 
@@ -123,10 +123,10 @@ namespace NetTally
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
 
-            if (VotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
-                VotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
-            if (RankedVotesWithSupporters.Comparer != StringUtility.AgnosticStringComparer)
-                RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
+            if (VotesWithSupporters.Comparer != Agnostic.AgnosticStringComparer)
+                VotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.AgnosticStringComparer);
+            if (RankedVotesWithSupporters.Comparer != Agnostic.AgnosticStringComparer)
+                RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.AgnosticStringComparer);
 
             OnPropertyChanged("VoteCounter");
         }
@@ -320,14 +320,14 @@ namespace NetTally
                 if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
                 {
                     // If this is not a user name, get the plan name as the proxy reference.
-                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
+                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, Agnostic.AgnosticStringComparer));
                 }
-                else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), StringUtility.AgnosticStringComparer))
+                else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.AgnosticStringComparer))
                 {
                     // If it doesn't exist as a plan, then we can check for users.
                     if (!AdvancedOptions.Instance.DisableProxyVotes)
                     {
-                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.AgnosticStringComparer));
 
                         if (proxyName == author)
                             proxyName = null;
@@ -340,11 +340,11 @@ namespace NetTally
                 // reference, it may only refer to that user's vote as a whole.
 
                 // If this matches a user name, get that user name as the proxy reference.
-                if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), StringUtility.AgnosticStringComparer))
+                if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.AgnosticStringComparer))
                 {
                     if (!AdvancedOptions.Instance.DisableProxyVotes)
                     {
-                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, StringUtility.AgnosticStringComparer));
+                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.AgnosticStringComparer));
 
                         if (proxyName == author)
                             proxyName = null;
@@ -353,7 +353,7 @@ namespace NetTally
                 else if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
                 {
                     // If this is not a user name, get the plan name as the proxy reference.
-                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, StringUtility.AgnosticStringComparer));
+                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, Agnostic.AgnosticStringComparer));
                 }
             }
 
@@ -379,7 +379,7 @@ namespace NetTally
             if (string.IsNullOrEmpty(planName))
                 return false;
 
-            return PlanNames.Contains(planName, StringUtility.AgnosticStringComparer);
+            return PlanNames.Contains(planName, Agnostic.AgnosticStringComparer);
         }
 
         /// <summary>
@@ -413,7 +413,7 @@ namespace NetTally
         public bool HasUserEnteredVoter(string voterName, VoteType voteType)
         {
             var voters = GetVotersCollection(voteType);
-            return voters.Keys.Contains(voterName, StringUtility.AgnosticStringComparer);
+            return voters.Keys.Contains(voterName, Agnostic.AgnosticStringComparer);
         }
 
         /// <summary>
@@ -696,7 +696,7 @@ namespace NetTally
 
             if (votes.ContainsKey(voteKey))
             {
-                bool isRevisedSameAsVote = StringUtility.AgnosticStringComparer.Equals(vote.Key, voteKey);
+                bool isRevisedSameAsVote = Agnostic.AgnosticStringComparer.Equals(vote.Key, voteKey);
 
                 if (isRevisedSameAsVote)
                 {
@@ -935,7 +935,7 @@ namespace NetTally
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
             string agVote = votes.Keys.FirstOrDefault(k =>
-                StringUtility.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
+                Agnostic.AgnosticStringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
 
             // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
             return agVote ?? vote;
