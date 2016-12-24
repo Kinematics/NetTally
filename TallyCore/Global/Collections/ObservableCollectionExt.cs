@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 
-namespace NetTally.Extensions
+namespace NetTally.Collections
 {
     /// <summary>
     /// An extension of the ObservableCollection class that allows specialized
