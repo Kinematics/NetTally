@@ -11,6 +11,8 @@ namespace NetTally
     /// </summary>
     public partial class Quest : IQuest
     {
+        public const string OmakeFilter = @"\bomake\b";
+
         public Quest()
         {
             questHash = indexer.Next();
@@ -292,7 +294,7 @@ namespace NetTally
             set
             {
                 customThreadmarkFilters = value;
-                ThreadmarkFilter = new Filter(customThreadmarkFilters, "omake");
+                ThreadmarkFilter = new Filter(customTaskFilters, OmakeFilter, false);
                 OnPropertyChanged();
             }
         }
@@ -325,7 +327,7 @@ namespace NetTally
             set
             {
                 customTaskFilters = value;
-                TaskFilter = new Filter(customTaskFilters, null);
+                TaskFilter = new Filter(customTaskFilters, null, false);
                 OnPropertyChanged();
             }
         }

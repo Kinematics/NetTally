@@ -18,9 +18,9 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void TestBlankFilter()
+        public void TestBlankFilter_Simple()
         {
-            Filter filter = new Filter("", null);
+            Filter filter = new Filter("", null, false);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuff (omake)"));
@@ -28,9 +28,19 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void TestDefaultOmakeFilter()
+        public void TestBlankFilter_Full()
         {
-            Filter filter = new Filter("", "omake");
+            Filter filter = new Filter("", null, true);
+            Assert.IsTrue(filter.Match(""));
+            Assert.IsFalse(filter.Match("stuff"));
+            Assert.IsFalse(filter.Match("lots of stuff (omake)"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestDefaultOmakeFilter_Simple()
+        {
+            Filter filter = new Filter("", Quest.OmakeFilter, false);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuff (omake)"));
@@ -38,9 +48,19 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void TestOmakeStuffFilter()
+        public void TestDefaultOmakeFilter_Full()
         {
-            Filter filter = new Filter("stuff", "omake");
+            Filter filter = new Filter("", Quest.OmakeFilter, true);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsFalse(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of stuff (omake)"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestOmakeStuffFilter_Simple()
+        {
+            Filter filter = new Filter("stuff", Quest.OmakeFilter, false);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
@@ -48,19 +68,96 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
-        public void TestTaskFilter()
+        public void TestOmakeStuffFilter_Full()
         {
-            Filter filter = new Filter("My Task", Filter.EmptyLine);
-            Assert.IsFalse(filter.Match("Task"));
-            Assert.IsTrue(filter.Match("My Task"));
+            Filter filter = new Filter("stuff", Quest.OmakeFilter, true);
             Assert.IsFalse(filter.Match(""));
-            Assert.IsFalse(filter.Match("Fountain"));
+            Assert.IsTrue(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
         }
 
         [TestMethod]
-        public void TestMultiValueFilter()
+        public void TestMultiValueFilter_Simple()
         {
-            Filter filter = new Filter("stuff, stuffing", "omake");
+            Filter filter = new Filter("stuff, stuffing", Quest.OmakeFilter, false);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsTrue(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of stuffing"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestMultiValueFilter_Full()
+        {
+            Filter filter = new Filter("stuff|stuffing", Quest.OmakeFilter, true);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsTrue(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of stuffing"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestGlobFilter_Simple()
+        {
+            Filter filter = new Filter("stuff*", Quest.OmakeFilter, false);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsTrue(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of stuffing"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsFalse(filter.Match("lots of stufing day"));
+            Assert.IsTrue(filter.Match("lots of stuffing2 day"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestGlobFilter2_Simple()
+        {
+            Filter filter = new Filter("stuff* day", Quest.OmakeFilter, false);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsFalse(filter.Match("stuff"));
+            Assert.IsFalse(filter.Match("lots of stuffing"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Match("lots of stuffing day"));
+            Assert.IsTrue(filter.Match("lots of stuffing2 day"));
+            Assert.IsFalse(filter.Match("lots of stuffing days"));
+            Assert.IsFalse(filter.Match("lots of stuffing2 days"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestParenFilter_Simple()
+        {
+            Filter filter = new Filter("(info)", Quest.OmakeFilter, false);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsFalse(filter.Match("stuff"));
+            Assert.IsFalse(filter.Match("lots of stuffing"));
+            Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Match("lots of stuffing day (info)"));
+            Assert.IsFalse(filter.Match("lots of stuffing info"));
+            Assert.IsFalse(filter.Match("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestInfoFilter_Simple()
+        {
+            Filter filter = new Filter("info", Quest.OmakeFilter, false);
+            Assert.IsFalse(filter.Match(""));
+            Assert.IsFalse(filter.Match("stuff"));
+            Assert.IsTrue(filter.Match("lots of info"));
+            Assert.IsFalse(filter.Match("lots of information"));
+            Assert.IsTrue(filter.Match("lots of stuff (info)"));
+            Assert.IsTrue(filter.Match("info: lots of stuffing"));
+            Assert.IsTrue(filter.Match("[x][info] Some vote"));
+            Assert.IsFalse(filter.Match("[x][inform] Some vote"));
+        }
+
+        [TestMethod]
+        public void TestRegexFilter_Full()
+        {
+            Filter filter = new Filter("stuff(ing)?", Quest.OmakeFilter, true);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));

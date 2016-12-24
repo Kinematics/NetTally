@@ -10,57 +10,82 @@ namespace NetTally.Utility
     /// </summary>
     public class Filter
     {
-        public const string EmptyLine = "^$";
         readonly Regex filterRegex;
+        public const string EmptyLine = "^$";
+        static readonly Regex escapeChars = new Regex(@"([.?(){}^$\[\]])");
+        static readonly Regex splat = new Regex(@"\*");
+        static readonly Regex preWord = new Regex(@"^\w");
+        static readonly Regex postWord = new Regex(@"\w$");
 
         /// <summary>
-        /// Filter constructor.
+        /// Filter constructor.  Create a filter based on an explicit regex.
         /// </summary>
-        /// <param name="filterString">The primary, user-defined string to filter on.</param>
+        /// <param name="regex">An explicit regex to use for filtering.</param>
+        public Filter(Regex regex)
+        {
+            filterRegex = regex;
+        }
+
+        /// <summary>
+        /// Public builder function.  Creates a regex from the provided input strings.
+        /// If it's flagged as isRegex, treats the strings as explicit regex values.
+        /// Otherwise treats them as ordinary strings, with comma-separated options
+        /// and optional splat globbing.
+        /// </summary>
+        /// <param name="filterString">The user-defined filter string.</param>
         /// <param name="defaultString">The default, program-provided string to filter on.</param>
-        public Filter(string filterString, string defaultString)
+        /// <param name="isRegex">If this flag is set, treat the provided strings as pre-defined regex strings.</param>
+        public Filter(string filterString, string defaultString, bool isRegex)
         {
-            filterRegex = CreateRegex(filterString, defaultString);
+            if (isRegex)
+            {
+                filterRegex = CreateFullRegex(filterString, defaultString);
+            }
+            else
+            {
+                filterRegex = CreateSimpleRegex(filterString, defaultString);
+            }
         }
 
         /// <summary>
-        /// Filter constructor.
+        /// Creates a regex based on the provided strings.
+        /// Treats these strings as simple, comma-delimited option lists,
+        /// with possible * globs.
         /// </summary>
-        /// <param name="inputRegex">An explicit regex to use for filtering.</param>
-        public Filter(Regex inputRegex)
+        /// <param name="simpleString">The user-defined filter string.</param>
+        /// <param name="defaultString">The default, program-provided string to filter on.</param>
+        /// <returns>Returns a regex constructed from the strings.</returns>
+        private static Regex CreateSimpleRegex(string simpleString, string defaultString)
         {
-            filterRegex = inputRegex;
-        }
-
-        /// <summary>
-        /// Function to create a regex based on a user-provided string of values to check for.
-        /// The user-provided string is assumed to be comma-delimited, but may be a full regex
-        /// by itself (as long as it doesn't have any commas).
-        /// If both the primary and default test strings are empty, uses the EmptyLine for the
-        /// regex instead.
-        /// </summary>
-        /// <param name="filterString">The primary set of values for the regex.</param>
-        /// <param name="defaultString">The default/backup values to test for.</param>
-        /// <returns>Returns the constructed regex.</returns>
-        public static Regex CreateRegex(string filterString, string defaultString)
-        {
-            if (string.IsNullOrEmpty(filterString) && string.IsNullOrEmpty(defaultString))
+            if (string.IsNullOrEmpty(simpleString) && string.IsNullOrEmpty(defaultString))
                 return new Regex(EmptyLine);
 
-            string safeFilterString = filterString.RemoveUnsafeCharacters();
+            string safeGlobString = simpleString.RemoveUnsafeCharacters();
 
-            var splits = safeFilterString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var splits = safeGlobString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             StringBuilder sb = new StringBuilder();
             string bar = "";
 
             // Convert comma-separated options to | regex options.
+            // If a segment contains special regex characters, escape those characters.
+            // If a segment contains a *, treat it as a general glob: .*
             foreach (var split in splits)
             {
                 string s = split.Trim();
                 if (!string.IsNullOrEmpty(s))
                 {
-                    sb.Append($"{bar}{s}");
+                    s = escapeChars.Replace(s, @"\$1");
+                    s = splat.Replace(s, @".*");
+
+                    string preBound = "";
+                    string postBound = "";
+                    if (preWord.Match(s).Success)
+                        preBound = @"\b";
+                    if (postWord.Match(s).Success)
+                        postBound = @"\b";
+
+                    sb.Append($"{bar}{preBound}{s}{postBound}");
                     bar = "|";
                 }
             }
@@ -69,11 +94,9 @@ namespace NetTally.Utility
             if (!string.IsNullOrEmpty(defaultString))
                 sb.Append($"{bar}{defaultString}");
 
-            string sbString = sb.ToString();
-
             try
             {
-                return new Regex($@"\b({sbString})\b", RegexOptions.IgnoreCase);
+                return new Regex($@"{sb.ToString()}", RegexOptions.IgnoreCase);
             }
             catch (ArgumentException)
             {
@@ -81,6 +104,33 @@ namespace NetTally.Utility
             }
         }
 
+        /// <summary>
+        /// Creates a regex based on the provided strings.
+        /// Treats these strings as already-constructed regex values.
+        /// </summary>
+        /// <param name="regexString">The user-defined regex string.</param>
+        /// <param name="defaultString">The default, program-provided string to filter on.</param>
+        /// <returns>Returns a regex constructed from the strings.</returns>
+        private static Regex CreateFullRegex(string regexString, string defaultString)
+        {
+            if (string.IsNullOrEmpty(regexString) && string.IsNullOrEmpty(defaultString))
+                return new Regex(EmptyLine);
+
+            string safeRegexString = regexString.RemoveUnsafeCharacters();
+
+            if (string.IsNullOrEmpty(defaultString))
+            {
+                return new Regex(safeRegexString);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(safeRegexString))
+                    return new Regex(defaultString);
+                else
+                    return new Regex($"{safeRegexString}|{defaultString}");
+            }
+        }
+        
         /// <summary>
         /// Function to test whether a provided string is matched by the current filter.
         /// </summary>
