@@ -42,6 +42,18 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
+        <CheckBox x:Name="threadmarkFilterIsRegex" Content="Regex" Margin="0,93,10,0" VerticalAlignment="Top" FlowDirection="RightToLeft" HorizontalAlignment="Right"
+                  IsChecked="{Binding Path=SelectedQuest.CustomThreadmarkFiltersAreRegex}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}" Width="49">
+            <CheckBox.ToolTip>
+                <ToolTip FlowDirection="LeftToRight">
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Regex Threadmark Filters</TextBlock>
+                        <TextBlock>Check if the custom threadmark filters should be considered a regex string instead of a comma-delimited list with globs.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
+        
         <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used." />
 
@@ -68,6 +80,17 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
+        <CheckBox x:Name="taskFilterIsRegex" Content="Regex" Margin="0,238,10,0" VerticalAlignment="Top" FlowDirection="RightToLeft" HorizontalAlignment="Right" Width="49"
+                  IsChecked="{Binding Path=SelectedQuest.CustomTaskFiltersAreRegex}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
+            <CheckBox.ToolTip>
+                <ToolTip FlowDirection="LeftToRight">
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Regex Task Filters</TextBlock>
+                        <TextBlock>Check if the custom task filters should be considered a regex string instead of a comma-delimited list with globs.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="30,259,0,0" TextWrapping="Wrap" Text="Limit tally results to the specified tasks only.  This value is not saved across sessions."
                    VerticalAlignment="Top" Width="441"/>
         <TextBox x:Name="customTaskFilters" Height="23" Margin="30,296,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
@@ -85,5 +108,6 @@
 
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
+
     </Grid>
 </Window>
