@@ -6,10 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Extensions;
-using NetTally.Forums;
 using NetTally.Web;
 
-namespace NetTally.Adapters
+namespace NetTally.Forums.Adapters
 {
     /// <summary>
     /// Class for extracting data from XenForo forum threads.

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Adapters;
 using NetTally.Web;
 
 namespace NetTally.Forums

@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using NetTally.Adapters;
 using NetTally.Web;
 
 namespace NetTally.Tests

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using NetTally.Adapters;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;

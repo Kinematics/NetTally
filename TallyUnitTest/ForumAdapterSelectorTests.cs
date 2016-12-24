@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Adapters;
 using NetTally.Forums;
-using NetTally.Web;
+using NetTally.Forums.Adapters;
 
 namespace NetTally.Tests
 {

@@ -4,8 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
-using NetTally.Adapters;
 using NetTally.Utility;
 using NetTally.Votes;
 

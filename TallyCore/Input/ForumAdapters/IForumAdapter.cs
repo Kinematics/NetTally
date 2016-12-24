@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Forums;
 using NetTally.Web;
 
-namespace NetTally.Adapters
+namespace NetTally.Forums
 {
     public interface IForumAdapter
     {

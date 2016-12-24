@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using NetTally.Adapters;
 using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
