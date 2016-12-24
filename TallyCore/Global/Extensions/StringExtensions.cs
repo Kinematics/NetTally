@@ -80,7 +80,7 @@ namespace NetTally.Extensions
 
             foreach (string item in self)
             {
-                if (Agnostic.AgnosticStringComparer.Equals(item, value))
+                if (Agnostic.StringComparer.Equals(item, value))
                     return item;
             }
 
@@ -104,7 +104,7 @@ namespace NetTally.Extensions
 
             foreach (string item in list)
             {
-                if (Agnostic.AgnosticStringComparer.Equals(item, value))
+                if (Agnostic.StringComparer.Equals(item, value))
                     return item;
             }
 

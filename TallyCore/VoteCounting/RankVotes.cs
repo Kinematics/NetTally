@@ -90,7 +90,7 @@ namespace NetTally
         {
             var votes = task.Select(vote => VoteString.GetVoteContent(vote.Key));
 
-            return new HashSet<string>(votes, Agnostic.AgnosticStringComparer);
+            return new HashSet<string>(votes, Agnostic.StringComparer);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace NetTally
             {
                 string voteContent = VoteString.GetVoteContent(vote.Key);
 
-                string normVote = allVotes.FirstOrDefault(v => Agnostic.AgnosticStringComparer.Equals(v, voteContent)) ?? voteContent;
+                string normVote = allVotes.FirstOrDefault(v => Agnostic.StringComparer.Equals(v, voteContent)) ?? voteContent;
 
                 foreach (var voter in vote.Value)
                 {
@@ -233,13 +233,13 @@ namespace NetTally
         private static string GetLastChoice(Dictionary<string, List<string>> voterChoices,
             Dictionary<string, List<string>> voterNonChoices, HashSet<string> voteList)
         {
-            Dictionary<string, int> votesWeight = new Dictionary<string, int>(Agnostic.AgnosticStringComparer);
+            Dictionary<string, int> votesWeight = new Dictionary<string, int>(Agnostic.StringComparer);
             int distinctCount = voteList.Count();
 
             int highestNumberOfChoices = voterChoices.Max(a => a.Value.Count);
             int nonChoiceWeight = distinctCount > highestNumberOfChoices ? highestNumberOfChoices + 1 : distinctCount;
 
-            HashSet<string> lastPlaceList = new HashSet<string>(Agnostic.AgnosticStringComparer);
+            HashSet<string> lastPlaceList = new HashSet<string>(Agnostic.StringComparer);
 
             foreach (var vote in voteList)
             {

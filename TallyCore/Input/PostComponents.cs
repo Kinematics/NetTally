@@ -168,7 +168,7 @@ namespace NetTally
                     {
                         string planName = VoteString.GetPlanName(block.Key, basePlan: true);
 
-                        if (planName != null && !VoteCounter.Instance.ReferenceVoters.Contains(planName, Agnostic.AgnosticStringComparer))
+                        if (planName != null && !VoteCounter.Instance.ReferenceVoters.Contains(planName, Agnostic.StringComparer))
                         {
                             BasePlans.Add(block);
                             continue;
@@ -195,7 +195,7 @@ namespace NetTally
             // or the same option voted on different ranks.
             if (RankLines.Count > 0)
             {
-                var groupRankLinesMulti = RankLines.GroupBy(line => VoteString.GetVoteContent(line), Agnostic.AgnosticStringComparer)
+                var groupRankLinesMulti = RankLines.GroupBy(line => VoteString.GetVoteContent(line), Agnostic.StringComparer)
                     .Where(group => group.Count() > 1);
 
                 // If there are any, remove all but the top ranked option.

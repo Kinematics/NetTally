@@ -14,9 +14,9 @@ namespace NetTally.Utility
         /// <param name="hashFunction"></param>
         public static void InitStringComparers(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
-            AgnosticStringComparer1 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparer1 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
-            AgnosticStringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
         }
 
@@ -24,19 +24,19 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> AgnosticStringComparer
+        public static IEqualityComparer<string> StringComparer
         {
             get
             {
-                var comparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? AgnosticStringComparer1 : AgnosticStringComparer2;
+                var comparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? StringComparer1 : StringComparer2;
                 if (comparer == null)
                     throw new InvalidOperationException("Agnostic string comparers have not been initialized.");
                 return comparer;
             }
         }
 
-        private static IEqualityComparer<string> AgnosticStringComparer1 { get; set; }
+        private static IEqualityComparer<string> StringComparer1 { get; set; }
 
-        private static IEqualityComparer<string> AgnosticStringComparer2 { get; set; }
+        private static IEqualityComparer<string> StringComparer2 { get; set; }
     }
 }

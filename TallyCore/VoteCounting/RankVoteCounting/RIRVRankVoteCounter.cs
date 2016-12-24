@@ -136,8 +136,8 @@ namespace NetTally.VoteCounting
 
             foreach (var voter in voterRankings)
             {
-                var rank1 = voter.RankedVotes.FirstOrDefault(a => Agnostic.AgnosticStringComparer.Equals(a.Vote, option1));
-                var rank2 = voter.RankedVotes.FirstOrDefault(a => Agnostic.AgnosticStringComparer.Equals(a.Vote, option2));
+                var rank1 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option1));
+                var rank2 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option2));
 
                 if (rank1 == null && rank2 == null)
                     continue;
@@ -184,7 +184,7 @@ namespace NetTally.VoteCounting
         /// <returns></returns>
         private static IEnumerable<RankGroupedVoters> RemoveChoiceFromRanks(IEnumerable<RankGroupedVoters> rankedVotes, string choice)
         {
-            var res = rankedVotes.Where(a => !Agnostic.AgnosticStringComparer.Equals(a.VoteContent, choice));
+            var res = rankedVotes.Where(a => !Agnostic.StringComparer.Equals(a.VoteContent, choice));
 
             return res.ToList();
         }
@@ -203,7 +203,7 @@ namespace NetTally.VoteCounting
                       {
                           Voter = voter.Voter,
                           RankedVotes = voter.RankedVotes
-                              .Where(v => !Agnostic.AgnosticStringComparer.Equals(v.Vote, choice))
+                              .Where(v => !Agnostic.StringComparer.Equals(v.Vote, choice))
                               .ToList()
                       };
 

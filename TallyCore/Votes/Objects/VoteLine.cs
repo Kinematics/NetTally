@@ -176,7 +176,7 @@ namespace NetTally.Votes
         {
             if (obj is VoteLine other)
             {
-                return Agnostic.AgnosticStringComparer.Equals(Text, other.Text);
+                return Agnostic.StringComparer.Equals(Text, other.Text);
             }
 
             return false;

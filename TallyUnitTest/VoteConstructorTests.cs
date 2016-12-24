@@ -390,7 +390,7 @@ namespace NetTally.Tests
             VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
-            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.AgnosticStringComparer));
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
 
         [TestMethod]
@@ -419,7 +419,7 @@ namespace NetTally.Tests
             VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
-            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.AgnosticStringComparer));
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
 
         [TestMethod]
@@ -452,7 +452,7 @@ namespace NetTally.Tests
             VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
-            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.AgnosticStringComparer));
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
 
         [TestMethod]
@@ -484,7 +484,7 @@ namespace NetTally.Tests
             VoteConstructor.ProcessPost(p1, sampleQuest);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
-            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.AgnosticStringComparer));
+            Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
         #endregion
     }
