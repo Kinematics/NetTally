@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using NetTally.Collections;
+using NetTally.Output;
+using NetTally.Votes;
 
 namespace NetTally
 {

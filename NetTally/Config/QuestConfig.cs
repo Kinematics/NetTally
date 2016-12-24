@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using NetTally.Votes;
 
 namespace NetTally
 {

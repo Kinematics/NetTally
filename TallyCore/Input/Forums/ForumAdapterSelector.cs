@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetTally.Adapters;
+using NetTally.Web;
 
 namespace NetTally.Forums
 {

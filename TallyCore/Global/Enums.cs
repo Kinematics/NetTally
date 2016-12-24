@@ -2,126 +2,177 @@
 
 namespace NetTally
 {
-    // File containing all defined enums for the program.
-        
     /// <summary>
-    /// Enum for separating vote categories
+    /// Enums used in the Web namespace
     /// </summary>
-    public enum VoteType
+    namespace Web
     {
-        Vote,
-        Plan,
-        Rank,
-        Approval
-    }
+        /// <summary>
+        /// Potential status types for page loads.
+        /// </summary>
+        public enum PageRequestStatusType
+        {
+            None,
+            Requested,
+            LoadedFromCache,
+            Loaded,
+            Retry,
+            Error,
+            Failed,
+            Cancelled,
+        }
 
-    /// <summary>
-    /// Enum for whether to use the cache when loading a web page.
-    /// </summary>
-    public enum CachingMode
-    {
-        UseCache,
-        BypassCache
-    }
+        /// <summary>
+        /// Enum for whether to use the cache when loading a web page.
+        /// </summary>
+        public enum CachingMode
+        {
+            UseCache,
+            BypassCache
+        }
 
-    public enum ShouldCache
-    {
-        Yes,
-        No
-    }
+        /// <summary>
+        /// Flag whether a requested page should be cached.
+        /// </summary>
+        public enum ShouldCache
+        {
+            Yes,
+            No
+        }
 
-    public enum SuppressNotifications
-    {
-        No,
-        Yes
-    }
+        /// <summary>
+        /// Flag whether to suppress notifications when loading pages.
+        /// </summary>
+        public enum SuppressNotifications
+        {
+            No,
+            Yes
+        }
 
-    public enum StandardVoteCounterMethod
-    {
-        Default
-    }
+        /// <summary>
+        /// The type of page being loaded.
+        /// </summary>
+        public enum PageType
+        {
+            Thread,
+            Threadmarks,
+        }
 
-    public enum ApprovalVoteCounterMethod
-    {
-        Default
-    }
-
-    public enum ReferenceType
-    {
-        Label,
-        Any,
-        Voter,
-        Plan,
-    }
-
-    public enum PageType
-    {
-        Thread,
-        Threadmarks,
-    }
-
-    /// <summary>
-    /// Enum for determining which type of rank vote calculation method to use.
-    /// </summary>
-    public enum RankVoteCounterMethod
-    {
-        [EnumDescription("Default (RIR)")]
-        Default,
-        [EnumDescription("Wilson Scoring")]
-        Wilson,
-        [EnumDescription("Schulze (Condorcet)")]
-        Schulze,
-        [EnumDescription("Baldwin Runoff")]
-        Baldwin,
-        [EnumDescription("Rated Instant Runoff")]
-        RIRV,
+        /// <summary>
+        /// The type of forum being read.
+        /// </summary>
+        public enum ForumType
+        {
+            Unknown,
+            XenForo,
+            vBulletin3,
+            vBulletin4,
+            vBulletin5,
+            phpBB,
+            NodeBB
+        }
     }
 
     /// <summary>
-    /// Enum for various modes of displaying the tally results.
+    /// Enums used in the Votes namespace
     /// </summary>
-    public enum DisplayMode
+    namespace Votes
     {
-        [EnumDescription("Normal")]
-        Normal,
-        [EnumDescription("Spoiler Voters")]
-        SpoilerVoters,
-        [EnumDescription("Spoiler All")]
-        SpoilerAll,
-        [EnumDescription("Normal, No Voters")]
-        NormalNoVoters,
-        [EnumDescription("Compact")]
-        Compact,
-        [EnumDescription("Compact, No Voters")]
-        CompactNoVoters
+        /// <summary>
+        /// Enum for separating vote categories
+        /// </summary>
+        public enum VoteType
+        {
+            Vote,
+            Plan,
+            Rank,
+            Approval
+        }
+
+        /// <summary>
+        /// Enum for various partitioning modes to use for breaking votes up into components.
+        /// </summary>
+        public enum PartitionMode
+        {
+            [EnumDescription("No Partitioning")]
+            None,
+            [EnumDescription("Partition By Line")]
+            ByLine,
+            [EnumDescription("Partition By Line (+Task)")]
+            ByLineTask,
+            [EnumDescription("Partition By Block")]
+            ByBlock,
+            [EnumDescription("Partition (Plans) By Block")]
+            ByBlockAll,
+        }
+
+        /// <summary>
+        /// The proxy reference type of a vote line.
+        /// </summary>
+        public enum ReferenceType
+        {
+            Label,
+            Any,
+            Voter,
+            Plan,
+        }
     }
 
     /// <summary>
-    /// Enum for various partitioning modes to use for breaking votes up into components.
+    /// Enums used in the VoteCounting namespace
     /// </summary>
-    public enum PartitionMode
+    namespace VoteCounting
     {
-        [EnumDescription("No Partitioning")]
-        None,
-        [EnumDescription("Partition By Line")]
-        ByLine,
-        [EnumDescription("Partition By Line (+Task)")]
-        ByLineTask,
-        [EnumDescription("Partition By Block")]
-        ByBlock,
-        [EnumDescription("Partition (Plans) By Block")]
-        ByBlockAll,
+        public enum StandardVoteCounterMethod
+        {
+            Default
+        }
+
+        public enum ApprovalVoteCounterMethod
+        {
+            Default
+        }
+
+        /// <summary>
+        /// Enum for determining which type of rank vote calculation method to use.
+        /// </summary>
+        public enum RankVoteCounterMethod
+        {
+            [EnumDescription("Default (RIR)")]
+            Default,
+            [EnumDescription("Wilson Scoring")]
+            Wilson,
+            [EnumDescription("Schulze (Condorcet)")]
+            Schulze,
+            [EnumDescription("Baldwin Runoff")]
+            Baldwin,
+            [EnumDescription("Rated Instant Runoff")]
+            RIRV,
+        }
     }
 
-
-    public enum ForumType
+    /// <summary>
+    /// Enums used in the Output namespace
+    /// </summary>
+    namespace Output
     {
-        Unknown,
-        XenForo,
-        vBulletin3,
-        vBulletin4,
-        vBulletin5,
-        phpBB,
-        NodeBB
+        /// <summary>
+        /// Enum for various modes of displaying the tally results.
+        /// </summary>
+        public enum DisplayMode
+        {
+            [EnumDescription("Normal")]
+            Normal,
+            [EnumDescription("Spoiler Voters")]
+            SpoilerVoters,
+            [EnumDescription("Spoiler All")]
+            SpoilerAll,
+            [EnumDescription("Normal, No Voters")]
+            NormalNoVoters,
+            [EnumDescription("Compact")]
+            Compact,
+            [EnumDescription("Compact, No Voters")]
+            CompactNoVoters
+        }
     }
 }

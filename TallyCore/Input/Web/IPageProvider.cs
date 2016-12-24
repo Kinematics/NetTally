@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using HtmlAgilityPack;
 using NetTally.CustomEventArgs;
+using NetTally.Web;
 
 namespace NetTally
 {

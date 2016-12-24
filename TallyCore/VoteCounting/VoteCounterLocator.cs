@@ -1,5 +1,6 @@
 ﻿using System;
 using NetTally.VoteCounting.RankVoteCounting;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {

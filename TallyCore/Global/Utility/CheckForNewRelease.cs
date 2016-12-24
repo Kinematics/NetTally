@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.ViewModels;
+using NetTally.Web;
 
 namespace NetTally.Utility
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NetTally.Utility;
 using NetTally.VoteCounting;
+using NetTally.Votes;
 
 namespace NetTally.Tests
 {

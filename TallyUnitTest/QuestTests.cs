@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Forums;
+using NetTally.Web;
+using NetTally.Votes;
 
 namespace NetTally.Tests
 {

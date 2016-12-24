@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using NetTally.Adapters;
 using NetTally.Utility;
+using NetTally.Web;
+using NetTally.Votes;
 
 namespace NetTally
 {
