@@ -57,7 +57,13 @@ namespace NetTally
             Thread,
             Threadmarks,
         }
+    }
 
+    /// <summary>
+    /// Enums used by the Forums namespace
+    /// </summary>
+    namespace Forums
+    {
         /// <summary>
         /// The type of forum being read.
         /// </summary>
