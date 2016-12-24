@@ -15,7 +15,7 @@ namespace NetTally.Tests
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            pageProvider = new WebPageProvider();
+            pageProvider = PageProviderBuilder.Instance.Build();
             privateWeb = new PrivateObject(pageProvider);
         }
 

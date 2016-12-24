@@ -27,22 +27,17 @@ namespace NetTally.Web
         // loading SB and SV pages.
         protected const int maxSimultaneousConnections = 4;
         protected readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
+        #endregion
 
+        #region Properties
         protected HttpClientHandler ClientHandler { get; }
-
-        protected WebCache Cache { get; } = WebCache.Instance;
+        protected IClock Clock { get; }
+        protected WebCache Cache { get; }
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
-
-        protected IClock Clock { get; }
         #endregion
 
         #region Constructors
-        protected PageProviderBase()
-            : this(null, null, null)
-        {
-        }
-
         protected PageProviderBase(HttpClientHandler handler, WebCache cache, IClock clock)
         {
             ClientHandler = handler ?? new HttpClientHandler();

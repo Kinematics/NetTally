@@ -21,30 +21,6 @@ namespace NetTally.Web
         #endregion
 
         #region Constructor/Disposal
-        public WebPageProvider()
-            : this(null, null, null)
-        {
-
-        }
-
-        public WebPageProvider(HttpClientHandler handler)
-            : this(handler, null, null)
-        {
-
-        }
-
-        public WebPageProvider(HttpClientHandler handler, WebCache cache)
-            : this(handler, cache, null)
-        {
-
-        }
-
-        public WebPageProvider(HttpClientHandler handler, IClock clock)
-            : this(handler, null, clock)
-        {
-
-        }
-
         public WebPageProvider(HttpClientHandler handler, WebCache cache, IClock clock)
             : base(handler, cache, clock)
         {
@@ -61,9 +37,7 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                client?.Dispose();
             }
-
         }
         #endregion
 

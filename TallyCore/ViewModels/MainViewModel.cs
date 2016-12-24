@@ -77,7 +77,7 @@ namespace NetTally.ViewModels
 
         private void SetupNetwork(IPageProvider pageProvider, HttpClientHandler handler)
         {
-            PageProvider = pageProvider ?? new WebPageProvider(handler ?? new HttpClientHandler());
+            PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(handler).Build();
         }
         #endregion
 
