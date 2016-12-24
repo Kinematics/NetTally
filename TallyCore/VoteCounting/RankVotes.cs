@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using NetTally.Utility;
+using NetTally.Votes;
 
-namespace NetTally
+namespace NetTally.VoteCounting
 {
     public static class RankVotes
     {

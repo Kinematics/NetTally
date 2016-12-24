@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using NetTally.Collections;
 using NetTally.Extensions;
-using NetTally.Utility;
-using NetTally.Web;
 using NetTally.Output;
+using NetTally.Utility;
+using NetTally.VoteCounting;
+using NetTally.Votes;
+using NetTally.Web;
 
 namespace NetTally.ViewModels
 {

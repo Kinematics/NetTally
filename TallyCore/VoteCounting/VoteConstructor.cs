@@ -5,8 +5,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.VoteCounting;
 
-namespace NetTally
+namespace NetTally.Votes
 {
     /// <summary>
     /// Class that can handle constructing votes (in various manners) from the base text of a post.

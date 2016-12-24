@@ -9,7 +9,7 @@ using NetTally.Adapters;
 using NetTally.Utility;
 using NetTally.Votes;
 
-namespace NetTally
+namespace NetTally.VoteCounting
 {
     public class VoteCounterImpl : IVoteCounter
     {

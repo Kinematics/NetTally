@@ -11,6 +11,7 @@ using System.Windows.Data;
 using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.ViewModels;
+using NetTally.Votes;
 
 namespace NetTally
 {

@@ -2,6 +2,7 @@
 using System;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
+using NetTally.Votes;
 
 namespace NetTally.Tests
 {

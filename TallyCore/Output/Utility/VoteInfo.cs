@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.VoteCounting;
+using NetTally.Votes;
 
 namespace NetTally.Output
 {

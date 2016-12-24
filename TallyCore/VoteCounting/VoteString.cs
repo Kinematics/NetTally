@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Votes
 {
     public static class VoteString
     {

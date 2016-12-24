@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using NetTally.Votes;
 
 namespace NetTally.Utility
 {

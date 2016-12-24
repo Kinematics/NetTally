@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using NetTally.Adapters;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.VoteCounting;
+using NetTally.Votes;
 
 namespace NetTally
 {

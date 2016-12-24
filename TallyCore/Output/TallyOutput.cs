@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.VoteCounting;
+using NetTally.Votes;
 
 namespace NetTally.Output
 {
