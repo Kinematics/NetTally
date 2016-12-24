@@ -7,20 +7,21 @@ using NetTally.CustomEventArgs;
 
 namespace NetTally.Web
 {
-    public enum PageRequestStatusType
-    {
-        None,
-        Requested,
-        LoadedFromCache,
-        Loaded,
-        Retry,
-        Error,
-        Failed,
-        Cancelled,
-    }
-
     public abstract class PageProviderBase : IDisposable
     {
+        protected enum PageRequestStatusType
+        {
+            None,
+            Requested,
+            LoadedFromCache,
+            Loaded,
+            Retry,
+            Error,
+            Failed,
+            Cancelled,
+        }
+
+
         #region Fields
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
         // Setting it to 5 or higher causes it to hang for several seconds on the last page when
