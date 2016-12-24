@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace NetTally
+namespace NetTally.Platform
 {
     public static class UnicodeHashFunction
     {

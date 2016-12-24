@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using NetTally.Utility;
 
-namespace NetTally
+namespace NetTally.Platform
 {
     /// <summary>
     /// Class to implement logging on the basic windows OS.

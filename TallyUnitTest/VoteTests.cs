@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NetTally.Platform;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.Votes;
