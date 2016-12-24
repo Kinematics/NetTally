@@ -267,9 +267,11 @@ namespace NetTally
         #region Quest configuration properties: Filtering
         bool useCustomThreadmarkFilters = false;
         string customThreadmarkFilters = string.Empty;
+        bool customThreadmarkFiltersAreRegex = false;
 
         bool useCustomTaskFilters = false;
         string customTaskFilters = string.Empty;
+        bool customTaskFiltersAreRegex = false;
 
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
@@ -294,7 +296,21 @@ namespace NetTally
             set
             {
                 customThreadmarkFilters = value;
-                ThreadmarkFilter = new Filter(customThreadmarkFilters, OmakeFilter, false);
+                ThreadmarkFilter = new Filter(customThreadmarkFilters, OmakeFilter, customThreadmarkFiltersAreRegex);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether the custom filters used for the threadmark filter are a regex string.
+        /// </summary>
+        public bool CustomThreadmarkFiltersAreRegex
+        {
+            get { return customThreadmarkFiltersAreRegex; }
+            set
+            {
+                customThreadmarkFiltersAreRegex = value;
+                ThreadmarkFilter = new Filter(customThreadmarkFilters, OmakeFilter, customThreadmarkFiltersAreRegex);
                 OnPropertyChanged();
             }
         }
@@ -317,6 +333,7 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
         /// <summary>
         /// Custom threadmark filters to exclude threadmarks from the list of valid
         /// 'last threadmark found' checks.
@@ -327,7 +344,21 @@ namespace NetTally
             set
             {
                 customTaskFilters = value;
-                TaskFilter = new Filter(customTaskFilters, null, false);
+                TaskFilter = new Filter(customTaskFilters, null, customTaskFiltersAreRegex);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether the custom filters used for the task filter are a regex string.
+        /// </summary>
+        public bool CustomTaskFiltersAreRegex
+        {
+            get { return customTaskFiltersAreRegex; }
+            set
+            {
+                customTaskFiltersAreRegex = value;
+                TaskFilter = new Filter(customTaskFilters, null, customTaskFiltersAreRegex);
                 OnPropertyChanged();
             }
         }

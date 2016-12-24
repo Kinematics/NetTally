@@ -67,6 +67,10 @@ namespace NetTally
         /// </summary>
         string CustomThreadmarkFilters { get; set; }
         /// <summary>
+        /// Flag whether the custom filters used for the threadmark filter are a regex string.
+        /// </summary>
+        bool CustomThreadmarkFiltersAreRegex { get; set; }
+        /// <summary>
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
         Filter ThreadmarkFilter { get; }
@@ -79,6 +83,10 @@ namespace NetTally
         /// List of custom tasks to process.
         /// </summary>
         string CustomTaskFilters { get; set; }
+        /// <summary>
+        /// Flag whether the custom filters used for the task filter are a regex string.
+        /// </summary>
+        bool CustomTaskFiltersAreRegex { get; set; }
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
