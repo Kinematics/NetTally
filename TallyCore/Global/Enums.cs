@@ -122,6 +122,14 @@ namespace NetTally
             Voter,
             Plan,
         }
+
+        public enum PlanType
+        {
+            SingleLine,
+            Label,
+            Content,
+            Base
+        }
     }
 
     /// <summary>
