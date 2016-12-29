@@ -353,6 +353,10 @@ namespace NetTally.ViewModels
             {
                 OnPropertyChanged(nameof(HasOutput));
             }
+            else if (e.PropertyName == nameof(tally.TallyResultsChanging))
+            {
+                OnPropertyChanged(nameof(OutputChanging));
+            }
         }
 
         /// <summary>
@@ -365,6 +369,12 @@ namespace NetTally.ViewModels
         /// Creates a notification event if the contents change.
         /// </summary>
         public string Output => tally.TallyResults;
+
+        /// <summary>
+        /// The piecemeal updates to the tally's TallyResults, before
+        /// TallyResults is changed.
+        /// </summary>
+        public string OutputChanging => tally.TallyResultsChanging;
 
         /// <summary>
         /// Flag whether there's any text in the Output property.
