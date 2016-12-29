@@ -6,7 +6,7 @@ using System.Windows;
 using NetTally.Collections;
 using NetTally.Utility;
 
-namespace NetTally.Config
+namespace NetTally
 {
     /// <summary>
     /// Class for loading and saving program configuration information.

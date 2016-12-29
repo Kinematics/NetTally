@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 
-namespace NetTally.Config
+namespace NetTally
 {
     /// <summary>
     /// Wrapper class for a collection of quest elements to be added to the user config file.

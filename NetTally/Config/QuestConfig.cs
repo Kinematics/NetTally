@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using NetTally.Votes;
 
-namespace NetTally.Config
+namespace NetTally
 {
     /// <summary>
     /// Class for individual quest entries to be added to the user config file.

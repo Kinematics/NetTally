@@ -4,7 +4,7 @@ using NetTally.Collections;
 using NetTally.Output;
 using NetTally.Votes;
 
-namespace NetTally.Config
+namespace NetTally
 {
     /// <summary>
     /// Class to handle the section for storing quests in the user config file.
