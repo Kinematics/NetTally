@@ -28,13 +28,19 @@ namespace NetTally.Converters
 
             bool invert = (parameter is string p && p == "Invert");
 
-            // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter a false value, the And will be false (or true, if inverted)
-                if (value == false)
+                if (value is bool v)
                 {
-                    return invert;
+                    // If we ever encounter a false value, the And will be false (or true, if inverted)
+                    if (v == false)
+                    {
+                        return invert;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
 
@@ -71,13 +77,19 @@ namespace NetTally.Converters
 
             bool invert = (parameter is string p && p == "Invert");
 
-            // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter a true value, the Or will be true (or false, if inverted)
-                if (value == true)
+                if (value is bool v)
                 {
-                    return !invert;
+                    // If we ever encounter a true value, the Or will be true (or false, if inverted)
+                    if (v == true)
+                    {
+                        return !invert;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
 
@@ -113,11 +125,18 @@ namespace NetTally.Converters
                 return true;
 
             // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter the 'wrong' value, the entire AND is considered false.
-                if (value == false)
+                if (value is bool v)
+                {
+                    // If we ever encounter the 'wrong' value, the entire AND is considered false.
+                    if (v == false)
+                        return false;
+                }
+                else
+                {
                     return false;
+                }
             }
 
             // If we didn't fail, the combined result is true.
@@ -153,11 +172,18 @@ namespace NetTally.Converters
                 return true;
 
             // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter the 'wrong' value, the entire AND is considered false.
-                if (value == true)
+                if (value is bool v)
+                {
+                    // If we ever encounter the 'wrong' value, the entire AND is considered false.
+                    if (v == true)
+                        return false;
+                }
+                else
+                {
                     return false;
+                }
             }
 
             // If we didn't fail, the combined result is true.
@@ -193,11 +219,18 @@ namespace NetTally.Converters
                 return false;
 
             // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter the sought value, we succeeded.
-                if (value == true)
-                    return true;
+                if (value is bool v)
+                {
+                    // If we ever encounter the sought value, we succeeded.
+                    if (v == true)
+                        return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // If we didn't encounter the sought value, we failed.
@@ -233,11 +266,18 @@ namespace NetTally.Converters
                 return false;
 
             // This will throw an exception in any typecast error.
-            foreach (bool value in values)
+            foreach (var value in values)
             {
-                // If we ever encounter the sought value, we succeeded.
-                if (value == false)
-                    return true;
+                if (value is bool v)
+                {
+                    // If we ever encounter the sought value, we succeeded.
+                    if (v == false)
+                        return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // If we didn't encounter the sought value, we failed.
@@ -249,6 +289,4 @@ namespace NetTally.Converters
             throw new NotSupportedException("MultiBoolAnyNotTrueConverter is a one-way converter.");
         }
     }
-
-
 }
