@@ -23,6 +23,7 @@ namespace NetTally.VoteCounting
         // State
         bool tallyIsRunning;
         string results = string.Empty;
+        string changingResults = string.Empty;
         #endregion
 
         #region Construction
@@ -70,6 +71,7 @@ namespace NetTally.VoteCounting
         /// <param name="e"></param>
         private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
         {
+            TallyResultsChanging = e.Message;
             TallyResults = TallyResults + e.Message;
         }
 
@@ -128,6 +130,23 @@ namespace NetTally.VoteCounting
             set
             {
                 tallyIsRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// A staging property for the changes that are applied piecemeal to
+        /// the TallyResults property, before the TallyResults property is updated.
+        /// </summary>
+        public string TallyResultsChanging
+        {
+            get { return changingResults; }
+            set
+            {
+                if (value == changingResults)
+                    return;
+
+                changingResults = value;
                 OnPropertyChanged();
             }
         }
