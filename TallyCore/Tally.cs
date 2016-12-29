@@ -175,12 +175,11 @@ namespace NetTally.VoteCounting
 
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
                 await VoteCounter.Instance.TallyPosts(posts, quest).ConfigureAwait(false);
-
-                await UpdateResults().ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
                 TallyResults += $"\n{e.Message}";
+                return;
             }
             catch (OperationCanceledException)
             {
@@ -198,6 +197,8 @@ namespace NetTally.VoteCounting
 
                 GC.Collect();
             }
+
+            await UpdateResults().ConfigureAwait(false);
         }
 
         /// <summary>

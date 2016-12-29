@@ -249,14 +249,23 @@ namespace NetTally.ViewModels
         /// <param name="parameter"></param>
         private void DoAddQuest(object parameter)
         {
-            IQuest newEntry = QuestList.AddNewQuest();
-
-            if (newEntry != null)
+            if (parameter is IQuest quest)
             {
-                SelectedQuest = newEntry;
-                OnPropertyChanged("AddQuest");
-                OnPropertyChanged(nameof(HasQuests));
+                QuestList.Add(quest);
+                SelectedQuest = quest;
             }
+            else
+            {
+                IQuest newEntry = QuestList.AddNewQuest();
+
+                if (newEntry != null)
+                {
+                    SelectedQuest = newEntry;
+                }
+            }
+
+            OnPropertyChanged("AddQuest");
+            OnPropertyChanged(nameof(HasQuests));
         }
         #endregion
 
