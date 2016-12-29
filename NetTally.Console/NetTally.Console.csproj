@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Label="Configuration">
     <AssemblyName>NetTally</AssemblyName>
+    <RootNamespace>NetTally.CLI</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>exe</OutputType>
@@ -11,6 +12,7 @@
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommandLineParser.Unofficial" Version="2.0.275" />
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
