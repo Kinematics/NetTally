@@ -97,7 +97,7 @@ namespace NetTally.Votes.Experiment
             {
                 VoteCounterIsTallying = true;
 
-                VotingRecords.Reset();
+                VotingRecords.Instance.Reset();
 
                 // Run sync functions as async, since they can take a while.
                 await Task.Run(() => PreprocessPosts()).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace NetTally.Votes.Experiment
             foreach (var post in PostsList)
             {
                 // Keep a record of the most recent post ID for each user.
-                VotingRecords.AddVoter(post.Author, post.ID);
+                VotingRecords.Instance.AddVoter(post.Author);
 
                 // Pull out all plans from each post.
                 var plans = VotingConstructor.GetPlansFromPost(post, CurrentQuest);
@@ -153,7 +153,7 @@ namespace NetTally.Votes.Experiment
 
             // At the end, we should have a collection of the 'best' versions of each named plan.
             // Store them in the voting records.
-            VotingRecords.AddPlans(planRepo);
+            VotingRecords.Instance.AddPlans(planRepo);
 
             // Once all the plans are in place, set the working votes for each post.
             foreach (var post in PostsList)

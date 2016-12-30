@@ -135,6 +135,7 @@
     <Compile Include="VoteCounterTests.cs" />
     <Compile Include="VoteStringTests.cs" />
     <Compile Include="VoteTests.cs" />
+    <Compile Include="VotingRecordsTests.cs" />
     <Compile Include="WebPageProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>

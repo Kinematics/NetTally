@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
@@ -9,16 +11,23 @@ namespace NetTally.Votes.Experiment
 
     public class VotingRecords : INotifyPropertyChanged
     {
-        public static HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        #region Lazy singleton creation
+        static readonly Lazy<VotingRecords> lazy = new Lazy<VotingRecords>(() => new VotingRecords());
 
-        public static Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public static VotingRecords Instance => lazy.Value;
+
+        VotingRecords()
+        {
+        }
+        #endregion
+
+
+        static Dictionary<string, string> ReferenceVoters { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
 
         #region Reset
-        public static void Reset()
+        public void Reset()
         {
             ReferenceVoters.Clear();
-            ReferenceVoterPosts.Clear();
-
         }
 
         public void ResetUserDefinedTasks(string forQuestName)
@@ -28,77 +37,91 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Prep
-        internal static void AddPlans(PlanDictionary planRepo)
+        public void AddPlans(PlanDictionary planRepo)
         {
             throw new NotImplementedException();
         }
         #endregion
 
         #region General methods
-        internal static void AddVoter(string voterName, string postID)
+        public void AddVoter(string voterName)
         {
-            ReferenceVoters.Add(voterName);
-            ReferenceVoterPosts[voterName] = postID;
+            ReferenceVoters.Add(voterName, voterName);
         }
 
-        internal static void DeleteVoter()
+        public bool HasVoter(string suppliedName)
         {
-
+            return ReferenceVoters.Keys.Contains(suppliedName);
         }
 
-        internal static void AddVotes()
+        public string GetVoterName(string suppliedName)
         {
+            if (ReferenceVoters.TryGetValue(suppliedName, out string refName))
+            {
+                return refName;
+            }
 
+            return null;
         }
 
-        internal static void AddVote()
-        {
-
-        }
-
-        internal static void DeleteVote()
-        {
-
-        }
-
-        internal static void MergeVotes()
+        public void DeleteVoter(string voterName)
         {
 
         }
 
-        internal static void RenameVote()
+        public void AddVoteFragments(IEnumerable<string> voteParts, string voterName, string postID, VoteType voteType)
         {
 
         }
 
-        internal static void JoinVoters()
+        public void AddVote()
         {
 
         }
 
-        internal static void Undo()
+        public void DeleteVote()
+        {
+
+        }
+
+        public void MergeVotes()
+        {
+
+        }
+
+        public void RenameVote()
+        {
+
+        }
+
+        public void JoinVoters()
+        {
+
+        }
+
+        public void Undo()
         {
 
         }
         #endregion
 
         #region Query methods
-        internal bool HasVote()
+        public bool HasVote()
         {
             return false;
         }
 
-        internal bool HasVoter()
+        public bool HasVoter()
         {
             return false;
         }
 
-        internal string GetVote()
+        public string GetVote()
         {
             return null;
         }
 
-        internal List<string> GetVoters()
+        public List<string> GetVoters()
         {
             return null;
         }
