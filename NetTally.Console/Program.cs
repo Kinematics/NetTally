@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-using NetTally.ViewModels;
 using NetTally.Platform;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using CommandLine;
 
 namespace NetTally.CLI
 {
     class Program
     {
+        #region Startup and variables
         static ManualResetEventSlim waiting = new ManualResetEventSlim(false);
         static bool verbose = false;
 
@@ -30,15 +31,19 @@ namespace NetTally.CLI
             {
                 DealWithErrors(null);
             }
-
-            waiting.Wait(TimeSpan.FromSeconds(60));
         }
 
         private static void DealWithErrors(IEnumerable<Error> e)
         {
-            Console.WriteLine(Options.GetUsage());
+            //Console.WriteLine(Options.GetUsage());
         }
+        #endregion
 
+        #region General running code
+        /// <summary>
+        /// Function that initiates the tally using the provided options.
+        /// </summary>
+        /// <param name="options"></param>
         private static void RunWithOptions(Options options)
         {
             ViewModelService.Instance.Build();
@@ -47,10 +52,29 @@ namespace NetTally.CLI
                 StartPost = options.StartPost,
                 EndPost = options.EndPost,
                 ThreadName = options.Thread,
-                CheckForLastThreadmark = options.Threadmark };
+                CheckForLastThreadmark = options.Threadmark,
+                CustomThreadmarkFilters = options.ThreadmarkFilters,
+                CustomTaskFilters = options.TaskFilters,
+                PartitionMode = options.PartitionMode
+                };
 
-            ViewModelService.MainViewModel.Options.AllowRankedVotes = true;
-            ViewModelService.MainViewModel.Options.DisplayMode = Output.DisplayMode.SpoilerVoters;
+            if (!string.IsNullOrEmpty(options.ThreadmarkFilters))
+                quest.UseCustomThreadmarkFilters = true;
+
+            if (!string.IsNullOrEmpty(options.TaskFilters))
+                quest.UseCustomTaskFilters = true;
+
+
+            ViewModelService.MainViewModel.Options.AllowRankedVotes = !options.NoRanks;
+
+            ViewModelService.MainViewModel.Options.DisplayMode = options.DisplayMode;
+            ViewModelService.MainViewModel.Options.DisableProxyVotes = options.NoProxy;
+            ViewModelService.MainViewModel.Options.ForbidVoteLabelPlanNames = options.ForbidPlanLabels;
+            ViewModelService.MainViewModel.Options.ForcePinnedProxyVotes = options.PinProxy;
+            ViewModelService.MainViewModel.Options.IgnoreSpoilers = options.NoSpoilers;
+            ViewModelService.MainViewModel.Options.WhitespaceAndPunctuationIsSignificant = options.Whitespace;
+            ViewModelService.MainViewModel.Options.TrimExtendedText = options.Trim;
+
 
             verbose = options.Verbose;
 
@@ -66,8 +90,22 @@ namespace NetTally.CLI
                     ViewModelService.MainViewModel.RunTallyCommand.Execute(null);
                 }
             }
-        }
 
+            waiting.Wait(TimeSpan.FromSeconds(60));
+            
+            if (!waiting.IsSet && !verbose)
+            {
+                Console.Write("Tally attempt failed.");
+            }
+        }
+        #endregion
+
+        #region Event watching
+        /// <summary>
+        /// Event watcher for property notification, allowing us to output the results of the tally.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (ViewModelService.MainViewModel.TallyIsRunning &&
@@ -84,5 +122,6 @@ namespace NetTally.CLI
                 waiting.Set();
             }
         }
+        #endregion
     }
 }
