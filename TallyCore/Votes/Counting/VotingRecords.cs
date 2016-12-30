@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace NetTally.Votes.Experiment
 {
+    using PlanDictionary = Dictionary<string, (PlanType planType, string plan, string postId)>;
+
     public class VotingRecords : INotifyPropertyChanged
     {
         public static HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -26,7 +28,7 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Prep
-        internal static void AddPlans(Dictionary<string, (PlanType planType, string plan, string postId)> planRepo)
+        internal static void AddPlans(PlanDictionary planRepo)
         {
             throw new NotImplementedException();
         }

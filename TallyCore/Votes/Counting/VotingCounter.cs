@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace NetTally.Votes.Experiment
 {
+    using PlanDictionary = Dictionary<string, (PlanType planType, string plan, string postId)>;
+
     public class VotingCounter : INotifyPropertyChanged
     {
         #region Lazy singleton creation
@@ -115,8 +117,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void PreprocessPosts()
         {
-            Dictionary<string, (PlanType planType, string plan, string postId)> planRepo = 
-                new Dictionary<string, (PlanType planType, string plan, string postId)>(Agnostic.StringComparer);
+            PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 
             // Scan the post list once.
             foreach (var post in PostsList)
