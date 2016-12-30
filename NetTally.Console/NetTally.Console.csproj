@@ -5,6 +5,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>exe</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>netcoreapp1.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
