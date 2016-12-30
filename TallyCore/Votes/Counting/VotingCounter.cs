@@ -10,9 +10,38 @@ namespace NetTally.Votes.Experiment
 {
     public class VotingCounter : INotifyPropertyChanged
     {
+        #region Lazy singleton creation
+        static readonly Lazy<VotingCounter> lazy = new Lazy<VotingCounter>(() => new VotingCounter());
+
+        public static VotingCounter Instance => lazy.Value;
+
+        VotingCounter()
+        {
+        }
+        #endregion
+
+        #region Implement INotifyPropertyChanged interface
+        /// <summary>
+        /// Event for INotifyPropertyChanged.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region Viewable Properties
         public List<PostComponents> PostsList { get; private set; }
         public IQuest CurrentQuest { get; private set; }
+        #endregion
 
+        #region Watchable Properties
         bool voteCounterIsTallying;
 
         /// <summary>
@@ -30,7 +59,15 @@ namespace NetTally.Votes.Experiment
                 }
             }
         }
+        #endregion
 
+        #region Public methods
+        /// <summary>
+        /// General function call to count the votes in the provided list of posts.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="posts">The posts to be processed.</param>
+        /// <returns>Returns a Task, for async processing.</returns>
         public async Task CountVotesInPosts(IQuest quest, IEnumerable<PostComponents> posts)
         {
             CurrentQuest = quest ?? throw new ArgumentNullException(nameof(quest));
@@ -42,6 +79,10 @@ namespace NetTally.Votes.Experiment
             await CountVotesInCurrentPosts().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// General function call to count the votes in the currently stored list of posts.
+        /// </summary>
+        /// <returns>Returns a Task, for async processing.</returns>
         public async Task CountVotesInCurrentPosts()
         {
             if (CurrentQuest == null)
@@ -56,9 +97,7 @@ namespace NetTally.Votes.Experiment
 
                 VotingRecords.Reset();
 
-                if (PostsList == null || PostsList.Count == 0)
-                    return;
-
+                // Run sync functions as async, since they can take a while.
                 await Task.Run(() => PreprocessPosts()).ConfigureAwait(false);
                 await Task.Run(() => ProcessPosts()).ConfigureAwait(false);
             }
@@ -67,7 +106,9 @@ namespace NetTally.Votes.Experiment
                 VoteCounterIsTallying = false;
             }
         }
+        #endregion
 
+        #region Private methods
         /// <summary>
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
@@ -93,10 +134,10 @@ namespace NetTally.Votes.Experiment
                     if (string.IsNullOrEmpty(plan.planName))
                         continue;
 
-                    if (planRepo.TryGetValue(plan.planName, out var existing))
+                    if (planRepo.TryGetValue(plan.planName, out var existingPlan))
                     {
                         // If the plan type found is 'higher' quality than any previously found plan types, replace the existing one.
-                        if (plan.planType > existing.planType)
+                        if (plan.planType > existingPlan.planType)
                         {
                             planRepo[plan.planName] = (plan.planType, plan.plan, post.ID);
                         }
@@ -121,7 +162,7 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
-        /// The second half of tallying the posts involves cycling through for
+        /// The second half of tallying the posts involves cycling through all posts for
         /// as long as future references need to be handled.
         /// </summary>
         private void ProcessPosts()
@@ -143,7 +184,7 @@ namespace NetTally.Votes.Experiment
                 else
                 {
                     // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                    // set the ForceProcess flag on them to avoid pending FutureReference waits.
                     foreach (var p in unprocessed)
                     {
                         p.ForceProcess = true;
@@ -151,23 +192,6 @@ namespace NetTally.Votes.Experiment
                 }
             }
         }
-
-
-        #region Implement INotifyPropertyChanged interface
-        /// <summary>
-        /// Event for INotifyPropertyChanged.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Function to raise events when a property has been changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
         #endregion
-
     }
 }
