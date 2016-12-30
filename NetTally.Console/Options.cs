@@ -7,7 +7,7 @@ namespace NetTally.CLI
 {
     public class Options
     {
-        [Option('t', "thread",  HelpText = "Input thread to tally.")]
+        [Option('t', "thread", Required = true, HelpText = "Input thread to tally.")]
         public string Thread { get; set; }
 
         [Option('k', "threadmark", Default = false, HelpText = "Try to find the starting post via threadmarks.")]
@@ -28,10 +28,10 @@ namespace NetTally.CLI
         [Option("display", Default = DisplayMode.SpoilerVoters, HelpText = "The display mode to use for output. Case sensitive.  Values: SpoilerAll (default), Normal, Compact, NormalNoVoters, CompactNoVoters")]
         public DisplayMode DisplayMode { get; set; }
 
-        [Option("threadmarkfilters", HelpText = "Filters used on threadmark titles.")]
+        [Option("threadmarkfilters", Hidden = true, HelpText = "Filters used on threadmark titles.")]
         public string ThreadmarkFilters { get; set; }
 
-        [Option("taskfilters", HelpText = "Filters used on tasks.")]
+        [Option("taskfilters", Hidden = true, HelpText = "Filters used on tasks.")]
         public string TaskFilters { get; set; }
 
         [Option("posts", Default = 0, HelpText = "The number of posts per page for the forum.  Default of 0 will try to auto-detect.")]
@@ -54,6 +54,9 @@ namespace NetTally.CLI
 
         [Option("trim", Default = false, HelpText = "Trim extended vote lines.")]
         public bool Trim { get; set; }
+
+        [Option("debug", Default = false, Hidden = true, HelpText = "Trim extended vote lines.")]
+        public bool Debug { get; set; }
 
         [Option("noranks", Default = false, HelpText = "Do not allow ranked voting.")]
         public bool NoRanks { get; set; }

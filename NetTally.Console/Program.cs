@@ -20,17 +20,10 @@ namespace NetTally.CLI
         {
             Agnostic.InitStringComparers(UnicodeHashFunction.HashFunction);
 
-            if (args.Any())
-            {
-                var results = Parser.Default.ParseArguments<Options>(args);
+            var results = Parser.Default.ParseArguments<Options>(args);
 
-                results.WithParsed(o => RunWithOptions(o))
-                    .WithNotParsed(e => DealWithErrors(e));
-            }
-            else
-            {
-                DealWithErrors(null);
-            }
+            results.WithParsed(o => RunWithOptions(o))
+                .WithNotParsed(e => DealWithErrors(e));
         }
 
         private static void DealWithErrors(IEnumerable<Error> e)
@@ -75,6 +68,7 @@ namespace NetTally.CLI
             ViewModelService.MainViewModel.Options.WhitespaceAndPunctuationIsSignificant = options.Whitespace;
             ViewModelService.MainViewModel.Options.TrimExtendedText = options.Trim;
 
+            ViewModelService.MainViewModel.Options.DebugMode = options.Debug;
 
             verbose = options.Verbose;
 
