@@ -18,7 +18,7 @@ namespace NetTally.CLI
 
         static void Main(string[] args)
         {
-            Agnostic.InitStringComparers(UnicodeHashFunction.HashFunction);
+            ViewModelService.Instance.Build();
 
             var results = Parser.Default.ParseArguments<Options>(args);
 
@@ -39,8 +39,6 @@ namespace NetTally.CLI
         /// <param name="options"></param>
         private static void RunWithOptions(Options options)
         {
-            ViewModelService.Instance.Build();
-
             Quest quest = new Quest() {
                 StartPost = options.StartPost,
                 EndPost = options.EndPost,

@@ -2,7 +2,9 @@
 using System.Net.Http;
 using NetTally.Collections;
 using NetTally.Output;
+using NetTally.Utility;
 using NetTally.Web;
+using System.Globalization;
 
 namespace NetTally.ViewModels
 {
@@ -38,18 +40,30 @@ namespace NetTally.ViewModels
             this.config = config;
             return this;
         }
+        public ViewModelService LogErrorsUsing(IErrorLogger errorLogger)
+        {
+            this.errorLogger = errorLogger;
+            return this;
+        }
+        public ViewModelService HashAgnosticStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        {
+            this.hashFunction = hashFunction;
+            return this;
+        }
         public void Build()
         {
             if (MainViewModel != null)
                 throw new InvalidOperationException("Main view model has already been built.");
 
-            MainViewModel = new MainViewModel(config, handler, pageProvider, resultsProvider);
+            MainViewModel = new MainViewModel(config, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
         }
 
         IPageProvider pageProvider;
         HttpClientHandler handler;
         ITextResultsProvider resultsProvider;
         QuestCollectionWrapper config;
+        IErrorLogger errorLogger;
+        Func<string, CompareInfo, CompareOptions, int> hashFunction;
 
         public static MainViewModel MainViewModel { get; private set; }
     }

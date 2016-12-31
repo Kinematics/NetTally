@@ -81,7 +81,7 @@ namespace NetTally
         {
             ErrorLog.LogUsing(new WindowsErrorLog());
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-            Agnostic.InitStringComparers(UnicodeHashFunction.HashFunction);
+            Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
         }
 
         private void SetupModel(QuestCollectionWrapper config)

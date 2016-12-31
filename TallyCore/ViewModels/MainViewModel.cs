@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -19,8 +20,12 @@ namespace NetTally.ViewModels
     public class MainViewModel : ViewModelBase, IDisposable
     {
         public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler,
-            IPageProvider pageProvider, ITextResultsProvider textResults)
+            IPageProvider pageProvider, ITextResultsProvider textResults,
+            IErrorLogger errorLogger, Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
+            ErrorLog.LogUsing(errorLogger);
+            Agnostic.HashStringsUsing(hashFunction);
+
             if (config != null)
             {
                 QuestList = config.QuestCollection;

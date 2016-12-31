@@ -7,6 +7,18 @@ namespace NetTally.Utility
 {
     public static class Agnostic
     {
+        internal static class DefaultAgnosticHashFunction
+        {
+            /// <summary>
+            /// Always return 0, since we can't assume that we'll have access to UTF comparer functions,
+            /// which means we can't properly distinguish between different types of graphemes.
+            /// </summary>
+            public static int HashFunction(string str, CompareInfo info, CompareOptions options)
+            {
+                return 0;
+            }
+        }
+
         private static IEqualityComparer<string> currentComparer;
 
         private static IEqualityComparer<string> StringComparer1 { get; set; }
@@ -19,8 +31,10 @@ namespace NetTally.Utility
         /// MUST be run before other objects are constructed.
         /// </summary>
         /// <param name="hashFunction"></param>
-        public static void InitStringComparers(Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        public static void HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
+            hashFunction = hashFunction ?? DefaultAgnosticHashFunction.HashFunction;
+
             StringComparer1 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
             StringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
