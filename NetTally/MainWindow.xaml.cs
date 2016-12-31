@@ -36,13 +36,11 @@ namespace NetTally
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-                PlatformSetup();
-
                 InitializeComponent();
 
                 Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
-                // Set up data contexts
+                // Load configuration data
                 QuestCollectionWrapper config;
                 try
                 {
@@ -50,45 +48,34 @@ namespace NetTally
                 }
                 catch (ConfigurationErrorsException e)
                 {
-                    string file = ErrorLog.Log(e);
-
-                    string message = $"{e.Message}\n\nError log saved to:\n{file ?? "(unable to write log file)"}";
-                    MessageBox.Show(message, "Error in configuration", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message, "Error in configuration.  Current configuration ignored.", MessageBoxButton.OK, MessageBoxImage.Error);
                     config = null;
                 }
 
-                SetupModel(config);
+                PlatformSetup(config);
             }
             catch (Exception e)
             {
-                string file = ErrorLog.Log(e);
-                MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in startup", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                try
-                {
-                    // If mainViewModel failed to be set via config, just create a null-config version.
-                    SetupModel(null);
-                }
-                catch (Exception e2)
-                {
-                    ErrorLog.Log(e2);
-                    this.Close();
-                }
+                ErrorLog.Log(e);
+                MessageBox.Show(e.Message, "Unable to start up. Closing.", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
             }
         }
 
-        private static void PlatformSetup()
-        {
-            ErrorLog.LogUsing(new WindowsErrorLog());
-            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-            Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
-        }
-
-        private void SetupModel(QuestCollectionWrapper config)
+        /// <summary>
+        /// Set up the program with various platform-specific configurations.
+        /// </summary>
+        /// <param name="config">The program's config data.</param>
+        private void PlatformSetup(QuestCollectionWrapper config)
         {
             try
             {
-                ViewModelService.Instance.Configure(config).Build();
+                System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+
+                ViewModelService.Instance.Configure(config)
+                    .LogErrorsUsing(new WindowsErrorLog())
+                    .HashAgnosticStringsUsing(UnicodeHashFunction.HashFunction)
+                    .Build();
 
                 DataContext = ViewModelService.MainViewModel;
                 ViewModelService.MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
@@ -126,6 +113,9 @@ namespace NetTally
         {
             try
             {
+                if (ViewModelService.MainViewModel == null)
+                    return;
+
                 string selectedQuest = ViewModelService.MainViewModel.SelectedQuest?.ThreadName ?? "";
 
                 QuestCollectionWrapper wrapper = new QuestCollectionWrapper(ViewModelService.MainViewModel.QuestList, selectedQuest);
