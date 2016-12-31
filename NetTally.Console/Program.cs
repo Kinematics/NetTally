@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
-using NetTally.Platform;
-using NetTally.Utility;
 using NetTally.ViewModels;
 using CommandLine;
 
