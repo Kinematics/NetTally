@@ -318,7 +318,8 @@ namespace NetTally.VoteCounting
                 if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
                 {
                     // If this is not a user name, get the plan name as the proxy reference.
-                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, Agnostic.StringComparer));
+                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan]
+                        .Contains(VoteString.DeUrlContent(VoteString.RemoveBBCode(p)), Agnostic.StringComparer));
                 }
                 else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.StringComparer))
                 {
@@ -492,7 +493,9 @@ namespace NetTally.VoteCounting
 
             // Track plan names
             if (voteType == VoteType.Plan)
+            {
                 PlanNames.Add(voter);
+            }
 
             var votes = GetVotesCollection(voteType);
 
@@ -536,11 +539,14 @@ namespace NetTally.VoteCounting
                 OnPropertyChanged("Votes");
             }
 
+            string cleanVoter = VoteString.RemoveBBCode(voter);
+            cleanVoter = VoteString.DeUrlContent(cleanVoter);
+
             // Update the supporters list if the voter isn't already in it.
-            if (votes[voteKey].Contains(voter))
+            if (votes[voteKey].Contains(cleanVoter))
                 return;
 
-            votes[voteKey].Add(voter);
+            votes[voteKey].Add(cleanVoter);
 
             OnPropertyChanged("Voters");
         }
@@ -559,9 +565,12 @@ namespace NetTally.VoteCounting
             if (string.IsNullOrEmpty(postID))
                 throw new ArgumentNullException(nameof(postID));
 
+            string cleanVoter = VoteString.RemoveBBCode(voter);
+            cleanVoter = VoteString.DeUrlContent(cleanVoter);
+
             // Store/update the post ID of the voter
             var voters = GetVotersCollection(voteType);
-            voters[voter] = postID;
+            voters[cleanVoter] = postID;
         }
 
         /// <summary>

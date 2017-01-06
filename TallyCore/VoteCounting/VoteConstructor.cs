@@ -390,11 +390,14 @@ namespace NetTally.Votes
             foreach (var plan in plans)
             {
                 string planName = VoteString.GetPlanName(plan.First());
+                string cleanName = VoteString.RemoveBBCode(planName);
+                cleanName = VoteString.DeUrlContent(cleanName);
 
-                if (!VoteCounter.Instance.ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
+
+                if (!VoteCounter.Instance.ReferencePlanNames.Contains(cleanName, Agnostic.StringComparer))
                 {
-                    VoteCounter.Instance.ReferencePlanNames.Add(planName);
-                    VoteCounter.Instance.ReferencePlans[planName] = plan;
+                    VoteCounter.Instance.ReferencePlanNames.Add(cleanName);
+                    VoteCounter.Instance.ReferencePlans[cleanName] = plan;
                 }
             }
         }
@@ -411,8 +414,10 @@ namespace NetTally.Votes
             foreach (var plan in plans)
             {
                 string planName = VoteString.GetMarkedPlanName(plan.First());
+                string cleanName = VoteString.RemoveBBCode(planName);
+                cleanName = VoteString.DeUrlContent(cleanName);
 
-                if (!VoteCounter.Instance.HasPlan(planName))
+                if (!VoteCounter.Instance.HasPlan(cleanName))
                 {
                     var nPlan = NormalizePlanName(plan);
 
@@ -420,7 +425,7 @@ namespace NetTally.Votes
                     // One of: By line, By block, or By post (ie: entire vote)
                     var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
 
-                    VoteCounter.Instance.AddVotes(votePartitions, planName, post.ID, VoteType.Plan);
+                    VoteCounter.Instance.AddVotes(votePartitions, cleanName, post.ID, VoteType.Plan);
                 }
             }
         }
