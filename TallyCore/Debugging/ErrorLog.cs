@@ -36,7 +36,8 @@ namespace NetTally
         /// <param name="errorLogger">The error logger to use.</param>
         public static void LogUsing(IErrorLogger errorLogger)
         {
-            ErrorLog.errorLogger = errorLogger ?? throw new ArgumentNullException(nameof(errorLogger));
+            if (errorLogger != null)
+                ErrorLog.errorLogger = errorLogger;
         }
 
         /// <summary>
