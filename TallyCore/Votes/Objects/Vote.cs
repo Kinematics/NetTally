@@ -1,21 +1,89 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NetTally.Extensions;
+using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
     public class Vote
     {
+        public string FullText { get; }
+        public List<string> Lines { get; } = new List<string>();
+
+        public string TaskAndContent { get; private set; }
+        public string Task { get; private set; }
+        public int Rank { get; private set; }
+
+        public VoteType VoteType { get; private set; }
+
+
+        public Vote(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentNullException(nameof(input));
+
+            FullText = input;
+
+            ConfigVote(input);
+        }
+
+
+        private void ConfigVote(string input)
+        {
+            Lines.AddRange(input.GetStringLines());
+
+            string firstLine = Lines.First();
+
+            VoteString.GetVoteComponents(firstLine, out string prefix, out string marker, out string task, out string content);
+
+            Task = task;
+
+            if (int.TryParse(marker, out int rank))
+            {
+                Rank = rank;
+                VoteType = VoteType.Rank;
+            }
+            else
+            {
+                Rank = 0;
+                VoteType = VoteType.Vote;
+            }
+
+            if (string.IsNullOrEmpty(task))
+            {
+                TaskAndContent = content;
+            }
+            else
+            {
+                TaskAndContent = $"[{task}] {content}";
+            }
+        }
+
+
+
+
+        public Vote ChangeTask(string task)
+        {
+            if (task == Task)
+                return this;
+
+            return new Vote(FullText) { Task = task };
+        }
+
+
+        public bool Match(string compare)
+        {
+            return Agnostic.StringComparer.Equals(compare, FullText);
+        }
+
+
+
+
+
+
+
         public VoteLineSequence VoteLines { get; }
-
-        public Vote(IEnumerable<string> voteLines)
-        {
-            VoteLines = new VoteLineSequence(voteLines);
-        }
-
-        public Vote(IEnumerable<VoteLine> voteLines)
-        {
-            VoteLines = new VoteLineSequence(voteLines);
-        }
 
         public IEnumerable<VoteLineSequence> VoteBlocks
         {

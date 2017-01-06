@@ -7,14 +7,28 @@ using NetTally.Extensions;
 
 namespace NetTally.Votes.Experiment
 {
-    public class VoteFragment
+    public struct VoteFragment
+    {
+        public VoteType VoteType { get; }
+        public string Fragment { get; }
+
+        public VoteFragment(VoteType voteType, string fragment)
+        {
+            VoteType = voteType;
+            Fragment = fragment;
+        }
+    }
+
+
+
+    public class VoteFragmentA
     {
         public VoteLine Parent { get; }
         public List<VoteLine> Children { get; } = new List<VoteLine>();
 
         static readonly Regex hyphens = new Regex("-");
 
-        public VoteFragment(VoteLine line, List<VoteLine> children)
+        public VoteFragmentA(VoteLine line, List<VoteLine> children)
         {
             Parent = line ?? throw new ArgumentNullException(nameof(line));
 
@@ -22,7 +36,7 @@ namespace NetTally.Votes.Experiment
                 Children.AddRange(children);
         }
 
-        VoteFragment(IList<string> lines)
+        VoteFragmentA(IList<string> lines)
         {
             if (lines == null)
                 throw new ArgumentNullException(nameof(lines));
@@ -34,7 +48,7 @@ namespace NetTally.Votes.Experiment
             Children.AddRange(lines.Skip(1).Select(a => VoteLine.Create(a)));
         }
 
-        public static List<VoteFragment> GetFragments(string input)
+        public static List<VoteFragmentA> GetFragments(string input)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentNullException(nameof(input));
@@ -44,18 +58,18 @@ namespace NetTally.Votes.Experiment
             return GetFragments(lines);
         }
 
-        public static List<VoteFragment> GetFragments(List<string> lines)
+        public static List<VoteFragmentA> GetFragments(List<string> lines)
         {
             if (lines == null)
                 throw new ArgumentNullException(nameof(lines));
 
-            List<VoteFragment> fragmentList = new List<VoteFragment>();
+            List<VoteFragmentA> fragmentList = new List<VoteFragmentA>();
 
             var groupedLines = lines.GroupBlocks(s => IndentCount(s));
 
             foreach (var group in groupedLines)
             {
-                fragmentList.Add(new VoteFragment(group));
+                fragmentList.Add(new VoteFragmentA(group));
             }
 
             return fragmentList;
@@ -97,7 +111,7 @@ namespace NetTally.Votes.Experiment
 
         public override bool Equals(object obj)
         {
-            if (obj is VoteFragment other)
+            if (obj is VoteFragmentA other)
             {
                 if (!Parent.Equals(other.Parent))
                     return false;

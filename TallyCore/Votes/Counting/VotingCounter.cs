@@ -123,7 +123,7 @@ namespace NetTally.Votes.Experiment
             foreach (var post in PostsList)
             {
                 // Keep a record of the most recent post ID for each user.
-                VotingRecords.Instance.AddVoter(post.Author);
+                VotingRecords.Instance.AddVoterName(post.Author);
 
                 // Pull out all plans from each post.
                 var plans = VotingConstructor.GetPlansFromPost(post, CurrentQuest);
