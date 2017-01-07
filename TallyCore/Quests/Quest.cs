@@ -61,7 +61,7 @@ namespace NetTally
         /// </summary>
         public string ThreadName
         {
-            get => threadName;
+            get { return threadName; }
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
