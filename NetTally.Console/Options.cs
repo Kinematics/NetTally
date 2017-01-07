@@ -5,6 +5,9 @@ using NetTally.Votes;
 
 namespace NetTally.CLI
 {
+    /// <summary>
+    /// Class defining the accepted commandline parameters.
+    /// </summary>
     public class Options
     {
         [Option('t', "thread", Required = true, HelpText = "Input thread to tally.")]
