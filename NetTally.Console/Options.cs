@@ -1,7 +1,9 @@
 ﻿using System.Text;
-using CommandLine;
 using NetTally.Output;
 using NetTally.Votes;
+using System.Collections.Generic;
+using CommandLine;
+using CommandLine.Text;
 
 namespace NetTally.CLI
 {
@@ -10,20 +12,20 @@ namespace NetTally.CLI
     /// </summary>
     public class Options
     {
-        [Option('t', "thread", Required = true, HelpText = "Input thread to tally.")]
+        [Value(0, HelpText = "Thread to tally.", Required = true)]
         public string Thread { get; set; }
 
-        [Option('k', "threadmark", Default = false, HelpText = "Try to find the starting post via threadmarks.")]
-        public bool Threadmark { get; set; }
-
-        [Option('v', "verbose", Default = false, HelpText = "Print details during execution.")]
+        [Option('v', "verbose", Default = false, HelpText = "Print page load details during execution.")]
         public bool Verbose { get; set; }
 
-        [Option("start", Default = 1, HelpText = "The post to start tallying at.")]
-        public int StartPost { get; set; }
+        [Option('k', "threadmark", Default = false, SetName = "ByThreadmark", HelpText = "Try to find the starting post via threadmarks.")]
+        public bool Threadmark { get; set; }
 
-        [Option("end", Default = 0, HelpText = "The post to end tallying at. 0 reads to end of thread.")]
-        public int EndPost { get; set; }
+        [Option('s', "start", SetName = "ByPost", HelpText = "The post to start tallying at.")]
+        public int? StartPost { get; set; }
+
+        [Option('e', "end", SetName = "ByPost", HelpText = "The post to end tallying at. 0 reads to end of thread.")]
+        public int? EndPost { get; set; }
 
         [Option("partition", Default = PartitionMode.None, HelpText = "The vote partitioning method to use. Case sensitive. Values: None (default), ByLine, ByBlock.")]
         public PartitionMode PartitionMode { get; set; }
@@ -37,7 +39,7 @@ namespace NetTally.CLI
         [Option("taskfilters", Hidden = true, HelpText = "Filters used on tasks.")]
         public string TaskFilters { get; set; }
 
-        [Option("posts", Default = 0, HelpText = "The number of posts per page for the forum.  Default of 0 will try to auto-detect.")]
+        [Option("postsperpage", Default = 0, HelpText = "The number of posts per page for the forum.  Default of 0 will try to auto-detect.")]
         public int PostsPerPage { get; set; }
 
         [Option("whitespace", Default = false, HelpText = "Treat whitespace and punctuation as significant.")]
@@ -58,24 +60,32 @@ namespace NetTally.CLI
         [Option("trim", Default = false, HelpText = "Trim extended vote lines.")]
         public bool Trim { get; set; }
 
-        [Option("debug", Default = false, Hidden = true, HelpText = "Trim extended vote lines.")]
-        public bool Debug { get; set; }
-
         [Option("noranks", Default = false, HelpText = "Do not allow ranked voting.")]
         public bool NoRanks { get; set; }
 
+        [Option("debug", Default = false, Hidden = true, HelpText = "Trim extended vote lines.")]
+        public bool Debug { get; set; }
 
-        public static string GetUsage()
+        [Usage(ApplicationAlias = "dotnet nettally.dll")]
+        public static IEnumerable<Example> Examples
         {
-            var usage = new StringBuilder();
-            usage.AppendLine("NetTally Commandline 1.7.7");
-            usage.AppendLine("-t, --thread: Required.  Specify the thread to tally.");
-            usage.AppendLine("-k, --threadmark: Indicate that you want to try to find the starting post via threadmark.");
-            usage.AppendLine("--start: Specify the starting tally post.  Default is 1.");
-            usage.AppendLine("--end: Specify the ending tally post.  Default is 0 (read to end of thread).");
-            usage.AppendLine("--posts: Specify the number of posts per thread page.  Default is auto-detect.");
-            usage.AppendLine("-v, --verbose: Verbose mode.");
-            return usage.ToString();
+            get {
+                yield return new Example("Basic use", UnParserSettings.WithGroupSwitchesOnly(), new Options
+                {
+                    Thread = "https://forums.sufficientvelocity.com/threads/threadname.13528/"
+                });
+                yield return new Example("Set partitioning", UnParserSettings.WithGroupSwitchesOnly(), new Options
+                {
+                    Thread = "https://forums.sufficientvelocity.com/threads/threadname.13528/",
+                    PartitionMode = PartitionMode.ByBlock
+                });
+                yield return new Example("Specify a post range", UnParserSettings.WithGroupSwitchesOnly(), new Options
+                {
+                    Thread = "https://forums.sufficientvelocity.com/threads/threadname.13528/",
+                    StartPost = 300,
+                    EndPost = 400
+                });
+            }
         }
     }
 }

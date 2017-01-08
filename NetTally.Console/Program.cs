@@ -9,21 +9,20 @@ namespace NetTally.CLI
 {
     class Program
     {
+        #region Variables
+        static ManualResetEventSlim waiting = new ManualResetEventSlim(false);
+        static bool verbose = false;
+        #endregion
+
         #region Main entry point
         static void Main(string[] args)
         {
             ViewModelService.Instance.Build();
 
-            var results = Parser.Default.ParseArguments<Options>(args);
+            var arguements = Parser.Default.ParseArguments<Options>(args);
 
-            results.WithParsed(o => RunWithOptions(o))
-                .WithNotParsed(e => DealWithErrors(e));
+            arguements.WithParsed(o => RunWithOptions(o));
         }
-        #endregion
-
-        #region Variables
-        static ManualResetEventSlim waiting = new ManualResetEventSlim(false);
-        static bool verbose = false;
         #endregion
 
         #region General running code
@@ -48,15 +47,6 @@ namespace NetTally.CLI
             {
                 Console.Write("Tally attempt failed.");
             }
-        }
-
-        /// <summary>
-        /// Handle output if commandline argument parsing failed.
-        /// </summary>
-        /// <param name="e">The list of errors generated.</param>
-        private static void DealWithErrors(IEnumerable<Error> e)
-        {
-            //Console.WriteLine(Options.GetUsage());
         }
 
         /// <summary>
@@ -88,14 +78,18 @@ namespace NetTally.CLI
         {
             Quest quest = new Quest()
             {
-                StartPost = options.StartPost,
-                EndPost = options.EndPost,
                 ThreadName = options.Thread,
-                CheckForLastThreadmark = options.Threadmark,
                 CustomThreadmarkFilters = options.ThreadmarkFilters,
                 CustomTaskFilters = options.TaskFilters,
                 PartitionMode = options.PartitionMode
             };
+
+            if (options.StartPost.HasValue)
+                quest.StartPost = options.StartPost.Value;
+            if (options.EndPost.HasValue)
+                quest.EndPost = options.EndPost.Value;
+
+            quest.CheckForLastThreadmark = !options.StartPost.HasValue && !options.EndPost.HasValue;
 
             if (!string.IsNullOrEmpty(options.ThreadmarkFilters))
                 quest.UseCustomThreadmarkFilters = true;
@@ -138,15 +132,15 @@ namespace NetTally.CLI
                 e.PropertyName == nameof(ViewModelService.MainViewModel.OutputChanging) && 
                 verbose)
             {
-                Console.Write(ViewModelService.MainViewModel.OutputChanging);
+                Console.Error.Write(ViewModelService.MainViewModel.OutputChanging);
             }
             else if (ViewModelService.MainViewModel.TallyIsRunning == false && 
                      e.PropertyName == nameof(ViewModelService.MainViewModel.Output))
             {
-                if (verbose)
-                    Console.WriteLine();
-
                 Console.WriteLine(ViewModelService.MainViewModel.Output);
+
+                if (verbose)
+                    Console.Error.WriteLine("Tally completed!");
 
                 waiting.Set();
             }
