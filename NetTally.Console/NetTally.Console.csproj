@@ -6,7 +6,7 @@
   <PropertyGroup>
     <OutputType>exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1</TargetFrameworks>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
