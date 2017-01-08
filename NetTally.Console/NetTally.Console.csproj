@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Label="Configuration">
-    <AssemblyName>NetTally</AssemblyName>
+    <AssemblyName>nettally</AssemblyName>
     <RootNamespace>NetTally.CLI</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
