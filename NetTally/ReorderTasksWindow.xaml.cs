@@ -51,8 +51,18 @@ namespace NetTally
 
             // Set the data context for binding.
             DataContext = this;
+
+            // Update the displayed order immediately
+            UpdateTaskList();
         }
         #endregion
+
+        private void UpdateTaskList()
+        {
+            VoteCounter.Instance.OrderedTaskList = TaskView.SourceCollection as List<string>;
+            OnPropertyChanged("Votes");
+            TaskView.Refresh();
+        }
 
         #region INotifyPropertyChanged implementation
         /// <summary>
@@ -87,13 +97,13 @@ namespace NetTally
         private void up_Click(object sender, RoutedEventArgs e)
         {
             MainViewModel.TaskList.Swap(TaskView.CurrentPosition, TaskView.CurrentPosition - 1);
-            TaskView.Refresh();
+            UpdateTaskList();
         }
 
         private void down_Click(object sender, RoutedEventArgs e)
         {
             MainViewModel.TaskList.Swap(TaskView.CurrentPosition, TaskView.CurrentPosition + 1);
-            TaskView.Refresh();
+            UpdateTaskList();
         }
         #endregion
     }

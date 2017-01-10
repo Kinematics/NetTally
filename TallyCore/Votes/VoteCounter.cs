@@ -65,6 +65,7 @@ namespace NetTally
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
+        public List<string> OrderedTaskList { get; set; } = null;
         #endregion
 
         #region Public Class Properties
