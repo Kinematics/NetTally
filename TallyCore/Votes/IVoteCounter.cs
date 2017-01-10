@@ -49,5 +49,6 @@ namespace NetTally
 
         bool HasUndoActions { get; }
         bool Undo();
+        List<string> OrderedTaskList { get; set; }
     }
 }
