@@ -1,5 +1,4 @@
-﻿using System.Text;
-using NetTally.Output;
+﻿using NetTally.Output;
 using NetTally.Votes;
 using System.Collections.Generic;
 using CommandLine;
