@@ -20,10 +20,6 @@ namespace NetTally
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (propertyName == "ThreadName")
-            {
-            }
-
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
