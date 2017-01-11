@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
@@ -521,7 +522,7 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(p1);
             posts.Add(p2);
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             Assert.AreEqual(2, VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count);
             Assert.AreEqual(1, VoteCounter.Instance.GetVotesCollection(VoteType.Vote).Count);

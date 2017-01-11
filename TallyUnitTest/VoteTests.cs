@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
@@ -44,7 +45,7 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(post);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -70,7 +71,7 @@ namespace NetTally.Tests
                 posts.Add(post);
             }
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest);
+            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             for (int i = 0; i < results.Count; i++)
             {
