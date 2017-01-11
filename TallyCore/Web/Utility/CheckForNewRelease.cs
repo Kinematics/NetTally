@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Web;
+using NetTally.Adapters;
 
 namespace NetTally
 {
@@ -143,11 +144,16 @@ namespace NetTally
 
                 if (htmldoc != null)
                 {
-                    var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
+                    var latest = htmldoc.DocumentNode.GetDescendantWithClass("div", "label-latest");
 
-                    if (h1ReleaseTitle != null)
+                    if (latest != null)
                     {
-                        return GetVersionString(h1ReleaseTitle.InnerText);
+                        var releaseTitle = latest.GetDescendantWithClass("h1", "release-title");
+
+                        if (releaseTitle != null)
+                        {
+                            return GetVersionString(releaseTitle.InnerText);
+                        }
                     }
                 }
             }
