@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
@@ -15,7 +14,7 @@ namespace NetTally.VoteCounting
     /// Class that links together the various pieces of the tally system.
     /// Call this to run a tally.
     /// </summary>
-    public class Tally : INotifyPropertyChanged, IDisposable
+    public partial class Tally : INotifyPropertyChanged, IDisposable
     {
         #region Local State
         // Disposal
@@ -107,22 +106,6 @@ namespace NetTally.VoteCounting
                         .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
                 }
             }
-        }
-        #endregion
-
-        #region Implement INotifyPropertyChanged interface
-        /// <summary>
-        /// Event for INotifyPropertyChanged.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Function to raise events when a property has been changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
 
