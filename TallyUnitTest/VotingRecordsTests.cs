@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Platform;
+using NetTally.Tests.Platform;
 using NetTally.Votes.Experiment;
 using NetTally.Utility;
 
