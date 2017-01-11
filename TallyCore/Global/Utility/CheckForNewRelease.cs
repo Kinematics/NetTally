@@ -118,11 +118,16 @@ namespace NetTally.Utility
 
             if (htmldoc != null)
             {
-                var h1ReleaseTitle = htmldoc.DocumentNode.GetDescendantWithClass("h1", "release-title");
+                var latest = htmldoc.DocumentNode.GetDescendantWithClass("div", "label-latest");
 
-                if (h1ReleaseTitle != null)
+                if (latest != null)
                 {
-                    return GetVersionString(h1ReleaseTitle.InnerText);
+                    var h1ReleaseTitle = htmldoc.DocumentNode.GetDescendantWithClass("h1", "release-title");
+
+                    if (h1ReleaseTitle != null)
+                    {
+                        return GetVersionString(h1ReleaseTitle.InnerText);
+                    }
                 }
             }
 
