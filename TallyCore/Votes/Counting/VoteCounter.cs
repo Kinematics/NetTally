@@ -159,6 +159,9 @@ namespace NetTally.VoteCounting
         /// <param name="token">Cancellation token.</param>
         public async Task TallyPosts(CancellationToken token)
         {
+            if (Quest == null)
+                return;
+
             try
             {
                 VoteCounterIsTallying = true;

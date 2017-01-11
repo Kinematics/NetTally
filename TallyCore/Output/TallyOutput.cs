@@ -36,6 +36,9 @@ namespace NetTally.Output
         /// <returns>Returns the full string to be displayed.</returns>
         public async Task<string> BuildOutputAsync(DisplayMode displayMode, CancellationToken token)
         {
+            if (VoteCounter.Instance.Quest == null)
+                return string.Empty;
+
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
