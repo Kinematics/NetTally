@@ -118,13 +118,13 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The quest that sent the notification.</param>
         /// <param name="e">Info about a property of the quest that changed.</param>
-        private void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             IQuest quest = sender as IQuest;
             if (quest != null && quest == VoteCounter.Instance.Quest)
             {
                 if (e.PropertyName == "PartitionMode")
-                    UpdateTally();
+                    await UpdateTally();
             }
         }
         #endregion
@@ -253,12 +253,12 @@ namespace NetTally
         /// <summary>
         /// Process the results of the tally through the vote counter, and update the output.
         /// </summary>
-        private void UpdateTally()
+        private async Task UpdateTally()
         {
             if (VoteCounter.Instance.Quest != null)
             {
                 // Tally the votes from the loaded pages.
-                VoteCounter.Instance.TallyPosts();
+                await VoteCounter.Instance.TallyPosts().ConfigureAwait(false);
 
                 // Compose the final result string from the compiled votes.
                 UpdateResults();

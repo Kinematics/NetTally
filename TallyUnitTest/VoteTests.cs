@@ -29,7 +29,7 @@ namespace NetTally.Tests
         #endregion
 
         #region Test Harness
-        public void TestSinglePostParsing(string vote, List<string> results)
+        public async Task TestSinglePostParsing(string vote, List<string> results)
         {
             string author = "User1";
             string postId = "123456";
@@ -38,7 +38,7 @@ namespace NetTally.Tests
             PostComponents post = new PostComponents(author, postId, vote, postNumber);
             VoteCounter.Instance.PostsList.Add(post);
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            await VoteCounter.Instance.TallyPosts(sampleQuest);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -51,7 +51,7 @@ namespace NetTally.Tests
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
-        public void TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
+        public async Task TestReferencePostParsing(List<string> votes, List<string> authors, List<List<string>> results)
         {
             for (int i = 0; i < votes.Count; i++)
             {
@@ -62,7 +62,7 @@ namespace NetTally.Tests
                 VoteCounter.Instance.PostsList.Add(post);
             }
 
-            VoteCounter.Instance.TallyPosts(sampleQuest);
+            await VoteCounter.Instance.TallyPosts(sampleQuest);
 
             for (int i = 0; i < results.Count; i++)
             {

@@ -178,7 +178,7 @@ namespace NetTally
 
             PostsList = PostsList.Distinct().OrderBy(p => p.Number).ToList();
 
-            TallyPosts();
+            await TallyPosts().ConfigureAwait(false);
 
             return true;
         }
@@ -187,22 +187,33 @@ namespace NetTally
         /// Run TallyPosts using the provided quest.
         /// </summary>
         /// <param name="quest">The quest that will be used for tallying parameters.</param>
-        public void TallyPosts(IQuest quest)
+        public async Task TallyPosts(IQuest quest)
         {
             Quest = quest;
-            TallyPosts();
+            await TallyPosts().ConfigureAwait(false);
         }
 
         /// <summary>
         /// Construct the tally results based on the stored list of posts.
+        /// Run async so that it doesn't cause UI jank.
         /// </summary>
-        public void TallyPosts()
+        public async Task TallyPosts()
         {
             Reset();
 
             if (PostsList == null || PostsList.Count == 0)
                 return;
 
+            await Task.Run(() => PreprocessPlans());
+            await Task.Run(() => ProcessPosts());
+        }
+
+        /// <summary>
+        /// The first half of tallying posts involves doing the preprocessing
+        /// work on the plans in the post list.
+        /// </summary>
+        private void PreprocessPlans()
+        {
             // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
             foreach (var post in PostsList)
             {
@@ -230,7 +241,14 @@ namespace NetTally
             {
                 post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
             }
+        }
 
+        /// <summary>
+        /// The second half of tallying the posts involves cycling through for
+        /// as long as future references need to be handled.
+        /// </summary>
+        private void ProcessPosts()
+        {
             var unprocessed = PostsList;
 
             // Loop as long as there are any more to process.
