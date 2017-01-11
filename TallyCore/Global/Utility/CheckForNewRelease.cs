@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Extensions;
 using NetTally.ViewModels;
 using NetTally.Web;
 
@@ -117,7 +118,7 @@ namespace NetTally.Utility
 
             if (htmldoc != null)
             {
-                var h1ReleaseTitle = htmldoc.DocumentNode.Descendants("h1")?.FirstOrDefault(n => n.GetAttributeValue("class", "").Contains("release-title"));
+                var h1ReleaseTitle = htmldoc.DocumentNode.GetDescendantWithClass("h1", "release-title");
 
                 if (h1ReleaseTitle != null)
                 {
