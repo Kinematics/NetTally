@@ -185,7 +185,10 @@ namespace NetTally.VoteCounting
                 VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
+
                 await VoteCounter.Instance.TallyPosts(posts, quest, token).ConfigureAwait(false);
+
+                await UpdateResults(token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -204,12 +207,14 @@ namespace NetTally.VoteCounting
             finally
             {
                 TallyIsRunning = false;
+
+                // Notify the page provider that we're done, and that the cache
+                // can be cleared out as needed:
                 ViewModelService.MainViewModel.PageProvider.DoneLoading();
 
+                // Free memory used by loading pages as soon as we're done:
                 GC.Collect();
             }
-
-            await UpdateResults().ConfigureAwait(false);
         }
 
         /// <summary>
