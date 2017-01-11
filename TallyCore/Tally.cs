@@ -239,8 +239,20 @@ namespace NetTally
         /// </summary>
         public void UpdateResults()
         {
-            if (VoteCounter.Instance.Quest != null)
-                TallyResults = TextResults.BuildOutput(AdvancedOptions.Instance.DisplayMode);
+            bool holdDuringUpdate = TallyIsRunning;
+
+            try
+            {
+                TallyIsRunning = true;
+
+                if (VoteCounter.Instance.Quest != null)
+                    TallyResults = TextResults.BuildOutput(AdvancedOptions.Instance.DisplayMode);
+            }
+            finally
+            {
+                TallyIsRunning = holdDuringUpdate;
+            }
+
         }
 
         /// <summary>
@@ -260,8 +272,19 @@ namespace NetTally
         {
             if (VoteCounter.Instance.Quest != null)
             {
-                // Tally the votes from the loaded pages.
-                await VoteCounter.Instance.TallyPosts().ConfigureAwait(false);
+                bool holdDuringUpdate = TallyIsRunning;
+
+                try
+                {
+                    TallyIsRunning = true;
+
+                    // Tally the votes from the loaded pages.
+                    await VoteCounter.Instance.TallyPosts().ConfigureAwait(false);
+                }
+                finally
+                {
+                    TallyIsRunning = holdDuringUpdate;
+                }
 
                 // Compose the final result string from the compiled votes.
                 UpdateResults();
