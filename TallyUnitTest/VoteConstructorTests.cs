@@ -51,7 +51,7 @@ namespace NetTally.Tests
             PostComponents p = new PostComponents(author, postId, testVote);
             p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -81,7 +81,7 @@ namespace NetTally.Tests
             PostComponents p = new PostComponents(author, postId, testVote);
             p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -107,7 +107,7 @@ namespace NetTally.Tests
             PostComponents p = new PostComponents(author, postId, testVote);
             p.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
@@ -137,7 +137,7 @@ namespace NetTally.Tests
 
             Assert.IsFalse(p.IsVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest);
+            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
         }
 
 
@@ -159,7 +159,7 @@ namespace NetTally.Tests
             PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
             p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
@@ -391,7 +391,7 @@ namespace NetTally.Tests
             PostComponents p1 = new PostComponents(author, postId, testVote);
             p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
@@ -420,7 +420,7 @@ namespace NetTally.Tests
             PostComponents p1 = new PostComponents(author, postId, testVote);
             p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
@@ -453,7 +453,7 @@ namespace NetTally.Tests
             PostComponents p1 = new PostComponents(author, postId, testVote);
             p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
@@ -485,7 +485,7 @@ namespace NetTally.Tests
             VoteConstructor.PreprocessPlansWithContent(p1, sampleQuest);
             p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest);
+            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));

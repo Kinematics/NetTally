@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.VoteCounting;
@@ -102,7 +103,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
-        public static bool ProcessPost(PostComponents post, IQuest quest)
+        public static bool ProcessPost(PostComponents post, IQuest quest, CancellationToken token)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -110,6 +111,8 @@ namespace NetTally.Votes
                 throw new ArgumentNullException(nameof(quest));
             if (!post.IsVote)
                 throw new ArgumentException("Post is not a valid vote.");
+
+            token.ThrowIfCancellationRequested();
 
             // If the vote has content, deal with it
             if (post.WorkingVote != null && post.WorkingVote.Count > 0)

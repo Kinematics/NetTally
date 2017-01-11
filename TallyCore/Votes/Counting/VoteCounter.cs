@@ -162,6 +162,8 @@ namespace NetTally.VoteCounting
             if (Quest == null)
                 return;
 
+            token.ThrowIfCancellationRequested();
+
             try
             {
                 VoteCounterIsTallying = true;
@@ -171,8 +173,8 @@ namespace NetTally.VoteCounting
                 if (PostsList == null || PostsList.Count == 0)
                     return;
 
-                await Task.Run(() => PreprocessPlans()).ConfigureAwait(false);
-                await Task.Run(() => ProcessPosts()).ConfigureAwait(false);
+                await Task.Run(() => PreprocessPlans(token)).ConfigureAwait(false);
+                await Task.Run(() => ProcessPosts(token)).ConfigureAwait(false);
             }
             finally
             {
@@ -184,8 +186,10 @@ namespace NetTally.VoteCounting
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        private void PreprocessPlans()
+        private void PreprocessPlans(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
             foreach (var post in PostsList)
             {
@@ -194,6 +198,8 @@ namespace NetTally.VoteCounting
                 VoteConstructor.PreprocessPlansWithContent(post, Quest);
             }
 
+            token.ThrowIfCancellationRequested();
+
             // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
             // Total vote must have multiple lines.
             foreach (var post in PostsList)
@@ -201,6 +207,8 @@ namespace NetTally.VoteCounting
                 VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
             }
 
+            token.ThrowIfCancellationRequested();
+            
             // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
             // Total vote may be only one line.
             foreach (var post in PostsList)
@@ -208,6 +216,8 @@ namespace NetTally.VoteCounting
                 VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
             }
 
+            token.ThrowIfCancellationRequested();
+            
             // Once all the plans are in place, set the working votes for each post.
             foreach (var post in PostsList)
             {
@@ -219,15 +229,17 @@ namespace NetTally.VoteCounting
         /// The second half of tallying the posts involves cycling through for
         /// as long as future references need to be handled.
         /// </summary>
-        private void ProcessPosts()
+        private void ProcessPosts(CancellationToken token)
         {
             var unprocessed = PostsList;
 
             // Loop as long as there are any more to process.
             while (unprocessed.Any())
             {
+                token.ThrowIfCancellationRequested();
+
                 // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest) == true).ToList();
+                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest, token) == true).ToList();
 
                 // As long as some got processed, remove those from the unprocessed list
                 // and let the loop run again.
