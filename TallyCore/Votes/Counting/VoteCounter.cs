@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Utility;
 using NetTally.Votes;
@@ -142,19 +143,21 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="posts">The posts to be tallied.</param>
         /// <param name="quest">The quest being tallied.</param>
-        public async Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest)
+        /// <param name="token">Cancellation token.</param>
+        public async Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token)
         {
             Quest = quest;
             PostsList.Clear();
             PostsList.AddRange(posts);
-            await TallyPosts().ConfigureAwait(false);
+            await TallyPosts(token).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Construct the tally results based on the stored list of posts.
         /// Run async so that it doesn't cause UI jank.
         /// </summary>
-        public async Task TallyPosts()
+        /// <param name="token">Cancellation token.</param>
+        public async Task TallyPosts(CancellationToken token)
         {
             try
             {

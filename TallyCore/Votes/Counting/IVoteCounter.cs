@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Votes;
 
@@ -9,8 +10,9 @@ namespace NetTally.VoteCounting
     {
         IQuest Quest { get; set; }
 
-        Task TallyPosts();
-        Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest);
+        Task TallyPosts(CancellationToken token);
+        Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token);
+
         List<PostComponents> PostsList { get; }
         void Reset();
         bool VoteCounterIsTallying { get; set; }

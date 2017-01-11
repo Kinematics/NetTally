@@ -480,6 +480,8 @@ namespace NetTally.ViewModels
         /// <param name="parameter"></param>
         private void DoCancelTally(object parameter)
         {
+            tally.Cancel();
+
             if (cts == null || cts.IsCancellationRequested)
             {
                 tally.TallyIsRunning = false;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -24,6 +25,8 @@ namespace NetTally.VoteCounting
         bool tallyIsRunning;
         string results = string.Empty;
         string changingResults = string.Empty;
+
+        List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
         #endregion
 
         #region Construction
@@ -84,7 +87,7 @@ namespace NetTally.VoteCounting
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
-                await UpdateResults().ConfigureAwait(false);
+                await RunWithTallyFlagAsync(UpdateResults);
         }
 
         /// <summary>
@@ -98,7 +101,7 @@ namespace NetTally.VoteCounting
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    await UpdateTally().ConfigureAwait(false);
+                    await RunWithTallyFlagAsync(UpdateTally).ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
                 }
             }
         }
@@ -193,7 +196,7 @@ namespace NetTally.VoteCounting
                 VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
-                await VoteCounter.Instance.TallyPosts(posts, quest).ConfigureAwait(false);
+                await VoteCounter.Instance.TallyPosts(posts, quest, token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -226,8 +229,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public async Task UpdateResults()
         {
-            if (VoteCounter.Instance.Quest != null)
-                TallyResults = await ViewModelService.MainViewModel.TextResultsProvider.BuildOutputAsync(AdvancedOptions.Instance.DisplayMode).ConfigureAwait(false);
+            await RunWithTallyFlagAsync(UpdateResults);
         }
 
         /// <summary>
@@ -239,19 +241,113 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
+
         #region Private update methods
         /// <summary>
         /// Process the results of the tally through the vote counter, and update the output.
         /// </summary>
-        private async Task UpdateTally()
+        private async Task UpdateTally(CancellationToken token)
         {
-            if (VoteCounter.Instance.Quest != null)
-            {
-                // Tally the votes from the loaded pages.
-                await VoteCounter.Instance.TallyPosts().ConfigureAwait(false);
+            // Tally the votes from the loaded pages.
+            await VoteCounter.Instance.TallyPosts(token).ConfigureAwait(false);
+        }
 
-                // Compose the final result string from the compiled votes.
-                await UpdateResults().ConfigureAwait(false);
+        /// <summary>
+        /// Compose the tallied results into a string to put in the TallyResults property,
+        /// for display in the UI.
+        /// </summary>
+        private async Task UpdateResults(CancellationToken token)
+        {
+            TallyResults = await ViewModelService.MainViewModel.TextResultsProvider
+                .BuildOutputAsync(AdvancedOptions.Instance.DisplayMode, token).ConfigureAwait(false);
+        }
+        #endregion
+
+        #region Cancellable function calls with TallyIsRunning flag active.
+        /// <summary>
+        /// Run the specified function with the TallyIsRunning flag active.
+        /// Provide a cancellation token to the specified function.
+        /// </summary>
+        /// <param name="action">A cancellable function.</param>
+        private void RunWithTallyFlag(Action<CancellationToken> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
+            CancellationTokenSource cts = null;
+
+            try
+            {
+                using (cts = new CancellationTokenSource())
+                {
+                    sources.Add(cts);
+
+                    bool rememberDuringRun = TallyIsRunning;
+
+                    try
+                    {
+                        TallyIsRunning = true;
+
+                        action(cts.Token);
+                    }
+                    finally
+                    {
+                        TallyIsRunning = rememberDuringRun;
+                    }
+                }
+            }
+            finally
+            {
+                sources.Remove(cts);
+            }
+        }
+
+        /// <summary>
+        /// Run the specified async function with the TallyIsRunning flag active.
+        /// Provide a cancellation token to the specified function.
+        /// </summary>
+        /// <param name="action">A cancellable async function.</param>
+        private async Task RunWithTallyFlagAsync(Func<CancellationToken, Task> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
+            CancellationTokenSource cts = null;
+
+            try
+            {
+                using (cts = new CancellationTokenSource())
+                {
+                    sources.Add(cts);
+
+                    bool rememberDuringRun = TallyIsRunning;
+
+                    try
+                    {
+                        TallyIsRunning = true;
+
+                        await action(cts.Token).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        TallyIsRunning = rememberDuringRun;
+                    }
+                }
+            }
+            finally
+            {
+                sources.Remove(cts);
+            }
+        }
+
+        /// <summary>
+        /// Cancel any functions running under the above RunWithTallyFlag functions
+        /// </summary>
+        public void Cancel()
+        {
+            foreach (var cts in sources)
+            {
+                cts.Cancel();
             }
         }
         #endregion
