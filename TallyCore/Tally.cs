@@ -182,6 +182,9 @@ namespace NetTally
         /// <param name="token">Cancellation token.</param>
         public async Task Run(IQuest quest, CancellationToken token)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
             try
             {
                 // Mark the quest as one that we will listen for changes from.
@@ -218,7 +221,7 @@ namespace NetTally
             }
             catch (Exception)
             {
-                VoteCounter.Instance.Quest = null;
+                //VoteCounter.Instance.Quest = null;
                 throw;
             }
             finally
