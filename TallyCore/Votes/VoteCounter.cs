@@ -189,6 +189,9 @@ namespace NetTally
         /// <param name="quest">The quest that will be used for tallying parameters.</param>
         public async Task TallyPosts(IQuest quest)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
             Quest = quest;
             await TallyPosts().ConfigureAwait(false);
         }
