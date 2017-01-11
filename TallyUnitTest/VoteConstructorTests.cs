@@ -15,7 +15,7 @@ namespace NetTally.Tests
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            StringUtility.InitStringComparers(DefaultUnicodeHashFunction.HashFunction);
+            StringUtility.InitStringComparers(Platform.UnicodeHashFunction.HashFunction);
             sampleQuest = new Quest();
         }
 

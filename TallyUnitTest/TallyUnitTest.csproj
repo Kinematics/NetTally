@@ -54,6 +54,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ForumAdapterFactoryUnitTest.cs" />
+    <Compile Include="Platform\UnicodeHashFunction.cs" />
     <Compile Include="PostComponentsTests.cs" />
     <Compile Include="QuestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
