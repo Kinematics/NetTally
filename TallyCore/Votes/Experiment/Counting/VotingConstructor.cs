@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NetTally.Votes.Experiment
 {
@@ -15,8 +16,10 @@ namespace NetTally.Votes.Experiment
             throw new NotImplementedException();
         }
 
-        internal static bool ProcessPost(PostComponents post, IQuest currentQuest)
+        internal static bool ProcessPost(PostComponents post, IQuest currentQuest, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             throw new NotImplementedException();
         }
     }

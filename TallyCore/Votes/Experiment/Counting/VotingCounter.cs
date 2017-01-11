@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetTally.Votes.Experiment
@@ -41,6 +42,7 @@ namespace NetTally.Votes.Experiment
         #region Viewable Properties
         public List<PostComponents> PostsList { get; private set; }
         public IQuest CurrentQuest { get; private set; }
+        public bool TallyWasCanceled { get; private set; }
         #endregion
 
         #region Watchable Properties
@@ -70,7 +72,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="posts">The posts to be processed.</param>
         /// <returns>Returns a Task, for async processing.</returns>
-        public async Task CountVotesInPosts(IQuest quest, IEnumerable<PostComponents> posts)
+        public async Task CountVotesInPosts(IQuest quest, IEnumerable<PostComponents> posts, CancellationToken token)
         {
             CurrentQuest = quest ?? throw new ArgumentNullException(nameof(quest));
             if (posts == null)
@@ -78,14 +80,14 @@ namespace NetTally.Votes.Experiment
 
             PostsList = new List<PostComponents>(posts);
 
-            await CountVotesInCurrentPosts().ConfigureAwait(false);
+            await CountVotesInCurrentPosts(token).ConfigureAwait(false);
         }
 
         /// <summary>
         /// General function call to count the votes in the currently stored list of posts.
         /// </summary>
         /// <returns>Returns a Task, for async processing.</returns>
-        public async Task CountVotesInCurrentPosts()
+        public async Task CountVotesInCurrentPosts(CancellationToken token)
         {
             if (CurrentQuest == null)
                 return;
@@ -96,12 +98,17 @@ namespace NetTally.Votes.Experiment
             try
             {
                 VoteCounterIsTallying = true;
+                TallyWasCanceled = false;
 
                 VotingRecords.Instance.Reset();
 
                 // Run sync functions as async, since they can take a while.
-                await Task.Run(() => PreprocessPosts()).ConfigureAwait(false);
-                await Task.Run(() => ProcessPosts()).ConfigureAwait(false);
+                await Task.Run(() => PreprocessPosts(token)).ConfigureAwait(false);
+                await Task.Run(() => ProcessPosts(token)).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                TallyWasCanceled = true;
             }
             finally
             {
@@ -115,13 +122,15 @@ namespace NetTally.Votes.Experiment
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        private void PreprocessPosts()
+        private void PreprocessPosts(CancellationToken token)
         {
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 
             // Scan the post list once.
             foreach (var post in PostsList)
             {
+                token.ThrowIfCancellationRequested();
+
                 // Keep a record of the most recent post ID for each user.
                 VotingRecords.Instance.AddVoterName(post.Author);
 
@@ -166,7 +175,7 @@ namespace NetTally.Votes.Experiment
         /// The second half of tallying the posts involves cycling through all posts for
         /// as long as future references need to be handled.
         /// </summary>
-        private void ProcessPosts()
+        private void ProcessPosts(CancellationToken token)
         {
             var unprocessed = PostsList;
 
@@ -174,7 +183,7 @@ namespace NetTally.Votes.Experiment
             while (unprocessed.Any())
             {
                 // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VotingConstructor.ProcessPost(p, CurrentQuest) == true).ToList();
+                var processed = unprocessed.Where(p => VotingConstructor.ProcessPost(p, CurrentQuest, token) == true).ToList();
 
                 // As long as some got processed, remove those from the unprocessed list
                 // and let the loop run again.
