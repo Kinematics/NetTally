@@ -29,7 +29,7 @@ namespace NetTally.Adapters
             if (text == null)
                 return string.Empty;
 
-            text = text.TrimStart();
+            text = text.TrimStart(' ', '\t');
 
             text = HtmlEntity.DeEntitize(text);
 
