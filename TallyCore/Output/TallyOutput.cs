@@ -39,6 +39,8 @@ namespace NetTally.Output
         {
             if (VoteCounter.Instance.Quest == null)
                 return string.Empty;
+            if (VoteCounter.Instance.TallyWasCanceled)
+                return cancelled;
 
             DisplayMode = displayMode;
 

@@ -104,8 +104,15 @@ namespace NetTally.VoteCounting
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    await RunWithTallyFlagAsync(UpdateTally)
-                        .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled);
+                    try
+                    {
+                        await RunWithTallyFlagAsync(UpdateTally)
+                            .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
+                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
                 }
             }
         }

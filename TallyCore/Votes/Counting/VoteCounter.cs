@@ -75,7 +75,7 @@ namespace NetTally.VoteCounting
         public bool VoteCounterIsTallying
         {
             get { return voteCounterIsTallying; }
-            set
+            private set
             {
                 if (voteCounterIsTallying != value)
                 {
@@ -85,6 +85,7 @@ namespace NetTally.VoteCounting
             }
         }
 
+        public bool TallyWasCanceled { get; private set; }
         #endregion
 
         #region Public Class Properties
@@ -162,19 +163,22 @@ namespace NetTally.VoteCounting
             if (Quest == null)
                 return;
 
-            token.ThrowIfCancellationRequested();
-
             try
             {
                 VoteCounterIsTallying = true;
+                TallyWasCanceled = false;
 
                 Reset();
 
                 if (PostsList == null || PostsList.Count == 0)
                     return;
 
-                await Task.Run(() => PreprocessPlans(token)).ConfigureAwait(false);
-                await Task.Run(() => ProcessPosts(token)).ConfigureAwait(false);
+                await PreprocessPlans(token).ConfigureAwait(false);
+                await ProcessPosts(token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                TallyWasCanceled = true;
             }
             finally
             {
@@ -186,7 +190,7 @@ namespace NetTally.VoteCounting
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        private void PreprocessPlans(CancellationToken token)
+        private async Task PreprocessPlans(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
@@ -223,13 +227,15 @@ namespace NetTally.VoteCounting
             {
                 post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
             }
+
+            await Task.FromResult(0);
         }
 
         /// <summary>
         /// The second half of tallying the posts involves cycling through for
         /// as long as future references need to be handled.
         /// </summary>
-        private void ProcessPosts(CancellationToken token)
+        private async Task ProcessPosts(CancellationToken token)
         {
             var unprocessed = PostsList;
 
@@ -257,6 +263,8 @@ namespace NetTally.VoteCounting
                     }
                 }
             }
+
+            await Task.FromResult(0);
         }
 
         #endregion
