@@ -170,14 +170,17 @@ namespace NetTally.VoteCounting
         /// <param name="token">Cancellation token.</param>
         public async Task RunAsync(IQuest quest, CancellationToken token)
         {
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
             try
             {
+                TallyIsRunning = true;
+                TallyResults = string.Empty;
+
                 // Mark the quest as one that we will listen for changes from.
                 quest.PropertyChanged -= Quest_PropertyChanged;
                 quest.PropertyChanged += Quest_PropertyChanged;
-
-                TallyIsRunning = true;
-                TallyResults = string.Empty;
 
                 VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
 
@@ -227,7 +230,6 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-
         #region Private update methods
         /// <summary>
         /// Process the results of the tally through the vote counter, and update the output.
@@ -249,7 +251,7 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-        #region Cancellable function calls with TallyIsRunning flag active.
+        #region Cancellable function calls that signal the TallyIsRunning flag.
         /// <summary>
         /// Run the specified function with the TallyIsRunning flag active.
         /// Provide a cancellation token to the specified function.
