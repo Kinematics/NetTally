@@ -9,7 +9,7 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters)
+            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters, bool customThreadmarkFiltersAreRegex)
         {
             ThreadName = threadName;
             DisplayName = displayName;
@@ -20,6 +20,7 @@ namespace NetTally
             PartitionMode = partitionMode;
             UseCustomThreadmarkFilters = useCustomThreadmarkFilters;
             CustomThreadmarkFilters = customThreadmarkFilters;
+            CustomThreadmarkFiltersAreRegex = customThreadmarkFiltersAreRegex;
         }
 
         /// <summary>
@@ -100,6 +101,13 @@ namespace NetTally
         {
             get { return (string)this["CustomThreadmarkFilters"]; }
             set { this["CustomThreadmarkFilters"] = value; }
+        }
+
+        [ConfigurationProperty("CustomThreadmarkFiltersAreRegex", DefaultValue = false)]
+        public bool CustomThreadmarkFiltersAreRegex
+        {
+            get { return (bool)this["CustomThreadmarkFiltersAreRegex"]; }
+            set { this["CustomThreadmarkFiltersAreRegex"] = value; }
         }
 
 
