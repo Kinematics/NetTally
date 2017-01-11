@@ -150,11 +150,11 @@ namespace NetTally.VoteCounting
             get { return results; }
             set
             {
-                bool changed = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
+                bool hasResultsChanged = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
 
                 results = value;
                 OnPropertyChanged();
-                if (changed)
+                if (hasResultsChanged)
                     OnPropertyChanged(nameof(HasTallyResults));
             }
         }
