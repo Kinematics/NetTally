@@ -1,9 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
-using NetTally;
 
-namespace TallyUnitTest
+namespace NetTally.Tests
 {
     [TestClass]
     public class PostComponentsTests
