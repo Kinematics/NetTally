@@ -26,6 +26,7 @@ namespace NetTally.VoteCounting
         string results = string.Empty;
         string changingResults = string.Empty;
 
+        // Tracking cancellations
         List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
         #endregion
 
@@ -65,13 +66,13 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-        #region Event handling
+        #region Event monitoring
         /// <summary>
         /// Keep watch for any status messasges from the page provider, and add them
         /// to the TallyResults string so that they can be displayed in the UI.
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="e">Contains the text to be added to the output.</param>
         private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
         {
             TallyResultsChanging = e.Message;
@@ -83,7 +84,7 @@ namespace NetTally.VoteCounting
         /// If the display mode changes, update the output results.
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="e">Contains info about which program option was updated.</param>
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
@@ -91,7 +92,8 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// Listener for if any quest options change.  Update the tally if needed.
+        /// Listener for if any quest options change.
+        /// Update the tally if needed, and update the output results afterwards.
         /// </summary>
         /// <param name="sender">The quest that sent the notification.</param>
         /// <param name="e">Info about a property of the quest that changed.</param>
@@ -101,7 +103,8 @@ namespace NetTally.VoteCounting
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    await RunWithTallyFlagAsync(UpdateTally).ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
+                    await RunWithTallyFlagAsync(UpdateTally)
+                        .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
                 }
             }
         }
