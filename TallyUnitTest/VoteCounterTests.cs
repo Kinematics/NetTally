@@ -9,13 +9,15 @@ namespace NetTally.Tests
     public class VoteCounterTests
     {
         #region Setup
-        static VoteCounterImpl voteCounterRaw = VoteCounterImpl.Instance;
+        static VoteCounterImpl voteCounterRaw;
         static IQuest sampleQuest;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
+            StringUtility.InitStringComparers(DefaultUnicodeHashFunction.HashFunction);
             sampleQuest = new Quest();
+            voteCounterRaw = VoteCounterImpl.Instance;
         }
 
         [TestInitialize]
