@@ -87,7 +87,9 @@ namespace NetTally.VoteCounting
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
+            {
                 await RunWithTallyFlagAsync(UpdateResults);
+            }
         }
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace NetTally.VoteCounting
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
                     await RunWithTallyFlagAsync(UpdateTally)
-                        .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
+                        .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled);
                 }
             }
         }
