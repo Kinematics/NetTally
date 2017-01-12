@@ -44,7 +44,10 @@ namespace NetTally
             MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
             // Create filtered, sortable views into the collection for display in the window.
-            TaskView = new ListCollectionView(MainViewModel.TaskList);
+            if (MainViewModel.TaskList != null)
+            {
+                TaskView = new ListCollectionView(MainViewModel.TaskList);
+            }
 
             // Initialize starting selected positions
             TaskView.MoveCurrentToPosition(-1);
@@ -103,6 +106,18 @@ namespace NetTally
         private void down_Click(object sender, RoutedEventArgs e)
         {
             MainViewModel.TaskList.Swap(TaskView.CurrentPosition, TaskView.CurrentPosition + 1);
+            UpdateTaskList();
+        }
+
+        private void alpha_Click(object sender, RoutedEventArgs e)
+        {
+            MainViewModel.TaskList.Sort();
+            UpdateTaskList();
+        }
+
+        private void default_Click(object sender, RoutedEventArgs e)
+        {
+            MainViewModel.TaskList.Sort((a,b) => (MainViewModel.KnownTasks.ToList().IndexOf(a).CompareTo(MainViewModel.KnownTasks.ToList().IndexOf(b))));
             UpdateTaskList();
         }
         #endregion

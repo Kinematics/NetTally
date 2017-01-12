@@ -698,6 +698,7 @@ namespace NetTally
 
         /// <summary>
         /// Recreate the context menu when new menu items are added.
+        /// Also disables the Re-Order Tasks menu item if there are no known tasks.
         /// </summary>
         private void UpdateContextMenu()
         {
@@ -708,6 +709,13 @@ namespace NetTally
 
                 foreach (var header in ContextMenuCommands)
                 {
+                    if ((string)header.Header == "Re-Order Tasks")
+                    {
+                        if (MainViewModel.KnownTasks.Count() == 0)
+                            header.IsEnabled = false;
+                        else
+                            header.IsEnabled = true;
+                    }
                     pMenu.Items.Add(header);
                 }
 
