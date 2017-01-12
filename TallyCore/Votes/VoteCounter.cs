@@ -181,6 +181,8 @@ namespace NetTally
 
             await TallyPosts().ConfigureAwait(false);
 
+            OrderedTaskList = ViewModels.ViewModelLocator.MainViewModel.KnownTasks.ToList();
+
             return true;
         }
 

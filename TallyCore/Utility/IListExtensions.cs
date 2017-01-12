@@ -16,8 +16,6 @@ namespace NetTally.Utility
             )
         {
             Contract.Requires(list != null);
-            //Contract.Requires(firstIndex >= 0 && firstIndex < list.Count);
-            //Contract.Requires(secondIndex >= 0 && secondIndex < list.Count);
 
             if (firstIndex == secondIndex)
                 return;
