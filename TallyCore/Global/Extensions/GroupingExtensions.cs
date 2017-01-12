@@ -104,6 +104,51 @@ namespace NetTally.Extensions
         }
 
         /// <summary>
+        /// Group elements of a list together, given a comparison function that returns
+        /// true if it's time to create a new group.
+        /// </summary>
+        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
+        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
+        /// <param name="source">Enumerable list we're working on.</param>
+        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
+        /// <param name="groupComparison">Function that returns true if a new source item should start a new group.</param>
+        /// <returns>Returns an IEnumerable grouping of the provided source.</returns>
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentByComparison<TSource, TKey>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector, Func<TSource, TKey, bool> groupComparison) where TKey : class
+        {
+            TKey lastKey = default(TKey);
+            bool haveLast = false;
+            List<TSource> list = new List<TSource>();
+
+            foreach (TSource s in source)
+            {
+                TKey k = keySelector(s);
+                if (haveLast)
+                {
+                    if (groupComparison(s, lastKey))
+                    {
+                        yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
+                        list = new List<TSource> { s };
+                        lastKey = k;
+                    }
+                    else
+                    {
+                        list.Add(s);
+                    }
+                }
+                else
+                {
+                    list.Add(s);
+                    lastKey = k;
+                    haveLast = true;
+                }
+            }
+
+            if (haveLast)
+                yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
+        }
+
+        /// <summary>
         /// Group elements of a list together when a selector key is the same for each.
         /// </summary>
         /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
