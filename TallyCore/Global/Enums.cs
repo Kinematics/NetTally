@@ -95,6 +95,15 @@ namespace NetTally
             Approval
         }
 
+        public enum MarkerType
+        {
+            None,
+            Vote,
+            Rank,
+            Score,
+            Approval
+        }
+
         /// <summary>
         /// Enum for various partitioning modes to use for breaking votes up into components.
         /// </summary>

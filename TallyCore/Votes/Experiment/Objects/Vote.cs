@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NetTally.Extensions;
 using NetTally.Utility;
 
@@ -8,117 +9,151 @@ namespace NetTally.Votes.Experiment
 {
     public class Vote
     {
+        public bool IsValid { get; private set; }
         public string FullText { get; }
-        public List<string> Lines { get; } = new List<string>();
-
-        public string TaskAndContent { get; private set; }
-        public string Task { get; private set; }
-        public int Rank { get; private set; }
-
-        public VoteType VoteType { get; private set; }
+        public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
 
 
-        public Vote(string input)
+        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
+        static readonly Regex tallyRegex = new Regex(@"^#####");
+        // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
+        static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>(?<vote>[xX✓✔])|(?<value>[#+]?[1-9])|(?<approval>[+-]))\s*\]");
+        // Check for a plan reference. "Plan: Dwarf Raid"
+        static readonly Regex anyPlanRegex = new Regex(@"^(?<base>base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+
+
+        public Vote(string message)
         {
-            if (string.IsNullOrEmpty(input))
-                throw new ArgumentNullException(nameof(input));
+            if (string.IsNullOrEmpty(message))
+                throw new ArgumentNullException(nameof(message));
 
-            FullText = input;
+            FullText = message;
+            ProcessMessage(message);
+        }
 
-            ConfigVote(input);
+        /// <summary>
+        /// Extract any vote lines from the message text, and save both the original and
+        /// the cleaned (no BBCode) in a list.
+        /// Do not record any vote lines if there's a tally marker (#####).
+        /// Mark the vote as valid if it has any vote lines.
+        /// </summary>
+        /// <param name="message">The original, full message text.</param>
+        private void ProcessMessage(string message)
+        {
+            var messageLines = message.GetStringLines();
+
+            bool isTally = false;
+
+            foreach (var line in messageLines)
+            {
+                string cleanLine = VoteString.RemoveBBCode(line);
+
+                if (tallyRegex.Match(cleanLine).Success)
+                {
+                    isTally = true;
+                    break;
+                }
+
+                Match m = voteLineRegex.Match(cleanLine);
+                if (m.Success)
+                {
+                    VoteLines.Add(new VoteLine(line, cleanLine));
+                }
+            }
+
+            if (isTally)
+            {
+                VoteLines.Clear();
+            }
+
+            IsValid = VoteLines.Any();
         }
 
 
-        private void ConfigVote(string input)
+        public List<PlanDescriptor> GetPlans()
         {
-            Lines.AddRange(input.GetStringLines());
+            List<PlanDescriptor> planDescriptors = new List<PlanDescriptor>();
 
-            string firstLine = Lines.First();
+            if (!VoteLines.Any())
+                return planDescriptors;
 
-            VoteString.GetVoteComponents(firstLine, out string prefix, out string marker, out string task, out string content);
+            // Group lines where the group starts each time there's no prefix value.
+            var voteGrouping = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix)).ToList();
 
-            Task = task;
+            var basePlans = voteGrouping.TakeWhile(g => anyPlanRegex.Match(g.Key).Groups["base"].Success).ToList();
 
-            if (int.TryParse(marker, out int rank))
+            foreach (var plan in basePlans)
             {
-                Rank = rank;
-                VoteType = VoteType.Rank;
-            }
-            else
-            {
-                Rank = 0;
-                VoteType = VoteType.Vote;
+                Match m = anyPlanRegex.Match(plan.Key);
+                if (m.Success)
+                    planDescriptors.Add(new PlanDescriptor(PlanType.Base, m.Groups["planname"].Value, plan.ToList()));
             }
 
-            if (string.IsNullOrEmpty(task))
+            var remainingGroups = voteGrouping.Skip(basePlans.Count);
+
+            if (remainingGroups.Any())
             {
-                TaskAndContent = content;
+                var firstGroup = remainingGroups.First();
+
+                if (firstGroup.Count() == 1)
+                {
+                    Match m = anyPlanRegex.Match(firstGroup.Key);
+                    if (m.Success)
+                    {
+                        var labelPlan = remainingGroups.First();
+                        remainingGroups = remainingGroups.Skip(1);
+
+                        PlanType labelType = remainingGroups.Any() ? PlanType.Label : PlanType.SingleLine;
+
+                        planDescriptors.Add(new PlanDescriptor(labelType, m.Groups["planname"].Value, labelPlan.ToList()));
+                    }
+                }
             }
-            else
+
+            foreach (var group in remainingGroups)
             {
-                TaskAndContent = $"[{task}] {content}";
+                if (group.Count() > 1)
+                {
+                    Match m = anyPlanRegex.Match(group.Key);
+                    if (m.Success)
+                    {
+                        planDescriptors.Add(new PlanDescriptor(PlanType.Content, m.Groups["planname"].Value, group.ToList()));
+                    }
+                }
             }
+
+            return planDescriptors;
         }
 
 
 
-
-        public Vote ChangeTask(string task)
-        {
-            if (task == Task)
-                return this;
-
-            return new Vote(FullText) { Task = task };
-        }
-
-
-        public bool Match(string compare)
-        {
-            return Agnostic.StringComparer.Equals(compare, FullText);
-        }
-
-
-
-
-
-
-
-        public VoteLineSequence VoteLines { get; }
-
-        public IEnumerable<VoteLineSequence> VoteBlocks
+        public IEnumerable<VoteLine> VoteBlocks
         {
             get
             {
-                var voteBlocks = VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+                var voteBlocks = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix));
 
                 foreach (var block in voteBlocks)
-                    yield return block as VoteLineSequence;
+                    yield return block as VoteLine;
             }
         }
+    }
 
-        /// <summary>
-        /// Utility function to determine whether adjacent lines should
-        /// be grouped together.
-        /// Creates a grouping key for the provided line.
-        /// </summary>
-        /// <param name="line">The line to check.</param>
-        /// <returns>Returns the line as the key if it's not a sub-vote line.
-        /// Otherwise returns null.</returns>
-        private static VoteLine SelectSubLines(VoteLine line)
+
+    public class PlanDescriptor
+    {
+        public PlanType PlanType { get; }
+        public string Name { get; }
+        public List<VoteLine> Lines { get; }
+
+        public PlanDescriptor(PlanType planType, string name, List<VoteLine> lines)
         {
-            if (string.IsNullOrEmpty(line.Prefix))
-                return line;
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
 
-            return null;
+            PlanType = planType;
+            Name = name;
+            Lines = lines ?? throw new ArgumentNullException(nameof(lines));
         }
-
-        /// <summary>
-        /// Supplementary function for line grouping, in the event that the first
-        /// line of the vote is indented (and thus would normally generate a null key).
-        /// </summary>
-        /// <param name="line">The line to generate a key for.</param>
-        /// <returns>Returns the line, or "Key", as the key for a line.</returns>
-        private static VoteLine NonNullSelectSubLines(VoteLine line) => line ?? VoteLine.Empty;
-
     }
 }

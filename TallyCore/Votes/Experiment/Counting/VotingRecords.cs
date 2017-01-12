@@ -8,7 +8,7 @@ using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
-    using PlanDictionary = Dictionary<string, (PlanType planType, string plan, string postId)>;
+    using PlanDictionary = Dictionary<string, (PlanType planType, List<VoteLine> planLines, string postId)>;
 
     using SupportersList = List<string>;
     using VoteSupporters = Dictionary<string, List<string>>;
@@ -91,7 +91,7 @@ namespace NetTally.Votes.Experiment
             {
                 AddPlanName(plan.Key);
 
-                List<VoteFragment> fragments = new VoteFragments { new VoteFragment(VoteType.Plan, plan.Value.plan) };
+                List<VoteFragment> fragments = new VoteFragments { new VoteFragment(VoteType.Plan, plan.Value.planLines.First().Content) };
 
                 AddVoteFragments(fragments, plan.Key, plan.Value.postId);
             }
