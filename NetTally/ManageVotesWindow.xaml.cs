@@ -107,6 +107,18 @@ namespace NetTally
             Filter1String = "";
             Filter2String = "";
         }
+
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Window.Closed" /> event.
+        /// Removes event listeners on close, to prevent memory leaks.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        protected override void OnClosed(EventArgs e)
+        {
+            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+
+            base.OnClosed(e);
+        }
         #endregion
 
         #region INotifyPropertyChanged implementation
