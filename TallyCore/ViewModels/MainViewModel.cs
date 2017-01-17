@@ -462,6 +462,48 @@ namespace NetTally.ViewModels
         public ObservableCollectionExt<string> AllVotersCollection { get; }
         public List<string> TaskList => VoteCounter.Instance.OrderedTaskList;
 
+        /// <summary>
+        /// Increases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void IncreaseTaskPosition(int currentPosition)
+        {
+            TaskList.Swap(currentPosition, currentPosition + 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Decreases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void DecreaseTaskPosition(int currentPosition)
+        {
+            TaskList.Swap(currentPosition, currentPosition - 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Resets the tasks order.
+        /// </summary>
+        /// <param name="order">The type of ordering to use.</param>
+        public void ResetTasksOrder(TasksOrdering order)
+        {
+            if (order == TasksOrdering.Alphabetical)
+            {
+                TaskList.Sort();
+                OnPropertyChanged("Tasks");
+            }
+            else if (order == TasksOrdering.AsTallied)
+            {
+                TaskList.Clear();
+                TaskList.AddRange(KnownTasks);
+                OnPropertyChanged("Tasks");
+            }
+        }
+
+        /// <summary>
+        /// Attach to the VoteCounter's property changed event.
+        /// </summary>
         private void BindVoteCounter()
         {
             VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
