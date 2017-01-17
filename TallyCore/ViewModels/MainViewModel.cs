@@ -509,6 +509,11 @@ namespace NetTally.ViewModels
             VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
         }
 
+        /// <summary>
+        /// Handles the PropertyChanged event of the VoteCounter control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Votes")
@@ -534,6 +539,9 @@ namespace NetTally.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the known tallied and user-defined tasks.
+        /// </summary>
         public IEnumerable<string> KnownTasks
         {
             get

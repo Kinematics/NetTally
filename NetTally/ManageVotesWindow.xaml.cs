@@ -713,6 +713,7 @@ namespace NetTally
                     {
                         header.IsEnabled = MainViewModel.TaskList.Any();
                     }
+
                     pMenu.Items.Add(header);
                 }
 
