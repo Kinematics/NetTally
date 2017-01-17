@@ -182,8 +182,6 @@ namespace NetTally.VoteCounting
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
                 await VoteCounter.Instance.TallyPosts(posts, quest, token).ConfigureAwait(false);
-
-                await UpdateResults(token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -210,6 +208,8 @@ namespace NetTally.VoteCounting
                 // Free memory used by loading pages as soon as we're done:
                 GC.Collect();
             }
+
+            await UpdateResults(token).ConfigureAwait(false);
         }
 
         /// <summary>
