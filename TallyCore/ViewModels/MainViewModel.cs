@@ -390,6 +390,15 @@ namespace NetTally.ViewModels
         /// Redirection for user defined task values.
         /// </summary>
         public HashSet<string> UserDefinedTasks => VoteCounter.Instance.UserDefinedTasks;
+
+        public void AddUserDefinedTask(string task)
+        {
+            if (UserDefinedTasks.Add(task))
+            {
+                TaskList.Add(task);
+                OnPropertyChanged("Tasks");
+            }
+        }
         #endregion
 
         #region Section: Tally Commands
@@ -521,7 +530,50 @@ namespace NetTally.ViewModels
         #region Section: Vote Counter
         public ObservableCollectionExt<string> AllVotesCollection { get; }
         public ObservableCollectionExt<string> AllVotersCollection { get; }
+        public List<string> TaskList => VoteCounter.Instance.OrderedTaskList;
 
+        /// <summary>
+        /// Increases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void IncreaseTaskPosition(int currentPosition)
+        {
+            TaskList.Swap(currentPosition, currentPosition + 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Decreases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void DecreaseTaskPosition(int currentPosition)
+        {
+            TaskList.Swap(currentPosition, currentPosition - 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Resets the tasks order.
+        /// </summary>
+        /// <param name="order">The type of ordering to use.</param>
+        public void ResetTasksOrder(TasksOrdering order)
+        {
+            if (order == TasksOrdering.Alphabetical)
+            {
+                TaskList.Sort();
+                OnPropertyChanged("Tasks");
+            }
+            else if (order == TasksOrdering.AsTallied)
+            {
+                TaskList.Clear();
+                TaskList.AddRange(KnownTasks);
+                OnPropertyChanged("Tasks");
+            }
+        }
+
+        /// <summary>
+        /// Attach to the VoteCounter's property changed event.
+        /// </summary>
         private void BindVoteCounter()
         {
             VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
@@ -531,6 +583,7 @@ namespace NetTally.ViewModels
         /// Update the observable collection of votes.
         /// </summary>
         private void UpdateVotesCollection()
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         {
             var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
 
@@ -587,6 +640,9 @@ namespace NetTally.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the known tallied and user-defined tasks.
+        /// </summary>
         public IEnumerable<string> KnownTasks
         {
             get

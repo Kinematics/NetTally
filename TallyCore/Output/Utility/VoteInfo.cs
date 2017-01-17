@@ -103,7 +103,12 @@ namespace NetTally.Output
         public static IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
             var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
+            if(VoteCounter.Instance.OrderedTaskList != null)
+            {
 
+                grouped = grouped.OrderBy(v => VoteCounter.Instance.OrderedTaskList.IndexOf(v.Key));
+            }
+            
             return grouped;
         }
 

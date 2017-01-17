@@ -201,7 +201,7 @@ namespace NetTally.VoteCounting
             }
             catch (Exception)
             {
-                VoteCounter.Instance.Quest = null;
+                //VoteCounter.Instance.Quest = null;
                 throw;
             }
             finally

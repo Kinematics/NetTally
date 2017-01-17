@@ -94,7 +94,8 @@ namespace NetTally.Output
                 VoteCounting.IRankVoteCounter counter = VoteCounting.VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
                 RankResultsByTask results = counter.CountVotes(VoteCounter.Instance.GetVotesCollection(VoteType.Rank));
 
-                var orderedRes = results.OrderBy(a => a.Key);
+                //var orderedRes = results.OrderBy(a => a.Key);
+                var orderedRes = results;
 
                 // Output the ranking results for each task
                 foreach (var task in orderedRes)

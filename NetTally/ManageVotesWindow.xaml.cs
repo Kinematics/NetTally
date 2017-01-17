@@ -480,6 +480,18 @@ namespace NetTally
                 }
             }
         }
+
+        private void reorderTasks_Click(object sender, RoutedEventArgs e)
+        {
+            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
+            {
+                Owner = this
+            };
+
+            reorderWindow.ShowDialog();
+
+            MainViewModel.UpdateOutput();
+        }
         #endregion
 
         #region Watched Events        
@@ -643,8 +655,14 @@ namespace NetTally
             clearTask.Click += modifyTask_Click;
             clearTask.ToolTip = "Clear the task from the currently selected vote.";
 
+            MenuItem reorderTasks = new MenuItem();
+            reorderTasks.Header = "Re-Order Tasks";
+            reorderTasks.Click += reorderTasks_Click;
+            reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
+
             ContextMenuCommands.Add(newTask);
             ContextMenuCommands.Add(clearTask);
+            ContextMenuCommands.Add(reorderTasks);
         }
 
         /// <summary>
@@ -674,6 +692,7 @@ namespace NetTally
 
         /// <summary>
         /// Recreate the context menu when new menu items are added.
+        /// Also disables the Re-Order Tasks menu item if there are no known tasks.
         /// </summary>
         private void UpdateContextMenu()
         {
@@ -684,6 +703,11 @@ namespace NetTally
 
                 foreach (var header in ContextMenuCommands)
                 {
+                    if ((string)header.Header == "Re-Order Tasks")
+                    {
+                        header.IsEnabled = MainViewModel.TaskList.Any();
+                    }
+
                     pMenu.Items.Add(header);
                 }
 
@@ -708,7 +732,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            MainViewModel.UserDefinedTasks.Add(task);
+            MainViewModel.AddUserDefinedTask(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 

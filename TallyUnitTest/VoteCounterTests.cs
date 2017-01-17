@@ -25,6 +25,7 @@ namespace NetTally.Tests
             voteCounterRaw = VoteCounterImpl.Instance;
 
             sampleQuest = new Quest();
+            voteCounterRaw = VoteCounterImpl.Instance;
         }
 
         [TestInitialize]
