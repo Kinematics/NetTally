@@ -15,7 +15,8 @@ namespace NetTally.VoteCounting
 
         List<PostComponents> PostsList { get; }
         void Reset();
-        bool VoteCounterIsTallying { get; set; }
+        bool VoteCounterIsTallying { get; }
+        bool TallyWasCanceled { get; }
 
         void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
 

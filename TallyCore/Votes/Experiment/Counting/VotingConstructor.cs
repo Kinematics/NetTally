@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NetTally.Votes.Experiment
 {
     public static class VotingConstructor
     {
-        public static List<(string planName, PlanType planType, string plan)> GetPlansFromPost(PostComponents post, IQuest quest)
+        internal static List<string> GetWorkingVote(Post post)
         {
             throw new NotImplementedException();
         }
 
-        internal static List<string> GetWorkingVote(PostComponents post)
+        internal static bool ProcessPost(Post post, IQuest currentQuest, CancellationToken token)
         {
-            throw new NotImplementedException();
-        }
+            token.ThrowIfCancellationRequested();
 
-        internal static bool ProcessPost(PostComponents post, IQuest currentQuest)
-        {
             throw new NotImplementedException();
         }
     }

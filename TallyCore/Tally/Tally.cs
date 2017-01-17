@@ -74,8 +74,11 @@ namespace NetTally.VoteCounting
         /// <param name="e">Contains the text to be added to the output.</param>
         private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
         {
-            TallyResultsChanging = e.Message;
-            TallyResults = TallyResults + e.Message;
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                OnPropertyDataChanged(e.Message, "TallyResultsStatusChanged");
+                TallyResults = TallyResults + e.Message;
+            }
         }
 
         /// <summary>
@@ -87,7 +90,9 @@ namespace NetTally.VoteCounting
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
+            {
                 await RunWithTallyFlagAsync(UpdateResults);
+            }
         }
 
         /// <summary>
@@ -102,8 +107,15 @@ namespace NetTally.VoteCounting
             {
                 if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
                 {
-                    await RunWithTallyFlagAsync(UpdateTally)
-                        .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults));
+                    try
+                    {
+                        await RunWithTallyFlagAsync(UpdateTally)
+                            .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
+                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
                 }
             }
         }
@@ -124,23 +136,6 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// A staging property for the changes that are applied piecemeal to
-        /// the TallyResults property, before the TallyResults property is updated.
-        /// </summary>
-        public string TallyResultsChanging
-        {
-            get { return changingResults; }
-            set
-            {
-                if (value == changingResults)
-                    return;
-
-                changingResults = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
         /// If it changes to or from an empty string, the HasTallyResults property also changes.
@@ -150,11 +145,11 @@ namespace NetTally.VoteCounting
             get { return results; }
             set
             {
-                bool changed = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
+                bool hasResultsChanged = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
 
                 results = value;
                 OnPropertyChanged();
-                if (changed)
+                if (hasResultsChanged)
                     OnPropertyChanged(nameof(HasTallyResults));
             }
         }
@@ -187,8 +182,6 @@ namespace NetTally.VoteCounting
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
                 await VoteCounter.Instance.TallyPosts(posts, quest, token).ConfigureAwait(false);
-
-                await UpdateResults(token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -215,6 +208,8 @@ namespace NetTally.VoteCounting
                 // Free memory used by loading pages as soon as we're done:
                 GC.Collect();
             }
+
+            await UpdateResults(token).ConfigureAwait(false);
         }
 
         /// <summary>

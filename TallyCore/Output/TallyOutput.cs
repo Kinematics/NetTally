@@ -23,6 +23,7 @@ namespace NetTally.Output
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb { get; set; }
+        const string cancelled = "Cancelled!";
 
         static string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
         #endregion
@@ -38,12 +39,21 @@ namespace NetTally.Output
         {
             if (VoteCounter.Instance.Quest == null)
                 return string.Empty;
+            if (VoteCounter.Instance.TallyWasCanceled)
+                return cancelled;
 
             DisplayMode = displayMode;
 
             sb = new StringBuilder();
 
-            await Task.Run(() => BuildGlobal()).ConfigureAwait(false);
+            try
+            {
+                await Task.Run(() => BuildGlobal(token)).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                return cancelled;
+            }
 
             return sb.ToString();
         }
@@ -54,15 +64,18 @@ namespace NetTally.Output
         /// General construction.  Add the header and any vote output.
         /// Surround by spoiler tags if requested by the display mode.
         /// </summary>
-        private void BuildGlobal()
+        /// <param name="token">Cancellation token so that processing can be cancelled.</param>
+        private void BuildGlobal(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll || AdvancedOptions.Instance.GlobalSpoilers))
             {
-                AddHeader();
+                AddHeader(token);
 
-                ConstructRankedOutput();
+                ConstructRankedOutput(token);
 
-                ConstructNormalOutput();
+                ConstructNormalOutput(token);
             }
         }
 
@@ -70,8 +83,10 @@ namespace NetTally.Output
         /// Add the header indicating the title of the thread that was tallied,
         /// and the marker that this is a tally result (along with the program version number).
         /// </summary>
-        private void AddHeader()
+        private void AddHeader(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             sb.Append("[b]Vote Tally");
             if (AdvancedOptions.Instance.DebugMode)
                 sb.Append(" (DEBUG)");
@@ -87,11 +102,13 @@ namespace NetTally.Output
         /// <summary>
         /// Generate output for any ranked votes that were tallied.
         /// </summary>
-        private void ConstructRankedOutput()
+        private void ConstructRankedOutput(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             if (VoteCounter.Instance.HasRankedVotes)
             {
-                VoteCounting.IRankVoteCounter counter = VoteCounting.VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
+                IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
                 RankResultsByTask results = counter.CountVotes(VoteCounter.Instance.GetVotesCollection(VoteType.Rank));
 
                 //var orderedRes = results.OrderBy(a => a.Key);
@@ -100,6 +117,8 @@ namespace NetTally.Output
                 // Output the ranking results for each task
                 foreach (var task in orderedRes)
                 {
+                    token.ThrowIfCancellationRequested();
+
                     AddRankTask(task);
                     sb.AppendLine("");
                 }
@@ -246,8 +265,10 @@ namespace NetTally.Output
         /// mode.
         /// Display the vote, the count, and the voters, as appropriate.
         /// </summary>
-        private void ConstructNormalOutput()
+        private void ConstructNormalOutput(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             if (VoteInfo.NormalVoterCount == 0)
                 return;
 
@@ -258,6 +279,8 @@ namespace NetTally.Output
 
             foreach (var taskGroup in votesGroupedByTask)
             {
+                token.ThrowIfCancellationRequested();
+
                 if (taskGroup.Any())
                 {
                     if (!firstTask)
