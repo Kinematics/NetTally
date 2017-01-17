@@ -74,8 +74,11 @@ namespace NetTally.VoteCounting
         /// <param name="e">Contains the text to be added to the output.</param>
         private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
         {
-            TallyResultsChanging = e.Message;
-            TallyResults = TallyResults + e.Message;
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                OnPropertyDataChanged(e.Message, "TallyResultsStatusChanged");
+                TallyResults = TallyResults + e.Message;
+            }
         }
 
         /// <summary>
@@ -128,23 +131,6 @@ namespace NetTally.VoteCounting
             set
             {
                 tallyIsRunning = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// A staging property for the changes that are applied piecemeal to
-        /// the TallyResults property, before the TallyResults property is updated.
-        /// </summary>
-        public string TallyResultsChanging
-        {
-            get { return changingResults; }
-            set
-            {
-                if (value == changingResults)
-                    return;
-
-                changingResults = value;
                 OnPropertyChanged();
             }
         }

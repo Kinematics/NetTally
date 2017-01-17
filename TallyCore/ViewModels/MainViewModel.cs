@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NetTally.Collections;
+using NetTally.CustomEventArgs;
 using NetTally.Extensions;
 using NetTally.Output;
 using NetTally.Utility;
@@ -358,9 +359,12 @@ namespace NetTally.ViewModels
             {
                 OnPropertyChanged(nameof(HasOutput));
             }
-            else if (e.PropertyName == nameof(tally.TallyResultsChanging))
+            else if (e is PropertyDataChangedEventArgs<string> eData)
             {
-                OnPropertyChanged(nameof(OutputChanging));
+                if (eData.PropertyName == "TallyResultsStatusChanged")
+                {
+                    OnPropertyDataChanged(eData.PropertyData, eData.PropertyName);
+                }
             }
         }
 
@@ -374,12 +378,6 @@ namespace NetTally.ViewModels
         /// Creates a notification event if the contents change.
         /// </summary>
         public string Output => tally.TallyResults;
-
-        /// <summary>
-        /// The piecemeal updates to the tally's TallyResults, before
-        /// TallyResults is changed.
-        /// </summary>
-        public string OutputChanging => tally.TallyResultsChanging;
 
         /// <summary>
         /// Flag whether there's any text in the Output property.

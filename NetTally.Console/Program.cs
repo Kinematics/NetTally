@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using NetTally.CustomEventArgs;
 using NetTally.ViewModels;
 using CommandLine;
 
@@ -128,21 +129,24 @@ namespace NetTally.CLI
         /// <param name="e"></param>
         private static void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (ViewModelService.MainViewModel.TallyIsRunning &&
-                e.PropertyName == nameof(ViewModelService.MainViewModel.OutputChanging) && 
-                verbose)
+            if (e is PropertyDataChangedEventArgs<string> eData)
             {
-                Console.Error.Write(ViewModelService.MainViewModel.OutputChanging);
+                if (ViewModelService.MainViewModel.TallyIsRunning && verbose)
+                {
+                    Console.Error.Write(eData.PropertyData);
+                }
             }
-            else if (ViewModelService.MainViewModel.TallyIsRunning == false && 
-                     e.PropertyName == nameof(ViewModelService.MainViewModel.Output))
+            else if (ViewModelService.MainViewModel.TallyIsRunning == false)
             {
-                Console.WriteLine(ViewModelService.MainViewModel.Output);
+                if (e.PropertyName == nameof(ViewModelService.MainViewModel.Output))
+                {
+                    Console.WriteLine(ViewModelService.MainViewModel.Output);
 
-                if (verbose)
-                    Console.Error.WriteLine("Tally completed!");
+                    if (verbose)
+                        Console.Error.WriteLine("Tally completed!");
 
-                waiting.Set();
+                    waiting.Set();
+                }
             }
         }
         #endregion
