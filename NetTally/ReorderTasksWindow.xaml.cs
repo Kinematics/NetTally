@@ -17,7 +17,7 @@ namespace NetTally
     /// <summary>
     /// Interaction logic for ReorderTasks.xaml
     /// </summary>
-    public partial class ReorderTasksWindow : Window, INotifyPropertyChanged
+    public partial class ReorderTasksWindow : Window
     {
         #region Constructor and variables
         public ListCollectionView TaskView { get; }
@@ -55,31 +55,14 @@ namespace NetTally
             // Set the data context for binding.
             DataContext = this;
 
-            // Update the displayed order immediately
-            UpdateTaskList();
-        }
-        #endregion
-
-        private void UpdateTaskList()
-        {
-            VoteCounter.Instance.OrderedTaskList = TaskView.SourceCollection as List<string>;
-            OnPropertyChanged("Votes");
             TaskView.Refresh();
         }
 
-        #region INotifyPropertyChanged implementation
-        /// <summary>
-        /// Event for INotifyPropertyChanged.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Function to raise events when a property has been changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected override void OnClosed(EventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+
+            base.OnClosed(e);
         }
         #endregion
 
@@ -91,7 +74,7 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Votes")
+            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks")
             {
                 TaskView.Refresh();
             }
@@ -99,26 +82,22 @@ namespace NetTally
 
         private void up_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.TaskList.Swap(TaskView.CurrentPosition, TaskView.CurrentPosition - 1);
-            UpdateTaskList();
+            MainViewModel.DecreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void down_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.TaskList.Swap(TaskView.CurrentPosition, TaskView.CurrentPosition + 1);
-            UpdateTaskList();
+            MainViewModel.IncreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void alpha_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.TaskList.Sort();
-            UpdateTaskList();
+            MainViewModel.ResetTasksOrder(TasksOrdering.Alphabetical);
         }
 
         private void default_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.TaskList.Sort((a,b) => (MainViewModel.KnownTasks.ToList().IndexOf(a).CompareTo(MainViewModel.KnownTasks.ToList().IndexOf(b))));
-            UpdateTaskList();
+            MainViewModel.ResetTasksOrder(TasksOrdering.AsTallied);
         }
         #endregion
     }
