@@ -5,18 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Reorder Votes" Height="331.933" Width="300" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Reorder Tasks" Height="361.933" Width="317" MinHeight="350" MinWidth="300"
+        WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
             <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="10" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="10" />
         </Grid.RowDefinitions>
 
-        <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskList" Margin="10,10,2.5,2.5"
+        <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskList" Margin="10,10,2,10"
                  ItemsSource="{Binding TaskView}" IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -26,10 +29,51 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <Button Grid.Column="1" Grid.Row="1" x:Name="closeButton" Content="Close" Margin="0,0,0,0" IsCancel="True"  Width="55" Height="25"/>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" Click="up_Click" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,70,20,150" Width="20" Height="30"/>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" Click="down_Click" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,150,20,70" Width="20" Height="30"/>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Click="alpha_Click" Margin="15,2.5,125,2.5" Width="75" Height="25"/>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="Default" Click="default_Click" Margin="125,2.5,15,2.5" Width="75" Height="25"/>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" Click="up_Click" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Move Up</TextBlock>
+                        <TextBlock>Move the selected task up in the ordering.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" Click="down_Click" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,162,0,0" Width="30" Height="30" FontSize="24" Padding="0,-4,0,0">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Move Down</TextBlock>
+                        <TextBlock>Move the selected task down in the ordering.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Click="alpha_Click" Margin="18,0,0,2"
+                Width="75" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Sort Alphabetically</TextBlock>
+                        <TextBlock>Re-sort the task list alphabetically.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="As Tallied" Click="default_Click" Margin="0,0,18,2"
+                Width="75" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Sort As Tallied</TextBlock>
+                        <TextBlock>Re-sort the task list into the order the tasks were encountered when tallying the vote.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="1" x:Name="closeButton" Content="Close" Margin="0,0,2,2" IsCancel="True"  Width="55" Height="30"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>
