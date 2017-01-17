@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NetTally.Utility
 {
@@ -11,7 +11,8 @@ namespace NetTally.Utility
             int secondIndex
             )
         {
-            Contract.Requires(list != null);
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
 
             if (firstIndex == secondIndex)
                 return;

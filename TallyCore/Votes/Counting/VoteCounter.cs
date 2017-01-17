@@ -63,6 +63,8 @@ namespace NetTally.VoteCounting
 
         public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        public List<string> OrderedTaskList { get; } = new List<string>();
+
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
@@ -119,6 +121,8 @@ namespace NetTally.VoteCounting
 
             UndoBuffer.Clear();
 
+            OrderedTaskList.Clear();
+
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
 
@@ -128,6 +132,7 @@ namespace NetTally.VoteCounting
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
 
             OnPropertyChanged("VoteCounter");
+            OnPropertyChanged("Tasks");
         }
 
         public void ResetUserDefinedTasks(string forQuestName)
@@ -150,6 +155,9 @@ namespace NetTally.VoteCounting
             PostsList.Clear();
             PostsList.AddRange(posts);
             await TallyPosts(token).ConfigureAwait(false);
+
+            OrderedTaskList.AddRange(ViewModels.ViewModelService.MainViewModel.KnownTasks);
+            OnPropertyChanged("Tasks");
         }
 
         /// <summary>

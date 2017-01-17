@@ -41,6 +41,7 @@ namespace NetTally.VoteCounting
 
         HashSet<string> UserDefinedTasks { get; }
         void ResetUserDefinedTasks(string forQuestName);
+        List<string> OrderedTaskList { get; }
 
         HashSet<string> ReferenceVoters { get; }
         Dictionary<string, string> ReferenceVoterPosts { get; }

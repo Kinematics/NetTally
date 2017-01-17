@@ -163,6 +163,15 @@ namespace NetTally
             [EnumDescription("Rated Instant Runoff")]
             RIRV,
         }
+
+        /// <summary>
+        /// Enum for type of ordering to use when sorting vote tasks.
+        /// </summary>
+        public enum TasksOrdering
+        {
+            AsTallied,
+            Alphabetical,
+        }
     }
 
     /// <summary>
