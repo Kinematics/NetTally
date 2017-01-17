@@ -711,10 +711,7 @@ namespace NetTally
                 {
                     if ((string)header.Header == "Re-Order Tasks")
                     {
-                        if (MainViewModel.KnownTasks.Count() == 0)
-                            header.IsEnabled = false;
-                        else
-                            header.IsEnabled = true;
+                        header.IsEnabled = MainViewModel.TaskList.Any();
                     }
                     pMenu.Items.Add(header);
                 }
