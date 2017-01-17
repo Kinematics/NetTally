@@ -491,7 +491,7 @@ namespace NetTally
         {
             ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
             {
-                Owner = Application.Current.MainWindow
+                Owner = this
             };
 
             reorderWindow.ShowDialog();
