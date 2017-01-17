@@ -120,6 +120,15 @@ namespace NetTally
     }
 
     /// <summary>
+    /// Enum for type of ordering to use when sorting vote tasks.
+    /// </summary>
+    public enum TasksOrdering
+    {
+        AsTallied,
+        Alphabetical,
+    }
+
+    /// <summary>
     /// Custom attribute that will be available to derived mobile projects,
     /// since the standard DescriptionAttribute is not available.
     /// </summary>
