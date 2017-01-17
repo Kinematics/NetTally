@@ -737,7 +737,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            MainViewModel.UserDefinedTasks.Add(task);
+            MainViewModel.AddUserDefinedTask(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 

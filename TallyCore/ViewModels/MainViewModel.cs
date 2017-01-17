@@ -342,6 +342,15 @@ namespace NetTally.ViewModels
         /// Redirection for user defined task values.
         /// </summary>
         public HashSet<string> UserDefinedTasks => tally.UserDefinedTasks;
+
+        public void AddUserDefinedTask(string task)
+        {
+            if (UserDefinedTasks.Add(task))
+            {
+                TaskList.Add(task);
+                OnPropertyChanged("Tasks");
+            }
+        }
         #endregion
 
         #region Section: Tally Commands
