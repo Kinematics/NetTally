@@ -65,7 +65,8 @@ namespace NetTally
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
-        public List<string> OrderedTaskList { get; set; } = null;
+
+        public List<string> OrderedTaskList { get; } = new List<string>();
         #endregion
 
         #region Public Class Properties
@@ -100,6 +101,8 @@ namespace NetTally
 
             UndoBuffer.Clear();
 
+            OrderedTaskList.Clear();
+
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
 
@@ -109,6 +112,7 @@ namespace NetTally
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(StringUtility.AgnosticStringComparer);
 
             OnPropertyChanged("Votes");
+            OnPropertyChanged("Tasks");
         }
 
         /// <summary>
@@ -181,7 +185,8 @@ namespace NetTally
 
             await TallyPosts().ConfigureAwait(false);
 
-            OrderedTaskList = ViewModels.ViewModelLocator.MainViewModel.KnownTasks.ToList();
+            OrderedTaskList.AddRange(ViewModels.ViewModelLocator.MainViewModel.KnownTasks);
+            OnPropertyChanged("Tasks");
 
             return true;
         }
