@@ -80,7 +80,7 @@ namespace NetTally
             try
             {
                 // Write the config to the roaming location.
-                Configuration config = GetRoamingConfig();
+                Configuration config = GetCurrentRoamingConfig();
                 WriteConfigInformation(questsWrapper, config);
             }
             catch (ConfigurationErrorsException)
@@ -113,13 +113,15 @@ namespace NetTally
         #region Getting Configs        
         /// <summary>
         /// Gets the configuration object with program config data to load on startup.
+        /// First tries the local directory, for portable use.
+        /// Next tries the roaming directory, without the program hash.
+        /// Next tries the roaming directory, with the program hash.
+        /// If none are found, returns the local directory configuration.
         /// </summary>
-        /// <returns>Returns the portable config, if available.
-        /// Returns the roaming config if there is no portable config, and the roaming config exists.
-        /// Returns the portable config object if no config file was found.</returns>
+        /// <returns>Returns the Configuration object for the program.</returns>
         private static Configuration GetConfigToLoadFrom()
         {
-            var portableConfig = GetPortableConfig();
+            Configuration portableConfig = GetPortableConfig();
 
             if (portableConfig.HasFile)
                 return portableConfig;
@@ -132,6 +134,7 @@ namespace NetTally
             return portableConfig;
         }
 
+
         /// <summary>
         /// Gets the portable configuration.
         /// </summary>
@@ -139,18 +142,21 @@ namespace NetTally
         private static Configuration GetPortableConfig()
         {
             ExeConfigurationFileMap map = GetPortableMap();
+
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
 
             return config;
         }
 
         /// <summary>
-        /// Gets the roaming configuration.
+        /// Gets the roaming configuration to save to.
         /// </summary>
         /// <returns>Returns the roaming config object from the default location.</returns>
-        private static Configuration GetRoamingConfig()
+        private static Configuration GetCurrentRoamingConfig()
         {
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+            ExeConfigurationFileMap map = GetCurrentRoamingMap();
+
+            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
 
             return config;
         }
@@ -162,12 +168,12 @@ namespace NetTally
         /// Returns the most recent roaming config it can find, if the current one does not exist.</returns>
         private static Configuration GetRecentRoamingConfig()
         {
-            Configuration config = GetRoamingConfig();
+            Configuration config = GetCurrentRoamingConfig();
 
             if (config.HasFile)
                 return config;
 
-            ExeConfigurationFileMap map = GetMapToMostRecentRoamingConfig(config);
+            ExeConfigurationFileMap map = GetRecentRoamingMap();
 
             if (map != null)
                 config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
@@ -185,42 +191,107 @@ namespace NetTally
         private static ExeConfigurationFileMap GetPortableMap()
         {
             string portableConfigPath = Path.Combine(Environment.CurrentDirectory, "user.config");
+
             return GetMapWithUserPath(portableConfigPath);
         }
 
         /// <summary>
-        /// Gets the map to the most recent roaming configuration file that can be located.
+        /// Gets the map for the current (fixed) roaming configuration directory.
         /// </summary>
-        /// <param name="config">The default configuration location for the current program version.</param>
-        /// <returns>Returns a configuration map file if a recent file can be located.
-        /// If no file can be located, returns null.</returns>
-        private static ExeConfigurationFileMap GetMapToMostRecentRoamingConfig(Configuration config)
+        /// <returns>Returns the config map for the roaming config file.</returns>
+        private static ExeConfigurationFileMap GetCurrentRoamingMap()
         {
-            FileInfo defaultFile = new FileInfo(config.FilePath);
+            Configuration defaultConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+            FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
+            // Default: Roaming\Wayward_Gamers\NetTally.exe_Url_<hash>\1.7.0.0\user.config
+            // Change to: Roaming\Wayward_Gamers\NetTally\1.7.0.0\user.config
+
+            var companyDirectory = defaultFile.Directory.Parent.Parent;
+
+            string product = GetProductDirectory();
+
+            var configFile = Path.Combine(companyDirectory.FullName, product, ProductInfo.AssemblyVersion.ToString(), "user.config");
+
+            return GetMapWithUserPath(configFile);
+        }
+
+        /// <summary>
+        /// Gets the map for the most recent findable roaming configuration directory.
+        /// Searches the fixed location, and then searches the hash directory location.
+        /// Searches for a directory version no higher than the current assembly version.
+        /// </summary>
+        /// <returns>Returns the most recent findable roaming config file.</returns>
+        private static ExeConfigurationFileMap GetRecentRoamingMap()
+        {
+            Configuration defaultConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
+            FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
 
             var defaultDir = defaultFile.Directory;
-            var parent = defaultDir.Parent;
+            var hashParent = defaultDir.Parent;
+            var noHashParent = hashParent.Parent;
 
+            string product = GetProductDirectory();
+
+            DirectoryInfo dir = null;
+
+            var productDir = noHashParent.EnumerateDirectories().FirstOrDefault(d => d.Name == product);
+
+            if (productDir != null)
+            {
+                dir = GetLatestVersionDirectory(productDir);
+            }
+
+            if (dir == null)
+            {
+                dir = GetLatestVersionDirectory(hashParent);
+            }
+
+            if (dir != null)
+            {
+                var mostRecentFile = Path.Combine(dir.FullName, "user.config");
+
+                return GetMapWithUserPath(mostRecentFile);
+            }
+
+            return null;
+        }
+        #endregion
+
+        #region Mapping utility functions.
+        /// <summary>
+        /// Gets the directory with the highest version number that is not higher than
+        /// the current assembly version, and contains a user.config file in it.
+        /// </summary>
+        /// <param name="parent">The parent directory.</param>
+        /// <returns>Returns the best directory match it can find, or null.</returns>
+        private static DirectoryInfo GetLatestVersionDirectory(DirectoryInfo parent)
+        {
             if (!parent.Exists)
                 return null;
 
             var versionDirectories = parent.EnumerateDirectories("*.*.*.*", SearchOption.TopDirectoryOnly);
 
             var dirs = from dir in versionDirectories
-                       where dir.Name != defaultDir.Name &&
-                          dir.EnumerateFiles().Any(de => de.Name == "user.config")
+                       where dir.EnumerateFiles().Any(de => de.Name == "user.config")
                        let v = DirectoryVersion(dir)
                        where v.Major > 0 && v <= ProductInfo.AssemblyVersion
                        orderby v
                        select dir;
 
-            var latestDir = dirs.LastOrDefault();
-            if (latestDir == null)
-                return null;
+            return dirs.LastOrDefault();
+        }
 
-            var mostRecentFile = Path.Combine(latestDir.FullName, "user.config");
-
-            return GetMapWithUserPath(mostRecentFile);
+        /// <summary>
+        /// Gets the product directory name, with adjustments if we're running in debug mode.
+        /// </summary>
+        /// <returns>The product directory name.</returns>
+        private static string GetProductDirectory()
+        {
+            string product = ProductInfo.Name;
+#if DEBUG
+            product = $"{product}.Debug";
+#endif
+            return product;
         }
 
         /// <summary>
