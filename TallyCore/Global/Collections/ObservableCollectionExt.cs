@@ -83,9 +83,17 @@ namespace NetTally.Collections
         {
             CheckReentrancy();
 
-            List<T> itemsToRemove = Items.Where(x => predicate(x)).ToList();
-            foreach (var item in itemsToRemove)
-                Items.Remove(item);
+            var itemsWithoutPredicate = Items.Where(a => !predicate(a)).ToList();
+            Items.Clear();
+            if (Items is List<T> itemsList)
+            {
+                itemsList.AddRange(itemsWithoutPredicate);
+            }
+            else
+            {
+                foreach (var item in itemsWithoutPredicate)
+                    Items.Add(item);
+            }
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
