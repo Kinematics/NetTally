@@ -69,14 +69,7 @@ namespace NetTally.Extensions
             if (enumType.GetTypeInfo().BaseType != typeof(Enum))
                 throw new ArgumentException("T must be of type System.Enum");
 
-            Array enumValArray = Enum.GetValues(enumType);
-
-            List<T> list = new List<T>();
-
-            foreach (T val in enumValArray)
-                list.Add(val);
-
-            return list;
+            return Enum.GetValues(enumType).OfType<T>();
         }
 
         /// <summary>
