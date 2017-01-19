@@ -132,6 +132,7 @@
     <Compile Include="QuestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FilterTests.cs" />
+    <Compile Include="VoteObjTests.cs" />
     <Compile Include="VoteConstructorTests.cs" />
     <Compile Include="VoteCounterTests.cs" />
     <Compile Include="VoteStringTests.cs" />
