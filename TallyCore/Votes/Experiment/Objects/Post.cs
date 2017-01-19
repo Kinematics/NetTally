@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace NetTally.Votes.Experiment
 {
+    /// <summary>
+    /// Class to encapsulate a user's post.
+    /// </summary>
     public class Post
     {
         public string Author { get; }
@@ -13,8 +15,6 @@ namespace NetTally.Votes.Experiment
         public string Message { get; }
         public Vote Vote { get; }
         public bool HasVote => Vote?.IsValid ?? false;
-
-        public bool ForceProcess { get; set; }
 
         public Post(string author, string postID, int postNumber, string message)
         {
@@ -28,13 +28,9 @@ namespace NetTally.Votes.Experiment
                 IDNumber = postIDNum;
             }
 
-            try
+            if (!string.IsNullOrEmpty(Message))
             {
-                Vote = new Vote(Message);
-            }
-            catch (ArgumentNullException)
-            {
-                Vote = null;
+                Vote = new Vote(this, Message);
             }
         }
 
@@ -42,6 +38,11 @@ namespace NetTally.Votes.Experiment
         {
             return Author.GetHashCode() ^ ID.GetHashCode() ^ Number.GetHashCode();
         }
+
+
+
+
+        public bool ForceProcess { get; set; }
 
         internal void SetWorkingVote(Func<Post, List<string>> p)
         {

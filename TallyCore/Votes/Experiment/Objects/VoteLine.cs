@@ -4,15 +4,19 @@ using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
+    /// <summary>
+    /// Class to encapsulate an individual vote lines.
+    /// </summary>
     public class VoteLine
     {
         // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.
-        static readonly Regex voteLineRege1 = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>#)|(?<score>+))?(?<value>[1-9])|(?<approval>[+-]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
+        // Regex for just the marker portion of a vote line.
+        static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>#)|(?<score>+))?(?<value>[1-9])|(?<approval>[+-]))");
 
         #region Properties
-        public string Text { get; }
-        public string TextWithoutBBCode { get; }
+        public string Text { get; private set; }
+        public string TextWithoutBBCode { get; private set; }
 
         public string Prefix { get; private set; }
         public string Marker { get; private set; }
@@ -49,7 +53,7 @@ namespace NetTally.Votes.Experiment
         /// Initializes a new instance of the <see cref="VoteLine"/> class.
         /// </summary>
         /// <param name="textLine">The text line.</param>
-        /// <exception cref="System.ArgumentException">Failed to extract data from vote line.</exception>
+        /// <exception cref="ArgumentException">Failed to extract data from vote line.</exception>
         public VoteLine(string textLine)
             : this(textLine, VoteString.RemoveBBCode(textLine))
         {
@@ -77,75 +81,7 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
-        /// Run the provided vote line through the vote line regex and extract out the
-        /// known components.
-        /// </summary>
-        /// <param name="text">The vote line to parse.</param>
-        private void ParseLine(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                throw new ArgumentNullException(nameof(text));
-
-            Match m = voteLineRegex.Match(text);
-            if (m.Success)
-            {
-                Prefix = m.Groups["prefix"].Value.Replace(" ", string.Empty);
-                Task = m.Groups["task"]?.Value.Trim() ?? "";
-
-                Content = m.Groups["content"].Value;
-                CleanContent = VoteString.DeUrlContent(VoteString.RemoveBBCode(Content));
-
-                Marker = m.Groups["marker"].Value;
-
-                if (m.Groups["vote"].Success)
-                    MarkerType = MarkerType.Vote;
-                else if (m.Groups["rank"].Success)
-                    MarkerType = MarkerType.Rank;
-                else if (m.Groups["score"].Success)
-                    MarkerType = MarkerType.Score;
-                else if (m.Groups["value"].Success)
-                    MarkerType = MarkerType.Rank;
-                else if (m.Groups["approval"].Success)
-                    MarkerType = MarkerType.Approval;
-                else
-                    MarkerType = MarkerType.None;
-
-                if (m.Groups["value"].Success)
-                {
-                    MarkerValue = int.Parse(m.Groups["value"].Value);
-                }
-
-                TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
-            }
-            else
-            {
-                throw new ArgumentException("Failed to extract data from vote line.", nameof(text));
-            }
-        }
-
-        /// <summary>
-        /// Copy constructor.  Only called from Copy().
-        /// Initializes a new instance of the <see cref="VoteLine"/> class.
-        /// </summary>
-        /// <param name="voteLine">The vote line.</param>
-        public VoteLine Copy()
-        {
-            var copy = new VoteLine(Text, TextWithoutBBCode);
-
-            copy.Content = Content;
-            copy.Marker = Marker;
-            copy.MarkerType = MarkerType;
-            copy.MarkerValue = MarkerValue;
-            copy.Prefix = Prefix;
-            copy.Task = Task;
-            copy.TrimmedContent = TrimmedContent;
-
-            return copy;
-        }
-
-        /// <summary>
-        /// Modifying constructor.  Only called from Modify().
-        /// Initializes a new instance of the <see cref="VoteLine"/> class.
+        /// Constructor that takes the components of a vote line as arguments.
         /// </summary>
         /// <param name="prefix">The prefix.</param>
         /// <param name="marker">The marker.</param>
@@ -159,8 +95,73 @@ namespace NetTally.Votes.Experiment
             Content = content ?? "";
             TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
 
+            IdentifyMarker();
+
             Text = BuildText();
             TextWithoutBBCode = VoteString.RemoveBBCode(Text);
+        }
+
+        #endregion
+
+        #region Setup
+        /// <summary>
+        /// Run the provided vote line through the vote line regex and extract out the
+        /// known components.
+        /// </summary>
+        /// <param name="text">The vote line to parse.</param>
+        private void ParseLine(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                throw new ArgumentNullException(nameof(text));
+
+            Match m = voteLineRegex.Match(text);
+            if (m.Success)
+            {
+                // Remove all extra spacing from the prefix.
+                Prefix = m.Groups["prefix"].Value.Replace(" ", string.Empty);
+                // If no Task, use an empty string.
+                Task = m.Groups["task"]?.Value.Trim() ?? "";
+
+                Content = m.Groups["content"].Value;
+                CleanContent = VoteString.DeUrlContent(VoteString.RemoveBBCode(Content));
+                TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
+
+                Marker = m.Groups["marker"].Value;
+
+                IdentifyMarker();
+            }
+            else
+            {
+                throw new ArgumentException("Failed to extract data from vote line.", nameof(text));
+            }
+        }
+
+        /// <summary>
+        /// Examine the Marker to set the MarkerType and MarkerValue.
+        /// </summary>
+        private void IdentifyMarker()
+        {
+            Match m = markerRegex.Match(Marker);
+            if (m.Success)
+            {
+                if (m.Groups["vote"].Success)
+                    MarkerType = MarkerType.Vote;
+                else if (m.Groups["rank"].Success)
+                    MarkerType = MarkerType.Rank;
+                else if (m.Groups["score"].Success)
+                    MarkerType = MarkerType.Score;
+                else if (m.Groups["value"].Success)
+                    MarkerType = MarkerType.Rank; // Insert default value type here.
+                else if (m.Groups["approval"].Success)
+                    MarkerType = MarkerType.Approval;
+                else
+                    throw new ArgumentException($"Unknown vote marker: {Marker}.");
+
+                if (m.Groups["value"].Success)
+                {
+                    MarkerValue = int.Parse(m.Groups["value"].Value);
+                }
+            }
         }
         #endregion
 
@@ -185,6 +186,26 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
+        /// Copy the current vote line into a new instance.
+        /// </summary>
+        public VoteLine Copy()
+        {
+            var copy = new VoteLine();
+
+            copy.Text = Text;
+            copy.TextWithoutBBCode = TextWithoutBBCode;
+            copy.Content = Content;
+            copy.Marker = Marker;
+            copy.MarkerType = MarkerType;
+            copy.MarkerValue = MarkerValue;
+            copy.Prefix = Prefix;
+            copy.Task = Task;
+            copy.TrimmedContent = TrimmedContent;
+
+            return copy;
+        }
+
+        /// <summary>
         /// Modifies this instance.
         /// </summary>
         /// <param name="prefix">The prefix.</param>
@@ -195,10 +216,10 @@ namespace NetTally.Votes.Experiment
         public VoteLine Modify(string prefix = null, string marker = null, string task = null, string content = null)
         {
             return new VoteLine(
-                prefix ?? this.Prefix,
-                marker ?? this.Marker,
-                task ?? this.Task,
-                content ?? this.Content);
+                prefix ?? Prefix,
+                marker ?? Marker,
+                task ?? Task,
+                content ?? Content);
         }
 
         #endregion
@@ -208,11 +229,14 @@ namespace NetTally.Votes.Experiment
         private string BuildTrimmedText() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {TrimmedContent}";
 
         public string Condensed() => $"[{Task}] {Content}";
-
-        public override string ToString() => BuildTrimmedText();
         #endregion
 
         #region Overrides
+        public override string ToString()
+        {
+            return AdvancedOptions.Instance.TrimExtendedText ? BuildTrimmedText() : BuildText();
+        }
+
         public override int GetHashCode()
         {
             return Text.GetHashCode();

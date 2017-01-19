@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
-using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
+    /// <summary>
+    /// Class to encapsulate any vote that can be extracted from a post.
+    /// </summary>
     public class Vote
     {
+        public Post Post { get; }
         public bool IsValid { get; private set; }
         public string FullText { get; }
         public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
+        public List<VoteLine> BasePlansLines { get; } = new List<VoteLine>();
 
-
+        #region Regexes
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         static readonly Regex tallyRegex = new Regex(@"^#####");
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
-        static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>(?<vote>[xX✓✔])|(?<value>[#+]?[1-9])|(?<approval>[+-]))\s*\]");
+        // Also allow checkmarks (✓✔), rankings (#1 to #9), scoring (+1 to +9), raw values (1 to 9), and approval (+ or -).
+        static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>[xX✓✔]|[#+]?[1-9]|[+-])\s*\]");
         // Check for a plan reference. "Plan: Dwarf Raid"
         static readonly Regex anyPlanRegex = new Regex(@"^(?<base>base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+        #endregion
 
-
-        public Vote(string message)
+        public Vote(Post post, string message)
         {
-            if (string.IsNullOrEmpty(message))
-                throw new ArgumentNullException(nameof(message));
-
-            FullText = message;
+            Post = post ?? throw new ArgumentNullException(nameof(post));
+            FullText = message ?? throw new ArgumentNullException(nameof(message));
             ProcessMessage(message);
         }
 
@@ -42,15 +45,15 @@ namespace NetTally.Votes.Experiment
         {
             var messageLines = message.GetStringLines();
 
-            bool isTally = false;
-
             foreach (var line in messageLines)
             {
                 string cleanLine = VoteString.RemoveBBCode(line);
 
                 if (tallyRegex.Match(cleanLine).Success)
                 {
-                    isTally = true;
+                    // If this is a tally post, clear any found vote lines and end processing.
+                    VoteLines.Clear();
+                    BasePlansLines.Clear();
                     break;
                 }
 
@@ -61,56 +64,86 @@ namespace NetTally.Votes.Experiment
                 }
             }
 
-            if (isTally)
-            {
-                VoteLines.Clear();
-            }
-
             IsValid = VoteLines.Any();
+
+            if (IsValid)
+                ExtractBasePlans();
         }
 
-
-        public List<PlanDescriptor> GetPlans()
+        /// <summary>
+        /// After processing the message in general, extract out any base plans from the front
+        /// of the list of vote lines.
+        /// </summary>
+        private void ExtractBasePlans()
         {
-            List<PlanDescriptor> planDescriptors = new List<PlanDescriptor>();
-
-            if (!VoteLines.Any())
-                return planDescriptors;
-
             // Group lines where the group starts each time there's no prefix value.
             var voteGrouping = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix)).ToList();
 
+            // Pull any base plans found
             var basePlans = voteGrouping.TakeWhile(g => anyPlanRegex.Match(g.Key).Groups["base"].Success).ToList();
 
             foreach (var plan in basePlans)
             {
-                Match m = anyPlanRegex.Match(plan.Key);
-                if (m.Success)
-                    planDescriptors.Add(new PlanDescriptor(PlanType.Base, m.Groups["planname"].Value, plan.ToList()));
+                foreach (var line in plan)
+                {
+                    // Add each line to BasePlansLines, and remove it from VoteLines.
+                    BasePlansLines.Add(line);
+                    VoteLines.Remove(line);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get all plans out of the current vote.
+        /// </summary>
+        /// <returns>Returns a list of the plans contained in the vote.</returns>
+        public List<PlanDescriptor> GetPlans()
+        {
+            if (!IsValid)
+                throw new InvalidOperationException("This is not a valid vote.  Cannot get plans.");
+
+            List<PlanDescriptor> planDescriptors = new List<PlanDescriptor>();
+
+            // If there are any base plan lines, collect those.
+            if (BasePlansLines.Any())
+            {
+                // Group lines where the group starts each time there's no prefix value.
+                var basePlanGrouping = BasePlansLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix)).ToList();
+
+                foreach (var plan in basePlanGrouping)
+                {
+                    Match m = anyPlanRegex.Match(plan.Key);
+                    if (m.Success)
+                        planDescriptors.Add(new PlanDescriptor(PlanType.Base, m.Groups["planname"].Value, plan.ToList()));
+                }
             }
 
-            var remainingGroups = voteGrouping.Skip(basePlans.Count);
+            // Group lines where the group starts each time there's no prefix value.
+            var voteGrouping = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix));
 
-            if (remainingGroups.Any())
+            // Check for any plan labels (where the first line is a plan name, but group has no content).
+            if (voteGrouping.Any())
             {
-                var firstGroup = remainingGroups.First();
+                var firstGroup = voteGrouping.First();
 
                 if (firstGroup.Count() == 1)
                 {
                     Match m = anyPlanRegex.Match(firstGroup.Key);
                     if (m.Success)
                     {
-                        var labelPlan = remainingGroups.First();
-                        remainingGroups = remainingGroups.Skip(1);
+                        var labelPlan = voteGrouping.First();
+                        voteGrouping = voteGrouping.Skip(1);
 
-                        PlanType labelType = remainingGroups.Any() ? PlanType.Label : PlanType.SingleLine;
+                        // Check for full plan label vs just a single line vote.
+                        PlanType labelType = voteGrouping.Any() ? PlanType.Label : PlanType.SingleLine;
 
                         planDescriptors.Add(new PlanDescriptor(labelType, m.Groups["planname"].Value, labelPlan.ToList()));
                     }
                 }
             }
 
-            foreach (var group in remainingGroups)
+            // Next, check for any embedded plans with content.
+            foreach (var group in voteGrouping)
             {
                 if (group.Count() > 1)
                 {
@@ -126,7 +159,9 @@ namespace NetTally.Votes.Experiment
         }
 
 
-
+        /// <summary>
+        /// Vote lines grouped into blocks.
+        /// </summary>
         public IEnumerable<VoteLine> VoteBlocks
         {
             get
@@ -136,24 +171,6 @@ namespace NetTally.Votes.Experiment
                 foreach (var block in voteBlocks)
                     yield return block as VoteLine;
             }
-        }
-    }
-
-
-    public class PlanDescriptor
-    {
-        public PlanType PlanType { get; }
-        public string Name { get; }
-        public List<VoteLine> Lines { get; }
-
-        public PlanDescriptor(PlanType planType, string name, List<VoteLine> lines)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
-
-            PlanType = planType;
-            Name = name;
-            Lines = lines ?? throw new ArgumentNullException(nameof(lines));
         }
     }
 }
