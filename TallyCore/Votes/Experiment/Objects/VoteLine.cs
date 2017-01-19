@@ -10,9 +10,9 @@ namespace NetTally.Votes.Experiment
     public class VoteLine
     {
         // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.
-        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>#)|(?<score>\+))?(?<value>[1-9])|(?<approval>[-+]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
         // Regex for just the marker portion of a vote line.
-        static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>#)|(?<score>\+))?(?<value>[1-9])|(?<approval>[-+]))");
+        static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))");
 
         #region Properties
         public string Text { get; private set; }
@@ -154,6 +154,8 @@ namespace NetTally.Votes.Experiment
                     MarkerType = MarkerType.Rank; // Insert default value type here.
                 else if (m.Groups["approval"].Success)
                     MarkerType = MarkerType.Approval;
+                else if (m.Groups["continuation"].Success)
+                    MarkerType = MarkerType.Continuation;
                 else
                     throw new ArgumentException($"Unknown vote marker: {Marker}.");
 

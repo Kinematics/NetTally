@@ -97,11 +97,11 @@ namespace NetTally
 
         public enum MarkerType
         {
-            None,
             Vote,
             Rank,
             Score,
-            Approval
+            Approval,
+            Continuation
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace NetTally.Votes.Experiment
         static readonly Regex tallyRegex = new Regex(@"^#####");
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         // Also allow checkmarks (✓✔), rankings (#1 to #9), scoring (+1 to +9), raw values (1 to 9), and approval (+ or -).
-        static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>[xX✓✔]|[#+]?[1-9]|[+-])\s*\]");
+        static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>[xX✓✔]|[#+]?[1-9]|[-+*])\s*\]");
         // Check for a plan reference. "Plan: Dwarf Raid"
         static readonly Regex anyPlanRegex = new Regex(@"^(?<base>base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
         #endregion
