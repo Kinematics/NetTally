@@ -14,7 +14,8 @@ namespace NetTally.Votes.Experiment
         public Post Post { get; }
         public bool IsValid { get; private set; }
         public string FullText { get; }
-        public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
+        private readonly List<VoteLine> voteLines = new List<VoteLine>();
+        public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
 
         #region Regexes
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
@@ -26,57 +27,28 @@ namespace NetTally.Votes.Experiment
         static readonly Regex anyPlanRegex = new Regex(@"^(?<base>base\s*)?plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
         #endregion
 
+        #region Constructor
         public Vote(Post post, string message)
         {
             Post = post ?? throw new ArgumentNullException(nameof(post));
             FullText = message ?? throw new ArgumentNullException(nameof(message));
-            ProcessMessage(message);
+            ProcessMessageLines(message);
         }
+        #endregion
 
+        #region Public Methods
         /// <summary>
-        /// Extract any vote lines from the message text, and save both the original and
-        /// the cleaned (no BBCode) in a list.
-        /// Do not record any vote lines if there's a tally marker (#####).
-        /// Mark the vote as valid if it has any vote lines.
-        /// </summary>
-        /// <param name="message">The original, full message text.</param>
-        private void ProcessMessage(string message)
-        {
-            var messageLines = message.GetStringLines();
-
-            foreach (var line in messageLines)
-            {
-                string cleanLine = VoteString.RemoveBBCode(line);
-
-                if (tallyRegex.Match(cleanLine).Success)
-                {
-                    // If this is a tally post, clear any found vote lines and end processing.
-                    VoteLines.Clear();
-                    break;
-                }
-
-                Match m = voteLineRegex.Match(cleanLine);
-                if (m.Success)
-                {
-                    VoteLines.Add(new VoteLine(line, cleanLine));
-                }
-            }
-
-            IsValid = VoteLines.Any();
-        }
-
-        /// <summary>
-        /// Get all plans out of the current vote.
+        /// Get all plan-type components out of the current vote.
         /// </summary>
         /// <returns>Returns a list of the plans contained in the vote.</returns>
         public List<PlanDescriptor> GetPlans()
         {
             if (!IsValid)
-                throw new InvalidOperationException("This is not a valid vote.  Cannot get plans.");
+                throw new InvalidOperationException("This is not a valid vote.");
 
             List<PlanDescriptor> planDescriptors = new List<PlanDescriptor>();
 
-            var voteGrouping = VoteLines.GroupAdjacentByContinuation(
+            var voteGrouping = voteLines.GroupAdjacentByContinuation(
                 source => source.CleanContent,
                 GroupContinuationCheck);
 
@@ -137,6 +109,124 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
+        /// Vote lines grouped into blocks.
+        /// </summary>
+        public List<VoteLineSequence> GetComponents(PartitionMode partitionMode)
+        {
+            List<VoteLineSequence> bigList = new List<VoteLineSequence>();
+
+            var voteGrouping = voteLines.GroupAdjacentByContinuation(
+                source => source.CleanContent,
+                GroupContinuationCheck);
+
+            if (partitionMode == PartitionMode.ByLine)
+            {
+                var transfer = voteGrouping.Select(a => CommuteLines(a));
+
+                bigList.AddRange(transfer.SelectMany(a => a));
+            }
+            else if (partitionMode == PartitionMode.ByBlock)
+            {
+                bigList.AddRange(voteGrouping.Select(g => new VoteLineSequence(g)));
+            }
+
+
+            return bigList;
+        }
+
+        private List<VoteLineSequence> CommuteLines(IGrouping<string, VoteLine> group)
+        {
+            var first = group.First();
+            string firstTask = first.Task;
+
+            List<VoteLineSequence> results = new List<VoteLineSequence>();
+
+            // Votes and Approvals can be split, and carry their task with them.
+            if (first.MarkerType == MarkerType.Vote || first.MarkerType == MarkerType.Approval)
+            {
+                results.Add(new VoteLineSequence(first));
+
+                foreach (var line in group.Skip(1))
+                {
+                    if (string.IsNullOrEmpty(firstTask) || !string.IsNullOrEmpty(line.Task))
+                        results.Add(new VoteLineSequence(line));
+                    else
+                        results.Add(new VoteLineSequence(line.Modify(task: firstTask)));
+                }
+            }
+            // Rank doesn't modify any contents, and never gets split.
+            else if (first.MarkerType == MarkerType.Rank)
+            {
+                results.Add(new VoteLineSequence(group.ToList()));
+            }
+            // Score carries both score and task to child elements.
+            else if (first.MarkerType == MarkerType.Score)
+            {
+                results.Add(new VoteLineSequence(first));
+
+                foreach (var line in group.Skip(1))
+                {
+                    string newMarker = null;
+
+                    if (line.MarkerType == MarkerType.Vote || line.MarkerType == MarkerType.Continuation)
+                    {
+                        newMarker = first.Marker;
+                    }
+
+                    if (string.IsNullOrEmpty(firstTask) || !string.IsNullOrEmpty(line.Task))
+                        results.Add(new VoteLineSequence(line.Modify(marker: newMarker)));
+                    else
+                        results.Add(new VoteLineSequence(line.Modify(marker: newMarker, task: firstTask)));
+                }
+            }
+            // Anything else just carries the individual lines
+            else
+            {
+                foreach (var line in group)
+                {
+                    results.Add(new VoteLineSequence(line));
+                }
+            }
+            
+            return results;
+        }
+
+        #endregion
+
+        #region Utility methods
+        /// <summary>
+        /// Extract any vote lines from the message text, and save both the original and
+        /// the cleaned (no BBCode) in a list.
+        /// Do not record any vote lines if there's a tally marker (#####).
+        /// Mark the vote as valid if it has any vote lines.
+        /// </summary>
+        /// <param name="message">The original, full message text.</param>
+        private void ProcessMessageLines(string message)
+        {
+            var messageLines = message.GetStringLines();
+
+            foreach (var line in messageLines)
+            {
+                string cleanLine = VoteString.RemoveBBCode(line);
+
+                if (tallyRegex.Match(cleanLine).Success)
+                {
+                    // If this is a tally post, clear any found vote lines and end processing.
+                    voteLines.Clear();
+                    break;
+                }
+
+                Match m = voteLineRegex.Match(cleanLine);
+                if (m.Success)
+                {
+                    voteLines.Add(new VoteLine(line, cleanLine));
+                }
+            }
+
+            IsValid = VoteLines.Any();
+        }
+
+        /// <summary>
         /// Function to use to determine whether a vote line can be grouped
         /// with an initial vote line.
         /// </summary>
@@ -159,30 +249,17 @@ namespace NetTally.Votes.Experiment
             }
             else if (initial.MarkerType == MarkerType.Rank)
             {
-                return (current.Prefix.Length > 0 && current.MarkerType == MarkerType.Continuation);
+                return (current.Prefix.Length > 0 && 
+                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Vote));
             }
             else if (initial.MarkerType == MarkerType.Score)
             {
                 return (current.Prefix.Length > 0 &&
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score));
+                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Vote));
             }
 
             return false;
         }
-
-
-        /// <summary>
-        /// Vote lines grouped into blocks.
-        /// </summary>
-        public IEnumerable<VoteLine> VoteBlocks
-        {
-            get
-            {
-                var voteBlocks = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix));
-
-                foreach (var block in voteBlocks)
-                    yield return block as VoteLine;
-            }
-        }
+        #endregion
     }
 }
