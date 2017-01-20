@@ -76,58 +76,98 @@ namespace NetTally.Votes.Experiment
 
             List<PlanDescriptor> planDescriptors = new List<PlanDescriptor>();
 
-            // If there are any base plan lines, collect those.
-            if (BasePlansLines.Any())
-            {
-                // Group lines where the group starts each time there's no prefix value.
-                var basePlanGrouping = BasePlansLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix)).ToList();
+            var voteGrouping = VoteLines.GroupAdjacentByContinuation(
+                source => source.CleanContent,
+                GroupContinuationCheck);
 
-                foreach (var plan in basePlanGrouping)
+            bool checkForBasePlans = true;
+
+            // Base plans
+            while (checkForBasePlans && voteGrouping.Any())
+            {
+                var voteGroup = voteGrouping.First();
+
+                Match m = anyPlanRegex.Match(voteGroup.Key);
+
+                if (m.Groups["base"].Success && voteGroup.First().MarkerType == MarkerType.Vote && voteGroup.Count() > 1)
                 {
-                    Match m = anyPlanRegex.Match(plan.Key);
-                    if (m.Success)
-                        planDescriptors.Add(new PlanDescriptor(PlanType.Base, m.Groups["planname"].Value, plan.ToList()));
+                    planDescriptors.Add(new PlanDescriptor(PlanType.Base, m.Groups["planname"].Value, voteGroup.ToList()));
+                    voteGrouping = voteGrouping.Skip(1);
+                }
+                else
+                {
+                    checkForBasePlans = false;
                 }
             }
 
-            // Group lines where the group starts each time there's no prefix value.
-            var voteGrouping = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix));
-
-            // Check for any plan labels (where the first line is a plan name, but group has no content).
+            // Vote labels
             if (voteGrouping.Any())
             {
-                var firstGroup = voteGrouping.First();
+                var voteGroup = voteGrouping.First();
 
-                if (firstGroup.Count() == 1)
+                Match m = anyPlanRegex.Match(voteGroup.Key);
+
+                if (m.Success && m.Groups["base"].Success == false && voteGroup.Count() == 1 &&
+                    voteGroup.First().MarkerType == MarkerType.Vote)
                 {
-                    Match m = anyPlanRegex.Match(firstGroup.Key);
-                    if (m.Success)
-                    {
-                        var labelPlan = voteGrouping.First();
-                        voteGrouping = voteGrouping.Skip(1);
+                    var labeledGroups = voteGrouping.TakeWhile(g => g.First().MarkerType == MarkerType.Vote ||
+                        g.First().MarkerType == MarkerType.Approval);
 
-                        // Check for full plan label vs just a single line vote.
-                        PlanType labelType = voteGrouping.Any() ? PlanType.Label : PlanType.SingleLine;
+                    PlanType labelType = labeledGroups.Skip(1).Any() ? PlanType.Label : PlanType.SingleLine;
 
-                        planDescriptors.Add(new PlanDescriptor(labelType, m.Groups["planname"].Value, labelPlan.ToList()));
-                    }
+                    voteGrouping = voteGrouping.Skip(labeledGroups.Count());
+
+                    planDescriptors.Add(new PlanDescriptor(labelType, m.Groups["planname"].Value,
+                        labeledGroups.SelectMany(a => a).ToList()));
                 }
             }
 
-            // Next, check for any embedded plans with content.
-            foreach (var group in voteGrouping)
+            // Any other defined plans with content
+            foreach (var voteGroup in voteGrouping)
             {
-                if (group.Count() > 1)
+                Match m = anyPlanRegex.Match(voteGroup.Key);
+                if (m.Success && voteGroup.Skip(1).Any())
                 {
-                    Match m = anyPlanRegex.Match(group.Key);
-                    if (m.Success)
-                    {
-                        planDescriptors.Add(new PlanDescriptor(PlanType.Content, m.Groups["planname"].Value, group.ToList()));
-                    }
+                    planDescriptors.Add(new PlanDescriptor(PlanType.Content, m.Groups["planname"].Value, voteGroup.ToList()));
                 }
             }
-
+            
+            // Return all collected plans
             return planDescriptors;
+        }
+
+        /// <summary>
+        /// Function to use to determine whether a vote line can be grouped
+        /// with an initial vote line.
+        /// </summary>
+        /// <param name="current">The vote line being checked.</param>
+        /// <param name="currentKey">The vote key for the current group.</param>
+        /// <param name="initial">The vote line that marks the start of the group.</param>
+        /// <returns>Returns true if the current vote line can be added to the group.</returns>
+        private bool GroupContinuationCheck(VoteLine current, string currentKey, VoteLine initial)
+        {
+            if (current == null)
+                throw new ArgumentNullException(nameof(current));
+
+            if (initial == null)
+            {
+                return false;
+            }
+            else if (initial.MarkerType == MarkerType.Vote || initial.MarkerType == MarkerType.Approval)
+            {
+                return (current.Prefix.Length > 0 && current.MarkerType == initial.MarkerType);
+            }
+            else if (initial.MarkerType == MarkerType.Rank)
+            {
+                return (current.Prefix.Length > 0 && current.MarkerType == MarkerType.Continuation);
+            }
+            else if (initial.MarkerType == MarkerType.Score)
+            {
+                return (current.Prefix.Length > 0 &&
+                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score));
+            }
+
+            return false;
         }
 
 
