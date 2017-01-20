@@ -115,11 +115,11 @@ namespace NetTally
             [EnumDescription("Partition By Line")]
             ByLine,
             [EnumDescription("Partition By Line (+Task)")]
-            ByLineTask,
+            ByLineTask, // obsolete this; partition by line should always carry in parent tasks
             [EnumDescription("Partition By Block")]
-            ByBlock,
+            ByBlock, // should automatically partition label plans
             [EnumDescription("Partition (Plans) By Block")]
-            ByBlockAll,
+            ByBlockAll, // only used to partition content plans
         }
 
         /// <summary>
