@@ -50,7 +50,7 @@ Make sure it's OK."
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsFalse(post.HasVote);
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ I don't want this to be counted."
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.Vote.VoteLines.Count);
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(0, plans.Count);
         }
 
@@ -105,7 +105,7 @@ I don't want this to be counted."
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.Vote.VoteLines.Count);
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("getaway", plans[0].Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
@@ -127,7 +127,7 @@ I don't want this to be counted."
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.Vote.VoteLines.Count);
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("getaway", plans[0].Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
@@ -151,7 +151,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -178,7 +178,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(6, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -212,7 +212,7 @@ I don't want this to be counted."
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(9, post.Vote.VoteLines.Count);
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(3, plans.Count);
 
             Assert.AreEqual("Bii", plans[0].Name);
@@ -245,7 +245,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -273,7 +273,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(6, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -300,7 +300,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(5, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -332,7 +332,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(5, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -364,7 +364,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(6, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
             Assert.AreEqual("getaway", plans[0].Name);
@@ -401,7 +401,7 @@ I don't want this to be counted."
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(9, post.Vote.VoteLines.Count);
 
-            var plans = post.Vote.GetPlans();
+            var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(3, plans.Count);
 
             var componentsByBlock = post.Vote.GetComponents(PartitionMode.ByBlock);
