@@ -145,6 +145,16 @@ namespace NetTally.Votes.Experiment
                     if (string.IsNullOrEmpty(plan.Name))
                         continue;
 
+                    // Skip plans that are named after other posters.
+                    // They will be considered proxy votes rather than plans.
+                    if (VotingRecords.Instance.HasVoterName(plan.Name))
+                    {
+                        if (!Agnostic.StringComparer.Equals(plan.Name, post.Author))
+                        {
+                            continue;
+                        }
+                    }
+
                     if (planRepo.TryGetValue(plan.Name, out var existingPlan))
                     {
                         // If the plan type found is 'higher' quality than any previously found plan types, replace the existing one.
