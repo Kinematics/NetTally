@@ -15,7 +15,6 @@ namespace NetTally.Votes.Experiment
         public bool IsValid { get; private set; }
         public string FullText { get; }
         public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
-        public List<VoteLine> BasePlansLines { get; } = new List<VoteLine>();
 
         #region Regexes
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
@@ -53,7 +52,6 @@ namespace NetTally.Votes.Experiment
                 {
                     // If this is a tally post, clear any found vote lines and end processing.
                     VoteLines.Clear();
-                    BasePlansLines.Clear();
                     break;
                 }
 
@@ -65,32 +63,6 @@ namespace NetTally.Votes.Experiment
             }
 
             IsValid = VoteLines.Any();
-
-            if (IsValid)
-                ExtractBasePlans();
-        }
-
-        /// <summary>
-        /// After processing the message in general, extract out any base plans from the front
-        /// of the list of vote lines.
-        /// </summary>
-        private void ExtractBasePlans()
-        {
-            // Group lines where the group starts each time there's no prefix value.
-            var voteGrouping = VoteLines.GroupAdjacentByComparison(anchor => anchor.CleanContent, (next, currentKey) => string.IsNullOrEmpty(next.Prefix)).ToList();
-
-            // Pull any base plans found
-            var basePlans = voteGrouping.TakeWhile(g => anyPlanRegex.Match(g.Key).Groups["base"].Success).ToList();
-
-            foreach (var plan in basePlans)
-            {
-                foreach (var line in plan)
-                {
-                    // Add each line to BasePlansLines, and remove it from VoteLines.
-                    BasePlansLines.Add(line);
-                    VoteLines.Remove(line);
-                }
-            }
         }
 
         /// <summary>
