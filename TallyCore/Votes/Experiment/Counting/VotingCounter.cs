@@ -125,15 +125,19 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void PreprocessPosts(CancellationToken token)
         {
+            // Record all the users who voted
+            foreach (var post in PostsList)
+            {
+                if (post.HasVote)
+                    VotingRecords.Instance.AddVoterRecord(post.Author, post.ID);
+            }
+
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 
             // Scan the post list once.
             foreach (var post in PostsList)
             {
                 token.ThrowIfCancellationRequested();
-
-                // Keep a record of the most recent post ID for each user.
-                VotingRecords.Instance.AddVoterName(post.Author);
 
                 // Pull out all plans from each post.
                 var plans = Plan.GetPlansFromVote(post.Vote);
@@ -174,12 +178,6 @@ namespace NetTally.Votes.Experiment
             // At the end, we should have a collection of the 'best' versions of each named plan.
             // Store them in the voting records.
             VotingRecords.Instance.AddPlans(planRepo);
-
-            // Once all the plans are in place, set the working votes for each post.
-            foreach (var post in PostsList)
-            {
-                post.SetWorkingVote(p => VotingConstructor.GetWorkingVote(p));
-            }
         }
 
         /// <summary>
@@ -188,6 +186,12 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void ProcessPosts(CancellationToken token)
         {
+            // Set up each post with the working version that will be processed.
+            foreach (var post in PostsList)
+            {
+                post.SetWorkingVote(p => VotingConstructor.GetWorkingVote(p));
+            }
+
             var unprocessed = PostsList;
 
             // Loop as long as there are any more to process.
