@@ -10,15 +10,20 @@ namespace NetTally.Votes.Experiment
 
         }
 
-        public VoteLineSequence(IEnumerable<string> voteLines)
-        {
-            var linesAsVoteLines = voteLines.Select(a => VoteLine.Create(a));
-            AddRange(linesAsVoteLines.Where(a => a != null));
-        }
-
         public VoteLineSequence(IEnumerable<VoteLine> voteLines)
         {
+            if (voteLines == null)
+                return;
+
             AddRange(voteLines.Where(a => a != null));
+        }
+
+        public VoteLineSequence(VoteLine voteLine)
+        {
+            if (voteLine == null)
+                return;
+
+            Add(voteLine);
         }
 
         public override string ToString() => string.Join("\r\n", this.Select(x => x.Text).ToArray());
