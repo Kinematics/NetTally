@@ -46,7 +46,7 @@ namespace NetTally.Votes.Experiment
 
             var voteGrouping = voteLines.GroupAdjacentByContinuation(
                 source => source.CleanContent,
-                GroupContinuationCheck);
+                VoteBlockContinues);
 
             if (partitionMode == PartitionMode.ByLine)
             {
@@ -154,7 +154,9 @@ namespace NetTally.Votes.Experiment
 
             IsValid = VoteLines.Any();
         }
+        #endregion
 
+        #region Static utility methods
         /// <summary>
         /// Function to use to determine whether a vote line can be grouped
         /// with an initial vote line.
@@ -163,7 +165,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="currentKey">The vote key for the current group.</param>
         /// <param name="initial">The vote line that marks the start of the group.</param>
         /// <returns>Returns true if the current vote line can be added to the group.</returns>
-        private bool GroupContinuationCheck(VoteLine current, string currentKey, VoteLine initial)
+        public static bool VoteBlockContinues(VoteLine current, string currentKey, VoteLine initial)
         {
             if (current == null)
                 throw new ArgumentNullException(nameof(current));

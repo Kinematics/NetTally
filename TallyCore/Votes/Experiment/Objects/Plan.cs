@@ -48,7 +48,7 @@ namespace NetTally.Votes.Experiment
 
             var voteGrouping = vote.VoteLines.GroupAdjacentByContinuation(
                 source => source.CleanContent,
-                GroupContinuationCheck);
+                Vote.VoteBlockContinues);
 
             bool checkForBasePlans = true;
 
@@ -104,41 +104,6 @@ namespace NetTally.Votes.Experiment
 
             // Return all collected plans
             return plans;
-        }
-
-        /// <summary>
-        /// Function to use to determine whether a vote line can be grouped
-        /// with an initial vote line.
-        /// </summary>
-        /// <param name="current">The vote line being checked.</param>
-        /// <param name="currentKey">The vote key for the current group.</param>
-        /// <param name="initial">The vote line that marks the start of the group.</param>
-        /// <returns>Returns true if the current vote line can be added to the group.</returns>
-        private static bool GroupContinuationCheck(VoteLine current, string currentKey, VoteLine initial)
-        {
-            if (current == null)
-                throw new ArgumentNullException(nameof(current));
-
-            if (initial == null)
-            {
-                return false;
-            }
-            else if (initial.MarkerType == MarkerType.Vote || initial.MarkerType == MarkerType.Approval)
-            {
-                return (current.Prefix.Length > 0 && current.MarkerType == initial.MarkerType);
-            }
-            else if (initial.MarkerType == MarkerType.Rank)
-            {
-                return (current.Prefix.Length > 0 &&
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Vote));
-            }
-            else if (initial.MarkerType == MarkerType.Score)
-            {
-                return (current.Prefix.Length > 0 &&
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Vote));
-            }
-
-            return false;
         }
         #endregion
     }
