@@ -136,7 +136,7 @@ namespace NetTally.Votes.Experiment
                 VotingRecords.Instance.AddVoterName(post.Author);
 
                 // Pull out all plans from each post.
-                var plans = post.Vote.GetPlans();
+                var plans = Plan.GetPlansFromVote(post.Vote);
 
                 // Examine each plan.
                 foreach (var plan in plans)
