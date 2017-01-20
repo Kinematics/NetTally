@@ -376,5 +376,42 @@ I don't want this to be counted."
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
         }
 
+        [TestMethod]
+        public void MixedPlans_Components()
+        {
+            Post post = new Post("Kinematics", "12345", 12,
+@"A post that has some comments and a vote.
+[+7] Plan getaway
+-[*] If you vote this way
+-[*] Or if you vote that way
+
+[+8][Where] Plan Hideaway
+-[*] Under the bed
+-[+6] Bring Teddy
+
+[#3] Plan Runaway
+-[x] Through the woods
+-[x] Bring Jane"
+
+);
+            Assert.AreEqual("Kinematics", post.Author);
+            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual(12345, post.IDNumber);
+            Assert.AreEqual(12, post.Number);
+            Assert.IsTrue(post.HasVote);
+            Assert.AreEqual(9, post.Vote.VoteLines.Count);
+
+            var plans = post.Vote.GetPlans();
+            Assert.AreEqual(3, plans.Count);
+
+            var componentsByBlock = post.Vote.GetComponents(PartitionMode.ByBlock);
+            var componentsByLine = post.Vote.GetComponents(PartitionMode.ByLine);
+
+            Assert.AreEqual(3, componentsByBlock.Count);
+            Assert.AreEqual(7, componentsByLine.Count);
+            Assert.AreEqual("Where", componentsByLine[4][0].Task);
+            Assert.AreEqual(8, componentsByLine[4][0].MarkerValue);
+        }
+
     }
 }
