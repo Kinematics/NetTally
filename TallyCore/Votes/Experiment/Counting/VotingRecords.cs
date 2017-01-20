@@ -34,6 +34,7 @@ namespace NetTally.Votes.Experiment
         /// Reference dictionaries allow translating between canonical names and user-entered names.
         /// </summary>
         Dictionary<string, string> ReferenceVoterNames { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
+        Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>();
         Dictionary<string, string> ReferencePlanNames { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
 
         Dictionary<VoteType, VoteSupporters> VotesAndSupporters { get; } = new Dictionary<VoteType, VoteSupporters>();
@@ -106,12 +107,15 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voterName">The voter name to add.</param>
         /// <exception cref="ArgumentNullException"/>
-        public void AddVoterName(string voterName)
+        public void AddVoterRecord(string voterName, string postID)
         {
             if (string.IsNullOrEmpty(voterName))
                 throw new ArgumentNullException(nameof(voterName));
+            if (string.IsNullOrEmpty(postID))
+                throw new ArgumentNullException(nameof(postID));
 
             ReferenceVoterNames.Add(voterName, voterName);
+            ReferenceVoterPosts.Add(voterName, postID);
         }
 
         /// <summary>
