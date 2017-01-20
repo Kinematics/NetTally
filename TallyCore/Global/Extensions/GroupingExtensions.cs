@@ -204,6 +204,58 @@ namespace NetTally.Extensions
         }
 
         /// <summary>
+        /// Group elements of a list together based on checking whether the
+        /// new source element is a valid item to group with the initial source element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
+        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
+        /// <param name="source">Enumerable list we're working on.</param>
+        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
+        /// <param name="sourceFilter">Condition check on the current element and the last key element
+        /// before allowing it to check for a key value.</param>
+        /// <param name="newGroupTest">Function that returns true if a new source item should start a new group.</param>
+        /// <returns>Returns an IEnumerable grouping of the provided source.</returns>
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentByContinuation<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TKey, TSource, bool> canContinue
+            ) where TKey : class
+        {
+            TKey lastKey = default(TKey);
+            TSource lastKeySource = default(TSource);
+            bool haveLastKey = false;
+            List<TSource> list = new List<TSource>();
+
+            foreach (TSource s in source)
+            {
+                if (haveLastKey)
+                {
+                    if (canContinue(s, lastKey, lastKeySource))
+                    {
+                        list.Add(s);
+                    }
+                    else
+                    {
+                        yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
+                        list = new List<TSource> { s };
+                        lastKey = keySelector(s);
+                        lastKeySource = s;
+                    }
+                }
+                else
+                {
+                    list.Add(s);
+                    lastKey = keySelector(s);
+                    lastKeySource = s;
+                    haveLastKey = true;
+                }
+            }
+
+            if (haveLastKey)
+                yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
+        }
+
+        /// <summary>
         /// Group elements of a list together when a selector key is the same for each.
         /// </summary>
         /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
