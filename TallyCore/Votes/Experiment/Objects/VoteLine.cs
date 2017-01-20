@@ -93,6 +93,7 @@ namespace NetTally.Votes.Experiment
             Marker = marker ?? "X";
             Task = task ?? "";
             Content = content ?? "";
+            CleanContent = VoteString.DeUrlContent(VoteString.RemoveBBCode(Content));
             TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
 
             IdentifyMarker();
@@ -197,12 +198,13 @@ namespace NetTally.Votes.Experiment
             copy.Text = Text;
             copy.TextWithoutBBCode = TextWithoutBBCode;
             copy.Content = Content;
+            copy.CleanContent = CleanContent;
+            copy.TrimmedContent = TrimmedContent;
             copy.Marker = Marker;
             copy.MarkerType = MarkerType;
             copy.MarkerValue = MarkerValue;
             copy.Prefix = Prefix;
             copy.Task = Task;
-            copy.TrimmedContent = TrimmedContent;
 
             return copy;
         }
