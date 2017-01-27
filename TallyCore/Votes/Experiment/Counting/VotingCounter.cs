@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NetTally.Votes.Experiment
 {
-    using PlanDictionary = Dictionary<string, (PlanType planType, List<VoteLine> planLines, string postId)>;
+    using PlanDictionary = Dictionary<string, Plan>;
 
     public class VotingCounter : INotifyPropertyChanged
     {
@@ -162,15 +162,20 @@ namespace NetTally.Votes.Experiment
                     if (planRepo.TryGetValue(plan.Name, out var existingPlan))
                     {
                         // If the plan type found is 'higher' quality than any previously found plan types, replace the existing one.
-                        if (plan.PlanType > existingPlan.planType)
+                        if (plan.PlanType > existingPlan.PlanType)
                         {
-                            planRepo[plan.Name] = (plan.PlanType, plan.Lines, post.ID);
+                            planRepo[plan.Name] = plan;
+                        }
+                        else if (plan.PlanType == existingPlan.PlanType && plan != existingPlan)
+                        {
+                            existingPlan.AddVariant(plan);
+                            planRepo[plan.VariantName] = plan;
                         }
                     }
                     else
                     {
                         // If the plan name doesn't already exist, add it.
-                        planRepo.Add(plan.Name, (plan.PlanType, plan.Lines, post.ID));
+                        planRepo.Add(plan.Name, plan);
                     }
                 }
             }

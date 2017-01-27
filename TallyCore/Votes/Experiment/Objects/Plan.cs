@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
+using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
@@ -11,21 +12,47 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class Plan
     {
-        #region Properties and constructor
-        public string Name { get; }
-        public PlanType PlanType { get; }
-        public List<VoteLine> Lines { get; }
-
-        public Plan(PlanType planType, string name, List<VoteLine> lines)
+        #region Constructor
+        public Plan(PlanType planType, string name, List<VoteLine> lines, Vote vote)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
+            Lines = lines ?? throw new ArgumentNullException(nameof(lines));
+            Vote = vote ?? throw new ArgumentNullException(nameof(vote));
+
             Name = name;
             PlanType = planType;
-            Lines = lines ?? throw new ArgumentNullException(nameof(lines));
         }
         #endregion
+
+        #region Properties
+        public string Name { get; }
+        public PlanType PlanType { get; }
+        public List<VoteLine> Lines { get; }
+        public Vote Vote { get; }
+
+        public string VariantName => VariantNumber > 0 ? $"{Name} ({VariantNumber})" : Name;
+        public int VariantNumber { get; private set; }
+
+        private readonly List<Plan> variants = new List<Plan>();
+        public IReadOnlyList<Plan> Variants { get { return variants; } }
+
+        public Plan VariantOriginal { get; private set; }
+        #endregion
+
+        #region Public Variant methods
+        public void AddVariant(Plan variantPlan)
+        {
+            if (variantPlan == null)
+                throw new ArgumentNullException(nameof(variantPlan));
+
+            variants.Add(variantPlan);
+            variantPlan.VariantNumber = variants.Count;
+            variantPlan.VariantOriginal = this;
+        }
+        #endregion
+
 
         #region Static class usage
         // Check for a plan reference. "Plan: Dwarf Raid"
@@ -46,9 +73,7 @@ namespace NetTally.Votes.Experiment
 
             List<Plan> plans = new List<Plan>();
 
-            var voteGrouping = vote.VoteLines.GroupAdjacentByContinuation(
-                source => source.CleanContent,
-                Vote.VoteBlockContinues);
+            var voteGrouping = vote.GetVoteGroups();
 
             bool checkForBasePlans = true;
 
@@ -61,7 +86,7 @@ namespace NetTally.Votes.Experiment
 
                 if (m.Groups["base"].Success && voteGroup.First().MarkerType == MarkerType.Vote && voteGroup.Count() > 1)
                 {
-                    plans.Add(new Plan(PlanType.Base, m.Groups["planname"].Value, voteGroup.ToList()));
+                    plans.Add(new Plan(PlanType.Base, m.Groups["planname"].Value, voteGroup.ToList(), vote));
                     voteGrouping = voteGrouping.Skip(1);
                 }
                 else
@@ -88,7 +113,7 @@ namespace NetTally.Votes.Experiment
                     voteGrouping = voteGrouping.Skip(labeledGroups.Count());
 
                     plans.Add(new Plan(labelType, m.Groups["planname"].Value,
-                        labeledGroups.SelectMany(a => a).ToList()));
+                        labeledGroups.SelectMany(a => a).ToList(), vote));
                 }
             }
 
@@ -98,13 +123,56 @@ namespace NetTally.Votes.Experiment
                 Match m = anyPlanRegex.Match(voteGroup.Key);
                 if (m.Success && voteGroup.Skip(1).Any())
                 {
-                    plans.Add(new Plan(PlanType.Content, m.Groups["planname"].Value, voteGroup.ToList()));
+                    plans.Add(new Plan(PlanType.Content, m.Groups["planname"].Value, voteGroup.ToList(), vote));
                 }
             }
+
+            vote.StorePlans(plans);
 
             // Return all collected plans
             return plans;
         }
         #endregion
+
+        #region Equality comparisons
+        public override bool Equals(object obj)
+        {
+            if (obj is Plan otherPlan)
+            {
+                if (Lines.Count != otherPlan.Lines.Count)
+                    return false;
+
+                var pairs = Lines.Zip(otherPlan.Lines, (first, second) => Agnostic.StringComparer.Equals(first.CleanContent, second.CleanContent));
+
+                return pairs.All(p => p);
+            }
+
+            return false;
+        }
+
+        public static bool operator ==(Plan left, Plan right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Plan left, Plan right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return !ReferenceEquals(right, null);
+            }
+            return !left.Equals(right);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        #endregion
+
     }
 }
