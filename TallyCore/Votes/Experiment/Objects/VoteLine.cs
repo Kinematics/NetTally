@@ -243,14 +243,14 @@ namespace NetTally.Votes.Experiment
 
         public override int GetHashCode()
         {
-            return Text.GetHashCode();
+            return Text.GetHashCode() ^ Task.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
             if (obj is VoteLine other)
             {
-                return Agnostic.StringComparer.Equals(Text, other.Text);
+                return Agnostic.StringComparer.Equals(Task, other.Task) && Agnostic.StringComparer.Equals(Text, other.Text);
             }
 
             return false;
