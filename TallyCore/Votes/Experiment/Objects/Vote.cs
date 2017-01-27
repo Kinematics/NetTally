@@ -16,6 +16,7 @@ namespace NetTally.Votes.Experiment
         public string FullText { get; }
         private readonly List<VoteLine> voteLines = new List<VoteLine>();
         public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
+        private readonly List<Plan> plans = new List<Plan>();
 
         #region Regexes
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
@@ -35,6 +36,25 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Public Methods
+        public IEnumerable<IGrouping<string, VoteLine>> GetVoteGroups()
+        {
+            var voteGrouping = voteLines.GroupAdjacentByContinuation(
+                source => source.CleanContent,
+                VoteBlockContinues);
+
+            return voteGrouping;
+        }
+
+        public void StorePlans(List<Plan> potentialPlans)
+        {
+            plans.Clear();
+
+            if (potentialPlans == null)
+                return;
+
+            plans.AddRange(potentialPlans);
+        }
+
         /// <summary>
         /// Vote lines grouped into blocks.
         /// </summary>
@@ -42,9 +62,7 @@ namespace NetTally.Votes.Experiment
         {
             List<VoteLineSequence> bigList = new List<VoteLineSequence>();
 
-            var voteGrouping = voteLines.GroupAdjacentByContinuation(
-                source => source.CleanContent,
-                VoteBlockContinues);
+            var voteGrouping = GetVoteGroups();
 
             if (partitionMode == PartitionMode.ByLine)
             {
@@ -163,7 +181,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="currentKey">The vote key for the current group.</param>
         /// <param name="initial">The vote line that marks the start of the group.</param>
         /// <returns>Returns true if the current vote line can be added to the group.</returns>
-        public static bool VoteBlockContinues(VoteLine current, string currentKey, VoteLine initial)
+        private static bool VoteBlockContinues(VoteLine current, string currentKey, VoteLine initial)
         {
             if (current == null)
                 throw new ArgumentNullException(nameof(current));
