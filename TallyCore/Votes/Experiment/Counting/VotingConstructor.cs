@@ -24,8 +24,17 @@ namespace NetTally.Votes.Experiment
             throw new NotImplementedException();
         }
 
-        internal static bool ProcessPost(Post post, IQuest currentQuest, CancellationToken token)
+        internal static bool ProcessPost(Post post, IQuest quest, CancellationToken token)
         {
+            if (post == null)
+                throw new ArgumentNullException(nameof(post));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+            if (token == null)
+                throw new ArgumentNullException(nameof(token));
+            if (!post.HasVote)
+                throw new ArgumentException("Post is not a valid vote.");
+
             token.ThrowIfCancellationRequested();
 
             if (HasFutureReference(post))
