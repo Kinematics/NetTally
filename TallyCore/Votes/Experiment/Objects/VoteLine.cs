@@ -193,20 +193,19 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         public VoteLine Copy()
         {
-            var copy = new VoteLine();
-
-            copy.Text = Text;
-            copy.TextWithoutBBCode = TextWithoutBBCode;
-            copy.Content = Content;
-            copy.CleanContent = CleanContent;
-            copy.TrimmedContent = TrimmedContent;
-            copy.Marker = Marker;
-            copy.MarkerType = MarkerType;
-            copy.MarkerValue = MarkerValue;
-            copy.Prefix = Prefix;
-            copy.Task = Task;
-
-            return copy;
+            return new VoteLine()
+            {
+                Text = Text,
+                TextWithoutBBCode = TextWithoutBBCode,
+                Content = Content,
+                CleanContent = CleanContent,
+                TrimmedContent = TrimmedContent,
+                Marker = Marker,
+                MarkerType = MarkerType,
+                MarkerValue = MarkerValue,
+                Prefix = Prefix,
+                Task = Task
+            };
         }
 
         /// <summary>
