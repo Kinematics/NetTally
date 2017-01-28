@@ -17,5 +17,10 @@ namespace NetTally.Votes.Experiment
             Name = name;
             PostID = postID;
         }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ PostID.GetHashCode();
+        }
     }
 }

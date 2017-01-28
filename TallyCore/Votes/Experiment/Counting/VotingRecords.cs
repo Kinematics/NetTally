@@ -95,7 +95,7 @@ namespace NetTally.Votes.Experiment
 
                 List<VoteFragment> fragments = new VoteFragments { new VoteFragment(VoteType.Plan, plan.Value.Name) };
 
-                AddVoteFragments(fragments, plan.Key, plan.Value.Vote.Post.ID);
+                AddVoteFragments(fragments, plan.Key, plan.Value.Vote.Post.Identity.PostID);
             }
         }
         #endregion
@@ -108,15 +108,13 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voterName">The voter name to add.</param>
         /// <exception cref="ArgumentNullException"/>
-        public void AddVoterRecord(string voterName, string postID)
+        public void AddVoterRecord(Identity identity)
         {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
+            if (identity == null)
+                throw new ArgumentNullException(nameof(identity));
 
-            ReferenceVoterNames.Add(voterName, voterName);
-            ReferenceVoterPosts.Add(voterName, postID);
+            ReferenceVoterNames.Add(identity.Name, identity.Name);
+            ReferenceVoterPosts.Add(identity.Name, identity.PostID);
         }
 
         /// <summary>

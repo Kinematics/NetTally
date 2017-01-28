@@ -8,8 +8,7 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class Post
     {
-        public string Author { get; }
-        public string ID { get; }
+        public Identity Identity { get; }
         public int IDNumber { get; }
         public int Number { get; }
         public string Message { get; }
@@ -25,8 +24,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="message">The post message.</param>
         public Post(string author, string postID, int postNumber, string message)
         {
-            Author = author;
-            ID = postID;
+            Identity = new Identity(author, postID);
             Number = postNumber;
             Message = message ?? string.Empty;
 
@@ -50,7 +48,7 @@ namespace NetTally.Votes.Experiment
         /// </returns>
         public override int GetHashCode()
         {
-            return Author.GetHashCode() ^ ID.GetHashCode() ^ Number.GetHashCode();
+            return Identity.GetHashCode();
         }
 
 

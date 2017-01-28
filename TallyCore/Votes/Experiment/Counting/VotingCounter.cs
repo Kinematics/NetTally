@@ -129,7 +129,7 @@ namespace NetTally.Votes.Experiment
             foreach (var post in PostsList)
             {
                 if (post.HasVote)
-                    VotingRecords.Instance.AddVoterRecord(post.Author, post.ID);
+                    VotingRecords.Instance.AddVoterRecord(post.Identity);
             }
 
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
@@ -153,7 +153,7 @@ namespace NetTally.Votes.Experiment
                     // They will be considered proxy votes rather than plans.
                     if (VotingRecords.Instance.HasVoterName(plan.Name))
                     {
-                        if (!Agnostic.StringComparer.Equals(plan.Name, post.Author))
+                        if (!Agnostic.StringComparer.Equals(plan.Name, post.Identity.Name))
                         {
                             continue;
                         }
