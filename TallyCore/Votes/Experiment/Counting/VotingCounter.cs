@@ -191,6 +191,8 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void ProcessPosts(CancellationToken token)
         {
+            VotingConstructor.Reset();
+
             // Set up each post with the working version that will be processed.
             foreach (var post in PostsList)
             {

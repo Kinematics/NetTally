@@ -12,6 +12,13 @@ namespace NetTally.Votes.Experiment
 
     public static class VotingConstructor
     {
+        public static HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
+
+        public static void Reset()
+        {
+            FutureReferences.Clear();
+        }
+
         internal static List<string> GetWorkingVote(Post post)
         {
             throw new NotImplementedException();
@@ -21,6 +28,19 @@ namespace NetTally.Votes.Experiment
         {
             token.ThrowIfCancellationRequested();
 
+            if (HasFutureReference(post))
+            {
+                FutureReferences.Add(post);
+                return false;
+            }
+
+
+
+            throw new NotImplementedException();
+        }
+
+        private static bool HasFutureReference(Post post)
+        {
             throw new NotImplementedException();
         }
     }
