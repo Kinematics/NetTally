@@ -194,7 +194,7 @@ namespace NetTally.Votes.Experiment
             // Set up each post with the working version that will be processed.
             foreach (var post in PostsList)
             {
-                post.SetWorkingVote(p => VotingConstructor.GetWorkingVote(p));
+                post.Prepare(p => VotingConstructor.GetWorkingVote(p));
             }
 
             var unprocessed = PostsList;

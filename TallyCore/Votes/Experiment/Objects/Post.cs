@@ -41,6 +41,7 @@ namespace NetTally.Votes.Experiment
             }
         }
 
+
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
@@ -56,10 +57,17 @@ namespace NetTally.Votes.Experiment
 
 
         public bool ForceProcess { get; set; }
+        public bool Processed { get; set; }
 
-        internal void SetWorkingVote(Func<Post, List<string>> p)
+        internal void Prepare(Func<Post, List<string>> prepare)
         {
-            throw new NotImplementedException();
+            if (prepare == null)
+                throw new ArgumentNullException(nameof(prepare));
+
+            //WorkingVote = prepare(this);
+
+            Processed = false;
+            ForceProcess = false;
         }
     }
 }
