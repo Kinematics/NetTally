@@ -7,7 +7,7 @@ namespace NetTally.Votes.Experiment
         public string Name { get; }
         public string PostID { get; }
         public bool IsPlan { get; }
-        public int Number { get; }
+        public int Number { get; set; }
 
         private string Variant => Number > 0 ? $" ({Number})" : "";
         public string VariantName => IsPlan ? $"{Name}{Variant}" : Name;
