@@ -8,8 +8,11 @@ namespace NetTally.Votes.Experiment
     public class VotePartition
     {
         public PartitionMode PartitionMode { get; private set; }
+
         private readonly List<VoteLine> voteLines = new List<VoteLine>();
         public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
+
+        public string Task { get; set; }
 
         public VotePartition()
         {

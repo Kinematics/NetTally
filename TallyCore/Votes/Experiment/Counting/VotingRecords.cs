@@ -120,10 +120,17 @@ namespace NetTally.Votes.Experiment
 
         #region General methods
 
+        #region Future reference controls
         public void NoteFutureReference(Post post)
         {
             FutureReferences.Add(post);
         }
+
+        internal bool HasNewerVote(Post post)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
 
         #region Voter names (add, delete, query)
         /// <summary>
@@ -385,6 +392,11 @@ namespace NetTally.Votes.Experiment
         }
 
 
+
+        internal void AddVotes(List<VotePartition> filteredPartitions, Identity identity, VoteType voteType)
+        {
+            throw new NotImplementedException();
+        }
 
 
 
