@@ -19,40 +19,17 @@ namespace NetTally.Votes.Experiment
                 throw new ArgumentNullException(nameof(name));
 
             Lines = lines ?? throw new ArgumentNullException(nameof(lines));
-            Vote = vote ?? throw new ArgumentNullException(nameof(vote));
 
-            Name = name;
+            Identity = new Identity(name, vote.Post.Identity.PostID, true);
             PlanType = planType;
         }
         #endregion
 
         #region Properties
-        public string Name { get; }
+        public Identity Identity { get; }
         public PlanType PlanType { get; }
         public List<VoteLine> Lines { get; }
-        public Vote Vote { get; }
-
-        public string VariantName => VariantNumber > 0 ? $"{Name} ({VariantNumber})" : Name;
-        public int VariantNumber { get; private set; }
-
-        private readonly List<Plan> variants = new List<Plan>();
-        public IReadOnlyList<Plan> Variants { get { return variants; } }
-
-        public Plan VariantOriginal { get; private set; }
         #endregion
-
-        #region Public Variant methods
-        public void AddVariant(Plan variantPlan)
-        {
-            if (variantPlan == null)
-                throw new ArgumentNullException(nameof(variantPlan));
-
-            variants.Add(variantPlan);
-            variantPlan.VariantNumber = variants.Count;
-            variantPlan.VariantOriginal = this;
-        }
-        #endregion
-
 
         #region Static class usage
         // Check for a plan reference. "Plan: Dwarf Raid"
