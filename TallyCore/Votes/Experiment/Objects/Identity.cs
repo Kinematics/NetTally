@@ -17,6 +17,7 @@ namespace NetTally.Votes.Experiment
 
         private IForumAdapter ForumAdapter { get; }
 
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="Identity"/> class.
         /// </summary>
@@ -41,6 +42,19 @@ namespace NetTally.Votes.Experiment
             ForumAdapter = forumAdapter;
             Number = number;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Identity"/> class, using
+        /// an existing Identity for some parameters.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="originatingIdentity">The originating identity.</param>
+        /// <param name="identityType">Type of the identity.</param>
+        public Identity(string name, Identity originatingIdentity, IdentityType identityType = IdentityType.User)
+            : this(name, originatingIdentity.PostID, identityType, originatingIdentity.ForumAdapter, 0)
+        {
+        }
+        #endregion
 
         public override int GetHashCode()
         {
