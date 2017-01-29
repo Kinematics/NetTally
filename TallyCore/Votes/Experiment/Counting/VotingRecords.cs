@@ -46,6 +46,8 @@ namespace NetTally.Votes.Experiment
 
         public IEnumerable<string> Tasks => TallyTasks.Union(UserTasks);
 
+        HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
+
 
         #region Reset
         public void Reset()
@@ -53,6 +55,7 @@ namespace NetTally.Votes.Experiment
             ReferenceVoterNames.Clear();
             ReferencePlanNames.Clear();
             VoterPostIDs.Clear();
+            FutureReferences.Clear();
 
             TallyTasks.Clear();
 
@@ -116,6 +119,11 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region General methods
+
+        public void NoteFutureReference(Post post)
+        {
+            FutureReferences.Add(post);
+        }
 
         #region Voter names (add, delete, query)
         /// <summary>

@@ -133,6 +133,7 @@ namespace NetTally.Votes.Experiment
                 VotingRecords.Instance.AddVoterRecord(post.Identity);
             }
 
+            // Collection of all the plans that we find in the post list.
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 
             // Scan the post list once.
@@ -172,7 +173,7 @@ namespace NetTally.Votes.Experiment
                         }
                         else if (existingPlans.All(p => p != plan))
                         {
-                            // If it's of the same tier, check if it's a variant that's different from all existing plans.
+                            // If it's of the same tier, add it if it's a variant that's different from all existing plans.
                             existingPlans.Add(plan);
                         }
                     }
@@ -195,8 +196,6 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void ProcessPosts(CancellationToken token)
         {
-            VotingConstructor.Reset();
-
             // Set up each post with the working version that will be processed.
             foreach (var post in PostsList)
             {
