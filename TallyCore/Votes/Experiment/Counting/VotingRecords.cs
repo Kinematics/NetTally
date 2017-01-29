@@ -8,7 +8,7 @@ using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
-    using PlanDictionary = Dictionary<string, Plan>;
+    using PlanDictionary = Dictionary<string, List<Plan>>;
 
     using SupportersList = List<string>;
     using VoteSupporters = Dictionary<string, List<string>>;
@@ -88,15 +88,30 @@ namespace NetTally.Votes.Experiment
         #region Prep
         public void AddPlans(PlanDictionary planRepo)
         {
-            var checkForVariants = planRepo.GroupBy(p => p.Value.Name);
-            foreach (var plan in planRepo)
+            foreach (var planList in planRepo)
             {
-                AddPlanName(plan.Key);
+                if (planList.Value.Count > 1)
+                {
+                    int index = 1;
+                    foreach (var plan in planList.Value.Skip(1))
+                    {
+                        plan.Identity.Number = index;
+                        index++;
+                    }
+                }
 
-                List<VoteFragment> fragments = new VoteFragments { new VoteFragment(VoteType.Plan, plan.Value.Name) };
+                AddPlanName(planList.Key);
 
-                AddVoteFragments(fragments, plan.Key, plan.Value.Vote.Post.Identity.PostID);
+                foreach (var plan in planList.Value)
+                {
+                    AddPlan(plan);
+                }
             }
+        }
+
+        private void AddPlan(Plan plan)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 

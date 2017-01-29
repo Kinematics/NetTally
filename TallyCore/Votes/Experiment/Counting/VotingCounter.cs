@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NetTally.Votes.Experiment
 {
-    using PlanDictionary = Dictionary<string, Plan>;
+    using PlanDictionary = Dictionary<string, List<Plan>>;
 
     public class VotingCounter : INotifyPropertyChanged
     {
@@ -156,23 +156,30 @@ namespace NetTally.Votes.Experiment
                         }
                     }
 
-                    if (planRepo.TryGetValue(plan.Name, out var existingPlan))
+                    if (planRepo.TryGetValue(plan.Identity.Name, out var existingPlans))
                     {
-                        // If the plan type found is 'higher' quality than any previously found plan types, replace the existing one.
-                        if (plan.PlanType > existingPlan.PlanType)
+                        if (plan.PlanType < existingPlans[0].PlanType)
                         {
-                            planRepo[plan.Name] = plan;
+                            // Lower types are never added
+                            continue;
                         }
-                        else if (plan.PlanType == existingPlan.PlanType && plan != existingPlan)
+                        else if (plan.PlanType > existingPlans[0].PlanType)
                         {
-                            existingPlan.AddVariant(plan);
-                            planRepo[plan.VariantName] = plan;
+                            // A higher type wipes all existing plans, then adds itself as the new primary
+                            existingPlans.Clear();
+                            existingPlans.Add(plan);
+                            continue;
+                        }
+                        else if (existingPlans.All(p => p != plan))
+                        {
+                            // If it's of the same tier, check if it's a variant that's different from all existing plans.
+                            existingPlans.Add(plan);
                         }
                     }
                     else
                     {
                         // If the plan name doesn't already exist, add it.
-                        planRepo.Add(plan.Name, plan);
+                        planRepo.Add(plan.Identity.Name, new List<Plan> { plan });
                     }
                 }
             }
