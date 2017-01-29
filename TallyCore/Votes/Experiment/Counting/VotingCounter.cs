@@ -130,8 +130,7 @@ namespace NetTally.Votes.Experiment
             // Record all the users who voted
             foreach (var post in PostsList)
             {
-                if (post.HasVote)
-                    VotingRecords.Instance.AddVoterRecord(post.Identity);
+                VotingRecords.Instance.AddVoterRecord(post.Identity);
             }
 
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
@@ -147,15 +146,11 @@ namespace NetTally.Votes.Experiment
                 // Examine each plan.
                 foreach (var plan in plans)
                 {
-                    // The plan must be named to be valid.
-                    if (string.IsNullOrEmpty(plan.Name))
-                        continue;
-
                     // Skip plans that are named after other posters.
                     // They will be considered proxy votes rather than plans.
-                    if (VotingRecords.Instance.HasVoterName(plan.Name))
+                    if (VotingRecords.Instance.HasVoterName(plan.Identity.Name))
                     {
-                        if (!Agnostic.StringComparer.Equals(plan.Name, post.Identity.Name))
+                        if (!Agnostic.StringComparer.Equals(plan.Identity.Name, post.Identity.Name))
                         {
                             continue;
                         }
