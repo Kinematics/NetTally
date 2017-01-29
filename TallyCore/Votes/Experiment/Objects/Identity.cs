@@ -35,7 +35,23 @@ namespace NetTally.Votes.Experiment
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ PostID.GetHashCode() ^ IsPlan.GetHashCode();
+            return Name.GetHashCode() ^ PostID.GetHashCode() ^ IsPlan.GetHashCode() ^ Number.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Identity other)
+            {
+                if (Name == other.Name && PostID == other.PostID && IsPlan == other.IsPlan && Number == other.Number)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public override string ToString()
+        {
+            return FullName;
         }
     }
 }
