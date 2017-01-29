@@ -140,6 +140,12 @@ namespace NetTally
             Content,
             Base
         }
+
+        public enum IdentityType
+        {
+            User,
+            Plan
+        }
     }
 
     /// <summary>
