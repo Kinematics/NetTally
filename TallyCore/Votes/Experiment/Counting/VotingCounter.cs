@@ -40,7 +40,9 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Viewable Properties
-        public List<Post> PostsList { get; } = new List<Post>();
+        private readonly List<Post> postsList = new List<Post>();
+        public IReadOnlyList<Post> PostsList { get { return postsList; } }
+
         public IQuest CurrentQuest { get; private set; }
         public bool TallyWasCanceled { get; private set; }
         #endregion
@@ -78,8 +80,8 @@ namespace NetTally.Votes.Experiment
             if (posts == null)
                 throw new ArgumentNullException(nameof(posts));
 
-            PostsList.Clear();
-            PostsList.AddRange(posts.Where(p => p.HasVote));
+            postsList.Clear();
+            postsList.AddRange(posts.Where(p => p.HasVote));
 
             await CountVotesInCurrentPosts(token).ConfigureAwait(false);
         }
