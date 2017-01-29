@@ -1,4 +1,5 @@
 ﻿using System;
+using NetTally.Forums;
 
 namespace NetTally.Votes.Experiment
 {
@@ -6,12 +7,15 @@ namespace NetTally.Votes.Experiment
     {
         public string Name { get; }
         public string PostID { get; }
+        public IdentityType IdentityType { get; }
         public bool IsPlan { get; }
         public int Number { get; set; }
 
         private string Variant => Number > 0 ? $" ({Number})" : "";
         public string VariantName => IsPlan ? $"{Name}{Variant}" : Name;
         public string FullName => IsPlan ? $"◈{Name}{Variant}" : Name;
+
+        private IForumAdapter ForumAdapter { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Identity"/> class.
@@ -20,7 +24,10 @@ namespace NetTally.Votes.Experiment
         /// <param name="postID">The post identifier.</param>
         /// <param name="isPlan">if set to <c>true</c> [is plan].</param>
         /// <exception cref="System.ArgumentNullException"/>
-        public Identity(string name, string postID, bool isPlan = false, int number = 0)
+        public Identity(string name, string postID,
+            IdentityType identityType = IdentityType.User,
+            IForumAdapter forumAdapter = null,
+            int number = 0)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -29,7 +36,9 @@ namespace NetTally.Votes.Experiment
 
             Name = name;
             PostID = postID;
-            IsPlan = isPlan;
+            IdentityType = identityType;
+            IsPlan = identityType == IdentityType.Plan;
+            ForumAdapter = forumAdapter;
             Number = number;
         }
 
@@ -52,6 +61,18 @@ namespace NetTally.Votes.Experiment
         public override string ToString()
         {
             return FullName;
+        }
+
+        public string ToLink()
+        {
+            string permalink = "";
+
+            if (ForumAdapter != null)
+            {
+                permalink = ForumAdapter.GetPermalinkForId(PostID);
+            }
+
+            return $"[url=\"{permalink}\"]{FullName}[/url]";
         }
     }
 }

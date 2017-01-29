@@ -20,7 +20,7 @@ namespace NetTally.Votes.Experiment
 
             Lines = lines ?? throw new ArgumentNullException(nameof(lines));
 
-            Identity = new Identity(name, vote.Post.Identity.PostID, true);
+            Identity = new Identity(name, vote.Post.Identity.PostID, IdentityType.Plan);
             PlanType = planType;
         }
         #endregion
