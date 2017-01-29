@@ -959,12 +959,6 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
         private string GetVoteKey(string vote, VoteType voteType)
         {
-            var votes = GetVotesCollection(voteType);
-
-            // If the vote already matches an existing key, we don't need to search again.
-            if (votes.ContainsKey(vote))
-                return vote;
-
             // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
             if (!cleanedKeys.ContainsKey(vote))
             {
@@ -972,6 +966,12 @@ namespace NetTally.VoteCounting
                 clean = VoteString.DeUrlContent(clean);
                 cleanedKeys[vote] = clean;
             }
+
+            var votes = GetVotesCollection(voteType);
+
+            // If the vote already matches an existing key, we don't need to search again.
+            if (votes.ContainsKey(vote))
+                return vote;
 
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
