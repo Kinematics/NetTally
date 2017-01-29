@@ -73,7 +73,7 @@ namespace NetTally.Votes.Experiment
 
             List<Plan> plans = new List<Plan>();
 
-            var voteGrouping = vote.GetVoteGroups();
+            var voteGrouping = vote.GetVoteMarkerGroups();
 
             bool checkForBasePlans = true;
 

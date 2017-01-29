@@ -11,11 +11,18 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class Vote
     {
+        /// <summary>
+        /// Link back to the originating post.
+        /// </summary>
         public Post Post { get; }
+
         public bool IsValid { get; private set; }
+
         public string FullText { get; }
+
         private readonly List<VoteLine> voteLines = new List<VoteLine>();
         public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
+
         private readonly List<Plan> plans = new List<Plan>();
 
         #region Regexes
@@ -26,7 +33,12 @@ namespace NetTally.Votes.Experiment
         static readonly Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*(?<marker>[xX✓✔]|[#+]?[1-9]|[-+*])\s*\]");
         #endregion
 
-        #region Constructor
+        #region Constructor        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Vote"/> class.
+        /// </summary>
+        /// <param name="post">The originating post.</param>
+        /// <param name="message">The message text of the post.</param>
         public Vote(Post post, string message)
         {
             Post = post ?? throw new ArgumentNullException(nameof(post));
@@ -35,8 +47,12 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
-        #region Public Methods
-        public IEnumerable<IGrouping<string, VoteLine>> GetVoteGroups()
+        #region Public Methods        
+        /// <summary>
+        /// Gets the vote grouped by valid marker type.
+        /// </summary>
+        /// <returns>Returns the vote broken up into groups based on marker type.</returns>
+        public IEnumerable<IGrouping<string, VoteLine>> GetVoteMarkerGroups()
         {
             var voteGrouping = voteLines.GroupAdjacentByContinuation(
                 source => source.CleanContent,
@@ -62,7 +78,7 @@ namespace NetTally.Votes.Experiment
         {
             List<VoteLineSequence> bigList = new List<VoteLineSequence>();
 
-            var voteGrouping = GetVoteGroups();
+            var voteGrouping = GetVoteMarkerGroups();
 
             if (partitionMode == PartitionMode.ByLine)
             {
