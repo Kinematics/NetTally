@@ -13,15 +13,15 @@ namespace NetTally.Votes.Experiment
     public class Plan
     {
         #region Constructor
-        public Plan(PlanType planType, string name, List<VoteLine> lines, Vote vote)
+        public Plan(PlanType planType, string name, Identity identity, List<VoteLine> lines)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
             Lines = lines ?? throw new ArgumentNullException(nameof(lines));
 
-            Identity = new Identity(name, vote.Post.Identity.PostID, IdentityType.Plan);
             PlanType = planType;
+            Identity = new Identity(name, identity, IdentityType.Plan);
         }
         #endregion
 
@@ -63,7 +63,7 @@ namespace NetTally.Votes.Experiment
 
                 if (m.Groups["base"].Success && voteGroup.First().MarkerType == MarkerType.Vote && voteGroup.Count() > 1)
                 {
-                    plans.Add(new Plan(PlanType.Base, m.Groups["planname"].Value, voteGroup.ToList(), vote));
+                    plans.Add(new Plan(PlanType.Base, m.Groups["planname"].Value, vote.Post.Identity, voteGroup.ToList()));
                     voteGrouping = voteGrouping.Skip(1);
                 }
                 else
@@ -89,8 +89,8 @@ namespace NetTally.Votes.Experiment
 
                     voteGrouping = voteGrouping.Skip(labeledGroups.Count());
 
-                    plans.Add(new Plan(labelType, m.Groups["planname"].Value,
-                        labeledGroups.SelectMany(a => a).ToList(), vote));
+                    plans.Add(new Plan(labelType, m.Groups["planname"].Value, vote.Post.Identity,
+                        labeledGroups.SelectMany(a => a).ToList()));
                 }
             }
 
@@ -100,7 +100,7 @@ namespace NetTally.Votes.Experiment
                 Match m = anyPlanRegex.Match(voteGroup.Key);
                 if (m.Success && voteGroup.Skip(1).Any())
                 {
-                    plans.Add(new Plan(PlanType.Content, m.Groups["planname"].Value, voteGroup.ToList(), vote));
+                    plans.Add(new Plan(PlanType.Content, m.Groups["planname"].Value, vote.Post.Identity, voteGroup.ToList()));
                 }
             }
 
