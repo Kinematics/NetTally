@@ -53,6 +53,7 @@ namespace NetTally.Votes.Experiment
         public void Reset()
         {
             ReferenceVoterNames.Clear();
+            ReferenceVoterPosts.Clear();
             ReferencePlanNames.Clear();
             VoterPostIDs.Clear();
             FutureReferences.Clear();
