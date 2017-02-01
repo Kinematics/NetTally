@@ -15,8 +15,8 @@ namespace NetTally.Tests
             Post post = new Post("Kinematics", "12345", 12,
 @""
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsFalse(post.HasVote);
@@ -30,8 +30,8 @@ namespace NetTally.Tests
 @"Some chatty response about various things that might include a description of [x] how to write a vote.
 Make sure it's OK."
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsFalse(post.HasVote);
@@ -45,8 +45,8 @@ Make sure it's OK."
 @"Some chatty response about various things that might include a description of [x] how to write a vote.
 Make sure it's OK."
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsFalse(post.HasVote);
@@ -65,8 +65,8 @@ Make sure it's OK."
 
 I don't want this to be counted."
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsFalse(post.HasVote);
@@ -80,8 +80,8 @@ I don't want this to be counted."
 [x] If you vote this way
 [x] Or if you vote that way"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -99,15 +99,15 @@ I don't want this to be counted."
 -[x] If you vote this way
 -[x] Or if you vote that way"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.Vote.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
         }
@@ -121,15 +121,15 @@ I don't want this to be counted."
 [x] If you vote this way
 [x] Or if you vote that way"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.Vote.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Label, plans[0].PlanType);
         }
@@ -144,8 +144,8 @@ I don't want this to be counted."
 -[x] Or if you vote that way
 [x] And some other stuff"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -154,7 +154,7 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
         }
@@ -171,8 +171,8 @@ I don't want this to be counted."
 -[x] Under the bed
 [x] And some other stuff"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -181,11 +181,11 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
 
-            Assert.AreEqual("Hideaway", plans[1].Name);
+            Assert.AreEqual("Hideaway", plans[1].Identity.Name);
             Assert.AreEqual(2, plans[1].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
         }
@@ -206,8 +206,8 @@ I don't want this to be counted."
 [x] And some other stuff
 [x] plan Bii"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -215,15 +215,15 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(3, plans.Count);
 
-            Assert.AreEqual("Bii", plans[0].Name);
+            Assert.AreEqual("Bii", plans[0].Identity.Name);
             Assert.AreEqual(2, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Base, plans[0].PlanType);
 
-            Assert.AreEqual("getaway", plans[1].Name);
+            Assert.AreEqual("getaway", plans[1].Identity.Name);
             Assert.AreEqual(3, plans[1].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
 
-            Assert.AreEqual("Hideaway", plans[2].Name);
+            Assert.AreEqual("Hideaway", plans[2].Identity.Name);
             Assert.AreEqual(2, plans[2].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[2].PlanType);
         }
@@ -238,8 +238,8 @@ I don't want this to be counted."
 -[+] Or if you vote that way
 [+] And some other stuff"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -248,7 +248,7 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
         }
@@ -266,8 +266,8 @@ I don't want this to be counted."
 [2] Robes
 [3] Maid Uniform"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -276,7 +276,7 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
         }
@@ -293,8 +293,8 @@ I don't want this to be counted."
 [1] Plan Hideaway
 -[*] Under the bed"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -303,11 +303,11 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
 
-            Assert.AreEqual("Hideaway", plans[1].Name);
+            Assert.AreEqual("Hideaway", plans[1].Identity.Name);
             Assert.AreEqual(2, plans[1].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
 
@@ -325,8 +325,8 @@ I don't want this to be counted."
 [#1] Plan Hideaway
 -[*] Under the bed"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -335,11 +335,11 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
 
-            Assert.AreEqual("Hideaway", plans[1].Name);
+            Assert.AreEqual("Hideaway", plans[1].Identity.Name);
             Assert.AreEqual(2, plans[1].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
         }
@@ -357,8 +357,8 @@ I don't want this to be counted."
 -[*] Under the bed
 -[+6] Bring Teddy"
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
@@ -367,11 +367,11 @@ I don't want this to be counted."
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
 
-            Assert.AreEqual("getaway", plans[0].Name);
+            Assert.AreEqual("getaway", plans[0].Identity.Name);
             Assert.AreEqual(3, plans[0].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[0].PlanType);
 
-            Assert.AreEqual("Hideaway", plans[1].Name);
+            Assert.AreEqual("Hideaway", plans[1].Identity.Name);
             Assert.AreEqual(3, plans[1].Lines.Count);
             Assert.AreEqual(PlanType.Content, plans[1].PlanType);
         }
@@ -394,8 +394,8 @@ I don't want this to be counted."
 -[x] Bring Jane"
 
 );
-            Assert.AreEqual("Kinematics", post.Author);
-            Assert.AreEqual("12345", post.ID);
+            Assert.AreEqual("Kinematics", post.Identity.Name);
+            Assert.AreEqual("12345", post.Identity.PostID);
             Assert.AreEqual(12345, post.IDNumber);
             Assert.AreEqual(12, post.Number);
             Assert.IsTrue(post.HasVote);
