@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -26,6 +27,8 @@ namespace NetTally.Tests
 
             sampleQuest = new Quest();
             voteCounterRaw = VoteCounterImpl.Instance;
+
+            ViewModelService.Instance.Build();
         }
 
         [TestInitialize]
@@ -523,7 +526,8 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(p1);
             posts.Add(p2);
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            Task t =  VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await t;
 
             Assert.AreEqual(2, VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count);
             Assert.AreEqual(1, VoteCounter.Instance.GetVotesCollection(VoteType.Vote).Count);

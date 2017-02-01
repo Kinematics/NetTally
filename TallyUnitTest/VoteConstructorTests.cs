@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.Votes;
 using NetTally.VoteCounting;
 
@@ -22,6 +23,8 @@ namespace NetTally.Tests
             Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
 
             sampleQuest = new Quest();
+
+            ViewModelService.Instance.Build();
         }
 
         [TestInitialize]

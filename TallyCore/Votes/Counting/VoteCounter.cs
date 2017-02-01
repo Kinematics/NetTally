@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting
@@ -157,7 +158,7 @@ namespace NetTally.VoteCounting
             PostsList.AddRange(posts);
             await TallyPosts(token).ConfigureAwait(false);
 
-            OrderedTaskList.AddRange(ViewModels.ViewModelService.MainViewModel.KnownTasks);
+            OrderedTaskList.AddRange(ViewModelService.MainViewModel.KnownTasks);
             OnPropertyChanged("Tasks");
         }
 
