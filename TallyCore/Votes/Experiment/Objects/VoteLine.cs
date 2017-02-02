@@ -249,7 +249,7 @@ namespace NetTally.Votes.Experiment
         {
             if (obj is VoteLine other)
             {
-                return Agnostic.StringComparer.Equals(Task, other.Task) && Agnostic.StringComparer.Equals(Text, other.Text);
+                return Agnostic.StringComparer.Equals(Task, other.Task) && Agnostic.StringComparer.Equals(CleanContent, other.CleanContent);
             }
 
             return false;
