@@ -119,9 +119,7 @@ namespace NetTally.Votes.Experiment
                 if (Lines.Count != otherPlan.Lines.Count)
                     return false;
 
-                var pairs = Lines.Zip(otherPlan.Lines, (first, second) => Agnostic.StringComparer.Equals(first.CleanContent, second.CleanContent));
-
-                return pairs.All(p => p);
+                return Lines.SequenceEqual(otherPlan.Lines);
             }
 
             return false;

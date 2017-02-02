@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
@@ -80,6 +81,18 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
+        public override bool Equals(object obj)
+        {
+            if (obj is VotePartition other)
+            {
+                if (voteLines.Count != other.voteLines.Count)
+                    return false;
+
+                return voteLines.SequenceEqual(other.voteLines);
+            }
+
+            return false;
+        }
 
         public static List<VotePartition> GetPartitionsFrom(Vote vote, PartitionMode partitionMode)
         {
