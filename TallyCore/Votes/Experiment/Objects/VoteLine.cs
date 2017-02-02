@@ -242,7 +242,7 @@ namespace NetTally.Votes.Experiment
 
         public override int GetHashCode()
         {
-            return Text.GetHashCode() ^ Task.GetHashCode();
+            return Task.GetHashCode() ^ CleanContent.GetHashCode();
         }
 
         public override bool Equals(object obj)
