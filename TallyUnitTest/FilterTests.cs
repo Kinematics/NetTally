@@ -20,7 +20,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestBlankFilter_Simple()
         {
-            Filter filter = new Filter("", null, false);
+            Filter filter = new Filter("", null);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuff (omake)"));
@@ -30,7 +30,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestBlankFilter_Full()
         {
-            Filter filter = new Filter("", null, true);
+            Filter filter = new Filter("", null);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuff (omake)"));
@@ -40,7 +40,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestDefaultOmakeFilter_Simple()
         {
-            Filter filter = new Filter("", Quest.OmakeFilter, false);
+            Filter filter = new Filter("", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuff (omake)"));
@@ -50,7 +50,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestDefaultOmakeFilter_Full()
         {
-            Filter filter = new Filter("", Quest.OmakeFilter, true);
+            Filter filter = new Filter("", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuff (omake)"));
@@ -60,7 +60,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestOmakeStuffFilter_Simple()
         {
-            Filter filter = new Filter("stuff", Quest.OmakeFilter, false);
+            Filter filter = new Filter("stuff", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
@@ -70,7 +70,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestOmakeStuffFilter_Full()
         {
-            Filter filter = new Filter("stuff", Quest.OmakeFilter, true);
+            Filter filter = new Filter("/stuff/", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
@@ -80,7 +80,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestMultiValueFilter_Simple()
         {
-            Filter filter = new Filter("stuff, stuffing", Quest.OmakeFilter, false);
+            Filter filter = new Filter("stuff, stuffing", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -91,7 +91,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestMultiValueFilter_Full()
         {
-            Filter filter = new Filter("stuff|stuffing", Quest.OmakeFilter, true);
+            Filter filter = new Filter("/stuff|stuffing/", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -102,7 +102,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestGlobFilter_Simple()
         {
-            Filter filter = new Filter("stuff*", Quest.OmakeFilter, false);
+            Filter filter = new Filter("stuff*", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -115,7 +115,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestGlobFilter2_Simple()
         {
-            Filter filter = new Filter("stuff* day", Quest.OmakeFilter, false);
+            Filter filter = new Filter("stuff* day", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuffing"));
@@ -130,7 +130,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestParenFilter_Simple()
         {
-            Filter filter = new Filter("(info)", Quest.OmakeFilter, false);
+            Filter filter = new Filter("(info)", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuffing"));
@@ -143,7 +143,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestInfoFilter_Simple()
         {
-            Filter filter = new Filter("info", Quest.OmakeFilter, false);
+            Filter filter = new Filter("info", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of info"));
@@ -157,7 +157,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void TestRegexFilter_Full()
         {
-            Filter filter = new Filter("stuff(ing)?", Quest.OmakeFilter, true);
+            Filter filter = new Filter("/stuff(ing)?/", Quest.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
