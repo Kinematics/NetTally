@@ -23,6 +23,11 @@ namespace NetTally.CLI
             var arguements = Parser.Default.ParseArguments<Options>(args);
 
             arguements.WithParsed(o => RunWithOptions(o));
+
+#if DEBUG
+            Console.WriteLine("Press enter to close...");
+            Console.ReadLine();
+#endif
         }
         #endregion
 
