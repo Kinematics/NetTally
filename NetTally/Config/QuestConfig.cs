@@ -9,7 +9,8 @@ namespace NetTally
     public class QuestElement : ConfigurationElement
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters)
+            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters, bool useCustomUsernameFilters,
+            string customUsernameFilters)
         {
             ThreadName = threadName;
             DisplayName = displayName;
@@ -20,6 +21,8 @@ namespace NetTally
             PartitionMode = partitionMode;
             UseCustomThreadmarkFilters = useCustomThreadmarkFilters;
             CustomThreadmarkFilters = customThreadmarkFilters;
+            UseCustomUsernameFilters = useCustomUsernameFilters;
+            CustomUsernameFilters = customUsernameFilters;
         }
 
         /// <summary>
@@ -102,6 +105,19 @@ namespace NetTally
             set { this["CustomThreadmarkFilters"] = value; }
         }
 
+        [ConfigurationProperty("UseCustomUsernameFilters", DefaultValue = false)]
+        public bool UseCustomUsernameFilters
+        {
+            get { return (bool)this["UseCustomUsernameFilters"]; }
+            set { this["UseCustomUsernameFilters"] = value; }
+        }
+
+        [ConfigurationProperty("CustomUsernameFilters", DefaultValue = "")]
+        public string CustomUsernameFilters
+        {
+            get { return (string)this["CustomUsernameFilters"]; }
+            set { this["CustomUsernameFilters"] = value; }
+        }
 
         // Obsolete configuration properties.  Left in place solely so that if they
         // exist, they don't cause load errors.  We do not save the results when

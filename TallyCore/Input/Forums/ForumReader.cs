@@ -226,7 +226,7 @@ namespace NetTally.Forums
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
             VoteCounting.VoteCounter.Instance.Title = threadInfo.Title;
 
-            postsList = postsList.Where(p => p.Author != threadInfo.Author).Distinct().OrderBy(p => p.Number).ToList();
+            postsList = postsList.Where(p => !quest.UsernameFilter.Match(p.Author, threadInfo.Author)).Distinct().OrderBy(p => p.Number).ToList();
 
             return postsList;
         }

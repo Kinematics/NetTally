@@ -167,7 +167,9 @@ namespace NetTally
                         CheckForLastThreadmark = questElement.CheckForLastThreadmark,
                         PartitionMode = questElement.PartitionMode,
                         UseCustomThreadmarkFilters = questElement.UseCustomThreadmarkFilters,
-                        CustomThreadmarkFilters = questElement.CustomThreadmarkFilters
+                        CustomThreadmarkFilters = questElement.CustomThreadmarkFilters,
+                        UseCustomUsernameFilters = questElement.UseCustomUsernameFilters,
+                        CustomUsernameFilters = questElement.CustomUsernameFilters
                     };
 
                     if (questElement.UseVotePartitions && q.PartitionMode == PartitionMode.None)

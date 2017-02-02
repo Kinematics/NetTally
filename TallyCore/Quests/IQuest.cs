@@ -86,6 +86,19 @@ namespace NetTally
         Filter TaskFilter { get; }
 
         /// <summary>
+        /// Flag for whether to use custom filters to exclude specified users from the tally.
+        /// </summary>
+        bool UseCustomUsernameFilters { get; set; }
+        /// <summary>
+        /// List of custom users to filter.
+        /// </summary>
+        string CustomUsernameFilters { get; set; }
+        /// <summary>
+        /// Gets or sets the user filter, based on current user filter settings.
+        /// </summary>
+        Filter UsernameFilter { get; }
+
+        /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
         /// </summary>
         PartitionMode PartitionMode { get; set; }
