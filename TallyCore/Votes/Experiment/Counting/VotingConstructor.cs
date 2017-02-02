@@ -13,6 +13,14 @@ namespace NetTally.Votes.Experiment
 
     public static class VotingConstructor
     {
+        /// <summary>
+        /// Process a post to get the component votes (partitions) and store them
+        /// in the voting records.
+        /// </summary>
+        /// <param name="post">The post being processed.</param>
+        /// <param name="quest">The quest being processed.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns true if the post was successfully processed, or will not be processed.</returns>
         internal static bool ProcessPost(Post post, IQuest quest, CancellationToken token)
         {
             if (post == null)
@@ -35,13 +43,13 @@ namespace NetTally.Votes.Experiment
                 return false;
             }
 
-            // If a newer vote has been registered in the vote records, that means
-            // that this post was a post with a future reference that got overridden
-            // by another vote later in the thread, and we're reprocessing it now.
+            // If a newer vote has been registered for this user in the vote records,
+            // that means that this post was a post with a future reference that got
+            // overridden by another vote later in the thread, and we're reprocessing it now.
             // Only actually process it if this is not the case.
             if (!VotingRecords.Instance.HasNewerVote(post.Identity))
             {
-                // Get the list of all vote partitions, built according to current preferences.
+                // Get the list of all vote partitions from the post, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
                 List<VotePartition> votePartitions = GetVotePartitions(post, quest.PartitionMode, VoteType.Vote);
 
@@ -55,6 +63,14 @@ namespace NetTally.Votes.Experiment
             return true;
         }
 
+        /// <summary>
+        /// Take a list of vote partitions, and filter out any that do not match the
+        /// current quest's task filter.
+        /// </summary>
+        /// <param name="votePartitions">The partitions to filter.</param>
+        /// <param name="quest">The quest being processed.</param>
+        /// <returns>All partitions that matched the current filter, or all partitions if
+        /// there is no active filter.</returns>
         private static List<VotePartition> FilterVotesByTask(List<VotePartition> votePartitions, IQuest quest)
         {
             if (!quest.UseCustomTaskFilters)
