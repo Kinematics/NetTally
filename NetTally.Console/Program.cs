@@ -23,6 +23,11 @@ namespace NetTally.CLI
             var arguements = Parser.Default.ParseArguments<Options>(args);
 
             arguements.WithParsed(o => RunWithOptions(o));
+
+#if DEBUG
+            Console.WriteLine("Press enter to close...");
+            Console.ReadLine();
+#endif
         }
         #endregion
 
@@ -89,6 +94,24 @@ namespace NetTally.CLI
                 quest.StartPost = options.StartPost.Value;
             if (options.EndPost.HasValue)
                 quest.EndPost = options.EndPost.Value;
+
+            if (!string.IsNullOrEmpty(options.ThreadmarkFilters))
+            {
+                quest.UseCustomThreadmarkFilters = true;
+                quest.CustomThreadmarkFilters = options.ThreadmarkFilters;
+            }
+
+            if (!string.IsNullOrEmpty(options.UsernameFilters))
+            {
+                quest.UseCustomUsernameFilters = true;
+                quest.CustomUsernameFilters = options.UsernameFilters;
+            }
+
+            if (!string.IsNullOrEmpty(options.TaskFilters))
+            {
+                quest.UseCustomTaskFilters = true;
+                quest.CustomTaskFilters = options.TaskFilters;
+            }
 
             quest.CheckForLastThreadmark = !options.StartPost.HasValue && !options.EndPost.HasValue;
 

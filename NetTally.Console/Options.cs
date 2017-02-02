@@ -32,10 +32,13 @@ namespace NetTally.CLI
         [Option("display", Default = DisplayMode.SpoilerVoters, HelpText = "The display mode to use for output. Case sensitive.  Values: SpoilerAll (default), Normal, Compact, NormalNoVoters, CompactNoVoters")]
         public DisplayMode DisplayMode { get; set; }
 
-        [Option("threadmarkfilters", Hidden = true, HelpText = "Filters used on threadmark titles.")]
+        [Option("threadmarkfilters", HelpText = "Filters used on threadmark titles.")]
         public string ThreadmarkFilters { get; set; }
 
-        [Option("taskfilters", Hidden = true, HelpText = "Filters used on tasks.")]
+        [Option("usernamefilters", HelpText = "Filters used on usernames.")]
+        public string UsernameFilters { get; set; }
+
+        [Option("taskfilters", HelpText = "Filters used on tasks.")]
         public string TaskFilters { get; set; }
 
         [Option("postsperpage", Default = 0, HelpText = "The number of posts per page for the forum.  Default of 0 will try to auto-detect.")]
