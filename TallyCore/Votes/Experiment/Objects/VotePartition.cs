@@ -13,6 +13,8 @@ namespace NetTally.Votes.Experiment
         public bool IsEmpty => !voteLines.Any();
 
         public string Task { get; set; }
+
+        private int hashcode = 0;
         #endregion
 
         #region Constructors
@@ -48,6 +50,7 @@ namespace NetTally.Votes.Experiment
         #region Public modification methods
         /// <summary>
         /// Add a vote line to the current partition.
+        /// This function changes the hash code.
         /// </summary>
         /// <param name="line">The line to add.</param>
         /// <exception cref="ArgumentNullException"/>
@@ -60,10 +63,13 @@ namespace NetTally.Votes.Experiment
                 Task = line.Task;
 
             voteLines.Add(line);
+
+            UpdateHashCode();
         }
 
         /// <summary>
         /// Add a list of vote lines to the current partition.
+        /// This function changes the hash code.
         /// </summary>
         /// <param name="line">The lines to add.</param>
         /// <exception cref="ArgumentNullException"/>
@@ -78,9 +84,12 @@ namespace NetTally.Votes.Experiment
                 Task = lines.First().Task;
 
             voteLines.AddRange(lines);
+
+            UpdateHashCode();
         }
         #endregion
 
+        #region Object overrides
         public override bool Equals(object obj)
         {
             if (obj is VotePartition other)
@@ -93,6 +102,28 @@ namespace NetTally.Votes.Experiment
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return hashcode;
+        }
+
+        private void UpdateHashCode()
+        {
+            if (voteLines.Any())
+            {
+                hashcode = voteLines.First().GetHashCode();
+
+                foreach (var line in voteLines.Skip(1))
+                    hashcode ^= line.CleanContent.GetHashCode();
+            }
+            else
+            {
+                hashcode = 0;
+            }
+        }
+        #endregion
+
 
         public static List<VotePartition> GetPartitionsFrom(Vote vote, PartitionMode partitionMode)
         {
