@@ -273,6 +273,9 @@ namespace NetTally
         bool useCustomTaskFilters = false;
         string customTaskFilters = string.Empty;
 
+        bool useCustomUsernameFilters = false;
+        string customUsernameFilters = string.Empty;
+
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
         /// from the list of valid 'last threadmark found' checks.
@@ -339,6 +342,46 @@ namespace NetTally
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
         public Filter TaskFilter { get; private set; }
+
+
+        /// <summary>
+        /// Flag for whether to use custom filters to exclude specified users from the tally.
+        /// </summary>
+        public bool UseCustomUsernameFilters
+        {
+            get { return useCustomUsernameFilters; }
+            set
+            {
+                useCustomUsernameFilters = value;
+                if (useCustomUsernameFilters && !string.IsNullOrEmpty(customUsernameFilters))
+                    UsernameFilter = new Filter(customUsernameFilters, null);
+                else
+                    UsernameFilter = new Filter();
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// List of custom users to filter.
+        /// </summary>
+        public string CustomUsernameFilters
+        {
+            get { return customUsernameFilters; }
+            set
+            {
+                customUsernameFilters = value;
+                if (useCustomUsernameFilters && !string.IsNullOrEmpty(customUsernameFilters))
+                    UsernameFilter = new Filter(customUsernameFilters, null);
+                else
+                    UsernameFilter = new Filter();
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the user filter, based on current user filter settings.
+        /// </summary>
+        public Filter UsernameFilter { get; private set; }
 
         #endregion
 

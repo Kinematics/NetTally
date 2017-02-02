@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="398.792" Width="487" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="423.792" Width="642" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -28,7 +28,7 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <TextBlock x:Name="describePostsPerPage" Margin="86,47,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBlock x:Name="describePostsPerPage" Margin="86,53,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
 
         <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filtering values" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"
@@ -37,52 +37,74 @@
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Use Custom Threadmark Filters</TextBlock>
-                        <TextBlock>Set to use the threadmark filters defined in the textbox below.</TextBlock>
+                        <TextBlock>When set, use the threadmark filters defined in the textbox below.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-
         <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                   Text="Decide whether to use a custom list of filtered threadmark values.  Enter a comma-delimited list of words, and any instances of those words will cause any threadmark with them in the title to be ignored when searching for the last valid threadmark.  If no custom value is set, the default value of 'omake' is used. Regular expressions can be formatted as /regular expression/." />
-
-        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,194,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. The default value that will always be skipped is the word 'omake'." />
+        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,146,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding Path=SelectedQuest.CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Custom Threadmark Filters</TextBlock>
-                        <TextBlock>Comma-delimited list of words for threadmarks you want to skip when tallying this quest. (You may also specify a regex.)</TextBlock>
+                        <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
 
-        <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters" HorizontalAlignment="Left" Margin="10,238,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="useCustomUsernameFilters" Content="Use custom username filters" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=SelectedQuest.UseCustomUsernameFilters}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Use Custom Username Filters</TextBlock>
+                        <TextBlock>When set, use the username filters defined in the textbox below.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
+        <TextBlock x:Name="describeCustomUsernameFilters" Margin="30,211,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
+        <TextBox x:Name="customUsernameFilters" Height="23" Margin="30,243,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding Path=SelectedQuest.CustomUsernameFilters}" IsEnabled="{Binding ElementName=useCustomUsernameFilters, Path=IsChecked}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Custom Username Filters</TextBlock>
+                        <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+
+        <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters" HorizontalAlignment="Left" Margin="10,287,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=SelectedQuest.UseCustomTaskFilters}">
             <CheckBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Use Custom Task Filters</TextBlock>
-                        <TextBlock>Set to use the task filters defined in the textbox below.</TextBlock>
+                        <TextBlock>When set, use the task filters defined in the textbox below.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="30,259,0,0" TextWrapping="Wrap" Text="Limit tally results to the specified tasks only.  This value is not saved across sessions. Regular expressions can be formatted as /regular expression/."
-                   VerticalAlignment="Top" Width="441"/>
-        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,296,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBlock x:Name="describeCustomTaskFilters" Margin="30,308,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
+        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,324,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding Path=SelectedQuest.CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Custom Task Filters</TextBlock>
-                        <TextBlock>Comma-delimited list of tasks you want to process when tallying this quest. (You may also specify a regex.)  Any tasks not included will be skipped.</TextBlock>
+                        <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-
 
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>

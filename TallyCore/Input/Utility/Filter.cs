@@ -24,7 +24,7 @@ namespace NetTally.Utility
         /// Filter constructor.  Create a filter based on an explicit regex.
         /// </summary>
         /// <param name="regex">An explicit regex to use for filtering.</param>
-        public Filter(Regex regex)
+        public Filter(Regex regex = null)
         {
             filterRegex = regex;
         }
@@ -179,6 +179,22 @@ namespace NetTally.Utility
         {
             if (filterRegex == null)
                 return false;
+
+            return filterRegex.Match(input).Success;
+        }
+
+        /// <summary>
+        /// Function to test whether a provided string is matched by the current filter.
+        /// If the current filter is null, will instead test against the provided
+        /// alternate string.
+        /// </summary>
+        /// <param name="input">The primary input string to check against the filter.</param>
+        /// <param name="alternate">An alternate string that the input can match if there is no valid filter.</param>
+        /// <returns>Returns true if the filter matches some part of the input string.</returns>
+        public bool Match(string input, string alternate)
+        {
+            if (filterRegex == null)
+                return input == alternate;
 
             return filterRegex.Match(input).Success;
         }
