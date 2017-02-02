@@ -18,6 +18,8 @@ namespace NetTally.Utility
         static readonly Regex preWord = new Regex(@"^\w");
         static readonly Regex postWord = new Regex(@"\w$");
 
+        static readonly Regex jsRegex = new Regex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$");
+
         /// <summary>
         /// Filter constructor.  Create a filter based on an explicit regex.
         /// </summary>
@@ -28,23 +30,86 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// Public builder function.  Creates a regex from the provided input strings.
+        /// Public constructor.  Creates a regex from the provided input strings.
         /// If it's flagged as isRegex, treats the strings as explicit regex values.
         /// Otherwise treats them as ordinary strings, with comma-separated options
         /// and optional splat globbing.
         /// </summary>
         /// <param name="filterString">The user-defined filter string.</param>
         /// <param name="defaultString">The default, program-provided string to filter on.</param>
-        /// <param name="isRegex">If this flag is set, treat the provided strings as pre-defined regex strings.</param>
-        public Filter(string filterString, string defaultString, bool isRegex)
+        public Filter(string filterString, string defaultString)
         {
-            if (isRegex)
+            filterRegex = CreateRegex(filterString, defaultString);
+        }
+
+        /// <summary>
+        /// Creates and returns a regex appropriate to the provided filter strings.
+        /// </summary>
+        /// <param name="filterString">User-defined filter string.</param>
+        /// <param name="defaultString">Default filter string for the filter.</param>
+        /// <returns>Returns a <see cref="Regex"/> based on the properties of the provided
+        /// strings.</returns>
+        private Regex CreateRegex(string filterString, string defaultString)
+        {
+            string userString = filterString.RemoveUnsafeCharacters().Trim();
+
+            if (IsJSRegex(userString, out string jsRegexString))
             {
-                filterRegex = CreateFullRegex(filterString, defaultString);
+                return CreateDefinedRegex(jsRegexString, defaultString);
             }
             else
             {
-                filterRegex = CreateSimpleRegex(filterString, defaultString);
+                return CreateSimpleRegex(userString, defaultString);
+            }
+        }
+
+        /// <summary>
+        /// Test whether the supplied string is formatted as a javascript regex.
+        /// EG: /some text/i
+        /// If so, treat the provided filter string as a regex rather than a string literal.
+        /// </summary>
+        /// <param name="filterString">The filter string to test.</param>
+        /// <param name="jsRegexString">The regex portion of the string, if found.</param>
+        /// <returns>Returns true (and sets jsRegexString to the regex contents) if it determined
+        /// that the provided string was formatted as a javascript regex. Otherwise false and null.</returns>
+        private bool IsJSRegex(string filterString, out string jsRegexString)
+        {
+            jsRegexString = null;
+
+            if (string.IsNullOrEmpty(filterString))
+                return false;
+
+            Match m = jsRegex.Match(filterString);
+
+            if (m.Success)
+                jsRegexString = m.Groups["regex"].Value;
+
+            return m.Success;
+        }
+
+        /// <summary>
+        /// Creates a regex based on the provided strings.
+        /// Assumes the strings are already in a regex-like format.
+        /// </summary>
+        /// <param name="jsRegexString">The user-provided regex string. Must not be null or empty.</param>
+        /// <param name="defaultString">The default filter value for the filter.</param>
+        /// <returns>Returns a regex that combines the user-provided string with the default string.</returns>
+        /// <exception cref="ArgumentNullException"/>
+        private Regex CreateDefinedRegex(string jsRegexString, string defaultString)
+        {
+            if (string.IsNullOrEmpty(jsRegexString))
+                throw new ArgumentNullException(nameof(jsRegexString));
+
+            if (string.IsNullOrEmpty(defaultString))
+            {
+                return new Regex(jsRegexString, RegexOptions.IgnoreCase);
+            }
+            else
+            {
+                if (jsRegexString.Contains(defaultString))
+                    return new Regex(jsRegexString, RegexOptions.IgnoreCase);
+                else
+                    return new Regex($"{jsRegexString}|{defaultString}", RegexOptions.IgnoreCase);
             }
         }
 
@@ -102,33 +167,6 @@ namespace NetTally.Utility
             catch (ArgumentException)
             {
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a regex based on the provided strings.
-        /// Treats these strings as already-constructed regex values.
-        /// </summary>
-        /// <param name="regexString">The user-defined regex string.</param>
-        /// <param name="defaultString">The default, program-provided string to filter on.</param>
-        /// <returns>Returns a regex constructed from the strings.</returns>
-        private static Regex CreateFullRegex(string regexString, string defaultString)
-        {
-            if (string.IsNullOrEmpty(regexString) && string.IsNullOrEmpty(defaultString))
-                return new Regex(EmptyLine);
-
-            string safeRegexString = regexString.RemoveUnsafeCharacters();
-
-            if (string.IsNullOrEmpty(defaultString))
-            {
-                return new Regex(safeRegexString, RegexOptions.IgnoreCase);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(safeRegexString))
-                    return new Regex(defaultString, RegexOptions.IgnoreCase);
-                else
-                    return new Regex($"{safeRegexString}|{defaultString}", RegexOptions.IgnoreCase);
             }
         }
         

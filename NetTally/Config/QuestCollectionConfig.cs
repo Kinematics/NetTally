@@ -46,8 +46,7 @@ namespace NetTally
                 throw new ArgumentNullException(nameof(quest));
 
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters,
-                quest.CustomThreadmarkFiltersAreRegex);
+                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters);
             BaseAdd(questElement, false);
         }
 
