@@ -127,7 +127,7 @@ namespace NetTally.Votes.Experiment
             FutureReferences.Add(post);
         }
 
-        internal bool HasNewerVote(Post post)
+        internal bool HasNewerVote(Identity identity)
         {
             throw new NotImplementedException();
         }

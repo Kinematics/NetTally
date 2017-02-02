@@ -39,7 +39,7 @@ namespace NetTally.Votes.Experiment
             // that this post was a post with a future reference that got overridden
             // by another vote later in the thread, and we're reprocessing it now.
             // Only actually process it if this is not the case.
-            if (!VotingRecords.Instance.HasNewerVote(post))
+            if (!VotingRecords.Instance.HasNewerVote(post.Identity))
             {
                 // Get the list of all vote partitions, built according to current preferences.
                 // One of: By line, By block, or By post (ie: entire vote)
