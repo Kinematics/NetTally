@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="423.792" Width="642" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="434.792" Width="642" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -44,7 +44,7 @@
         </CheckBox>
         <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="30,114,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. The default value that will always be skipped is the word 'omake'." />
-        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,146,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,151,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                  Text="{Binding Path=SelectedQuest.CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -69,7 +69,7 @@
         </CheckBox>
         <TextBlock x:Name="describeCustomUsernameFilters" Margin="30,211,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
-        <TextBox x:Name="customUsernameFilters" Height="23" Margin="30,243,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox x:Name="customUsernameFilters" Height="23" Margin="30,248,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                  Text="{Binding Path=SelectedQuest.CustomUsernameFilters}" IsEnabled="{Binding ElementName=useCustomUsernameFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -94,7 +94,7 @@
         </CheckBox>
         <TextBlock x:Name="describeCustomTaskFilters" Margin="30,308,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
-        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,324,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,329,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                  Text="{Binding Path=SelectedQuest.CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
