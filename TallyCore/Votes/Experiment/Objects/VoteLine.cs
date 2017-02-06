@@ -272,7 +272,7 @@ namespace NetTally.Votes.Experiment
 
         private void SetHashCode()
         {
-            hashcode = Task.GetHashCode() ^ StrippedContent.GetHashCode();
+            hashcode = StrippedContent.GetHashCode();
         }
 
         public override int GetHashCode()
@@ -284,7 +284,7 @@ namespace NetTally.Votes.Experiment
         {
             if (obj is VoteLine other)
             {
-                return Agnostic.StringComparer.Equals(Task, other.Task) && Agnostic.StringComparer.Equals(CleanContent, other.CleanContent);
+                return Agnostic.StringComparer.Equals(CleanContent, other.CleanContent);
             }
 
             return false;

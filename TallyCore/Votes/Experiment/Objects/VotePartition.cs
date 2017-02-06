@@ -112,10 +112,12 @@ namespace NetTally.Votes.Experiment
         {
             if (voteLines.Any())
             {
-                hashcode = voteLines.First().GetHashCode();
+                // Start from the task's hashcode.
+                hashcode = Task.GetHashCode();
 
-                foreach (var line in voteLines.Skip(1))
-                    hashcode ^= line.CleanContent.GetHashCode();
+                // Then add the hash from each vote line.
+                foreach (var line in voteLines)
+                    hashcode ^= line.GetHashCode();
             }
             else
             {
