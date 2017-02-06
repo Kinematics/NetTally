@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NetTally.Forums;
 
 namespace NetTally.Votes.Experiment
 {
@@ -22,9 +23,9 @@ namespace NetTally.Votes.Experiment
         /// <param name="postID">The post identifier.</param>
         /// <param name="postNumber">The post number.</param>
         /// <param name="message">The post message.</param>
-        public Post(string author, string postID, int postNumber, string message)
+        public Post(string author, string postID, int postNumber, string message, IForumAdapter adapter = null)
         {
-            Identity = new Identity(author, postID);
+            Identity = new Identity(author, postID, forumAdapter: adapter);
             Number = postNumber;
             Message = message ?? string.Empty;
 
