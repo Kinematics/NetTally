@@ -13,6 +13,9 @@ namespace NetTally.Votes.Experiment
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
         // Regex for just the marker portion of a vote line.
         static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))");
+        // Regex for stripping out whitespace, punctuation, and symbols.
+        static readonly Regex symbolRegex = new Regex(@"[\s\p{S}\p{P}]");
+
 
         #region Properties
         public string Text { get; private set; }
@@ -188,8 +191,7 @@ namespace NetTally.Votes.Experiment
             // Strip all whitespace and punctuation if it's not significant.
             if (!AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant)
             {
-                Regex r = new Regex(@"[\s\p{S}\p{P}]");
-                stripped = r.Replace(stripped, "");
+                stripped = symbolRegex.Replace(stripped, "");
             }
 
             StrippedContent = stripped;
