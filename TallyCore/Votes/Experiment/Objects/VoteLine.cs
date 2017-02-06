@@ -25,10 +25,11 @@ namespace NetTally.Votes.Experiment
         public string Task { get; private set; }
         public string Content { get; private set; }
         public string CleanContent { get; private set; }
+        public string StrippedContent { get; private set; }
         public string TrimmedContent { get; private set; }
 
         public static readonly VoteLine Empty = new VoteLine();
-
+        private int hashcode = 0;
         #endregion
 
         #region Constructors        
@@ -45,6 +46,8 @@ namespace NetTally.Votes.Experiment
             MarkerType = MarkerType.None;
             Task = string.Empty;
             Content = string.Empty;
+            CleanContent = string.Empty;
+            StrippedContent = string.Empty;
             TrimmedContent = string.Empty;
         }
 
@@ -78,6 +81,8 @@ namespace NetTally.Votes.Experiment
             TextWithoutBBCode = textWithoutBBCode;
 
             ParseLine(Text);
+
+            SetHashCode();
         }
 
         /// <summary>
@@ -97,9 +102,12 @@ namespace NetTally.Votes.Experiment
             TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
 
             IdentifyMarker();
+            StripContent();
 
             Text = BuildText();
             TextWithoutBBCode = VoteString.RemoveBBCode(Text);
+
+            SetHashCode();
         }
 
         #endregion
@@ -130,6 +138,7 @@ namespace NetTally.Votes.Experiment
                 Marker = m.Groups["marker"].Value;
 
                 IdentifyMarker();
+                StripContent();
             }
             else
             {
@@ -166,8 +175,27 @@ namespace NetTally.Votes.Experiment
                 }
             }
         }
-        #endregion
 
+        /// <summary>
+        /// Strip the clean content version of the vote line of all diacriticals,
+        /// and (if option is set to ignore) all whitespace, punctuation, and symbols.
+        /// </summary>
+        private void StripContent()
+        {
+            // Strip all diacritical variants down to basic latin form.
+            string stripped = CleanContent.RemoveDiacritics();
+
+            // Strip all whitespace and punctuation if it's not significant.
+            if (!AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant)
+            {
+                Regex r = new Regex(@"[\s\p{S}\p{P}]");
+                stripped = r.Replace(stripped, "");
+            }
+
+            StrippedContent = stripped;
+        }
+
+        #endregion
 
         #region Public Methods        
         /// <summary>
@@ -199,12 +227,14 @@ namespace NetTally.Votes.Experiment
                 TextWithoutBBCode = TextWithoutBBCode,
                 Content = Content,
                 CleanContent = CleanContent,
+                StrippedContent = StrippedContent,
                 TrimmedContent = TrimmedContent,
                 Marker = Marker,
                 MarkerType = MarkerType,
                 MarkerValue = MarkerValue,
                 Prefix = Prefix,
-                Task = Task
+                Task = Task,
+                hashcode = hashcode
             };
         }
 
@@ -240,9 +270,14 @@ namespace NetTally.Votes.Experiment
             return AdvancedOptions.Instance.TrimExtendedText ? BuildTrimmedText() : BuildText();
         }
 
+        private void SetHashCode()
+        {
+            hashcode = Task.GetHashCode() ^ StrippedContent.GetHashCode();
+        }
+
         public override int GetHashCode()
         {
-            return Task.GetHashCode() ^ CleanContent.GetHashCode();
+            return hashcode;
         }
 
         public override bool Equals(object obj)
