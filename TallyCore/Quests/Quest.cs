@@ -353,10 +353,6 @@ namespace NetTally
             set
             {
                 useCustomUsernameFilters = value;
-                if (useCustomUsernameFilters && !string.IsNullOrEmpty(customUsernameFilters))
-                    UsernameFilter = new Filter(customUsernameFilters, null);
-                else
-                    UsernameFilter = new Filter();
                 OnPropertyChanged();
             }
         }
@@ -370,7 +366,7 @@ namespace NetTally
             set
             {
                 customUsernameFilters = value;
-                if (useCustomUsernameFilters && !string.IsNullOrEmpty(customUsernameFilters))
+                if (!string.IsNullOrEmpty(customUsernameFilters))
                     UsernameFilter = new Filter(customUsernameFilters, null);
                 else
                     UsernameFilter = new Filter();
