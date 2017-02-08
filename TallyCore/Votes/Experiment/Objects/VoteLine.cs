@@ -9,13 +9,14 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class VoteLine
     {
+        #region Regexes
         // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.
         static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
         // Regex for just the marker portion of a vote line.
         static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))");
         // Regex for stripping out whitespace, punctuation, and symbols.
         static readonly Regex symbolRegex = new Regex(@"[\s\p{S}\p{P}]");
-
+        #endregion
 
         #region Properties
         public string Text { get; private set; }
@@ -55,33 +56,18 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
-        /// General new line constructor.  Only called from Create().
         /// Initializes a new instance of the <see cref="VoteLine"/> class.
+        /// Constructs the components out of the provided text line.
         /// </summary>
         /// <param name="textLine">The text line.</param>
-        /// <exception cref="ArgumentException">Failed to extract data from vote line.</exception>
-        public VoteLine(string textLine)
-            : this(textLine, VoteString.RemoveBBCode(textLine))
-        {
-        }
-
-        /// <summary>
-        /// General new line constructor.  Only called from Create().
-        /// Initializes a new instance of the <see cref="VoteLine"/> class.
-        /// </summary>
-        /// <param name="textLine">The text line.</param>
-        /// <param name="textWithoutBBCode">The text without bb code.</param>
         /// <exception cref="ArgumentNullException">Parameter is null.</exception>
-        public VoteLine(string textLine, string textWithoutBBCode)
+        public VoteLine(string textLine)
         {
             if (string.IsNullOrEmpty(textLine))
                 throw new ArgumentNullException(nameof(textLine));
-            if (string.IsNullOrEmpty(textWithoutBBCode))
-                throw new ArgumentNullException(nameof(textWithoutBBCode));
 
             Text = VoteString.CleanVoteLineBBCode(textLine);
-
-            TextWithoutBBCode = textWithoutBBCode;
+            TextWithoutBBCode = VoteString.RemoveBBCode(Text);
 
             ParseLine(Text);
 
@@ -112,7 +98,6 @@ namespace NetTally.Votes.Experiment
 
             SetHashCode();
         }
-
         #endregion
 
         #region Setup
@@ -199,7 +184,7 @@ namespace NetTally.Votes.Experiment
 
         #endregion
 
-        #region Public Methods        
+        #region Public Create/Copy/Modify Methods        
         /// <summary>
         /// Creates a vote line object from the specified text line.
         /// </summary>
@@ -207,15 +192,14 @@ namespace NetTally.Votes.Experiment
         /// <returns>Returns a new VoteLine if it's a valid vote line.  Otherwise, null.</returns>
         public static VoteLine Create(string textLine)
         {
-            string cleanTextLine = VoteString.RemoveBBCode(textLine);
-
-            Match m = voteLineRegex.Match(cleanTextLine);
-            if (m.Success)
+            try
             {
-                return new VoteLine(textLine, cleanTextLine);
+                return new VoteLine(textLine);
             }
-
-            return null;
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
         /// <summary>

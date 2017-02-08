@@ -180,7 +180,7 @@ namespace NetTally.Votes.Experiment
                 Match m = voteLineRegex.Match(cleanLine);
                 if (m.Success)
                 {
-                    voteLines.Add(new VoteLine(line, cleanLine));
+                    voteLines.Add(new VoteLine(line));
                 }
             }
 

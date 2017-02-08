@@ -43,9 +43,9 @@ namespace NetTally.Votes.Experiment
             if (lines.Count == 0)
                 throw new ArgumentException("No lines provided");
 
-            Parent = VoteLine.Create(lines.First());
+            Parent = new VoteLine(lines.First());
 
-            Children.AddRange(lines.Skip(1).Select(a => VoteLine.Create(a)));
+            Children.AddRange(lines.Skip(1).Select(a => new VoteLine(a)));
         }
 
         public static List<VoteFragmentA> GetFragments(string input)
