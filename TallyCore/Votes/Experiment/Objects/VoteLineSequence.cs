@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace NetTally.Votes.Experiment
 {
@@ -10,22 +12,109 @@ namespace NetTally.Votes.Experiment
 
         }
 
-        public VoteLineSequence(IEnumerable<VoteLine> voteLines)
-        {
-            if (voteLines == null)
-                return;
-
-            AddRange(voteLines.Where(a => a != null));
-        }
-
         public VoteLineSequence(VoteLine voteLine)
         {
             if (voteLine == null)
-                return;
+                throw new ArgumentNullException(nameof(voteLine));
 
             Add(voteLine);
         }
 
-        public override string ToString() => string.Join("\r\n", this.Select(x => x.Text).ToArray());
+        public VoteLineSequence(IEnumerable<VoteLine> voteLines)
+        {
+            if (voteLines == null)
+                throw new ArgumentNullException(nameof(voteLines));
+            if (voteLines.Any(a => a == null))
+                throw new ArgumentException("Cannot add null lines to vote line sequence.", nameof(voteLines));
+
+            AddRange(voteLines);
+        }
+
+        public new void Add(VoteLine item)
+        {
+            base.Add(item);
+            UpdateHashCode();
+        }
+
+        public new void AddRange(IEnumerable<VoteLine> items)
+        {
+            base.AddRange(items);
+            UpdateHashCode();
+        }
+
+        public new bool Remove(VoteLine item)
+        {
+            bool result = base.Remove(item);
+            UpdateHashCode();
+            return result;
+        }
+
+        public new int RemoveAll(Predicate<VoteLine> match)
+        {
+            int result = base.RemoveAll(match);
+            UpdateHashCode();
+            return result;
+        }
+
+        public new void RemoveAt(int index)
+        {
+            base.RemoveAt(index);
+            UpdateHashCode();
+        }
+
+        public new void RemoveRange(int index, int count)
+        {
+            base.RemoveRange(index, count);
+            UpdateHashCode();
+        }
+
+
+        private int hashcode = 0;
+
+        private void UpdateHashCode()
+        {
+            hashcode = 0;
+
+            if (this.Any())
+            {
+                // Add the hash from each vote line.
+                foreach (var line in this)
+                    hashcode ^= line.GetHashCode();
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return hashcode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VoteLineSequence other && Count == other.Count)
+            {
+                return this.SequenceEqual(other);
+            }
+
+            return false;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool preBreak = false;
+
+            foreach (var line in this)
+            {
+                if (preBreak)
+                    sb.Append("\n");
+                preBreak = true;
+
+                sb.Append(line.ToString());
+            }
+
+            return sb.ToString();
+        }
     }
+
+
 }
