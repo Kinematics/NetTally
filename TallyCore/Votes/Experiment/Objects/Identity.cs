@@ -15,6 +15,10 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         public string PostID { get; }
         /// <summary>
+        /// Gets the numeric value of the post ID that this identity came from.
+        /// </summary>
+        public Int64 PostIDValue { get; }
+        /// <summary>
         /// Gets the type of the identity (user or plan).
         /// </summary>
         public IdentityType IdentityType { get; }
@@ -72,6 +76,15 @@ namespace NetTally.Votes.Experiment
             IsPlan = identityType == IdentityType.Plan;
             ForumAdapter = forumAdapter;
             Number = number;
+
+            Int64 value = 0;
+
+            if (ForumAdapter != null)
+                value = ForumAdapter.GetValueOfPostID(PostID);
+            else
+                Int64.TryParse(PostID, out value);
+
+            PostIDValue = value;
         }
 
         /// <summary>

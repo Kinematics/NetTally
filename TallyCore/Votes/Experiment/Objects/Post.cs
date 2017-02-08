@@ -15,7 +15,6 @@ namespace NetTally.Votes.Experiment
 
         public string Message { get; }
 
-        public int PostIDNumber { get; }
         public int ThreadPostNumber { get; }
 
         /// <summary>
@@ -30,11 +29,6 @@ namespace NetTally.Votes.Experiment
             Identity = new Identity(author, postID, forumAdapter: adapter);
             ThreadPostNumber = threadPostNumber;
             Message = message ?? string.Empty;
-
-            if (int.TryParse(postID, out int postIDNum))
-            {
-                PostIDNumber = postIDNum;
-            }
 
             if (!string.IsNullOrEmpty(Message))
             {
