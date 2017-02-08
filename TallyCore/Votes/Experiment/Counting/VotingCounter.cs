@@ -147,10 +147,10 @@ namespace NetTally.Votes.Experiment
                 // Examine each plan.
                 foreach (var plan in plans)
                 {
-                    // Skip plans that are named after other posters.
-                    // They will be considered proxy votes rather than plans.
                     if (VotingRecords.Instance.HasVoterName(plan.Identity.Name))
                     {
+                        // A voter may name a plan after themselves.  No one else may.
+                        // If they do, they're considered proxy votes, and we can skip to the next plan.
                         if (!Agnostic.StringComparer.Equals(plan.Identity.Name, post.Identity.Name))
                         {
                             continue;
@@ -169,7 +169,6 @@ namespace NetTally.Votes.Experiment
                             // A higher type wipes all existing plans, then adds itself as the new primary
                             existingPlans.Clear();
                             existingPlans.Add(plan);
-                            continue;
                         }
                         else if (existingPlans.All(p => p != plan))
                         {
