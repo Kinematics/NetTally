@@ -5,17 +5,48 @@ namespace NetTally.Votes.Experiment
 {
     public class Identity
     {
+        #region Properties        
+        /// <summary>
+        /// Gets the name of this identity.
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        /// Gets the post ID that this identity came from.
+        /// </summary>
         public string PostID { get; }
+        /// <summary>
+        /// Gets the type of the identity (user or plan).
+        /// </summary>
         public IdentityType IdentityType { get; }
+        /// <summary>
+        /// Gets a shortcut value indicating whether this instance is a plan.
+        /// </summary>
         public bool IsPlan { get; }
+        /// <summary>
+        /// Gets or sets the number that marks whether this is a variant on the identity name.
+        /// </summary>
         public int Number { get; set; }
 
-        private string Variant => Number > 0 ? $" ({Number})" : "";
+        /// <summary>
+        /// Gets the name of the identity, including the variant, if applicable.
+        /// </summary>
         public string VariantName => IsPlan ? $"{Name}{Variant}" : Name;
+        /// <summary>
+        /// Gets the fully qualified name of the identity, including plan character marker and variant number.
+        /// </summary>
         public string FullName => IsPlan ? $"◈{Name}{Variant}" : Name;
 
+        /// <summary>
+        /// Gets the text for the variant number, if applicable.
+        /// </summary>
+        private string Variant => Number > 0 ? $" ({Number})" : "";
+
+        /// <summary>
+        /// Gets the forum adapter that was used to identify the original identity, in order
+        /// to reliably create a permalink back to the original post.
+        /// </summary>
         private IForumAdapter ForumAdapter { get; }
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -56,27 +87,52 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
+        #region Overrides        
+        /// <summary>
+        /// Returns a hash code for this instance, suitable for use in hashing
+        /// algorithms and data structures like a hash table.
+        /// Two objects should have the same hash code if they are sufficiently
+        /// similar to make it worth doing an explicit equality check.
+        /// </summary>
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ PostID.GetHashCode() ^ IsPlan.GetHashCode() ^ Number.GetHashCode();
+            return Name.GetHashCode();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj is Identity other)
             {
-                if (Name == other.Name && PostID == other.PostID && IsPlan == other.IsPlan && Number == other.Number)
-                    return true;
+                return Name == other.Name && PostID == other.PostID && IdentityType == other.IdentityType
+                    && Number == other.Number && ForumAdapter == other.ForumAdapter;
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return FullName;
         }
 
+        /// <summary>
+        /// Returns a BBCode-formatted string representing a permalink url pointing to
+        /// the origin of this identity.
+        /// </summary>
+        /// <returns>Returns a BBCode [url] for the permalink to this identity.</returns>
         public string ToLink()
         {
             string permalink = "";
@@ -88,5 +144,6 @@ namespace NetTally.Votes.Experiment
 
             return $"[url=\"{permalink}\"]{FullName}[/url]";
         }
+        #endregion
     }
 }
