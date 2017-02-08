@@ -10,34 +10,38 @@ namespace NetTally.Votes.Experiment
     public class Post
     {
         public Identity Identity { get; }
-        public int IDNumber { get; }
-        public int Number { get; }
-        public string Message { get; }
         public Vote Vote { get; }
-        public bool HasVote => Vote?.IsValid ?? false;
+        public bool HasVote { get; }
+
+        public string Message { get; }
+
+        public int PostIDNumber { get; }
+        public int ThreadPostNumber { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Post"/> class.
         /// </summary>
         /// <param name="author">The author of the post.</param>
         /// <param name="postID">The post identifier.</param>
-        /// <param name="postNumber">The post number.</param>
+        /// <param name="threadPostNumber">The post number.</param>
         /// <param name="message">The post message.</param>
-        public Post(string author, string postID, int postNumber, string message, IForumAdapter adapter = null)
+        public Post(string author, string postID, int threadPostNumber, string message, IForumAdapter adapter = null)
         {
             Identity = new Identity(author, postID, forumAdapter: adapter);
-            Number = postNumber;
+            ThreadPostNumber = threadPostNumber;
             Message = message ?? string.Empty;
 
             if (int.TryParse(postID, out int postIDNum))
             {
-                IDNumber = postIDNum;
+                PostIDNumber = postIDNum;
             }
 
             if (!string.IsNullOrEmpty(Message))
             {
                 Vote = new Vote(this, Message);
             }
+
+            HasVote = Vote?.IsValid ?? false;
         }
 
 
