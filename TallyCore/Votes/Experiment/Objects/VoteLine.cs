@@ -234,6 +234,9 @@ namespace NetTally.Votes.Experiment
         /// <returns>Returns a copy of this instance, with the specified modifications.</returns>
         public VoteLine Modify(string prefix = null, string marker = null, string task = null, string content = null)
         {
+            if (prefix == null && marker == null && task == null && content == null)
+                return this;
+
             return new VoteLine(
                 prefix ?? Prefix,
                 marker ?? Marker,
