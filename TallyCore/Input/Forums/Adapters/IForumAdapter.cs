@@ -62,6 +62,12 @@ namespace NetTally.Forums
         /// <returns>Returns a list of constructed posts from this page.</returns>
         IEnumerable<PostComponents> GetPosts(HtmlDocument page);
 
+        /// <summary>
+        /// Gets the value of post identifier.
+        /// </summary>
+        /// <param name="postID">The post identifier string.</param>
+        /// <returns>Returns the value as an Int64.</returns>
+        Int64 GetValueOfPostID(string postID);
 
         /// <summary>
         /// String to use for a line break between tasks.

@@ -166,6 +166,19 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         public string LineBreak => "———————————————————————————————————————————————————————";
 
+        /// <summary>
+        /// Gets the value of post identifier.
+        /// </summary>
+        /// <param name="postID">The post identifier.</param>
+        /// <returns>Returns the numeric value of the post identifier.</returns>
+        public Int64 GetValueOfPostID(string postID)
+        {
+            if (Int64.TryParse(postID, out long result))
+                return result;
+
+            return 0;
+        }
+
         #endregion
 
         #region Utility
