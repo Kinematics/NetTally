@@ -173,6 +173,7 @@ namespace NetTally.Votes.Experiment
                         else if (existingPlans.All(p => p != plan))
                         {
                             // If it's of the same tier, add it if it's a variant that's different from all existing plans.
+                            plan.Identity.Number = existingPlans.Count;
                             existingPlans.Add(plan);
                         }
                     }
