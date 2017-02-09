@@ -50,6 +50,10 @@ namespace NetTally.Votes.Experiment
         /// to reliably create a permalink back to the original post.
         /// </summary>
         private IForumAdapter ForumAdapter { get; }
+        /// <summary>
+        /// Gets the host defined in the forum adapter, if any.
+        /// </summary>
+        public string Host => ForumAdapter?.Site.Host;
         #endregion
 
         #region Constructors
@@ -109,7 +113,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return Name.GetHashCode() ^ (ForumAdapter?.Site.Host.GetHashCode() ?? 0);
         }
 
         /// <summary>
@@ -124,7 +128,7 @@ namespace NetTally.Votes.Experiment
             if (obj is Identity other)
             {
                 return Name == other.Name && PostID == other.PostID && IdentityType == other.IdentityType
-                    && Number == other.Number && ForumAdapter == other.ForumAdapter;
+                    && Number == other.Number && Host == other.Host;
             }
 
             return false;
