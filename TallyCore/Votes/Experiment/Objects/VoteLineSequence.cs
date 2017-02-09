@@ -75,6 +75,12 @@ namespace NetTally.Votes.Experiment
             base.RemoveRange(index, count);
             UpdateHashCode();
         }
+
+        public new void Clear()
+        {
+            base.Clear();
+            UpdateHashCode();
+        }
         #endregion
 
         #region Hash code handling
