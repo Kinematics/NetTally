@@ -5,8 +5,14 @@ using System.Text;
 
 namespace NetTally.Votes.Experiment
 {
+    /// <summary>
+    /// A customized version of a List of VoteLines that allows setting
+    /// the hash code and checking for equivalence between two sequences.
+    /// </summary>
+    /// <seealso cref="System.Collections.Generic.List{NetTally.Votes.Experiment.VoteLine}" />
     public class VoteLineSequence : List<VoteLine>
     {
+        #region Constructors
         public VoteLineSequence()
         {
 
@@ -29,7 +35,9 @@ namespace NetTally.Votes.Experiment
 
             AddRange(voteLines);
         }
+        #endregion
 
+        #region Adjust Add and Remove commands from underlying List
         public new void Add(VoteLine item)
         {
             base.Add(item);
@@ -67,8 +75,9 @@ namespace NetTally.Votes.Experiment
             base.RemoveRange(index, count);
             UpdateHashCode();
         }
+        #endregion
 
-
+        #region Hash code handling
         private int hashcode = 0;
 
         private void UpdateHashCode()
@@ -87,7 +96,9 @@ namespace NetTally.Votes.Experiment
         {
             return hashcode;
         }
+        #endregion
 
+        #region Equals and ToString
         public override bool Equals(object obj)
         {
             if (obj is VoteLineSequence other && Count == other.Count)
@@ -114,7 +125,6 @@ namespace NetTally.Votes.Experiment
 
             return sb.ToString();
         }
+        #endregion
     }
-
-
 }
