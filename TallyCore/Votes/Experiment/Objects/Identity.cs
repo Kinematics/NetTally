@@ -135,6 +135,20 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
+        /// Determines whether this is a match to the identity name and forum host, without matching the exact post number.
+        /// </summary>
+        /// <param name="other">The Identity being compared against.</param>
+        /// <returns>Returns true if both identities have the same name, type, and host.</returns>
+        public bool Matches(Identity other)
+        {
+            if (other == null)
+                return false;
+
+            return Name == other.Name && IdentityType == other.IdentityType
+                && Number == other.Number && Host == other.Host;
+        }
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>
