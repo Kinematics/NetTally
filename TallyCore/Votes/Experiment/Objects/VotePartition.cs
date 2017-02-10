@@ -8,13 +8,9 @@ namespace NetTally.Votes.Experiment
     public class VotePartition
     {
         #region Properties and fields
-        private readonly List<VoteLine> voteLines = new List<VoteLine>();
-        public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
-        public bool IsEmpty => !voteLines.Any();
-
-        public string Task { get; set; }
-
-        private int hashcode = 0;
+        public VoteLineSequence VoteLines { get; } = new VoteLineSequence();
+        public VoteType VoteType { get; private set; } = VoteType.Vote;
+        public string Task { get; private set; }
         #endregion
 
         #region Constructors
@@ -31,8 +27,9 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voteLine">The vote line that the partition is composed of.</param>
         /// <exception cref="ArgumentNullException"/>
-        public VotePartition(VoteLine voteLine)
+        public VotePartition(VoteLine voteLine, VoteType voteType)
         {
+            VoteType = voteType;
             AddLine(voteLine);
         }
 
@@ -41,8 +38,9 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voteLines">The vote lines that the partition is composed of.</param>
         /// <exception cref="ArgumentNullException"/>
-        public VotePartition(IEnumerable<VoteLine> voteLines)
+        public VotePartition(IEnumerable<VoteLine> voteLines, VoteType voteType)
         {
+            VoteType = voteType;
             AddLines(voteLines);
         }
         #endregion
@@ -59,12 +57,10 @@ namespace NetTally.Votes.Experiment
             if (line == null)
                 throw new ArgumentNullException(nameof(line));
 
-            if (!voteLines.Any())
+            if (!VoteLines.Any())
                 Task = line.Task;
 
-            voteLines.Add(line);
-
-            UpdateHashCode();
+            VoteLines.Add(line);
         }
 
         /// <summary>
@@ -79,53 +75,60 @@ namespace NetTally.Votes.Experiment
                 throw new ArgumentNullException(nameof(lines));
             if (!lines.Any())
                 return;
+            if (lines.Any(a => a == null))
+                throw new ArgumentException("Null vote line contained in enumeration.", nameof(lines));
 
-            if (!voteLines.Any())
+            if (!VoteLines.Any())
                 Task = lines.First().Task;
 
-            voteLines.AddRange(lines);
+            VoteLines.AddRange(lines);
+        }
 
-            UpdateHashCode();
+        /// <summary>
+        /// Modifies the task of the current vote partition, and returns a new version with the changes.
+        /// </summary>
+        /// <param name="task">The new task.</param>
+        /// <returns>Returns a new VotePartition with the task modified.</returns>
+        /// <exception cref="System.ArgumentNullException">task</exception>
+        public VotePartition ModifyTask(string task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            if (VoteLines.Any())
+            {
+                var revise = VoteLines.First().Modify(task: task);
+                var revLines = VoteLines.Skip(1).ToList();
+
+                List<VoteLine> newList = new List<VoteLine> { revise };
+                newList.AddRange(revLines);
+
+                return new VotePartition(newList, VoteType);
+            }
+
+            return new VotePartition() { VoteType = VoteType };
         }
         #endregion
 
         #region Object overrides
+        public override int GetHashCode()
+        {
+            return VoteLines.GetHashCode();
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is VotePartition other)
-            {
-                if (voteLines.Count != other.voteLines.Count)
-                    return false;
-
-                return voteLines.SequenceEqual(other.voteLines);
-            }
+                return Agnostic.StringComparer.Equals(Task, other.Task) && VoteLines.Equals(other.VoteLines);
 
             return false;
         }
 
-        public override int GetHashCode()
+        public bool Matches(VotePartition other)
         {
-            return hashcode;
-        }
-
-        private void UpdateHashCode()
-        {
-            if (voteLines.Any())
-            {
-                // Start from the task's hashcode.
-                hashcode = Task.GetHashCode();
-
-                // Then add the hash from each vote line.
-                foreach (var line in voteLines)
-                    hashcode ^= line.GetHashCode();
-            }
-            else
-            {
-                hashcode = 0;
-            }
+            return VoteLines.Equals(other.VoteLines);
         }
         #endregion
-
 
         public static List<VotePartition> GetPartitionsFrom(Vote vote, PartitionMode partitionMode)
         {
