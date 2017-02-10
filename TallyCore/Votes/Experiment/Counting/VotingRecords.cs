@@ -4,18 +4,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using NetTally.Extensions;
 using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
     using PlanDictionary = Dictionary<string, List<Plan>>;
-
-    using SupportersList = List<string>;
-    using VoteSupporters = Dictionary<string, List<string>>;
-    using VoteEntry = KeyValuePair<string, List<string>>;
-    using FragmentsLists = Dictionary<VoteType, IEnumerable<string>>;
-
-    using VoteFragments = List<VoteFragment>;
+    using IdentitySet = HashSet<Identity>;
+    using VoteEntries = Dictionary<VotePartition, HashSet<Identity>>;
+    using VoteEntry = KeyValuePair<VotePartition, HashSet<Identity>>;
+    using VoterPartitions = Dictionary<Identity, List<VotePartition>>;
 
     public class VotingRecords : INotifyPropertyChanged
     {
@@ -26,102 +24,68 @@ namespace NetTally.Votes.Experiment
 
         VotingRecords()
         {
-            ResetVotesAndSupporters();
         }
         #endregion
 
+        #region Properties
         /// <summary>
-        /// Reference dictionaries allow translating between canonical names and user-entered names.
+        /// Lookup table to translate names to all identities matching that name.
         /// </summary>
-        Dictionary<string, string> ReferenceVoterNames { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
-        Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>();
-        Dictionary<string, string> ReferencePlanNames { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
+        Dictionary<string, IdentitySet> IdentityLookup { get; } = new Dictionary<string, IdentitySet>(Agnostic.StringComparer);
 
-        Dictionary<VoteType, VoteSupporters> VotesAndSupporters { get; } = new Dictionary<VoteType, VoteSupporters>();
+        /// <summary>
+        /// Lookup table to translate plan names to plans.
+        /// There is a list to account for multiple variants of the same plan name.
+        /// </summary>
+        Dictionary<string, List<Plan>> PlansLookup { get; set; } = new Dictionary<string, List<Plan>>(Agnostic.StringComparer);
 
-        Dictionary<string, string> VoterPostIDs { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>
+        /// Lookup table for all the vote partitions each voter (identity) voted for.
+        /// </summary>
+        //VoterPartitions VoterVotes { get; } = new VoterPartitions();
+
+        /// <summary>
+        /// Lookup table for all the voters supporting each vote partition.
+        /// </summary>
+        VoteEntries NormalVotes { get; } = new VoteEntries();
+        VoteEntries RankedVotes { get; } = new VoteEntries();
+        VoteEntries ApprovalVotes { get; } = new VoteEntries();
+
+        Stack<UndoItem> UndoBuffer { get; } = new Stack<UndoItem>();
+        public bool HasUndoItems => UndoBuffer.Count > 0;
 
         HashSet<string> TallyTasks { get; } = new HashSet<string>();
         HashSet<string> UserTasks { get; } = new HashSet<string>();
-
         public IEnumerable<string> Tasks => TallyTasks.Union(UserTasks);
 
         HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
-
+        #endregion
 
         #region Reset
         public void Reset()
         {
-            ReferenceVoterNames.Clear();
-            ReferenceVoterPosts.Clear();
-            ReferencePlanNames.Clear();
-            VoterPostIDs.Clear();
+            IdentityLookup.Clear();
+            PlansLookup.Clear();
+
+            NormalVotes.Clear();
+            RankedVotes.Clear();
+            ApprovalVotes.Clear();
+
             FutureReferences.Clear();
+            UndoBuffer.Clear();
 
             TallyTasks.Clear();
-
-            ResetVotesAndSupporters();
-
         }
 
         public void ResetUserDefinedTasks(string forQuestName)
         {
             UserTasks.Clear();
         }
-
-        private void ResetVotesAndSupporters()
-        {
-            if (VotesAndSupporters.Count == 0 || VotesAndSupporters.First().Value.Comparer != Agnostic.StringComparer)
-            {
-                foreach (VoteType vt in Enum.GetValues(typeof(VoteType)))
-                {
-                    VotesAndSupporters[vt] = new VoteSupporters(Agnostic.StringComparer);
-                }
-            }
-            else
-            {
-                foreach (var v in VotesAndSupporters)
-                {
-                    v.Value.Clear();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Prep
-        public void AddPlans(PlanDictionary planRepo)
-        {
-            foreach (var planList in planRepo)
-            {
-                if (planList.Value.Count > 1)
-                {
-                    int index = 1;
-                    foreach (var plan in planList.Value.Skip(1))
-                    {
-                        plan.Identity.Number = index;
-                        index++;
-                    }
-                }
-
-                AddPlanName(planList.Key);
-
-                foreach (var plan in planList.Value)
-                {
-                    AddPlan(plan);
-                }
-            }
-        }
-
-        private void AddPlan(Plan plan)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
         #region General methods
 
-        #region Future reference controls
+        #region Future Stuff~~
         public void NoteFutureReference(Post post)
         {
             FutureReferences.Add(post);
@@ -133,27 +97,35 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
-        #region Voter names (add, delete, query)
+
+        #region Voter identities (Populate, query)
         /// <summary>
-        /// Add the specified voter name to the list of known voters.
+        /// Add the specified identity to the voter identity lookup table.
+        /// Multiple identities can be added for the same name, representing multiple votes.
         /// </summary>
-        /// <param name="voterName">The voter name to add.</param>
+        /// <param name="identity">The identity to add.  Must not be null.</param>
         /// <exception cref="ArgumentNullException"/>
-        public void AddVoterRecord(Identity identity)
+        /// <returns>Returns true if the identity was added, or false if it was not (ie: a duplicate).</returns>
+        public bool AddVoterIdentity(Identity identity)
         {
             if (identity == null)
                 throw new ArgumentNullException(nameof(identity));
 
-            ReferenceVoterNames.Add(identity.Name, identity.Name);
-            ReferenceVoterPosts.Add(identity.Name, identity.PostID);
+            if (IdentityLookup.TryGetValue(identity.Name, out IdentitySet identities))
+            {
+                return identities.Add(identity);
+            }
+
+            IdentityLookup.Add(identity.Name, new IdentitySet { identity });
+            return true;
         }
 
         /// <summary>
-        /// Checks whether the supplied voter name exists in the list of known voters.
+        /// Checks whether the supplied voter name exists in the list of known identities.
         /// This finds names using the current comparison settings, usually ignoring
         /// differences in whitespace, punctuation, etc.
         /// </summary>
-        /// <param name="voterName">The name of the voter to check for. Does not need to be exact.</param>
+        /// <param name="voterName">The name of the voter to check for. Does not need to be exact.  Must not be null or empty.</param>
         /// <returns>Returns true if the voter name is known to exist.</returns>
         /// <exception cref="ArgumentNullException"/>
         public bool HasVoterName(string voterName)
@@ -161,59 +133,59 @@ namespace NetTally.Votes.Experiment
             if (string.IsNullOrEmpty(voterName))
                 throw new ArgumentNullException(nameof(voterName));
 
-            return ReferenceVoterNames.Keys.Contains(voterName);
+            return IdentityLookup.TryGetValue(voterName, out IdentitySet identities);
         }
 
         /// <summary>
-        /// Gets the canonical voter name that matches the requested voter name.
+        /// Gets all of the voter identities.
         /// </summary>
-        /// <param name="voterName">The name of the voter to check for. Does not need to be exact.</param>
-        /// <param name="canonicalName">Returns the canonical version of the name, if found.</param>
-        /// <returns>Returns true if the requested name is found.</returns>
-        /// <exception cref="ArgumentNullException"/>
-        public bool TryGetVoterName(string voterName, out string canonicalName)
+        /// <param name="voterName">Name of the voter.</param>
+        /// <returns>The Identity Set for that voter.</returns>
+        public IdentitySet GetVoterIdentities(string voterName)
         {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-
-            return ReferenceVoterNames.TryGetValue(voterName, out canonicalName);
-        }
-
-        public string GetVoterName(string voterName)
-        {
-            if (TryGetVoterName(voterName, out string canonicalName))
-                return canonicalName;
+            if (IdentityLookup.TryGetValue(voterName, out IdentitySet identities))
+            {
+                return identities;
+            }
 
             return null;
         }
 
         /// <summary>
-        /// Deletes the specified voter name from the list of known voters.
+        /// Gets the last voter identity.
         /// </summary>
-        /// <param name="voterName">The voter name to delete.</param>
-        /// <returns>Returns true if the voter name was deleted.</returns>
-        /// <exception cref="ArgumentNullException"/>
-        public bool DeleteVoterName(string voterName)
+        /// <param name="voterName">Name of the voter.</param>
+        /// <returns>The last (by post ID) identity for that voter.</returns>
+        public Identity GetLastVoterIdentity(string voterName, string host = null)
         {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
+            if (IdentityLookup.TryGetValue(voterName, out IdentitySet identities))
+            {
+                var matchHost = identities.Where(i => host == null || i.Host == host).OrderBy(i => i.PostIDValue).Last();
 
-            return ReferenceVoterNames.Remove(voterName);
+                return matchHost;
+            }
+
+            return null;
         }
         #endregion
 
-        #region Plan names (add, delete, query)
+        #region Plans (Populate, query)
         /// <summary>
-        /// Add the specified plan name to the list of known plans.
+        /// Adds the plans that were found.
         /// </summary>
-        /// <param name="planName">The plan name to add.</param>
-        /// <exception cref="ArgumentNullException"/>
-        public void AddPlanName(string planName)
+        /// <param name="allPlans">The collection of discovered plans.</param>
+        public void AddPlans(PlanDictionary allPlans)
         {
-            if (string.IsNullOrEmpty(planName))
-                throw new ArgumentNullException(nameof(planName));
+            PlansLookup = new PlanDictionary(allPlans, Agnostic.StringComparer);
+        }
 
-            ReferencePlanNames.Add(planName, planName);
+        /// <summary>
+        /// Gets the lookup table for plans.
+        /// </summary>
+        /// <returns>Returns the plans lookup table.</returns>
+        public PlanDictionary GetPlans()
+        {
+            return PlansLookup;
         }
 
         /// <summary>
@@ -229,7 +201,7 @@ namespace NetTally.Votes.Experiment
             if (string.IsNullOrEmpty(planName))
                 throw new ArgumentNullException(nameof(planName));
 
-            return ReferencePlanNames.Keys.Contains(planName);
+            return PlansLookup.TryGetValue(planName, out var value);
         }
 
         /// <summary>
@@ -244,9 +216,21 @@ namespace NetTally.Votes.Experiment
             if (string.IsNullOrEmpty(planName))
                 throw new ArgumentNullException(nameof(planName));
 
-            return ReferencePlanNames.TryGetValue(planName, out canonicalName);
+            if (PlansLookup.TryGetValue(planName, out var value))
+            {
+                canonicalName = value.First().Identity.Name;
+                return true;
+            }
+
+            canonicalName = null;
+            return false;
         }
 
+        /// <summary>
+        /// Gets the canonical name of the requested plan.
+        /// </summary>
+        /// <param name="planName">Name of the plan.</param>
+        /// <returns>Returns the name of the plan that properly matches the request, or null if not found.</returns>
         public string GetPlanName(string planName)
         {
             if (TryGetPlanName(planName, out string canonicalName))
@@ -254,215 +238,370 @@ namespace NetTally.Votes.Experiment
 
             return null;
         }
-
-
-        /// <summary>
-        /// Deletes the specified plan name from the list of known plans.
-        /// </summary>
-        /// <param name="planName">The plan name to delete.</param>
-        /// <returns>Returns true if the plan name was deleted.</returns>
-        /// <exception cref="ArgumentNullException"/>
-        public bool DeletePlanName(string planName)
-        {
-            if (string.IsNullOrEmpty(planName))
-                throw new ArgumentNullException(nameof(planName));
-
-            return ReferencePlanNames.Remove(planName);
-        }
         #endregion
 
-        #region Post IDs (add, query)
-        /// <summary>
-        /// Add the latest post ID for the specified voter.
-        /// </summary>
-        /// <param name="voterName">The name of the voter.</param>
-        /// <param name="postID">The ID of the last post the voter made.</param>
-        /// <exception cref="ArgumentNullException"/>
-        public void AddVoterPostID(string voterName, string postID)
-        {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
-
-            VoterPostIDs[voterName] = postID;
-        }
-
-        /// <summary>
-        /// Try to get the post ID of the last post made by the specified voter.
-        /// </summary>
-        /// <param name="voterName">The voter whose post is being asked for.</param>
-        /// <param name="postID">The ID of the last post made by the specified voter.</param>
-        /// <returns>Returns true if the post ID for the voter was found.</returns>
-        /// <exception cref="ArgumentNullException"/>
-        public bool TryGetVoterPostID(string voterName, out string postID)
-        {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-
-            return VoterPostIDs.TryGetValue(voterName, out postID);
-        }
-        #endregion
-
-        #region Vote Fragments
+        #region Vote Entries (Populate, query)
         /// <summary>
         /// Add any number of vote fragments for a given voter, from a given post.
         /// </summary>
-        /// <param name="voteFragments">A list of vote fragments.</param>
+        /// <param name="partitions">A list of vote fragments.</param>
         /// <param name="voterName">The voter.</param>
         /// <param name="postID">The post the vote fragments are from.</param>
         /// <exception cref="ArgumentNullException"/>
-        public void AddVoteFragments(List<VoteFragment> voteFragments, string voterName, string postID)
+        public void AddVoteEntries(IEnumerable<VotePartition> partitions, Identity identity)
         {
-            if (voteFragments == null)
-                throw new ArgumentNullException(nameof(voteFragments));
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
+            if (partitions == null)
+                throw new ArgumentNullException(nameof(partitions));
+            if (identity == null)
+                throw new ArgumentNullException(nameof(identity));
 
-            if (!voteFragments.Any())
+            if (!partitions.Any())
                 return;
 
-            RemoveVoterSupport(voterName);
-            AddVoterPostID(voterName, postID);
+            // All existing partitions have this identity removed.
+            bool changedVoters = RemoveVoterSupport(identity);
+            bool addedAnyVotes = false;
 
-            foreach (var fragment in voteFragments)
+            foreach (var partition in partitions)
             {
+                AddTask(partition.Task);
 
-                AddVoteFragment(fragment.Fragment, fragment.VoteType, voterName);
-                AddFragmentTask(fragment.Fragment);
+                var votes = GetVoteEntries(partition.VoteType);
+
+                if (votes.TryGetValue(partition, out var identitySet))
+                {
+                    changedVoters = identitySet.Add(identity) || changedVoters;
+                }
+                else
+                {
+                    votes[partition] = new IdentitySet { identity };
+                    addedAnyVotes = true;
+                }
             }
-        }
-        #endregion
 
-        private void AddVoteFragment(string voteFragment, VoteType voteType, string voterName)
-        {
-            if (string.IsNullOrEmpty(voteFragment))
-                throw new ArgumentNullException(nameof(voteFragment));
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
-
-            GetVoteSupporters(voteFragment, voteType).Add(voterName);
-            OnPropertyChanged("Voters");
+            if (addedAnyVotes)
+                OnPropertyChanged("Votes");
+            if (changedVoters)
+                OnPropertyChanged("Voters");
         }
 
-        private bool RemoveVoterSupport(string voterName)
+        /// <summary>
+        /// Removes the voter support of an identity from a vote partition.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        /// <returns>Returns true if any support identity was removed.</returns>
+        private bool RemoveVoterSupport(Identity identity)
         {
-            if (string.IsNullOrEmpty(voterName))
-                throw new ArgumentNullException(nameof(voterName));
+            if (identity == null)
+                throw new ArgumentNullException(nameof(identity));
 
             bool removedAny = false;
 
-            foreach (var voteType in VotesAndSupporters)
-            {
-                foreach (var vote in voteType.Value)
-                {
-                    if (vote.Value.Remove(voterName))
-                        removedAny = true;
-                }
-            }
-
-            if (removedAny)
-                OnPropertyChanged("Voters");
+            RemoveVoterSupportOfType(GetVoteEntries(VoteType.Vote));
+            RemoveVoterSupportOfType(GetVoteEntries(VoteType.Rank));
+            RemoveVoterSupportOfType(GetVoteEntries(VoteType.Approval));
 
             return removedAny;
-        }
 
-        private void AddFragmentTask(string fragment)
-        {
-            string task = VoteString.GetVoteTask(fragment);
-            if (!string.IsNullOrEmpty(task))
-                TallyTasks.Add(task);
-        }
-
-
-        private SupportersList GetVoteSupporters(string voteFragment, VoteType voteType)
-        {
-            VoteSupporters votes = VotesAndSupporters[voteType];
-
-            if (votes.TryGetValue(voteFragment, out var voteSupporters))
+            // Private local function
+            void RemoveVoterSupportOfType(VoteEntries votes)
             {
-                return voteSupporters;
+                foreach (var vote in votes)
+                {
+                    var matching = vote.Value.Where(v => v.Matches(identity));
+
+                    if (matching.Any())
+                    {
+                        var matchingList = matching.ToList();
+                        foreach (var ident in matchingList)
+                        {
+                            vote.Value.Remove(ident);
+                            removedAny = true;
+                        }
+                    }
+                }
             }
-
-            votes[voteFragment] = new SupportersList();
-            OnPropertyChanged("Votes");
-
-            return votes[voteFragment];
         }
 
-
-
-        internal void AddVotes(List<VotePartition> filteredPartitions, Identity identity, VoteType voteType)
+        /// <summary>
+        /// Gets the vote entries of a particular vote type.
+        /// </summary>
+        /// <param name="voteType">Type of the vote.</param>
+        /// <returns>Returns the vote entries table for the vote type.</returns>
+        public VoteEntries GetVoteEntries(VoteType voteType)
         {
-            throw new NotImplementedException();
+            switch (voteType)
+            {
+                case VoteType.Vote:
+                    return NormalVotes;
+                case VoteType.Rank:
+                    return RankedVotes;
+                case VoteType.Approval:
+                    return ApprovalVotes;
+                default:
+                    throw new ArgumentException($"Unknown vote type: {voteType}", nameof(voteType));
+            }
         }
 
+        #endregion
 
-
-        public void AddVote()
+        #region Tasks (Populate)
+        /// <summary>
+        /// Adds a task due to information gleaned from adding votes.
+        /// </summary>
+        /// <param name="task">The task.</param>
+        private void AddTask(string task)
         {
+            if (string.IsNullOrEmpty(task))
+                return;
 
+            TallyTasks.Add(task);
         }
 
-        public void DeleteVote()
+        /// <summary>
+        /// Adds a task based on user input.
+        /// </summary>
+        /// <param name="task">The task.</param>
+        public void AddUserTask(string task)
         {
+            if (string.IsNullOrEmpty(task))
+                return;
 
-        }
-
-        public void MergeVotes()
-        {
-
-        }
-
-        public void RenameVote()
-        {
-
-        }
-
-        public void JoinVoters()
-        {
-
-        }
-
-        public void Undo()
-        {
-
+            UserTasks.Add(task);
         }
         #endregion
 
-        #region Query methods
-        public bool HasVote(string voteFragment, VoteType voteType)
-        {
-            VoteSupporters votes = VotesAndSupporters[voteType];
+        #region Managing Votes
+        // Merge vote 1 > vote 2
+        // Modify task of vote 1 (may imply merge vote 1 > vote 2)
+        // Delete vote 1
+        // Change voter 1 votes to those made by voter 2
+        // Delete voter 1
 
-            return votes.ContainsKey(voteFragment);
+        public void Merge(VotePartition vote1, VotePartition vote2, VoteType type)
+        {
+            var votes = GetVoteEntries(type);
+
+            if (!votes.TryGetValue(vote1, out var voters1))
+            {
+                voters1 = new IdentitySet();
+                votes[vote1] = voters1;
+            }
+
+            if (!votes.TryGetValue(vote2, out var voters2))
+            {
+                voters2 = new IdentitySet();
+                votes[vote2] = voters2;
+            }
+
+            // Save prior state to allow an undo
+            PreserveMerge(vote1, vote2, voters1, voters2, type);
+
+            // Update the votes->identity lookup
+            voters2.UnionWith(voters1);
+            voters1.Clear();
         }
 
-        public bool HasVoter(string voterName)
+        public void ModifyTask(VotePartition vote1, string newTask, VoteType type)
         {
-            foreach (var vt in VotesAndSupporters)
+            var votes = GetVoteEntries(type);
+
+            var vote2 = vote1.ModifyTask(newTask);
+            if (vote1 == vote2)
+                return;
+
+            if (!votes.TryGetValue(vote1, out var voters1))
             {
-                foreach (var vote in vt.Value)
+                voters1 = new IdentitySet();
+                votes[vote1] = voters1;
+            }
+
+            if (!votes.TryGetValue(vote2, out var voters2))
+            {
+                voters2 = new IdentitySet();
+                votes[vote2] = voters2;
+            }
+
+            // Save prior state to allow an undo
+            PreserveMerge(vote1, vote2, voters1, voters2, type);
+
+            // Update the votes->identity lookup
+            voters2.UnionWith(voters1);
+            voters1.Clear();
+        }
+
+        public void Join(IEnumerable<Identity> voters1, Identity voter2, VoteType type)
+        {
+            foreach (var voter in voters1)
+            {
+                Join(voter, voter2, type);
+            }
+        }
+
+        public void Join(Identity voter1, Identity voter2, VoteType type)
+        {
+            var votes = GetVoteEntries(type);
+
+            var voter1Votes = votes.Where(v => v.Value.Contains(voter1)).Select(v => v.Key);
+
+            PreserveJoin(voter1, voter2, voter1Votes, type);
+
+            foreach (var vote in votes)
+            {
+                if (vote.Value.Contains(voter2))
+                    vote.Value.Add(voter1);
+                else
+                    vote.Value.Remove(voter1);
+            }
+        }
+
+        public bool Remove(VotePartition vote1, VoteType type)
+        {
+            var votes = GetVoteEntries(type);
+            bool removed = false;
+
+            if (votes.TryGetValue(vote1, out var voters1))
+            {
+                if (voters1.Count > 0)
                 {
-                    if (vote.Value.Contains(voterName))
-                        return true;
+                    removed = true;
+                    PreserveRemovedVote(vote1, voters1, type);
+                    voters1.Clear();
                 }
+            }
+
+            return removed;
+        }
+
+        public bool Remove(Identity voter1, VoteType type)
+        {
+            var votes = GetVoteEntries(type);
+
+            var votesWithVoter = votes.Where(v => v.Value.Contains(voter1));
+
+            if (votesWithVoter.Any())
+            {
+                PreserveRemovedVoter(voter1, votesWithVoter.Select(v => v.Key), type);
+
+                foreach (var vote in votesWithVoter)
+                {
+                    vote.Value.Remove(voter1);
+                }
+
+                return true;
             }
 
             return false;
         }
 
-        public string GetVote()
+        #endregion
+
+        #region Undo
+        /// <summary>
+        /// Preserves the specified state prior to a vote merge, to allow undoing it.
+        /// </summary>
+        /// <param name="vote1">The vote1.</param>
+        /// <param name="vote2">The vote2.</param>
+        /// <param name="voters1">The voters1.</param>
+        /// <param name="voters2">The voters2.</param>
+        /// <param name="type">The type.</param>
+        private void PreserveMerge(VotePartition vote1, VotePartition vote2, IEnumerable<Identity> voters1, IEnumerable<Identity> voters2, VoteType type)
         {
-            return null;
+            var undoItem = new UndoItem(UndoItemType.Merge, type, vote1: vote1, vote2: vote2, voters1: voters1, voters2: voters2);
+            UndoBuffer.Push(undoItem);
         }
 
-        public SupportersList GetVoters(string voteFragment)
+        private void PreserveJoin(Identity voter1, Identity voter2, IEnumerable<VotePartition> voter1Votes, VoteType type)
         {
-            return null;
+            var undoItem = new UndoItem(UndoItemType.Join, type, voter1: voter1, voter2: voter2, votes1: voter1Votes);
+            UndoBuffer.Push(undoItem);
         }
+
+        private void PreserveRemovedVote(VotePartition vote1, IEnumerable<Identity> vote1Voters, VoteType type)
+        {
+            var undoItem = new UndoItem(UndoItemType.RemoveVote, type, vote1: vote1, voters1: vote1Voters);
+            UndoBuffer.Push(undoItem);
+        }
+
+        private void PreserveRemovedVoter(Identity voter1, IEnumerable<VotePartition> voter1Votes, VoteType type)
+        {
+            var undoItem = new UndoItem(UndoItemType.RemoveVoter, type, voter1: voter1, votes1: voter1Votes);
+            UndoBuffer.Push(undoItem);
+        }
+
+        /// <summary>
+        /// Undo the top action on the undo buffer.
+        /// </summary>
+        public void Undo()
+        {
+            if (UndoBuffer.Count == 0)
+                return;
+
+            var undoItem = UndoBuffer.Pop();
+
+            switch (undoItem.UndoType)
+            {
+                case UndoItemType.Merge:
+                    UndoMerge(undoItem);
+                    break;
+                case UndoItemType.Join:
+                    UndoJoin(undoItem);
+                    break;
+                case UndoItemType.RemoveVote:
+                    UndoRemoveVote(undoItem);
+                    break;
+                case UndoItemType.RemoveVoter:
+                    UndoRemoveVoter(undoItem);
+                    break;
+                default:
+                    break;
+            }
+
+            OnPropertyChanged("Votes");
+            OnPropertyChanged("Voters");
+        }
+
+        private void UndoMerge(UndoItem undo)
+        {
+            var votes = GetVoteEntries(undo.VoteType);
+
+            votes[undo.Vote1].UnionWith(undo.Voters1);
+            votes[undo.Vote2].Clear();
+            votes[undo.Vote2].UnionWith(undo.Voters2);
+        }
+
+        private void UndoJoin(UndoItem undo)
+        {
+            var votes = GetVoteEntries(undo.VoteType);
+
+            foreach (var vote in votes)
+            {
+                if (undo.Votes1.Contains(vote.Key))
+                    vote.Value.Add(undo.Voter1);
+                else
+                    vote.Value.Remove(undo.Voter1);
+            }
+        }
+
+        private void UndoRemoveVote(UndoItem undo)
+        {
+            var votes = GetVoteEntries(undo.VoteType);
+
+            votes[undo.Vote1].UnionWith(undo.Voters1);
+        }
+
+        private void UndoRemoveVoter(UndoItem undo)
+        {
+            var votes = GetVoteEntries(undo.VoteType);
+
+            foreach (var vote in undo.Votes1)
+            {
+                votes[vote].Add(undo.Voter1);
+            }
+        }
+
+        #endregion
+
         #endregion
 
 
