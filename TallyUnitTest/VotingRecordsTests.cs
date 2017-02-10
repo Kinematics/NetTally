@@ -29,7 +29,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddVoter_1()
         {
-            VotingRecords.Instance.AddVoterRecord(defaultIdentity);
+            VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("Names"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("Name"));
@@ -39,7 +39,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddVoter_2()
         {
-            VotingRecords.Instance.AddVoterRecord(defaultIdentity);
+            VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("names"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("name"));
@@ -49,7 +49,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddVoter_3()
         {
-            VotingRecords.Instance.AddVoterRecord(defaultIdentity);
+            VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("NAME"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("NAMES"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("NAME"));
@@ -59,7 +59,7 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddVoter_4()
         {
-            VotingRecords.Instance.AddVoterRecord(defaultIdentity);
+            VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("n-ame"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("n-ames"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("n-ame"));
@@ -71,7 +71,7 @@ namespace NetTally.Tests
         {
             Identity identity = new Identity("N'ame", "1");
 
-            VotingRecords.Instance.AddVoterRecord(identity);
+            VotingRecords.Instance.AddVoterIdentity(identity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("Names"));
             Assert.AreEqual("N'ame", VotingRecords.Instance.GetVoterName("Name"));
@@ -83,7 +83,7 @@ namespace NetTally.Tests
         {
             Identity identity = new Identity("N'ame", "1");
 
-            VotingRecords.Instance.AddVoterRecord(identity);
+            VotingRecords.Instance.AddVoterIdentity(identity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("names"));
             Assert.AreEqual("N'ame", VotingRecords.Instance.GetVoterName("NAME"));
