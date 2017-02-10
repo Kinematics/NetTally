@@ -153,7 +153,7 @@ namespace NetTally.Votes.Experiment
                 List<VotePartition> filteredPartitions = FilterVotesByTask(votePartitions, quest);
 
                 // Add the results to the voting records.
-                VotingRecords.Instance.AddVotes(filteredPartitions, post.Identity, VoteType.Vote);
+                VotingRecords.Instance.AddVoteEntries(filteredPartitions, post.Identity);
             }
 
             return true;

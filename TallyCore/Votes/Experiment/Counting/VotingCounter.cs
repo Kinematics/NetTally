@@ -130,7 +130,7 @@ namespace NetTally.Votes.Experiment
             // Record all the users who voted
             foreach (var post in PostsList)
             {
-                VotingRecords.Instance.AddVoterRecord(post.Identity);
+                VotingRecords.Instance.AddVoterIdentity(post.Identity);
             }
 
             // Collection of all the plans that we find in the post list.
