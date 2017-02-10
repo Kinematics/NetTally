@@ -8,7 +8,7 @@ namespace NetTally.Votes.Experiment
     public class VotePartition
     {
         #region Properties and fields
-        public VoteLineSequence VoteLines { get; } = new VoteLineSequence();
+        public VoteLines VoteLines { get; } = new VoteLines();
         public VoteType VoteType { get; private set; } = VoteType.Vote;
         public string Task { get; private set; }
         #endregion

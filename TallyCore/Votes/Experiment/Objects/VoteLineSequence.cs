@@ -10,15 +10,15 @@ namespace NetTally.Votes.Experiment
     /// the hash code and checking for equivalence between two sequences.
     /// </summary>
     /// <seealso cref="System.Collections.Generic.List{NetTally.Votes.Experiment.VoteLine}" />
-    public class VoteLineSequence : List<VoteLine>
+    public class VoteLines : List<VoteLine>
     {
         #region Constructors
-        public VoteLineSequence()
+        public VoteLines()
         {
 
         }
 
-        public VoteLineSequence(VoteLine voteLine)
+        public VoteLines(VoteLine voteLine)
         {
             if (voteLine == null)
                 throw new ArgumentNullException(nameof(voteLine));
@@ -26,7 +26,7 @@ namespace NetTally.Votes.Experiment
             Add(voteLine);
         }
 
-        public VoteLineSequence(IEnumerable<VoteLine> voteLines)
+        public VoteLines(IEnumerable<VoteLine> voteLines)
         {
             if (voteLines == null)
                 throw new ArgumentNullException(nameof(voteLines));
@@ -107,7 +107,7 @@ namespace NetTally.Votes.Experiment
         #region Equals and ToString
         public override bool Equals(object obj)
         {
-            if (obj is VoteLineSequence other && Count == other.Count)
+            if (obj is VoteLines other && Count == other.Count)
             {
                 return this.SequenceEqual(other);
             }

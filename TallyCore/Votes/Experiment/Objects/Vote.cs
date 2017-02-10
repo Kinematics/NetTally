@@ -74,9 +74,9 @@ namespace NetTally.Votes.Experiment
         /// <summary>
         /// Vote lines grouped into blocks.
         /// </summary>
-        public List<VoteLineSequence> GetComponents(PartitionMode partitionMode)
+        public List<VoteLines> GetComponents(PartitionMode partitionMode)
         {
-            List<VoteLineSequence> bigList = new List<VoteLineSequence>();
+            List<VoteLines> bigList = new List<VoteLines>();
 
             var voteGrouping = GetVoteMarkerGroups();
 
@@ -88,42 +88,42 @@ namespace NetTally.Votes.Experiment
             }
             else if (partitionMode == PartitionMode.ByBlock)
             {
-                bigList.AddRange(voteGrouping.Select(g => new VoteLineSequence(g)));
+                bigList.AddRange(voteGrouping.Select(g => new VoteLines(g)));
             }
 
 
             return bigList;
         }
 
-        private List<VoteLineSequence> CommuteLines(IGrouping<string, VoteLine> group)
+        private List<VoteLines> CommuteLines(IGrouping<string, VoteLine> group)
         {
             var first = group.First();
             string firstTask = first.Task;
 
-            List<VoteLineSequence> results = new List<VoteLineSequence>();
+            List<VoteLines> results = new List<VoteLines>();
 
             // Votes and Approvals can be split, and carry their task with them.
             if (first.MarkerType == MarkerType.Vote || first.MarkerType == MarkerType.Approval)
             {
-                results.Add(new VoteLineSequence(first));
+                results.Add(new VoteLines(first));
 
                 foreach (var line in group.Skip(1))
                 {
                     if (string.IsNullOrEmpty(firstTask) || !string.IsNullOrEmpty(line.Task))
-                        results.Add(new VoteLineSequence(line));
+                        results.Add(new VoteLines(line));
                     else
-                        results.Add(new VoteLineSequence(line.Modify(task: firstTask)));
+                        results.Add(new VoteLines(line.Modify(task: firstTask)));
                 }
             }
             // Rank doesn't modify any contents, and never gets split.
             else if (first.MarkerType == MarkerType.Rank)
             {
-                results.Add(new VoteLineSequence(group.ToList()));
+                results.Add(new VoteLines(group.ToList()));
             }
             // Score carries both score and task to child elements.
             else if (first.MarkerType == MarkerType.Score)
             {
-                results.Add(new VoteLineSequence(first));
+                results.Add(new VoteLines(first));
 
                 foreach (var line in group.Skip(1))
                 {
@@ -135,9 +135,9 @@ namespace NetTally.Votes.Experiment
                     }
 
                     if (string.IsNullOrEmpty(firstTask) || !string.IsNullOrEmpty(line.Task))
-                        results.Add(new VoteLineSequence(line.Modify(marker: newMarker)));
+                        results.Add(new VoteLines(line.Modify(marker: newMarker)));
                     else
-                        results.Add(new VoteLineSequence(line.Modify(marker: newMarker, task: firstTask)));
+                        results.Add(new VoteLines(line.Modify(marker: newMarker, task: firstTask)));
                 }
             }
             // Anything else just carries the individual lines
@@ -145,7 +145,7 @@ namespace NetTally.Votes.Experiment
             {
                 foreach (var line in group)
                 {
-                    results.Add(new VoteLineSequence(line));
+                    results.Add(new VoteLines(line));
                 }
             }
             
