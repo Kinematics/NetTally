@@ -15,6 +15,11 @@ namespace NetTally.Votes.Experiment
     using VoteEntry = KeyValuePair<VotePartition, HashSet<Identity>>;
     using VoterPartitions = Dictionary<Identity, List<VotePartition>>;
 
+    /// <summary>
+    /// Class that handles storing processed votes, querying them, and allowing manual
+    /// manipulation of some aspects of the final results.
+    /// </summary>
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public class VotingRecords : INotifyPropertyChanged
     {
         #region Lazy singleton creation

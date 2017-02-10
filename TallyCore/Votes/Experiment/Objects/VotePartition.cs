@@ -5,6 +5,11 @@ using NetTally.Utility;
 
 namespace NetTally.Votes.Experiment
 {
+    /// <summary>
+    /// Class that incorporates an understanding of any collected partition of
+    /// a vote, whether a single line, or block, or the entire post.
+    /// Keeps track of the Task associated with this partition.
+    /// </summary>
     public class VotePartition
     {
         #region Properties and fields

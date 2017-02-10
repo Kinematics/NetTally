@@ -11,6 +11,11 @@ namespace NetTally.Votes.Experiment
 {
     using PlanDictionary = Dictionary<string, List<Plan>>;
 
+    /// <summary>
+    /// Class that handles taking Posts as input, prepping the VotingRecords,
+    /// extracting plans, and processing them all via the VotingConstructor.
+    /// </summary>
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public class VotingCounter : INotifyPropertyChanged
     {
         #region Lazy singleton creation

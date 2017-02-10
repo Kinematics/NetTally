@@ -11,7 +11,9 @@ namespace NetTally.Votes.Experiment
     // # rank marker can only contain X (entire block is given a single rank)
     // + score marker can contain X (copy parent score) or other + score
 
-
+    /// <summary>
+    /// Class that handles taking a source vote and breaking it into individual partitions.
+    /// </summary>
     public static class VotingConstructor
     {
         internal static void ProcessPlan(Plan plan, IQuest quest, CancellationToken token)

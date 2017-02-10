@@ -5,7 +5,7 @@ using NetTally.Utility;
 namespace NetTally.Votes.Experiment
 {
     /// <summary>
-    /// Class to encapsulate an individual vote lines.
+    /// Class to encapsulate an individual vote line.
     /// </summary>
     public class VoteLine
     {
