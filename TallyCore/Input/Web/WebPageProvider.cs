@@ -301,7 +301,8 @@ namespace NetTally.Web
         /// <param name="caching">The caching.</param>
         /// <param name="suppressNotifyMessages">if set to <c>true</c> [suppress notify messages].</param>
         /// <returns>Returns whether it found the cached document, and the document, if found.</returns>
-        private async Task<(bool found, HtmlDocument doc)> TryGetCachedPageAsync(string url, string shortDescrip, CachingMode caching, SuppressNotifications suppressNotifications)
+        private async Task<Tuple<bool, HtmlDocument>> TryGetCachedPageAsync(string url, string shortDescrip,
+            CachingMode caching, SuppressNotifications suppressNotifications)
         {
             HtmlDocument htmldoc = null;
 
@@ -313,7 +314,9 @@ namespace NetTally.Web
                     NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifications);
             }
 
-            return (htmldoc != null, htmldoc);
+            Tuple<bool, HtmlDocument> result = new Tuple<bool, HtmlDocument>(htmldoc != null, htmldoc);
+
+            return result;
         }
 
         /// <summary>
