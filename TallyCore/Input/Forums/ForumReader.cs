@@ -104,18 +104,22 @@ namespace NetTally.Forums
         {
             var scanInfo = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
 
+            int firstPageNumber = scanInfo.Item1;
+            int lastPageNumber = scanInfo.Item2;
+            int pagesToScan = scanInfo.Item3;
+
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
 
             IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
 
             // Initiate the async tasks to load the pages
-            if (scanInfo.pagesToScan > 0)
+            if (pagesToScan > 0)
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
-                var results = from pageNum in Enumerable.Range(scanInfo.firstPageNumber, scanInfo.pagesToScan)
+                var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
                               let pageUrl = adapter.GetUrlForPage(pageNum, quest.PostsPerPage)
-                              let shouldCache = (pageNum == scanInfo.lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
+                              let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
                               select pageProvider.GetPage(pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
 
                 pages.AddRange(results.ToList());
@@ -126,13 +130,14 @@ namespace NetTally.Forums
 
         /// <summary>
         /// Determines the page number range that will be loaded for the quest.
+        /// Returns a tuple of first page number, last page number, and pages to scan.
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="adapter">The forum adapter for the quest.</param>
         /// <param name="threadRangeInfo">The thread range info, as provided by the adapter.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a tuple of the page number info that was determined.</returns>
-        private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
+        private async Task<Tuple<int, int, int>> GetPagesToScanAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
             IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
@@ -173,7 +178,9 @@ namespace NetTally.Forums
 
             pagesToScan = lastPageNumber - firstPageNumber + 1;
 
-            return (firstPageNumber, lastPageNumber, pagesToScan);
+            Tuple<int, int, int> result = new Tuple<int, int, int>(firstPageNumber, lastPageNumber, pagesToScan);
+
+            return result;
         }
 
         /// <summary>
