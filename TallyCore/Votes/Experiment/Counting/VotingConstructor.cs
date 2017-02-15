@@ -16,6 +16,7 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public static class VotingConstructor
     {
+        #region Plan processing
         internal static void ProcessPlan(Plan plan, IQuest quest, CancellationToken token)
         {
             if (plan == null)
@@ -33,31 +34,27 @@ namespace NetTally.Votes.Experiment
             {
                 case PartitionMode.None:
                     parts = new List<VotePartition> { plan.Content };
-                    VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
                     break;
                 case PartitionMode.ByLine:
                     lines = plan.Content.VoteLines.Skip(1);
                     parts = lines.Select(a => new VotePartition(a, VoteType.Plan));
-                    VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
                     break;
                 case PartitionMode.ByLineTask:
                     lines = UpliftLines(plan.Content.VoteLines);
                     parts = lines.Select(a => new VotePartition(a, VoteType.Plan));
-                    VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
                     break;
                 case PartitionMode.ByBlock:
                     parts = new List<VotePartition> { plan.Content };
-                    VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
                     break;
                 case PartitionMode.ByBlockAll:
                     parts = UpliftBlocks(plan.Content.VoteLines, VoteType.Plan);
-                    VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown parition mode: {quest.PartitionMode}.");
             }
 
             plan.SetContentPartitions(parts);
+            VotingRecords.Instance.AddVoteEntries(parts, plan.Identity);
         }
 
         /// <summary>
@@ -119,6 +116,7 @@ namespace NetTally.Votes.Experiment
 
             return partResult;
         }
+        #endregion
 
         /// <summary>
         /// Process a post to get the component votes (partitions) and store them
