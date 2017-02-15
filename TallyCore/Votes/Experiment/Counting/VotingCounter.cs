@@ -202,7 +202,7 @@ namespace NetTally.Votes.Experiment
         private void ProcessPosts(CancellationToken token)
         {
             // Process all the plans, to partition them and place them in the voting records.
-            var plans = VotingRecords.Instance.GetPlans().Select(a => a.Value).SelectMany(b => b);
+            var plans = VotingRecords.Instance.GetPlans();
 
             foreach (var plan in plans)
             {

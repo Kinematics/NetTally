@@ -188,9 +188,9 @@ namespace NetTally.Votes.Experiment
         /// Gets the lookup table for plans.
         /// </summary>
         /// <returns>Returns the plans lookup table.</returns>
-        public PlanDictionary GetPlans()
+        public IEnumerable<Plan> GetPlans()
         {
-            return PlansLookup;
+            return PlansLookup.Select(a => a.Value).SelectMany(b => b);
         }
 
         /// <summary>
