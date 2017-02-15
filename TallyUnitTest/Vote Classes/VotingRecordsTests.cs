@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tests.Platform;
 using NetTally.Votes.Experiment;
 using NetTally.Utility;
+using NetTally.Votes;
 
 namespace NetTally.Tests
 {
@@ -10,6 +12,8 @@ namespace NetTally.Tests
     public class VotingRecordsTests
     {
         static Identity defaultIdentity = new Identity("Name", "1");
+        static VotePartition defaultPlanPartition = new VotePartition(
+            new VoteLine("[X] Plan Name\n-[X] Some content"), VoteType.Plan);
 
         #region Setup
         [ClassInitialize]
@@ -32,8 +36,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("Names"));
-            Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("Name"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("Names"));
+            Assert.AreEqual("Name", VotingRecords.Instance.GetLastVoterIdentity("Name")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("Names")?.Name);
         }
 
         [TestMethod]
@@ -42,8 +46,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("names"));
-            Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("name"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("names"));
+            Assert.AreEqual("Name", VotingRecords.Instance.GetLastVoterIdentity("name")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("names")?.Name);
         }
 
         [TestMethod]
@@ -52,8 +56,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("NAME"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("NAMES"));
-            Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("NAME"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("NAMES"));
+            Assert.AreEqual("Name", VotingRecords.Instance.GetLastVoterIdentity("NAME")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("NAMES")?.Name);
         }
 
         [TestMethod]
@@ -62,8 +66,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(defaultIdentity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("n-ame"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("n-ames"));
-            Assert.AreEqual("Name", VotingRecords.Instance.GetVoterName("n-ame"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("n-ames"));
+            Assert.AreEqual("Name", VotingRecords.Instance.GetLastVoterIdentity("n-ame")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("n-ames")?.Name);
         }
 
         [TestMethod]
@@ -74,8 +78,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(identity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("Names"));
-            Assert.AreEqual("N'ame", VotingRecords.Instance.GetVoterName("Name"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("Names"));
+            Assert.AreEqual("N'ame", VotingRecords.Instance.GetLastVoterIdentity("Name")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("Names")?.Name);
         }
 
         [TestMethod]
@@ -86,8 +90,8 @@ namespace NetTally.Tests
             VotingRecords.Instance.AddVoterIdentity(identity);
             Assert.IsTrue(VotingRecords.Instance.HasVoterName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasVoterName("names"));
-            Assert.AreEqual("N'ame", VotingRecords.Instance.GetVoterName("NAME"));
-            Assert.AreEqual(null, VotingRecords.Instance.GetVoterName("names"));
+            Assert.AreEqual("N'ame", VotingRecords.Instance.GetLastVoterIdentity("NAME")?.Name);
+            Assert.AreEqual(null, VotingRecords.Instance.GetLastVoterIdentity("names")?.Name);
         }
         #endregion
 
@@ -95,7 +99,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_1()
         {
-            VotingRecords.Instance.AddPlanName("Name");
+            Plan plan = new Plan("Name", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["Name"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("Names"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetPlanName("Name"));
@@ -105,7 +112,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_2()
         {
-            VotingRecords.Instance.AddPlanName("Name");
+            Plan plan = new Plan("Name", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["Name"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("names"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetPlanName("name"));
@@ -115,7 +125,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_3()
         {
-            VotingRecords.Instance.AddPlanName("Name");
+            Plan plan = new Plan("Name", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["Name"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("NAME"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("NAMES"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetPlanName("NAME"));
@@ -125,7 +138,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_4()
         {
-            VotingRecords.Instance.AddPlanName("Name");
+            Plan plan = new Plan("Name", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["Name"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("n-ame"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("n-ames"));
             Assert.AreEqual("Name", VotingRecords.Instance.GetPlanName("n-ame"));
@@ -135,7 +151,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_5()
         {
-            VotingRecords.Instance.AddPlanName("N'ame");
+            Plan plan = new Plan("N'ame", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["N'ame"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("Name"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("Names"));
             Assert.AreEqual("N'ame", VotingRecords.Instance.GetPlanName("Name"));
@@ -145,7 +164,10 @@ namespace NetTally.Tests
         [TestMethod]
         public void AddPlan_6()
         {
-            VotingRecords.Instance.AddPlanName("N'ame");
+            Plan plan = new Plan("N'ame", defaultIdentity, defaultPlanPartition, PlanType.Content);
+            var plans = new List<Plan> { plan };
+            Dictionary<string, List<Plan>> planDict = new Dictionary<string, List<Plan>> { ["N'ame"] = plans };
+            VotingRecords.Instance.AddPlans(planDict);
             Assert.IsTrue(VotingRecords.Instance.HasPlanName("name"));
             Assert.IsFalse(VotingRecords.Instance.HasPlanName("names"));
             Assert.AreEqual("N'ame", VotingRecords.Instance.GetPlanName("NAME"));
