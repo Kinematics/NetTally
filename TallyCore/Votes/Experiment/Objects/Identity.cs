@@ -103,7 +103,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="originatingIdentity">The originating identity.</param>
         /// <param name="identityType">Type of the identity.</param>
         public Identity(string name, Identity originatingIdentity, IdentityType identityType = IdentityType.User)
-            : this(name, originatingIdentity.PostID, identityType, originatingIdentity.ForumAdapter, 0)
+            : this(name, originatingIdentity?.PostID, identityType, originatingIdentity?.ForumAdapter, 0)
         {
         }
         #endregion
