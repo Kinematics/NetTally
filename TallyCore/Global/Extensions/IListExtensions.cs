@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NetTally.Utility
+namespace NetTally.Extensions
 {
     public static class IListExtensions
     {
