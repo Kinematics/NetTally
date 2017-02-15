@@ -61,9 +61,9 @@ namespace NetTally.Votes.Experiment
         }
 
         /// <summary>
-        /// Takes all lines except the first one.
+        /// Takes all lines from a plan except the first one.
         /// If the first one has a task, propagates that task to any other lines that do not already have a task.
-        /// If all lines (other than the first) have a prefix, remove up to 1 prefix character from all lines.
+        /// If all lines (other than the first) have a prefix, remove min indent number of prefix characters from all lines.
         /// </summary>
         /// <param name="voteLines">The vote lines.</param>
         /// <returns>Returns the list of lines with the above modifications made.</returns>
@@ -79,7 +79,7 @@ namespace NetTally.Votes.Experiment
                 a.Modify(
                     task: (!string.IsNullOrEmpty(task) && string.IsNullOrEmpty(a.Task)) ?
                            task : null,
-                    prefix: (minIndent > 0 && a.Prefix.Length > minIndent) ?
+                    prefix: (minIndent > 0) ?
                            a.Prefix.Substring(minIndent) : null
                     )
                 );
@@ -87,6 +87,15 @@ namespace NetTally.Votes.Experiment
             return result;
         }
 
+        /// <summary>
+        /// Uplifts the blocks inside of a plan.
+        /// Partitions the plan by block, removing the first line.
+        /// If the first/main line of the plan has a task, propagate that to the blocks below it that do not already have a task.
+        /// If all lines (other than the first) have a prefix, remove the minimum number of previx characters from all lines.
+        /// </summary>
+        /// <param name="voteLines">The vote lines.</param>
+        /// <param name="voteType">Type of the vote.</param>
+        /// <returns></returns>
         private static IEnumerable<VotePartition> UpliftBlocks(IReadOnlyList<VoteLine> voteLines, VoteType voteType)
         {
             var first = voteLines.First();
@@ -99,7 +108,7 @@ namespace NetTally.Votes.Experiment
                 a.Modify(
                     task: (!string.IsNullOrEmpty(task) && a.Prefix.Length == minIndent && string.IsNullOrEmpty(a.Task)) ?
                            task : null,
-                    prefix: (minIndent > 0 && a.Prefix.Length > minIndent) ?
+                    prefix: (minIndent > 0) ?
                            a.Prefix.Substring(minIndent) : null
                     )
                 );
