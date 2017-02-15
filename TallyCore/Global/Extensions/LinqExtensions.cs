@@ -123,6 +123,158 @@ namespace NetTally.Extensions
             return max;
         }
 
+
+        /// <summary>
+        /// Returns a collection of items from the provided enumerable that match the
+        /// minimum result of the given transformation function.
+        /// For example, given a collection of People objects, and a function that uses
+        /// the Age as the comparison, it will return an enumerable of all People that
+        /// have the minimum age in the collection.
+        /// Uses the default comparer.
+        /// </summary>
+        /// <typeparam name="T">The type of object in the collection.</typeparam>
+        /// <typeparam name="U">The type to compare for each object in the collection.</typeparam>
+        /// <param name="self">The enumeration being filtered.</param>
+        /// <param name="transform">The transform function.</param>
+        /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
+        public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
+            WithMin(self, transform, null);
+
+        /// <summary>
+        /// Returns a collection of items from the provided enumerable that match the
+        /// minimum result of the given transformation function.
+        /// For example, given a collection of People objects, and a function that uses
+        /// the Age as the comparison, it will return an enumerable of all People that
+        /// have the minimum age in the collection.
+        /// </summary>
+        /// <typeparam name="T">The type of object in the collection.</typeparam>
+        /// <typeparam name="U">The type to compare for each object in the collection.</typeparam>
+        /// <param name="self">The enumeration being filtered.</param>
+        /// <param name="transform">The transform function.</param>
+        /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
+        public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        {
+            if (self == null)
+                throw new ArgumentNullException(nameof(self));
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
+
+
+            List<T> result = new List<T>();
+            U min = default(U);
+            bool first = true;
+
+            foreach (T item in self)
+            {
+                U trans = transform(item);
+
+                if (first)
+                {
+                    min = trans;
+                    result.Add(item);
+                    first = false;
+                }
+                else
+                {
+                    int comparison = 0;
+
+                    if (comparer == null)
+                        comparison = trans.CompareTo(min);
+                    else
+                        comparison = comparer.Compare(trans, min);
+
+                    if (comparison == 0)
+                    {
+                        result.Add(item);
+                    }
+                    else if (comparison < 0)
+                    {
+                        min = trans;
+                        result.Clear();
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a collection of items from the provided enumerable that match the
+        /// minimum result of the given transformation function.
+        /// For example, given a collection of People objects, and a function that uses
+        /// the Age as the comparison, it will return an enumerable of all People that
+        /// have the minimum age in the collection.
+        /// Uses the default comparer.
+        /// </summary>
+        /// <typeparam name="T">The type of object in the collection.</typeparam>
+        /// <typeparam name="U">The type to compare for each object in the collection.</typeparam>
+        /// <param name="self">The enumeration being filtered.</param>
+        /// <param name="transform">The transform function.</param>
+        /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
+        public static IEnumerable<T> WithMax<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
+            WithMax(self, transform, null);
+
+        /// <summary>
+        /// Returns a collection of items from the provided enumerable that match the
+        /// minimum result of the given transformation function.
+        /// For example, given a collection of People objects, and a function that uses
+        /// the Age as the comparison, it will return an enumerable of all People that
+        /// have the minimum age in the collection.
+        /// </summary>
+        /// <typeparam name="T">The type of object in the collection.</typeparam>
+        /// <typeparam name="U">The type to compare for each object in the collection.</typeparam>
+        /// <param name="self">The enumeration being filtered.</param>
+        /// <param name="transform">The transform function.</param>
+        /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
+        public static IEnumerable<T> WithMax<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        {
+            if (self == null)
+                throw new ArgumentNullException(nameof(self));
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
+
+
+            List<T> result = new List<T>();
+            U max = default(U);
+            bool first = true;
+
+            foreach (T item in self)
+            {
+                U trans = transform(item);
+
+                if (first)
+                {
+                    max = trans;
+                    result.Add(item);
+                    first = false;
+                }
+                else
+                {
+                    int comparison = 0;
+
+                    if (comparer == null)
+                        comparison = trans.CompareTo(max);
+                    else
+                        comparison = comparer.Compare(trans, max);
+
+                    if (comparison == 0)
+                    {
+                        result.Add(item);
+                    }
+                    else if (comparison > 0)
+                    {
+                        max = trans;
+                        result.Clear();
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
         /// <summary>
         /// Traverses the list, and returns the list plus children in a flattened format.
         /// </summary>
