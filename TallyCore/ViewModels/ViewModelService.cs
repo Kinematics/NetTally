@@ -50,12 +50,12 @@ namespace NetTally.ViewModels
             this.hashFunction = hashFunction;
             return this;
         }
-        public void Build()
+        public MainViewModel Build()
         {
-            if (MainViewModel != null)
-                throw new InvalidOperationException("Main view model has already been built.");
+            if (MainViewModel == null)
+                MainViewModel = new MainViewModel(config, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
 
-            MainViewModel = new MainViewModel(config, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
+            return MainViewModel;
         }
 
         IPageProvider pageProvider;
