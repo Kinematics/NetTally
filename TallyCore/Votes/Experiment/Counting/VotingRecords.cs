@@ -33,6 +33,12 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Properties
+
+        readonly List<Post> postsList = new List<Post>();
+        public IReadOnlyList<Post> PostsList { get { return postsList; } }
+
+        Dictionary<Identity, Post> PostsLookup { get; } = new Dictionary<Identity, Post>();
+
         /// <summary>
         /// Lookup table to translate names to all identities matching that name.
         /// </summary>
@@ -102,6 +108,22 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
+        #region Initial Posts
+        public void UsePostsForTally(IEnumerable<Post> posts)
+        {
+            if (posts == null)
+                throw new ArgumentNullException(nameof(posts));
+
+            postsList.Clear();
+            postsList.AddRange(posts.Where(p => p.HasVote));
+
+            PostsLookup.Clear();
+            foreach (var post in postsList)
+            {
+                PostsLookup.Add(post.Identity, post);
+            }
+        }
+        #endregion
 
         #region Voter identities (Populate, query)
         /// <summary>

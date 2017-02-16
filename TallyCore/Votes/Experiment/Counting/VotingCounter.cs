@@ -45,9 +45,6 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Viewable Properties
-        private readonly List<Post> postsList = new List<Post>();
-        public IReadOnlyList<Post> PostsList { get { return postsList; } }
-
         public IQuest CurrentQuest { get; private set; }
         public bool TallyWasCanceled { get; private set; }
         #endregion
@@ -85,8 +82,7 @@ namespace NetTally.Votes.Experiment
             if (posts == null)
                 throw new ArgumentNullException(nameof(posts));
 
-            postsList.Clear();
-            postsList.AddRange(posts.Where(p => p.HasVote));
+            VotingRecords.Instance.UsePostsForTally(posts);
 
             await CountVotesInCurrentPosts(token).ConfigureAwait(false);
         }
@@ -100,7 +96,7 @@ namespace NetTally.Votes.Experiment
             if (CurrentQuest == null)
                 return;
 
-            if (!PostsList.Any())
+            if (!VotingRecords.Instance.PostsList.Any())
                 return;
 
             try
@@ -133,7 +129,7 @@ namespace NetTally.Votes.Experiment
         private void PreprocessPosts(CancellationToken token)
         {
             // Record all the users who voted
-            foreach (var post in PostsList)
+            foreach (var post in VotingRecords.Instance.PostsList)
             {
                 VotingRecords.Instance.AddVoterIdentity(post.Identity);
             }
@@ -142,7 +138,7 @@ namespace NetTally.Votes.Experiment
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 
             // Scan the post list once.
-            foreach (var post in PostsList)
+            foreach (var post in VotingRecords.Instance.PostsList)
             {
                 token.ThrowIfCancellationRequested();
 
@@ -210,12 +206,12 @@ namespace NetTally.Votes.Experiment
             }
 
             // Set up each post with the working version that will be processed.
-            foreach (var post in PostsList)
+            foreach (var post in VotingRecords.Instance.PostsList)
             {
                 post.Prepare(p => VotingConstructor.GetWorkingVote(p));
             }
 
-            var unprocessed = PostsList;
+            var unprocessed = VotingRecords.Instance.PostsList;
 
             // Loop as long as there are any more to process.
             while (unprocessed.Any())
