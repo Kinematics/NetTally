@@ -128,12 +128,6 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void PreprocessPosts(CancellationToken token)
         {
-            // Record all the users who voted
-            foreach (var post in VotingRecords.Instance.PostsList)
-            {
-                VotingRecords.Instance.AddVoterIdentity(post.Identity);
-            }
-
             // Collection of all the plans that we find in the post list.
             PlanDictionary planRepo = new PlanDictionary(Agnostic.StringComparer);
 

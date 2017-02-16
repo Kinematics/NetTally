@@ -13,7 +13,6 @@ namespace NetTally.Votes.Experiment
     using IdentitySet = HashSet<Identity>;
     using VoteEntries = Dictionary<VotePartition, HashSet<Identity>>;
     using VoteEntry = KeyValuePair<VotePartition, HashSet<Identity>>;
-    using VoterPartitions = Dictionary<Identity, List<VotePartition>>;
 
     /// <summary>
     /// Class that handles storing processed votes, querying them, and allowing manual
@@ -33,10 +32,18 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Properties
-
+        /// <summary>
+        /// A list of all the valid vote posts that will be processed.
+        /// </summary>
         readonly List<Post> postsList = new List<Post>();
+        /// <summary>
+        /// A readonly list of all the valid vote posts that will be processed.
+        /// </summary>
         public IReadOnlyList<Post> PostsList { get { return postsList; } }
 
+        /// <summary>
+        /// Lookup table to match an identity to a post.
+        /// </summary>
         Dictionary<Identity, Post> PostsLookup { get; } = new Dictionary<Identity, Post>();
 
         /// <summary>
@@ -49,11 +56,6 @@ namespace NetTally.Votes.Experiment
         /// There is a list to account for multiple variants of the same plan name.
         /// </summary>
         Dictionary<string, List<Plan>> PlansLookup { get; set; } = new Dictionary<string, List<Plan>>(Agnostic.StringComparer);
-
-        /// <summary>
-        /// Lookup table for all the vote partitions each voter (identity) voted for.
-        /// </summary>
-        //VoterPartitions VoterVotes { get; } = new VoterPartitions();
 
         /// <summary>
         /// Lookup table for all the voters supporting each vote partition.
@@ -75,7 +77,6 @@ namespace NetTally.Votes.Experiment
         #region Reset
         public void Reset()
         {
-            IdentityLookup.Clear();
             PlansLookup.Clear();
 
             NormalVotes.Clear();
@@ -108,44 +109,69 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
-        #region Initial Posts
+        #region Post/Identity Initialization
+        /// <summary>
+        /// Initialize the records with the new lists of posts that are going
+        /// to be processed.
+        /// </summary>
+        /// <param name="posts">The posts that will be used for running the tally.</param>
         public void UsePostsForTally(IEnumerable<Post> posts)
         {
             if (posts == null)
                 throw new ArgumentNullException(nameof(posts));
 
-            postsList.Clear();
-            postsList.AddRange(posts.Where(p => p.HasVote));
+            InitPostsList(posts.Where(p => p.HasVote));
+            InitPostsLookup();
+            InitIdentityLookup();
+        }
 
+        /// <summary>
+        /// Add the valid posts to the postsLists collection.
+        /// </summary>
+        /// <param name="posts">Posts that have valid votes.</param>
+        private void InitPostsList(IEnumerable<Post> posts)
+        {
+            postsList.Clear();
+
+            postsList.AddRange(posts);
+        }
+
+        /// <summary>
+        /// Fill in the lookup table for identity -> post.
+        /// </summary>
+        private void InitPostsLookup()
+        {
             PostsLookup.Clear();
+
             foreach (var post in postsList)
             {
                 PostsLookup.Add(post.Identity, post);
             }
         }
+
+        /// <summary>
+        /// Fill in the lookup table for name -> identity.
+        /// </summary>
+        private void InitIdentityLookup()
+        {
+            IdentityLookup.Clear();
+
+            foreach (var post in postsList)
+            {
+                if (IdentityLookup.TryGetValue(post.Identity.Name, out IdentitySet identities))
+                {
+                    identities.Add(post.Identity);
+                }
+                else
+                {
+                    IdentityLookup.Add(post.Identity.Name, new IdentitySet { post.Identity });
+                }
+            }
+        }
+
         #endregion
 
         #region Voter identities (Populate, query)
-        /// <summary>
-        /// Add the specified identity to the voter identity lookup table.
-        /// Multiple identities can be added for the same name, representing multiple votes.
-        /// </summary>
-        /// <param name="identity">The identity to add.  Must not be null.</param>
-        /// <exception cref="ArgumentNullException"/>
-        /// <returns>Returns true if the identity was added, or false if it was not (ie: a duplicate).</returns>
-        public bool AddVoterIdentity(Identity identity)
-        {
-            if (identity == null)
-                throw new ArgumentNullException(nameof(identity));
-
-            if (IdentityLookup.TryGetValue(identity.Name, out IdentitySet identities))
-            {
-                return identities.Add(identity);
-            }
-
-            IdentityLookup.Add(identity.Name, new IdentitySet { identity });
-            return true;
-        }
 
         /// <summary>
         /// Checks whether the supplied voter name exists in the list of known identities.
