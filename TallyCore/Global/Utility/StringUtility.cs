@@ -29,11 +29,12 @@ namespace NetTally.Utility
         static Dictionary<string, string> nonlatin_characters = new Dictionary<string, string>
         {
             { "äæǽ", "ae" },
-            { "öœ", "oe" },
-            { "ü", "ue" },
+            { "ÆǼ", "AE" },
             { "Ä", "Ae" },
-            { "Ü", "Ue" },
+            { "öœ", "oe" },
             { "Ö", "Oe" },
+            { "ü", "ue" },
+            { "Ü", "Ue" },
             { "ÀÁÂÃÄÅǺĀĂĄǍΑΆẢẠẦẪẨẬẰẮẴẲẶА", "A" },
             { "àáâãåǻāăąǎªαάảạầấẫẩậằắẵẳặа", "a" },
             { "Б", "B" },
@@ -84,7 +85,6 @@ namespace NetTally.Utility
             { "ŵ", "w" },
             { "ŹŻŽΖЗ", "Z" },
             { "źżžζз", "z" },
-            { "ÆǼ", "AE" },
             { "ß", "ss" },
             { "Ĳ", "IJ" },
             { "ĳ", "ij" },
