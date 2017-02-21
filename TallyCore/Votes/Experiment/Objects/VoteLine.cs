@@ -11,7 +11,7 @@ namespace NetTally.Votes.Experiment
     {
         #region Regexes
         // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.
-        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))\s*\]\s*(?:\[\s*(?<task>[^]]+)\])?\s*(?<content>.*)");
+        static readonly Regex voteLineRegex = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))\s*\]\s*(?:\[(?<task>[^]]*)\])?\s*(?<content>.*)");
         // Regex for just the marker portion of a vote line.
         static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX✓✔])|(?:(?<rank>[#])|(?<score>[+]))?(?<value>[1-9])|(?<approval>[-+])|(?<continuation>[*]))");
         // Regex for stripping out whitespace, punctuation, and symbols.
