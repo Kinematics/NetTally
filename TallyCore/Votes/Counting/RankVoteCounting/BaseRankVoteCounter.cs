@@ -34,7 +34,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
             if (votes.Any())
             {
                 // Handle each task separately
-                var groupByTask = votes.GroupBy(vote => VoteString.GetVoteTask(vote.Key), StringUtility.AgnosticStringComparer);
+                var groupByTask = votes.GroupBy(vote => VoteString.GetVoteTask(vote.Key), Agnostic.StringComparer);
 
                 foreach (GroupedVotesByTask task in groupByTask)
                 {
