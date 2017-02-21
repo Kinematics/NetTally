@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NetTally.Utility;
 
 namespace NetTally.VoteCounting
 {
@@ -32,9 +33,7 @@ namespace NetTally.VoteCounting
             if (votes.Any())
             {
                 // Handle each task separately
-                var groupByTask = from vote in votes
-                                  group vote by VoteString.GetVoteTask(vote.Key) into g
-                                  select g;
+                var groupByTask = votes.GroupBy(vote => VoteString.GetVoteTask(vote.Key), StringUtility.AgnosticStringComparer);
 
                 foreach (GroupedVotesByTask task in groupByTask)
                 {
