@@ -227,7 +227,7 @@ namespace NetTally.Output
             var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
 
             var whoVoted = from v in votes
-                           where StringUtility.AgnosticStringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName) &&
+                           where Agnostic.StringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName) &&
                                  Agnostic.StringComparer.Equals(VoteString.GetVoteContent(v.Key), choice)
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
