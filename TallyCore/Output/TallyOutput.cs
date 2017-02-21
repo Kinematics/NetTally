@@ -200,7 +200,7 @@ namespace NetTally.Output
         {
             var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Rank);
             var voteContents = votes.
-                Where(v => StringUtility.AgnosticStringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName)).
+                Where(v => Agnostic.StringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName)).
                 Select(v => VoteString.GetVoteContent(v.Key));
 
             HashSet<string> uniqueOptions = new HashSet<string>(voteContents, Agnostic.StringComparer);
