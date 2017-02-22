@@ -111,6 +111,10 @@ namespace NetTally.Votes.Experiment
             {
                 return this.SequenceEqual(other);
             }
+            else if (obj is VoteLine[] otherA && Count == otherA.Length)
+            {
+                return this.SequenceEqual(otherA);
+            }
 
             return false;
         }
