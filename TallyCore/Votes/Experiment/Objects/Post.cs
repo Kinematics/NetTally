@@ -9,14 +9,33 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class Post
     {
+        #region Properties
+        /// <summary>
+        /// Gets the identity of the user who made the post, and where the post came from.
+        /// </summary>
         public Identity Identity { get; }
+        /// <summary>
+        /// Gets the vote contained within this post, if any.
+        /// </summary>
         public Vote Vote { get; }
+        /// <summary>
+        /// Gets a value indicating whether this instance has a vote.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance has vote; otherwise, <c>false</c>.
+        /// </value>
         public bool HasVote { get; }
-
+        /// <summary>
+        /// Gets the full message of this post.
+        /// </summary>
         public string Message { get; }
-
+        /// <summary>
+        /// Gets the thread post number.
+        /// </summary>
         public int ThreadPostNumber { get; }
+        #endregion
 
+        #region Constructor
         /// <summary>
         /// Initializes a new instance of the <see cref="Post"/> class.
         /// </summary>
@@ -37,7 +56,7 @@ namespace NetTally.Votes.Experiment
 
             HasVote = Vote?.IsValid ?? false;
         }
-
+        #endregion
 
         /// <summary>
         /// Returns a hash code for this instance.
@@ -56,12 +75,12 @@ namespace NetTally.Votes.Experiment
         public bool ForceProcess { get; set; }
         public bool Processed { get; set; }
 
-        internal void Prepare(Func<Post, List<string>> prepare)
+        internal void Prepare(List<VotePartition> workingVoteLines)
         {
-            if (prepare == null)
-                throw new ArgumentNullException(nameof(prepare));
+            if (workingVoteLines == null)
+                return;
 
-            //WorkingVote = prepare(this);
+            Vote.SetWorkingVote(workingVoteLines);
 
             Processed = false;
             ForceProcess = false;
