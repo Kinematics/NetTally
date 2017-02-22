@@ -19,11 +19,20 @@ namespace NetTally.Utility
             }
         }
 
-        private static IEqualityComparer<string> currentComparer;
+        /// <summary>
+        /// A string comparer object that allows comparison between strings that
+        /// can ignore lots of annoying user-entered variances.
+        /// </summary>
+        public static IEqualityComparer<string> StringComparer
+        {
+            get
+            {
+                if (currentComparer == null)
+                    HashStringsUsing(null);
 
-        private static IEqualityComparer<string> StringComparer1 { get; set; }
-
-        private static IEqualityComparer<string> StringComparer2 { get; set; }
+                return currentComparer;
+            }
+        }
 
         /// <summary>
         /// Initialize the agnostic string comparers using the provided hash function.
@@ -45,6 +54,18 @@ namespace NetTally.Utility
             currentComparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? StringComparer1 : StringComparer2;
         }
 
+        private static IEqualityComparer<string> currentComparer;
+
+        private static IEqualityComparer<string> StringComparer1 { get; set; }
+
+        private static IEqualityComparer<string> StringComparer2 { get; set; }
+
+        /// <summary>
+        /// Handles the PropertyChanged event of the AdvancedOptions control.
+        /// If whitespace handling changes, update the current comparer.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private static void AdvancedOptions_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "WhitespaceAndPunctuationIsSignificant")
@@ -52,12 +73,5 @@ namespace NetTally.Utility
                 currentComparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? StringComparer1 : StringComparer2;
             }
         }
-
-        /// <summary>
-        /// A string comparer object that allows comparison between strings that
-        /// can ignore lots of annoying user-entered variances.
-        /// </summary>
-        public static IEqualityComparer<string> StringComparer =>
-            currentComparer ?? throw new InvalidOperationException("Agnostic string comparers have not been initialized.");
     }
 }
