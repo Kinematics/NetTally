@@ -89,7 +89,7 @@ namespace NetTally.Votes.Experiment
             TallyTasks.Clear();
         }
 
-        public void ResetUserDefinedTasks(string forQuestName)
+        public void ResetUserDefinedTasks()
         {
             UserTasks.Clear();
         }
@@ -235,10 +235,28 @@ namespace NetTally.Votes.Experiment
         /// <summary>
         /// Gets the lookup table for plans.
         /// </summary>
-        /// <returns>Returns the plans lookup table.</returns>
+        /// <returns>Returns the list of all plans.</returns>
         public IEnumerable<Plan> GetPlans()
         {
             return PlansLookup.Select(a => a.Value).SelectMany(b => b);
+        }
+
+        /// <summary>
+        /// Gets the plans matching a specific plan name.
+        /// </summary>
+        /// <param name="planName">The planname.</param>
+        /// <returns>Returns the list of plans that match the provided name.</returns>
+        public List<Plan> GetPlans(string planName)
+        {
+            if (string.IsNullOrEmpty(planName))
+                throw new ArgumentNullException(nameof(planName));
+
+            if (PlansLookup.TryGetValue(planName, out var plans))
+            {
+                return plans;
+            }
+
+            return null;
         }
 
         /// <summary>
