@@ -18,19 +18,91 @@ namespace NetTally.Votes.Experiment
         static readonly Regex symbolRegex = new Regex(@"[\s\p{S}\p{P}]");
         #endregion
 
-        #region Properties
+        #region Properties        
+
+        private string _content = null;
+        private string _simplifiedContent = null;
+        private string _marker = null;
+
+
         public string Text { get; private set; }
-        public string TextWithoutBBCode { get; private set; }
 
         public string Prefix { get; private set; }
-        public string Marker { get; private set; }
-        public MarkerType MarkerType { get; private set; }
+
+        public string Marker
+        {
+            get
+            {
+                return _marker;
+            }
+            private set
+            {
+                if (value != _marker)
+                {
+                    _marker = value;
+                    IdentifyMarker();
+                }
+            }
+        }
+        public MarkerType MarkerType { get; private set; } = MarkerType.None;
         public int MarkerValue { get; private set; }
+
         public string Task { get; private set; }
-        public string Content { get; private set; }
-        public string CleanContent { get; private set; }
-        public string StrippedContent { get; private set; }
+
+        /// <summary>
+        /// The basic content is all the content of the vote, including BBCode and URLs,
+        /// in the format it was originally submitted.
+        /// </summary>
+        public string Content
+        {
+            get
+            {
+                return _content;
+            }
+            set
+            {
+                if (value != _content)
+                {
+                    _content = value;
+                    DecomposeContent();
+                }
+            }
+        }
+        /// <summary>
+        /// The trimmed content is the content after it has (optionally) been
+        /// shortened based on analysis heuristics.
+        /// </summary>
         public string TrimmedContent { get; private set; }
+        /// <summary>
+        /// The display content is all the content of the vote, including BBCode and URLs,
+        /// in the format it was originally submitted.
+        /// </summary>
+        public string DisplayContent { get; private set; }
+        /// <summary>
+        /// The comparable content is the content of the vote without any BBCode or URLs,
+        /// but with non-latin characters still in their original form (eg: Æsir).
+        /// </summary>
+        public string ComparableContent { get; private set; }
+        /// <summary>
+        /// The simplified content is the comparable content text after decomposing
+        /// diacriticals or other non-latin characters (eg: AEsir).
+        /// The simplified content defines the hashcode for the VoteLine.
+        /// </summary>
+        public string SimplifiedContent
+        {
+            get
+            {
+                return _simplifiedContent;
+            }
+            set
+            {
+                if (value != _simplifiedContent)
+                {
+                    _simplifiedContent = value;
+                    hashcode = _simplifiedContent.GetHashCode();
+                }
+            }
+        }
 
         public static readonly VoteLine Empty = new VoteLine();
         private int hashcode = 0;
@@ -44,15 +116,10 @@ namespace NetTally.Votes.Experiment
         private VoteLine()
         {
             Text = string.Empty;
-            TextWithoutBBCode = string.Empty;
             Prefix = string.Empty;
             Marker = string.Empty;
-            MarkerType = MarkerType.None;
             Task = string.Empty;
             Content = string.Empty;
-            CleanContent = string.Empty;
-            StrippedContent = string.Empty;
-            TrimmedContent = string.Empty;
         }
 
         /// <summary>
@@ -67,11 +134,8 @@ namespace NetTally.Votes.Experiment
                 throw new ArgumentNullException(nameof(textLine));
 
             Text = VoteString.CleanVoteLineBBCode(textLine);
-            TextWithoutBBCode = VoteString.RemoveBBCode(Text);
 
-            ParseLine(Text);
-
-            SetHashCode();
+            DecomposeVoteLine(Text);
         }
 
         /// <summary>
@@ -81,23 +145,36 @@ namespace NetTally.Votes.Experiment
         /// <param name="marker">The marker.</param>
         /// <param name="task">The task.</param>
         /// <param name="content">The content.</param>
-        private VoteLine(string prefix, string marker, string task, string content)
+        public VoteLine(string prefix, string marker, string task, string content)
         {
             Prefix = prefix ?? "";
             Marker = marker ?? "X";
             Task = task ?? "";
             Content = content ?? "";
-            CleanContent = VoteString.DeUrlContent(VoteString.RemoveBBCode(Content));
-            TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
 
-            IdentifyMarker();
-            StripContent();
-
-            Text = BuildText();
-            TextWithoutBBCode = VoteString.RemoveBBCode(Text);
-
-            SetHashCode();
+            Text = Format();
         }
+
+        /// <summary>
+        /// Modifies this instance.
+        /// </summary>
+        /// <param name="prefix">The prefix.</param>
+        /// <param name="marker">The marker.</param>
+        /// <param name="task">The task.</param>
+        /// <param name="content">The content.</param>
+        /// <returns>Returns a copy of this instance, with the specified modifications.</returns>
+        public VoteLine Modify(string prefix = null, string marker = null, string task = null, string content = null)
+        {
+            if (prefix == null && marker == null && task == null && content == null)
+                return this;
+
+            return new VoteLine(
+                prefix ?? Prefix,
+                marker ?? Marker,
+                task ?? Task,
+                content ?? Content);
+        }
+
         #endregion
 
         #region Setup
@@ -105,8 +182,8 @@ namespace NetTally.Votes.Experiment
         /// Run the provided vote line through the vote line regex and extract out the
         /// known components.
         /// </summary>
-        /// <param name="text">The vote line to parse.</param>
-        private void ParseLine(string text)
+        /// <param name="text">The vote line to process.</param>
+        private void DecomposeVoteLine(string text)
         {
             if (string.IsNullOrEmpty(text))
                 throw new ArgumentNullException(nameof(text));
@@ -116,17 +193,15 @@ namespace NetTally.Votes.Experiment
             {
                 // Remove all extra spacing from the prefix.
                 Prefix = m.Groups["prefix"].Value.Replace(" ", string.Empty);
+
+                // Marker is stored as-is.
+                Marker = m.Groups["marker"].Value;
+
                 // If no Task, use an empty string.
                 Task = m.Groups["task"]?.Value.Trim() ?? "";
 
+                // Content is stored as-is.
                 Content = m.Groups["content"].Value;
-                CleanContent = VoteString.DeUrlContent(VoteString.RemoveBBCode(Content));
-                TrimmedContent = VoteString.TrimExtendedTextDescriptionOfContent(Content);
-
-                Marker = m.Groups["marker"].Value;
-
-                IdentifyMarker();
-                StripContent();
             }
             else
             {
@@ -134,6 +209,7 @@ namespace NetTally.Votes.Experiment
             }
         }
 
+        #region Marker-specific processing
         /// <summary>
         /// Examine the Marker to set the MarkerType and MarkerValue.
         /// </summary>
@@ -162,16 +238,82 @@ namespace NetTally.Votes.Experiment
                     MarkerValue = int.Parse(m.Groups["value"].Value);
                 }
             }
+            else
+            {
+                MarkerType = MarkerType.None;
+            }
+        }
+        #endregion
+
+        #region Content-specific processing        
+        /// <summary>
+        /// Decomposes the content into versions that may be used in other
+        /// parts of the program.
+        /// </summary>
+        private void DecomposeContent()
+        {
+            TrimmedContent = GetTrimmedContent(Content);
+
+            DisplayContent = GetDisplayContent(TrimmedContent);
+
+            ComparableContent = GetComparableContent(TrimmedContent);
+
+            SimplifiedContent = SimplifyContent(ComparableContent);
         }
 
         /// <summary>
-        /// Strip the clean content version of the vote line of all diacriticals,
-        /// and (if option is set to ignore) all whitespace, punctuation, and symbols.
+        /// Gets the content after (possibly) trimming it down, based
+        /// on global trimming options.
         /// </summary>
-        private void StripContent()
+        /// <param name="content">The content.</param>
+        /// <returns>Returns the content after trimming it.</returns>
+        private string GetTrimmedContent(string content)
+        {
+            if (AdvancedOptions.Instance.TrimExtendedText)
+            {
+                return VoteString.TrimExtendedTextDescriptionOfContent(content);
+            }
+            else
+            {
+                return content;
+            }
+        }
+
+        /// <summary>
+        /// Trims the provided content string if TrimExtendedText option is set.
+        /// Otherwise returns the original string.
+        /// </summary>
+        /// <param name="content">The content that is the basis for the display content.</param>
+        /// <returns>Returns vote content suitable for display.</returns>
+        private string GetDisplayContent(string content)
+        {
+            return VoteString.FormatBBCodeForOutput(content);
+        }
+
+        /// <summary>
+        /// Cleans the provided content string of problematic components that would
+        /// make comparing two strings difficult, by removing excess BBCode.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>Returns vote content suitable for comparison.</returns>
+        private string GetComparableContent(string content)
+        {
+            string clean = VoteString.RemoveBBCode(content);
+            clean = VoteString.DeUrlContent(clean);
+
+            return clean;
+        }
+
+        /// <summary>
+        /// Simplifies the provided content by removing and normalizing diacriticals,
+        /// and removing insignificant whitespace and punctuation.
+        /// </summary>
+        /// <param name="comparableContent"></param>
+        /// <returns>Returns vote content suitable for comparison.</returns>
+        private string SimplifyContent(string comparableContent)
         {
             // Strip all diacritical variants down to basic latin form.
-            string stripped = CleanContent.RemoveDiacritics();
+            string stripped = comparableContent.RemoveDiacritics();
 
             // Strip all whitespace and punctuation if it's not significant.
             if (!AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant)
@@ -179,90 +321,21 @@ namespace NetTally.Votes.Experiment
                 stripped = symbolRegex.Replace(stripped, "");
             }
 
-            StrippedContent = stripped;
+            return stripped;
         }
-
         #endregion
 
-        #region Public Create/Copy/Modify Methods        
-        /// <summary>
-        /// Creates a vote line object from the specified text line.
-        /// </summary>
-        /// <param name="textLine">The text line.</param>
-        /// <returns>Returns a new VoteLine if it's a valid vote line.  Otherwise, null.</returns>
-        public static VoteLine Create(string textLine)
-        {
-            try
-            {
-                return new VoteLine(textLine);
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Copy the current vote line into a new instance.
-        /// </summary>
-        public VoteLine Copy()
-        {
-            return new VoteLine()
-            {
-                Text = Text,
-                TextWithoutBBCode = TextWithoutBBCode,
-                Content = Content,
-                CleanContent = CleanContent,
-                StrippedContent = StrippedContent,
-                TrimmedContent = TrimmedContent,
-                Marker = Marker,
-                MarkerType = MarkerType,
-                MarkerValue = MarkerValue,
-                Prefix = Prefix,
-                Task = Task,
-                hashcode = hashcode
-            };
-        }
-
-        /// <summary>
-        /// Modifies this instance.
-        /// </summary>
-        /// <param name="prefix">The prefix.</param>
-        /// <param name="marker">The marker.</param>
-        /// <param name="task">The task.</param>
-        /// <param name="content">The content.</param>
-        /// <returns>Returns a copy of this instance, with the specified modifications.</returns>
-        public VoteLine Modify(string prefix = null, string marker = null, string task = null, string content = null)
-        {
-            if (prefix == null && marker == null && task == null && content == null)
-                return this;
-
-            return new VoteLine(
-                prefix ?? Prefix,
-                marker ?? Marker,
-                task ?? Task,
-                content ?? Content);
-        }
-
-        #endregion
-
-        #region String Building Functions
-        private string BuildText() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {Content}";
-        private string BuildTrimmedText() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {TrimmedContent}";
-
-        public string Condensed() => $"[{Task}] {Content}";
         #endregion
 
         #region Overrides
+        private string Format() => $"{Prefix}[{Marker}]{(string.IsNullOrEmpty(Task) ? "" : $"[{Task}]")} {DisplayContent}";
+
         public override string ToString()
         {
-            return AdvancedOptions.Instance.TrimExtendedText ? BuildTrimmedText() : BuildText();
+            return Format();
         }
 
-        private void SetHashCode()
-        {
-            hashcode = StrippedContent.GetHashCode();
-        }
+        public string Condensed() => $"[{Task}] {DisplayContent}";
 
         public override int GetHashCode()
         {
@@ -273,7 +346,9 @@ namespace NetTally.Votes.Experiment
         {
             if (obj is VoteLine other)
             {
-                return Agnostic.StringComparer.Equals(CleanContent, other.CleanContent) && Agnostic.StringComparer.Equals(Task, other.Task);
+                // Check the ComparableContent first, then SimplifiedContent as a backup.
+                return Agnostic.StringComparer.Equals(ComparableContent, other.ComparableContent) ||
+                    Agnostic.StringComparer.Equals(SimplifiedContent, other.SimplifiedContent);
             }
 
             return false;
