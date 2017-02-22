@@ -55,7 +55,7 @@ namespace NetTally.Votes.Experiment
         public IEnumerable<IGrouping<string, VoteLine>> GetVoteMarkerGroups()
         {
             var voteGrouping = voteLines.GroupAdjacentByContinuation(
-                source => source.CleanContent,
+                source => source.ComparableContent,
                 VoteBlockContinues);
 
             return voteGrouping;
