@@ -17,7 +17,15 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public static class VotingConstructor
     {
-        #region Plan processing
+        #region Plan processing        
+        /// <summary>
+        /// Processes the provided plan.
+        /// </summary>
+        /// <param name="plan">The plan. Cannot be null.</param>
+        /// <param name="quest">The quest being tallied. Cannot be null.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <exception cref="System.ArgumentNullException"/>
+        /// <exception cref="System.InvalidOperationException"></exception>
         internal static void ProcessPlan(Plan plan, IQuest quest, CancellationToken token)
         {
             if (plan == null)
@@ -119,8 +127,13 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
-
-        #region Post Preparation
+        #region Post processing        
+        /// <summary>
+        /// Processes the posts currently stored in the <see cref="VotingRecords"/>.
+        /// </summary>
+        /// <param name="quest">The quest being tallied. Cannot be null.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <exception cref="System.ArgumentNullException">quest</exception>
         public static void ProcessPosts(IQuest quest, CancellationToken token)
         {
             if (quest == null)
@@ -502,7 +515,13 @@ namespace NetTally.Votes.Experiment
             return results;
         }
 
-
+        /// <summary>
+        /// Gets the partitions voted for by the specified proxy name.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="pin">if set to <c>true</c> [pin].</param>
+        /// <param name="postIdentity">The post identity.</param>
+        /// <returns>Returns the partitions voted for by the user, or null if none.</returns>
         private static List<VotePartition> GetProxyPartitions(string username, bool pin, Identity postIdentity)
         {
             var identities = VotingRecords.Instance.GetVoterIdentities(username);
