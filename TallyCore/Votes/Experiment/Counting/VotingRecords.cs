@@ -58,6 +58,11 @@ namespace NetTally.Votes.Experiment
         Dictionary<string, List<Plan>> PlansLookup { get; set; } = new Dictionary<string, List<Plan>>(Agnostic.StringComparer);
 
         /// <summary>
+        /// Lookup table to translate identities to the vote partitions they support.
+        /// </summary>
+        Dictionary<Identity, List<VotePartition>> IdentityVotesLookup { get; } = new Dictionary<Identity, List<VotePartition>>();
+
+        /// <summary>
         /// Lookup table for all the voters supporting each vote partition.
         /// </summary>
         VoteEntries NormalVotes { get; } = new VoteEntries();
@@ -82,6 +87,8 @@ namespace NetTally.Votes.Experiment
             NormalVotes.Clear();
             RankedVotes.Clear();
             ApprovalVotes.Clear();
+
+            IdentityVotesLookup.Clear();
 
             FutureReferences.Clear();
             UndoBuffer.Clear();
@@ -339,6 +346,7 @@ namespace NetTally.Votes.Experiment
 
                 var votes = GetVoteEntries(partition.VoteType);
 
+                // Add supporters to partitions
                 if (votes.TryGetValue(partition, out var identitySet))
                 {
                     changedVoters = identitySet.Add(identity) || changedVoters;
@@ -347,6 +355,16 @@ namespace NetTally.Votes.Experiment
                 {
                     votes[partition] = new IdentitySet { identity };
                     addedAnyVotes = true;
+                }
+
+                // Add partitions to supporters
+                if (IdentityVotesLookup.TryGetValue(identity, out var identVotes))
+                {
+                    identVotes.Add(partition);
+                }
+                else
+                {
+                    IdentityVotesLookup.Add(identity, new List<VotePartition> { partition });
                 }
             }
 
@@ -414,6 +432,23 @@ namespace NetTally.Votes.Experiment
             }
         }
 
+        /// <summary>
+        /// Gets the partitions supported by an identity.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        /// <returns>Returns the list of vote partitions a given identity supports.</returns>
+        public List<VotePartition> GetPartitionsForIdentity(Identity identity)
+        {
+            if (identity == null)
+                throw new ArgumentNullException(nameof(identity));
+
+            if (IdentityVotesLookup.TryGetValue(identity, out List<VotePartition> votes))
+            {
+                return votes;
+            }
+
+            return new List<VotePartition>();
+        }
         #endregion
 
         #region Tasks (Populate)
@@ -449,6 +484,14 @@ namespace NetTally.Votes.Experiment
         // Change voter 1 votes to those made by voter 2
         // Delete voter 1
 
+        /// <summary>
+        /// Merges vote1 with vote2.
+        /// Everyone who had previously supported vote1 gets added to the supporters
+        /// for vote2, and vote1 is cleared.
+        /// </summary>
+        /// <param name="vote1">The 'from' vote.</param>
+        /// <param name="vote2">The 'to' vote.</param>
+        /// <param name="type">The type of vote.</param>
         public void Merge(VotePartition vote1, VotePartition vote2, VoteType type)
         {
             var votes = GetVoteEntries(type);
