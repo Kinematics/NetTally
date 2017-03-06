@@ -38,20 +38,31 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Adjust Add and Remove commands from underlying List
+        public bool IsReadonly { get; set; } = false;
+
         public new void Add(VoteLine item)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             base.Add(item);
             UpdateHashCode();
         }
 
         public new void AddRange(IEnumerable<VoteLine> items)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             base.AddRange(items);
             UpdateHashCode();
         }
 
         public new bool Remove(VoteLine item)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             bool result = base.Remove(item);
             UpdateHashCode();
             return result;
@@ -59,6 +70,9 @@ namespace NetTally.Votes.Experiment
 
         public new int RemoveAll(Predicate<VoteLine> match)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             int result = base.RemoveAll(match);
             UpdateHashCode();
             return result;
@@ -66,18 +80,27 @@ namespace NetTally.Votes.Experiment
 
         public new void RemoveAt(int index)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             base.RemoveAt(index);
             UpdateHashCode();
         }
 
         public new void RemoveRange(int index, int count)
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             base.RemoveRange(index, count);
             UpdateHashCode();
         }
 
         public new void Clear()
         {
+            if (IsReadonly)
+                throw new InvalidOperationException("VoteLines object is readonly.");
+
             base.Clear();
             UpdateHashCode();
         }
