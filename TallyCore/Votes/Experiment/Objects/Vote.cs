@@ -11,19 +11,28 @@ namespace NetTally.Votes.Experiment
     /// </summary>
     public class Vote
     {
+        #region Properties
         /// <summary>
         /// Link back to the originating post.
         /// </summary>
         public Post Post { get; }
-
+        /// <summary>
+        /// Returns true if the vote is valid.
+        /// </summary>
         public bool IsValid { get; private set; }
-
+        /// <summary>
+        /// Gets the full original message text.
+        /// </summary>
         public string FullText { get; }
+        /// <summary>
+        /// The vote lines
+        /// </summary>
+        public VoteLines VoteLines { get; } = new VoteLines();
 
-        private readonly List<VoteLine> voteLines = new List<VoteLine>();
-        public IReadOnlyList<VoteLine> VoteLines { get { return voteLines; } }
+        public List<VotePartition> WorkingPartitions { get; } = new List<VotePartition>();
 
         private readonly List<Plan> plans = new List<Plan>();
+        #endregion
 
         #region Regexes
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
@@ -47,14 +56,56 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
-        #region Public Methods        
+        #region Utility methods
+        /// <summary>
+        /// Extract any vote lines from the message text, and save both the original and
+        /// the cleaned (no BBCode) in a list.
+        /// Do not record any vote lines if there's a tally marker (#####).
+        /// Mark the vote as valid if it has any vote lines.
+        /// </summary>
+        /// <param name="message">The original, full message text.</param>
+        private void ProcessMessageLines(string message)
+        {
+            var messageLines = message.GetStringLines();
+
+            foreach (var line in messageLines)
+            {
+                string cleanLine = VoteString.RemoveBBCode(line);
+
+                if (tallyRegex.Match(cleanLine).Success)
+                {
+                    // If this is a tally post, clear any found vote lines and end processing.
+                    VoteLines.Clear();
+                    break;
+                }
+
+                Match m = voteLineRegex.Match(cleanLine);
+                if (m.Success)
+                {
+                    VoteLines.Add(new VoteLine(line));
+                }
+            }
+
+            VoteLines.IsReadonly = true;
+            IsValid = VoteLines.Any();
+        }
+        #endregion
+
+        #region Public Methods
+
+        public void SetWorkingVote(List<VotePartition> workingVote)
+        {
+            WorkingPartitions.Clear();
+            WorkingPartitions.AddRange(workingVote);
+        }
+
         /// <summary>
         /// Gets the vote grouped by valid marker type.
         /// </summary>
         /// <returns>Returns the vote broken up into groups based on marker type.</returns>
         public IEnumerable<IGrouping<string, VoteLine>> GetVoteMarkerGroups()
         {
-            var voteGrouping = voteLines.GroupAdjacentByContinuation(
+            var voteGrouping = VoteLines.GroupAdjacentByContinuation(
                 source => source.ComparableContent,
                 VoteBlockContinues);
 
@@ -148,44 +199,10 @@ namespace NetTally.Votes.Experiment
                     results.Add(new VoteLines(line));
                 }
             }
-            
+
             return results;
         }
 
-        #endregion
-
-        #region Utility methods
-        /// <summary>
-        /// Extract any vote lines from the message text, and save both the original and
-        /// the cleaned (no BBCode) in a list.
-        /// Do not record any vote lines if there's a tally marker (#####).
-        /// Mark the vote as valid if it has any vote lines.
-        /// </summary>
-        /// <param name="message">The original, full message text.</param>
-        private void ProcessMessageLines(string message)
-        {
-            var messageLines = message.GetStringLines();
-
-            foreach (var line in messageLines)
-            {
-                string cleanLine = VoteString.RemoveBBCode(line);
-
-                if (tallyRegex.Match(cleanLine).Success)
-                {
-                    // If this is a tally post, clear any found vote lines and end processing.
-                    voteLines.Clear();
-                    break;
-                }
-
-                Match m = voteLineRegex.Match(cleanLine);
-                if (m.Success)
-                {
-                    voteLines.Add(new VoteLine(line));
-                }
-            }
-
-            IsValid = VoteLines.Any();
-        }
         #endregion
 
         #region Static utility methods
