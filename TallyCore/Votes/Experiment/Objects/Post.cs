@@ -15,24 +15,21 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         public Identity Identity { get; }
         /// <summary>
-        /// Gets the vote contained within this post, if any.
+        /// Gets the thread post number.
         /// </summary>
-        public Vote Vote { get; }
-        /// <summary>
-        /// Gets a value indicating whether this instance has a vote.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance has vote; otherwise, <c>false</c>.
-        /// </value>
-        public bool HasVote { get; }
+        public int ThreadPostNumber { get; }
         /// <summary>
         /// Gets the full message of this post.
         /// </summary>
         public string Message { get; }
         /// <summary>
-        /// Gets the thread post number.
+        /// Gets the vote contained within this post, if any.
         /// </summary>
-        public int ThreadPostNumber { get; }
+        public Vote Vote { get; }
+        /// <summary>
+        /// Gets whether this instance has a vote.
+        /// </summary>
+        public bool HasVote { get; }
         #endregion
 
         #region Constructor
@@ -58,6 +55,7 @@ namespace NetTally.Votes.Experiment
         }
         #endregion
 
+        #region Class overrides
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
@@ -68,7 +66,7 @@ namespace NetTally.Votes.Experiment
         {
             return Identity.GetHashCode();
         }
-
+        #endregion
 
 
 
