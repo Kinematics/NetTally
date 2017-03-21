@@ -19,7 +19,7 @@ namespace NetTally.Votes.Experiment
     /// manipulation of some aspects of the final results.
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public class VotingRecords : INotifyPropertyChanged
+    internal class VotingRecords : INotifyPropertyChanged
     {
         #region Lazy singleton creation
         static readonly Lazy<VotingRecords> lazy = new Lazy<VotingRecords>(() => new VotingRecords());
