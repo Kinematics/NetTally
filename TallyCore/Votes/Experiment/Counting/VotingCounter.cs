@@ -200,35 +200,7 @@ namespace NetTally.Votes.Experiment
             }
 
             // Set up each post with the working version that will be processed.
-            foreach (var post in VotingRecords.Instance.PostsList)
-            {
-                post.Prepare(p => VotingConstructor.GetWorkingVote(p));
-            }
-
-            var unprocessed = VotingRecords.Instance.PostsList;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VotingConstructor.ProcessPost(p, CurrentQuest, token) == true).ToList();
-
-                // As long as some got processed, remove those from the unprocessed list
-                // and let the loop run again.
-                if (processed.Any())
-                {
-                    unprocessed = unprocessed.Except(processed).ToList();
-                }
-                else
-                {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var p in unprocessed)
-                    {
-                        p.ForceProcess = true;
-                    }
-                }
-            }
+            VotingConstructor.ProcessPosts(CurrentQuest, token);
         }
         #endregion
     }
