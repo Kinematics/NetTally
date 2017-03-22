@@ -119,7 +119,7 @@ namespace NetTally.Votes.Experiment
                     )
                 );
 
-            var groupResult = result.GroupAdjacentByContinuation(a => a.ComparableContent, Vote.VoteBlockContinues);
+            var groupResult = result.GroupAdjacentToPreviousSource(a => a.ComparableContent, Vote.VoteBlockContinues);
 
             var partResult = groupResult.Select(a => new VotePartition(a, voteType));
 

@@ -105,7 +105,7 @@ namespace NetTally.Votes.Experiment
         /// <returns>Returns the vote broken up into groups based on marker type.</returns>
         public IEnumerable<IGrouping<string, VoteLine>> GetVoteMarkerGroups()
         {
-            var voteGrouping = VoteLines.GroupAdjacentByContinuation(
+            var voteGrouping = VoteLines.GroupAdjacentToPreviousSource(
                 source => source.ComparableContent,
                 VoteBlockContinues);
 
@@ -210,11 +210,10 @@ namespace NetTally.Votes.Experiment
         /// Function to use to determine whether a vote line can be grouped
         /// with an initial vote line.
         /// </summary>
-        /// <param name="current">The vote line being checked.</param>
-        /// <param name="currentKey">The vote key for the current group.</param>
         /// <param name="initial">The vote line that marks the start of the group.</param>
+        /// <param name="current">The vote line being checked.</param>
         /// <returns>Returns true if the current vote line can be added to the group.</returns>
-        public static bool VoteBlockContinues(VoteLine current, string currentKey, VoteLine initial)
+        public static bool VoteBlockContinues(VoteLine initial, VoteLine current)
         {
             if (current == null)
                 throw new ArgumentNullException(nameof(current));

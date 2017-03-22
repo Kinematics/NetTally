@@ -9,228 +9,154 @@ namespace NetTally.Extensions
     /// </summary>
     public static class GroupingExtensions
     {
-        /// <summary>
-        /// Group elements of a list together when a selector key is the same for each.
-        /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
-        /// <returns></returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacent<TSource, TKey>(this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            TKey last = default(TKey);
-            bool haveLast = false;
-            List<TSource> list = new List<TSource>();
 
-            foreach (TSource s in source)
-            {
-                TKey k = keySelector(s);
-                if (haveLast)
-                {
-                    if (!k.Equals(last))
-                    {
-                        yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-                        list = new List<TSource>();
-                        list.Add(s);
-                        last = k;
-                    }
-                    else
-                    {
-                        list.Add(s);
-                        last = k;
-                    }
-                }
-                else
-                {
-                    list.Add(s);
-                    last = k;
-                    haveLast = true;
-                }
-            }
+        // Group an enumerable list in various ways, in a single pass of reading the enumerable:
+        //
+        // 1) Group adjacent elements when the key each element generates is the same as a prior key.
+        //  EG: Key(2) = Even, Key(4) = Even, Key(5) = Odd
+        //  The key is defined by something intrinsic to the element, and the same key means the same group.
+        //
+        // 2) Group elements as long as a new 'acceptable' key is not found.
+        //  EG: Key([x] One) = Parent, Key(-[x] Two) = Child, Key(-[x] Three) = Child, Key([x] Four) = Parent
+        //  What counts as a key is defined, and anything that is not a new key is grouped with the previous key.
+        //
+        // 3) Same as #2, but grouped elements need to match some aspect of the parent element as well.
+        //
 
-            if (haveLast)
-                yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-        }
 
         /// <summary>
-        /// Group elements of a list together, where all null key results are added to any
-        /// initial non-null key element.
+        /// Groups elements of an enumeration together when adjacent elements generate the
+        /// same grouping key value.
+        /// This is a type 1 grouping.
         /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
-        /// <param name="nonNullKeySelector">Function that converts an element of the list to a key value,
-        /// when the normal function would have returned null. Only used for the very first element of the list.</param>
-        /// <returns></returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentBySub<TSource, TKey>(this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector, Func<TSource, TKey> nonNullKeySelector) where TKey : class
-        {
-            TKey last = default(TKey);
-            bool haveLast = false;
-            List<TSource> list = new List<TSource>();
-
-            foreach (TSource s in source)
-            {
-                TKey k = keySelector(s);
-                if (haveLast)
-                {
-                    if (k == null)
-                    {
-                        list.Add(s);
-                    }
-                    else
-                    {
-                        yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-                        list = new List<TSource>();
-                        list.Add(s);
-                        last = k;
-                    }
-                }
-                else
-                {
-                    list.Add(s);
-                    if (k == null)
-                        k = nonNullKeySelector(s);
-                    last = k;
-                    haveLast = true;
-                }
-            }
-
-            if (haveLast)
-                yield return new GroupOfAdjacent<TSource, TKey>(list, last);
-        }
-
-        /// <summary>
-        /// Group elements of a list together, given a comparison function that returns
-        /// true if it's time to create a new group.
-        /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
-        /// <param name="groupComparison">Function that returns true if a new source item should start a new group.</param>
-        /// <returns>Returns an IEnumerable grouping of the provided source.</returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentByComparison<TSource, TKey>(this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector, Func<TSource, TKey, bool> groupComparison) where TKey : class
+        /// <typeparam name="TSource">The type of data in the enumeration.</typeparam>
+        /// <typeparam name="TKey">The type of grouping key object to create.</typeparam>
+        /// <param name="source">The enumerable source list.</param>
+        /// <param name="keySelector">The function that generates a key from a source element.</param>
+        /// <returns>Returns an enumeration of grouped collections.</returns>
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentBySimilarKey<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector) where TKey : IEquatable<TKey>
         {
             TKey lastKey = default(TKey);
-            bool haveLast = false;
+            bool haveKey = false;
+
             List<TSource> list = new List<TSource>();
 
             foreach (TSource s in source)
             {
                 TKey k = keySelector(s);
-                if (haveLast)
+
+                if (haveKey)
                 {
-                    if (groupComparison(s, lastKey))
+                    if (k.Equals(lastKey))
+                    {
+                        list.Add(s);
+                    }
+                    else
                     {
                         yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
                         list = new List<TSource> { s };
                         lastKey = k;
-                    }
-                    else
-                    {
-                        list.Add(s);
                     }
                 }
                 else
                 {
                     list.Add(s);
                     lastKey = k;
-                    haveLast = true;
+                    haveKey = true;
                 }
             }
 
-            if (haveLast)
+            if (haveKey)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
         }
 
+
         /// <summary>
-        /// Group elements of a list together, given a comparison function that returns
-        /// true if it's time to create a new group.
+        /// Group elements of an enumeration together based on instances of elements that qualify
+        /// as keys.  All following elements that do not qualify as their own keys get added to 
+        /// the previous key.
+        /// This is a type 2 grouping.
         /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
-        /// <param name="sourceFilter">Condition check on the current element and the last key element
-        /// before allowing it to check for a key value.</param>
-        /// <param name="newGroupTest">Function that returns true if a new source item should start a new group.</param>
-        /// <returns>Returns an IEnumerable grouping of the provided source.</returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentByComparison<TSource, TKey>(
+        /// <typeparam name="TSource">The type of data in the enumeration.</typeparam>
+        /// <typeparam name="TKey">The type of grouping key object to create.</typeparam>
+        /// <param name="source">The enumerable source list.</param>
+        /// <param name="hasKey">Function to indicate whether a source element has a key.</param>
+        /// <param name="defaultKey">The default key if no prior key exists.</param>
+        /// <param name="keySelector">The function that generates a key from a source element.</param>
+        /// <returns>Returns an enumeration of grouped collections.</returns>
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentToPreviousKey<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TSource, bool> sourceFilter,
-            Func<TSource, TKey> keySelector, 
-            Func<TSource, TKey, TSource, bool> newGroupTest) where TKey : class
+            Func<TSource, bool> hasKey,
+            Func<TSource, TKey> defaultKey,
+            Func<TSource, TKey> keySelector)
         {
             TKey lastKey = default(TKey);
-            TSource lastKeySource = default(TSource);
-            bool haveLast = false;
+            bool haveKey = false;
+
             List<TSource> list = new List<TSource>();
 
             foreach (TSource s in source)
             {
-                if (sourceFilter(s, lastKeySource))
+                if (haveKey)
                 {
-                    if (haveLast)
+                    if (hasKey(s))
                     {
-                        if (newGroupTest(s, lastKey, lastKeySource))
-                        {
-                            yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
-                            list = new List<TSource> { s };
-                            lastKey = keySelector(s);
-                            lastKeySource = s;
-                        }
-                        else
-                        {
-                            list.Add(s);
-                        }
+                        yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
+                        lastKey = keySelector(s);
+                        list = new List<TSource> { s };
                     }
                     else
                     {
                         list.Add(s);
-                        lastKey = keySelector(s);
-                        lastKeySource = s;
-                        haveLast = true;
                     }
+                }
+                else
+                {
+                    lastKey = hasKey(s) ? keySelector(s) : defaultKey(s);
+
+                    list.Add(s);
+                    haveKey = true;
                 }
             }
 
-            if (haveLast)
+            if (haveKey)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
         }
 
+
         /// <summary>
-        /// Group elements of a list together based on checking whether the
-        /// new source element is a valid item to group with the initial source element.
+        /// Groups elements of an enumeration together based on whether a complete comparison
+        /// between the current element and the most recent key element match in a sufficient
+        /// manner.
+        /// This is a type 3 grouping.
         /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="TKey">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="keySelector">Function that converts an element of the list to a key value.</param>
-        /// <param name="sourceFilter">Condition check on the current element and the last key element
-        /// before allowing it to check for a key value.</param>
-        /// <param name="newGroupTest">Function that returns true if a new source item should start a new group.</param>
-        /// <returns>Returns an IEnumerable grouping of the provided source.</returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentByContinuation<TSource, TKey>(
+        /// <typeparam name="TSource">The type of data in the enumeration.</typeparam>
+        /// <typeparam name="TKey">The type of grouping key object to create.</typeparam>
+        /// <param name="source">The enumerable source list.</param>
+        /// <param name="keySelector">The function that generates a key from a source element.</param>
+        /// <param name="sourceMatches">The function that compares the most recent key source
+        /// to the current key source, and determines whether the current source can be added
+        /// to the group.</param>
+        /// <returns>Returns an enumeration of grouped collections.</returns>
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentToPreviousSource<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, TKey, TSource, bool> canContinue
-            ) where TKey : class
+            Func<TSource, TSource, bool> sourceMatches
+            )
         {
             TKey lastKey = default(TKey);
+            bool haveKey = false;
             TSource lastKeySource = default(TSource);
-            bool haveLastKey = false;
+
             List<TSource> list = new List<TSource>();
 
             foreach (TSource s in source)
             {
-                if (haveLastKey)
+                if (haveKey)
                 {
-                    if (canContinue(s, lastKey, lastKeySource))
+                    if (sourceMatches(lastKeySource, s))
                     {
                         list.Add(s);
                     }
@@ -247,55 +173,12 @@ namespace NetTally.Extensions
                     list.Add(s);
                     lastKey = keySelector(s);
                     lastKeySource = s;
-                    haveLastKey = true;
+                    haveKey = true;
                 }
             }
 
-            if (haveLastKey)
+            if (haveKey)
                 yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
-        }
-
-        /// <summary>
-        /// Group elements of a list together when a selector key is the same for each.
-        /// </summary>
-        /// <typeparam name="TSource">The type of data in the enumerable list.</typeparam>
-        /// <typeparam name="int">The type to use for the key to the group.</typeparam>
-        /// <param name="source">Enumerable list we're working on.</param>
-        /// <param name="levelIndicator">Function that converts an element of the list to a key value.</param>
-        /// <returns></returns>
-        public static IEnumerable<IList<TSource>> GroupBlocks<TSource>(this IEnumerable<TSource> source,
-            Func<TSource, int> levelIndicator)
-        {
-            int? parentLevel = null;
-            List<TSource> list = new List<TSource>();
-
-            foreach (TSource s in source)
-            {
-                int k = levelIndicator(s);
-
-                if (parentLevel.HasValue)
-                {
-                    if (k > parentLevel)
-                    {
-                        list.Add(s);
-                    }
-                    else
-                    {
-                        yield return list;
-
-                        list = new List<TSource> { s };
-                        parentLevel = k;
-                    }
-                }
-                else
-                {
-                    list.Add(s);
-                    parentLevel = k;
-                }
-            }
-
-            if (parentLevel.HasValue)
-                yield return list;
         }
     }
 }

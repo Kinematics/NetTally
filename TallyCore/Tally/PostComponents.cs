@@ -159,7 +159,13 @@ namespace NetTally
             BasePlans = new List<IGrouping<string, string>>();
             List<string> consolidatedLines = new List<string>();
 
-            var voteBlocks = voteStrings.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+            // Group blocks based on parent vote lines (no prefix).
+            // Key for each block is the parent vote line.
+            var voteBlocks = voteStrings.GroupAdjacentToPreviousKey(
+                (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
+                (s) => s,
+                (s) => s);
+
             bool addBasePlans = true;
 
             foreach (var block in voteBlocks)
@@ -213,31 +219,6 @@ namespace NetTally
                 }
             }
         }
-
-        /// <summary>
-        /// Utility function to determine whether adjacent lines should
-        /// be grouped together.
-        /// Creates a grouping key for the provided line.
-        /// </summary>
-        /// <param name="line">The line to check.</param>
-        /// <returns>Returns the line as the key if it's not a sub-vote line.
-        /// Otherwise returns null.</returns>
-        private string SelectSubLines(string line)
-        {
-            string prefix = VoteString.GetVotePrefix(line);
-            if (string.IsNullOrEmpty(prefix))
-                return line;
-            else
-                return null;
-        }
-
-        /// <summary>
-        /// Supplementary function for line grouping, in the event that the first
-        /// line of the vote is indented (and thus would normally generate a null key).
-        /// </summary>
-        /// <param name="line">The line to generate a key for.</param>
-        /// <returns>Returns the line, or "Key", as the key for a line.</returns>
-        private string NonNullSelectSubLines(string line) => line ?? "Key";
         #endregion
 
         #region Compare Interface Functions

@@ -219,7 +219,13 @@ namespace NetTally.Votes
                 // If the entire post isn't an auto-plan, break it down into blocks.
 
                 // Break the remainder of the vote into blocks so that we can compare vs auto-plans.
-                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+                // Group blocks based on parent vote lines (no prefix).
+                // Key for each block is the parent vote line.
+                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
+                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
+                    (s) => s,
+                    (s) => s);
+
 
                 foreach (var block in voteBlocks)
                 {
@@ -268,7 +274,12 @@ namespace NetTally.Votes
 
             if (post.VoteLines.Any())
             {
-                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+                // Group blocks based on parent vote lines (no prefix).
+                // Key for each block is the parent vote line.
+                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
+                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
+                    (s) => s,
+                    (s) => s);
 
                 foreach (var block in voteBlocks)
                 {
@@ -310,7 +321,12 @@ namespace NetTally.Votes
 
             if (post.VoteLines.Any())
             {
-                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+                // Group blocks based on parent vote lines (no prefix).
+                // Key for each block is the parent vote line.
+                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
+                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
+                    (s) => s,
+                    (s) => s);
 
                 // If the vote has any plans with content in them, we can't make this a full-post plan.
                 if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
@@ -355,7 +371,12 @@ namespace NetTally.Votes
 
             if (post.VoteLines.Any())
             {
-                var voteBlocks = post.VoteLines.GroupAdjacentBySub(SelectSubLines, NonNullSelectSubLines);
+                // Group blocks based on parent vote lines (no prefix).
+                // Key for each block is the parent vote line.
+                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
+                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
+                    (s) => s,
+                    (s) => s);
 
                 foreach (var block in voteBlocks)
                 {
@@ -435,31 +456,6 @@ namespace NetTally.Votes
         #endregion
 
         #region Utility functions for processing votes.
-
-        /// <summary>
-        /// Utility function to determine whether adjacent lines should
-        /// be grouped together.
-        /// Creates a grouping key for the provided line.
-        /// </summary>
-        /// <param name="line">The line to check.</param>
-        /// <returns>Returns the line as the key if it's not a sub-vote line.
-        /// Otherwise returns null.</returns>
-        private static string SelectSubLines(string line)
-        {
-            string prefix = VoteString.GetVotePrefix(line);
-            if (string.IsNullOrEmpty(prefix))
-                return line;
-            else
-                return null;
-        }
-
-        /// <summary>
-        /// Supplementary function for line grouping, in the event that the first
-        /// line of the vote is indented (and thus would normally generate a null key).
-        /// </summary>
-        /// <param name="line">The line to generate a key for.</param>
-        /// <returns>Returns the line, or "Key", as the key for a line.</returns>
-        private static string NonNullSelectSubLines(string line) => line ?? "Key";
 
         /// <summary>
         /// Determine if there are any references to future (unprocessed) votes
