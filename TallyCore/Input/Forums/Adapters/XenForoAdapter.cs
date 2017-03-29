@@ -392,7 +392,8 @@ namespace NetTally.Forums.Adapters
             HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
-            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker" };
+            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
+                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
             if (AdvancedOptions.Instance.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
