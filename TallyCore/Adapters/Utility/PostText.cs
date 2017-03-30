@@ -17,6 +17,8 @@ namespace NetTally.Adapters
         static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase);
         // Regex for strike-through in a span's style
         static readonly Regex spanStrikeRegex = new Regex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase);
+        // Regex for quick spoilers in a span's class
+        static readonly Regex spanSpoilerRegex = new Regex(@"bbc-spoiler", RegexOptions.IgnoreCase);
 
         #region Public Functions
         /// <summary>
@@ -147,11 +149,19 @@ namespace NetTally.Adapters
                         break;
                     case "span":
                         string spanStyle = child.GetAttributeValue("style", "");
+                        string spanClass = child.GetAttributeValue("class", "");
 
                         // Struck-through text is entirely skipped.
                         if (spanStrikeRegex.Match(spanStyle).Success)
                         {
                             continue;
+                        }
+                        else if (spanSpoilerRegex.Match(spanClass).Success)
+                        {
+                            // Keep quick spoilers.
+                            sb.Append("『qs』");
+                            ExtractPostTextString(child, exclude, sb);
+                            sb.Append("『/qs』");
                         }
                         else
                         {
