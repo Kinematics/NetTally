@@ -234,7 +234,8 @@ namespace NetTally.Forums
             VoteCounting.VoteCounter.Instance.Title = threadInfo.Title;
 
             postsList = postsList
-                .Where(p => (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author, threadInfo.Author)) || (p.Author != threadInfo.Author))
+                .Where(p => (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author, threadInfo.Author)) ||
+                            (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author))
                 .Distinct().OrderBy(p => p.Number).ToList();
 
             return postsList;
