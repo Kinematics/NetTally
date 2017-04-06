@@ -25,7 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>..\TallyCore\TallyCore.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\NetTally.Core\TallyCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -217,7 +217,7 @@
     <Resource Include="CheckVoteWin.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TallyCore\NetTally.Core.csproj">
+    <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj">
       <Project>{037e6032-88e9-4861-ab1f-42ec39859ecb}</Project>
       <Name>NetTally.Core</Name>
     </ProjectReference>

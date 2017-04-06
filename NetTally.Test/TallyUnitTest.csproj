@@ -26,7 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\TallyCore\TallyCore.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\NetTally.Core\TallyCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -144,7 +144,7 @@
       <Project>{5f9b045c-3d5b-4111-82f8-99bfe8b3d7f9}</Project>
       <Name>NetTally</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TallyCore\NetTally.Core.csproj">
+    <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj">
       <Project>{037e6032-88e9-4861-ab1f-42ec39859ecb}</Project>
       <Name>NetTally.Core</Name>
     </ProjectReference>
