@@ -13,6 +13,7 @@ namespace NetTally.Utility
     {
         readonly Regex filterRegex;
         public const string EmptyLine = "^$";
+        private bool invertFilter = false;
         static readonly Regex escapeChars = new Regex(@"([.?(){}^$\[\]])");
         static readonly Regex splat = new Regex(@"\*");
         static readonly Regex preWord = new Regex(@"^\w");
@@ -20,6 +21,7 @@ namespace NetTally.Utility
 
         static readonly Regex jsRegex = new Regex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$");
 
+        #region Construction/Setup
         /// <summary>
         /// Filter constructor.  Create a filter based on an explicit regex.
         /// </summary>
@@ -52,6 +54,12 @@ namespace NetTally.Utility
         private Regex CreateRegex(string filterString, string defaultString)
         {
             string userString = filterString.RemoveUnsafeCharacters().Trim();
+
+            if (!string.IsNullOrEmpty(userString) && userString[0] == '!')
+            {
+                invertFilter = true;
+                userString = userString.Substring(1).Trim();
+            }
 
             if (IsJSRegex(userString, out string jsRegexString))
             {
@@ -169,7 +177,9 @@ namespace NetTally.Utility
                 return null;
             }
         }
-        
+        #endregion
+
+        #region Use
         /// <summary>
         /// Function to test whether a provided string is matched by the current filter.
         /// </summary>
@@ -180,7 +190,7 @@ namespace NetTally.Utility
             if (filterRegex == null)
                 return false;
 
-            return filterRegex.Match(input).Success;
+            return filterRegex.Match(input).Success ^ invertFilter;
         }
 
         /// <summary>
@@ -196,7 +206,8 @@ namespace NetTally.Utility
             if (filterRegex == null)
                 return input == alternate;
 
-            return filterRegex.Match(input).Success;
+            return filterRegex.Match(input).Success ^ invertFilter;
         }
+        #endregion
     }
 }
