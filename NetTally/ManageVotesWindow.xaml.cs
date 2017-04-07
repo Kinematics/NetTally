@@ -29,6 +29,8 @@ namespace NetTally
         public ListCollectionView VoterView2 { get; }
 
         object lastSelected2 = null;
+        int lastPosition1 = -1;
+        int lastPosition2 = -1;
 
         bool displayStandardVotes = true;
 
@@ -288,7 +290,6 @@ namespace NetTally
         /// <param name="e"></param>
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
             VoterView2.Refresh();
             merge.IsEnabled = VotesCanMerge;
         }
@@ -349,6 +350,9 @@ namespace NetTally
         {
             try
             {
+                lastPosition1 = VoteView1.CurrentPosition;
+                lastPosition2 = VoteView2.CurrentPosition;
+
                 if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
@@ -532,7 +536,6 @@ namespace NetTally
         }
         #endregion
 
-
         #region Watched Events        
         /// <summary>
         /// Watch for notifications from the main view model about changes in the vote backend.
@@ -541,9 +544,13 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(MainViewModel.AllVotesCollection) || e.PropertyName == nameof(MainViewModel.AllVotersCollection))
+            if (e.PropertyName == nameof(MainViewModel.AllVotesCollection))
             {
-                UpdateCollections();
+                UpdateVoteCollections();
+            }
+            else if (e.PropertyName == nameof(MainViewModel.AllVotersCollection))
+            {
+                UpdateVoterCollections();
             }
         }
         #endregion
@@ -635,14 +642,32 @@ namespace NetTally
         /// <summary>
         /// Shorthand call to run both collection updates.
         /// </summary>
-        private void UpdateCollections()
+        private void UpdateVoteCollections()
         {
             VoteView1.Refresh();
             VoteView2.Refresh();
+
+            if (lastPosition1 > VoteView1.Count)
+                VoteView1.MoveCurrentToLast();
+            else
+                VoteView1.MoveCurrentToPosition(lastPosition1);
+
+            if (lastPosition2 < 0)
+                VoteView2.MoveCurrentTo(lastSelected2 ?? "");
+            else if (lastPosition2 > VoteView2.Count)
+                VoteView2.MoveCurrentToLast();
+            else
+                VoteView2.MoveCurrentToPosition(lastPosition2);
+
+            // Retain the new position.
+            lastPosition1 = VoteView1.CurrentPosition;
+            lastPosition2 = VoteView2.CurrentPosition;
+        }
+
+        private void UpdateVoterCollections()
+        {
             VoterView1.Refresh();
             VoterView2.Refresh();
-            VoteView1.MoveCurrentToPosition(-1);
-            VoteView2.MoveCurrentTo(lastSelected2 ?? "");
         }
 
         /// <summary>
@@ -665,6 +690,10 @@ namespace NetTally
         {
             try
             {
+                lastPosition1 = VoteView1.CurrentPosition;
+                lastPosition2 = -1;
+                lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
+
                 if (MainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
