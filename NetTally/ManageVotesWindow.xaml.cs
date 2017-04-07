@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.ViewModels;
@@ -268,6 +269,31 @@ namespace NetTally
 
         #region Window events
         /// <summary>
+        /// Update enabled state of merge button, and current list of voters, based on current vote selection
+        /// for the list of votes to be merged from.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            VoterView1.Refresh();
+            merge.IsEnabled = VotesCanMerge;
+        }
+
+        /// <summary>
+        /// Update enabled state of merge button, and current list of voters, based on current vote selection
+        /// for the list of votes to be merged to.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
+            VoterView2.Refresh();
+            merge.IsEnabled = VotesCanMerge;
+        }
+
+        /// <summary>
         /// Handler for the button to merge two vote items together.
         /// </summary>
         /// <param name="sender"></param>
@@ -341,42 +367,22 @@ namespace NetTally
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void undo_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (MainViewModel.UndoVoteModification())
-                {
-                    OnPropertyChanged(nameof(HasUndoActions));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            UndoLastAction();
         }
 
         /// <summary>
-        /// Update enabled state of merge button, and current list of voters, based on current vote selection
-        /// for the list of votes to be merged from.
+        /// Handles the KeyDown event of the Window control.
+        /// Ctrl-Z acts as a call to Undo.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            VoterView1.Refresh();
-            merge.IsEnabled = VotesCanMerge;
-        }
-
-        /// <summary>
-        /// Update enabled state of merge button, and current list of voters, based on current vote selection
-        /// for the list of votes to be merged to.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
-            VoterView2.Refresh();
-            merge.IsEnabled = VotesCanMerge;
+            if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                UndoLastAction();
+                e.Handled = true;
+            }
         }
         #endregion
 
@@ -406,21 +412,61 @@ namespace NetTally
             CancelInput();
         }
 
-        private void InputTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void InputTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
-                case System.Windows.Input.Key.Enter:
+                case Key.Enter:
                     AcceptInput();
                     e.Handled = true;
                     break;
-                case System.Windows.Input.Key.Escape:
+                case Key.Escape:
                     CancelInput();
                     e.Handled = true;
                     break;
             }
         }
 
+        private void modifyTask_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi)
+            {
+                if (mi.Parent is ContextMenu cm)
+                {
+                    if (cm.PlacementTarget is ListBox box)
+                    {
+                        if (box.SelectedItem?.ToString() is string selectedVote)
+                        {
+                            string changedVote = "";
+
+                            if (mi.Header.ToString() == "Clear Task")
+                                changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
+                            else
+                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
+
+                            MergeVotes(selectedVote, changedVote);
+
+                            box.SelectedItem = changedVote;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void reorderTasks_Click(object sender, RoutedEventArgs e)
+        {
+            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
+            {
+                Owner = this
+            };
+
+            reorderWindow.ShowDialog();
+
+            MainViewModel.UpdateOutput();
+        }
+        #endregion
+
+        #region Window Action Functions
         /// <summary>
         /// Process acceptance of the new task text.
         /// </summary>
@@ -467,44 +513,25 @@ namespace NetTally
             newTaskBox = null;
         }
 
-        private void modifyTask_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Undoes the last action.
+        /// </summary>
+        private void UndoLastAction()
         {
-            if (sender is MenuItem mi)
+            try
             {
-                if (mi.Parent is ContextMenu cm)
+                if (MainViewModel.UndoVoteModification())
                 {
-                    if (cm.PlacementTarget is ListBox box)
-                    {
-                        if (box.SelectedItem?.ToString() is string selectedVote)
-                        {
-                            string changedVote = "";
-
-                            if (mi.Header.ToString() == "Clear Task")
-                                changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
-                            else
-                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
-
-                            MergeVotes(selectedVote, changedVote);
-
-                            box.SelectedItem = changedVote;
-                        }
-                    }
+                    OnPropertyChanged(nameof(HasUndoActions));
                 }
             }
-        }
-
-        private void reorderTasks_Click(object sender, RoutedEventArgs e)
-        {
-            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
+            catch (Exception ex)
             {
-                Owner = this
-            };
-
-            reorderWindow.ShowDialog();
-
-            MainViewModel.UpdateOutput();
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
+
 
         #region Watched Events        
         /// <summary>
@@ -750,7 +777,7 @@ namespace NetTally
 
             UpdateContextMenu();
         }
-       
+
 
         #endregion
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
-        Title="Manage Votes" Height="669.837" Width="862" MinWidth="828" MinHeight="445" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Manage Votes" Height="669.837" Width="862" MinWidth="828" MinHeight="445" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False" KeyDown="Window_KeyDown">
     <Window.Resources>
         <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
         <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></converters:MultiBoolOrConverter>
