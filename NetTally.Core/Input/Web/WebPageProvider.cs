@@ -17,8 +17,8 @@ namespace NetTally.Web
         #region Fields
         HttpClient client;
         const int retryLimit = 3;
-        TimeSpan timeout = TimeSpan.FromSeconds(10);
-        TimeSpan retryDelay = TimeSpan.FromSeconds(4);
+        readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
+        readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
         #endregion
 
         #region Constructor/Disposal
