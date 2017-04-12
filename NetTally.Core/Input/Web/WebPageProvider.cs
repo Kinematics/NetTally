@@ -21,7 +21,7 @@ namespace NetTally.Web
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
         #endregion
 
-        #region Constructor/Disposal
+        #region Construction, Setup, Disposal
         public WebPageProvider(HttpClientHandler handler, WebCache cache, IClock clock)
             : base(handler, cache, clock)
         {
@@ -34,15 +34,14 @@ namespace NetTally.Web
             if (_disposed)
                 return;
 
-            base.Dispose(itIsSafeToAlsoFreeManagedObjects);
-
             if (itIsSafeToAlsoFreeManagedObjects)
             {
+                client.Dispose();
             }
-        }
-        #endregion
 
-        #region Setup
+            base.Dispose(itIsSafeToAlsoFreeManagedObjects);
+        }
+
         private void SetupHandler()
         {
             ClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
