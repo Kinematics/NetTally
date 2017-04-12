@@ -137,6 +137,7 @@ namespace NetTally.Web
                 }
 
                 HttpResponseMessage response;
+                Task<HttpResponseMessage> getResponseTask = null;
 
                 do
                 {
@@ -144,37 +145,52 @@ namespace NetTally.Web
 
                     if (tries > 0)
                     {
-                        // Notify the user if we're trying to load the page multiple times.
+                        // Delay any additional attempts after the first.
+                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
+
+                        // Notify the user if we're re-trying to load the page.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
                     }
+
                     tries++;
 
                     try
                     {
-                        using (response = await client.GetAsync(uri, token).TimeoutAfter(timeout))
+                        getResponseTask = client.GetAsync(uri, token).TimeoutAfter(timeout, token);
+                        Debug.WriteLine($"Get URI {uri} task ID: {getResponseTask.Id}");
+
+                        using (response = await getResponseTask.ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
                                 result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                // If we get a successful result, we're done.
+                                break;
                             }
-                            else if (IsFailure(response))
+                            else if (PageLoadFailed(response))
                             {
                                 NotifyStatusChange(PageRequestStatusType.Failed, url,
                                     GetFailureMessage(response, shortDescrip, url), null, suppressNotifications);
                                 return null;
                             }
-                            else if (response.StatusCode == HttpStatusCode.Moved ||
-                                     response.StatusCode == HttpStatusCode.MovedPermanently ||
-                                     response.StatusCode == HttpStatusCode.Redirect ||
-                                     response.StatusCode == HttpStatusCode.TemporaryRedirect)
+                            else if (PageWasMoved(response))
                             {
                                 url = response.Content.Headers.ContentLocation.AbsoluteUri;
                                 uri = new Uri(url);
                             }
-                            else
-                            {
-                                await Task.Delay(retryDelay, token).ConfigureAwait(false);
-                            }
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            // user request
+                            throw;
+                        }
+                        else
+                        {
+                            // timeout via cancellation
+                            Debug.WriteLine($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
                         }
                     }
                     catch (TimeoutException)
@@ -187,7 +203,9 @@ namespace NetTally.Web
                         throw;
                     }
 
-                } while (result == null && tries < retryLimit);
+                } while (tries < retryLimit);
+
+                Debug.WriteLine($"Finished getting URI {uri} task ID: {getResponseTask.Id}");
 
                 if (result == null && tries >= retryLimit)
                     client.CancelPendingRequests();
@@ -323,12 +341,22 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="response">The response.</param>
         /// <returns>Returns true if it's a failure response code.</returns>
-        private bool IsFailure(HttpResponseMessage response)
+        private bool PageLoadFailed(HttpResponseMessage response)
         {
-            if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600)
-                return true;
+            return ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600);
+        }
 
-            return false;
+        /// <summary>
+        /// Determine if the response indicated that the requested page was moved.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <returns>Returns true if the page was moved.</returns>
+        private bool PageWasMoved(HttpResponseMessage response)
+        {
+            return (response.StatusCode == HttpStatusCode.Moved ||
+                    response.StatusCode == HttpStatusCode.MovedPermanently ||
+                    response.StatusCode == HttpStatusCode.Redirect ||
+                    response.StatusCode == HttpStatusCode.TemporaryRedirect) ;
         }
 
         /// <summary>
