@@ -7,11 +7,8 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
-
 
     public class LegacyCoombsRankVoteCounter : BaseRankVoteCounter
     {
@@ -37,26 +34,22 @@ namespace NetTally.VoteCounting.RankVoteCounting
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            List<string> winningChoices = new List<string>();
+            RankResults winningChoices = new RankResults();
 
             if (task.Any())
             {
-                Debug.WriteLine(">>Legacy Coombs Runoff<<");
-
                 var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
                 var allChoices = GroupRankVotes.GetAllChoices(voterRankings);
 
                 for (int i = 1; i <= 9; i++)
                 {
-                    string winner = GetWinningVote(voterRankings, winningChoices, allChoices);
+                    RankResult winner = GetWinningVote(voterRankings, winningChoices, allChoices);
 
                     if (winner == null)
                         break;
 
                     winningChoices.Add(winner);
-                    allChoices.Remove(winner);
-
-                    Debug.WriteLine($"- {winner}");
+                    allChoices.Remove(winner.Option);
 
                     if (!allChoices.Any())
                         break;
@@ -76,7 +69,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns the winning vote.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, RankResults allChoices)
+        private RankResult GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, List<string> allChoices)
         {
             if (voterRankings == null)
                 throw new ArgumentNullException(nameof(voterRankings));
@@ -84,7 +77,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 throw new ArgumentNullException(nameof(chosenChoices));
 
             // Initial conversion from enumerable to list
-            List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices);
+            List<VoterRankings> localRankings = RemoveChoicesFromVotes(voterRankings, chosenChoices.Select(c => c.Option));
 
             AddUnselectedRankings(localRankings, allChoices);
 
@@ -92,37 +85,30 @@ namespace NetTally.VoteCounting.RankVoteCounting
             int winCount = voterCount / 2 + 1;
             string eliminated = "";
 
-            try
+            bool eliminateOne = false;
+
+            while (true)
             {
-                bool eliminateOne = false;
+                var preferredVotes = GetPreferredCounts(localRankings);
 
-                while (true)
-                {
-                    var preferredVotes = GetPreferredCounts(localRankings);
+                if (!preferredVotes.Any())
+                    break;
 
-                    if (!preferredVotes.Any())
-                        break;
+                ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
 
-                    ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
+                if (best.Count >= winCount)
+                    return new RankResult(best.Choice, $"LCoombs Eliminations: [{eliminated}]");
 
-                    if (best.Count >= winCount)
-                        return best.Choice;
+                // If no more choice removals will bump up lower prefs to higher prefs, return the best of what's left.
+                if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
+                    return new RankResult(best.Choice, $"LCoombs Eliminations: [{eliminated}]");
 
-                    // If no more choice removals will bump up lower prefs to higher prefs, return the best of what's left.
-                    if (!localRankings.Any(r => r.RankedVotes.Count() > 1))
-                        return best.Choice;
+                string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
 
-                    string leastPreferredChoice = GetLeastPreferredChoice(localRankings);
+                eliminated += Comma(eliminateOne) + leastPreferredChoice;
 
-                    eliminated += Comma(eliminateOne) + leastPreferredChoice;
-
-                    RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
-                    eliminateOne = true;
-                }
-            }
-            finally
-            {
-                Debug.WriteLine($"Eliminations: [{eliminated}]");
+                RemoveChoiceFromVotes(localRankings, leastPreferredChoice);
+                eliminateOne = true;
             }
 
             return null;
@@ -144,7 +130,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
         /// <returns>Returns the results as a list.</returns>
-        private static List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, List<string> chosenChoices)
+        private static List<VoterRankings> RemoveChoicesFromVotes(IEnumerable<VoterRankings> voterRankings, IEnumerable<string> chosenChoices)
         {
             var res = from voter in voterRankings
                       select new VoterRankings
@@ -162,7 +148,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <param name="allChoices">All available choices.</param>
-        private static void AddUnselectedRankings(List<VoterRankings> localRankings, RankResults allChoices)
+        private static void AddUnselectedRankings(List<VoterRankings> localRankings, List<string> allChoices)
         {
             foreach (var ranker in localRankings)
             {

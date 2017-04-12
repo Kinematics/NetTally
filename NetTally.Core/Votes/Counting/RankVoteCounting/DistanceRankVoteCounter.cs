@@ -6,8 +6,6 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -182,12 +180,12 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             var orderPaths = pathCounts.OrderByDescending(p => p.Sum).ThenByDescending(p => p.Count).ThenBy(p => p.Choice);
 
-            foreach (var path in orderPaths)
-            {
-                Debug.WriteLine($"- {path.Choice} [{path.Count}/{path.Sum}]");
-            }
+            RankResults results = new RankResults();
 
-            return orderPaths.Select(r => listOfChoices[r.Index]).ToList();
+            results.AddRange(orderPaths.Select(path =>
+                new RankResult(listOfChoices[path.Index], $"Distance: [{path.Count}/{path.Sum}]")));
+
+            return results;
         }
         #endregion
 

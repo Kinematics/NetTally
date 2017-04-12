@@ -6,8 +6,6 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -31,8 +29,6 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
-            Debug.WriteLine(">>Wilson Scoring<<");
-
             // Can calculating the score easily by having all the rankings for
             // each vote grouped together.
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
@@ -42,14 +38,12 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             var orderedVotes = rankedVotes.OrderByDescending(a => a.Rank);
 
-            // Display the votes and their ratings for debugging purposes.
-            foreach (var orderedVote in orderedVotes)
-            {
-                Debug.WriteLine($"- {orderedVote.Vote} [{orderedVote.Rank:f5}]");
-            }
+            RankResults results = new RankResults();
 
-            // Only return the list of vote options themselves.
-            return orderedVotes.Select(a => a.Vote).ToList();
+            results.AddRange(orderedVotes.Select(a =>
+                new RankResult(a.Vote, $"Wilson: [{a.Rank:f5}]")));
+
+            return results;
         }
     }
 }

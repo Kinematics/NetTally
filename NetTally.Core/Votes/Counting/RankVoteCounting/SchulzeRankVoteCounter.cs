@@ -6,8 +6,8 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
+    // Vote (string), collection of voters
+    using SupportedVotes = Dictionary<string, HashSet<string>>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -23,9 +23,6 @@ namespace NetTally.VoteCounting.RankVoteCounting
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
-
-
-            Debug.WriteLine(">>Schulze Ranking<<");
 
             List<string> listOfChoices = GroupRankVotes.GetAllChoices(task);
 
@@ -155,7 +152,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private List<string> GetResultsInOrder(int[,] winningPaths, List<string> listOfChoices)
+        private RankResults GetResultsInOrder(int[,] winningPaths, List<string> listOfChoices)
         {
             int count = listOfChoices.Count;
 
@@ -171,14 +168,12 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             var orderPaths = pathCounts.OrderByDescending(p => p.Count).ThenByDescending(p => p.Sum).ThenBy(p => p.Choice);
 
-            foreach (var path in orderPaths)
-            {
-                Debug.WriteLine($"- {path.Choice} [{path.Count}/{path.Sum}]");
-            }
+            RankResults results = new RankResults();
 
-            var res = orderPaths.Select(r => listOfChoices[r.Index]).ToList();
+            results.AddRange(orderPaths.Select(path =>
+                new RankResult(listOfChoices[path.Index], $"Schulze: [{path.Count}/{path.Sum}]")));
 
-            return res;
+            return results;
         }
         #endregion
 

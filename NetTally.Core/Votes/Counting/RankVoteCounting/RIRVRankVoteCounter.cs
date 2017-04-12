@@ -7,8 +7,8 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
+    // Vote (string), collection of voters
+    using SupportedVotes = Dictionary<string, HashSet<string>>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -33,9 +33,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns a ranking list of winning votes.</returns>
         protected override RankResults RankTask(GroupedVotesByTask task)
         {
-            Debug.WriteLine(">>Rated Instant Runoff<<");
-
-            List<string> winningChoices = new List<string>();
+            RankResults winningChoices = new RankResults();
 
             // The groupVotes are used for getting the Wilson score
             var rankedVotes = GroupRankVotes.GroupByVoteAndRank(task);
@@ -46,21 +44,19 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             for (int i = 1; i <= 9; i++)
             {
-                string winner = GetWinningVote(voterRankings, rankedVotes);
+                RankResult winner = GetWinningVote(voterRankings, rankedVotes);
 
                 if (winner == null)
                     break;
 
                 winningChoices.Add(winner);
-                allChoices.Remove(winner);
-
-                Debug.WriteLine($"- {winner}");
+                allChoices.Remove(winner.Option);
 
                 if (!allChoices.Any())
                     break;
 
-                voterRankings = RemoveChoiceFromVotes(voterRankings, winner);
-                rankedVotes = RemoveChoiceFromRanks(rankedVotes, winner);
+                voterRankings = RemoveChoiceFromVotes(voterRankings, winner.Option);
+                rankedVotes = RemoveChoiceFromRanks(rankedVotes, winner.Option);
             }
 
             return winningChoices;
@@ -72,16 +68,17 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="rankedVotes">The votes, ranked.</param>
         /// <returns></returns>
-        private string GetWinningVote(IEnumerable<VoterRankings> voterRankings, IEnumerable<RankGroupedVoters> rankedVotes)
+        private RankResult GetWinningVote(IEnumerable<VoterRankings> voterRankings, IEnumerable<RankGroupedVoters> rankedVotes)
         {
             string option1;
             string option2;
+            string debug = "";
 
-            GetTopTwoRatedOptions(rankedVotes, out option1, out option2);
+            GetTopTwoRatedOptions(rankedVotes, out option1, out option2, ref debug);
 
-            string winner = GetOptionWithHigherPrefCount(voterRankings, option1, option2);
+            string winner = GetOptionWithHigherPrefCount(voterRankings, option1, option2, ref debug);
 
-            return winner;
+            return new RankResult(winner, debug);
         }
 
         /// <summary>
@@ -90,7 +87,8 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="rankedVotes">The group votes.</param>
         /// <param name="option1">The top rated option. Null if there aren't any options available.</param>
         /// <param name="option2">The second rated option.  Null if there is only one option available.</param>
-        private static void GetTopTwoRatedOptions(IEnumerable<RankGroupedVoters> rankedVotes, out string option1, out string option2)
+        private static void GetTopTwoRatedOptions(IEnumerable<RankGroupedVoters> rankedVotes,
+            out string option1, out string option2, ref string debug)
         {
             var scoredVotes = from vote in rankedVotes
                               select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
@@ -115,7 +113,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 option2 = topTwo.Last().Vote;
             }
 
-            Debug.Write($"[{option1 ?? ""}, {option2 ?? ""}] ");
+            debug = $"RIR: [{option1 ?? ""}, {option2 ?? ""}] ";
         }
 
         /// <summary>
@@ -127,7 +125,8 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="option1">The first option up for consideration.</param>
         /// <param name="option2">The second option up for consideration.</param>
         /// <returns>Returns the winning option.</returns>
-        private static string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings, string option1, string option2)
+        private static string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings,
+            string option1, string option2, ref string debug)
         {
             if (string.IsNullOrEmpty(option2))
                 return option1;
@@ -164,6 +163,8 @@ namespace NetTally.VoteCounting.RankVoteCounting
                     count1++;
                 }
             }
+
+            debug += $"[{count1}, {count2}] ";
 
             // If count1==count2, we use the higher scored option, which
             // will necessarily be option1.  Therefore all ties will be

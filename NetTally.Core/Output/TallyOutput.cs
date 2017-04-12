@@ -8,12 +8,10 @@ using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.Votes;
+using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.Output
 {
-    // Task (string), Ordered list of ranked votes
-    using RankResultsByTask = Dictionary<string, List<string>>;
-
     /// <summary>
     /// Class to handle generating the output of a tally run, for display in the text box.
     /// </summary>
@@ -134,7 +132,7 @@ namespace NetTally.Output
         /// Choose which method to use based on the display mode.
         /// </summary>
         /// <param name="task">The task to output.</param>
-        private void AddRankTask(KeyValuePair<string, List<string>> task)
+        private void AddRankTask(KeyValuePair<string, RankResults> task)
         {
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
             {
@@ -150,7 +148,7 @@ namespace NetTally.Output
         /// Add a rank task in compact format.
         /// </summary>
         /// <param name="task">The task to output.</param>
-        private void AddCompactTask(KeyValuePair<string, List<string>> task)
+        private void AddCompactTask(KeyValuePair<string, RankResults> task)
         {
             if (task.Key.Length > 0)
             {
@@ -160,7 +158,8 @@ namespace NetTally.Output
             int num = 1;
             foreach (var entry in task.Value)
             {
-                sb.AppendLine($"[{num++}] {entry}");
+                string debug = AdvancedOptions.Instance.DebugMode ? $" >>> {entry.Debug}" : string.Empty;
+                sb.AppendLine($"[{num++}] {entry.Option}{debug}");
             }
         }
 
@@ -168,7 +167,7 @@ namespace NetTally.Output
         /// Add a rank task in complete format.
         /// </summary>
         /// <param name="task">The task to output.</param>
-        private void AddCompleteTask(KeyValuePair<string, List<string>> task)
+        private void AddCompleteTask(KeyValuePair<string, RankResults> task)
         {
             AddTaskLabel(task.Key);
 
@@ -180,13 +179,18 @@ namespace NetTally.Output
                 sb.Append("[b]");
                 sb.Append(rankWinnerLabels[index++]);
                 sb.Append(":[/b] ");
-                sb.AppendLine(winner);
+                sb.Append(winner.Option);
+
+                if (AdvancedOptions.Instance.DebugMode)
+                    sb.AppendLine($" >>> {winner.Debug}");
+                else
+                    sb.AppendLine();
 
                 if (index > 4)
                     index = 4;
 
                 if (DisplayMode != DisplayMode.NormalNoVoters)
-                    AddRankedVoters(task.Key, winner);
+                    AddRankedVoters(task.Key, winner.Option);
                 else
                     sb.AppendLine();
             }

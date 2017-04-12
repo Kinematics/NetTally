@@ -1,12 +1,8 @@
 ﻿using System.Collections.Generic;
+using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting
 {
-    // Task (string), Ordered list of ranked votes
-    using RankResultsByTask = Dictionary<string, List<string>>;
-    // Vote (string), collection of voters
-    using SupportedVotes = Dictionary<string, HashSet<string>>;
-
     /// <summary>
     /// Base vote counter interface, that all other vote counter interfaces derive from.
     /// </summary>
@@ -21,6 +17,6 @@ namespace NetTally.VoteCounting
     /// <seealso cref="NetTally.VoteCounting.IBaseVoteCounter" />
     public interface IRankVoteCounter : IBaseVoteCounter
     {
-        RankResultsByTask CountVotes(SupportedVotes votes);
+        RankResultsByTask CountVotes(Dictionary<string, HashSet<string>> votes);
     }
 }

@@ -6,12 +6,6 @@ using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
-    // Task (string), Ordered list of ranked votes
-    using RankResultsByTask = Dictionary<string, List<string>>;
-    // Vote (string), collection of voters
-    using SupportedVotes = Dictionary<string, HashSet<string>>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -41,12 +35,12 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             var orderedVotes = rankedVotes.OrderByDescending(a => a.Rank);
 
-            foreach (var orderedVote in orderedVotes)
-            {
-                Debug.WriteLine($"- {orderedVote.Vote} [{orderedVote.Rank}]");
-            }
+            RankResults results = new RankResults();
 
-            return orderedVotes.Select(a => a.Vote).ToList();
+            results.AddRange(orderedVotes.Select(a =>
+                new RankResult(a.Vote, $"BordaFraction: [{a.Rank:f5}]")));
+
+            return results;
         }
 
         /// <summary>

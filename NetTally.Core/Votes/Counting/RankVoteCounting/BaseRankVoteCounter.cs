@@ -4,15 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using NetTally.Utility;
 using NetTally.Votes;
+using NetTally.VoteCounting.RankVoteCounting.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
-    // List of preference results ordered by winner
-    using RankResults = List<string>;
-    // Task (string), Ordered list of ranked votes
-    using RankResultsByTask = Dictionary<string, List<string>>;
-    // Vote (string), collection of voters
-    using SupportedVotes = Dictionary<string, HashSet<string>>;
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
@@ -24,7 +19,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="votes">The rank votes to count.</param>
         /// <returns>Returns an ordered list of ranked votes for each task in the provided votes.</returns>
         /// <exception cref="System.ArgumentNullException">Provided votes cannot be null.</exception>
-        public RankResultsByTask CountVotes(SupportedVotes votes)
+        public RankResultsByTask CountVotes(Dictionary<string, HashSet<string>> votes)
         {
             if (votes == null)
                 throw new ArgumentNullException(nameof(votes));
@@ -40,11 +35,13 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 {
                     if (task.Any())
                     {
-                        Debug.WriteLine($"Rank Task [{task.Key}]");
-
                         preferencesByTask[task.Key] = RankTask(task);
 
-                        Debug.WriteLine($"End task [{task.Key}]");
+                        Debug.WriteLine($"Ranking task [{task.Key}] via [{this.GetType().Name}]:");
+                        foreach (var res in preferencesByTask[task.Key])
+                        {
+                            Debug.WriteLine($" - Option [{res.Option}] Debug [{res.Debug}]");
+                        }
                     }
                 }
             }
