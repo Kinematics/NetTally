@@ -232,11 +232,13 @@ copy /Y "$(SolutionDir)LICENSE.txt" "$(TargetDir)"
 
 echo Moving DLLs from $(ProjectDir)bin\$(Configuration) to $(ProjectDir)bin\$(Configuration)\lib
 
-if not exist "$(ProjectDir)bin\$(Configuration)\lib" mkdir "$(ProjectDir)bin\$(Configuration)\lib"
+if not exist "$(TargetDir)\lib" mkdir "$(TargetDir)\lib"
 
-move /Y "$(ProjectDir)bin\$(Configuration)\*.dll" "$(ProjectDir)bin\$(Configuration)\lib"
+move /Y "$(TargetDir)\*.dll" "$(TargetDir)\lib"
 
 if errorlevel 1 goto BuildEventFailed
+
+move /Y "$(TargetDir)\lib\NetTally.Core.dll" "$(TargetDir)"
 
 if errorlevel 1 goto BuildEventFailed 
 
