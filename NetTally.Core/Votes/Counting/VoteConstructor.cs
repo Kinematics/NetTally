@@ -148,7 +148,7 @@ namespace NetTally.Votes
             // Handle ranking votes, if applicable.
             if (AdvancedOptions.Instance.AllowRankedVotes)
             {
-                var rankings = GetRankingsFromPost(post);
+                var rankings = GetRankingsFromPost(post, quest);
 
                 if (rankings.Count > 0)
                     ProcessRankings(rankings, post);
@@ -588,11 +588,11 @@ namespace NetTally.Votes
         /// <returns>
         /// Returns any ranked vote lines in the vote.
         /// </returns>
-        private static List<string> GetRankingsFromPost(PostComponents post)
+        private static List<string> GetRankingsFromPost(PostComponents post, IQuest quest)
         {
             // If there are any explicit rank vote lines, return those.
             if (post.RankLines.Any())
-                return post.RankLines;
+                return FilterVotesByTask(post.RankLines, quest);
 
             // If there were no explicit rankings, see if there's a reference to
             // another voter as the only line of this vote.
