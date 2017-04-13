@@ -92,6 +92,12 @@ namespace NetTally.Output
             sb.AppendLine(VoteCounter.Instance.Title);
 
             sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
+
+            if (VoteCounter.Instance.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(VoteCounter.Instance.Quest.CustomUsernameFilters))
+            {
+                sb.AppendLine($"[color=transparent]Username Filters: {VoteCounter.Instance.Quest.CustomUsernameFilters}[/color]");
+            }
+
             sb.AppendLine();
         }
         #endregion
