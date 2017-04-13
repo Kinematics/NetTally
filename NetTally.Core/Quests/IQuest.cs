@@ -71,6 +71,10 @@ namespace NetTally
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
         Filter ThreadmarkFilter { get; }
+        /// <summary>
+        /// Gets the default threadmark filter, if a custom one is not set.
+        /// </summary>
+        Filter DefaultThreadmarkFilter { get; }
 
         /// <summary>
         /// Flag for whether to use custom filters to only process specified tasks.

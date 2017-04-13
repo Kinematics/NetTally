@@ -312,6 +312,11 @@ namespace NetTally
         public Filter ThreadmarkFilter { get; private set; }
 
         /// <summary>
+        /// Gets the default threadmark filter, if a custom one is not set.
+        /// </summary>
+        public Filter DefaultThreadmarkFilter { get; } = new Filter(OmakeFilter, null);
+
+        /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
         /// from the list of valid 'last threadmark found' checks.
         /// </summary>
