@@ -49,6 +49,11 @@ namespace NetTally.Web
 
         private void SetupClient()
         {
+            // In the event of slow response probably caused by
+            // proxy lookup failures, can turn it off here.
+            // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
+            //ClientHandler.UseProxy = false;
+
             client = new HttpClient(ClientHandler);
 
             client.MaxResponseContentBufferSize = 1000000;
@@ -244,6 +249,21 @@ namespace NetTally.Web
             return htmldoc;
         }
 
+        /// <summary>
+        /// Loads the HEAD of the requested URL, and returns the response URL value.
+        /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
+        /// </summary>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>
+        /// Returns the URL that the response headers say we requested.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">url</exception>
+        /// <exception cref="System.ArgumentException">url</exception>
         public async Task<string> GetHeaderUrl(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
