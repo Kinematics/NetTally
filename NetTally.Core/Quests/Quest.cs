@@ -19,8 +19,10 @@ namespace NetTally
         {
             questHash = indexer.Next();
             ThreadName = NewThreadEntry;
+
             CustomThreadmarkFilters = string.Empty;
             CustomTaskFilters = string.Empty;
+            CustomUsernameFilters = string.Empty;
         }
 
         #region Hashing
