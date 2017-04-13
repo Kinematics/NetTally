@@ -8,6 +8,10 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>False</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser.Unofficial" Version="2.0.275" />
   </ItemGroup>
