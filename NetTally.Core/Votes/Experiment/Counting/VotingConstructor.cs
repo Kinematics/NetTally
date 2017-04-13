@@ -568,7 +568,7 @@ namespace NetTally.Votes.Experiment
             if (!quest.UseCustomTaskFilters)
                 return votePartitions;
 
-            return votePartitions.Where(p => quest.TaskFilter.Match(p.Task)).ToList();
+            return votePartitions.Where(p => !quest.UseCustomTaskFilters || quest.TaskFilter.Match(p.Task)).ToList();
         }
         #endregion
 

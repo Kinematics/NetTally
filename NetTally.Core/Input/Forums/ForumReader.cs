@@ -233,9 +233,11 @@ namespace NetTally.Forums
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
             VoteCounting.VoteCounter.Instance.Title = threadInfo.Title;
 
+            // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
             postsList = postsList
-                .Where(p => (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author, threadInfo.Author)) ||
-                            (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author))
+                .Where(p => (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) ||
+                            (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author)
+                      )
                 .Distinct().OrderBy(p => p.Number).ToList();
 
             return postsList;

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Extensions;
+using NetTally.Utility;
 using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
@@ -19,6 +20,10 @@ namespace NetTally.Forums.Adapters
         static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
         // The short HREF version gives the post ID
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
+
+        // The default threadmark filter.
+        static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
+
 
         /// <summary>
         /// Constructor
@@ -458,7 +463,7 @@ namespace NetTally.Forums.Adapters
                 {
                     Predicate<HtmlNode> filterLambda = (n) =>
                         (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
-                        (quest.DefaultThreadmarkFilter.Match(n.InnerText));
+                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
 
                     Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
 
@@ -476,7 +481,6 @@ namespace NetTally.Forums.Adapters
 
             return new List<HtmlNode>();
         }
-
         #endregion
 
         #region Detection
