@@ -41,6 +41,7 @@ namespace NetTally.Utility
         /// <param name="defaultString">The default, program-provided string to filter on.</param>
         public Filter(string filterString, string defaultString)
         {
+            filterString = filterString ?? string.Empty;
             filterRegex = CreateRegex(filterString, defaultString);
         }
 
