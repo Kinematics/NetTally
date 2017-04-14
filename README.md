@@ -8,9 +8,19 @@ In order to resolve which plan to actually follow in the next update post, a met
 Full documentation on the use of this program (including vote-formatting guidelines) is available in the wiki: https://github.com/Kinematics/NetTally/wiki
 
 
-###Requirements
+### Requirements
 
-####Current release (the VS2015 and release branches):
+#### Current active branch: VS2017 / dev
+
+System requirements: .NET 4.6.
+
+This will not run on Windows XP, since the highest version of .NET available is 4.0.
+
+The core library targets .NET Standard 1.3 (equivalent to .NET 4.6).  The Windows UI targets .NET 4.6.  The console app targets .NET Core 1.1.
+
+If you wish to edit the code, it requires Visual Studio 2017, and uses C#7.
+
+#### Retired branch: VS2015
 
 System requirements: .NET 4.5.
 
@@ -18,18 +28,8 @@ This will not run on Windows XP, since the highest version of .NET available is 
 
 If you wish to edit the code, it requires Visual Studio 2015, and uses C#6.
 
-####Current development (the VS2017 and dev branches):
 
-System requirements: .NET 4.6.
-
-This will not run on Windows XP, since the highest version of .NET available is 4.0.
-
-The primary library targets .NET Standard 1.3 (equivalent to .NET 4.6).  The Windows UI targets .NET 4.6.  The console app targets .NET Core 1.1.
-
-If you wish to edit the code, it requires Visual Studio 2017, and uses C#7.
-
-
-###Quickstart overview
+### Quickstart overview
 
 Add a new quest by pasting in the URL of the thread that's being followed.
 
@@ -52,7 +52,7 @@ Partitioning votes breaks individual votes into single lines or blocks.  Partiti
 
 BBCode formatting is preserved, including italics, bold, underlines, colors, and URLs, as long as it's part of the vote content (but not if it covers the entire line, or part of the marker area or whatever).  Quoted votes are ignored.
 
-The program is currently capable of understanding XenForo and vBulletin forum systems.  The number of tested forums is low, however, so refinements will be necessary to make it more broadly available.
+The program is currently capable of understanding XenForo and vBulletin forum systems.  Other forums have the framework code in place, but the forum software often has limitations that prevent NetTally from being able to properly operate on them. (EG: Lack of post numbers, lack of page numbers, etc.)
 
 This is built on the basis of quests run on SpaceBattles and SufficientVelocity, and is an adaptation of a program originally written by Firnagzen.
 
