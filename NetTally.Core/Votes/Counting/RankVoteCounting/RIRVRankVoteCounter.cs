@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using NetTally.Utility;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
 
@@ -97,23 +98,30 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             var topTwo = orderedVotes.Take(2);
 
-            if (!topTwo.Any())
-            {
-                option1 = null;
-                option2 = null;
-            }
-            else if (topTwo.Count() == 1)
-            {
-                option1 = topTwo.First().Vote;
-                option2 = null;
-            }
-            else
-            {
-                option1 = topTwo.First().Vote;
-                option2 = topTwo.Last().Vote;
-            }
+            var v1 = topTwo.FirstOrDefault();
+            var v2 = topTwo.Skip(1).FirstOrDefault();
 
-            debug = $"RIR: [{option1 ?? ""}, {option2 ?? ""}] ";
+            option1 = v1?.Vote;
+            option2 = v2?.Vote;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Output: [Option1, Option2] [Score1, Score2] [PrefCount1, PrefCount2]
+            sb.Append("RIR: [");
+            if (v1 != null)
+                sb.Append(v1.Vote);
+            sb.Append(", ");
+            if (v2 != null)
+                sb.Append(v2.Vote);
+            sb.Append("] [");
+            if (v1 != null)
+                sb.Append($"{v1.Rank:f5}");
+            sb.Append(", ");
+            if (v2 != null)
+                sb.Append($"{v2.Rank:f5}");
+            sb.Append("] ");
+
+            debug = sb.ToString();
         }
 
         /// <summary>
@@ -164,6 +172,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 }
             }
 
+            // Output: [Option1, Option2] [Score1, Score2] [PrefCount1, PrefCount2]
             debug += $"[{count1}, {count2}] ";
 
             // If count1==count2, we use the higher scored option, which
