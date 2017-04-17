@@ -181,7 +181,7 @@ namespace NetTally.Forums
                         }
                         break;
                     case "a":
-                        sb.Append($"『url=\"{child.GetAttributeValue("href", "")}\"』");
+                        sb.Append($"『url=\"{Uri.UnescapeDataString(child.GetAttributeValue("href", ""))}\"』");
                         ExtractPostTextString(child, exclude, sb);
                         sb.Append("『/url』");
                         break;
@@ -196,7 +196,7 @@ namespace NetTally.Forums
 
                         if (!string.IsNullOrEmpty(srcUrl))
                         {
-                            sb.Append($"『url=\"{srcUrl}\"』<Image>『/url』");
+                            sb.Append($"『url=\"{Uri.UnescapeDataString(srcUrl)}\"』<Image>『/url』");
                         }
                         break;
                     case "div":
