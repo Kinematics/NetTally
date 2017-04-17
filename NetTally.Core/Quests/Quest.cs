@@ -72,6 +72,7 @@ namespace NetTally
                     throw new ArgumentException($"URL ({value}) is not well formed.", nameof(value));
 
                 string cleanValue = CleanupThreadName(value);
+                cleanValue = Uri.UnescapeDataString(cleanValue);
 
                 Uri newUri = new Uri(cleanValue);
 

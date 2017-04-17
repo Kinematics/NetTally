@@ -112,6 +112,7 @@ namespace NetTally.Web
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));
 
             Uri uri = new Uri(url);
+            url = Uri.UnescapeDataString(url);
             HtmlDocument htmldoc = null;
             string result = null;
             int tries = 0;
