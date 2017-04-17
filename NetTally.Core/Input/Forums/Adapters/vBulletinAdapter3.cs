@@ -189,7 +189,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="postDiv">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private static PostComponents GetPost(HtmlNode postDiv)
+        private PostComponents GetPost(HtmlNode postDiv)
         {
             if (postDiv == null)
                 throw new ArgumentNullException(nameof(postDiv));
@@ -239,7 +239,7 @@ namespace NetTally.Forums.Adapters
             var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postContents, exclusion);
+            text = PostText.ExtractPostText(postContents, exclusion, Host);
 
 
             PostComponents post;

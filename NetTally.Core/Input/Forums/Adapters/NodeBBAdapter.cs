@@ -187,7 +187,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private static PostComponents GetPost(HtmlNode li)
+        private PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -204,7 +204,7 @@ namespace NetTally.Forums.Adapters
             var content = li.GetChildWithClass("div", "content");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(content, n => false);
+            text = PostText.ExtractPostText(content, n => false, Host);
 
 
             PostComponents post;

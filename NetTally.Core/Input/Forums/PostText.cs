@@ -46,7 +46,7 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.  A default is used if none is provided.</param>
         /// <returns>Returns a cleaned version of the text of the post.</returns>
         /// <exception cref="ArgumentNullException">If node is null.</exception>
-        public static string ExtractPostText(HtmlNode node, Predicate<HtmlNode> exclude)
+        public static string ExtractPostText(HtmlNode node, Predicate<HtmlNode> exclude, Uri host)
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
@@ -56,7 +56,7 @@ namespace NetTally.Forums
                 exclude = (n) => false;
 
             // Recurse into the child nodes of the main post node.
-            string postText = ExtractPostTextString(node, exclude).ToString().Trim();
+            string postText = ExtractPostTextString(node, exclude, host).ToString().Trim();
 
             // Cleanup the results of the extraction.
             return CleanupWebString(postText);
@@ -101,7 +101,8 @@ namespace NetTally.Forums
         /// <param name="node">The starting HTML node.</param>
         /// <param name="exclude">A predicate to exclude processing of further nodes.</param>
         /// <returns>Returns the text contents of the post.</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude) => ExtractPostTextString(node, exclude, new StringBuilder());
+        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
+            ExtractPostTextString(node, exclude, new StringBuilder(), host);
 
         /// <summary>
         /// Extracts the text (recursively) from the specified node, and converts some elements into BBCode.
@@ -111,7 +112,7 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.</param>
         /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb)
+        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
         {
             System.Diagnostics.Debug.Assert(node != null);
             System.Diagnostics.Debug.Assert(exclude != null);
@@ -134,17 +135,17 @@ namespace NetTally.Forums
                         break;
                     case "i":
                         sb.Append("『i』");
-                        ExtractPostTextString(child, exclude, sb);
+                        ExtractPostTextString(child, exclude, sb, host);
                         sb.Append("『/i』");
                         break;
                     case "b":
                         sb.Append("『b』");
-                        ExtractPostTextString(child, exclude, sb);
+                        ExtractPostTextString(child, exclude, sb, host);
                         sb.Append("『/b』");
                         break;
                     case "u":
                         sb.Append("『u』");
-                        ExtractPostTextString(child, exclude, sb);
+                        ExtractPostTextString(child, exclude, sb, host);
                         sb.Append("『/u』");
                         break;
                     case "span":
@@ -160,7 +161,7 @@ namespace NetTally.Forums
                         {
                             // Keep quick spoilers.
                             sb.Append("『qs』");
-                            ExtractPostTextString(child, exclude, sb);
+                            ExtractPostTextString(child, exclude, sb, host);
                             sb.Append("『/qs』");
                         }
                         else
@@ -170,19 +171,19 @@ namespace NetTally.Forums
                             if (m.Success)
                             {
                                 sb.Append($"『color={m.Groups["color"].Value}』");
-                                ExtractPostTextString(child, exclude, sb);
+                                ExtractPostTextString(child, exclude, sb, host);
                                 sb.Append("『/color』");
                             }
                             else
                             {
                                 // Take anything else without including span style modifications.
-                                ExtractPostTextString(child, exclude, sb);
+                                ExtractPostTextString(child, exclude, sb, host);
                             }
                         }
                         break;
                     case "a":
                         sb.Append($"『url=\"{Uri.UnescapeDataString(child.GetAttributeValue("href", ""))}\"』");
-                        ExtractPostTextString(child, exclude, sb);
+                        ExtractPostTextString(child, exclude, sb, host);
                         sb.Append("『/url』");
                         break;
                     case "img":
@@ -196,12 +197,16 @@ namespace NetTally.Forums
 
                         if (!string.IsNullOrEmpty(srcUrl))
                         {
-                            sb.Append($"『url=\"{Uri.UnescapeDataString(srcUrl)}\"』<Image>『/url』");
+                            // If the source URL is relative, prepend the forum's host.
+                            // This will not modify absolute URLs.
+                            Uri absoluteSrc = new Uri(host, Uri.UnescapeDataString(srcUrl));
+
+                            sb.Append($"『url=\"{absoluteSrc.ToString()}\"』<Image>『/url』");
                         }
                         break;
                     case "div":
                         // Recurse into divs (typically spoilers).
-                        ExtractPostTextString(child, exclude, sb);
+                        ExtractPostTextString(child, exclude, sb, host);
                         sb.Append("\r\n");
                         break;
                 }

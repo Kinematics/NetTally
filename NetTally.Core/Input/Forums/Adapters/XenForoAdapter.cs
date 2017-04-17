@@ -374,7 +374,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        static PostComponents GetPost(HtmlNode li)
+        private PostComponents GetPost(HtmlNode li)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -407,7 +407,7 @@ namespace NetTally.Forums.Adapters
             var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postBlock, exclusions);
+            text = PostText.ExtractPostText(postBlock, exclusions, Host);
 
             // On another branch of the primary content, we can get the post number.
             HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
