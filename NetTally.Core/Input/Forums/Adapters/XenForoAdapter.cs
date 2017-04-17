@@ -69,6 +69,7 @@ namespace NetTally.Forums.Adapters
                 else
                     BaseSite = "https://forums.sufficientvelocity.com/";
 
+                Host = new Uri(BaseSite);
                 ThreadName = m.Groups["thread"].Value;
             }
             else
@@ -77,6 +78,7 @@ namespace NetTally.Forums.Adapters
             }
         }
 
+        Uri Host { get; set; }
         string BaseSite { get; set; }
         string ThreadName { get; set; }
 

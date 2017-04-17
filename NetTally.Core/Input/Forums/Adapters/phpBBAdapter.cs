@@ -56,6 +56,7 @@ namespace NetTally.Forums.Adapters
             if (m.Success)
             {
                 BaseSite = m.Groups["base"].Value;
+                Host = new Uri(BaseSite);
                 ThreadName = m.Groups["thread"].Value;
             }
             else
@@ -64,6 +65,7 @@ namespace NetTally.Forums.Adapters
             }
         }
 
+        Uri Host { get; set; }
         string BaseSite { get; set; }
         string ThreadName { get; set; }
 
