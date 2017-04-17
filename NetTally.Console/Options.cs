@@ -65,7 +65,7 @@ namespace NetTally.CLI
         [Option("noranks", Default = false, HelpText = "Do not allow ranked voting.")]
         public bool NoRanks { get; set; }
 
-        [Option("debug", Default = false, Hidden = true, HelpText = "Trim extended vote lines.")]
+        [Option("debug", Default = false, Hidden = true, HelpText = "Enable debug mode.")]
         public bool Debug { get; set; }
 
         [Usage(ApplicationAlias = "dotnet nettally.dll")]
