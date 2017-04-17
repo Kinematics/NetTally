@@ -89,7 +89,7 @@ namespace NetTally.VoteCounting
         /// <param name="e">Contains info about which program option was updated.</param>
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod")
+            if (e.PropertyName == "DisplayMode" || e.PropertyName == "RankVoteCounterMethod" || e.PropertyName == "DebugMode")
             {
                 await RunWithTallyFlagAsync(UpdateResults);
             }
