@@ -230,6 +230,10 @@ namespace NetTally
             var hashParent = defaultDir.Parent;
             var noHashParent = hashParent.Parent;
 
+            // If no product directory exists, NetTally has never been run before, and there's nothing to look for.
+            if (!noHashParent.Exists)
+                return null;
+
             string product = GetProductDirectory();
 
             DirectoryInfo dir = null;
