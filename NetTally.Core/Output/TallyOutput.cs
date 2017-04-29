@@ -185,10 +185,10 @@ namespace NetTally.Output
                 sb.Append("[b]");
                 sb.Append(rankWinnerLabels[index++]);
                 sb.Append(":[/b] ");
-                sb.Append(winner.Option);
+                sb.Append(VoteString.FormatBBCodeForOutput(winner.Option));
 
                 if (AdvancedOptions.Instance.DebugMode)
-                    sb.AppendLine($" >>> {winner.Debug}");
+                    sb.AppendLine($" >>> {VoteString.FormatBBCodeForOutput(winner.Debug)}");
                 else
                     sb.AppendLine();
 
