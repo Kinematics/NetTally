@@ -961,11 +961,11 @@ namespace NetTally.VoteCounting
         private string GetVoteKey(string vote, VoteType voteType)
         {
             // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
-            if (!cleanedKeys.ContainsKey(vote))
+            if (!cleanedKeys.TryGetValue(vote, out string cleaned))
             {
-                string clean = VoteString.RemoveBBCode(vote);
-                clean = VoteString.DeUrlContent(clean);
-                cleanedKeys[vote] = clean;
+                cleaned = VoteString.RemoveBBCode(vote);
+                cleaned = VoteString.DeUrlContent(cleaned);
+                cleanedKeys[vote] = cleaned;
             }
 
             var votes = GetVotesCollection(voteType);
@@ -977,7 +977,7 @@ namespace NetTally.VoteCounting
             // Find any vote that matches using an agnostic string comparison, that ignores
             // case, spacing, and most punctuation.
             string agVote = votes.Keys.FirstOrDefault(k =>
-                Agnostic.StringComparer.Equals(cleanedKeys[vote], cleanedKeys[k]));
+                Agnostic.StringComparer.Equals(cleaned, cleanedKeys[k]));
 
             // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
             return agVote ?? vote;
