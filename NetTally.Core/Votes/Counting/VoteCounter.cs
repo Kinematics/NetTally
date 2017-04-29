@@ -731,30 +731,27 @@ namespace NetTally.VoteCounting
                     vote.Key, vote.Value, revisedKey, GetVoters(revisedKey, voteType)));
             }
 
-
             var votes = GetVotesCollection(voteType);
 
-            string voteKey = GetVoteKey(revisedKey, voteType);
-
-            if (votes.ContainsKey(voteKey))
+            if (votes.ContainsKey(revisedKey))
             {
-                bool isRevisedSameAsVote = Agnostic.StringComparer.Equals(vote.Key, voteKey);
+                bool isRevisedSameAsVote = Agnostic.StringComparer.Equals(vote.Key, revisedKey);
 
                 if (isRevisedSameAsVote)
                 {
                     var priorVotes = vote.Value;
                     votes.Remove(vote.Key);
-                    votes[voteKey] = priorVotes;
+                    votes[revisedKey] = priorVotes;
                 }
                 else
                 {
-                    votes[voteKey].UnionWith(vote.Value);
+                    votes[revisedKey].UnionWith(vote.Value);
                     votes.Remove(vote.Key);
                 }
             }
             else
             {
-                votes[voteKey] = vote.Value;
+                votes[revisedKey] = vote.Value;
                 votes.Remove(vote.Key);
             }
 
