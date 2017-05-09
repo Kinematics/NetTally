@@ -38,6 +38,9 @@ namespace NetTally.CLI
         [Option("usernamefilters", HelpText = "Filters used on usernames.")]
         public string UsernameFilters { get; set; }
 
+        [Option("postfilters", HelpText = "Filters used on post numbers or IDs.")]
+        public string PostFilters { get; set; }
+
         [Option("taskfilters", HelpText = "Filters used on tasks.")]
         public string TaskFilters { get; set; }
 

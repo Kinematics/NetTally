@@ -107,6 +107,12 @@ namespace NetTally.CLI
                 quest.CustomUsernameFilters = options.UsernameFilters;
             }
 
+            if (!string.IsNullOrEmpty(options.PostFilters))
+            {
+                quest.UseCustomPostFilters = true;
+                quest.CustomPostFilters = options.PostFilters;
+            }
+
             if (!string.IsNullOrEmpty(options.TaskFilters))
             {
                 quest.UseCustomTaskFilters = true;
