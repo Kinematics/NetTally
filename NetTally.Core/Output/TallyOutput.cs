@@ -98,6 +98,11 @@ namespace NetTally.Output
                 sb.AppendLine($"[color=transparent]Username Filters: {VoteCounter.Instance.Quest.CustomUsernameFilters}[/color]");
             }
 
+            if (VoteCounter.Instance.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(VoteCounter.Instance.Quest.CustomPostFilters))
+            {
+                sb.AppendLine($"[color=transparent]Post Filters: {VoteCounter.Instance.Quest.CustomPostFilters}[/color]");
+            }
+
             sb.AppendLine();
         }
         #endregion
