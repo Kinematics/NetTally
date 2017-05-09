@@ -131,9 +131,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config\Configuration.cs" />
-    <Compile Include="Config\QuestCollectionConfig.cs" />
-    <Compile Include="Config\QuestConfig.cs" />
-    <Compile Include="Config\QuestSectionConfig.cs" />
+    <Compile Include="Config\QuestElementCollection.cs" />
+    <Compile Include="Config\QuestElement.cs" />
+    <Compile Include="Config\QuestsSection.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\DisplayModeConverter.cs" />
     <Compile Include="Converters\MultiBoolConverter.cs" />
