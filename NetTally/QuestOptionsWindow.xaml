@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="434.792" Width="642" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="502.038" Width="642" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" VerticalAlignment="Top" FontSize="14.667"/>
@@ -31,7 +31,7 @@
         <TextBlock x:Name="describePostsPerPage" Margin="86,53,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
 
-        <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filtering values" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filters" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=SelectedQuest.UseCustomThreadmarkFilters}">
             <CheckBox.ToolTip>
                 <ToolTip>
@@ -56,32 +56,7 @@
             </TextBox.ToolTip>
         </TextBox>
 
-        <CheckBox x:Name="useCustomUsernameFilters" Content="Use custom username filters" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=SelectedQuest.UseCustomUsernameFilters}">
-            <CheckBox.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Use Custom Username Filters</TextBlock>
-                        <TextBlock>When set, use the username filters defined in the textbox below.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </CheckBox.ToolTip>
-        </CheckBox>
-        <TextBlock x:Name="describeCustomUsernameFilters" Margin="30,211,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                   Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
-        <TextBox x:Name="customUsernameFilters" Height="23" Margin="30,248,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
-                 Text="{Binding Path=SelectedQuest.CustomUsernameFilters}" IsEnabled="{Binding ElementName=useCustomUsernameFilters, Path=IsChecked}">
-            <TextBox.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Custom Username Filters</TextBlock>
-                        <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </TextBox.ToolTip>
-        </TextBox>
-
-        <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters" HorizontalAlignment="Left" Margin="10,287,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters" HorizontalAlignment="Left" Margin="10,183,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=SelectedQuest.UseCustomTaskFilters}">
             <CheckBox.ToolTip>
                 <ToolTip>
@@ -92,9 +67,9 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <TextBlock x:Name="describeCustomTaskFilters" Margin="30,308,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBlock x:Name="describeCustomTaskFilters" Margin="30,204,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                    Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
-        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,329,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+        <TextBox x:Name="customTaskFilters" Height="23" Margin="30,225,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                  Text="{Binding Path=SelectedQuest.CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
             <TextBox.ToolTip>
                 <ToolTip>
@@ -106,8 +81,57 @@
             </TextBox.ToolTip>
         </TextBox>
 
+        <CheckBox x:Name="useCustomUsernameFilters" Content="Use custom username filters" HorizontalAlignment="Left" Margin="10,260,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=SelectedQuest.UseCustomUsernameFilters}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Use Custom Username Filters</TextBlock>
+                        <TextBlock>When set, use the username filters defined in the textbox below.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
+        <TextBlock x:Name="describeCustomUsernameFilters" Margin="30,281,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
+        <TextBox x:Name="customUsernameFilters" Height="23" Margin="30,318,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+                 Text="{Binding Path=SelectedQuest.CustomUsernameFilters}" IsEnabled="{Binding ElementName=useCustomUsernameFilters, Path=IsChecked}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Custom Username Filters</TextBlock>
+                        <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+
+        <CheckBox x:Name="useCustomPostFilters" Content="Use custom post filters" HorizontalAlignment="Left" Margin="10,354,0,0" VerticalAlignment="Top"
+            IsChecked="{Binding SelectedQuest.UseCustomPostFilters}">
+            <CheckBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold"><Run Text="Use Custom Post Filters"/></TextBlock>
+                        <TextBlock><Run Text="When set, filter out the post numbers in the below list."/></TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </CheckBox.ToolTip>
+        </CheckBox>
+        <TextBlock x:Name="describeCustomPostFilters" Margin="30,375,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+            Text="Do not include votes from the specified post numbers in the tally." />
+        <TextBox x:Name="customPostFilters" Height="23" Margin="30,396,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+            Text="{Binding SelectedQuest.CustomPostFilters}" IsEnabled="{Binding IsChecked, ElementName=useCustomPostFilters}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold"><Run Text="Custom Post Filters"/></TextBlock>
+                        <TextBlock><Run Text="Enter a space or comma-delimited list of values, or a number range (eg: 120-130)."/></TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+
         <Button x:Name="closeButton" Content="Close" Margin="0,0,10,10" RenderTransformOrigin="0.244,1.117" IsCancel="True" IsDefault="True"
                 Click="closeButton_Click" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
-
     </Grid>
 </Window>
