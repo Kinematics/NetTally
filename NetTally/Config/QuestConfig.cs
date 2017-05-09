@@ -10,7 +10,7 @@ namespace NetTally
     {
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
             PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters, bool useCustomUsernameFilters,
-            string customUsernameFilters)
+            string customUsernameFilters, bool useCustomPostFilters, string customPostFilters)
         {
             ThreadName = threadName;
             DisplayName = displayName;
@@ -23,6 +23,8 @@ namespace NetTally
             CustomThreadmarkFilters = customThreadmarkFilters;
             UseCustomUsernameFilters = useCustomUsernameFilters;
             CustomUsernameFilters = customUsernameFilters;
+            UseCustomPostFilters = useCustomPostFilters;
+            CustomPostFilters = customPostFilters;
         }
 
         /// <summary>
@@ -117,6 +119,20 @@ namespace NetTally
         {
             get { return (string)this["CustomUsernameFilters"]; }
             set { this["CustomUsernameFilters"] = value; }
+        }
+
+        [ConfigurationProperty("UseCustomPostFilters", DefaultValue = false)]
+        public bool UseCustomPostFilters
+        {
+            get { return (bool)this["UseCustomPostFilters"]; }
+            set { this["UseCustomPostFilters"] = value; }
+        }
+
+        [ConfigurationProperty("CustomPostFilters", DefaultValue = "")]
+        public string CustomPostFilters
+        {
+            get { return (string)this["CustomPostFilters"]; }
+            set { this["CustomPostFilters"] = value; }
         }
 
         // Obsolete configuration properties.  Left in place solely so that if they

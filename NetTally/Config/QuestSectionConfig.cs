@@ -169,7 +169,9 @@ namespace NetTally
                         UseCustomThreadmarkFilters = questElement.UseCustomThreadmarkFilters,
                         CustomThreadmarkFilters = questElement.CustomThreadmarkFilters,
                         UseCustomUsernameFilters = questElement.UseCustomUsernameFilters,
-                        CustomUsernameFilters = questElement.CustomUsernameFilters
+                        CustomUsernameFilters = questElement.CustomUsernameFilters,
+                        UseCustomPostFilters = questElement.UseCustomPostFilters,
+                        CustomPostFilters = questElement.CustomPostFilters
                     };
 
                     if (questElement.UseVotePartitions && q.PartitionMode == PartitionMode.None)

@@ -47,7 +47,7 @@ namespace NetTally
 
             var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
                 quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters,
-                quest.UseCustomUsernameFilters, quest.CustomUsernameFilters);
+                quest.UseCustomUsernameFilters, quest.CustomUsernameFilters, quest.UseCustomPostFilters, quest.CustomPostFilters);
             BaseAdd(questElement, false);
         }
 
