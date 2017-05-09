@@ -116,7 +116,7 @@ namespace NetTally.Votes
             token.ThrowIfCancellationRequested();
 
             // If we're filtering the post number (sequential or ID), skip processing, and return true.
-            if (quest.PostsToFilter.Contains(post.Number) || quest.PostsToFilter.Contains(post.IDValue))
+            if (quest.UseCustomPostFilters && (quest.PostsToFilter.Contains(post.Number) || quest.PostsToFilter.Contains(post.IDValue)))
                 return true;
 
             // If the vote has content, deal with it
