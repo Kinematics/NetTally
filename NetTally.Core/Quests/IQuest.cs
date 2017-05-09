@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using NetTally.Forums;
 using NetTally.Utility;
@@ -97,6 +98,19 @@ namespace NetTally
         /// Gets or sets the user filter, based on current user filter settings.
         /// </summary>
         Filter UsernameFilter { get; }
+
+        /// <summary>
+        /// Flag for whether to use custom filters to exclude specified users from the tally.
+        /// </summary>
+        bool UseCustomPostFilters { get; set; }
+        /// <summary>
+        /// List of custom users to filter.
+        /// </summary>
+        string CustomPostFilters { get; set; }
+        /// <summary>
+        /// Collection of post numbers to filter from the tally.
+        /// </summary>
+        HashSet<int> PostsToFilter { get; }
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.

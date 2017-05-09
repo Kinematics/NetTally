@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
+using System.Collections.Generic;
 
 namespace NetTally
 {
@@ -279,6 +281,11 @@ namespace NetTally
         bool useCustomUsernameFilters = false;
         string customUsernameFilters = string.Empty;
 
+        bool useCustomPostFilters = false;
+        string customPostFilters = string.Empty;
+        readonly HashSet<int> postsToFilter = new HashSet<int>();
+        static readonly Regex postFilterRegex = new Regex(@"(?<range>(?<r1>\d+)\s*-\s*(?<r2>\d+))|(?<num>\d+)");
+
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
         /// from the list of valid 'last threadmark found' checks.
@@ -378,6 +385,83 @@ namespace NetTally
         /// Gets or sets the user filter, based on current user filter settings.
         /// </summary>
         public Filter UsernameFilter { get; private set; }
+
+
+        /// <summary>
+        /// Flag for whether to use custom filters to exclude specified posts from the tally.
+        /// </summary>
+        public bool UseCustomPostFilters
+        {
+            get { return useCustomPostFilters; }
+            set
+            {
+                useCustomPostFilters = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// List of custom posts to filter.
+        /// </summary>
+        public string CustomPostFilters
+        {
+            get { return customPostFilters; }
+            set
+            {
+                customPostFilters = value;
+
+                UpdatePostsToFilter();
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Collection of post numbers to filter from the tally.
+        /// </summary>
+        public HashSet<int> PostsToFilter
+        {
+            get
+            {
+                return postsToFilter;
+            }
+        }
+
+        /// <summary>
+        /// Function to convert the CustomPostFilters string to a hashset of post
+        /// numbers to filter.
+        /// </summary>
+        private void UpdatePostsToFilter()
+        {
+            postsToFilter.Clear();
+
+            if (!string.IsNullOrEmpty(customPostFilters))
+            {
+                MatchCollection ms = postFilterRegex.Matches(customPostFilters);
+
+                for (int i = 0; i < ms.Count; i++)
+                {
+                    Match m = ms[i];
+                    
+                    if (m.Groups[1].Success)
+                    {
+                        if (int.TryParse(m.Groups[2].Value, out int startRange) && int.TryParse(m.Groups[3].Value, out int endRange))
+                        {
+                            for (int j = startRange; j <= endRange; j++)
+                            {
+                                postsToFilter.Add(j);
+                            }
+                        }
+                    }
+                    else if (m.Groups[4].Success)
+                    {
+                        if (int.TryParse(m.Groups[4].Value, out int parseResult))
+                        {
+                            postsToFilter.Add(parseResult);
+                        }
+                    }
+                }
+            }
+        }
 
         #endregion
 
