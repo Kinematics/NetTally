@@ -103,6 +103,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
+        /// <returns>True if the post was processed, false if it was not.</returns>
         public static bool ProcessPost(PostComponents post, IQuest quest, CancellationToken token)
         {
             if (post == null)
