@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Linq;
 using NetTally.Votes;
 
 namespace NetTally
@@ -8,6 +9,9 @@ namespace NetTally
     /// </summary>
     public class QuestElement : ConfigurationElement
     {
+        string[] deprecatedAttributes = new string[] { "UseVotePartitions", "PartitionByLine", "AllowRankedVotes" };
+
+
         public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
             PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters, bool useCustomUsernameFilters,
             string customUsernameFilters, bool useCustomPostFilters, string customPostFilters)
@@ -27,6 +31,17 @@ namespace NetTally
             CustomPostFilters = customPostFilters;
         }
 
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
+        {
+            if (deprecatedAttributes.Contains(name))
+            {
+                return true;
+            }
+
+            return base.OnDeserializeUnrecognizedAttribute(name, value);
+        }
+
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="QuestElement"/> class.
         /// </summary>

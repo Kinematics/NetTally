@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
 using NetTally.Collections;
 using NetTally.Output;
 using NetTally.Votes;
@@ -16,6 +17,19 @@ namespace NetTally
         /// Defined name of the config section, as saved in the config file.
         /// </summary>
         public const string SectionName = "NetTally.Quests";
+
+        string[] deprecatedAttributes = new string[] { };
+
+
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
+        {
+            if (deprecatedAttributes.Contains(name))
+            {
+                return true;
+            }
+
+            return base.OnDeserializeUnrecognizedAttribute(name, value);
+        }
 
         #region Properties
         [ConfigurationProperty("Quests", IsDefaultCollection = false)]
