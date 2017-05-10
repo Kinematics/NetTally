@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -28,9 +29,9 @@ namespace NetTally
         {
             QuestCollectionWrapper questsWrapper = new QuestCollectionWrapper();
 
-            Configuration config = GetConfigToLoadFrom();
+            List<Configuration> configs = GetConfigsToLoadFrom();
 
-            ReadConfigInformation(config, questsWrapper);
+            ReadConfigInformation(configs, questsWrapper);
 
             return questsWrapper;
         }
@@ -39,14 +40,46 @@ namespace NetTally
         /// Reads the configuration information from the provided configuration object into
         /// the provided quests collection wrapper.
         /// </summary>
-        /// <param name="config">The configuration object to read.</param>
+        /// <param name="configs">The list of configuration objects to attempt to read.</param>
         /// <param name="questsWrapper">The quests wrapper to store data in.</param>
-        private static void ReadConfigInformation(Configuration config, QuestCollectionWrapper questsWrapper)
+        private static void ReadConfigInformation(List<Configuration> configs, QuestCollectionWrapper questsWrapper)
         {
-            if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+            if (configs.Count == 0)
+                return;
+
+            ConfigurationException failure = null;
+
+            ConfigPrefs.Strict = true;
+
+            while (true)
             {
-                questsSection.Load(questsWrapper);
+                foreach (var config in configs)
+                {
+                    try
+                    {
+                        if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+                        {
+                            questsSection.Load(questsWrapper);
+                        }
+
+                        // End as soon as done successfully
+                        return;
+                    }
+                    catch (ConfigurationException e)
+                    {
+                        failure = e;
+                    }
+                }
+
+                ConfigPrefs.Strict = !ConfigPrefs.Strict;
+
+                if (ConfigPrefs.Strict)
+                    break;
             }
+
+            // If all config files generated an error, throw the last one we got.
+            if (failure != null)
+                throw failure;
         }
 
         /// <summary>
@@ -106,6 +139,8 @@ namespace NetTally
         /// <param name="config">The configuration file to save to.</param>
         private static void WriteConfigInformation(QuestCollectionWrapper questsWrapper, Configuration config)
         {
+            ConfigPrefs.Strict = false;
+
             if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
             {
                 questsSection.Save(questsWrapper);
@@ -124,19 +159,21 @@ namespace NetTally
         /// If none are found, returns the local directory configuration.
         /// </summary>
         /// <returns>Returns the Configuration object for the program.</returns>
-        private static Configuration GetConfigToLoadFrom()
+        private static List<Configuration> GetConfigsToLoadFrom()
         {
+            List<Configuration> configs = new List<Configuration>();
+
             Configuration portableConfig = GetPortableConfig();
 
             if (portableConfig.HasFile)
-                return portableConfig;
+                configs.Add(portableConfig);
 
             Configuration roamingConfig = GetRecentRoamingConfig();
 
             if (roamingConfig.HasFile)
-                return roamingConfig;
+                configs.Add(roamingConfig);
 
-            return portableConfig;
+            return configs;
         }
 
 
