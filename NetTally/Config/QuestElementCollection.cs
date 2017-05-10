@@ -45,9 +45,22 @@ namespace NetTally
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            var questElement = new QuestElement(quest.ThreadName, quest.DisplayName, quest.PostsPerPage, quest.StartPost, quest.EndPost,
-                quest.CheckForLastThreadmark, quest.PartitionMode, quest.UseCustomThreadmarkFilters, quest.CustomThreadmarkFilters,
-                quest.UseCustomUsernameFilters, quest.CustomUsernameFilters, quest.UseCustomPostFilters, quest.CustomPostFilters);
+            var questElement = new QuestElement()
+            {
+                ThreadName = quest.ThreadName,
+                DisplayName = quest.DisplayName,
+                PostsPerPage = quest.PostsPerPage,
+                StartPost = quest.StartPost,
+                EndPost = quest.EndPost,
+                CheckForLastThreadmark = quest.CheckForLastThreadmark,
+                PartitionMode = quest.PartitionMode,
+                UseCustomThreadmarkFilters = quest.UseCustomThreadmarkFilters,
+                CustomThreadmarkFilters = quest.CustomThreadmarkFilters,
+                UseCustomUsernameFilters = quest.UseCustomUsernameFilters,
+                CustomUsernameFilters = quest.CustomUsernameFilters,
+                UseCustomPostFilters = quest.UseCustomPostFilters,
+                CustomPostFilters = quest.CustomPostFilters
+            };
 
             BaseAdd(questElement, false);
         }

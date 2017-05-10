@@ -9,27 +9,8 @@ namespace NetTally
     /// </summary>
     public class QuestElement : ConfigurationElement
     {
+        #region Deprecation handling
         string[] deprecatedAttributes = new string[] { "UseVotePartitions", "PartitionByLine", "AllowRankedVotes" };
-
-
-        public QuestElement(string threadName, string displayName, int postsPerPage, int startPost, int endPost, bool checkForLastThreadmark,
-            PartitionMode partitionMode, bool useCustomThreadmarkFilters, string customThreadmarkFilters, bool useCustomUsernameFilters,
-            string customUsernameFilters, bool useCustomPostFilters, string customPostFilters)
-        {
-            ThreadName = threadName;
-            DisplayName = displayName;
-            PostsPerPage = postsPerPage;
-            StartPost = startPost;
-            EndPost = endPost;
-            CheckForLastThreadmark = checkForLastThreadmark;
-            PartitionMode = partitionMode;
-            UseCustomThreadmarkFilters = useCustomThreadmarkFilters;
-            CustomThreadmarkFilters = customThreadmarkFilters;
-            UseCustomUsernameFilters = useCustomUsernameFilters;
-            CustomUsernameFilters = customUsernameFilters;
-            UseCustomPostFilters = useCustomPostFilters;
-            CustomPostFilters = customPostFilters;
-        }
 
         protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
         {
@@ -43,15 +24,18 @@ namespace NetTally
             else
                 return true;
         }
+        #endregion
 
-
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="QuestElement"/> class.
         /// </summary>
         public QuestElement()
-        { }
+        {
+        }
+        #endregion
 
-
+        #region Properties
         [ConfigurationProperty("ThreadName", DefaultValue = "", IsKey = true)]
         public string ThreadName
         {
@@ -152,5 +136,6 @@ namespace NetTally
             get { return (string)this["CustomPostFilters"]; }
             set { this["CustomPostFilters"] = value; }
         }
+        #endregion
     }
 }
