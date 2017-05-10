@@ -13,18 +13,21 @@ namespace NetTally
     /// </summary>
     public class QuestsSection : ConfigurationSection
     {
+        #region Meta info
         /// <summary>
         /// Defined name of the config section, as saved in the config file.
         /// </summary>
         public const string SectionName = "NetTally.Quests";
 
         /// <summary>
-        /// The deprecated attributes
+        /// A list of all deprecated attributes.
         /// </summary>
         string[] deprecatedAttributes = new string[] { "IgnoreSymbols", "AllowVoteLabelPlanNames" };
 
         /// <summary>
         /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
+        /// Strict mode will throw an exception on unknown, non-deprecated attributes.
+        /// Non-strict mode will ignore all unknown attributes.
         /// </summary>
         /// <param name="name">The name of the unrecognized attribute.</param>
         /// <param name="value">The value of the unrecognized attribute.</param>
@@ -44,6 +47,7 @@ namespace NetTally
             else
                 return true;
         }
+        #endregion
 
         #region Properties
         [ConfigurationProperty("Quests", IsDefaultCollection = false)]
@@ -68,27 +72,11 @@ namespace NetTally
             set { this["AllowRankedVotes"] = value; }
         }
 
-        [Obsolete("Invert usage")]
-        [ConfigurationProperty("IgnoreSymbols", DefaultValue = true)]
-        public bool IgnoreSymbols
-        {
-            get { return (bool)this["IgnoreSymbols"]; }
-            set { this["IgnoreSymbols"] = value; }
-        }
-
         [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
         public bool WhitespaceAndPunctuationIsSignificant
         {
             get { return (bool)this["WhitespaceAndPunctuationIsSignificant"]; }
             set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
-        }
-
-        [Obsolete("Invert usage")]
-        [ConfigurationProperty("AllowVoteLabelPlanNames", DefaultValue = true)]
-        public bool AllowVoteLabelPlanNames
-        {
-            get { return (bool)this["AllowVoteLabelPlanNames"]; }
-            set { this["AllowVoteLabelPlanNames"] = value; }
         }
 
         [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
@@ -171,14 +159,6 @@ namespace NetTally
             AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
             AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
 
-            // Allow reading old config files.
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (AllowVoteLabelPlanNames == false)
-                AdvancedOptions.Instance.ForbidVoteLabelPlanNames = true;
-            if (IgnoreSymbols == false)
-                AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = true;
-#pragma warning restore CS0618 // Type or member is obsolete
-
             questWrapper.CurrentQuest = CurrentQuest;
 
             foreach (QuestElement questElement in Quests)
@@ -201,14 +181,6 @@ namespace NetTally
                         UseCustomPostFilters = questElement.UseCustomPostFilters,
                         CustomPostFilters = questElement.CustomPostFilters
                     };
-
-                    if (questElement.UseVotePartitions && q.PartitionMode == PartitionMode.None)
-                    {
-                        if (questElement.PartitionByLine)
-                            q.PartitionMode = PartitionMode.ByLine;
-                        else
-                            q.PartitionMode = PartitionMode.ByBlock;
-                    }
 
                     questWrapper.QuestCollection.Add(q);
                 }
