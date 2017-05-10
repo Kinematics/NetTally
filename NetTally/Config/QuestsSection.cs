@@ -18,9 +18,20 @@ namespace NetTally
         /// </summary>
         public const string SectionName = "NetTally.Quests";
 
-        string[] deprecatedAttributes = new string[] { };
+        /// <summary>
+        /// The deprecated attributes
+        /// </summary>
+        string[] deprecatedAttributes = new string[] { "IgnoreSymbols", "AllowVoteLabelPlanNames" };
 
-
+        /// <summary>
+        /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
+        /// </summary>
+        /// <param name="name">The name of the unrecognized attribute.</param>
+        /// <param name="value">The value of the unrecognized attribute.</param>
+        /// <returns>
+        /// true when an unknown attribute is encountered while deserializing, and we don't want to throw
+        /// an exception. Otherwise, false.
+        /// </returns>
         protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
         {
             if (deprecatedAttributes.Contains(name))
