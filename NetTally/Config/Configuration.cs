@@ -19,7 +19,7 @@ namespace NetTally
     /// </summary>
     public static class NetTallyConfig
     {
-        #region Loading and Saving        
+        #region Loading
         /// <summary>
         /// Loads the program user data config and returns a collection of
         /// quests.
@@ -81,7 +81,9 @@ namespace NetTally
             if (failure != null)
                 throw failure;
         }
+        #endregion
 
+        #region Saving
         /// <summary>
         /// Saves the data from the specified quests wrapper into the config file.
         /// Tries to save in both the portable location (same directory as the executable),
@@ -176,7 +178,6 @@ namespace NetTally
             return configs;
         }
 
-
         /// <summary>
         /// Gets the portable configuration.
         /// </summary>
@@ -225,7 +226,7 @@ namespace NetTally
 
         #endregion
 
-        #region Getting Config Maps        
+        #region Getting Config File Maps        
         /// <summary>
         /// Gets the config map for the portable config file.
         /// </summary>
@@ -238,7 +239,7 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Gets the map for the current (fixed) roaming configuration directory.
+        /// Gets the map for the current (unhashed) roaming configuration directory.
         /// </summary>
         /// <returns>Returns the config map for the roaming config file.</returns>
         private static ExeConfigurationFileMap GetCurrentRoamingMap()
@@ -301,14 +302,35 @@ namespace NetTally
 
             return null;
         }
+
+        /// <summary>
+        /// Gets a configuration file map that uses the provided user path for the local and roaming paths.
+        /// </summary>
+        /// <param name="userPath">The path to use for user config file locations.</param>
+        /// <returns>Returns a configuration file map using the provided user path.</returns>
+        private static ExeConfigurationFileMap GetMapWithUserPath(string userPath)
+        {
+            ExeConfigurationFileMap map = new ExeConfigurationFileMap();
+
+            ConfigurationFileMap machineMap = new ConfigurationFileMap();
+            map.MachineConfigFilename = machineMap.MachineConfigFilename;
+
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            map.ExeConfigFilename = config.FilePath;
+
+            map.LocalUserConfigFilename = userPath;
+            map.RoamingUserConfigFilename = userPath;
+
+            return map;
+        }
         #endregion
 
-        #region Mapping utility functions.
+        #region Directory utility functions
         /// <summary>
         /// Gets the directory with the highest version number that is not higher than
         /// the current assembly version, and contains a user.config file in it.
         /// </summary>
-        /// <param name="parent">The parent directory.</param>
+        /// <param name="parent">The parent directory being searched.</param>
         /// <returns>Returns the best directory match it can find, or null.</returns>
         private static DirectoryInfo GetLatestVersionDirectory(DirectoryInfo parent)
         {
@@ -319,12 +341,30 @@ namespace NetTally
 
             var dirs = from dir in versionDirectories
                        where dir.EnumerateFiles().Any(de => de.Name == "user.config")
-                       let v = DirectoryVersion(dir)
+                       let v = GetDirectoryVersion(dir)
                        where v.Major > 0 && v <= ProductInfo.AssemblyVersion
                        orderby v
                        select dir;
 
             return dirs.LastOrDefault();
+        }
+
+        /// <summary>
+        /// Returns a Version object based on the name of the provided directory.
+        /// If the directory is not in a version format (eg: 1.2.3.4), returns the default version.
+        /// </summary>
+        /// <param name="dir">The directory.</param>
+        /// <returns>Returns a version based on the directory name, or the default.</returns>
+        private static Version GetDirectoryVersion(DirectoryInfo dir)
+        {
+            try
+            {
+                return new Version(dir.Name);
+            }
+            catch (Exception)
+            {
+                return new Version();
+            }
         }
 
         /// <summary>
@@ -338,43 +378,6 @@ namespace NetTally
             product = $"{product}.Debug";
 #endif
             return product;
-        }
-
-        /// <summary>
-        /// Gets a configuration file map that uses the provided user path for the local and roaming paths.
-        /// </summary>
-        /// <param name="userPath">The path to use for user config file locations.</param>
-        /// <returns>Returns a configuration file map using the provided user path.</returns>
-        private static ExeConfigurationFileMap GetMapWithUserPath(string userPath)
-        {
-            ExeConfigurationFileMap map = new ExeConfigurationFileMap();
-
-            ConfigurationFileMap machineMap = new ConfigurationFileMap();
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-            map.MachineConfigFilename = machineMap.MachineConfigFilename;
-            map.ExeConfigFilename = config.FilePath;
-            map.LocalUserConfigFilename = userPath;
-            map.RoamingUserConfigFilename = userPath;
-
-            return map;
-        }
-
-        /// <summary>
-        /// Returns a Version object based on the name of the provided directory.
-        /// </summary>
-        /// <param name="d">The directory.</param>
-        /// <returns>Returns a version based on the directory name, or the default.</returns>
-        private static Version DirectoryVersion(DirectoryInfo d)
-        {
-            try
-            {
-                return new Version(d.Name);
-            }
-            catch (Exception)
-            {
-                return new Version();
-            }
         }
         #endregion
     }
