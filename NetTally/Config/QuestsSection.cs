@@ -28,7 +28,10 @@ namespace NetTally
                 return true;
             }
 
-            return base.OnDeserializeUnrecognizedAttribute(name, value);
+            if (ConfigPrefs.Strict)
+                return base.OnDeserializeUnrecognizedAttribute(name, value);
+            else
+                return true;
         }
 
         #region Properties

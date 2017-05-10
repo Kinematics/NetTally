@@ -8,6 +8,11 @@ using NetTally.Utility;
 
 namespace NetTally
 {
+    public static class ConfigPrefs
+    {
+        public static bool Strict = false;
+    }
+
     /// <summary>
     /// Class for loading and saving program configuration information.
     /// </summary>

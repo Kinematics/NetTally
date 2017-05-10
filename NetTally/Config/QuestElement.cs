@@ -38,10 +38,13 @@ namespace NetTally
                 return true;
             }
 
-            return base.OnDeserializeUnrecognizedAttribute(name, value);
+            if (ConfigPrefs.Strict)
+                return base.OnDeserializeUnrecognizedAttribute(name, value);
+            else
+                return true;
         }
 
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QuestElement"/> class.
         /// </summary>
