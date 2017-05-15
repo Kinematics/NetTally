@@ -128,41 +128,64 @@ namespace NetTally.Votes
         /// <returns>Returns the vote line without any BBCode in the pre-content area.</returns>
         private static string StripPrecontentBBCode(string line)
         {
+            string remainder = line ?? throw new ArgumentNullException(nameof(line));
+            string piece = string.Empty;
 
-            // Remove BBCode markup one at a time, until we get a clear check
-            // across the entire precontent area.  Any BBCode in the content
-            // area is left alone.  Any BBCode inside the task segment is
-            // removed.
-            Match m1 = markupRegex.Match(line);
-            Match m2;
-            while (m1.Success == true)
+            StringBuilder sb = new StringBuilder();
+
+            // Pull out prefix and strip all BBCode from that section
+            Regex prefix = new Regex(@"^([^[]*)(\[.+)");
+
+            Match m = prefix.Match(remainder);
+
+            if (m.Success)
             {
-                m2 = precontentRegex.Match(line);
-                if (!m2.Success)
-                {
-                    line = markupRegex.Replace(line, "", 1);
-                }
-                else if (m2.Groups[1].Success)
-                {
-                    m1 = markupRegex.Match(m2.Groups[1].Value);
-                    if (m1.Success)
-                    {
-                        line = markupRegex.Replace(line, "", 1);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-
-                m1 = markupRegex.Match(line);
+                piece = m.Groups[1].Value;
+                remainder = m.Groups[2].Value;
             }
 
-            return line;
+            piece = markupRegex.Replace(piece, "");
+
+            sb.Append(piece);
+
+            // Pull out marker and strip all BBCode from that section
+            Regex marker = new Regex(@"^([^]]*])(.+)");
+
+            m = marker.Match(remainder);
+
+            if (m.Success)
+            {
+                piece = m.Groups[1].Value;
+                remainder = m.Groups[2].Value;
+            }
+
+            piece = markupRegex.Replace(piece, "");
+
+            sb.Append(piece);
+
+            // Pull out task (if any) and strip all BBCode from that section
+            // Leading spacing is stripped, so no spaces between [x] and [task].
+            // Trailing spacing is stripped if it is inside BBCode.  
+            // EG: [task] [/b]Content => [task]Content
+            // EG: [task][/b] Content => [task] Content
+            Regex task = new Regex(@"^(?:(?:\s*(?:『/?[ibu]』|『color=[^』]+』|『/color』))*\s*(\[[^]]*])(?:\s*(?:『/[ibu]』|『/color』))*)?(.+)");
+
+            m = task.Match(remainder);
+
+            if (m.Success)
+            {
+                if (m.Groups[1].Success)
+                    piece = markupRegex.Replace(m.Groups[1].Value, "");
+                else
+                    piece = string.Empty;
+
+                remainder = m.Groups[2].Value;
+            }
+
+            sb.Append(piece);
+            sb.Append(remainder);
+
+            return sb.ToString();
         }
 
         /// <summary>
