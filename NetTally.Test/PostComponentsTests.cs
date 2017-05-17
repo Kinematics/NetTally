@@ -252,7 +252,7 @@ Additional:
             string msg =
 @"What do you think they'll be doing now?
 [x] Ferris wheel
-[x] [color=orange]Teacups[/color]";
+[x] 『color=orange』Teacups『/color』";
 
             PostComponents p = new PostComponents(author, id, msg);
 
@@ -260,7 +260,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"[x] [color=orange]Teacups[/color]", p.VoteStrings[1]);
+            Assert.AreEqual(@"[x] 『color=orange』Teacups『/color』", p.VoteStrings[1]);
         }
 
         [TestMethod]
@@ -269,7 +269,7 @@ Additional:
             string msg =
 @"What do you think they'll be doing now?
 [x] Ferris wheel
-[x] [color=#ff00AA]Teacups[/color]";
+[x] 『color=#ff00AA』Teacups『/color』";
 
             PostComponents p = new PostComponents(author, id, msg);
 
@@ -277,7 +277,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"[x] [color=#ff00AA]Teacups[/color]", p.VoteStrings[1]);
+            Assert.AreEqual(@"[x] 『color=#ff00AA』Teacups『/color』", p.VoteStrings[1]);
         }
         #endregion
 
