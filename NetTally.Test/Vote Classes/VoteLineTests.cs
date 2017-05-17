@@ -136,7 +136,7 @@ namespace NetTally.Tests
             // Extra space between the marker and task
             VoteLine vote = new VoteLine("- - [x] [How?] A simple vote line with task and prefix");
 
-            Assert.AreEqual("- - [x] [How?] A simple vote line with task and prefix", vote.Text);
+            Assert.AreEqual("- - [x][How?] A simple vote line with task and prefix", vote.Text);
             Assert.AreEqual("--", vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
             Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
