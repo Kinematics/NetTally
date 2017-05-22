@@ -10,6 +10,8 @@ namespace NetTally.Extensions
     /// </summary>
     public static class HtmlNodeEx
     {
+        static readonly char[] classSeparators = new[] { ' ' };
+        
         /// <summary>
         /// Determines whether the specified HTML node has the named class.
         /// Allows for multiple classes in the class attribute, separated by spaces.
@@ -31,7 +33,7 @@ namespace NetTally.Extensions
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
-            return node.GetAttributeValue("class", "").Split(' ').Contains(@class);
+            return node.GetAttributeValue("class", "").Split(classSeparators, StringSplitOptions.RemoveEmptyEntries).Contains(@class);
         }
 
         /// <summary>
