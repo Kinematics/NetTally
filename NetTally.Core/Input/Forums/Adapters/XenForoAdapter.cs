@@ -321,7 +321,8 @@ namespace NetTally.Forums.Adapters
 
         #region Static support functions
         /// <summary>
-        /// Find the pageContent div contained in the top-level document node.
+        /// Find the div with the 'content' ID contained in the top-level document node.
+        /// Make sure this div is appropriate for the type of page we're looking at.
         /// </summary>
         /// <param name="doc">An HTML document page.</param>
         /// <returns>Returns the node that holds the page content, if found.</returns>
@@ -332,26 +333,22 @@ namespace NetTally.Forums.Adapters
 
             var contentNode = doc.GetElementbyId("content");
 
+            if (contentNode == null)
+                throw new InvalidOperationException("Page does not have a content section.");
+
             switch (pageType)
             {
                 case PageType.Thread:
-                    if (!contentNode.GetAttributeValue("class", "").Contains("thread_view"))
+                    if (!contentNode.HasClass("thread_view"))
                         throw new InvalidOperationException("This page does not contain a forum thread.");
                     break;
                 case PageType.Threadmarks:
-                    if (!contentNode.GetAttributeValue("class", "").Contains("threadmarks"))
+                    if (!contentNode.HasClass("threadmarks"))
                         throw new InvalidOperationException("This page does not contain threadmarks.");
                     break;
             }
 
-            // Some XenForo sites insert a "pageWidth" div between content and pageContent, to allow
-            // themed setting of the page width.  We want to skip that.
-            //
-            // We can do so by searching for the descendant with the appropriate class, since
-            // the node recursion should be fast (ie: only one div per child level until we
-            // reach pageContent).
-
-            return contentNode.GetDescendantWithClass("pageContent");
+            return contentNode;
         }
 
         /// <summary>
