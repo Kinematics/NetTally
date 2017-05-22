@@ -453,25 +453,31 @@ namespace NetTally.Forums.Adapters
             {
                 var content = GetPageContent(page, PageType.Threadmarks);
 
-                var section = content.GetDescendantWithClass("div", "section");
+                var threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
 
-                // Check a few different locations for the HTML list.
-                var list = section.Element("ol") ?? section.Descendants("ul").FirstOrDefault() ?? section.Descendants("ol").FirstOrDefault();
+                HtmlNode mainList = threadmarksDiv.Elements("ol").FirstOrDefault(e => e.HasClass("threadmarkList"));
 
-                if (list != null)
+                if (mainList == null)
                 {
-                    Predicate<HtmlNode> filterLambda = (n) =>
-                        (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
-                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
-
-                    Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
-
-                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? i.Element("ol")?.Elements("li") ?? new List<HtmlNode>();
-
-                    var results = list.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
-
-                    return results;
+                    mainList = threadmarksDiv.Elements("ul").FirstOrDefault(e => e.Elements("li").FirstOrDefault(a => a.HasClass("threadmarkItem")) != null);
                 }
+
+                // Return empty list if no threadmark ul or ol found.
+                if (mainList == null)
+                    return new List<HtmlNode>();
+
+
+                Predicate<HtmlNode> filterLambda = (n) =>
+                    (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
+                    (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
+
+                Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
+
+                Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? new List<HtmlNode>();
+
+                var results = mainList.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
+
+                return results;
             }
             catch (ArgumentNullException e)
             {
