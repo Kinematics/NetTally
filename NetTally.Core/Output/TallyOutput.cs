@@ -89,7 +89,13 @@ namespace NetTally.Output
             if (AdvancedOptions.Instance.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
-            sb.AppendLine(VoteCounter.Instance.Title);
+            sb.Append(VoteCounter.Instance.Title);
+
+            GetPostRange(out int first, out int last);
+            if (last > 0)
+                sb.Append($" [Posts: {first}-{last}]");
+
+            sb.AppendLine();
 
             sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
 
@@ -104,6 +110,26 @@ namespace NetTally.Output
             }
 
             sb.AppendLine();
+        }
+
+        /// <summary>
+        /// Gets the post range of the votes that the VoteCounter tallied.
+        /// Returns values of 0 if no valid posts are available.
+        /// </summary>
+        /// <param name="first">The first post number.</param>
+        /// <param name="last">The last post number.</param>
+        private void GetPostRange(out int first, out int last)
+        {
+            first = 0;
+            last = 0;
+
+            foreach (var post in VoteCounter.Instance.PostsList)
+            {
+                if (first == 0 || post.Number < first)
+                    first = post.Number;
+                if (post.Number > last)
+                    last = post.Number;
+            }
         }
         #endregion
 
