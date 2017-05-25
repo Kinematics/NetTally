@@ -52,6 +52,7 @@ namespace NetTally
         bool trimExtendedText = false;
 
         bool globalSpoilers = false;
+        bool displayPlansWithNoVotes = false;
 
         bool debugMode = false;
         #endregion
@@ -67,6 +68,7 @@ namespace NetTally
         public const string _ignoreSpoilers = "ignoreSpoilers";
         public const string _trimExtendedText = "trimExtendedText";
         public const string _globalSpoilers = "globalSpoilers";
+        public const string _displayPlansWithNoVotes = "displayPlansWithNoVotes";
         public const string _debugMode = "debugMode";
         #endregion
 
@@ -235,6 +237,19 @@ namespace NetTally
             set
             {
                 globalSpoilers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to always put spoiler tags around all forms of display output.
+        /// </summary>
+        public bool DisplayPlansWithNoVotes
+        {
+            get { return displayPlansWithNoVotes; }
+            set
+            {
+                displayPlansWithNoVotes = value;
                 OnPropertyChanged();
             }
         }
