@@ -120,6 +120,13 @@ namespace NetTally
             set { this["GlobalSpoilers"] = value; }
         }
 
+        [ConfigurationProperty("DisplayPlansWithNoVotes", DefaultValue = false)]
+        public bool DisplayPlansWithNoVotes
+        {
+            get { return (bool)this["DisplayPlansWithNoVotes"]; }
+            set { this["DisplayPlansWithNoVotes"] = value; }
+        }
+
         [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
@@ -158,6 +165,7 @@ namespace NetTally
             AdvancedOptions.Instance.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
             AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
             AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
+            AdvancedOptions.Instance.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
 
             questWrapper.CurrentQuest = CurrentQuest;
 
@@ -210,6 +218,7 @@ namespace NetTally
             ForcePinnedProxyVotes = AdvancedOptions.Instance.ForcePinnedProxyVotes;
             ForbidVoteLabelPlanNames = AdvancedOptions.Instance.ForbidVoteLabelPlanNames;
             WhitespaceAndPunctuationIsSignificant = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant;
+            DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes;
 
             CurrentQuest = questWrapper.CurrentQuest;
 

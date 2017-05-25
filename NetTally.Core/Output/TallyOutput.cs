@@ -323,9 +323,12 @@ namespace NetTally.Output
                     {
                         foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)))
                         {
-                            AddVote(vote);
-                            AddVoteCount(vote);
-                            AddVoters(vote.Value, "Voters");
+                            if (AdvancedOptions.Instance.DisplayPlansWithNoVotes || VoteInfo.CountVote(vote) > 0)
+                            {
+                                AddVote(vote);
+                                AddVoteCount(vote);
+                                AddVoters(vote.Value, "Voters");
+                            }
                         }
                     }
 
