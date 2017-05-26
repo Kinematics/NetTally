@@ -38,7 +38,7 @@ namespace NetTally
         #region URL and Display Name
         string threadName = string.Empty;
         string displayName = string.Empty;
-        static readonly Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?$");
+        static readonly Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?(unread)?$");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
         public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
 
