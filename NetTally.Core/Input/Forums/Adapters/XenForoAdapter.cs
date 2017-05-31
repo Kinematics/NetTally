@@ -84,7 +84,7 @@ namespace NetTally.Forums.Adapters
 
         string ThreadBaseUrl => $"{BaseSite}threads/{ThreadName}/";
         string PostsBaseUrl => $"{BaseSite}posts/";
-        string ThreadmarksUrl => $"{ThreadBaseUrl}threadmarks";
+        string ThreadmarksUrl => $"{ThreadBaseUrl}threadmarks?category_id=1";
         #endregion
 
         #region Public Interface
@@ -465,6 +465,13 @@ namespace NetTally.Forums.Adapters
                 // Return empty list if no threadmark ul or ol found.
                 if (mainList == null)
                     return new List<HtmlNode>();
+
+                // Ensure that if we have a page with a threadmark category, that it is the primary category.
+                if (mainList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
+                {
+                    if (!mainList.HasClass("ThreadmarkCategory_1"))
+                        return new List<HtmlNode>();
+                }
 
 
                 Predicate<HtmlNode> filterLambda = (n) =>
