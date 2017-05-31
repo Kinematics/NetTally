@@ -26,7 +26,7 @@ namespace NetTally.Output
 
             if (Display)
             {
-                sb?.AppendLine($"[spoiler={label}]");
+                sb?.AppendLine($"[spoiler=\"{label}\"]");
             }
         }
 
