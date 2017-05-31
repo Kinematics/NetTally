@@ -232,6 +232,7 @@ namespace NetTally.ViewModels
             if (e.PropertyName == "DisplayName")
             {
                 QuestList.Sort();
+                OnPropertyChanged("RenameQuest");
             }
         }
         #endregion
