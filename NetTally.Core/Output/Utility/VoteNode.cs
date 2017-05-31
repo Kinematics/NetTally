@@ -139,18 +139,10 @@ namespace NetTally.Output
                 results = sb.ToString();
             }
 
-            // Child nodes in compact mode will be put in spoilers.
-            // Remove BBCode and change the [10] count to (10).
+            // Child nodes in compact mode will be put in spoilers.  Remove BBCode.
             if (HasParent && displayMode == DisplayMode.Compact)
             {
-                string cleanString = VoteString.RemoveBBCode(results);
-
-                Regex bracketRegex = new Regex(@"\[(\d+)\]");
-                Match m = bracketRegex.Match(cleanString);
-                if (m.Success)
-                {
-                    results = bracketRegex.Replace(cleanString, $"({m.Groups[1].Value})", 1);
-                }
+                results = VoteString.RemoveBBCode(results);
             }
 
             return results;
