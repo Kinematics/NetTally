@@ -56,7 +56,6 @@ namespace NetTally.Web
 
             client = new HttpClient(ClientHandler);
 
-            client.MaxResponseContentBufferSize = 1000000;
             client.Timeout = timeout;
             client.DefaultRequestHeaders.Add("Accept", "text/html");
             client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
