@@ -69,12 +69,41 @@ namespace NetTally.Output
 
             using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll || AdvancedOptions.Instance.GlobalSpoilers))
             {
+                // Formating options
+                // If output is constructed, further output is skipped
+                if (ConstructFormattingOutput(token))
+                    return;
+
                 AddHeader(token);
 
                 ConstructRankedOutput(token);
 
                 ConstructNormalOutput(token);
             }
+        }
+
+        /// <summary>
+        /// Constructs output if one of the formatting options is chosen.
+        /// </summary>
+        /// <returns>true if output is constructed, false otherwise.</returns>
+        private bool ConstructFormattingOutput(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+
+            // Sorry for completely bastardizing your program here, seemed like the easiest option.
+            if (VoteCounter.Instance.HasRankedVotes)
+            {
+                IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
+                
+                if(counter is BaseVoteFormat)
+                {
+                    RankResultsByTask output = counter.CountVotes(VoteCounter.Instance.GetVotesCollection(VoteType.Rank));
+                    sb.AppendLine(output.First<KeyValuePair<string, RankResults>>().Value.First<RankResult>().Option);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

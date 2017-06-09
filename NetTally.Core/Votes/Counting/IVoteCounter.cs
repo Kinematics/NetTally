@@ -52,6 +52,7 @@ namespace NetTally.VoteCounting
         HashSet<PostComponents> FutureReferences { get; }
 
         bool HasUndoActions { get; }
+
         bool Undo();
     }
 }

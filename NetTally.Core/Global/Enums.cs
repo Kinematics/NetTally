@@ -178,6 +178,10 @@ namespace NetTally
             Baldwin,
             [EnumDescription("Rated Instant Runoff")]
             RIRV,
+            [EnumDescription("Format for Democratix")]
+            Democratix,
+            [EnumDescription("Format for condorcet.vote")]
+            condorcetvote,
         }
 
         /// <summary>

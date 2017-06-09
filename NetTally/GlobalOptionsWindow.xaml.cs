@@ -33,5 +33,10 @@ namespace NetTally
 
             debugMode.IsChecked = false;
         }
+
+        private void rankedVoteAlgorithm_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

@@ -63,6 +63,10 @@ namespace NetTally.VoteCounting
                     return new SchulzeRankVoteCounter();
                 case RankVoteCounterMethod.RIRV:
                     return new RIRVRankVoteCounter();
+                case RankVoteCounterMethod.Democratix:
+                    return new DemocratixFormat();
+                case RankVoteCounterMethod.condorcetvote:
+                    return new CondorcetVoteFormat();
                 default:
                     return new RIRVRankVoteCounter();
             }

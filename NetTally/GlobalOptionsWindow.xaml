@@ -75,6 +75,8 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Democratix - Formats votes for http://democratix.dbai.tuwien.ac.at/"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="condorcet.vote - Formats votes for https://www.condorcet.vote/"/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=forbidVoteLabelPlanNames, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
