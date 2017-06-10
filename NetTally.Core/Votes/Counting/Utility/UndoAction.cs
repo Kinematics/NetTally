@@ -8,7 +8,8 @@ namespace NetTally.Votes
     {
         Merge,
         Join,
-        Delete
+        Delete,
+        PartitionChildren
     }
 
     public class UndoAction
@@ -124,5 +125,29 @@ namespace NetTally.Votes
                 PriorVotes.Add(new KeyValuePair<string, HashSet<string>>(prior.Key, new HashSet<string>(prior.Value)));
             }
         }
+
+        // Partition Children votes
+        public UndoAction(UndoActionType actionType, VoteType voteType, Dictionary<string, string> postIDs,
+            HashSet<string> addedVotes, string deletedVote, HashSet<string> voters)
+        {
+            if (actionType != UndoActionType.PartitionChildren)
+                throw new InvalidOperationException("Invalid use of constructor for Partition undo.");
+            if (addedVotes == null)
+                throw new ArgumentNullException(nameof(addedVotes));
+            if (voters == null)
+                throw new ArgumentNullException(nameof(voters));
+            if (string.IsNullOrEmpty(deletedVote))
+                throw new ArgumentNullException(nameof(deletedVote));
+
+
+            ActionType = actionType;
+            VoteType = voteType;
+            PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
+
+            Vote1 = deletedVote;
+            Voters1 = new HashSet<string>(voters ?? Enumerable.Empty<string>());
+            Voters2 = new HashSet<string>(addedVotes ?? Enumerable.Empty<string>());
+        }
+
     }
 }

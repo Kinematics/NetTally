@@ -5,9 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
+
 
 namespace NetTally.VoteCounting
 {
@@ -807,13 +809,16 @@ namespace NetTally.VoteCounting
             return count > 0;
         }
 
+
+        public bool Delete(string vote, VoteType voteType) => Delete(vote, voteType, false);
+
         /// <summary>
         /// Delete a vote from the vote list specified.
         /// </summary>
         /// <param name="vote">The vote to remove.</param>
         /// <param name="voteType">The type of vote to remove.</param>
         /// <returns>Returns true if a vote was removed.</returns>
-        public bool Delete(string vote, VoteType voteType)
+        public bool Delete(string vote, VoteType voteType, bool suppressUndo = false)
         {
             if (string.IsNullOrEmpty(vote))
                 return false;
@@ -833,7 +838,8 @@ namespace NetTally.VoteCounting
 
             if (deletedVotes.Count > 0)
             {
-                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), deletedVotes));
+                if (!suppressUndo)
+                    UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), deletedVotes));
 
                 foreach (var del in deletedVotes)
                 {
@@ -852,6 +858,79 @@ namespace NetTally.VoteCounting
             OnPropertyChanged("VoteCounter");
 
             return removed;
+        }
+
+        /// <summary>
+        /// Partitions the child components of a vote into separate vote entries, passing
+        /// the voters into those child entries and removing the original.
+        /// </summary>
+        /// <param name="vote">The vote to partition.</param>
+        /// <param name="voteType">The type of vote.</param>
+        /// <returns>Returns true if the process was completed, or false otherwise.</returns>
+        public bool PartitionChildren(string vote, VoteType voteType)
+        {
+            if (string.IsNullOrEmpty(vote))
+                return false;
+
+            // No point in partitioning rank votes
+            if (voteType == VoteType.Rank)
+            {
+                return false;
+            }
+
+            // Make sure the provided vote exists
+            string voteKey = GetVoteKey(vote, voteType);
+            var votes = GetVotesCollection(voteType);
+
+            if (votes.ContainsKey(voteKey) == false)
+            {
+                return false;
+            }
+
+            // Construct the new votes that the vote is being partitioned into.
+            var voteLines = vote.GetStringLines();
+
+            if (voteLines.Count < 2)
+                return false;
+
+            var afterVoteLines = voteLines.Skip(1);
+
+            int indentCount = afterVoteLines.Min(a => VoteString.GetVotePrefix(a).Length);
+
+            var promotedVoteLines = afterVoteLines.Select(a => a.Substring(indentCount)).ToList();
+
+            var partitionedVotes = VoteConstructor.PartitionVoteStrings(promotedVoteLines, Quest, PartitionMode.ByBlock);
+
+            HashSet<string> addedVotes = new HashSet<string>();
+
+            var voters = votes[voteKey];
+            bool votesChanged = false;
+
+            foreach (var v in partitionedVotes)
+            {
+                var key = GetVoteKey(v, voteType);
+
+                if (!votes.ContainsKey(key))
+                {
+                    votes[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    votesChanged = true;
+                }
+
+                votes[key].UnionWith(voters);
+
+                addedVotes.Add(key);
+            }
+
+            UndoBuffer.Push(new UndoAction(UndoActionType.PartitionChildren, voteType, GetVotersCollection(voteType), addedVotes, voteKey, voters));
+
+            Delete(vote, voteType, true);
+
+            if (votesChanged)
+                OnPropertyChanged("Votes");
+
+            OnPropertyChanged("VoteCounter");
+
+            return true;
         }
 
         /// <summary>
@@ -920,6 +999,22 @@ namespace NetTally.VoteCounting
                             }
                         }
                     }
+                    break;
+                case UndoActionType.PartitionChildren:
+                    var votes = GetVotesCollection(undo.VoteType);
+
+                    foreach (var voter in undo.Voters1)
+                    {
+                        AddVote(undo.Vote1, voter, undo.VoteType);
+                        AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
+
+                        foreach (var addedVote in undo.Voters2)
+                        {
+                            if (votes.TryGetValue(addedVote, out HashSet<string> vs))
+                                vs.Remove(voter);
+                        }
+                    }
+
                     break;
                 default:
                     return false;

@@ -23,6 +23,7 @@ namespace NetTally.VoteCounting
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
         bool Delete(string vote, VoteType voteType);
+        bool PartitionChildren(string vote, VoteType voteType);
 
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
         Dictionary<string, string> GetVotersCollection(VoteType voteType);

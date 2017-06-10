@@ -164,6 +164,49 @@ namespace NetTally.Votes
         }
 
         /// <summary>
+        /// Allows partitioning a provided vote (unified vote string) using the specified partition mode.
+        /// </summary>
+        /// <param name="vote">The vote string.</param>
+        /// <param name="quest">The quest, for filter parameters.</param>
+        /// <param name="partitionMode">The partition mode to use.</param>
+        /// <returns>Returns the partitioned vote as a list of strings.</returns>
+        public static List<string> PartitionVoteString(string vote, IQuest quest, PartitionMode partitionMode)
+        {
+            if (string.IsNullOrEmpty(vote))
+                return new List<string>();
+
+            var voteLines = vote.GetStringLines();
+            return PartitionVoteStrings(voteLines, quest, partitionMode);
+        }
+
+        /// <summary>
+        /// Allows partitioning a provided vote (already broken into a list of lines) using the
+        /// specified partition mode.
+        /// </summary>
+        /// <param name="voteLines">The vote lines.</param>
+        /// <param name="quest">The quest, for filter parameters.</param>
+        /// <param name="partitionMode">The partition mode to use.</param>
+        /// <returns>Returns the partitioned vote as a list of strings.</returns>
+        public static List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
+        {
+            if (voteLines == null)
+                throw new ArgumentNullException(nameof(voteLines));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
+            if (voteLines.Count == 0)
+                return new List<string>();
+
+            // Get the list of all vote partitions, built according to current preferences.
+            // One of: By line, By block, or By post (ie: entire vote)
+            List<string> votePartitions = GetVotePartitions(voteLines, partitionMode, VoteType.Vote, "This is a fake voter name~~~~~~~");
+
+            var filteredPartitions = FilterVotesByTask(votePartitions, quest);
+
+            return filteredPartitions;
+        }
+
+        /// <summary>
         /// Get the lines of the vote that we will be processing out of the post.
         /// Only take the .VoteLines, and condense any instances of known plans
         /// to just a reference to the plan name.

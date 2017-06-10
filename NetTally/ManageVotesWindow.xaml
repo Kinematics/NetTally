@@ -13,8 +13,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
         <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></converters:MultiStringCompareConverter>
 
-        <ContextMenu x:Key="TaskContextMenu" x:Name="ContextMenuName">
-        </ContextMenu>
+        <ContextMenu x:Key="TaskContextMenu" x:Name="TaskContextMenu" Opened="TaskContextMenu_Opened"></ContextMenu>
 
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </Window.Resources>

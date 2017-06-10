@@ -672,6 +672,8 @@ namespace NetTally.ViewModels
 
         public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Instance.Delete(vote, voteType);
 
+        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.Instance.PartitionChildren(vote, voteType);
+
         public bool UndoVoteModification() => VoteCounter.Instance.Undo();
 
         public HashSet<string> GetVoterListForVote(string vote, VoteType voteType)

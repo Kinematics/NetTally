@@ -391,6 +391,40 @@ namespace NetTally
         #endregion
 
         #region Context Menu events
+        private void TaskContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            bool enabled = false;
+
+            if (!(sender is ContextMenu cm))
+                return;
+
+            if (!(cm.PlacementTarget is ListBox listBox))
+                return;
+
+            string selectedVote = listBox.SelectedItem?.ToString();
+
+            // Only enable the Parition Children context menu item if it's a valid action for the vote.
+            if (!string.IsNullOrEmpty(selectedVote))
+            {
+                if (HasChildLines(selectedVote))
+                    enabled = true;
+            }
+
+            if (Resources["TaskContextMenu"] is ContextMenu pMenu)
+            {
+                foreach (object item in pMenu.Items)
+                {
+                    if (item is MenuItem mItem)
+                    {
+                        if (mItem.Header.ToString() == "Partition Children")
+                        {
+                            mItem.IsEnabled = enabled;
+                        }
+                    }
+                }
+            }
+        }
+
         private void newTask_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem mi)
@@ -467,6 +501,27 @@ namespace NetTally
             reorderWindow.ShowDialog();
 
             MainViewModel.UpdateOutput();
+        }
+
+        private void partitionChildren_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi)
+            {
+                if (mi.Parent is ContextMenu cm)
+                {
+                    if (cm.PlacementTarget is ListBox box)
+                    {
+                        string selectedVote = box.SelectedItem?.ToString();
+
+                        if (string.IsNullOrEmpty(selectedVote))
+                            return;
+
+                        PartitionChildren(selectedVote);
+
+                        MainViewModel.UpdateOutput();
+                    }
+                }
+            }
         }
         #endregion
 
@@ -705,6 +760,41 @@ namespace NetTally
             }
         }
 
+        private void PartitionChildren(string vote)
+        {
+            try
+            {
+                lastPosition1 = VoteView1.CurrentPosition;
+                lastPosition2 = VoteView2.CurrentPosition;
+
+                if (MainViewModel.PartitionChildren(vote, CurrentVoteType))
+                {
+                    OnPropertyChanged(nameof(HasUndoActions));
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private bool HasChildLines(string vote)
+        {
+            if (string.IsNullOrEmpty(vote))
+                return false;
+
+            var voteLines = vote.GetStringLines();
+
+            if (voteLines.Count < 2)
+                return false;
+
+            var topIndent = VoteString.GetVotePrefix(voteLines.First()).Length;
+
+            var voteLinesPlus = voteLines.Skip(1);
+
+            return voteLinesPlus.All(a => VoteString.GetVotePrefix(a).Length > topIndent);
+        }
+
         #endregion
 
         #region Context Menu Utility
@@ -728,9 +818,15 @@ namespace NetTally
             reorderTasks.Click += reorderTasks_Click;
             reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
 
+            MenuItem partitionChildren = new MenuItem();
+            partitionChildren.Header = "Partition Children";
+            partitionChildren.Click += partitionChildren_Click;
+            partitionChildren.ToolTip = "Split child vote lines into their own vote blocks.";
+
             ContextMenuCommands.Add(newTask);
             ContextMenuCommands.Add(clearTask);
             ContextMenuCommands.Add(reorderTasks);
+            ContextMenuCommands.Add(partitionChildren);
         }
 
         /// <summary>
@@ -771,9 +867,14 @@ namespace NetTally
 
                 foreach (var header in ContextMenuCommands)
                 {
-                    if ((string)header.Header == "Re-Order Tasks")
+                    switch (header.Header.ToString())
                     {
-                        header.IsEnabled = MainViewModel.TaskList.Any();
+                        case "Re-Order Tasks":
+                            header.IsEnabled = MainViewModel.TaskList.Any();
+                            break;
+                        case "Partition Children":
+                            pMenu.Items.Add(new Separator());
+                            break;
                     }
 
                     pMenu.Items.Add(header);
