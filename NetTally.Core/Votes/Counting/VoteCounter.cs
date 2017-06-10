@@ -157,9 +157,6 @@ namespace NetTally.VoteCounting
             PostsList.Clear();
             PostsList.AddRange(posts);
             await TallyPosts(token).ConfigureAwait(false);
-
-            OrderedTaskList.AddRange(ViewModelService.MainViewModel.KnownTasks);
-            OnPropertyChanged("Tasks");
         }
 
         /// <summary>
@@ -193,6 +190,9 @@ namespace NetTally.VoteCounting
             {
                 VoteCounterIsTallying = false;
             }
+
+            OrderedTaskList.AddRange(ViewModelService.MainViewModel.KnownTasks);
+            OnPropertyChanged("Tasks");
         }
 
         /// <summary>
