@@ -235,8 +235,10 @@ namespace NetTally.Forums
 
             // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
             postsList = postsList
-                .Where(p => (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) ||
-                            (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author)
+                .Where(p => (
+                            (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) || (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author)) &&
+                            (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.IDValue))
+                            )
                       )
                 .Distinct().OrderBy(p => p.Number).ToList();
 
