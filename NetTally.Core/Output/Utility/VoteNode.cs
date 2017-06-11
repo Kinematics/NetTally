@@ -62,8 +62,18 @@ namespace NetTally.Output
         /// <param name="voters">Voters for the child node.</param>
         public void AddChild(string text, HashSet<string> voters)
         {
-            VoteNode child = new VoteNode(text, voters, this);
-            Children.Add(child);
+            VoteNode child = Children.FirstOrDefault(c => Agnostic.StringComparer.Equals(c.Text, text));
+
+            if (child == null)
+            {
+                child = new VoteNode(text, voters, this);
+                Children.Add(child);
+            }
+            else
+            {
+                child.AddVoters(voters);
+            }
+
             AllVoters.UnionWith(child.Voters);
         }
 

@@ -156,6 +156,13 @@ namespace NetTally.Output
                     {
                         parent.AddVoters(vote.Value);
                     }
+                    else if (lines.Skip(1).All(a => VoteString.GetVotePrefix(a).Length == 1))
+                    {
+                        foreach (var line in lines.Skip(1))
+                        {
+                            parent.AddChild(line, vote.Value);
+                        }
+                    }
                     else if (lines.Count == 2 && !string.IsNullOrEmpty(VoteString.GetVotePrefix(lines[1])))
                     {
                         parent.AddChild(lines[1], vote.Value);
