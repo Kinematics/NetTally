@@ -195,14 +195,23 @@ namespace NetTally.Forums
                         if (child.GetAttributeValue("class", "").Contains("mceSmilieSprite"))
                             break;
 
+                        string imgHref = srcUrl;
+
                         if (!string.IsNullOrEmpty(srcUrl))
                         {
-                            // If the source URL is relative, prepend the forum's host.
-                            // This will not modify absolute URLs.
-                            Uri absoluteSrc = new Uri(host, Uri.UnescapeDataString(srcUrl));
-
-                            sb.Append($"『url=\"{absoluteSrc.ToString()}\"』<Image>『/url』");
+                            try
+                            {
+                                // If the source URL is relative, prepend the forum's host.
+                                // This will not modify absolute URLs.
+                                Uri absoluteSrc = new Uri(host, Uri.UnescapeDataString(srcUrl));
+                                imgHref = absoluteSrc.ToString();
+                            }
+                            catch (UriFormatException)
+                            {
+                            }
                         }
+
+                        sb.Append($"『url=\"{imgHref}\"』<Image>『/url』");
                         break;
                     case "div":
                         // Recurse into divs (typically spoilers).
