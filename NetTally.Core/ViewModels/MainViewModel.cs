@@ -20,18 +20,19 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(QuestCollectionWrapper config, HttpClientHandler handler,
-            IPageProvider pageProvider, ITextResultsProvider textResults,
-            IErrorLogger errorLogger, Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        public MainViewModel(QuestCollection quests, string currentQuest,
+            HttpClientHandler handler, IPageProvider pageProvider,
+            ITextResultsProvider textResults, IErrorLogger errorLogger,
+            Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             ErrorLog.LogUsing(errorLogger);
             Agnostic.HashStringsUsing(hashFunction);
 
-            if (config != null)
+            if (quests != null)
             {
-                QuestList = config.QuestCollection;
+                QuestList = quests;
                 QuestList.Sort();
-                SelectQuest(config.CurrentQuest);
+                SelectQuest(currentQuest);
             }
             else
             {

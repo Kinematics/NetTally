@@ -35,9 +35,11 @@ namespace NetTally.ViewModels
             this.handler = handler;
             return this;
         }
-        public ViewModelService Configure(QuestCollectionWrapper config)
+        public ViewModelService Configure(QuestCollection quests, string currentQuest)
         {
-            this.config = config;
+            if (this.quests == null)
+                this.quests = quests;
+            this.currentQuest = currentQuest;
             return this;
         }
         public ViewModelService LogErrorsUsing(IErrorLogger errorLogger)
@@ -53,7 +55,7 @@ namespace NetTally.ViewModels
         public MainViewModel Build()
         {
             if (MainViewModel == null)
-                MainViewModel = new MainViewModel(config, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
+                MainViewModel = new MainViewModel(quests, currentQuest, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
 
             return MainViewModel;
         }
@@ -61,7 +63,8 @@ namespace NetTally.ViewModels
         IPageProvider pageProvider;
         HttpClientHandler handler;
         ITextResultsProvider resultsProvider;
-        QuestCollectionWrapper config;
+        QuestCollection quests;
+        string currentQuest;
         IErrorLogger errorLogger;
         Func<string, CompareInfo, CompareOptions, int> hashFunction;
 

@@ -150,30 +150,19 @@ namespace NetTally
         /// Loads the configuration information into the provided quest wrapper.
         /// Global information is stored in the advanced options instance.
         /// </summary>
-        /// <param name="questWrapper">The quest wrapper.</param>
-        public void Load(QuestCollectionWrapper questWrapper)
+        /// <param name="quests">The collection of saved quests.</param>
+        /// <param name="currentQuest">The currently selected quest.</param>
+        /// <param name="options">The program configuration options.</param>
+        public void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions options)
         {
-            if (questWrapper == null)
-                throw new ArgumentNullException(nameof(questWrapper));
-
-            AdvancedOptions.Instance.DisplayMode = DisplayMode;
-            AdvancedOptions.Instance.AllowRankedVotes = AllowRankedVotes;
-            AdvancedOptions.Instance.IgnoreSpoilers = IgnoreSpoilers;
-            AdvancedOptions.Instance.TrimExtendedText = TrimExtendedText;
-            AdvancedOptions.Instance.GlobalSpoilers = GlobalSpoilers;
-            AdvancedOptions.Instance.DisableProxyVotes = DisableProxyVotes;
-            AdvancedOptions.Instance.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
-            AdvancedOptions.Instance.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
-            AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
-            AdvancedOptions.Instance.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
-
-            questWrapper.CurrentQuest = CurrentQuest;
+            currentQuest = CurrentQuest;
+            quests = new QuestCollection();
 
             foreach (QuestElement questElement in Quests)
             {
                 try
                 {
-                    IQuest q = new Quest
+                    Quest q = new Quest
                     {
                         DisplayName = questElement.DisplayName,
                         ThreadName = questElement.ThreadName,
@@ -190,12 +179,26 @@ namespace NetTally
                         CustomPostFilters = questElement.CustomPostFilters
                     };
 
-                    questWrapper.QuestCollection.Add(q);
+                    quests.Add(q);
                 }
                 catch (Exception)
                 {
                     continue;
                 }
+            }
+
+            if (options != null)
+            {
+                options.DisplayMode = DisplayMode;
+                options.AllowRankedVotes = AllowRankedVotes;
+                options.IgnoreSpoilers = IgnoreSpoilers;
+                options.TrimExtendedText = TrimExtendedText;
+                options.GlobalSpoilers = GlobalSpoilers;
+                options.DisableProxyVotes = DisableProxyVotes;
+                options.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
+                options.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
+                options.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
+                options.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
             }
         }
 
@@ -203,28 +206,33 @@ namespace NetTally
         /// Saves the information from the provided quest wrapper into this config object.
         /// Also pulls global advanced options.
         /// </summary>
-        /// <param name="questWrapper">The quest wrapper.</param>
-        public void Save(QuestCollectionWrapper questWrapper)
+        /// <param name="quests">The collection of saved quests.</param>
+        /// <param name="currentQuest">The currently selected quest.</param>
+        /// <param name="options">The program configuration options.</param>
+        public void Save(QuestCollection quests, string currentQuest, AdvancedOptions options)
         {
-            if (questWrapper == null)
-                throw new ArgumentNullException(nameof(questWrapper));
-
-            DisplayMode = AdvancedOptions.Instance.DisplayMode;
-            AllowRankedVotes = AdvancedOptions.Instance.AllowRankedVotes;
-            IgnoreSpoilers = AdvancedOptions.Instance.IgnoreSpoilers;
-            TrimExtendedText = AdvancedOptions.Instance.TrimExtendedText;
-            GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers;
-            DisableProxyVotes = AdvancedOptions.Instance.DisableProxyVotes;
-            ForcePinnedProxyVotes = AdvancedOptions.Instance.ForcePinnedProxyVotes;
-            ForbidVoteLabelPlanNames = AdvancedOptions.Instance.ForbidVoteLabelPlanNames;
-            WhitespaceAndPunctuationIsSignificant = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant;
-            DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes;
-
-            CurrentQuest = questWrapper.CurrentQuest;
+            if (quests == null)
+                throw new ArgumentNullException(nameof(quests));
 
             Quests.Clear();
-            foreach (var quest in questWrapper.QuestCollection)
+            foreach (var quest in quests)
                 Quests.Add(quest);
+
+            CurrentQuest = currentQuest;
+
+            if (options != null)
+            {
+                DisplayMode = options.DisplayMode;
+                AllowRankedVotes = options.AllowRankedVotes;
+                IgnoreSpoilers = options.IgnoreSpoilers;
+                TrimExtendedText = options.TrimExtendedText;
+                GlobalSpoilers = options.GlobalSpoilers;
+                DisableProxyVotes = options.DisableProxyVotes;
+                ForcePinnedProxyVotes = options.ForcePinnedProxyVotes;
+                ForbidVoteLabelPlanNames = options.ForbidVoteLabelPlanNames;
+                WhitespaceAndPunctuationIsSignificant = options.WhitespaceAndPunctuationIsSignificant;
+                DisplayPlansWithNoVotes = options.DisplayPlansWithNoVotes;
+            }
         }
         #endregion
     }

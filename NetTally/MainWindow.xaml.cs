@@ -40,19 +40,20 @@ namespace NetTally
 
                 Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
+                QuestCollection quests = null;
+                string currentQuest = null;
+
                 // Load configuration data
-                QuestCollectionWrapper config;
                 try
                 {
-                    config = NetTallyConfig.Load();
+                    NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
                 }
                 catch (ConfigurationErrorsException e)
                 {
                     MessageBox.Show(e.Message, "Error in configuration.  Current configuration ignored.", MessageBoxButton.OK, MessageBoxImage.Error);
-                    config = null;
                 }
 
-                PlatformSetup(config);
+                PlatformSetup(quests, currentQuest);
             }
             catch (Exception e)
             {
@@ -65,14 +66,15 @@ namespace NetTally
         /// <summary>
         /// Set up the program with various platform-specific configurations.
         /// </summary>
-        /// <param name="config">The program's config data.</param>
-        private void PlatformSetup(QuestCollectionWrapper config)
+        /// <param name="quests">The program's config data.</param>
+        private void PlatformSetup(QuestCollection quests, string currentQuest)
         {
             try
             {
                 System.Net.ServicePointManager.DefaultConnectionLimit = 4;
 
-                ViewModelService.Instance.Configure(config)
+                ViewModelService.Instance
+                    .Configure(quests, currentQuest)
                     .LogErrorsUsing(new WindowsErrorLog())
                     .HashAgnosticStringsUsing(UnicodeHashFunction.HashFunction)
                     .Build();
@@ -118,8 +120,7 @@ namespace NetTally
 
                 string selectedQuest = ViewModelService.MainViewModel.SelectedQuest?.ThreadName ?? "";
 
-                QuestCollectionWrapper wrapper = new QuestCollectionWrapper(ViewModelService.MainViewModel.QuestList, selectedQuest);
-                NetTallyConfig.Save(wrapper);
+                NetTallyConfig.Save(ViewModelService.MainViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
             }
             catch (Exception ex)
             {

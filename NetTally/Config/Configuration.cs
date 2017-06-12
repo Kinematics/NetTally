@@ -21,15 +21,11 @@ namespace NetTally
         /// quests.
         /// </summary>
         /// <returns>Returns the quests wrapper to store data in.</returns>
-        public static QuestCollectionWrapper Load()
+        public static void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions options)
         {
-            QuestCollectionWrapper questsWrapper = new QuestCollectionWrapper();
-
             List<Configuration> configs = NetTallyConfigHelper.GetConfigsToLoadFrom();
 
-            ReadConfigInformation(configs, questsWrapper);
-
-            return questsWrapper;
+            ReadConfigInformation(configs, out quests, out currentQuest, options);
         }
 
         /// <summary>
@@ -37,45 +33,47 @@ namespace NetTally
         /// the provided quests collection wrapper.
         /// </summary>
         /// <param name="configs">The list of configuration objects to attempt to read.</param>
-        /// <param name="questsWrapper">The quests wrapper to store data in.</param>
-        private static void ReadConfigInformation(List<Configuration> configs, QuestCollectionWrapper questsWrapper)
+        /// <param name="quests">The quests wrapper to store data in.</param>
+        private static void ReadConfigInformation(List<Configuration> configs, out QuestCollection quests, out string currentQuest, AdvancedOptions options)
         {
-            if (configs.Count == 0)
-                return;
-
-            ConfigurationException failure = null;
-
-            ConfigPrefs.Strict = true;
-
-            while (true)
+            if (configs.Count > 0)
             {
-                foreach (var config in configs)
-                {
-                    try
-                    {
-                        if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
-                        {
-                            questsSection.Load(questsWrapper);
-                        }
+                ConfigurationException failure = null;
 
-                        // End as soon as done successfully
-                        return;
-                    }
-                    catch (ConfigurationException e)
+                ConfigPrefs.Strict = true;
+
+                while (true)
+                {
+                    foreach (var config in configs)
                     {
-                        failure = e;
+                        try
+                        {
+                            if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+                            {
+                                questsSection.Load(out quests, out currentQuest, options);
+                                return;
+                            }
+                        }
+                        catch (ConfigurationException e)
+                        {
+                            failure = e;
+                        }
                     }
+
+                    ConfigPrefs.Strict = !ConfigPrefs.Strict;
+
+                    if (ConfigPrefs.Strict)
+                        break;
                 }
 
-                ConfigPrefs.Strict = !ConfigPrefs.Strict;
-
-                if (ConfigPrefs.Strict)
-                    break;
+                // If all config files generated an error, throw the last one we got.
+                if (failure != null)
+                    throw failure;
             }
 
-            // If all config files generated an error, throw the last one we got.
-            if (failure != null)
-                throw failure;
+            // If nothing was loaded, just provide default values.
+            quests = new QuestCollection();
+            currentQuest = null;
         }
         #endregion
 
@@ -89,13 +87,11 @@ namespace NetTally
         /// being lost if you unzip a new version of the program to a differently-named
         /// folder.
         /// </summary>
-        /// <param name="questsWrapper">The quests wrapper.</param>
-        public static void Save(QuestCollectionWrapper questsWrapper)
+        /// <param name="quests">The quests wrapper.</param>
+        public static void Save(QuestCollection quests, string currentQuest, AdvancedOptions options)
         {
             // If there's nothing to save, don't do anything.
-            if (questsWrapper == null)
-                return;
-            if (questsWrapper.QuestCollection == null)
+            if (quests == null)
                 return;
 
             // Write to each config location (portable and roaming)
@@ -103,16 +99,16 @@ namespace NetTally
 
             foreach (var config in configs)
             {
-                WriteConfigInformation(questsWrapper, config);
+                WriteConfigInformation(config, quests, currentQuest, options);
             }
         }
 
         /// <summary>
         /// Writes the data from the provided quests wrapper object into the specified configuration file.
         /// </summary>
-        /// <param name="questsWrapper">The quests wrapper with program data.</param>
+        /// <param name="quests">The quests wrapper with program data.</param>
         /// <param name="config">The configuration file to save to.</param>
-        private static void WriteConfigInformation(QuestCollectionWrapper questsWrapper, Configuration config)
+        private static void WriteConfigInformation(Configuration config, QuestCollection quests, string currentQuest, AdvancedOptions options)
         {
             try
             {
@@ -120,7 +116,7 @@ namespace NetTally
 
                 if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
                 {
-                    questsSection.Save(questsWrapper);
+                    questsSection.Save(quests, currentQuest, options);
                 }
 
                 config.Save(ConfigurationSaveMode.Minimal);
