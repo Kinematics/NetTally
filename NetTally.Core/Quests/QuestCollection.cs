@@ -39,11 +39,7 @@ namespace NetTally.Collections
         /// <param name="item">Item to be entered.</param>
         protected override void InsertItem(int index, IQuest item)
         {
-            var dupes = from q in this
-                        where q.ThreadName == item.ThreadName
-                        select q;
-
-            if (dupes.Any())
+            if (this.Any(q => q.ThreadName == item.ThreadName))
                 return;
 
             base.InsertItem(index, item);
