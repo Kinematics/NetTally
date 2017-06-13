@@ -25,13 +25,17 @@ namespace NetTally.VoteCounting
         string results = string.Empty;
         string changingResults = string.Empty;
 
+        IVoteCounter VoteCounter;
+
         // Tracking cancellations
         List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
         #endregion
 
         #region Construction
-        public Tally(IPageProvider pageProvider)
+        public Tally(IPageProvider pageProvider, IVoteCounter voteCounter)
         {
+            VoteCounter = voteCounter ?? throw new ArgumentNullException(nameof(voteCounter));
+
             // Hook up to event notifications
             pageProvider.StatusChanged += PageProvider_StatusChanged;
             AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
@@ -105,7 +109,7 @@ namespace NetTally.VoteCounting
         {
             if (sender is IQuest quest)
             {
-                if (quest == VoteCounter.Instance.Quest && e.PropertyName == "PartitionMode")
+                if (quest == VoteCounter.Quest && e.PropertyName == "PartitionMode")
                 {
                     try
                     {
@@ -177,11 +181,11 @@ namespace NetTally.VoteCounting
                 quest.PropertyChanged -= Quest_PropertyChanged;
                 quest.PropertyChanged += Quest_PropertyChanged;
 
-                VoteCounter.Instance.ResetUserDefinedTasks(quest.DisplayName);
+                VoteCounter.ResetUserDefinedTasks(quest.DisplayName);
 
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
-                await VoteCounter.Instance.TallyPosts(posts, quest, token).ConfigureAwait(false);
+                await VoteCounter.TallyPosts(posts, quest, token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {
@@ -237,7 +241,7 @@ namespace NetTally.VoteCounting
         private async Task UpdateTally(CancellationToken token)
         {
             // Tally the votes from the loaded pages.
-            await VoteCounter.Instance.TallyPosts(token).ConfigureAwait(false);
+            await VoteCounter.TallyPosts(token).ConfigureAwait(false);
         }
 
         /// <summary>

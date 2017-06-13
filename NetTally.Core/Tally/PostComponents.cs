@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -176,7 +177,7 @@ namespace NetTally
                     {
                         string planName = VoteString.GetPlanName(block.Key, basePlan: true);
 
-                        if (planName != null && !VoteCounter.Instance.ReferenceVoters.Contains(planName, Agnostic.StringComparer))
+                        if (planName != null && !ViewModelService.MainViewModel.VoteCounter.ReferenceVoters.Contains(planName, Agnostic.StringComparer))
                         {
                             BasePlans.Add(block);
                             continue;

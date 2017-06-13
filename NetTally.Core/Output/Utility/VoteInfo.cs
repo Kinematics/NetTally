@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -18,11 +19,11 @@ namespace NetTally.Output
         /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
         public static string GetVoterUrl(string voter, VoteType voteType)
         {
-            Dictionary<string, string> voters = VoteCounter.Instance.GetVotersCollection(voteType);
+            Dictionary<string, string> voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(voteType);
 
             string voteID;
             if (voters.TryGetValue(voter, out voteID))
-                return VoteCounter.Instance.Quest.ForumAdapter.GetPermalinkForId(voteID);
+                return ViewModelService.MainViewModel.VoteCounter.Quest.ForumAdapter.GetPermalinkForId(voteID);
 
             return string.Empty;
         }
@@ -30,19 +31,20 @@ namespace NetTally.Output
         /// <summary>
         /// Property to get the total number of ranked voters in the tally.
         /// </summary>
-        public static int RankedVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Rank).Count;
+        public static int RankedVoterCount => ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Rank).Count;
 
         /// <summary>
         /// Property to get the total number of normal voters in the tally.
         /// </summary>
-        public static int NormalVoterCount => VoteCounter.Instance.GetVotersCollection(VoteType.Vote).Count(voter => !voter.Key.IsPlanName());
+        public static int NormalVoterCount => ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote).Count(voter => !voter.Key.IsPlanName());
 
         /// <summary>
         /// Calculate the number of non-plan voters in the provided vote object.
         /// </summary>
         /// <param name="vote">The vote containing a list of voters.</param>
         /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
-        public static int CountVote(KeyValuePair<string, HashSet<string>> vote) => vote.Value?.Count(vc => VoteCounter.Instance.PlanNames.Contains(vc) == false) ?? 0;
+        public static int CountVote(KeyValuePair<string, HashSet<string>> vote) =>
+            vote.Value?.Count(vc => ViewModelService.MainViewModel.VoteCounter.PlanNames.Contains(vc) == false) ?? 0;
 
         /// <summary>
         /// Get a list of voters, ordered alphabetically, except the first voter,
@@ -72,15 +74,15 @@ namespace NetTally.Output
         /// <returns>Returns which one of them is considered the first real poster.</returns>
         public static string GetFirstVoter(HashSet<string> voters)
         {
-            var planVoters = voters.Where(v => VoteCounter.Instance.PlanNames.Contains(v));
-            var votersCollection = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var planVoters = voters.Where(v => ViewModelService.MainViewModel.VoteCounter.PlanNames.Contains(v));
+            var votersCollection = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
 
             if (planVoters.Any())
             {
                 return planVoters.MinObject(v => votersCollection[v]);
             }
 
-            var nonFutureVoters = voters.Except(VoteCounter.Instance.FutureReferences.Select(p => p.Author));
+            var nonFutureVoters = voters.Except(ViewModelService.MainViewModel.VoteCounter.FutureReferences.Select(p => p.Author));
 
             if (nonFutureVoters.Any())
             {
@@ -103,10 +105,10 @@ namespace NetTally.Output
         public static IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
             var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
-            if(VoteCounter.Instance.OrderedTaskList != null)
+            if(ViewModelService.MainViewModel.VoteCounter.OrderedTaskList != null)
             {
 
-                grouped = grouped.OrderBy(v => VoteCounter.Instance.OrderedTaskList.IndexOf(v.Key));
+                grouped = grouped.OrderBy(v => ViewModelService.MainViewModel.VoteCounter.OrderedTaskList.IndexOf(v.Key));
             }
             
             return grouped;
@@ -133,7 +135,7 @@ namespace NetTally.Output
                 if (voteGroup.Count() == 1)
                 {
                     string planname = VoteString.GetPlanName(voteGroup.Key);
-                    if (planname != null && VoteCounter.Instance.HasPlan(planname))
+                    if (planname != null && ViewModelService.MainViewModel.VoteCounter.HasPlan(planname))
                     {
                         var vote = voteGroup.First();
                         parent = new VoteNode(vote.Key, vote.Value);

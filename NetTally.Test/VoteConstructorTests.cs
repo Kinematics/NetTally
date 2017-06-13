@@ -16,6 +16,7 @@ namespace NetTally.Tests
     public class VoteConstructorTests
     {
         static IQuest sampleQuest;
+        static VoteConstructor voteConstructor;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -25,13 +26,15 @@ namespace NetTally.Tests
             sampleQuest = new Quest();
 
             ViewModelService.Instance.Build();
+
+            voteConstructor = ViewModelService.MainViewModel.VoteCounter.VoteConstructor;
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            VoteCounter.Instance.Reset();
-            VoteCounter.Instance.PostsList.Clear();
+            ViewModelService.MainViewModel.VoteCounter.Reset();
+            ViewModelService.MainViewModel.VoteCounter.PostsList.Clear();
             sampleQuest.PartitionMode = PartitionMode.None;
         }
 
@@ -52,12 +55,12 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.None;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
+            voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(voters.Count == 1);
             //Assert.IsTrue(voteCounter.VotesWithSupporters.ContainsKey(testVote));
@@ -82,12 +85,12 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
+            voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -108,12 +111,12 @@ namespace NetTally.Tests
 
             sampleQuest.PartitionMode = PartitionMode.ByLine;
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
+            voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -136,11 +139,11 @@ namespace NetTally.Tests
             string postId = "123456";
 
             PostComponents p = new PostComponents(author, postId, testVote);
-            p.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             Assert.IsFalse(p.IsVote);
 
-            VoteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
+            voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
         }
 
 
@@ -160,9 +163,9 @@ namespace NetTally.Tests
             string postId = "123456";
             int postNumber = 100;
             PostComponents p1 = new PostComponents(author, postId, testVote, postNumber);
-            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
+            voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
 
             string referralVote = @"[x] Muramasa";
             string refAuthor = "Gerbil";
@@ -170,17 +173,17 @@ namespace NetTally.Tests
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            VoteCounter.Instance.PostsList.Add(p1);
-            VoteCounter.Instance.PostsList.Add(p2);
+            ViewModelService.MainViewModel.VoteCounter.PostsList.Add(p1);
+            ViewModelService.MainViewModel.VoteCounter.PostsList.Add(p2);
 
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -214,10 +217,10 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -251,10 +254,10 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -289,10 +292,10 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 2);
             Assert.IsTrue(votes.All(v => v.Value.Count == 1));
             Assert.IsTrue(voters.Count == 2);
@@ -327,10 +330,10 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 4);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 3);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -366,10 +369,10 @@ namespace NetTally.Tests
             posts.Add(p1);
             posts.Add(p2);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
-            var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 8);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 7);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -392,10 +395,10 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -421,10 +424,10 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -454,10 +457,10 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -485,11 +488,11 @@ namespace NetTally.Tests
             string author = "Me";
             string postId = "123456";
             PostComponents p1 = new PostComponents(author, postId, testVote);
-            VoteConstructor.PreprocessPlansWithContent(p1, sampleQuest);
-            p1.SetWorkingVote(VoteConstructor.GetWorkingVote);
+            voteConstructor.PreprocessPlansWithContent(p1, sampleQuest);
+            p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
-            VoteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }

@@ -13,11 +13,20 @@ namespace NetTally.Votes
     /// <summary>
     /// Class that can handle constructing votes (in various manners) from the base text of a post.
     /// </summary>
-    public static class VoteConstructor
+    public class VoteConstructor
     {
         #region Fields
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        #endregion
+
+        #region Constructor
+        public VoteConstructor(IVoteCounter voteCounter)
+        {
+            VoteCounter = voteCounter ?? throw new ArgumentNullException(nameof(voteCounter));
+        }
+
+        public IVoteCounter VoteCounter { get; }
         #endregion
 
         #region Public functions
@@ -28,7 +37,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlansWithContent(PostComponents post, IQuest quest)
+        public void PreprocessPlansWithContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -52,7 +61,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlanLabelsWithContent(PostComponents post, IQuest quest)
+        public void PreprocessPlanLabelsWithContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -79,7 +88,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">Post to be examined.</param>
         /// <param name="quest">Quest being tallied.</param>
-        public static void PreprocessPlanLabelsWithoutContent(PostComponents post, IQuest quest)
+        public void PreprocessPlanLabelsWithoutContent(PostComponents post, IQuest quest)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -104,7 +113,7 @@ namespace NetTally.Votes
         /// <param name="post">The post to process.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>True if the post was processed, false if it was not.</returns>
-        public static bool ProcessPost(PostComponents post, IQuest quest, CancellationToken token)
+        public bool ProcessPost(PostComponents post, IQuest quest, CancellationToken token)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -122,7 +131,7 @@ namespace NetTally.Votes
                 // delay processing.
                 if (HasFutureReference(post))
                 {
-                    VoteCounter.Instance.FutureReferences.Add(post);
+                    VoteCounter.FutureReferences.Add(post);
                     return false;
                 }
 
@@ -130,7 +139,7 @@ namespace NetTally.Votes
                 // that this post was a prior future reference that got overridden later.
                 // Indicate that it has been processed so that it doesn't try to
                 // re-submit it later.
-                if (VoteCounter.Instance.HasNewerVote(post))
+                if (VoteCounter.HasNewerVote(post))
                 {
                     return true;
                 }
@@ -142,7 +151,7 @@ namespace NetTally.Votes
                 var filteredPartitions = FilterVotesByTask(votePartitions, quest);
 
                 // Add those to the vote counter.
-                VoteCounter.Instance.AddVotes(filteredPartitions, post.Author, post.ID, VoteType.Vote);
+                VoteCounter.AddVotes(filteredPartitions, post.Author, post.ID, VoteType.Vote);
 
             }
 
@@ -166,7 +175,7 @@ namespace NetTally.Votes
         /// <param name="quest">The quest, for filter parameters.</param>
         /// <param name="partitionMode">The partition mode to use.</param>
         /// <returns>Returns the partitioned vote as a list of strings.</returns>
-        public static List<string> PartitionVoteString(string vote, IQuest quest, PartitionMode partitionMode)
+        public List<string> PartitionVoteString(string vote, IQuest quest, PartitionMode partitionMode)
         {
             if (string.IsNullOrEmpty(vote))
                 return new List<string>();
@@ -183,7 +192,7 @@ namespace NetTally.Votes
         /// <param name="quest">The quest, for filter parameters.</param>
         /// <param name="partitionMode">The partition mode to use.</param>
         /// <returns>Returns the partitioned vote as a list of strings.</returns>
-        public static List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
+        public List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
         {
             if (voteLines == null)
                 throw new ArgumentNullException(nameof(voteLines));
@@ -209,7 +218,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post we're getting the vote from.</param>
         /// <returns>Returns the vote with plans compressed.</returns>
-        public static List<string> GetWorkingVote(PostComponents post)
+        public List<string> GetWorkingVote(PostComponents post)
         {
             List<string> vote = new List<string>();
 
@@ -221,7 +230,7 @@ namespace NetTally.Votes
 
             if (post.BasePlans.Any())
             {
-                var voters = VoteCounter.Instance.GetVotersCollection(VoteType.Plan);
+                var voters = VoteCounter.GetVotersCollection(VoteType.Plan);
                 bool checkPlan = true;
                 string planName;
 
@@ -234,7 +243,7 @@ namespace NetTally.Votes
                     // As long as we keep finding base plans that are defined in this post, keep skipping.
                     if (checkPlan)
                     {
-                        if (VoteCounter.Instance.HasPlan(planName) && voters[planName] == post.ID)
+                        if (VoteCounter.HasPlan(planName) && voters[planName] == post.ID)
                             continue;
                     }
 
@@ -252,8 +261,8 @@ namespace NetTally.Votes
 
             // Then check if the *entire post* should be treated as a complete plan.
             string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
-            if (postPlanName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(postPlanName) &&
-                    VoteCounter.Instance.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Agnostic.StringComparer))
+            if (postPlanName != null && VoteCounter.ReferencePlans.ContainsKey(postPlanName) &&
+                    VoteCounter.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Agnostic.StringComparer))
             {
                 // Replace known plans with just the plan key.  They'll be expanded later.
                 vote.Add(post.VoteLines.First());
@@ -279,8 +288,8 @@ namespace NetTally.Votes
                         // See if the block key marks a known plan.
                         string planName = VoteString.GetPlanName(block.Key);
 
-                        if (planName != null && VoteCounter.Instance.ReferencePlans.ContainsKey(planName) &&
-                            VoteCounter.Instance.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Agnostic.StringComparer))
+                        if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
+                            VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Agnostic.StringComparer))
                         {
                             // Replace known plans with just the plan key.  They'll be expanded later.
                             vote.Add(block.Key);
@@ -310,7 +319,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post to extract plans from.</param>
         /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private static List<List<string>> GetAllPlansWithContent(PostComponents post)
+        private List<List<string>> GetAllPlansWithContent(PostComponents post)
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -334,7 +343,7 @@ namespace NetTally.Votes
                         if (planname != null)
                         {
                             // Add a named vote that is named after a user only if it matches the post author's name.
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
+                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
                             {
                                 if (Agnostic.StringComparer.Equals(planname, post.Author))
                                 {
@@ -359,7 +368,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post to extract plans from.</param>
         /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private static List<List<string>> GetAllFullPostPlans(PostComponents post)
+        private List<List<string>> GetAllFullPostPlans(PostComponents post)
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -385,7 +394,7 @@ namespace NetTally.Votes
                         if (planname != null)
                         {
                             // If it's named after a user, it must be the post author.  Otherwise, anything is fine.
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
+                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
                             {
                                 if (Agnostic.StringComparer.Equals(planname, post.Author))
                                 {
@@ -409,7 +418,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post to extract plans from.</param>
         /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private static List<List<string>> GetAllOneLinePlans(PostComponents post)
+        private List<List<string>> GetAllOneLinePlans(PostComponents post)
         {
             List<List<string>> results = new List<List<string>>();
 
@@ -430,7 +439,7 @@ namespace NetTally.Votes
 
                         if (planname != null)
                         {
-                            if (VoteCounter.Instance.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
+                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
                             {
                                 if (Agnostic.StringComparer.Equals(planname, post.Author))
                                 {
@@ -453,7 +462,7 @@ namespace NetTally.Votes
         /// Store original plan name and contents in reference containers.
         /// </summary>
         /// <param name="plans">A list of valid plans.</param>
-        private static void StorePlanReferences(IEnumerable<List<string>> plans)
+        private void StorePlanReferences(IEnumerable<List<string>> plans)
         {
             foreach (var plan in plans)
             {
@@ -462,10 +471,10 @@ namespace NetTally.Votes
                 cleanName = VoteString.DeUrlContent(cleanName);
 
 
-                if (!VoteCounter.Instance.ReferencePlanNames.Contains(cleanName, Agnostic.StringComparer))
+                if (!VoteCounter.ReferencePlanNames.Contains(cleanName, Agnostic.StringComparer))
                 {
-                    VoteCounter.Instance.ReferencePlanNames.Add(cleanName);
-                    VoteCounter.Instance.ReferencePlans[cleanName] = plan;
+                    VoteCounter.ReferencePlanNames.Add(cleanName);
+                    VoteCounter.ReferencePlans[cleanName] = plan;
                 }
             }
         }
@@ -477,7 +486,7 @@ namespace NetTally.Votes
         /// <param name="plans">List of plans to be processed.</param>
         /// <param name="post">Post the plans were pulled from.</param>
         /// <param name="partitionMode">Partition mode being used.</param>
-        private static void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
+        private void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
         {
             foreach (var plan in plans)
             {
@@ -485,7 +494,7 @@ namespace NetTally.Votes
                 string cleanName = VoteString.RemoveBBCode(planName);
                 cleanName = VoteString.DeUrlContent(cleanName);
 
-                if (!VoteCounter.Instance.HasPlan(cleanName))
+                if (!VoteCounter.HasPlan(cleanName))
                 {
                     var nPlan = NormalizePlanName(plan);
 
@@ -493,7 +502,7 @@ namespace NetTally.Votes
                     // One of: By line, By block, or By post (ie: entire vote)
                     var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
 
-                    VoteCounter.Instance.AddVotes(votePartitions, cleanName, post.ID, VoteType.Plan);
+                    VoteCounter.AddVotes(votePartitions, cleanName, post.ID, VoteType.Plan);
                 }
             }
         }
@@ -507,7 +516,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">Post containing the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private static bool HasFutureReference(PostComponents post)
+        private bool HasFutureReference(PostComponents post)
         {
             // If we decide it has to be forced, ignore all checks in here.
             if (post.ForceProcess)
@@ -528,15 +537,15 @@ namespace NetTally.Votes
                     continue;
 
                 // Any references to plans automatically work, as they are defined in a preprocess phase.
-                if (refNames[ReferenceType.Plan].Any(VoteCounter.Instance.HasPlan))
+                if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.Instance.ReferenceVoters.Contains(n, Agnostic.StringComparer))
-                    ?.AgnosticMatch(VoteCounter.Instance.ReferenceVoters);
+                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n, Agnostic.StringComparer))
+                    ?.AgnosticMatch(VoteCounter.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
                 {
-                    var refVoterPosts = VoteCounter.Instance.PostsList.Where(p => p.Author == refVoter).ToList();
+                    var refVoterPosts = VoteCounter.PostsList.Where(p => p.Author == refVoter).ToList();
 
                     // If ref voter has no posts (how did we get here?), it can't be a future reference.
                     if (!refVoterPosts.Any())
@@ -569,13 +578,13 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post it was derived from.</param>
         /// <param name="partitionMode">The partition mode being used.</param>
-        private static void ProcessVote(PostComponents post, PartitionMode partitionMode)
+        private void ProcessVote(PostComponents post, PartitionMode partitionMode)
         {
             // Get the list of all vote partitions, built according to current preferences.
             // One of: By line, By block, or By post (ie: entire vote)
             List<string> votePartitions = GetVotePartitions(post.WorkingVote, partitionMode, VoteType.Vote, post.Author);
 
-            VoteCounter.Instance.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
+            VoteCounter.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
         }
 
         /// <summary>
@@ -632,7 +641,7 @@ namespace NetTally.Votes
         /// <returns>
         /// Returns any ranked vote lines in the vote.
         /// </returns>
-        private static List<string> GetRankingsFromPost(PostComponents post, IQuest quest)
+        private List<string> GetRankingsFromPost(PostComponents post, IQuest quest)
         {
             // If there are any explicit rank vote lines, return those.
             if (post.RankLines.Any())
@@ -645,7 +654,7 @@ namespace NetTally.Votes
             if (refName != null)
             {
                 // If so, see if that voter made any rank votes.
-                var indirect = VoteCounter.Instance.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName)).Select(v => v.Key);
+                var indirect = VoteCounter.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName)).Select(v => v.Key);
 
                 // If so, return those votes.
                 if (indirect.Any())
@@ -662,13 +671,13 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post.</param>
         /// <returns></returns>
-        private static string GetPureRankReference(PostComponents post)
+        private string GetPureRankReference(PostComponents post)
         {
             if (post.VoteLines.Count == 1)
             {
                 var refNames = VoteString.GetVoteReferenceNames(post.VoteLines.First());
 
-                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.Instance.HasUserEnteredVoter(n, VoteType.Rank));
+                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.HasUserEnteredVoter(n, VoteType.Rank));
 
                 return refVoter;
             }
@@ -681,11 +690,11 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="ranksList">A list of all rank votes in the post.</param>
         /// <param name="post">The components of the original post.</param>
-        private static void ProcessRankings(List<string> ranksList, PostComponents post)
+        private void ProcessRankings(List<string> ranksList, PostComponents post)
         {
             if (ranksList.Count > 0)
             {
-                VoteCounter.Instance.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
+                VoteCounter.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
             }
         }
 
@@ -700,7 +709,7 @@ namespace NetTally.Votes
         /// <param name="voteType">The vote type being partitioned.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a list of partitions, representing the pieces of the vote.</returns>
-        private static List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
+        private List<string> GetVotePartitions(IEnumerable<string> lines, PartitionMode partitionMode, VoteType voteType, string author)
         {
             if (lines == null)
                 throw new ArgumentNullException(nameof(lines));
@@ -745,7 +754,7 @@ namespace NetTally.Votes
         /// <param name="partitionMode">The partition mode being used.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns the vote partitioned appropriately.</returns>
-        private static List<string> GetVotePartitionsFromPlan(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        private List<string> GetVotePartitionsFromPlan(IEnumerable<string> lines, PartitionMode partitionMode, string author)
         {
             switch (partitionMode)
             {
@@ -782,7 +791,7 @@ namespace NetTally.Votes
         /// <param name="partitionMode">The partition mode being used.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns the vote, partitioned according to the requested mode.</returns>
-        private static List<string> GetVotePartitionsFromVote(IEnumerable<string> lines, PartitionMode partitionMode, string author)
+        private List<string> GetVotePartitionsFromVote(IEnumerable<string> lines, PartitionMode partitionMode, string author)
         {
             switch (partitionMode)
             {
@@ -814,7 +823,7 @@ namespace NetTally.Votes
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a non-partitioned version of the vote.</returns>
-        private static List<string> PartitionByNone(IEnumerable<string> lines, string author)
+        private List<string> PartitionByNone(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -835,7 +844,7 @@ namespace NetTally.Votes
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {
@@ -868,7 +877,7 @@ namespace NetTally.Votes
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a the vote partitioned by line.</returns>
-        private static List<string> PartitionByLine(IEnumerable<string> lines, string author)
+        private List<string> PartitionByLine(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -888,7 +897,7 @@ namespace NetTally.Votes
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {
@@ -917,7 +926,7 @@ namespace NetTally.Votes
         /// <param name="author">The author of the vote, for use in determining
         /// valid referrals.</param>
         /// <returns>Returns a list of partitioned vote lines.</returns>
-        private static List<string> PartitionByLineTask(IEnumerable<string> lines, string author)
+        private List<string> PartitionByLineTask(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -938,7 +947,7 @@ namespace NetTally.Votes
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {
@@ -977,7 +986,7 @@ namespace NetTally.Votes
         /// <param name="lines">The lines of a vote.</param>
         /// <param name="author">The author of the post.</param>
         /// <returns>Returns a the vote partitioned by block.</returns>
-        private static List<string> PartitionByBlock(IEnumerable<string> lines, string author)
+        private List<string> PartitionByBlock(IEnumerable<string> lines, string author)
         {
             List<string> partitions = new List<string>();
             List<string> referralVotes = new List<string>();
@@ -998,7 +1007,7 @@ namespace NetTally.Votes
                     referralVotes.Clear();
                 }
 
-                referralVotes = VoteCounter.Instance.GetVotesFromReference(line, author);
+                referralVotes = VoteCounter.GetVotesFromReference(line, author);
 
                 if (referralVotes.Any())
                 {

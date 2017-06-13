@@ -31,8 +31,8 @@ namespace NetTally.Tests
         [TestInitialize]
         public void Initialize()
         {
-            VoteCounter.Instance.Reset();
-            VoteCounter.Instance.PostsList.Clear();
+            ViewModelService.MainViewModel.VoteCounter.Reset();
+            ViewModelService.MainViewModel.VoteCounter.PostsList.Clear();
             sampleQuest = new Quest();
         }
         #endregion
@@ -48,7 +48,7 @@ namespace NetTally.Tests
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(post);
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -57,7 +57,7 @@ namespace NetTally.Tests
 
         public static List<string> GetVotesBy(string author, VoteType voteType)
         {
-            var votes = VoteCounter.Instance.GetVotesCollection(voteType);
+            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(voteType);
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
@@ -74,11 +74,11 @@ namespace NetTally.Tests
                 posts.Add(post);
             }
 
-            await VoteCounter.Instance.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             for (int i = 0; i < results.Count; i++)
             {
-                var post = VoteCounter.Instance.PostsList[i];
+                var post = ViewModelService.MainViewModel.VoteCounter.PostsList[i];
                 var userVotes = GetVotesBy(post.Author, VoteType.Vote);
                 CollectionAssert.AreEqual(results[i], userVotes);
             }

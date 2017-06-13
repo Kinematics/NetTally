@@ -2,7 +2,7 @@
 using System.Net.Http;
 using NetTally.Collections;
 using NetTally.Output;
-using NetTally.Utility;
+using NetTally.VoteCounting;
 using NetTally.Web;
 using System.Globalization;
 
@@ -30,6 +30,11 @@ namespace NetTally.ViewModels
             this.pageProvider = pageProvider;
             return this;
         }
+        public ViewModelService VoteCounter(IVoteCounter voteCounter)
+        {
+            this.voteCounter = voteCounter;
+            return this;
+        }
         public ViewModelService HttpClient(HttpClientHandler handler)
         {
             this.handler = handler;
@@ -54,7 +59,7 @@ namespace NetTally.ViewModels
         }
         public MainViewModel Build()
         {
-            var vm = new MainViewModel(quests, currentQuest, handler, pageProvider, resultsProvider, errorLogger, hashFunction);
+            var vm = new MainViewModel(quests, currentQuest, handler, pageProvider, voteCounter, resultsProvider, errorLogger, hashFunction);
 
             if (MainViewModel == null)
                 MainViewModel = vm;
@@ -64,6 +69,7 @@ namespace NetTally.ViewModels
 
         IPageProvider pageProvider;
         HttpClientHandler handler;
+        IVoteCounter voteCounter;
         ITextResultsProvider resultsProvider;
         QuestCollection quests;
         string currentQuest;

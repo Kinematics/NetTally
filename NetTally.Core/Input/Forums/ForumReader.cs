@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.ViewModels;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -231,7 +232,7 @@ namespace NetTally.Forums
             var firstPage = firstPageTask.Result;
 
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
-            VoteCounting.VoteCounter.Instance.Title = threadInfo.Title;
+            ViewModelService.MainViewModel.VoteCounter.Title = threadInfo.Title;
 
             // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
             postsList = postsList

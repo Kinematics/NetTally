@@ -13,21 +13,19 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounterImpl : IVoteCounter
+    public class VoteCounter : IVoteCounter
     {
-        #region Lazy singleton creation
-        static readonly Lazy<VoteCounterImpl> lazy = new Lazy<VoteCounterImpl>(() => new VoteCounterImpl());
-
-        public static VoteCounterImpl Instance => lazy.Value;
-
-        VoteCounterImpl()
-        {
-        }
-        #endregion
-
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
+        public VoteConstructor VoteConstructor { get; }
+
+        #region Constructor
+        public VoteCounter()
+        {
+            VoteConstructor = new VoteConstructor(this);
+        }
+        #endregion
 
         #region Implement INotifyPropertyChanged interface
         /// <summary>

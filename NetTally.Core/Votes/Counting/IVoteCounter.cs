@@ -13,6 +13,7 @@ namespace NetTally.VoteCounting
         Task TallyPosts(CancellationToken token);
         Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token);
 
+        VoteConstructor VoteConstructor { get; }
         List<PostComponents> PostsList { get; }
         void Reset();
         bool VoteCounterIsTallying { get; }

@@ -21,9 +21,9 @@ namespace NetTally.ViewModels
     public class MainViewModel : ViewModelBase, IDisposable
     {
         public MainViewModel(QuestCollection quests, string currentQuest,
-            HttpClientHandler handler, IPageProvider pageProvider,
-            ITextResultsProvider textResults, IErrorLogger errorLogger,
-            Func<string, CompareInfo, CompareOptions, int> hashFunction)
+            HttpClientHandler httpClientHandler, IPageProvider pageProvider,
+            IVoteCounter voteCounter, ITextResultsProvider textResults,
+            IErrorLogger errorLogger, Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             ErrorLog.LogUsing(errorLogger);
             Agnostic.HashStringsUsing(hashFunction);
@@ -40,15 +40,16 @@ namespace NetTally.ViewModels
                 SelectQuest(null);
             }
 
-            SetupNetwork(pageProvider, handler);
+            SetupNetwork(pageProvider, httpClientHandler);
             SetupTextResults(textResults);
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
             BuildCheckForNewRelease();
+            SetupVoteCounter(voteCounter);
+
             BuildTally();
-            BindVoteCounter();
 
             SetupCommands();
         }
@@ -235,6 +236,10 @@ namespace NetTally.ViewModels
                 QuestList.Sort();
                 OnPropertyChanged("RenameQuest");
             }
+            else
+            {
+                OnPropertyChanged("QuestPropertyChanged");
+            }
         }
         #endregion
 
@@ -340,7 +345,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void BuildTally()
         {
-            tally = new Tally(PageProvider);
+            tally = new Tally(PageProvider, VoteCounter);
             tally.PropertyChanged += Tally_PropertyChanged;
         }
 
@@ -389,7 +394,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Redirection for user defined task values.
         /// </summary>
-        public HashSet<string> UserDefinedTasks => VoteCounter.Instance.UserDefinedTasks;
+        public HashSet<string> UserDefinedTasks => VoteCounter.UserDefinedTasks;
 
         public void AddUserDefinedTask(string task)
         {
@@ -530,7 +535,7 @@ namespace NetTally.ViewModels
         #region Section: Vote Counter
         public ObservableCollectionExt<string> AllVotesCollection { get; }
         public ObservableCollectionExt<string> AllVotersCollection { get; }
-        public List<string> TaskList => VoteCounter.Instance.OrderedTaskList;
+        public List<string> TaskList => VoteCounter.OrderedTaskList;
 
         /// <summary>
         /// Increases the task position in the task list.
@@ -571,12 +576,15 @@ namespace NetTally.ViewModels
             }
         }
 
+        public IVoteCounter VoteCounter { get; private set; }
+
         /// <summary>
         /// Attach to the VoteCounter's property changed event.
         /// </summary>
-        private void BindVoteCounter()
+        private void SetupVoteCounter(IVoteCounter voteCounter)
         {
-            VoteCounter.Instance.PropertyChanged += VoteCounter_PropertyChanged;
+            VoteCounter = voteCounter ?? new VoteCounter();
+            VoteCounter.PropertyChanged += VoteCounter_PropertyChanged;
         }
 
         /// <summary>
@@ -585,10 +593,10 @@ namespace NetTally.ViewModels
         private void UpdateVotesCollection()
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         {
-            var votesWithSupporters = VoteCounter.Instance.GetVotesCollection(VoteType.Vote);
+            var votesWithSupporters = VoteCounter.GetVotesCollection(VoteType.Vote);
 
             List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.Instance.GetCondensedRankVotes())
+                .Concat(VoteCounter.GetCondensedRankVotes())
                 .Distinct(Agnostic.StringComparer).ToList();
 
             AllVotesCollection.Replace(votes);
@@ -601,8 +609,8 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotersCollection()
         {
-            var voteVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.Instance.GetVotersCollection(VoteType.Rank);
+            var voteVoters = VoteCounter.GetVotersCollection(VoteType.Vote);
+            var rankVoters = VoteCounter.GetVotersCollection(VoteType.Rank);
 
             List<string> voters = voteVoters.Select(v => v.Key)
                 .Concat(rankVoters.Select(v => v.Key))
@@ -615,9 +623,9 @@ namespace NetTally.ViewModels
 
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (!VoteCounter.Instance.VoteCounterIsTallying)
+            if (!VoteCounter.VoteCounterIsTallying)
             {
-                if (e.PropertyName == nameof(VoteCounter.Instance.VoteCounterIsTallying))
+                if (e.PropertyName == nameof(VoteCounter.VoteCounterIsTallying))
                 {
                     // Called when the vote counter has finished its tallying.
                     // Update both observable collections.
@@ -647,9 +655,9 @@ namespace NetTally.ViewModels
         {
             get
             {
-                var voteTasks = VoteCounter.Instance.GetVotesCollection(VoteType.Vote).Keys
+                var voteTasks = VoteCounter.GetVotesCollection(VoteType.Vote).Keys
                     .Select(v => VoteString.GetVoteTask(v));
-                var rankTasks = VoteCounter.Instance.GetVotesCollection(VoteType.Rank).Keys
+                var rankTasks = VoteCounter.GetVotesCollection(VoteType.Rank).Keys
                     .Select(v => VoteString.GetVoteTask(v));
                 var userTasks = UserDefinedTasks.ToList();
 
@@ -661,25 +669,25 @@ namespace NetTally.ViewModels
             }
         }
 
-        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.Instance.HasVote(vote, voteType);
+        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.HasVote(vote, voteType);
 
-        public bool HasRankedVotes => VoteCounter.Instance.HasRankedVotes;
+        public bool HasRankedVotes => VoteCounter.HasRankedVotes;
 
-        public bool HasUndoActions => VoteCounter.Instance.HasUndoActions;
+        public bool HasUndoActions => VoteCounter.HasUndoActions;
 
-        public bool MergeVotes(string fromVote, string toVote, VoteType voteType) => VoteCounter.Instance.Merge(fromVote, toVote, voteType);
+        public bool MergeVotes(string fromVote, string toVote, VoteType voteType) => VoteCounter.Merge(fromVote, toVote, voteType);
 
-        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType) => VoteCounter.Instance.Join(voters, voterToJoin, voteType);
+        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType) => VoteCounter.Join(voters, voterToJoin, voteType);
 
-        public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Instance.Delete(vote, voteType);
+        public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Delete(vote, voteType);
 
-        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.Instance.PartitionChildren(vote, voteType);
+        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType);
 
-        public bool UndoVoteModification() => VoteCounter.Instance.Undo();
+        public bool UndoVoteModification() => VoteCounter.Undo();
 
         public HashSet<string> GetVoterListForVote(string vote, VoteType voteType)
         {
-            var votes = VoteCounter.Instance.GetVotesCollection(voteType);
+            var votes = VoteCounter.GetVotesCollection(voteType);
             if (votes.ContainsKey(vote))
                 return votes[vote];
 
