@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,6 +28,7 @@ namespace NetTally
         bool _disposed = false;
         MainViewModel mainViewModel;
         private bool updateFlag;
+        readonly SynchronizationContext _syncContext;
         #endregion
 
         #region Startup/shutdown events
@@ -40,6 +42,7 @@ namespace NetTally
             {
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                _syncContext = SynchronizationContext.Current;
 
                 InitializeComponent();
 
@@ -199,7 +202,7 @@ namespace NetTally
             // its quests, and has saved those changes to the config file.
             if (msg == NativeMethods.WM_NETTALLYUPDATE)
             {
-                Dispatcher.Invoke(Reload);
+                _syncContext.Post(o => Reload(), null);
                 handled = true;
             }
 
