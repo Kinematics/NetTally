@@ -243,6 +243,71 @@ namespace NetTally.ViewModels
         }
         #endregion
 
+        #region Quiet quest list modifications        
+        /// <summary>
+        /// Adds the quest quietly.
+        /// </summary>
+        /// <param name="questToAdd">The quest to add.</param>
+        public void AddQuestQuiet(IQuest questToAdd)
+        {
+            if (questToAdd != null)
+            {
+                QuestList.Add(questToAdd);
+                QuestList.Sort();
+                OnPropertyChanged(nameof(HasQuests));
+            }
+        }
+
+        /// <summary>
+        /// Renames the quest quietly.
+        /// </summary>
+        /// <param name="questURL">The quest URL.</param>
+        /// <param name="newQuestName">New name of the quest.</param>
+        public void RenameQuestQuiet(string questURL, string newQuestName)
+        {
+            if (string.IsNullOrEmpty(questURL))
+                return;
+            if (string.IsNullOrEmpty(newQuestName))
+                return;
+
+            var questToRename = QuestList.FirstOrDefault(a => questURL == a.ThreadName);
+            if (questToRename != null)
+            {
+                questToRename.DisplayName = newQuestName;
+                QuestList.Sort();
+            }
+        }
+
+        /// <summary>
+        /// Removes the quest quietly.
+        /// </summary>
+        /// <param name="questToRemove">The quest to remove.</param>
+        public void RemoveQuestQuiet(IQuest questToRemove)
+        {
+            if (questToRemove != null)
+            {
+                int index = QuestList.IndexOf(questToRemove);
+
+                if (index < 0)
+                    return;
+
+                bool isCurrentQuest = questToRemove == SelectedQuest;
+
+                QuestList.RemoveAt(index);
+
+                if (isCurrentQuest)
+                {
+                    if (QuestList.Count <= index)
+                        SelectedQuest = QuestList.LastOrDefault();
+                    else
+                        SelectedQuest = QuestList[index];
+
+                    OnPropertyChanged(nameof(HasQuests));
+                }
+            }
+        }
+        #endregion
+
         #region Add Quest
         /// <summary>
         /// Command property for adding a new quest to the quest list.

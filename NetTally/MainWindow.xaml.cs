@@ -2,16 +2,19 @@
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Navigation;
-using NetTally.ViewModels;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Platform;
 using NetTally.Utility;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -23,6 +26,7 @@ namespace NetTally
         #region Fields and Properties
         bool _disposed = false;
         MainViewModel mainViewModel;
+        private bool updateFlag;
         #endregion
 
         #region Startup/shutdown events
@@ -114,6 +118,14 @@ namespace NetTally
         /// <param name="e"></param>
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            SaveConfig();
+        }
+
+        /// <summary>
+        /// Saves the configuration.
+        /// </summary>
+        private void SaveConfig()
+        {
             try
             {
                 if (mainViewModel == null)
@@ -157,6 +169,91 @@ namespace NetTally
         }
         #endregion
 
+        #region Synchronization between instances of Nettally        
+        /// <summary>
+        /// When the SourceInitialized event is raised, add a hook so that we can
+        /// watch the WndProc event queue.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+            source.AddHook(WndProc);
+        }
+
+        /// <summary>
+        /// When the event queue messages come in on the OS, watch for a special message indicating
+        /// that some instance of NetTally has modified its quest list.  If so, reload the quests
+        /// from the config file and update.
+        /// </summary>
+        /// <param name="hwnd">The HWND.</param>
+        /// <param name="msg">The MSG.</param>
+        /// <param name="wParam">The w parameter.</param>
+        /// <param name="lParam">The l parameter.</param>
+        /// <param name="handled">if set to <c>true</c> [handled].</param>
+        /// <returns></returns>
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            // WM_NETTALLYUPDATE notifies all other NetTally instances that an instance has changed
+            // its quests, and has saved those changes to the config file.
+            if (msg == NativeMethods.WM_NETTALLYUPDATE)
+            {
+                Dispatcher.Invoke(Reload);
+                handled = true;
+            }
+
+            return IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// Reloads the configuration file, and updates our local list of quests with any modifications.
+        /// </summary>
+        /// <returns></returns>
+        private async Task Reload()
+        {
+            if (!updateFlag)
+            {
+                if (mainViewModel.TallyIsRunning)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith(t => Reload());
+                    return;
+                }
+
+                NetTallyConfig.Load(out QuestCollection quests, out string currentQuest, null);
+
+                var removedQuests = mainViewModel.QuestList.Where(q => !quests.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
+                var addedQuests = quests.Where(q => !mainViewModel.QuestList.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
+                var renamedQuests = quests.Where(q => mainViewModel.QuestList.Where(qq => qq.ThreadName == q.ThreadName).Any(qqr => qqr.DisplayName != q.DisplayName)).ToList();
+
+                foreach (var q in removedQuests)
+                    mainViewModel.RemoveQuestQuiet(q);
+                foreach (var q in addedQuests)
+                    mainViewModel.AddQuestQuiet(q);
+                foreach (var q in renamedQuests)
+                    mainViewModel.RenameQuestQuiet(q.ThreadName, q.DisplayName);
+            }
+
+            updateFlag = false;
+        }
+
+        /// <summary>
+        /// Broadcasts the update notification for the quest config modification.
+        /// </summary>
+        private void BroadcastUpdateNotification()
+        {
+            updateFlag = true;
+
+            // send our Win32 message to make the currently running instance
+            // jump on top of all the other windows
+            NativeMethods.PostMessage(
+                (IntPtr)NativeMethods.HWND_BROADCAST,
+                NativeMethods.WM_NETTALLYUPDATE,
+                IntPtr.Zero,
+                IntPtr.Zero);
+        }
+        #endregion
+
         #region Watched Events        
         /// <summary>
         /// Handles the PropertyChanged event of the MainViewModel control.
@@ -168,6 +265,14 @@ namespace NetTally
             if (e.PropertyName == "AddQuest")
             {
                 StartEdit(true);
+            }
+            else if (e.PropertyName == "RenameQuest" || e.PropertyName == "RemoveQuest")
+            {
+                // Any renames or removals should trigger an update broadcast.
+                // Additions are not notified for, since that would only indicate
+                // the addition of a new fake quest.
+                SaveConfig();
+                BroadcastUpdateNotification();
             }
         }
 
