@@ -148,6 +148,7 @@
     <Compile Include="GlobalOptionsWindow.xaml.cs">
       <DependentUpon>GlobalOptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Platform\UnicodeHashFunction.cs" />
     <Compile Include="Platform\WindowsErrorLog.cs" />
     <Compile Include="QuestOptionsWindow.xaml.cs">
