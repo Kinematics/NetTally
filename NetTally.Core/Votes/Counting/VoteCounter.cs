@@ -977,6 +977,8 @@ namespace NetTally.VoteCounting
                     {
                         foreach (var mergedVote in undo.MergedVotes)
                         {
+                            userMerges.RemoveMergeRecord(mergedVote.Key.Key, mergedVote.Value, Quest.PartitionMode);
+
                             LimitVoters(mergedVote.Value, mergedVote.Key.Value, VoteType.Rank);
 
                             foreach (var voter in mergedVote.Key.Value)
@@ -988,6 +990,8 @@ namespace NetTally.VoteCounting
                     }
                     else
                     {
+                        userMerges.RemoveMergeRecord(undo.Vote1, undo.Vote2, Quest.PartitionMode);
+
                         LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
 
                         vote = new List<string> { undo.Vote1 };

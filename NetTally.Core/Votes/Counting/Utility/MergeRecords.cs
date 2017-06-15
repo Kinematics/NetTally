@@ -37,6 +37,32 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
+        /// Removes the merge record.
+        /// </summary>
+        /// <param name="original">The original vote string.</param>
+        /// <param name="revised">The revised vote string.</param>
+        /// <param name="partitionMode">The partition mode.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// original
+        /// or
+        /// revised
+        /// </exception>
+        public void RemoveMergeRecord(string original, string revised, PartitionMode partitionMode)
+        {
+            if (string.IsNullOrEmpty(original))
+                throw new ArgumentNullException(nameof(original));
+            if (string.IsNullOrEmpty(revised))
+                throw new ArgumentNullException(nameof(revised));
+
+            var merges = GetMergesFor(partitionMode);
+
+            if (merges[original] == revised)
+            {
+                merges.Remove(original);
+            }
+        }
+
+        /// <summary>
         /// Tries the get merge record for the provided vote.
         /// Will recurse through votes til it finds the last one that was modified.
         /// </summary>
