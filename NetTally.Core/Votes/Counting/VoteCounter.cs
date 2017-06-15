@@ -17,6 +17,7 @@ namespace NetTally.VoteCounting
     {
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
+        readonly MergeRecords userMerges = new MergeRecords();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
         public VoteConstructor VoteConstructor { get; }
 
@@ -137,12 +138,26 @@ namespace NetTally.VoteCounting
             OnPropertyChanged("Tasks");
         }
 
+        /// <summary>
+        /// Reset user-defined tasks and user merges if the specified
+        /// quest name is different than the one the vote counter has.
+        /// </summary>
+        /// <param name="forQuestName">The quest name that may have changed.</param>
         public void ResetUserDefinedTasks(string forQuestName)
         {
             if (Quest == null || Quest.DisplayName != forQuestName)
             {
                 UserDefinedTasks.Clear();
+                ResetUserMerges();
             }
+        }
+
+        /// <summary>
+        /// Reset any merges the user has made.
+        /// </summary>
+        public void ResetUserMerges()
+        {
+            userMerges.Reset();
         }
 
         /// <summary>
@@ -755,6 +770,8 @@ namespace NetTally.VoteCounting
                 votes.Remove(vote.Key);
             }
 
+            userMerges.AddMergeRecord(vote.Key, revisedKey, Quest.PartitionMode);
+
             return true;
         }
 
@@ -1060,17 +1077,34 @@ namespace NetTally.VoteCounting
 
             var votes = GetVotesCollection(voteType);
 
+            string returnVote = vote;
+
             // If the vote already matches an existing key, we don't need to search again.
-            if (votes.ContainsKey(vote))
-                return vote;
+            if (!votes.ContainsKey(vote))
+            {
+                // Find any vote that matches using an agnostic string comparison, that ignores
+                // case, spacing, and most punctuation.
+                string agVote = votes.Keys.FirstOrDefault(k =>
+                    Agnostic.StringComparer.Equals(cleaned, cleanedKeys[k]));
 
-            // Find any vote that matches using an agnostic string comparison, that ignores
-            // case, spacing, and most punctuation.
-            string agVote = votes.Keys.FirstOrDefault(k =>
-                Agnostic.StringComparer.Equals(cleaned, cleanedKeys[k]));
+                // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
+                if (!string.IsNullOrEmpty(agVote))
+                    returnVote = agVote;
+            }
 
-            // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
-            return agVote ?? vote;
+            if (userMerges.TryGetMergeRecord(returnVote, Quest.PartitionMode, out string mergedVoteKey))
+            {
+                if (!cleanedKeys.TryGetValue(mergedVoteKey, out string cleanMerge))
+                {
+                    cleanMerge = VoteString.RemoveBBCode(vote);
+                    cleanMerge = VoteString.DeUrlContent(cleanMerge);
+                    cleanedKeys[mergedVoteKey] = cleanMerge;
+                }
+
+                return mergedVoteKey;
+            }
+
+            return returnVote;
         }
 
         /// <summary>

@@ -43,8 +43,9 @@ namespace NetTally.VoteCounting
         bool HasNewerVote(PostComponents post);
 
         HashSet<string> UserDefinedTasks { get; }
-        void ResetUserDefinedTasks(string forQuestName);
         List<string> OrderedTaskList { get; }
+        void ResetUserDefinedTasks(string forQuestName);
+        void ResetUserMerges();
 
         HashSet<string> ReferenceVoters { get; }
         Dictionary<string, string> ReferenceVoterPosts { get; }

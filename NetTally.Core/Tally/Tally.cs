@@ -231,6 +231,7 @@ namespace NetTally.VoteCounting
         public void ClearPageCache()
         {
             ViewModelService.MainViewModel.PageProvider.ClearPageCache();
+            VoteCounter.ResetUserMerges();
         }
         #endregion
 
