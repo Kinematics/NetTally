@@ -215,6 +215,9 @@ namespace NetTally.Output
             int num = 1;
             foreach (var entry in task.Value)
             {
+                if (entry.Option == null)
+                    continue;
+
                 string debug = AdvancedOptions.Instance.DebugMode ? $" >>> {entry.Debug}" : string.Empty;
                 sb.AppendLine($"[{num++}] {entry.Option}{debug}");
             }
@@ -233,6 +236,9 @@ namespace NetTally.Output
             int index = 0;
             foreach (var winner in task.Value)
             {
+                if (winner.Option == null)
+                    continue;
+
                 sb.Append("[b]");
                 sb.Append(rankWinnerLabels[index++]);
                 sb.Append(":[/b] ");

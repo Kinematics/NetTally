@@ -47,7 +47,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
             {
                 RankResult winner = GetWinningVote(voterRankings, rankedVotes);
 
-                if (winner == null)
+                if (winner == null || winner.Option == null)
                     break;
 
                 winningChoices.Add(winner);
