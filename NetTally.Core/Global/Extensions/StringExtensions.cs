@@ -46,12 +46,15 @@ namespace NetTally.Extensions
         /// <returns>The list of all string lines in the input.</returns>
         public static List<string> GetStringLines(this string input)
         {
-            if (string.IsNullOrEmpty(input))
-                return new List<string>();
+            var result = new List<string>();
 
-            string[] split = input.Split(newLines, StringSplitOptions.RemoveEmptyEntries);
+            if (!string.IsNullOrEmpty(input))
+            {
+                string[] split = input.Split(newLines, StringSplitOptions.RemoveEmptyEntries);
+                result.AddRange(split);
+            }
 
-            return new List<string>(split);
+            return result;
         }
 
         /// <summary>
