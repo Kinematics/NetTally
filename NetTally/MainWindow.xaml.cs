@@ -42,6 +42,7 @@ namespace NetTally
             {
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
                 _syncContext = SynchronizationContext.Current;
 
                 InitializeComponent();
@@ -97,6 +98,29 @@ namespace NetTally
             {
                 ErrorLog.Log(e);
             }
+        }
+
+        /// <summary>
+        /// Handles the FirstChanceException event of the Current Domain.
+        /// Logs all first chance exceptions when debug mode is on, for debug builds.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
+        private void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        {
+#if DEBUG
+            if (AdvancedOptions.Instance.DebugMode)
+            {
+                try
+                {
+                    string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
+                    ErrorLog.Log(msg);
+                }
+                catch (Exception)
+                {
+                }
+            }
+#endif
         }
 
         /// <summary>
