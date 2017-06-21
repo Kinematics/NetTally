@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="500" Width="640" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="Quest Options" Height="500" Width="640" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
     <Grid>
         <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
         <TextBlock x:Name="questName" HorizontalAlignment="Left" Margin="56,10,0,0" TextWrapping="Wrap" Text="{Binding Path=SelectedQuest.DisplayName}" 
