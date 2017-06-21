@@ -59,7 +59,13 @@ namespace NetTally
                 UseCustomUsernameFilters = quest.UseCustomUsernameFilters,
                 CustomUsernameFilters = quest.CustomUsernameFilters,
                 UseCustomPostFilters = quest.UseCustomPostFilters,
-                CustomPostFilters = quest.CustomPostFilters
+                CustomPostFilters = quest.CustomPostFilters,
+                WhitespaceAndPunctuationIsSignificant = quest.WhitespaceAndPunctuationIsSignificant,
+                ForbidVoteLabelPlanNames = quest.ForbidVoteLabelPlanNames,
+                DisableProxyVotes = quest.DisableProxyVotes,
+                ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes,
+                IgnoreSpoilers = quest.IgnoreSpoilers,
+                TrimExtendedText = quest.TrimExtendedText,
             };
 
             BaseAdd(questElement, false);

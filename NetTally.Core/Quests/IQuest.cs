@@ -117,5 +117,32 @@ namespace NetTally
         /// </summary>
         PartitionMode PartitionMode { get; set; }
 
+        // Formatting options for handling votes:
+
+        /// <summary>
+        /// Whether or not whitespace and punctuation is considered significant when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        bool WhitespaceAndPunctuationIsSignificant { get; set; }
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        bool ForbidVoteLabelPlanNames { get; set; }
+        /// <summary>
+        /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
+        /// </summary>
+        bool DisableProxyVotes { get; set; }
+        /// <summary>
+        /// Flag whether to force all user proxy votes to be pinned.
+        /// </summary>
+        bool ForcePinnedProxyVotes { get; set; }
+        /// <summary>
+        /// Whether or not to ignore spoiler blocks when parsing.
+        /// </summary>
+        bool IgnoreSpoilers { get; set; }
+        /// <summary>
+        /// Whether or not to trim extended text from vote lines.
+        /// </summary>
+        bool TrimExtendedText { get; set; }
     }
 }

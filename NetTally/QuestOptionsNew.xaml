@@ -144,7 +144,7 @@
                            Content="Rules for handling votes in this quest:" FontSize="14" />
 
                     <CheckBox Grid.Column="0" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.WhitespaceAndPunctuationIsSignificant}" >
+                              IsChecked="{Binding Path=SelectedQuest.WhitespaceAndPunctuationIsSignificant}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
@@ -156,7 +156,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,116,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.ForbidVoteLabelPlanNames}">
+                              IsChecked="{Binding Path=SelectedQuest.ForbidVoteLabelPlanNames}">
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
@@ -169,7 +169,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,137,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.DisableProxyVotes}">
+                              IsChecked="{Binding Path=SelectedQuest.DisableProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
@@ -181,7 +181,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes" HorizontalAlignment="Left" Margin="10,158,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.ForcePinnedProxyVotes}">
+                              IsChecked="{Binding Path=SelectedQuest.ForcePinnedProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
@@ -193,7 +193,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox Grid.Column="0" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,179,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.IgnoreSpoilers}" >
+                              IsChecked="{Binding Path=SelectedQuest.IgnoreSpoilers}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
@@ -205,7 +205,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top"
-                              IsChecked="{Binding Path=Options.TrimExtendedText}" >
+                              IsChecked="{Binding Path=SelectedQuest.TrimExtendedText}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
                                 <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">

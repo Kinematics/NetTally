@@ -176,7 +176,13 @@ namespace NetTally
                         UseCustomUsernameFilters = questElement.UseCustomUsernameFilters,
                         CustomUsernameFilters = questElement.CustomUsernameFilters,
                         UseCustomPostFilters = questElement.UseCustomPostFilters,
-                        CustomPostFilters = questElement.CustomPostFilters
+                        CustomPostFilters = questElement.CustomPostFilters,
+                        WhitespaceAndPunctuationIsSignificant = questElement.WhitespaceAndPunctuationIsSignificant,
+                        ForbidVoteLabelPlanNames = questElement.ForbidVoteLabelPlanNames,
+                        DisableProxyVotes = questElement.DisableProxyVotes,
+                        ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
+                        IgnoreSpoilers = questElement.IgnoreSpoilers,
+                        TrimExtendedText = questElement.TrimExtendedText,
                     };
 
                     quests.Add(q);
@@ -191,13 +197,7 @@ namespace NetTally
             {
                 options.DisplayMode = DisplayMode;
                 options.AllowRankedVotes = AllowRankedVotes;
-                options.IgnoreSpoilers = IgnoreSpoilers;
-                options.TrimExtendedText = TrimExtendedText;
                 options.GlobalSpoilers = GlobalSpoilers;
-                options.DisableProxyVotes = DisableProxyVotes;
-                options.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
-                options.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
-                options.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
                 options.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
             }
         }
@@ -224,13 +224,7 @@ namespace NetTally
             {
                 DisplayMode = options.DisplayMode;
                 AllowRankedVotes = options.AllowRankedVotes;
-                IgnoreSpoilers = options.IgnoreSpoilers;
-                TrimExtendedText = options.TrimExtendedText;
                 GlobalSpoilers = options.GlobalSpoilers;
-                DisableProxyVotes = options.DisableProxyVotes;
-                ForcePinnedProxyVotes = options.ForcePinnedProxyVotes;
-                ForbidVoteLabelPlanNames = options.ForbidVoteLabelPlanNames;
-                WhitespaceAndPunctuationIsSignificant = options.WhitespaceAndPunctuationIsSignificant;
                 DisplayPlansWithNoVotes = options.DisplayPlansWithNoVotes;
             }
         }

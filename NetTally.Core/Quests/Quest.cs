@@ -466,7 +466,15 @@ namespace NetTally
         #endregion
 
         #region Quest configuration properties: Tally processing
+
         PartitionMode partitionMode = PartitionMode.None;
+        bool whitespaceAndPunctuationIsSignificant = false;
+        bool forbidVoteLabelPlanNames = false;
+        bool disableProxyVotes = false;
+        bool forcePinnedProxyVotes = false;
+        bool ignoreSpoilers = false;
+        bool trimExtendedText = false;
+
 
         /// <summary>
         /// Enum for the type of partitioning to use when performing a tally.
@@ -480,6 +488,88 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
+
+
+        /// <summary>
+        /// Whether or not whitespace and punctuation is considered significant when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        public bool WhitespaceAndPunctuationIsSignificant
+        {
+            get { return whitespaceAndPunctuationIsSignificant; }
+            set
+            {
+                whitespaceAndPunctuationIsSignificant = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        public bool ForbidVoteLabelPlanNames
+        {
+            get { return forbidVoteLabelPlanNames; }
+            set
+            {
+                forbidVoteLabelPlanNames = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
+        /// </summary>
+        public bool DisableProxyVotes
+        {
+            get { return disableProxyVotes; }
+            set
+            {
+                disableProxyVotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to force all user proxy votes to be pinned.
+        /// </summary>
+        public bool ForcePinnedProxyVotes
+        {
+            get { return forcePinnedProxyVotes; }
+            set
+            {
+                forcePinnedProxyVotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Whether or not to ignore spoiler blocks when parsing.
+        /// </summary>
+        public bool IgnoreSpoilers
+        {
+            get { return ignoreSpoilers; }
+            set
+            {
+                ignoreSpoilers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Whether or not to trim extended text from vote lines.
+        /// </summary>
+        public bool TrimExtendedText
+        {
+            get { return trimExtendedText; }
+            set
+            {
+                trimExtendedText = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         #endregion
         #endregion
 

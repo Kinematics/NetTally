@@ -137,5 +137,49 @@ namespace NetTally
             set { this["CustomPostFilters"] = value; }
         }
         #endregion
+
+        #region Global tally options moved to per-quest.
+        [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
+        public bool WhitespaceAndPunctuationIsSignificant
+        {
+            get { return (bool)this["WhitespaceAndPunctuationIsSignificant"]; }
+            set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
+        }
+
+        [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
+        public bool ForbidVoteLabelPlanNames
+        {
+            get { return (bool)this["ForbidVoteLabelPlanNames"]; }
+            set { this["ForbidVoteLabelPlanNames"] = value; }
+        }
+
+        [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
+        public bool DisableProxyVotes
+        {
+            get { return (bool)this["DisableProxyVotes"]; }
+            set { this["DisableProxyVotes"] = value; }
+        }
+
+        [ConfigurationProperty("ForcePinnedProxyVotes", DefaultValue = false)]
+        public bool ForcePinnedProxyVotes
+        {
+            get { return (bool)this["ForcePinnedProxyVotes"]; }
+            set { this["ForcePinnedProxyVotes"] = value; }
+        }
+
+        [ConfigurationProperty("IgnoreSpoilers", DefaultValue = false)]
+        public bool IgnoreSpoilers
+        {
+            get { return (bool)this["IgnoreSpoilers"]; }
+            set { this["IgnoreSpoilers"] = value; }
+        }
+
+        [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
+        public bool TrimExtendedText
+        {
+            get { return (bool)this["TrimExtendedText"]; }
+            set { this["TrimExtendedText"] = value; }
+        }
+        #endregion
     }
 }
