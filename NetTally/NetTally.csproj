@@ -151,9 +151,6 @@
     <Compile Include="Platform\NativeMethods.cs" />
     <Compile Include="Platform\UnicodeHashFunction.cs" />
     <Compile Include="Platform\WindowsErrorLog.cs" />
-    <Compile Include="QuestOptionsNew.xaml.cs">
-      <DependentUpon>QuestOptionsNew.xaml</DependentUpon>
-    </Compile>
     <Compile Include="QuestOptionsWindow.xaml.cs">
       <DependentUpon>QuestOptionsWindow.xaml</DependentUpon>
     </Compile>
@@ -178,10 +175,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GlobalOptionsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="QuestOptionsNew.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
