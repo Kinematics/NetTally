@@ -325,9 +325,6 @@ namespace NetTally.Votes
         /// <returns>Returns the vote line without the extended description.</returns>
         public static string TrimExtendedTextDescription(string voteLine)
         {
-            if (!AdvancedOptions.Instance.TrimExtendedText)
-                return voteLine;
-
             if (string.IsNullOrEmpty(voteLine))
                 return string.Empty;
 
@@ -348,9 +345,6 @@ namespace NetTally.Votes
 
         public static string TrimExtendedTextDescriptionOfContent(string content)
         {
-            if (!AdvancedOptions.Instance.TrimExtendedText)
-                return content;
-
             if (string.IsNullOrEmpty(content))
                 return string.Empty;
 

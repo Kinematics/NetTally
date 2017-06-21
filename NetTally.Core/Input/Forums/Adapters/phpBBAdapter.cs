@@ -177,7 +177,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
+        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
         {
             var pagebody = page?.GetElementbyId("page-body");
 
@@ -186,7 +186,7 @@ namespace NetTally.Forums.Adapters
 
             var posts = from p in pagebody.Elements("div")
                         where p.GetAttributeValue("class", "").Split(' ').Contains("post")
-                        select GetPost(p);
+                        select GetPost(p, quest);
 
             return posts;
         }
@@ -217,7 +217,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="div">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode div)
+        private PostComponents GetPost(HtmlNode div, IQuest quest)
         {
             if (div == null)
                 throw new ArgumentNullException(nameof(div));

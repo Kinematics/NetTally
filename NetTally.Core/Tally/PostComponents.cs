@@ -47,7 +47,7 @@ namespace NetTally
         /// <param name="author">The author of the post.</param>
         /// <param name="id">The ID (string) of the post.</param>
         /// <param name="text">The text contents of the post.</param>
-        public PostComponents(string author, string id, string text, int number = 0)
+        public PostComponents(string author, string id, string text, int number = 0, IQuest quest = null)
         {
             if (string.IsNullOrEmpty(author))
                 throw new ArgumentNullException(nameof(author));
@@ -72,9 +72,12 @@ namespace NetTally
 
             if (voteLines.Any())
             {
-                VoteStrings = voteLines.Select(a => VoteString.CleanVoteLineBBCode(a))
-                    .Select(a => VoteString.ModifyLinesRead(a))
-                    .Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
+                var selected = voteLines.Select(a => VoteString.CleanVoteLineBBCode(a));
+
+                if (quest != null && quest.TrimExtendedText)
+                    selected = selected.Select(a => VoteString.ModifyLinesRead(a));
+
+                VoteStrings = selected.Select(a => VoteString.CleanVoteLineBBCode(a)).ToList();
 
                 SeparateVoteStrings(VoteStrings);
             }

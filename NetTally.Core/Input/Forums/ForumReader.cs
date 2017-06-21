@@ -221,7 +221,7 @@ namespace NetTally.Forums
                     throw ae;
                 }
 
-                var posts = from post in adapter.GetPosts(page)
+                var posts = from post in adapter.GetPosts(page, quest)
                             where post != null && post.IsVote && post.IsAfterStart(rangeInfo) &&
                                 (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost)
                             select post;

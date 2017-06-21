@@ -121,6 +121,7 @@ namespace NetTally
         /// <summary>
         /// Flag whether to allow label lines on votes to be plan names.
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool ForbidVoteLabelPlanNames
         {
             get { return forbidVoteLabelPlanNames; }
@@ -150,6 +151,7 @@ namespace NetTally
         /// Whether or not whitespace and punctuation is considered significant when
         /// doing vote and voter comparisons.
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool WhitespaceAndPunctuationIsSignificant
         {
             get { return whitespaceAndPunctuationIsSignificant; }
@@ -163,6 +165,7 @@ namespace NetTally
         /// <summary>
         /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool DisableProxyVotes
         {
             get { return disableProxyVotes; }
@@ -176,6 +179,7 @@ namespace NetTally
         /// <summary>
         /// Flag whether to force all user proxy votes to be pinned.
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool ForcePinnedProxyVotes
         {
             get { return forcePinnedProxyVotes; }
@@ -189,6 +193,7 @@ namespace NetTally
         /// <summary>
         /// Whether or not to ignore spoiler blocks when parsing.
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool IgnoreSpoilers
         {
             get { return ignoreSpoilers; }
@@ -202,6 +207,7 @@ namespace NetTally
         /// <summary>
         /// Whether or not to trim extended text from vote lines.
         /// </summary>
+        [Obsolete("Moved to Quest")]
         public bool TrimExtendedText
         {
             get { return trimExtendedText; }

@@ -191,11 +191,11 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
+        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from li in GetPostsList(page)
                         //where li.HasClass("stickyFirstContainer") == false
-                        select GetPost(li);
+                        select GetPost(li, quest);
 
             return posts;
         }
@@ -371,7 +371,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li)
+        private PostComponents GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -398,7 +398,7 @@ namespace NetTally.Forums.Adapters
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
                 "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
-            if (AdvancedOptions.Instance.IgnoreSpoilers)
+            if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
             var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);

@@ -72,6 +72,7 @@ namespace NetTally
             set { this["AllowRankedVotes"] = value; }
         }
 
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
         public bool WhitespaceAndPunctuationIsSignificant
         {
@@ -79,6 +80,7 @@ namespace NetTally
             set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
         }
 
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
         public bool ForbidVoteLabelPlanNames
         {
@@ -86,6 +88,7 @@ namespace NetTally
             set { this["ForbidVoteLabelPlanNames"] = value; }
         }
 
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
         public bool DisableProxyVotes
         {
@@ -93,6 +96,7 @@ namespace NetTally
             set { this["DisableProxyVotes"] = value; }
         }
 
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("ForcePinnedProxyVotes", DefaultValue = false)]
         public bool ForcePinnedProxyVotes
         {
@@ -100,12 +104,15 @@ namespace NetTally
             set { this["ForcePinnedProxyVotes"] = value; }
         }
 
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
         public bool TrimExtendedText
         {
             get { return (bool)this["TrimExtendedText"]; }
             set { this["TrimExtendedText"] = value; }
         }
+
+        [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("IgnoreSpoilers", DefaultValue = false)]
         public bool IgnoreSpoilers
         {

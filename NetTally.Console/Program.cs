@@ -127,6 +127,13 @@ namespace NetTally.CLI
             if (!string.IsNullOrEmpty(options.TaskFilters))
                 quest.UseCustomTaskFilters = true;
 
+            quest.DisableProxyVotes = options.NoProxy;
+            quest.ForbidVoteLabelPlanNames = options.ForbidPlanLabels;
+            quest.ForcePinnedProxyVotes = options.PinProxy;
+            quest.IgnoreSpoilers = options.NoSpoilers;
+            quest.WhitespaceAndPunctuationIsSignificant = options.Whitespace;
+            quest.TrimExtendedText = options.Trim;
+
             return quest;
         }
 
@@ -139,12 +146,6 @@ namespace NetTally.CLI
             ViewModelService.MainViewModel.Options.AllowRankedVotes = !options.NoRanks;
 
             ViewModelService.MainViewModel.Options.DisplayMode = options.DisplayMode;
-            ViewModelService.MainViewModel.Options.DisableProxyVotes = options.NoProxy;
-            ViewModelService.MainViewModel.Options.ForbidVoteLabelPlanNames = options.ForbidPlanLabels;
-            ViewModelService.MainViewModel.Options.ForcePinnedProxyVotes = options.PinProxy;
-            ViewModelService.MainViewModel.Options.IgnoreSpoilers = options.NoSpoilers;
-            ViewModelService.MainViewModel.Options.WhitespaceAndPunctuationIsSignificant = options.Whitespace;
-            ViewModelService.MainViewModel.Options.TrimExtendedText = options.Trim;
 
             ViewModelService.MainViewModel.Options.DebugMode = options.Debug;
         }

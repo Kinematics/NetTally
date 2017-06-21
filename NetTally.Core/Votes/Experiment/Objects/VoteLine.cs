@@ -269,7 +269,7 @@ namespace NetTally.Votes.Experiment
         /// <returns>Returns the content after trimming it.</returns>
         private string GetTrimmedContent(string content)
         {
-            if (AdvancedOptions.Instance.TrimExtendedText)
+            if (ViewModels.ViewModelService.MainViewModel.SelectedQuest.TrimExtendedText)
             {
                 return VoteString.TrimExtendedTextDescriptionOfContent(content);
             }
@@ -316,7 +316,7 @@ namespace NetTally.Votes.Experiment
             string stripped = comparableContent.RemoveDiacritics();
 
             // Strip all whitespace and punctuation if it's not significant.
-            if (!AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant)
+            if (!ViewModels.ViewModelService.MainViewModel.SelectedQuest.WhitespaceAndPunctuationIsSignificant)
             {
                 stripped = symbolRegex.Replace(stripped, "");
             }

@@ -68,7 +68,7 @@ namespace NetTally.Votes
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            if (AdvancedOptions.Instance.ForbidVoteLabelPlanNames)
+            if (quest.ForbidVoteLabelPlanNames)
                 return;
 
             var plans = GetAllFullPostPlans(post);
@@ -95,7 +95,7 @@ namespace NetTally.Votes
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
 
-            if (AdvancedOptions.Instance.ForbidVoteLabelPlanNames)
+            if (quest.ForbidVoteLabelPlanNames)
                 return;
 
             var plans = GetAllOneLinePlans(post);
@@ -129,7 +129,7 @@ namespace NetTally.Votes
             {
                 // If it has a reference to a plan or voter that has not been processed yet,
                 // delay processing.
-                if (HasFutureReference(post))
+                if (HasFutureReference(post, quest))
                 {
                     VoteCounter.FutureReferences.Add(post);
                     return false;
@@ -516,7 +516,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">Post containing the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(PostComponents post)
+        private bool HasFutureReference(PostComponents post, IQuest quest)
         {
             // If we decide it has to be forced, ignore all checks in here.
             if (post.ForceProcess)
@@ -524,7 +524,7 @@ namespace NetTally.Votes
 
             // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
             // Likewise, if we're forcing all proxy votes to be pinned, there can't be any future references.
-            if (AdvancedOptions.Instance.DisableProxyVotes || AdvancedOptions.Instance.ForcePinnedProxyVotes)
+            if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
                 return false;
 
             foreach (var line in post.WorkingVote)

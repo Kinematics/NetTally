@@ -374,7 +374,7 @@ namespace NetTally.VoteCounting
                 else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.StringComparer))
                 {
                     // If it doesn't exist as a plan, then we can check for users.
-                    if (!AdvancedOptions.Instance.DisableProxyVotes)
+                    if (!Quest.DisableProxyVotes)
                     {
                         proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.StringComparer));
 
@@ -391,7 +391,7 @@ namespace NetTally.VoteCounting
                 // If this matches a user name, get that user name as the proxy reference.
                 if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.StringComparer))
                 {
-                    if (!AdvancedOptions.Instance.DisableProxyVotes)
+                    if (!Quest.DisableProxyVotes)
                     {
                         proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.StringComparer));
 

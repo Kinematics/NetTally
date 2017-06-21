@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using NetTally.ViewModels;
 
 namespace NetTally.Utility
 {
@@ -40,7 +41,7 @@ namespace NetTally.Utility
         /// MUST be run before other objects are constructed.
         /// </summary>
         /// <param name="hashFunction"></param>
-        public static void HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        public static PropertyChangedEventHandler HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             hashFunction = hashFunction ?? DefaultAgnosticHashFunction.HashFunction;
 
@@ -49,9 +50,10 @@ namespace NetTally.Utility
             StringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
 
-            AdvancedOptions.Instance.PropertyChanged += AdvancedOptions_PropertyChanged;
+            currentComparer = StringComparer1;
 
-            currentComparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? StringComparer1 : StringComparer2;
+            // This function is called by the MainViewModel during construction. Return the event handler we want to attach.
+            return MainViewModel_PropertyChanged;
         }
 
         private static IEqualityComparer<string> currentComparer;
@@ -61,16 +63,20 @@ namespace NetTally.Utility
         private static IEqualityComparer<string> StringComparer2 { get; set; }
 
         /// <summary>
-        /// Handles the PropertyChanged event of the AdvancedOptions control.
+        /// Handles the PropertyChanged event of the Main View Model, watching for changes in the
+        /// options of the currently selected quest.
         /// If whitespace handling changes, update the current comparer.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private static void AdvancedOptions_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private static void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "WhitespaceAndPunctuationIsSignificant")
+            if (e.PropertyName.StartsWith("SelectedQuest."))
             {
-                currentComparer = AdvancedOptions.Instance.WhitespaceAndPunctuationIsSignificant ? StringComparer1 : StringComparer2;
+                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant"))
+                {
+                    currentComparer = ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant ?? false ? StringComparer1 : StringComparer2;
+                }
             }
         }
     }

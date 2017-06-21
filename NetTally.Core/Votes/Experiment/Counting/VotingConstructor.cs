@@ -298,7 +298,7 @@ namespace NetTally.Votes.Experiment
                     // Otherwise check if it's a user proxy.  Usernames are unlikely to be allowed to be greater
                     // than 20 characters, but giving a fair buffer just in case.  Don't check for very long strings
                     // as usernames.  Also check global options in case proxy votes are disabled.
-                    else if (planname.Length <= 40 && !AdvancedOptions.Instance.DisableProxyVotes)
+                    else if (planname.Length <= 40 && !quest.DisableProxyVotes)
                     {
                         List<VotePartition> proxyPartitions = GetProxyPartitions(planname, false, post.Identity);
 
@@ -340,7 +340,7 @@ namespace NetTally.Votes.Experiment
                     // username length of no more than 40 characters.
                     m = proxyRegex.Match(line.ComparableContent);
 
-                    if (m.Success && !AdvancedOptions.Instance.DisableProxyVotes)
+                    if (m.Success && !quest.DisableProxyVotes)
                     {
                         bool pin = m.Groups["pin"].Success;
                         string username = m.Groups["username"].Value;

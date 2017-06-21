@@ -26,7 +26,7 @@ namespace NetTally.ViewModels
             IErrorLogger errorLogger, Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             ErrorLog.LogUsing(errorLogger);
-            Agnostic.HashStringsUsing(hashFunction);
+            PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
 
             if (quests != null)
             {
@@ -236,10 +236,8 @@ namespace NetTally.ViewModels
                 QuestList.Sort();
                 OnPropertyChanged("RenameQuest");
             }
-            else
-            {
-                OnPropertyChanged("QuestPropertyChanged");
-            }
+
+            OnPropertyChanged($"SelectedQuest.{e.PropertyName}");
         }
         #endregion
 

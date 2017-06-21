@@ -60,7 +60,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<PostComponents> GetPosts(HtmlDocument page);
+        IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest);
 
         /// <summary>
         /// Gets the value of post identifier.

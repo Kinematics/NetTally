@@ -143,7 +143,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page)
+        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
         {
             var postList = page?.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
@@ -152,7 +152,7 @@ namespace NetTally.Forums.Adapters
 
             var posts = from p in postList.Elements("li")
                         where !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", ""))
-                        select GetPost(p);
+                        select GetPost(p, quest);
 
             return posts;
         }
@@ -183,7 +183,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li)
+        private PostComponents GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -233,7 +233,7 @@ namespace NetTally.Forums.Adapters
             PostComponents post;
             try
             {
-                post = new PostComponents(author, id, text, number);
+                post = new PostComponents(author, id, text, number, quest);
             }
             catch
             {
