@@ -105,9 +105,9 @@ namespace NetTally.Output
         public static IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
         {
             var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
-            if(ViewModelService.MainViewModel.VoteCounter.OrderedTaskList != null)
-            {
 
+            if (ViewModelService.MainViewModel.VoteCounter.OrderedTaskList != null)
+            {
                 grouped = grouped.OrderBy(v => ViewModelService.MainViewModel.VoteCounter.OrderedTaskList.IndexOf(v.Key));
             }
             
