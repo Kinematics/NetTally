@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Extensions;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
@@ -166,8 +167,16 @@ namespace NetTally.Output
                 IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
                 RankResultsByTask results = counter.CountVotes(VoteCounter.GetVotesCollection(VoteType.Rank));
 
-                //var orderedRes = results.OrderBy(a => a.Key);
-                var orderedRes = results;
+                IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
+
+                if (ViewModelService.MainViewModel.VoteCounter.OrderedTaskList != null)
+                {
+                    orderedRes = results.OrderBy(v => ViewModelService.MainViewModel.VoteCounter.OrderedTaskList.IndexOf(v.Key));
+                }
+                else
+                {
+                    orderedRes = results.OrderBy(a => a.Key);
+                }
 
                 // Output the ranking results for each task
                 foreach (var task in orderedRes)
