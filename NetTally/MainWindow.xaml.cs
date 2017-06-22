@@ -190,6 +190,9 @@ namespace NetTally
             if (itIsSafeToAlsoFreeManagedObjects)
             {
                 mainViewModel?.Dispose();
+
+                HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+                source.RemoveHook(WndProc);
             }
 
             _disposed = true;
