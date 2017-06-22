@@ -22,13 +22,6 @@ namespace NetTally
             allowRankedVotes.IsChecked = true;
             rankedVoteAlgorithm.SelectedIndex = 0;
 
-            forbidVoteLabelPlanNames.IsChecked = false;
-            whitespaceAndPunctuationIsSignificant.IsChecked = false;
-            disableProxyVotes.IsChecked = false;
-            forcePinnedProxyVotes.IsChecked = false;
-            ignoreSpoilers.IsChecked = false;
-            trimExtendedText.IsChecked = false;
-
             globalSpoilers.IsChecked = false;
 
             debugMode.IsChecked = false;

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
-        Title="Global Options" Height="456.199" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Global Options" Height="355.681" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
@@ -37,28 +37,14 @@
             </ComboBox.ItemContainerStyle>
         </ComboBox>
 
-        <Label x:Name="labelFormatting" Content="Formatting" HorizontalAlignment="Left" Margin="10,86,0,0" Grid.Row="1" VerticalAlignment="Top" RenderTransformOrigin="-0.605,0.231"/>
-        <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,112,0,0" Grid.Row="1" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.ForbidVoteLabelPlanNames}"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.WhitespaceAndPunctuationIsSignificant}" />
-        <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,154,0,0" Grid.Row="1" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.DisableProxyVotes}"/>
-        <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes" HorizontalAlignment="Left" Margin="10,175,0,0" Grid.Row="1" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.ForcePinnedProxyVotes}"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,196,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.IgnoreSpoilers}" />
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.TrimExtendedText}" />
-
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,238,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="10,264,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,97,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,128,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.GlobalSpoilers}"/>
-        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="10,285,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,149,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,307,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="10,333,0,0" VerticalAlignment="Top"
+        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,179,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="33,205,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -75,38 +61,6 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
-        </StackPanel>
-
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=forbidVoteLabelPlanNames, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Forbid Vote Labels as Plan Names"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line (which has no content) as the first line of the vote, ignore that as a means of giving the entire vote a plan name."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=whitespaceAndPunctuationIsSignificant, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Whitespace &amp; Punctuation is Significant"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that whitespace and punctuation is significant when comparing votes and voters.  Enable it if votes that should be considered separate are being treated as the same."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable User Proxy Votes"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=forcePinnedProxyVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Force Pinned Proxy Votes"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are always considered 'pinned', rather than 'tracking'.  That is, they will always refer to a vote prior to the vote currently being processed."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=ignoreSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ignore Spoilers"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within posts.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trimExtendedText, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Trim Extended Vote Descriptions"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Experimental."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
