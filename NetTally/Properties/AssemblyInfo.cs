@@ -52,7 +52,7 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.9.0.0")]
-[assembly: AssemblyFileVersion("1.9.8.0")]
-[assembly: AssemblyInformationalVersion("1.9.8")]
+[assembly: AssemblyFileVersion("1.9.9.0")]
+[assembly: AssemblyInformationalVersion("1.9.9")]
 [assembly: NeutralResourcesLanguage("en")]
 
