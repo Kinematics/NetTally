@@ -455,36 +455,49 @@ namespace NetTally.Forums.Adapters
 
                 var threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
 
-                HtmlNode mainList = threadmarksDiv.Elements("ol").FirstOrDefault(e => e.HasClass("threadmarkList"));
+                HtmlNode listOfThreadmarks = null;
 
-                if (mainList == null)
+                HtmlNode threadmarkList = threadmarksDiv.GetDescendantWithClass("threadmarkList");
+
+                if (threadmarkList != null)
                 {
-                    mainList = threadmarksDiv.Elements("ul").FirstOrDefault(e => e.Elements("li").FirstOrDefault(a => a.HasClass("threadmarkItem")) != null);
+                    // We have a .threadmarkList node.  This is either an ol itself, or it will contain a ThreadmarkCategory_# ol node.  We want category 1.
+
+                    if (threadmarkList.Name == "ol")
+                    {
+                        if (threadmarkList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
+                        {
+                            if (!threadmarkList.HasClass("ThreadmarkCategory_1"))
+                                return new List<HtmlNode>();
+                        }
+
+                        listOfThreadmarks = threadmarkList;
+                    }
+                    else
+                    {
+                        listOfThreadmarks = threadmarkList.GetDescendantWithClass("ol", "ThreadmarkCategory_1");
+                    }
+                }
+                else
+                {
+                    // threadmarkList was null.  There is no .threadmarkList node, so check for undecorated ul that contains .threadmarkItem list items.
+                    listOfThreadmarks = threadmarksDiv.Descendants("ul").FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
                 }
 
-                // Return empty list if no threadmark ul or ol found.
-                if (mainList == null)
-                    return new List<HtmlNode>();
-
-                // Ensure that if we have a page with a threadmark category, that it is the primary category.
-                if (mainList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
+                if (listOfThreadmarks != null)
                 {
-                    if (!mainList.HasClass("ThreadmarkCategory_1"))
-                        return new List<HtmlNode>();
+                    Predicate<HtmlNode> filterLambda = (n) =>
+                        (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
+                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
+
+                    Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
+
+                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? new List<HtmlNode>();
+
+                    var results = listOfThreadmarks.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
+
+                    return results;
                 }
-
-
-                Predicate<HtmlNode> filterLambda = (n) =>
-                    (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
-                    (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
-
-                Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
-
-                Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? new List<HtmlNode>();
-
-                var results = mainList.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
-
-                return results;
             }
             catch (ArgumentNullException e)
             {
