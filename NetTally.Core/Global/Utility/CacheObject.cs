@@ -6,26 +6,34 @@ namespace NetTally.Utility
     /// Class to save an object with an associated timestamp.
     /// Default use would be to cache loaded web pages.
     /// </summary>
-    public class CacheObject<T>
+    public class CacheObject<T> where T : class
     {
         public DateTime Timestamp { get; }
+        public DateTime Expires { get; }
         public T Store { get; }
 
+        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(30);
+
+
         public CacheObject(T store)
-            : this(store, new SystemClock())
+            : this(store, new SystemClock(), DateTime.MinValue)
         {
         }
 
         public CacheObject(T store, IClock clock)
+            : this(store, clock, DateTime.MinValue)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
+        }
 
-            if (clock == null)
-                throw new ArgumentNullException(nameof(clock));
+        public CacheObject(T store, IClock clock, DateTime expires)
+        {
+            Store = store ?? throw new ArgumentNullException(nameof(store));
+            Timestamp = clock?.Now ?? throw new ArgumentNullException(nameof(clock));
 
-            Timestamp = clock.Now;
-            Store = store;
+            if (expires == DateTime.MinValue)
+                expires = Timestamp.Add(defaultExpirationDelay);
+
+            Expires = expires;
         }
 
         public override int GetHashCode()
