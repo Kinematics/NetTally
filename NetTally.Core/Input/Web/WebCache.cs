@@ -66,6 +66,8 @@ namespace NetTally.Web
         #endregion
 
         #region Public functions
+        public static readonly DateTime DefaultExpiration = CacheObject<byte[]>.DefaultExpiration;
+
         /// <summary>
         /// Allow setting the clock interface to be used by the cache.
         /// </summary>
@@ -83,10 +85,10 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL the document was retrieved from.</param>
         /// <param name="html">The HTML string to cache.</param>
-        public async Task AddAsync(string url, string html)
+        public async Task AddAsync(string url, string html, DateTime expires)
         {
             var zipped = await CompressString(html);
-            var toGZCache = new CacheObject<byte[]>(zipped, Clock);
+            var toGZCache = new CacheObject<byte[]>(zipped, Clock, expires);
 
             using (cacheLock.WriterLock())
             {

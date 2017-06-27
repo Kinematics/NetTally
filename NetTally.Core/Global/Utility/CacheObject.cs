@@ -12,16 +12,18 @@ namespace NetTally.Utility
         public DateTime Expires { get; }
         public T Store { get; }
 
+        public static readonly DateTime DefaultExpiration = DateTime.MinValue;
+
         readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(30);
 
 
         public CacheObject(T store)
-            : this(store, new SystemClock(), DateTime.MinValue)
+            : this(store, new SystemClock(), DefaultExpiration)
         {
         }
 
         public CacheObject(T store, IClock clock)
-            : this(store, clock, DateTime.MinValue)
+            : this(store, clock, DefaultExpiration)
         {
         }
 
@@ -30,7 +32,7 @@ namespace NetTally.Utility
             Store = store ?? throw new ArgumentNullException(nameof(store));
             Timestamp = clock?.Now ?? throw new ArgumentNullException(nameof(clock));
 
-            if (expires == DateTime.MinValue)
+            if (expires == DefaultExpiration)
                 expires = Timestamp.Add(defaultExpirationDelay);
 
             Expires = expires;
