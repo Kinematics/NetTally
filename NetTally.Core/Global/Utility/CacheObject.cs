@@ -12,7 +12,7 @@ namespace NetTally.Utility
         public T Store { get; }
 
         public CacheObject(T store)
-            : this(store, new DefaultClock())
+            : this(store, new SystemClock())
         {
         }
 

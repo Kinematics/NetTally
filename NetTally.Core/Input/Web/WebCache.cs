@@ -73,7 +73,7 @@ namespace NetTally.Web
         {
             using (cacheLock.ReaderLock())
             {
-                Clock = clock ?? new DefaultClock();
+                Clock = clock ?? new SystemClock();
             }
         }
 

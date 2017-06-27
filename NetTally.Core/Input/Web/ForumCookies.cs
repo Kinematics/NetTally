@@ -11,7 +11,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        public static Cookie GetCookie(Uri uri) => GetCookie(uri, new DefaultClock());
+        public static Cookie GetCookie(Uri uri) => GetCookie(uri, new SystemClock());
 
         /// <summary>
         /// Gets the cookie associated with the given URI, if available.

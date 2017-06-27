@@ -24,7 +24,7 @@ namespace NetTally.Platform
             try
             {
                 if (clock == null)
-                    clock = new DefaultClock();
+                    clock = new SystemClock();
 
                 string filename = GetLogFilename(clock);
                 if (string.IsNullOrEmpty(filename))

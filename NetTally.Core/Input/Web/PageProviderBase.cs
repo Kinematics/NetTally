@@ -30,7 +30,7 @@ namespace NetTally.Web
         {
             ClientHandler = handler ?? new HttpClientHandler();
             Cache = cache ?? WebCache.Instance;
-            Clock = clock ?? new DefaultClock();
+            Clock = clock ?? new SystemClock();
         }
         #endregion
 
