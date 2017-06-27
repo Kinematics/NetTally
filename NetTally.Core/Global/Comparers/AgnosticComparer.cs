@@ -50,7 +50,7 @@ namespace NetTally.Utility
             StringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
 
-            currentComparer = StringComparer1;
+            currentComparer = StringComparer2;
 
             // This function is called by the MainViewModel during construction. Return the event handler we want to attach.
             return MainViewModel_PropertyChanged;
