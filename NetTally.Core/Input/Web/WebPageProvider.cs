@@ -239,7 +239,7 @@ namespace NetTally.Web
             }
 
             if (shouldCache == ShouldCache.Yes)
-                Cache.Add(url, result);
+                await Cache.AddAsync(url, result);
 
             htmldoc = new HtmlDocument();
             await Task.Run(() => htmldoc.LoadHtml(result)).ConfigureAwait(false);

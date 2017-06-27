@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -57,9 +60,7 @@ namespace NetTally.Web
         IClock Clock { get; set; }
 
         const int MaxCacheEntries = 50;
-        readonly TimeSpan maxCacheDuration = TimeSpan.FromMinutes(30);
-
-        Dictionary<string, CacheObject<string>> PageCache { get; } = new Dictionary<string, CacheObject<string>>(MaxCacheEntries);
+        Dictionary<string, CacheObject<byte[]>> GZPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(MaxCacheEntries);
 
         readonly AsyncReaderWriterLock cacheLock = new AsyncReaderWriterLock();
         #endregion
@@ -82,26 +83,19 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL the document was retrieved from.</param>
         /// <param name="html">The HTML string to cache.</param>
-        public void Add(string url, string html)
+        public async Task AddAsync(string url, string html)
         {
-            AddCachedPage(url, new CacheObject<string>(html, Clock));
-        }
+            var zipped = await CompressString(html);
+            var toGZCache = new CacheObject<byte[]>(zipped, Clock);
 
-        /// <summary>
-        /// Handle adding a CachedPage to the cache dictionary, with locking.
-        /// </summary>
-        /// <param name="url">The URL the page was retrieved from.</param>
-        /// <param name="cachedPage">The object to cache.</param>
-        void AddCachedPage(string url, CacheObject<string> cachedPage)
-        {
             using (cacheLock.WriterLock())
-            { 
-                PageCache[url] = cachedPage;
+            {
+                GZPageCache[url] = toGZCache;
 
-                if (PageCache.Count > MaxCacheEntries)
+                if (GZPageCache.Count > MaxCacheEntries)
                 {
-                    var oldestEntry = PageCache.MinObject(p => p.Value.Timestamp);
-                    PageCache.Remove(oldestEntry.Key);
+                    var oldestEntry = GZPageCache.MinObject(p => p.Value.Timestamp);
+                    GZPageCache.Remove(oldestEntry.Key);
                 }
             }
         }
@@ -114,22 +108,24 @@ namespace NetTally.Web
         /// Otherwise returns null.</returns>
         public async Task<HtmlDocument> GetAsync(string url)
         {
-            using (cacheLock.ReaderLock())
-            { 
-                if (PageCache.TryGetValue(url, out CacheObject<string> cache))
-                {
-                    var cacheAge = Clock.Now - cache.Timestamp;
+            HtmlDocument doc = null;
 
-                    if (cacheAge < maxCacheDuration)
+            using (cacheLock.ReaderLock())
+            {
+                if (GZPageCache.TryGetValue(url, out CacheObject<byte[]> gzCache))
+                {
+                    if (gzCache.Expires > Clock.Now)
                     {
-                        HtmlDocument doc = new HtmlDocument();
-                        await Task.Run(() => doc.LoadHtml(cache.Store)).ConfigureAwait(false);
-                        return doc;
+                        string docString = await GetUncompressedString(gzCache.Store).ConfigureAwait(false);
+
+                        doc = new HtmlDocument();
+
+                        await Task.Run(() => doc.LoadHtml(docString)).ConfigureAwait(false);
                     }
                 }
             }
 
-            return null;
+            return doc;
         }
 
         /// <summary>
@@ -139,7 +135,7 @@ namespace NetTally.Web
         {
             using (cacheLock.WriterLock())
             {
-                PageCache.Clear();
+                GZPageCache.Clear();
             }
         }
 
@@ -149,18 +145,57 @@ namespace NetTally.Web
         /// <param name="time">The reference time to use when determining the age of a page.</param>
         public void ExpireCache(DateTime time)
         {
-            DateTime oldestAllowedTime = time - maxCacheDuration;
-
             using (cacheLock.WriterLock())
             {
-                var pagesToRemove = PageCache.Where(p => p.Value.Timestamp <= oldestAllowedTime).ToList();
+                var pagesToRemove = GZPageCache.Where(p => p.Value.Expires < time).ToList();
 
                 foreach (var page in pagesToRemove)
                 {
-                    PageCache.Remove(page.Key);
+                    GZPageCache.Remove(page.Key);
                 }
             }
         }
         #endregion
+
+        #region Private functions        
+        /// <summary>
+        /// Compresses the string.
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <returns>Returns the string compressed into a GZipped byte array.</returns>
+        private async Task<byte[]> CompressString(string input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (GZipStream zs = new GZipStream(ms, CompressionMode.Compress, true))
+                {
+                    byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                    await zs.WriteAsync(inputBytes, 0, inputBytes.Length).ConfigureAwait(false);
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Gets the uncompressed string.
+        /// </summary>
+        /// <param name="input">The input byte array.</param>
+        /// <returns>Returns the uncompressed string.</returns>
+        private async Task<string> GetUncompressedString(byte[] input)
+        {
+            using (MemoryStream mso = new MemoryStream())
+            {
+                using (MemoryStream ms = new MemoryStream(input))
+                using (GZipStream zs = new GZipStream(ms, CompressionMode.Decompress, true))
+                {
+                    await zs.CopyToAsync(mso).ConfigureAwait(false);
+                }
+
+                return Encoding.UTF8.GetString(mso.ToArray());
+            }
+        }
+        #endregion
+
     }
 }
