@@ -84,7 +84,7 @@ namespace NetTally.Web
         /// <param name="html">The HTML string to cache.</param>
         public void Add(string url, string html)
         {
-            AddCachedPage(url, new CacheObject<string>(html));
+            AddCachedPage(url, new CacheObject<string>(html, Clock));
         }
 
         /// <summary>
