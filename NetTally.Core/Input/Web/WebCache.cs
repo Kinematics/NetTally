@@ -107,26 +107,22 @@ namespace NetTally.Web
         /// <param name="url">The URL being checked.</param>
         /// <returns>Returns the document for the URL if it's available and less than 30 minutes old.
         /// Otherwise returns null.</returns>
-        public async Task<HtmlDocument> GetAsync(string url)
+        public async Task<(bool found, string content)> GetAsync(string url)
         {
-            HtmlDocument doc = null;
-
             using (cacheLock.ReaderLock())
             {
                 if (GZPageCache.TryGetValue(url, out CacheObject<byte[]> gzCache))
                 {
                     if (gzCache.Expires > Clock.Now)
                     {
-                        string docString = await GetUncompressedString(gzCache.Store).ConfigureAwait(false);
+                        string content = await GetUncompressedString(gzCache.Store).ConfigureAwait(false);
 
-                        doc = new HtmlDocument();
-
-                        await Task.Run(() => doc.LoadHtml(docString)).ConfigureAwait(false);
+                        return (true, content);
                     }
                 }
             }
 
-            return doc;
+            return (false, string.Empty);
         }
 
         /// <summary>

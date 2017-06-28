@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
 using NetTally.Utility;
@@ -91,6 +92,212 @@ namespace NetTally.Web
         }
 
         /// <summary>
+        /// Asynchronously load a specific web page.
+        /// </summary>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>
+        /// Returns an HTML document, if it can be loaded.
+        /// </returns>
+        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+            SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            HtmlDocument htmldoc = null;
+
+            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                htmldoc = new HtmlDocument();
+
+                await Task.Run(() => htmldoc.LoadHtml(content), token).ConfigureAwait(false);
+            }
+
+            return htmldoc;
+        }
+
+        /// <summary>
+        /// Gets the XML page.
+        /// </summary>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns an XML document, if it can be loaded.</returns>
+        public async Task<XDocument> GetXmlPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+            SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            XDocument xmldoc = null;
+
+            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                xmldoc = XDocument.Parse(content);
+            }
+
+            return xmldoc;
+        }
+
+        /// <summary>
+        /// Loads the HEAD of the requested URL, and returns the response URL value.
+        /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
+        /// </summary>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
+        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>
+        /// Returns the URL that the response headers say we requested.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">url</exception>
+        /// <exception cref="System.ArgumentException">url</exception>
+        public async Task<string> GetHeaderUrl(string url, string shortDescrip,
+            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
+
+            Uri uri = new Uri(url);
+
+            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
+
+            // Limit to no more than N parallel requests
+            await ss.WaitAsync(token).ConfigureAwait(false);
+
+            try
+            {
+                Cookie cookie = ForumCookies.GetCookie(uri);
+                if (cookie != null)
+                {
+                    ClientHandler.CookieContainer.Add(uri, cookie);
+                }
+
+                int tries = 0;
+                HttpResponseMessage response;
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
+
+                while (tries < retryLimit && token.IsCancellationRequested == false)
+                {
+                    if (tries > 0)
+                    {
+                        // If we have to retry loading the page, give it a short delay.
+                        await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
+                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
+                    }
+                    tries++;
+
+                    try
+                    {
+                        // As long as we got a response (whether 200 or 404), we can extract what
+                        // the server thinks the URL should be.
+                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
+                        {
+                            return response.RequestMessage.RequestUri.AbsoluteUri;
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
+                        throw;
+                    }
+
+                }
+            }
+            finally
+            {
+                ss.Release();
+            }
+
+            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
+            return null;
+        }
+        #endregion
+
+        #region Private
+
+        /// <summary>
+        /// Gets a well-formed URI and unescaped URL based on the provided URL.
+        /// </summary>
+        /// <param name="url">The URL. Cannot be null.  Must be a well-formed URL.</param>
+        /// <returns>Returns a URI and unescaped URL.</returns>
+        /// <exception cref="System.ArgumentNullException">url</exception>
+        /// <exception cref="System.ArgumentException">url</exception>
+        private static (Uri uri, string url) GetVerifiedUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
+
+            Uri uri = new Uri(url);
+            url = Uri.UnescapeDataString(url);
+
+            return (uri, url);
+        }
+
+        /// <summary>
+        /// Gets the cached content for the provided URL, if any, and if flagged to use caching.
+        /// </summary>
+        /// <param name="url">The URL to search for.</param>
+        /// <param name="caching">The caching mode.</param>
+        /// <returns>Returns a (bool,string) tuple of whether there was cached content found, and what it was if found.</returns>
+        private async Task<(bool found, string content)> GetCachedContent(string url, CachingMode caching)
+        {
+            if (caching == CachingMode.UseCache)
+            {
+                return await Cache.GetAsync(url).ConfigureAwait(false);
+            }
+
+            return (false, string.Empty);
+        }
+
+        /// <summary>
+        /// Gets the content of the requested page.
+        /// </summary>
+        /// <param name="url">The URL to load.</param>
+        /// <param name="shortDescrip">The short description of the page (for notifications).</param>
+        /// <param name="caching">The caching mode.</param>
+        /// <param name="shouldCache">Whether the requested page should be cached.</param>
+        /// <param name="suppressNotifications">Whether to suppress notifications.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>Returns the loaded resource string.</returns>
+        private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+            SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            string content = string.Empty;
+
+            var (uri, url2) = GetVerifiedUrl(url);
+
+            var (found, cachedContent) = await GetCachedContent(url2, caching);
+
+            if (found)
+            {
+                content = cachedContent;
+
+                NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url2, shortDescrip, null, suppressNotifications);
+            }
+            else
+            {
+                content = await GetUrlContent(uri, url2, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+            }
+
+            return content;
+        }
+
+        /// <summary>
         /// Asynchronously load a specific page.
         /// </summary>
         /// <param name="url">The URL of the page to load.  Cannot be null.</param>
@@ -101,32 +308,11 @@ namespace NetTally.Web
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescrip,
+        private async Task<string> GetUrlContent(Uri uri, string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
-
-            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
-
-            Uri uri = new Uri(url);
-            url = Uri.UnescapeDataString(url);
-            HtmlDocument htmldoc = null;
             string result = null;
             int tries = 0;
-
-            // Try to load from cache first, if allowed.
-            if (caching == CachingMode.UseCache)
-            {
-                htmldoc = await Cache.GetAsync(url).ConfigureAwait(false);
-
-                if (htmldoc != null)
-                {
-                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifications);
-                    return htmldoc;
-                }
-            }
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
@@ -241,120 +427,14 @@ namespace NetTally.Web
             if (shouldCache == ShouldCache.Yes)
                 await Cache.AddAsync(url, result, WebCache.DefaultExpiration);
 
-            htmldoc = new HtmlDocument();
-            await Task.Run(() => htmldoc.LoadHtml(result)).ConfigureAwait(false);
-
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
-
-            return htmldoc;
-        }
-
-        /// <summary>
-        /// Loads the HEAD of the requested URL, and returns the response URL value.
-        /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
-        /// </summary>
-        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
-        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>
-        /// Returns the URL that the response headers say we requested.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">url</exception>
-        /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetHeaderUrl(string url, string shortDescrip,
-            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
-        {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
-
-            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
-
-            Uri uri = new Uri(url);
-
-            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
-
-            // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
-
-            try
-            {
-                Cookie cookie = ForumCookies.GetCookie(uri);
-                if (cookie != null)
-                {
-                    ClientHandler.CookieContainer.Add(uri, cookie);
-                }
-
-                int tries = 0;
-                HttpResponseMessage response;
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
-
-                while (tries < retryLimit && token.IsCancellationRequested == false)
-                {
-                    if (tries > 0)
-                    {
-                        // If we have to retry loading the page, give it a short delay.
-                        await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
-                    }
-                    tries++;
-
-                    try
-                    {
-                        // As long as we got a response (whether 200 or 404), we can extract what
-                        // the server thinks the URL should be.
-                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
-                        {
-                            return response.RequestMessage.RequestUri.AbsoluteUri;
-                        }
-                    }
-                    catch (HttpRequestException e)
-                    {
-                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
-                        throw;
-                    }
-
-                }
-            }
-            finally
-            {
-                ss.Release();
-            }
-
-            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
-            return null;
-        }
-        #endregion
-
-        #region Utility Functions        
-        /// <summary>
-        /// Tries to get the cached version of the requested page.
-        /// </summary>
-        /// <param name="url">The URL.</param>
-        /// <param name="shortDescrip">The short descrip.</param>
-        /// <param name="caching">The caching.</param>
-        /// <param name="suppressNotifyMessages">if set to <c>true</c> [suppress notify messages].</param>
-        /// <returns>Returns whether it found the cached document, and the document, if found.</returns>
-        private async Task<Tuple<bool, HtmlDocument>> TryGetCachedPageAsync(string url, string shortDescrip,
-            CachingMode caching, SuppressNotifications suppressNotifications)
-        {
-            HtmlDocument htmldoc = null;
-
-            if (caching == CachingMode.UseCache)
-            {
-                htmldoc = await Cache.GetAsync(url).ConfigureAwait(false);
-
-                if (htmldoc != null)
-                    NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url, shortDescrip, null, suppressNotifications);
-            }
-
-            Tuple<bool, HtmlDocument> result = new Tuple<bool, HtmlDocument>(htmldoc != null, htmldoc);
 
             return result;
         }
+
+        #endregion
+
+        #region Functions for load failures.
 
         /// <summary>
         /// Determines whether the specified HTTP response is a failure.
