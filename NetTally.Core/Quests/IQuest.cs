@@ -54,6 +54,10 @@ namespace NetTally
         /// </summary>
         bool CheckForLastThreadmark { get; set; }
         /// <summary>
+        /// Flag for whether to attempt to use RSS threadmarks.
+        /// </summary>
+        BoolEx UseRSSThreadmarks { get; set; }
+        /// <summary>
         /// Derived property.  Is true if EndPost is 0.
         /// </summary>
         bool ReadToEndOfThread { get; }

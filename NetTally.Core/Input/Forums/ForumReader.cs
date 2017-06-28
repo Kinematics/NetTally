@@ -72,6 +72,11 @@ namespace NetTally.Forums
 
             quest.ForumAdapter = adapter;
 
+            if (adapter.HasRSSThreadmarks == BoolEx.False)
+                quest.UseRSSThreadmarks = BoolEx.False;
+            else if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
+                quest.UseRSSThreadmarks = BoolEx.True;
+
             return adapter;
         }
 

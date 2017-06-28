@@ -183,6 +183,7 @@ namespace NetTally
         int startPost = 1;
         int endPost = 0;
         bool checkForLastThreadmark = true;
+        BoolEx useRSSThreadmarks = BoolEx.Unknown;
 
         /// <summary>
         /// The number of the post to start looking for votes in.
@@ -227,6 +228,19 @@ namespace NetTally
             set
             {
                 checkForLastThreadmark = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag for whether to attempt to use RSS threadmarks.
+        /// </summary>
+        public BoolEx UseRSSThreadmarks
+        {
+            get { return useRSSThreadmarks; }
+            set
+            {
+                useRSSThreadmarks = value;
                 OnPropertyChanged();
             }
         }

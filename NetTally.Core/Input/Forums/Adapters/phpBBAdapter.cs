@@ -80,6 +80,11 @@ namespace NetTally.Forums.Adapters
         public int DefaultPostsPerPage => 15;
 
         /// <summary>
+        /// Gets a value indicating whether this instance has RSS threadmarks.
+        /// </summary>
+        public BoolEx HasRSSThreadmarks => BoolEx.False;
+
+        /// <summary>
         /// Generate a URL to access the specified page of the adapter's thread.
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>

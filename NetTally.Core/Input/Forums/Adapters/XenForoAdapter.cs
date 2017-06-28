@@ -106,6 +106,26 @@ namespace NetTally.Forums.Adapters
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance has RSS threadmarks.
+        /// </summary>
+        public BoolEx HasRSSThreadmarks
+        {
+            get
+            {
+                switch (Site.Host)
+                {
+                    case "forums.sufficientvelocity.com":
+                    case "forums.spacebattles.com":
+                        return BoolEx.True;
+                    case "forum.questionablequesting.com":
+                        return BoolEx.False;
+                    default:
+                        return BoolEx.Unknown;
+                }
+            }
+        }
+
+        /// <summary>
         /// Generate a URL to access the specified page of the adapter's thread.
         /// </summary>
         /// <param name="page">The page of the thread that is being loaded.</param>

@@ -18,6 +18,11 @@ namespace NetTally.Forums
         /// </summary>
         int DefaultPostsPerPage { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance has RSS threadmarks.
+        /// </summary>
+        BoolEx HasRSSThreadmarks { get; }
+
         // How to format links
 
         /// <summary>
