@@ -243,7 +243,7 @@ namespace NetTally.Forums.Adapters
                 return new ThreadRangeInfo(true, quest.StartPost);
 
             // Attempt to use the RSS feed for threadmarks loading.
-            if (HasRSSThreadmarks != BoolEx.False && quest.UseRSSThreadmarks == BoolEx.True)
+            if (quest.UseRSSThreadmarks == BoolEx.True)
             {
                 // try for RSS stream
                 XDocument rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
