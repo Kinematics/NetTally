@@ -313,6 +313,7 @@ namespace NetTally.Web
         {
             string result = null;
             int tries = 0;
+            DateTime expires = WebCache.DefaultExpiration;
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
@@ -355,6 +356,10 @@ namespace NetTally.Web
                             if (response.IsSuccessStatusCode)
                             {
                                 result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                                // Get expires value
+                                // Cannot get Expires value until we move to .NET Standard 2.0.
+
                                 // If we get a successful result, we're done.
                                 break;
                             }
@@ -425,7 +430,7 @@ namespace NetTally.Web
             }
 
             if (shouldCache == ShouldCache.Yes)
-                await Cache.AddAsync(url, result, WebCache.DefaultExpiration);
+                await Cache.AddAsync(url, result, expires);
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 
