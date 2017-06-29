@@ -180,6 +180,24 @@ namespace NetTally
             get { return (bool)this["TrimExtendedText"]; }
             set { this["TrimExtendedText"] = value; }
         }
+
+        [ConfigurationProperty("UseRSSThreadmarks", DefaultValue = BoolEx.Unknown)]
+        public BoolEx UseRSSThreadmarks
+        {
+            get
+            {
+                try
+                {
+                    return (BoolEx)this["UseRSSThreadmarks"];
+                }
+                catch (ConfigurationException)
+                {
+                    return BoolEx.Unknown;
+                }
+            }
+            set { this["UseRSSThreadmarks"] = value; }
+        }
+
         #endregion
     }
 }

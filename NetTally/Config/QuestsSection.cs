@@ -190,6 +190,7 @@ namespace NetTally
                         ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
                         IgnoreSpoilers = questElement.IgnoreSpoilers,
                         TrimExtendedText = questElement.TrimExtendedText,
+                        UseRSSThreadmarks = questElement.UseRSSThreadmarks,
                     };
 
                     quests.Add(q);

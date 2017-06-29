@@ -66,6 +66,7 @@ namespace NetTally
                 ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes,
                 IgnoreSpoilers = quest.IgnoreSpoilers,
                 TrimExtendedText = quest.TrimExtendedText,
+                UseRSSThreadmarks = quest.UseRSSThreadmarks,
             };
 
             BaseAdd(questElement, false);
