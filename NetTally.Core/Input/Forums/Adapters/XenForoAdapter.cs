@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
 using NetTally.Utility;
@@ -85,6 +86,7 @@ namespace NetTally.Forums.Adapters
         string ThreadBaseUrl => $"{BaseSite}threads/{ThreadName}/";
         string PostsBaseUrl => $"{BaseSite}posts/";
         string ThreadmarksUrl => $"{ThreadBaseUrl}threadmarks?category_id=1";
+        string ThreadmarksRSSUrl => $"{ThreadBaseUrl}threadmarks.rss?category_id=1";
         #endregion
 
         #region Public Interface
@@ -240,6 +242,70 @@ namespace NetTally.Forums.Adapters
             if (!quest.CheckForLastThreadmark)
                 return new ThreadRangeInfo(true, quest.StartPost);
 
+            // Attempt to use the RSS feed for threadmarks loading.
+            if (HasRSSThreadmarks != BoolEx.False && quest.UseRSSThreadmarks == BoolEx.True)
+            {
+                // try for RSS stream
+                XDocument rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
+                    ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
+
+                if (rss.Root.Name == "rss")
+                {
+                    XName channelName = XName.Get("channel", "");
+
+                    var channel = rss.Root.Element(channelName);
+
+                    XName itemName = XName.Get("item", "");
+
+                    var items = channel.Elements(itemName);
+
+                    XName titleName = XName.Get("title", "");
+
+                    var filteredItems = from item in items
+                                        let title = item.Element(titleName).Value
+                                        where !((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(title)) ||
+                                                (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
+                                        select item;
+
+                    var lastItem = filteredItems.LastOrDefault();
+
+                    if (lastItem != null)
+                    {
+                        XName linkName = XName.Get("link", "");
+
+                        var link = lastItem.Element(linkName);
+
+                        string href = link.Value;
+
+                        // If we have the long URL, we can extract the page number and post number from the URL itself.
+                        Match mr = longFragment.Match(href);
+                        if (mr.Success)
+                        {
+                            int page = 0;
+                            int post = 0;
+
+                            if (mr.Groups["page"].Success)
+                                page = int.Parse(mr.Groups["page"].Value);
+                            if (mr.Groups["post"].Success)
+                                post = int.Parse(mr.Groups["post"].Value);
+
+                            // If neither matched, it's post 1/page 1
+                            // Store 0 in the post ID slot, since we don't know what it is.
+                            if (page == 0 && post == 0)
+                                return new ThreadRangeInfo(true, 1, 1, 0);
+
+                            // If no page number was found, it's page 1
+                            if (page == 0)
+                                return new ThreadRangeInfo(false, 0, 1, post);
+
+                            // Otherwise, take the provided values.
+                            return new ThreadRangeInfo(false, 0, page, post);
+                        }
+                    }
+                }
+            }
+
+
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
                 ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
@@ -247,7 +313,7 @@ namespace NetTally.Forums.Adapters
             if (threadmarkPage == null)
                 return new ThreadRangeInfo(true, quest.StartPost);
 
-            var threadmarks = GetThreadmarksList(quest, threadmarkPage);
+            var threadmarks = GetThreadmarksListFromIndex(quest, threadmarkPage);
 
             // If there aren't any threadmarks, fall back on the normal start post.
             if (!threadmarks.Any())
@@ -467,13 +533,13 @@ namespace NetTally.Forums.Adapters
         /// <param name="quest">The quest.</param>
         /// <param name="page">The index page of the threadmarks.</param>
         /// <returns>Returns a list of all unfiltered threadmark links.</returns>
-        static IEnumerable<HtmlNode> GetThreadmarksList(IQuest quest, HtmlDocument page)
+        static IEnumerable<HtmlNode> GetThreadmarksListFromIndex(IQuest quest, HtmlDocument page)
         {
             try
             {
-                var content = GetPageContent(page, PageType.Threadmarks);
+                HtmlNode content = GetPageContent(page, PageType.Threadmarks);
 
-                var threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
+                HtmlNode threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
 
                 HtmlNode listOfThreadmarks = null;
 
