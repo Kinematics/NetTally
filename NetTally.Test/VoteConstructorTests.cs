@@ -35,6 +35,7 @@ namespace NetTally.Tests
         {
             ViewModelService.MainViewModel.VoteCounter.Reset();
             ViewModelService.MainViewModel.VoteCounter.PostsList.Clear();
+            ViewModelService.MainViewModel.VoteCounter.Quest = sampleQuest;
             sampleQuest.PartitionMode = PartitionMode.None;
         }
 

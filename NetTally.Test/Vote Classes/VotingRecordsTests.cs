@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tests.Platform;
 using NetTally.Votes.Experiment;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.Votes;
 
 namespace NetTally.Tests
@@ -15,9 +16,8 @@ namespace NetTally.Tests
     [TestClass]
     public class VotingRecordsTests
     {
-        static Identity defaultIdentity = new Identity("Name", "1");
-        static VotePartition defaultPlanPartition = new VotePartition(
-            new VoteLine("[X] Plan Name\n-[X] Some content"), VoteType.Plan);
+        static Identity defaultIdentity;
+        static VotePartition defaultPlanPartition;
 
         static List<string> notifications = new List<string>();
 
@@ -28,7 +28,11 @@ namespace NetTally.Tests
         public static void ClassInit(TestContext context)
         {
             Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
+            ViewModelService.Instance.Build();
             VotingRecords.Instance.PropertyChanged += Instance_PropertyChanged;
+
+            defaultIdentity = new Identity("Name", "1");
+            defaultPlanPartition = new VotePartition(new VoteLine("[X] Plan Name\n-[X] Some content"), VoteType.Plan);
         }
 
         [TestInitialize]

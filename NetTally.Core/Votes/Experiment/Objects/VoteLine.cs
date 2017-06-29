@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
+using NetTally.ViewModels;
 
 namespace NetTally.Votes.Experiment
 {
@@ -269,7 +270,7 @@ namespace NetTally.Votes.Experiment
         /// <returns>Returns the content after trimming it.</returns>
         private string GetTrimmedContent(string content)
         {
-            if (ViewModels.ViewModelService.MainViewModel.SelectedQuest.TrimExtendedText)
+            if (ViewModelService.MainViewModel?.SelectedQuest?.TrimExtendedText ?? false)
             {
                 return VoteString.TrimExtendedTextDescriptionOfContent(content);
             }
@@ -316,7 +317,7 @@ namespace NetTally.Votes.Experiment
             string stripped = comparableContent.RemoveDiacritics();
 
             // Strip all whitespace and punctuation if it's not significant.
-            if (!ViewModels.ViewModelService.MainViewModel.SelectedQuest.WhitespaceAndPunctuationIsSignificant)
+            if (!ViewModelService.MainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant ?? false)
             {
                 stripped = symbolRegex.Replace(stripped, "");
             }
