@@ -58,7 +58,7 @@ namespace NetTally.Web
 
         IClock Clock { get; set; }
 
-        const int MaxCacheEntries = 50;
+        const int MaxCacheEntries = 100;
         Dictionary<string, CacheObject<byte[]>> GZPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(MaxCacheEntries);
 
         readonly AsyncReaderWriterLock cacheLock = new AsyncReaderWriterLock();

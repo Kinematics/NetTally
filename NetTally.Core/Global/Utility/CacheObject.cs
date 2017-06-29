@@ -14,7 +14,7 @@ namespace NetTally.Utility
 
         public static readonly DateTime DefaultExpiration = DateTime.MinValue;
 
-        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(30);
+        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
 
 
         public CacheObject(T store)
