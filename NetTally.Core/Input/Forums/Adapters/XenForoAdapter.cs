@@ -512,7 +512,7 @@ namespace NetTally.Forums.Adapters
             PostComponents post;
             try
             {
-                post = new PostComponents(author, id, text, number);
+                post = new PostComponents(author, id, text, number, quest);
             }
             catch (Exception e)
             {
