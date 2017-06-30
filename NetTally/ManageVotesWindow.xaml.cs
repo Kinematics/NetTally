@@ -9,8 +9,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using NetTally.Extensions;
 using NetTally.Comparers;
+using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
 
