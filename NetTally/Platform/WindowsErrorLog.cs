@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 
 namespace NetTally.Platform
 {

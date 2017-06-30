@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net;
 using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 
 namespace NetTally.Web
 {

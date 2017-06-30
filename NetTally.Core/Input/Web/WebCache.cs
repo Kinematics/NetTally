@@ -5,8 +5,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 using NetTally.Extensions;
+using NetTally.SystemInfo;
 using NetTally.Utility;
 using Nito.AsyncEx;
 

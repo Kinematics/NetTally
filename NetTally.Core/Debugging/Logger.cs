@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 
 namespace NetTally
 {

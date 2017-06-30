@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally.Utility
+namespace NetTally.SystemInfo
 {
     /// <summary>
     /// An interface to get a date/time value.

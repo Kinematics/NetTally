@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 using NetTally.CustomEventArgs;
 
 namespace NetTally.Web

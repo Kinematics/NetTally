@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 
 namespace NetTally.Web
 {

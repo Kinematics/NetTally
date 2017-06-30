@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
-using NetTally.Utility;
+using NetTally.SystemInfo;
 
 namespace TallyUnitTest.General
 {

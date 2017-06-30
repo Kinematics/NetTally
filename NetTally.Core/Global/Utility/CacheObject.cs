@@ -1,4 +1,5 @@
 ﻿using System;
+using NetTally.SystemInfo;
 
 namespace NetTally.Utility
 {
