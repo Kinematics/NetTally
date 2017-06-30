@@ -181,7 +181,7 @@ namespace NetTally.Utility
             }
             catch (ArgumentException e)
             {
-                ErrorLog.Log($"Failed to create regex using string: [{sb.ToString()}]", e);
+                Logger.Error($"Failed to create regex using string: [{sb.ToString()}]", e);
                 return null;
             }
         }

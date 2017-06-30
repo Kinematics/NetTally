@@ -47,7 +47,7 @@ namespace NetTally
                 AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
                 // Set up the logger to use the Windows error log.
-                ErrorLog.LogUsing(new WindowsErrorLog());
+                Logger.LogUsing(new WindowsErrorLog());
 
                 // Initialize the window.
                 InitializeComponent();
@@ -73,7 +73,7 @@ namespace NetTally
             }
             catch (Exception e)
             {
-                ErrorLog.Log(e);
+                Logger.Error("Failure during program startup.", e);
                 MessageBox.Show(e.Message, "Unable to start up. Closing.", MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Close();
             }
@@ -102,7 +102,7 @@ namespace NetTally
             }
             catch (InvalidOperationException e)
             {
-                ErrorLog.Log(e);
+                Logger.Error("Invalid operation during platform setup.", e);
             }
         }
 
@@ -115,16 +115,13 @@ namespace NetTally
         private void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
 #if DEBUG
-            if (AdvancedOptions.Instance.DebugMode)
+            try
             {
-                try
-                {
-                    string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
-                    ErrorLog.Log(msg);
-                }
-                catch (Exception)
-                {
-                }
+                string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
+                Logger.Warning(msg, e.Exception);
+            }
+            catch (Exception)
+            {
             }
 #endif
         }
@@ -138,10 +135,7 @@ namespace NetTally
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = (Exception)e.ExceptionObject;
-
-            string file = ErrorLog.Log(ex);
-
-            MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
+            SaveExceptionAndNotifyUser(ex);
         }
 
         /// <summary>
@@ -170,8 +164,35 @@ namespace NetTally
             }
             catch (Exception ex)
             {
-                string file = ErrorLog.Log(ex);
-                MessageBox.Show($"Error log saved to:\n{file ?? "(unable to write log file)"}", "Error in shutdown", MessageBoxButton.OK, MessageBoxImage.Error);
+                SaveExceptionAndNotifyUser(ex);
+            }
+        }
+
+        /// <summary>
+        /// Saves the exception and notifies the user.
+        /// </summary>
+        /// <param name="e">The exception.</param>
+        private void SaveExceptionAndNotifyUser(Exception e)
+        {
+            if (e == null)
+                return;
+
+            if (Logger.Error("Unhandled exception.", e))
+            {
+                string logFile = Logger.LastLogLocation();
+
+                if (logFile != Logger.UnknownLogLocation)
+                {
+                    MessageBox.Show($"Error log saved to:\n{logFile}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show($"{e.Message}\n\nError saving message to log file.", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show($"{e.Message}\n\nUnable to save error to log file.", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         #endregion
@@ -332,7 +353,7 @@ namespace NetTally
             }
             MessageBox.Show(exmsg, "Error");
             if (!(ex.Data.Contains("Application")))
-                ErrorLog.Log(ex);
+                Logger.Error("Exception bubbled up from the view model.", ex);
 
             e.Handled = true;
         }
@@ -352,16 +373,15 @@ namespace NetTally
             {
                 Clipboard.SetText(mainViewModel.Output);
             }
-            catch (Exception ex1)
+            catch (Exception)
             {
-                ErrorLog.Log("First clipboard failure", ex1);
                 try
                 {
+                    // Try again
                     Clipboard.SetDataObject(mainViewModel.Output, false);
                 }
-                catch (Exception ex2)
+                catch (Exception)
                 {
-                    ErrorLog.Log("Second clipboard failure", ex2);
                 }
             }
         }

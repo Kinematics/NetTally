@@ -13,6 +13,17 @@ namespace NetTally
     }
 
     /// <summary>
+    /// Enum for the various error logging levels.
+    /// </summary>
+    public enum LoggingLevel
+    {
+        None,
+        Info,
+        Warning,
+        Error
+    }
+
+    /// <summary>
     /// Enums used in the Web namespace
     /// </summary>
     namespace Web

@@ -5,60 +5,109 @@ using NetTally.Utility;
 namespace NetTally
 {
     /// <summary>
-    /// Interface that can be used to supply the static ErrorLog class with a logging
+    /// Interface that can be used to supply the static Logger class with an
     /// implementation for the platform being run.
     /// </summary>
-    public interface IErrorLogger
+    public interface ILogger
     {
-        string Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null);
+        bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null);
+        string LastLogLocation();
     }
 
     /// <summary>
-    /// Default version of the class so that failure to initialize the error logger class
+    /// Default version of the ILogger so that failure to initialize the error logger class
     /// won't cause things to crash.
     /// </summary>
-    /// <seealso cref="NetTally.IErrorLogger" />
-    public class EmptyLogger : IErrorLogger
+    /// <seealso cref="NetTally.ILogger" />
+    public class NullLogger : ILogger
     {
-        public string Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => string.Empty;
+        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => false;
+        public string LastLogLocation() => "Nowhere";
     }
 
     /// <summary>
-    /// Static entry point for logging error messages.
+    /// Static entry point for logging messages.
     /// </summary>
-    public static class ErrorLog
+    public static class Logger
     {
-        static IErrorLogger errorLogger = new EmptyLogger();
+        static ILogger _logger = new NullLogger();
+        static IClock Clock { get; set; } = new SystemClock();
+        public static LoggingLevel LoggingLevel { get; set; } = LoggingLevel.Error;
+        public const string UnknownLogLocation = "Unknown";
 
         /// <summary>
-        /// Initializes this class to use the specified error log.
+        /// Cause the static Logger class to use the specified ILogger and IClock implementations.
         /// </summary>
-        /// <param name="errorLogger">The error logger to use.</param>
-        public static void LogUsing(IErrorLogger errorLogger)
+        /// <param name="logger">The logger implementation to use.</param>
+        public static void LogUsing(ILogger logger = null)
         {
-            if (errorLogger != null)
-                ErrorLog.errorLogger = errorLogger;
+            if (logger != null)
+                Logger._logger = logger;
         }
 
         /// <summary>
-        /// Shortcut function to log an exception.
-        /// </summary>
-        /// <param name="e">Exception to be logged.</param>
-        /// <param name="callingMethod">The method that made the request to log the error.</param>
-        /// <returns>Returns the name of the file the error was logged to.</returns>
-        public static string Log(Exception e, IClock clock = null, [CallerMemberName] string callingMethod = "") =>
-            Log(message: string.Empty, exception: e, clock: clock, callingMethod: callingMethod);
-
-        /// <summary>
-        /// Function to log either a text message or an exception, or both.
+        /// Log an informational message.
+        /// Will only be logged if logging level is Info.
         /// </summary>
         /// <param name="message">The message to log.</param>
-        /// <param name="exception">The exception to log.</param>
-        /// <param name="callingMethod">The method that made the request to log the error.</param>
-        /// <returns>Returns the name of the file the log was saved in.</returns>
-        public static string Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
+        /// <param name="callingMethod">The method that made the request to log the message.</param>
+        /// <returns>Returns true if the message was logged. Otherwise, false.</returns>
+        public static bool Info(string message, [CallerMemberName] string callingMethod = "")
         {
-            return errorLogger?.Log(message, exception, clock, callingMethod);
+            if (string.IsNullOrEmpty(message))
+                return false;
+
+            if (LoggingLevel == LoggingLevel.Info)
+            {
+                return _logger.Log(message, null, Clock, callingMethod);
+            }
+            return false;
         }
+
+        /// <summary>
+        /// Log a warning message.
+        /// Will only be logged if logging level is Info or Warning.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="exception">The exception to add to the log. Optional.</param>
+        /// <param name="callingMethod">The method that made the request to log the message.</param>
+        /// <returns>Returns true if the message was logged. Otherwise, false.</returns>
+        public static bool Warning(string message, Exception exception = null, [CallerMemberName] string callingMethod = "")
+        {
+            if (string.IsNullOrEmpty(message) && exception == null)
+                return false;
+
+            if (LoggingLevel == LoggingLevel.Warning || LoggingLevel == LoggingLevel.Info)
+            {
+                return _logger.Log(message, exception, Clock, callingMethod);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Log an error message.
+        /// Will be logged unless the logging level is None.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="exception">The exception to add to the log. Optional.</param>
+        /// <param name="callingMethod">The method that made the request to log the message.</param>
+        /// <returns>Returns true if the message was logged. Otherwise, false.</returns>
+        public static bool Error(string message, Exception exception = null, [CallerMemberName] string callingMethod = "")
+        {
+            if (string.IsNullOrEmpty(message) && exception == null)
+                return false;
+
+            if (LoggingLevel != LoggingLevel.None)
+            {
+                return _logger.Log(message, exception, Clock, callingMethod);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get the last location an error was logged to.
+        /// </summary>
+        /// <returns>Returns the last location an error was logged to.</returns>
+        public static string LastLogLocation() => _logger.LastLogLocation() ?? UnknownLogLocation;
     }
 }

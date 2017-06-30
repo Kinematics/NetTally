@@ -64,7 +64,7 @@ namespace NetTally.Utility
                 }
                 catch (Exception e)
                 {
-                    ErrorLog.Log(e);
+                    Logger.Warning("Check for new release update attempt failed.", e);
                 }
             }
         }

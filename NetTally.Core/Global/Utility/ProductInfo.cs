@@ -129,7 +129,7 @@ namespace NetTally.Utility
             }
             catch (Exception e)
             {
-                ErrorLog.Log(e);
+                Logger.Error("Attempt to define the name and version of the program failed.", e);
                 hasRun = false;
             }
         }

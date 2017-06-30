@@ -23,9 +23,8 @@ namespace NetTally.ViewModels
         public MainViewModel(QuestCollection quests, string currentQuest,
             HttpClientHandler httpClientHandler, IPageProvider pageProvider,
             IVoteCounter voteCounter, ITextResultsProvider textResults,
-            IErrorLogger errorLogger, Func<string, CompareInfo, CompareOptions, int> hashFunction)
+            Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
-            ErrorLog.LogUsing(errorLogger);
             PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
 
             if (quests != null)

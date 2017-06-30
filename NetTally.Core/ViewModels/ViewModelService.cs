@@ -47,11 +47,6 @@ namespace NetTally.ViewModels
             this.currentQuest = currentQuest;
             return this;
         }
-        public ViewModelService LogErrorsUsing(IErrorLogger errorLogger)
-        {
-            this.errorLogger = errorLogger;
-            return this;
-        }
         public ViewModelService HashAgnosticStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             this.hashFunction = hashFunction;
@@ -59,7 +54,7 @@ namespace NetTally.ViewModels
         }
         public MainViewModel Build()
         {
-            var vm = new MainViewModel(quests, currentQuest, handler, pageProvider, voteCounter, resultsProvider, errorLogger, hashFunction);
+            var vm = new MainViewModel(quests, currentQuest, handler, pageProvider, voteCounter, resultsProvider, hashFunction);
 
             if (MainViewModel == null)
                 MainViewModel = vm;
@@ -73,7 +68,6 @@ namespace NetTally.ViewModels
         ITextResultsProvider resultsProvider;
         QuestCollection quests;
         string currentQuest;
-        IErrorLogger errorLogger;
         Func<string, CompareInfo, CompareOptions, int> hashFunction;
 
         public static MainViewModel MainViewModel { get; private set; }

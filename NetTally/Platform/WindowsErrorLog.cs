@@ -7,11 +7,14 @@ using NetTally.Utility;
 namespace NetTally.Platform
 {
     /// <summary>
-    /// Class to implement logging on the basic windows OS.
+    /// Class to implement logging on the basic Windows OS.
     /// </summary>
-    /// <seealso cref="NetTally.IErrorLogger" />
-    public class WindowsErrorLog : IErrorLogger
+    /// <seealso cref="NetTally.ILogger" />
+    public class WindowsErrorLog : ILogger
     {
+        string lastLogLocation = string.Empty;
+
+        #region ILogger interface methods
         /// <summary>
         /// Public function to log either a text message or an exception, or both.
         /// </summary>
@@ -19,31 +22,39 @@ namespace NetTally.Platform
         /// <param name="exception">The exception to log.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
         /// <returns>Returns the name of the file the log was saved in.</returns>
-        public string Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
+        public bool Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
         {
             try
             {
                 if (clock == null)
                     clock = new SystemClock();
 
-                string filename = GetLogFilename(clock);
-                if (string.IsNullOrEmpty(filename))
-                    return null;
+                lastLogLocation = GetLogFilename(clock);
+                if (string.IsNullOrEmpty(lastLogLocation))
+                    return false;
 
                 string output = ComposeOutput(callingMethod, message, exception, clock);
                 if (output == null)
-                    return null;
+                    return false;
 
-                File.AppendAllText(filename, output);
+                File.AppendAllText(lastLogLocation, output);
 
-                return filename;
+                return true;
             }
             catch
             {
-                return null;
+                return false;
             }
         }
 
+        /// <summary>
+        /// Returns the last log location.
+        /// </summary>
+        /// <returns>Returns the last log location.</returns>
+        public string LastLogLocation() => lastLogLocation;
+        #endregion
+
+        #region Private helper methods
         /// <summary>
         /// Generates the string that will be saved to the output log.
         /// </summary>
@@ -156,5 +167,7 @@ namespace NetTally.Platform
 
             return path;
         }
+
+        #endregion
     }
 }

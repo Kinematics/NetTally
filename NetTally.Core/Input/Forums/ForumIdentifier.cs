@@ -116,7 +116,7 @@ namespace NetTally.Forums
             }
             catch (Exception e)
             {
-                ErrorLog.Log(e);
+                Logger.Error("Attempt to query site to determine forum adapter failed.", e);
                 return null;
             }
         }
