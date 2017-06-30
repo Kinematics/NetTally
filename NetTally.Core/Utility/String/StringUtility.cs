@@ -23,6 +23,28 @@ namespace NetTally.Utility
         public static bool IsPlanName(this string name) => name?.StartsWith(PlanNameMarker, StringComparison.Ordinal) ?? false;
 
         /// <summary>
+        /// Return the simplified latin form of a string, after removing diacriticals.
+        /// </summary>
+        /// <param name="s">The string to transform.</param>
+        /// <returns></returns>
+        public static string RemoveDiacritics(this string s)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Update the detailed conversion table on first use.
+            if (translate_characters.Count == 0)
+                TransferCharacters();
+
+            foreach (char c in s)
+            {
+                sb.Append(c.RemoveDiacritics());
+            }
+
+            return sb.ToString();
+        }
+
+        #region Diacritic removal support code
+        /// <summary>
         /// Lookup table for non-latin characters that doesn't require string.Normalize (which isn't available
         /// in .NET Standard below 2.0).
         /// </summary>
@@ -120,11 +142,33 @@ namespace NetTally.Utility
         };
 
         /// <summary>
+        /// Direct conversion version of the above table that splits out all individual
+        /// key characters so that we can do a direct lookup instead of indexing into
+        /// a string every time.
+        /// Speeds worst-case comparisons up by a factor of about 10.
+        /// </summary>
+        static Dictionary<char, string> translate_characters = new Dictionary<char, string>();
+
+        /// <summary>
+        /// Function to copy the nonlatin_characters table to the translate_characters table.
+        /// </summary>
+        private static void TransferCharacters()
+        {
+            foreach (var translation in nonlatin_characters)
+            {
+                foreach (char ch in translation.Key)
+                {
+                    translate_characters[ch] = translation.Value;
+                }
+            }
+        }
+
+        /// <summary>
         /// Return the simplified form of a character after removing diacriticals.
         /// </summary>
         /// <param name="c">The character to transform.</param>
         /// <returns>Returns the simplified latin form of a given character.</returns>
-        public static string RemoveDiacritics(this char c)
+        private static string RemoveDiacritics(this char c)
         {
             try
             {
@@ -138,42 +182,19 @@ namespace NetTally.Utility
                 if (cb >= 0x2b0 && cb <= 0x36f)
                     return string.Empty;
 
-                // Other characters are checked against the above dictionary,
-                // and converted to a representative latin value.
-                foreach (KeyValuePair<string, string> entry in nonlatin_characters)
-                {
-                    if (entry.Key.IndexOf(c) != -1)
-                    {
-                        return entry.Value;
-                    }
-                }
+                // Do a lookup check against all other characters.
+                if (translate_characters.TryGetValue(c, out string normal))
+                    return normal;
+
+                // If no conversion is done, just return the original character.
+                return c.ToString();
             }
             catch (OverflowException)
             {
                 // Shouldn't be possible, since chars are stored in 16-bit values.
                 return string.Empty;
             }
-
-            return c.ToString();
         }
-
-        /// <summary>
-        /// Return the simplified latin form of a string, after removing diacriticals.
-        /// </summary>
-        /// <param name="s">The string to transform.</param>
-        /// <returns></returns>
-        public static string RemoveDiacritics(this string s)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (char c in s)
-            {
-                var r = c.RemoveDiacritics();
-                if (!string.IsNullOrEmpty(r))
-                    sb.Append(r);
-            }
-
-            return sb.ToString();
-        }
+        #endregion
     }
 }
