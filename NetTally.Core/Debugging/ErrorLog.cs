@@ -52,14 +52,14 @@ namespace NetTally
         /// <param name="message">The message to log.</param>
         /// <param name="callingMethod">The method that made the request to log the message.</param>
         /// <returns>Returns true if the message was logged. Otherwise, false.</returns>
-        public static bool Info(string message, [CallerMemberName] string callingMethod = "")
+        public static bool Info(string message, Exception exception = null, [CallerMemberName] string callingMethod = "")
         {
             if (string.IsNullOrEmpty(message))
                 return false;
 
             if (LoggingLevel == LoggingLevel.Info)
             {
-                return _logger.Log(message, null, Clock, callingMethod);
+                return _logger.Log(message, exception, Clock, callingMethod);
             }
             return false;
         }
