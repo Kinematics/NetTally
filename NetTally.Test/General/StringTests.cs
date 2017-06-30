@@ -5,17 +5,30 @@ using NetTally.Utility;
 namespace NetTally.Tests
 {
     [TestClass]
-    public class UtilityTests
+    public class StringTests
     {
-        [TestMethod]
-        public void RemoveDiacriticals()
+        [ClassInitialize]
+        public static void Initialize(TestContext context)
         {
-            using (new RegionProfiler("diacriticals1"))
+            using (new RegionProfiler("warmup"))
             {
                 Assert.AreEqual("resume", "resume".RemoveDiacritics());
             }
+        }
 
-            using (new RegionProfiler("diacriticals2 (17)"))
+        [TestMethod]
+        public void RemoveDiacriticals_baseline()
+        {
+            using (new RegionProfiler("baseline"))
+            {
+                Assert.AreEqual("resume", "resume".RemoveDiacritics());
+            }
+        }
+
+        [TestMethod]
+        public void RemoveDiacriticals_examples()
+        {
+            using (new RegionProfiler("examples (17)"))
             {
                 Assert.AreEqual("resume", "résumé".RemoveDiacritics());
                 Assert.AreEqual("Resume", "Résumé".RemoveDiacritics());
@@ -35,11 +48,28 @@ namespace NetTally.Tests
                 Assert.AreEqual("beissen", "beißen".RemoveDiacritics());
                 Assert.AreEqual("gruessen", "grüßen".RemoveDiacritics());
             }
+        }
 
-            using (new RegionProfiler("diacriticals3"))
+        [TestMethod]
+        public void RemoveDiacriticals_long_sentence()
+        {
+            using (new RegionProfiler("long sentence"))
             {
                 Assert.AreEqual("While the snow and wind were blocked by the ward around the area, the blizzard still raging outside of the transparent barrier, that just made things more tolerable rather than warm. The cold never bothered me anyway, at least at this level, but Bao-Bao looked as though warming up before getting into a dangerous situation might be for the best.",
                     "While the snow and wind were blocked by the ward around the area, the blizzard still raging outside of the transparent barrier, that just made things more tolerable rather than warm. The cold never bothered me anyway, at least at this level, but Bao-Bao looked as though warming up before getting into a dangerous situation might be for the best.".RemoveDiacritics());
+            }
+        }
+
+        [TestMethod]
+        public void RemoveDiacriticals_valid()
+        {
+            using (new RegionProfiler("valid (5)"))
+            {
+                Assert.AreEqual("To do — finally.", "To do — finally.".RemoveDiacritics());
+                Assert.AreEqual("Today! 😄", "Today! 😄".RemoveDiacritics());
+                Assert.AreEqual("Critters [🐞🦊🐰🐿]", "Critters [🐞🦊🐰🐿]".RemoveDiacritics());
+                Assert.AreEqual("◈Attack the Tree", "◈Attack the Tree".RemoveDiacritics());
+                Assert.AreEqual("だからねー、皆さん思うでしょ。", "だからねー、皆さん思うでしょ。".RemoveDiacritics());
             }
         }
     }
