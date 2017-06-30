@@ -40,19 +40,25 @@ namespace NetTally
         {
             try
             {
+                _syncContext = SynchronizationContext.Current;
+
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-                _syncContext = SynchronizationContext.Current;
 
+                // Set up the logger to use the Windows error log.
+                ErrorLog.LogUsing(new WindowsErrorLog());
+
+                // Initialize the window.
                 InitializeComponent();
 
+                // Set the title.
                 Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
+                // Load configuration data
                 QuestCollection quests = null;
                 string currentQuest = null;
 
-                // Load configuration data
                 try
                 {
                     NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
@@ -62,6 +68,7 @@ namespace NetTally
                     MessageBox.Show(e.Message, "Error in configuration.  Current configuration ignored.", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
+                // Complete the platform setup.
                 PlatformSetup(quests, currentQuest);
             }
             catch (Exception e)
@@ -84,7 +91,6 @@ namespace NetTally
 
                 mainViewModel = ViewModelService.Instance
                     .Configure(quests, currentQuest)
-                    .LogErrorsUsing(new WindowsErrorLog())
                     .HashAgnosticStringsUsing(UnicodeHashFunction.HashFunction)
                     .Build();
 
