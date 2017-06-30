@@ -81,7 +81,7 @@ namespace NetTally.ViewModels
         /// <param name="param">The parameter.</param>
         private void RaisePropertyChanged(object param)
         {
-            // We are in the creator thread, call the base implementation directly
+            // We are in the creator thread, call the base implementation directly.
             PropertyChanged?.Invoke(this, (PropertyChangedEventArgs)param);
         }
         #endregion

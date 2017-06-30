@@ -28,9 +28,9 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="propertyData">The data to pass along with the property name.</param>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyDataChanged(string propertyData, [CallerMemberName] string propertyName = null)
+        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyDataChangedEventArgs<string>(propertyName, propertyData));
+            PropertyChanged?.Invoke(this, new PropertyDataChangedEventArgs<T>(propertyName, propertyData));
         }
     }
 }
