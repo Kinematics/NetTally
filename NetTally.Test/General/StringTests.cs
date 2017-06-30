@@ -16,6 +16,7 @@ namespace NetTally.Tests
             }
         }
 
+        #region Diacriticals
         [TestMethod]
         public void RemoveDiacriticals_baseline()
         {
@@ -72,5 +73,262 @@ namespace NetTally.Tests
                 Assert.AreEqual("だからねー、皆さん思うでしょ。", "だからねー、皆さん思うでしょ。".RemoveDiacritics());
             }
         }
+        #endregion
+
+        #region Plan names
+        [TestMethod]
+        public void PlanName_make()
+        {
+            string name = "Kinematics";
+            string planName = name.MakePlanName();
+
+            Assert.AreEqual("◈Kinematics", planName);
+        }
+
+        [TestMethod]
+        public void PlanName_make_empty()
+        {
+            string name = "";
+            string planName = name.MakePlanName();
+
+            Assert.AreEqual("", planName);
+        }
+
+        [TestMethod]
+        public void PlanName_make_null()
+        {
+            string planName = Strings.MakePlanName(null);
+
+            Assert.AreEqual("", planName);
+        }
+
+        [TestMethod]
+        public void PlanName_make_redundant()
+        {
+            string name = "◈Kinematics";
+            string planName = name.MakePlanName();
+
+            Assert.AreEqual("◈Kinematics", planName);
+        }
+
+        [TestMethod]
+        public void PlanName_test()
+        {
+            string name = "◈Kinematics";
+            Assert.IsTrue(name.IsPlanName());
+        }
+
+        [TestMethod]
+        public void PlanName_test_false()
+        {
+            string name = "Kinematics";
+            Assert.IsFalse(name.IsPlanName());
+        }
+
+        [TestMethod]
+        public void PlanName_test_empty()
+        {
+            string name = "";
+            Assert.IsFalse(name.IsPlanName());
+        }
+
+        [TestMethod]
+        public void PlanName_test_untrimmed()
+        {
+            string name = "  ◈Kinematics  ";
+            Assert.IsFalse(name.IsPlanName());
+        }
+
+        [TestMethod]
+        public void PlanName_test_embedded()
+        {
+            string name = "Kinema◈tics";
+            Assert.IsFalse(name.IsPlanName());
+        }
+
+        [TestMethod]
+        public void PlanName_test_null()
+        {
+            Assert.IsFalse(Strings.IsPlanName(null));
+        }
+        #endregion
+
+        #region Line splitting
+        [TestMethod]
+        public void Split_normal_1()
+        {
+            string input =
+@"Saying one thing
+and then another";
+
+            var lines = input.GetStringLines();
+
+            Assert.AreEqual(2, lines.Count);
+            Assert.AreEqual("Saying one thing", lines[0]);
+            Assert.AreEqual("and then another", lines[1]);
+        }
+
+        [TestMethod]
+        public void Split_normal_2()
+        {
+            string input =
+@"
+Saying one thing
+and then another";
+
+            var lines = input.GetStringLines();
+
+            Assert.AreEqual(2, lines.Count);
+            Assert.AreEqual("Saying one thing", lines[0]);
+            Assert.AreEqual("and then another", lines[1]);
+        }
+
+        [TestMethod]
+        public void Split_normal_3()
+        {
+            string input =
+@"Saying one thing
+
+and then another";
+
+            var lines = input.GetStringLines();
+
+            Assert.AreEqual(2, lines.Count);
+            Assert.AreEqual("Saying one thing", lines[0]);
+            Assert.AreEqual("and then another", lines[1]);
+        }
+
+        public void Split_simple()
+        {
+            string input =
+@"Saying one thing";
+
+            var lines = input.GetStringLines();
+
+            Assert.AreEqual(1, lines.Count);
+            Assert.AreEqual("Saying one thing", lines[0]);
+        }
+
+        [TestMethod]
+        public void Split_null_1()
+        {
+            string input = null;
+            var lines = input.GetStringLines();
+
+            Assert.IsNotNull(lines);
+            Assert.AreEqual(0, lines.Count);
+        }
+
+        [TestMethod]
+        public void Split_null_2()
+        {
+            var lines = Strings.GetStringLines(null);
+
+            Assert.IsNotNull(lines);
+            Assert.AreEqual(0, lines.Count);
+        }
+
+        [TestMethod]
+        public void Split_empty()
+        {
+            string input = "";
+            var lines = input.GetStringLines();
+
+            Assert.IsNotNull(lines);
+            Assert.AreEqual(0, lines.Count);
+        }
+
+        [TestMethod]
+        public void FirstLine_normal_1()
+        {
+            string input =
+@"Saying one thing
+and then another";
+
+            var line = input.GetFirstLine();
+
+            Assert.IsNotNull(line);
+            Assert.AreEqual("Saying one thing", line);
+        }
+
+        [TestMethod]
+        public void FirstLine_normal_2()
+        {
+            string input =
+@"
+Saying one thing
+and then another";
+
+            var line = input.GetFirstLine();
+
+            Assert.IsNotNull(line);
+            Assert.AreEqual("Saying one thing", line);
+        }
+
+        [TestMethod]
+        public void FirstLine_simple()
+        {
+            string input =
+@"Saying one thing";
+
+            var line = input.GetFirstLine();
+
+            Assert.IsNotNull(line);
+            Assert.AreEqual("Saying one thing", line);
+        }
+
+        [TestMethod]
+        public void FirstLine_null()
+        {
+            string input = null;
+
+            var line = input.GetFirstLine();
+
+            Assert.IsNotNull(line);
+            Assert.AreEqual("", line);
+        }
+
+        [TestMethod]
+        public void FirstLine_empty()
+        {
+            string input = "";
+
+            var line = input.GetFirstLine();
+
+            Assert.IsNotNull(line);
+            Assert.AreEqual("", line);
+        }
+        #endregion
+
+        #region Safe strings
+        [TestMethod]
+        public void MakeSafe_normal()
+        {
+            string name = "Kinematics";
+            string safe = name.RemoveUnsafeCharacters();
+
+            Assert.AreEqual("Kinematics", safe);
+        }
+
+        [TestMethod]
+        public void MakeSafe_sentence()
+        {
+            string name = "Kinematics walks down the road.";
+            string safe = name.RemoveUnsafeCharacters();
+
+            Assert.AreEqual("Kinematics walks down the road.", safe);
+        }
+
+        [TestMethod]
+        public void MakeSafe_nbsp()
+        {
+            // This sentence includes a non-breaking space.
+            string name = "Kinematics walks down the road.";
+            string safe = name.RemoveUnsafeCharacters();
+
+            Assert.AreEqual("Kinematics walks down the road.", safe);
+        }
+        #endregion
+
     }
 }
