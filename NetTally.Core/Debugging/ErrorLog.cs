@@ -21,7 +21,7 @@ namespace NetTally
     /// <seealso cref="NetTally.ILogger" />
     public class NullLogger : ILogger
     {
-        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => false;
+        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => true;
         public string LastLogLocation() => "Nowhere";
     }
 
@@ -31,7 +31,7 @@ namespace NetTally
     public static class Logger
     {
         static ILogger _logger = new NullLogger();
-        static IClock Clock { get; set; } = new SystemClock();
+        public static IClock Clock { get; set; } = new SystemClock();
         public static LoggingLevel LoggingLevel { get; set; } = LoggingLevel.Error;
         public const string UnknownLogLocation = "Unknown";
 
@@ -42,7 +42,7 @@ namespace NetTally
         public static void LogUsing(ILogger logger = null)
         {
             if (logger != null)
-                Logger._logger = logger;
+                _logger = logger;
         }
 
         /// <summary>
