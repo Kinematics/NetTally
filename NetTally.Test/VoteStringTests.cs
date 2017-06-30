@@ -791,7 +791,7 @@ namespace NetTally.Tests
         public void GetPlanNameTest6()
         {
             string input = "[X] Plan: Kinematics";
-            string expect = Strings.PlanNameMarker + "Kinematics";
+            string expect = "Kinematics".MakePlanName();
 
             Assert.AreEqual(expect, VoteString.GetMarkedPlanName(input));
         }
@@ -800,7 +800,7 @@ namespace NetTally.Tests
         public void GetPlanNameTest7()
         {
             string input = "[X] Kinematics";
-            string expect = Strings.PlanNameMarker + "Kinematics";
+            string expect = "Kinematics".MakePlanName();
 
             Assert.AreEqual(null, VoteString.GetMarkedPlanName(input));
         }

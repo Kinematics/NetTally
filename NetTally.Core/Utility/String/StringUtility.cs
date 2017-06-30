@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 
 namespace NetTally.Utility
@@ -13,8 +12,24 @@ namespace NetTally.Utility
         /// <summary>
         /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
         /// </summary>
-        public const string PlanNameMarker = "◈";
-        public const char PlanNameMarkerChar = '◈';
+        const string PlanNameMarker = "◈";
+        const char PlanNameMarkerChar = '◈';
+
+        /// <summary>
+        /// Check if the provided name starts with the plan name marker.
+        /// </summary>
+        /// <param name="name">The name to check.</param>
+        /// <returns>Returns true if the name starts with the plan name marker.</returns>
+        public static string MakePlanName(this string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return string.Empty;
+
+            if (name.IsPlanName())
+                return name;
+
+            return $"{PlanNameMarker}{name}";
+        }
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.

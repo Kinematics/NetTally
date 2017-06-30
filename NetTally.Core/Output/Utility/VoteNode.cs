@@ -24,7 +24,7 @@ namespace NetTally.Output
         public HashSet<string> Voters { get; } = new HashSet<string>();
         public HashSet<string> AllVoters { get; } = new HashSet<string>();
 
-        public int VoterCount => AllVoters.Count(v => !v.StartsWith(Strings.PlanNameMarker, StringComparison.Ordinal));
+        public int VoterCount => AllVoters.Count(v => !v.IsPlanName());
 
         bool HasParent => Parent != null;
         bool HasChildren => Children.Count > 0;
