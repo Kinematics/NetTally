@@ -12,8 +12,6 @@ namespace NetTally.Platform
     /// <seealso cref="NetTally.ILogger" />
     public class WindowsErrorLog : ILogger
     {
-        string lastLogLocation = string.Empty;
-
         #region ILogger interface methods
         /// <summary>
         /// Public function to log either a text message or an exception, or both.
@@ -29,15 +27,15 @@ namespace NetTally.Platform
                 if (clock == null)
                     clock = new SystemClock();
 
-                lastLogLocation = GetLogFilename(clock);
-                if (string.IsNullOrEmpty(lastLogLocation))
+                LastLogLocation = GetLogFilename(clock);
+                if (string.IsNullOrEmpty(LastLogLocation))
                     return false;
 
                 string output = ComposeOutput(callingMethod, message, exception, clock);
                 if (output == null)
                     return false;
 
-                File.AppendAllText(lastLogLocation, output);
+                File.AppendAllText(LastLogLocation, output);
 
                 return true;
             }
@@ -51,7 +49,7 @@ namespace NetTally.Platform
         /// Returns the last log location.
         /// </summary>
         /// <returns>Returns the last log location.</returns>
-        public string LastLogLocation() => lastLogLocation;
+        public string LastLogLocation { get; private set; } = string.Empty;
         #endregion
 
         #region Private helper methods

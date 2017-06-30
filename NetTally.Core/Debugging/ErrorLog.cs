@@ -11,7 +11,7 @@ namespace NetTally
     public interface ILogger
     {
         bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null);
-        string LastLogLocation();
+        string LastLogLocation { get; }
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ namespace NetTally
     public class NullLogger : ILogger
     {
         public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null) => true;
-        public string LastLogLocation() => "Nowhere";
+        public string LastLogLocation => "Nowhere";
     }
 
     /// <summary>
@@ -108,6 +108,6 @@ namespace NetTally
         /// Get the last location an error was logged to.
         /// </summary>
         /// <returns>Returns the last location an error was logged to.</returns>
-        public static string LastLogLocation() => _logger.LastLogLocation() ?? UnknownLogLocation;
+        public static string LastLogLocation => _logger.LastLogLocation ?? UnknownLogLocation;
     }
 }

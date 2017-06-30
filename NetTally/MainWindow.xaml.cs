@@ -180,7 +180,7 @@ namespace NetTally
 
             if (Logger.Error("Unhandled exception.", e))
             {
-                string logFile = Logger.LastLogLocation();
+                string logFile = Logger.LastLogLocation;
 
                 if (logFile != Logger.UnknownLogLocation)
                 {
