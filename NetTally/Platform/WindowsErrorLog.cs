@@ -137,7 +137,7 @@ namespace NetTally.Platform
 
                 if (Directory.Exists(path))
                 {
-                    path = Path.Combine(path, "NetTally");
+                    path = Path.Combine(path, ProductInfo.Name);
                     Directory.CreateDirectory(path);
                 }
             }
