@@ -106,11 +106,7 @@ namespace NetTally.Forums
         private async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
-            var scanInfo = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
-
-            int firstPageNumber = scanInfo.Item1;
-            int lastPageNumber = scanInfo.Item2;
-            int pagesToScan = scanInfo.Item3;
+            var (firstPageNumber, lastPageNumber, pagesToScan) = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
 
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
@@ -141,10 +137,10 @@ namespace NetTally.Forums
         /// <param name="threadRangeInfo">The thread range info, as provided by the adapter.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a tuple of the page number info that was determined.</returns>
-        private async Task<Tuple<int, int, int>> GetPagesToScanAsync(
+        private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
 
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
             int lastPageNumber = 0;
@@ -182,9 +178,7 @@ namespace NetTally.Forums
 
             pagesToScan = lastPageNumber - firstPageNumber + 1;
 
-            Tuple<int, int, int> result = new Tuple<int, int, int>(firstPageNumber, lastPageNumber, pagesToScan);
-
-            return result;
+            return (firstPageNumber, lastPageNumber, pagesToScan);
         }
 
         /// <summary>
