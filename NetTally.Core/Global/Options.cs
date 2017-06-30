@@ -272,6 +272,16 @@ namespace NetTally
             {
                 debugMode = value;
                 OnPropertyChanged();
+
+#if DEBUG
+                if (debugMode)
+                    Logger.LoggingLevel = LoggingLevel.Info;
+#else
+                if (debugMode)
+                    Logger.LoggingLevel = LoggingLevel.Warning;
+#endif
+                else
+                    Logger.LoggingLevel = LoggingLevel.Error;
             }
         }
 
