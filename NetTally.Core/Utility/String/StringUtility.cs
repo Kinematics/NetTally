@@ -8,7 +8,7 @@ namespace NetTally.Utility
     /// <summary>
     /// Class for general static functions relating to text manipulation and comparisons.
     /// </summary>
-    public static class StringUtility
+    public static class Strings
     {
         /// <summary>
         /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.

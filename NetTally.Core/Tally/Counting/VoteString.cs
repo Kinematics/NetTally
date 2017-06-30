@@ -634,7 +634,7 @@ namespace NetTally.Votes
             {
                 string label = m.Groups["label"].Value.ToLowerInvariant();
                 string name = m.Groups["reference"].Value;
-                string pName = $"{StringUtility.PlanNameMarker}{name}";
+                string pName = $"{Strings.PlanNameMarker}{name}";
 
                 if (m.Groups["label"].Success)
                 {
@@ -658,7 +658,7 @@ namespace NetTally.Votes
                         results[ReferenceType.Voter].Add(name);
 
                         // [x] Pin the tail on the donkey => ◈Pin the tail on the donkey
-                        string pContent = $"{StringUtility.PlanNameMarker}{contents}";
+                        string pContent = $"{Strings.PlanNameMarker}{contents}";
                         results[ReferenceType.Any].Add(pContent);
                         results[ReferenceType.Plan].Add(pContent);
                     }
@@ -750,7 +750,7 @@ namespace NetTally.Votes
         {
             string planname = GetPlanName(voteLine);
             if (planname != null)
-                return StringUtility.PlanNameMarker + planname;
+                return Strings.PlanNameMarker + planname;
 
             return null;
         }

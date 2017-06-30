@@ -516,7 +516,7 @@ namespace NetTally.Output
 
             string link;
 
-            if (firstVoter.StartsWith(StringUtility.PlanNameMarker, StringComparison.Ordinal))
+            if (firstVoter.StartsWith(Strings.PlanNameMarker, StringComparison.Ordinal))
             {
                 link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Plan);
             }
