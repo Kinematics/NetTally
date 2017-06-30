@@ -64,7 +64,7 @@ namespace NetTally.Utility
         public static string RemoveUnsafeCharacters(this string input)
         {
             if (string.IsNullOrEmpty(input))
-                return "";
+                return string.Empty;
 
             return UnsafeCharsRegex.Replace(input, "");
         }
@@ -103,8 +103,11 @@ namespace NetTally.Utility
         /// <returns>Returns the first line of the provided string.</returns>
         public static string GetFirstLine(this string input)
         {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
             var lines = GetStringLines(input);
-            return lines.FirstOrDefault();
+            return lines.First();
         }
 
         #endregion
