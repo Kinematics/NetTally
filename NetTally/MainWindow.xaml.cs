@@ -114,16 +114,17 @@ namespace NetTally
         /// <param name="e">The <see cref="System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
         private void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
-#if DEBUG
-            try
+            if (AdvancedOptions.Instance.DebugMode)
             {
-                string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
-                Logger.Warning(msg, e.Exception);
+                try
+                {
+                    string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
+                    Logger.Info(msg, e.Exception);
+                }
+                catch (Exception)
+                {
+                }
             }
-            catch (Exception)
-            {
-            }
-#endif
         }
 
         /// <summary>
