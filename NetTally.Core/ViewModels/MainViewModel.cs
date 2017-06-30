@@ -133,17 +133,17 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Gets the user-readable list of display modes, for use in the view.
         /// </summary>
-        public List<string> DisplayModes { get; } = Enumerations.EnumDescriptionsList<DisplayMode>().ToList();
+        public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
         /// <summary>
         /// Gets the user-readable list of partition modes, for use in the view.
         /// </summary>
-        public List<string> PartitionModes { get; } = Enumerations.EnumDescriptionsList<PartitionMode>().ToList();
+        public List<string> PartitionModes { get; } = EnumExtensions.EnumDescriptionsList<PartitionMode>().ToList();
 
         /// <summary>
         /// Gets the user-readable list of rank counting modes, for use in the view.
         /// </summary>
-        public List<string> RankVoteCountingModes { get; } = Enumerations.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
+        public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
 
         /// <summary>
         /// Gets the user-readable list of valid posts per page, for use in the view.
