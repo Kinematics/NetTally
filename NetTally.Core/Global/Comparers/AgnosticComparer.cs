@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using NetTally.Comparers;
 using NetTally.ViewModels;
 
 namespace NetTally.Utility

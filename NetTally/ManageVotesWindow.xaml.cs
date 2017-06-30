@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using NetTally.Extensions;
-using NetTally.Utility;
+using NetTally.Comparers;
 using NetTally.ViewModels;
 using NetTally.Votes;
 

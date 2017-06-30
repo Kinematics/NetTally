@@ -2,7 +2,7 @@
 using System.Collections;
 using NetTally.Votes;
 
-namespace NetTally.Utility
+namespace NetTally.Comparers
 {
     /// <summary>
     /// Custom sorting class for sorting votes.
