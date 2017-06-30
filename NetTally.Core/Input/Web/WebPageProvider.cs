@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
+using NetTally.Cache;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
 
@@ -22,7 +23,7 @@ namespace NetTally.Web
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler, WebCache cache, IClock clock)
+        public WebPageProvider(HttpClientHandler handler, PackedStringCache cache, IClock clock)
             : base(handler, cache, clock)
         {
             SetupHandler();
@@ -312,7 +313,7 @@ namespace NetTally.Web
         {
             string result = null;
             int tries = 0;
-            DateTime expires = WebCache.DefaultExpiration;
+            DateTime expires = PackedStringCache.DefaultExpiration;
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 

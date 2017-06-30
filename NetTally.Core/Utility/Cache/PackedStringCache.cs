@@ -7,28 +7,27 @@ using System.Text;
 using System.Threading.Tasks;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
-using NetTally.Utility;
 using Nito.AsyncEx;
 
-namespace NetTally.Web
+namespace NetTally.Cache
 {
     /// <summary>
     /// Class to handle caching web content.
     /// </summary>
-    public sealed class WebCache : IDisposable
+    public sealed class PackedStringCache : IDisposable
     {
         #region Lazy singleton creation
-        static readonly Lazy<WebCache> lazy = new Lazy<WebCache>(() => new WebCache());
-        public static WebCache Instance => lazy.Value;
+        static readonly Lazy<PackedStringCache> lazy = new Lazy<PackedStringCache>(() => new PackedStringCache());
+        public static PackedStringCache Instance => lazy.Value;
 
-        WebCache()
+        PackedStringCache()
         {
             SetClock(null);
         }
         #endregion
 
         #region Disposal
-        ~WebCache()
+        ~PackedStringCache()
         {
             Dispose(false);
         }

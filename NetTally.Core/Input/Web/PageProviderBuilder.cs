@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using NetTally.Cache;
 using NetTally.SystemInfo;
 
 namespace NetTally.Web
@@ -17,7 +18,7 @@ namespace NetTally.Web
 
         #region Builder fields
         HttpClientHandler buildHandler;
-        WebCache buildCache;
+        PackedStringCache buildCache;
         IClock buildClock;
         Type providerType;
         #endregion
@@ -26,7 +27,7 @@ namespace NetTally.Web
         {
             return new PageProviderBuilder() { buildHandler = handler, buildCache = this.buildCache, buildClock = this.buildClock, providerType = this.providerType };
         }
-        public PageProviderBuilder PageCache(WebCache cache)
+        public PageProviderBuilder PageCache(PackedStringCache cache)
         {
             return new PageProviderBuilder() { buildHandler = this.buildHandler, buildCache = cache, buildClock = this.buildClock, providerType = this.providerType };
         }

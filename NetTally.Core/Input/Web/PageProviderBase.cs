@@ -2,8 +2,9 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading;
-using NetTally.SystemInfo;
+using NetTally.Cache;
 using NetTally.CustomEventArgs;
+using NetTally.SystemInfo;
 
 namespace NetTally.Web
 {
@@ -20,16 +21,16 @@ namespace NetTally.Web
         #region Properties
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
-        protected WebCache Cache { get; }
+        protected PackedStringCache Cache { get; }
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion
 
         #region Constructors
-        protected PageProviderBase(HttpClientHandler handler, WebCache cache, IClock clock)
+        protected PageProviderBase(HttpClientHandler handler, PackedStringCache cache, IClock clock)
         {
             ClientHandler = handler ?? new HttpClientHandler();
-            Cache = cache ?? WebCache.Instance;
+            Cache = cache ?? PackedStringCache.Instance;
             Clock = clock ?? new SystemClock();
         }
         #endregion

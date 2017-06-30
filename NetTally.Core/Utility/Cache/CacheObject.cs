@@ -1,7 +1,7 @@
 ﻿using System;
 using NetTally.SystemInfo;
 
-namespace NetTally.Utility
+namespace NetTally.Cache
 {
     /// <summary>
     /// Class to save an object with an associated timestamp.
