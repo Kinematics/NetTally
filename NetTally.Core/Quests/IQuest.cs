@@ -35,7 +35,6 @@ namespace NetTally
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }
-
         /// <summary>
         /// Starting post to start tallying from.
         /// </summary>
@@ -57,6 +56,11 @@ namespace NetTally
         /// Derived property.  Is true if EndPost is 0.
         /// </summary>
         bool ReadToEndOfThread { get; }
+
+        /// <summary>
+        /// Enum for the type of partitioning to use when performing a tally.
+        /// </summary>
+        PartitionMode PartitionMode { get; set; }
 
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
@@ -111,11 +115,6 @@ namespace NetTally
         /// Collection of post numbers to filter from the tally.
         /// </summary>
         HashSet<int> PostsToFilter { get; }
-
-        /// <summary>
-        /// Enum for the type of partitioning to use when performing a tally.
-        /// </summary>
-        PartitionMode PartitionMode { get; set; }
 
         // Formatting options for handling votes:
 
