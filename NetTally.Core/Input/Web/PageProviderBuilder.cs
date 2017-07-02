@@ -18,44 +18,29 @@ namespace NetTally.Web
 
         #region Builder fields
         HttpClientHandler buildHandler;
-        GZStringCache buildCache;
         IClock buildClock;
         Type providerType;
         #endregion
 
         public PageProviderBuilder HttpClientHandler(HttpClientHandler handler)
         {
-            return new PageProviderBuilder() { buildHandler = handler, buildCache = this.buildCache, buildClock = this.buildClock, providerType = this.providerType };
-        }
-        public PageProviderBuilder PageCache(GZStringCache cache)
-        {
-            return new PageProviderBuilder() { buildHandler = this.buildHandler, buildCache = cache, buildClock = this.buildClock, providerType = this.providerType };
+            return new PageProviderBuilder() { buildHandler = handler, buildClock = this.buildClock, providerType = this.providerType };
         }
         public PageProviderBuilder ActiveClock(IClock clock)
         {
-            return new PageProviderBuilder() { buildHandler = this.buildHandler, buildCache = this.buildCache, buildClock = clock, providerType = this.providerType };
+            return new PageProviderBuilder() { buildHandler = this.buildHandler, buildClock = clock, providerType = this.providerType };
         }
         public PageProviderBuilder ProviderType(Type type)
         {
-            return new PageProviderBuilder() { buildHandler = this.buildHandler, buildCache = this.buildCache, buildClock = this.buildClock, providerType = type };
+            return new PageProviderBuilder() { buildHandler = this.buildHandler, buildClock = this.buildClock, providerType = type };
         }
 
         public IPageProvider Build()
         {
-            IPageProvider pageProvider;
+            IPageProvider pageProvider = new WebPageProvider(buildHandler, buildClock);
 
-            if (providerType is null)
-            {
-                pageProvider = new WebPageProvider(buildHandler, buildCache, buildClock);
-            }
-            else if (providerType.Equals(typeof(WebPageProvider)))
-            {
-                pageProvider = new WebPageProvider(buildHandler, buildCache, buildClock);
-            }
-            else
-            {
-                pageProvider = new WebPageProvider(buildHandler, buildCache, buildClock);
-            }
+            buildHandler = null;
+            buildClock = null;
 
             return pageProvider;
         }

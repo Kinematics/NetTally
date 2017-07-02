@@ -23,8 +23,8 @@ namespace NetTally.Web
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler, GZStringCache cache, IClock clock)
-            : base(handler, cache, clock)
+        public WebPageProvider(HttpClientHandler handler, IClock clock)
+            : base(handler, clock)
         {
             SetupHandler();
             SetupClient();
@@ -74,23 +74,6 @@ namespace NetTally.Web
         #endregion
 
         #region IPageProvider
-        /// <summary>
-        /// Allow manual clearing of the page cache.
-        /// </summary>
-        public void ClearPageCache()
-        {
-            Cache.Clear();
-        }
-
-        /// <summary>
-        /// If we're notified that a given attempt to load pages is done, we can
-        /// tell the web page cache to expire old data.
-        /// </summary>
-        public void DoneLoading()
-        {
-            Cache.InvalidateCache();
-        }
-
         /// <summary>
         /// Asynchronously load a specific web page.
         /// </summary>

@@ -21,17 +21,18 @@ namespace NetTally.Web
         #region Properties
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
-        protected GZStringCache Cache { get; }
+        protected GZStringCache Cache { get; } = GZStringCache.Instance;
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion
 
         #region Constructors
-        protected PageProviderBase(HttpClientHandler handler, GZStringCache cache, IClock clock)
+        protected PageProviderBase(HttpClientHandler handler, IClock clock)
         {
             ClientHandler = handler ?? new HttpClientHandler();
-            Cache = cache ?? GZStringCache.Instance;
             Clock = clock ?? new SystemClock();
+
+            Cache.SetClock(Clock);
         }
         #endregion
 
@@ -64,7 +65,27 @@ namespace NetTally.Web
         }
         #endregion
 
-        #region Event handlers
+        #region IPageProvider
+        /// <summary>
+        /// Allow manual clearing of the page cache.
+        /// </summary>
+        public void ClearPageCache()
+        {
+            Cache.Clear();
+        }
+
+        /// <summary>
+        /// If we're notified that a given attempt to load pages is done, we can
+        /// tell the web page cache to expire old data.
+        /// </summary>
+        public void DoneLoading()
+        {
+            Cache.InvalidateCache();
+        }
+
+        /// <summary>
+        /// Event handler hook for status messages.
+        /// </summary>
         public event EventHandler<MessageEventArgs> StatusChanged;
 
         /// <summary>
