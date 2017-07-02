@@ -35,10 +35,6 @@ namespace NetTally
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }
-        /// <summary>
-        /// Converts a post number into a page number.
-        /// </summary>
-        int GetPageNumberOf(int postNumber);
 
         /// <summary>
         /// Starting post to start tallying from.

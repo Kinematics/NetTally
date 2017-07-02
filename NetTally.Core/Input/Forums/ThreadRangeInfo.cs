@@ -78,7 +78,7 @@ namespace NetTally.Forums
         {
             if (ByNumber)
             {
-                return quest?.GetPageNumberOf(Number) ?? 1;
+                return ThreadInfo.GetPageNumberOfPost(Number, quest);
             }
 
             return Page;

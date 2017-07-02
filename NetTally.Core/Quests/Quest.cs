@@ -276,13 +276,6 @@ namespace NetTally
             }
         }
 
-        /// <summary>
-        /// Converts a post number into a page number.
-        /// </summary>
-        /// <param name="postNumber">The post number of the thread.</param>
-        /// <returns>Returns the page number of the thread that the post should be on.</returns>
-        public int GetPageNumberOf(int postNumber) => ((postNumber - 1) / PostsPerPage) + 1;
-
         #endregion
 
         #region Quest configuration properties: Filtering
