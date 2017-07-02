@@ -13,21 +13,22 @@ namespace NetTally.Cache
 {
     /// <summary>
     /// Class to handle caching web content.
+    /// Uses compression on cached web pages.
     /// </summary>
-    public sealed class PackedStringCache : IDisposable
+    public sealed class GZStringCache : IDisposable, ICache<string>
     {
         #region Lazy singleton creation
-        static readonly Lazy<PackedStringCache> lazy = new Lazy<PackedStringCache>(() => new PackedStringCache());
-        public static PackedStringCache Instance => lazy.Value;
+        static readonly Lazy<GZStringCache> lazy = new Lazy<GZStringCache>(() => new GZStringCache());
+        public static GZStringCache Instance => lazy.Value;
 
-        PackedStringCache()
+        GZStringCache()
         {
             SetClock(null);
         }
         #endregion
 
         #region Disposal
-        ~PackedStringCache()
+        ~GZStringCache()
         {
             Dispose(false);
         }
@@ -58,14 +59,13 @@ namespace NetTally.Cache
         IClock Clock { get; set; }
 
         const int MaxCacheEntries = 100;
+        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
         Dictionary<string, CacheObject<byte[]>> GZPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(MaxCacheEntries);
 
         readonly AsyncReaderWriterLock cacheLock = new AsyncReaderWriterLock();
         #endregion
 
         #region Public functions
-        public static readonly DateTime DefaultExpiration = CacheObject<byte[]>.DefaultExpiration;
-
         /// <summary>
         /// Allow setting the clock interface to be used by the cache.
         /// </summary>
@@ -81,47 +81,81 @@ namespace NetTally.Cache
         /// <summary>
         /// Add the original HTML string to the cache.
         /// </summary>
-        /// <param name="url">The URL the document was retrieved from.</param>
-        /// <param name="html">The HTML string to cache.</param>
-        public async Task AddAsync(string url, string html, DateTime expires)
+        /// <param name="key">The URL the document was retrieved from.</param>
+        /// <param name="content">The HTML string to cache.</param>
+        public async Task AddAsync(string key, string content, DateTime expires)
         {
-            var zipped = await CompressString(html);
-            var toGZCache = new CacheObject<byte[]>(zipped, Clock, expires);
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
+            var now = Clock.Now;
+
+            if (expires == CacheInfo.DefaultExpiration)
+                expires = now.Add(defaultExpirationDelay);
+
+            byte[] zipped = await Compress(content);
+
+            var toGZCache = new CacheObject<byte[]>(zipped, expires, now);
 
             using (cacheLock.WriterLock())
             {
-                GZPageCache[url] = toGZCache;
-
-                if (GZPageCache.Count > MaxCacheEntries)
-                {
-                    var oldestEntry = GZPageCache.MinObject(p => p.Value.Timestamp);
-                    GZPageCache.Remove(oldestEntry.Key);
-                }
+                GZPageCache[key] = toGZCache;
             }
         }
 
         /// <summary>
         /// Try to get a cached document for a specified URL.
         /// </summary>
-        /// <param name="url">The URL being checked.</param>
+        /// <param name="key">The URL being checked.</param>
         /// <returns>Returns the document for the URL if it's available and less than 30 minutes old.
         /// Otherwise returns null.</returns>
-        public async Task<(bool found, string content)> GetAsync(string url)
+        public async Task<(bool found, string content)> GetAsync(string key)
         {
+            bool found = false;
+            CacheObject<byte[]> gzCache;
+
             using (cacheLock.ReaderLock())
             {
-                if (GZPageCache.TryGetValue(url, out CacheObject<byte[]> gzCache))
-                {
-                    if (gzCache.Expires > Clock.Now)
-                    {
-                        string content = await GetUncompressedString(gzCache.Store).ConfigureAwait(false);
+                found = GZPageCache.TryGetValue(key, out gzCache);
+            }
 
-                        return (true, content);
-                    }
+            if (found)
+            { 
+                if (gzCache.Expires > Clock.Now)
+                {
+                    string content = await Decompress(gzCache.Store).ConfigureAwait(false);
+
+                    return (true, content);
                 }
             }
 
             return (false, string.Empty);
+        }
+
+        /// <summary>
+        /// If our cache count is higher than our limit, then remove all expired entries,
+        /// and a minimum number of pages to bring out count back down to the limit.
+        /// </summary>
+        public void InvalidateCache()
+        {
+            var time = Clock.Now;
+
+            using (cacheLock.WriterLock())
+            {
+                if (GZPageCache.Count > MaxCacheEntries)
+                {
+                    int toRemove = GZPageCache.Count - MaxCacheEntries;
+
+                    var orderedCache = GZPageCache.OrderBy(p => p.Value.Expires);
+
+                    var pagesToRemove = orderedCache.Where((page, index) => index < toRemove || page.Value.Expires < time).ToList();
+
+                    foreach (var page in pagesToRemove)
+                    {
+                        GZPageCache.Remove(page.Key);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -134,23 +168,6 @@ namespace NetTally.Cache
                 GZPageCache.Clear();
             }
         }
-
-        /// <summary>
-        /// Remove all entries that are older than our defined time limit to retain cached pages.
-        /// </summary>
-        /// <param name="time">The reference time to use when determining the age of a page.</param>
-        public void ExpireCache(DateTime time)
-        {
-            using (cacheLock.WriterLock())
-            {
-                var pagesToRemove = GZPageCache.Where(p => p.Value.Expires < time).ToList();
-
-                foreach (var page in pagesToRemove)
-                {
-                    GZPageCache.Remove(page.Key);
-                }
-            }
-        }
         #endregion
 
         #region Private functions        
@@ -159,8 +176,11 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <returns>Returns the string compressed into a GZipped byte array.</returns>
-        private async Task<byte[]> CompressString(string input)
+        private async Task<byte[]> Compress(string input)
         {
+            if (input == null)
+                return null;
+
             using (MemoryStream ms = new MemoryStream())
             {
                 using (GZipStream zs = new GZipStream(ms, CompressionMode.Compress, true))
@@ -178,8 +198,11 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="input">The input byte array.</param>
         /// <returns>Returns the uncompressed string.</returns>
-        private async Task<string> GetUncompressedString(byte[] input)
+        private async Task<string> Decompress(byte[] input)
         {
+            if (input == null)
+                return null;
+
             using (MemoryStream mso = new MemoryStream())
             {
                 using (MemoryStream ms = new MemoryStream(input))
@@ -192,6 +215,7 @@ namespace NetTally.Cache
             }
         }
         #endregion
-
     }
+
+
 }

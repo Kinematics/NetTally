@@ -18,7 +18,7 @@ namespace NetTally.Web
 
         #region Builder fields
         HttpClientHandler buildHandler;
-        PackedStringCache buildCache;
+        GZStringCache buildCache;
         IClock buildClock;
         Type providerType;
         #endregion
@@ -27,7 +27,7 @@ namespace NetTally.Web
         {
             return new PageProviderBuilder() { buildHandler = handler, buildCache = this.buildCache, buildClock = this.buildClock, providerType = this.providerType };
         }
-        public PageProviderBuilder PageCache(PackedStringCache cache)
+        public PageProviderBuilder PageCache(GZStringCache cache)
         {
             return new PageProviderBuilder() { buildHandler = this.buildHandler, buildCache = cache, buildClock = this.buildClock, providerType = this.providerType };
         }

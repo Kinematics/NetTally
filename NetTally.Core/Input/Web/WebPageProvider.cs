@@ -23,7 +23,7 @@ namespace NetTally.Web
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler, PackedStringCache cache, IClock clock)
+        public WebPageProvider(HttpClientHandler handler, GZStringCache cache, IClock clock)
             : base(handler, cache, clock)
         {
             SetupHandler();
@@ -88,7 +88,7 @@ namespace NetTally.Web
         /// </summary>
         public void DoneLoading()
         {
-            Cache.ExpireCache(Clock.Now);
+            Cache.InvalidateCache();
         }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace NetTally.Web
         {
             string result = null;
             int tries = 0;
-            DateTime expires = PackedStringCache.DefaultExpiration;
+            DateTime expires = CacheInfo.DefaultExpiration;
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
