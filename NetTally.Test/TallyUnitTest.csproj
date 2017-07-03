@@ -135,6 +135,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Input\FilterTests.cs" />
     <Compile Include="Utility\StringTests.cs" />
+    <Compile Include="Utility\CacheTests.cs" />
     <Compile Include="Vote Classes\VoteLineTests.cs" />
     <Compile Include="Vote Classes\VoteObjTests.cs" />
     <Compile Include="VoteConstructorTests.cs" />
