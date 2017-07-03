@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using NetTally.Cache;
 using NetTally.SystemInfo;
 
 namespace NetTally.Web
