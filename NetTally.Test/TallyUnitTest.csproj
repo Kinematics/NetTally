@@ -128,7 +128,7 @@
   <ItemGroup>
     <Compile Include="Input\ForumAdapterSelectorTests.cs" />
     <Compile Include="General\LoggerTest.cs" />
-    <Compile Include="LoadResource.cs" />
+    <Compile Include="Resources\LoadResource.cs" />
     <Compile Include="Platform\UnicodeHashFunction.cs" />
     <Compile Include="PostComponentsTests.cs" />
     <Compile Include="QuestTests.cs" />
