@@ -43,11 +43,18 @@ namespace NetTally.Web
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
         }
 
+        /// <summary>
+        /// Setup properties on the Client Handler.
+        /// </summary>
         private void SetupHandler()
         {
             ClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         }
 
+        /// <summary>
+        /// Create a new HTTP Client based on the client handler.
+        /// Setup properties on the HTTP Client.
+        /// </summary>
         private void SetupClient()
         {
             // In the event of slow response probably caused by
@@ -143,68 +150,12 @@ namespace NetTally.Web
         /// </returns>
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetHeaderUrl(string url, string shortDescrip,
+        public async Task<string> GetRedirectUrl(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
+            Uri responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
 
-            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
-
-            Uri uri = new Uri(url);
-
-            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
-
-            // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
-
-            try
-            {
-                Cookie cookie = ForumCookies.GetCookie(uri);
-                if (cookie != null)
-                {
-                    ClientHandler.CookieContainer.Add(uri, cookie);
-                }
-
-                int tries = 0;
-                HttpResponseMessage response;
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
-
-                while (tries < retryLimit && token.IsCancellationRequested == false)
-                {
-                    if (tries > 0)
-                    {
-                        // If we have to retry loading the page, give it a short delay.
-                        await Task.Delay(TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
-                    }
-                    tries++;
-
-                    try
-                    {
-                        // As long as we got a response (whether 200 or 404), we can extract what
-                        // the server thinks the URL should be.
-                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
-                        {
-                            return response.RequestMessage.RequestUri.AbsoluteUri;
-                        }
-                    }
-                    catch (HttpRequestException e)
-                    {
-                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
-                        throw;
-                    }
-
-                }
-            }
-            finally
-            {
-                ss.Release();
-            }
-
-            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
-            return null;
+            return responseUri?.AbsoluteUri;
         }
         #endregion
 
@@ -226,9 +177,9 @@ namespace NetTally.Web
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));
 
             Uri uri = new Uri(url);
-            url = Uri.UnescapeDataString(url);
+            string url2 = Uri.UnescapeDataString(url);
 
-            return (uri, url);
+            return (uri, url2);
         }
 
         /// <summary>
@@ -420,10 +371,97 @@ namespace NetTally.Web
             return result;
         }
 
+        /// <summary>
+        /// Loads the HEAD of the requested URL, and returns the URI from the returned request header.
+        /// </summary>
+        /// <param name="url">The URL to load.</param>
+        /// <param name="shortDescrip">Short description of the page being loaded.</param>
+        /// <param name="suppressNotifications">Whether to suppress notifications.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
+        private async Task<Uri> GetRedirectedHeaderRequestUri(string url, string shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            var (uri, url2) = GetVerifiedUrl(url);
+
+            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
+
+            // Limit to no more than N parallel requests
+            await ss.WaitAsync(token).ConfigureAwait(false);
+
+            try
+            {
+                Cookie cookie = ForumCookies.GetCookie(uri);
+                if (cookie != null)
+                {
+                    ClientHandler.CookieContainer.Add(uri, cookie);
+                }
+
+                int tries = 0;
+                HttpResponseMessage response;
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
+
+                do
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    if (tries > 0)
+                    {
+                        // Delay any additional attempts after the first.
+                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
+
+                        // Notify the user if we're re-trying to load the page.
+                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
+                    }
+
+                    tries++;
+
+                    try
+                    {
+                        // As long as we got a response (whether 200 or 404), we can extract what
+                        // the server thinks the URL should be.
+                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
+                        {
+                            if (response.IsSuccessStatusCode)
+                            {
+                                return response.RequestMessage.RequestUri;
+                            }
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
+                        throw;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            // user request
+                            throw;
+                        }
+                        else
+                        {
+                            // timeout via cancellation
+                            Debug.WriteLine($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        Debug.WriteLine($"Attempt to load {shortDescrip} timed out. Tries={tries}");
+                    }
+
+                } while (tries < retryLimit);
+            }
+            finally
+            {
+                ss.Release();
+            }
+
+            return null;
+        }
         #endregion
 
-        #region Functions for load failures.
-
+        #region Functions for load failure checks.
         /// <summary>
         /// Determines whether the specified HTTP response is a failure.
         /// </summary>

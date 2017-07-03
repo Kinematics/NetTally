@@ -340,7 +340,7 @@ namespace NetTally.Forums.Adapters
                 string permalink = GetPermalinkForId(tmID);
 
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
-                string fullUrl = await pageProvider.GetHeaderUrl(permalink, null, CachingMode.BypassCache, ShouldCache.No, SuppressNotifications.Yes, token).ConfigureAwait(false);
+                string fullUrl = await pageProvider.GetRedirectUrl(permalink, null, CachingMode.BypassCache, ShouldCache.No, SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(fullUrl))
                     threadmarkHref = fullUrl;
