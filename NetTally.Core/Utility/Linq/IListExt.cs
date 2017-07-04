@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NetTally.Extensions
 {
-    public static class IListExtensions
+    public static class IListExt
     {
         public static void Swap<T>(
             this IList<T> list,
