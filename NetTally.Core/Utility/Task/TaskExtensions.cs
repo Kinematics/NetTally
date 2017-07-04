@@ -9,7 +9,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Class for other general extension methods.
     /// </summary>
-    public static class OtherExtensions
+    public static class TaskExtensions
     {
         /// <summary>
         /// Function to allow setting a timeout on an async function that doesn't natively permit it.
