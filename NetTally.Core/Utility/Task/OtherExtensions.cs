@@ -43,22 +43,5 @@ namespace NetTally.Extensions
                 }
             }
         }
-
-        /// <summary>
-        /// Sorts the specified collection.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection">The collection.</param>
-        public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
-        {
-            var sorted = collection.OrderBy(x => x).ToList();
-            for (int i = 0; i < sorted.Count(); i++)
-            {
-                int src = collection.IndexOf(sorted[i]);
-                if (src != i)
-                    collection.Move(src, i);
-            }
-        }
-
     }
 }
