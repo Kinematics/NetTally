@@ -35,8 +35,8 @@ namespace NetTally.Extensions
         /// <summary>
         /// Does an in-place sort the specified collection.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection">The collection.</param>
+        /// <typeparam name="T">The type of object held in the collection.</typeparam>
+        /// <param name="collection">The collection to be sorted.</param>
         public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
         {
             var sorted = collection.OrderBy(x => x).ToList();
