@@ -130,19 +130,19 @@
     <Compile Include="General\LoggerTest.cs" />
     <Compile Include="Resources\LoadResource.cs" />
     <Compile Include="Platform\UnicodeHashFunction.cs" />
-    <Compile Include="PostComponentsTests.cs" />
+    <Compile Include="Tally\PostComponentsTests.cs" />
     <Compile Include="QuestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Input\FilterTests.cs" />
     <Compile Include="Utility\StringTests.cs" />
     <Compile Include="Utility\CacheTests.cs" />
-    <Compile Include="Vote Classes\VoteLineTests.cs" />
-    <Compile Include="Vote Classes\VoteObjTests.cs" />
-    <Compile Include="VoteConstructorTests.cs" />
-    <Compile Include="VoteCounterTests.cs" />
-    <Compile Include="VoteStringTests.cs" />
-    <Compile Include="VoteTests.cs" />
-    <Compile Include="Vote Classes\VotingRecordsTests.cs" />
+    <Compile Include="Tally Experiment\VoteLineTests.cs" />
+    <Compile Include="Tally Experiment\VoteObjTests.cs" />
+    <Compile Include="Tally\VoteConstructorTests.cs" />
+    <Compile Include="Tally\VoteCounterTests.cs" />
+    <Compile Include="Tally\VoteStringTests.cs" />
+    <Compile Include="Tally\VoteTests.cs" />
+    <Compile Include="Tally Experiment\VotingRecordsTests.cs" />
     <Compile Include="Input\WebPageProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
