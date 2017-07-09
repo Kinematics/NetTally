@@ -42,7 +42,7 @@ namespace NetTally.Forums
                 {
                     if (IdentifyXenForo(doc))
                     {
-                        forum = ForumType.XenForo;
+                        forum = ForumType.XenForo1;
                     }
                     else if (IdentifyVBulletin3(doc))
                     {
@@ -81,7 +81,7 @@ namespace NetTally.Forums
                 case "forums.sufficientvelocity.com":
                 case "forums.spacebattles.com":
                 case "forum.questionablequesting.com":
-                    forum = ForumType.XenForo;
+                    forum = ForumType.XenForo1;
                     return true;
                 default:
                     forum = ForumType.Unknown;

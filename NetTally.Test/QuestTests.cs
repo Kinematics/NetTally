@@ -437,7 +437,7 @@ namespace NetTally.Tests
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, forumType);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
         }
 
         [TestMethod]
@@ -446,9 +446,9 @@ namespace NetTally.Tests
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            Assert.AreEqual(ForumType.XenForo1, quest.ForumType);
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            Assert.AreEqual(ForumType.XenForo1, quest.ForumType);
         }
 
         [TestMethod]
@@ -457,7 +457,7 @@ namespace NetTally.Tests
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            Assert.AreEqual(ForumType.XenForo1, quest.ForumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
             Assert.AreEqual(ForumType.Unknown, quest.ForumType);
         }

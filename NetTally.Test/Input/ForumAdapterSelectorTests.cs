@@ -12,7 +12,7 @@ namespace NetTally.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void Select_XenForo_NoUri()
         {
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, null);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, null);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
@@ -21,7 +21,7 @@ namespace NetTally.Tests
         public void Select_XenForo_BaseUri()
         {
             Uri uri = new Uri("http://forums.sufficientvelocity.com/");
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, uri);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
@@ -29,7 +29,7 @@ namespace NetTally.Tests
         public void Select_XenForo_ThreadUri()
         {
             Uri uri = new Uri("http://forums.sufficientvelocity.com/threads/vote-tally-program.199/");
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, uri);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
@@ -38,7 +38,7 @@ namespace NetTally.Tests
         public void Select_XenForo_DefaultUri()
         {
             IQuest quest = new Quest();
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, quest.ThreadUri);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, quest.ThreadUri);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
@@ -46,7 +46,7 @@ namespace NetTally.Tests
         public void Select_SpaceBattles()
         {
             Uri uri = new Uri("https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/");
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, uri);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 
@@ -54,7 +54,7 @@ namespace NetTally.Tests
         public void Select_QuestionableQuesting()
         {
             Uri uri = new Uri("https://forum.questionablequesting.com/threads/qq-vote-tally-program.1065/");
-            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo, uri);
+            var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.XenForo1, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForoAdapter));
         }
 

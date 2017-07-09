@@ -27,7 +27,7 @@ namespace NetTally.Forums
 
             switch (forumType)
             {
-                case ForumType.XenForo:
+                case ForumType.XenForo1:
                     adapter = new XenForoAdapter(site);
                     break;
                 case ForumType.vBulletin3:
