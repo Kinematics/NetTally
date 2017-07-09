@@ -10,13 +10,13 @@ using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
 {
-    public class vBulletinAdapter5 : IForumAdapter
+    public class vBulletin5Adapter : IForumAdapter
     {
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="uri">The URI of the thread this adapter will be handling.</param>
-        public vBulletinAdapter5(Uri uri)
+        public vBulletin5Adapter(Uri uri)
         {
             Site = uri;
         }

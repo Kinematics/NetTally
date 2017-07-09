@@ -63,7 +63,7 @@ namespace NetTally.Tests
         {
             Uri uri = new Uri("http://forums.animesuki.com/showthread.php?t=128882");
             var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.vBulletin3, uri);
-            Assert.IsInstanceOfType(adapter, typeof(vBulletinAdapter3));
+            Assert.IsInstanceOfType(adapter, typeof(vBulletin3Adapter));
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace NetTally.Tests
         {
             Uri uri = new Uri("http://www.fandompost.com/oldforums/showthread.php?48716-One-Punch-Man-Discussion-Thread/page1");
             var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.vBulletin4, uri);
-            Assert.IsInstanceOfType(adapter, typeof(vBulletinAdapter4));
+            Assert.IsInstanceOfType(adapter, typeof(vBulletin4Adapter));
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace NetTally.Tests
         {
             Uri uri = new Uri("http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/4333101-vbulletin-5-1-10-connect-is-now-available");
             var adapter = ForumAdapterSelector.GetForumAdapter(ForumType.vBulletin5, uri);
-            Assert.IsInstanceOfType(adapter, typeof(vBulletinAdapter5));
+            Assert.IsInstanceOfType(adapter, typeof(vBulletin5Adapter));
         }
 
         [TestMethod]

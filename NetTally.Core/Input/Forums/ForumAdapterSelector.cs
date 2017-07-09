@@ -31,13 +31,13 @@ namespace NetTally.Forums
                     adapter = new XenForo1Adapter(site);
                     break;
                 case ForumType.vBulletin3:
-                    adapter =  new vBulletinAdapter3(site);
+                    adapter =  new vBulletin3Adapter(site);
                     break;
                 case ForumType.vBulletin4:
-                    adapter = new vBulletinAdapter4(site);
+                    adapter = new vBulletin4Adapter(site);
                     break;
                 case ForumType.vBulletin5:
-                    adapter = new vBulletinAdapter5(site);
+                    adapter = new vBulletin5Adapter(site);
                     break;
                 default:
                     throw new ArgumentException($"Unknown forum type: {forumType}", nameof(forumType));
