@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.ViewModels;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -78,7 +79,7 @@ namespace NetTally.Forums
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
         private async static Task<HtmlDocument> GetDocumentAsync(Uri uri, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
 
             try
             {
