@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Text.RegularExpressions;
-using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace NetTally
 {
