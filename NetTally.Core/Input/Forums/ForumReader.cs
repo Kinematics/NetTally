@@ -63,12 +63,7 @@ namespace NetTally.Forums
         /// <returns>Returns the forum adapter that knows how to read the forum of the quest thread.</returns>
         private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
         {
-            if (quest.ForumType == ForumType.Unknown)
-            {
-                quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token).ConfigureAwait(false);
-            }
-
-            var adapter = ForumAdapterSelector.GetForumAdapter(quest.ForumType, quest.ThreadUri);
+            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, token);
 
             quest.ForumAdapter = adapter;
 
