@@ -10,7 +10,7 @@ namespace NetTally.Votes.Experiment
     /// <summary>
     /// Class to encapsulate any vote that can be extracted from a post.
     /// </summary>
-    public class Vote
+    class Vote
     {
         #region Properties
         /// <summary>

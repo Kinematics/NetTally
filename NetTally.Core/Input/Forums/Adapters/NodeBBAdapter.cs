@@ -10,7 +10,7 @@ using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
 {
-    public class NodeBBAdapter : IForumAdapter
+    class NodeBBAdapter : IForumAdapter
     {
         /// <summary>
         /// Constructor

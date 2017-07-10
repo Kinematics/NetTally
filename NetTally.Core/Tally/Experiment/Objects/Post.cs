@@ -7,7 +7,7 @@ namespace NetTally.Votes.Experiment
     /// <summary>
     /// Class to encapsulate a user's post.
     /// </summary>
-    public class Post
+    class Post
     {
         #region Properties
         /// <summary>

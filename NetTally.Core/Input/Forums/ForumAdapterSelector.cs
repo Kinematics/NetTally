@@ -9,7 +9,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    public class ForumAdapterSelector
+    class ForumAdapterSelector
     {
         static readonly Dictionary<ForumType, IForumAdapter> cachedAdapters = new Dictionary<ForumType, IForumAdapter>();
 

@@ -21,15 +21,16 @@ namespace NetTally
         /// The URI that represents the thread URL string.
         /// </summary>
         Uri ThreadUri { get; }
+
         /// <summary>
-        /// The type of forum used at the URI site.
+        /// The contents of the line break allowed for the site.
         /// </summary>
-        ForumType ForumType { get; set; }
+        string LineBreak { get; set; }
         /// <summary>
-        /// Get the forum adapter being used by this quest.
-        /// Must be initialized first.
+        /// A function that can transform a post ID into a permalink.
+        /// This function is set per identification of the forum adapter.
         /// </summary>
-        IForumAdapter ForumAdapter { get; set; }
+        Func<string, string> PermalinkForId { get; set; }
 
         /// <summary>
         /// The number of posts per page for this forum thread.

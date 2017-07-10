@@ -15,7 +15,7 @@ namespace NetTally.Votes.Experiment
     /// <summary>
     /// Class that handles taking a source vote and breaking it into individual partitions.
     /// </summary>
-    public static class VotingConstructor
+    static class VotingConstructor
     {
         #region Plan processing        
         /// <summary>

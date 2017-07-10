@@ -15,7 +15,7 @@ namespace NetTally.Forums.Adapters
     /// <summary>
     /// Class for extracting data from XenForo forum threads.
     /// </summary>
-    public class XenForo1Adapter : IForumAdapter
+    class XenForo1Adapter : IForumAdapter
     {
         // May possibly end with /page-00#post-00
         static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");

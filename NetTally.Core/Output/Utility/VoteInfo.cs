@@ -23,7 +23,7 @@ namespace NetTally.Output
 
             string voteID;
             if (voters.TryGetValue(voter, out voteID))
-                return ViewModelService.MainViewModel.VoteCounter.Quest.ForumAdapter.GetPermalinkForId(voteID);
+                return ViewModelService.MainViewModel.VoteCounter.Quest.PermalinkForId(voteID);
 
             return string.Empty;
         }

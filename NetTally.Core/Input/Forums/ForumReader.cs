@@ -9,7 +9,7 @@ using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    public class ForumReader
+    class ForumReader
     {
         #region Singleton
         static readonly Lazy<ForumReader> lazy = new Lazy<ForumReader>(() => new ForumReader());
@@ -65,7 +65,12 @@ namespace NetTally.Forums
         {
             var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, token);
 
-            quest.ForumAdapter = adapter;
+            if (quest.PostsPerPage == 0)
+                quest.PostsPerPage = adapter.DefaultPostsPerPage;
+
+            quest.LineBreak = adapter.LineBreak;
+
+            quest.PermalinkForId = adapter.GetPermalinkForId;
 
             if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
