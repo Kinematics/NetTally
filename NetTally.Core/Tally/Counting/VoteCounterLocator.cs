@@ -8,7 +8,7 @@ namespace NetTally.VoteCounting
     /// Static class used to request the proper vote counter class to use for
     /// any given situation.
     /// </summary>
-    public static class VoteCounterLocator
+    static class VoteCounterLocator
     {
         /// <summary>
         /// Generic function to get the default vote counter for a given vote type.

@@ -19,7 +19,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     /// votes that are ranked by less than 100% of the voter base.
     /// </summary>
     /// <seealso cref="NetTally.VoteCounting.BaseRankVoteCounter" />
-    public class WilsonRankVoteCounter : BaseRankVoteCounter
+    class WilsonRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Implementation to generate the ranking list for the provided set

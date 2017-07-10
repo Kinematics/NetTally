@@ -12,7 +12,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.
     /// </summary>
-    public static class ForumIdentifier
+    static class ForumIdentifier
     {
         static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
         {

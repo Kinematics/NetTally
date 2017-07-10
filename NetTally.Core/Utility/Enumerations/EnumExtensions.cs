@@ -10,7 +10,7 @@ namespace NetTally.Extensions
     /// Static class that can be used for extension methods on enums, in order to use
     /// user-friendly description attributes in the UI.
     /// </summary>
-    public static class EnumExtensions
+    static class EnumExtensions
     {
         /// <summary>
         /// Gets a user-friendly string description of an enum value.

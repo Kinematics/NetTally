@@ -11,7 +11,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
 
-    public class CoombsRankVoteCounter : BaseRankVoteCounter
+    class CoombsRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Local class to store a choice/count combo of fields for LINQ.

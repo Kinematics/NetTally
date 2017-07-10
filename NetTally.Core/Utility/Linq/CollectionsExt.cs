@@ -8,7 +8,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Extension methods for various collections.
     /// </summary>
-    public static class CollectionsExt
+    static class CollectionsExt
     {
         /// <summary>
         /// Swap two values in a list.

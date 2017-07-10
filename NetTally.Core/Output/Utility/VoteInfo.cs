@@ -9,7 +9,7 @@ using NetTally.Votes;
 
 namespace NetTally.Output
 {
-    public static class VoteInfo
+    static class VoteInfo
     {
         /// <summary>
         /// Get the URL for the post made by the specified voter.

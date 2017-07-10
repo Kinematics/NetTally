@@ -24,7 +24,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     /// score ratings into the evaluation.
     /// </summary>
     /// <seealso cref="NetTally.VoteCounting.BaseRankVoteCounter" />
-    public class RIRVRankVoteCounter : BaseRankVoteCounter
+    class RIRVRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Implementation to generate the ranking list for the provided set

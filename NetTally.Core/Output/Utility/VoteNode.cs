@@ -13,7 +13,7 @@ namespace NetTally.Output
     /// Meta-vote class to allow storing the primary vote, along with any
     /// 'child' votes that have the same first line of text as the main vote.
     /// </summary>
-    public class VoteNode
+    class VoteNode
     {
         readonly VoteNode Parent;
 

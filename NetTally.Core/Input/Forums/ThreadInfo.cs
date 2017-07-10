@@ -2,7 +2,7 @@
 
 namespace NetTally.Forums
 {
-    public class ThreadInfo
+    class ThreadInfo
     {
         public string Title { get; }
         public string Author { get; }
