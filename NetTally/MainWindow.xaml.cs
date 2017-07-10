@@ -257,7 +257,9 @@ namespace NetTally
             // its quests, and has saved those changes to the config file.
             if (msg == NativeMethods.WM_NETTALLYUPDATE)
             {
+#pragma warning disable 4014
                 _syncContext.Post(o => Reload(), null);
+#pragma warning restore 4014
                 handled = true;
             }
 
