@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +7,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Class for other general extension methods.
     /// </summary>
-    public static class TaskExtensions
+    static class TaskExtensions
     {
         /// <summary>
         /// Function to allow setting a timeout on an async function that doesn't natively permit it.

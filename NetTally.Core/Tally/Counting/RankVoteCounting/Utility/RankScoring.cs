@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace NetTally.VoteCounting.RankVoteCounting.Utility
 {
-    public static class RankScoring
+    static class RankScoring
     {
         /// <summary>
         /// Calculates the Borda score for the provided list of voter rankings of a given vote.

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.ViewModels;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -11,9 +12,14 @@ namespace NetTally.Forums
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.
     /// </summary>
-    public static class ForumIdentifier
+    static class ForumIdentifier
     {
-        static Dictionary<string, ForumType> cacheHosts = new Dictionary<string, ForumType>();
+        static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
+        {
+            ["forums.sufficientvelocity.com"] = ForumType.XenForo1,
+            ["forums.spacebattles.com"] = ForumType.XenForo1,
+            ["forum.questionablequesting.com"] = ForumType.XenForo1,
+        };
 
         /// <summary>
         /// Public function to check for identifiable forums from a provided web page.
@@ -23,70 +29,46 @@ namespace NetTally.Forums
         /// <returns>Returns the forum type that was identified, if any.</returns>
         public async static Task<ForumType> IdentifyForumTypeAsync(Uri uri, CancellationToken token)
         {
-            if (uri.IsAbsoluteUri)
-            {
-                if (cacheHosts.TryGetValue(uri.Host, out ForumType forumType))
-                {
-                    if (forumType != ForumType.Unknown)
-                        return forumType;
-                }
-            }
-
-            ForumType forum = ForumType.Unknown;
-
-            if (!CheckForKnownHost(uri, out forum))
+            if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
                 HtmlDocument doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
 
                 if (doc != null)
                 {
-                    if (IdentifyXenForo(doc))
+                    if (IdentifyXenForo1(doc))
                     {
-                        forum = ForumType.XenForo;
+                        forumType = ForumType.XenForo1;
+                    }
+                    else if (IdentifyXenForo2(doc))
+                    {
+                        forumType = ForumType.XenForo2;
                     }
                     else if (IdentifyVBulletin3(doc))
                     {
-                        forum = ForumType.vBulletin3;
+                        forumType = ForumType.vBulletin3;
                     }
                     else if (IdentifyVBulletin4(doc))
                     {
-                        forum = ForumType.vBulletin4;
+                        forumType = ForumType.vBulletin4;
                     }
                     else if (IdentifyVBulletin5(doc))
                     {
-                        forum = ForumType.vBulletin5;
+                        forumType = ForumType.vBulletin5;
                     }
+                    else
+                    {
+                        forumType = ForumType.Unknown;
+                    }
+
+                    forumTypes[uri.Host] = forumType;
+                }
+                else
+                {
+                    forumType = ForumType.Unknown;
                 }
             }
 
-            if (forum != ForumType.Unknown)
-            {
-                cacheHosts[uri.Host] = forum;
-            }
-
-            return forum;
-        }
-
-        /// <summary>
-        /// Check for known forums for simplicity.
-        /// </summary>
-        /// <param name="uri">The Uri being checked.</param>
-        /// <param name="forum">The forum type the URI belongs to, if known.</param>
-        /// <returns>Returns true if the URI is to a known host.</returns>
-        private static bool CheckForKnownHost(Uri uri, out ForumType forum)
-        {
-            switch (uri.Host)
-            {
-                // Known XenForo sites
-                case "forums.sufficientvelocity.com":
-                case "forums.spacebattles.com":
-                case "forum.questionablequesting.com":
-                    forum = ForumType.XenForo;
-                    return true;
-                default:
-                    forum = ForumType.Unknown;
-                    return false;
-            }
+            return forumType;
         }
 
         /// <summary>
@@ -97,7 +79,7 @@ namespace NetTally.Forums
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
         private async static Task<HtmlDocument> GetDocumentAsync(Uri uri, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModels.ViewModelService.MainViewModel.PageProvider;
+            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
 
             try
             {
@@ -126,12 +108,25 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="doc">The HTML page to check.</param>
         /// <returns>Returns true if the HTML is XenForo</returns>
-        private static bool IdentifyXenForo(HtmlDocument doc)
+        private static bool IdentifyXenForo1(HtmlDocument doc)
         {
             if (doc == null)
                 return false;
 
             return (doc.DocumentNode.Element("html").Id == "XenForo");
+        }
+
+        /// <summary>
+        /// Determine if a web page is from a XenForo2 forum.
+        /// </summary>
+        /// <param name="doc">The HTML page to check.</param>
+        /// <returns>Returns true if the HTML is XenForo</returns>
+        private static bool IdentifyXenForo2(HtmlDocument doc)
+        {
+            if (doc == null)
+                return false;
+
+            return (doc.DocumentNode.Element("html").Id == "XF");
         }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace NetTally.Extensions
     /// </summary>
     /// <typeparam name="TSource">Type of objects to place in the group list.</typeparam>
     /// <typeparam name="TKey">Type of object used as a key for the grouping.</typeparam>
-    public class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
+    class GroupOfAdjacent<TSource, TKey> : IEnumerable<TSource>, IGrouping<TKey, TSource>
     {
         public TKey Key { get; }
         private List<TSource> GroupList { get; }

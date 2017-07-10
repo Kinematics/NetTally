@@ -16,7 +16,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     /// for handling user-entered quest voting schemes.
     /// </summary>
     /// <seealso cref="NetTally.VoteCounting.BaseRankVoteCounter" />
-    public class BordaRankVoteCounter : BaseRankVoteCounter
+    class BordaRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Implementation to generate the ranking list for the provided set

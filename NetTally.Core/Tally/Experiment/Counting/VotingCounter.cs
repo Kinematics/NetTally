@@ -16,7 +16,7 @@ namespace NetTally.Votes.Experiment
     /// extracting plans, and processing them all via the VotingConstructor.
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public class VotingCounter : INotifyPropertyChanged
+    class VotingCounter : INotifyPropertyChanged
     {
         #region Lazy singleton creation
         static readonly Lazy<VotingCounter> lazy = new Lazy<VotingCounter>(() => new VotingCounter());

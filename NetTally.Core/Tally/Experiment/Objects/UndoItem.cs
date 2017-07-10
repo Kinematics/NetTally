@@ -11,7 +11,7 @@ namespace NetTally.Votes.Experiment
         RemoveVoter,
     }
 
-    public class UndoItem
+    class UndoItem
     {
         public UndoItemType UndoType { get; }
         public VoteType VoteType { get; }

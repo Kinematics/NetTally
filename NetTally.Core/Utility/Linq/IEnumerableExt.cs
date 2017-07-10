@@ -7,7 +7,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Class for generic LINQ extension methods.
     /// </summary>
-    public static class IEnumerableExt
+    static class IEnumerableExt
     {
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.

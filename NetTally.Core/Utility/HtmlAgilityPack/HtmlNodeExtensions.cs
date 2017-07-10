@@ -8,7 +8,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Extension methods for HtmlNode objects.
     /// </summary>
-    public static class HtmlNodeEx
+    static class HtmlNodeEx
     {
         static readonly char[] classSeparators = new[] { ' ' };
         

@@ -10,7 +10,7 @@ namespace NetTally.Votes.Experiment
     /// the hash code and checking for equivalence between two sequences.
     /// </summary>
     /// <seealso cref="System.Collections.Generic.List{NetTally.Votes.Experiment.VoteLine}" />
-    public class VoteLines : List<VoteLine>
+    class VoteLines : List<VoteLine>
     {
         #region Constructors
         public VoteLines()

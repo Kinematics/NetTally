@@ -11,7 +11,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.
     /// </summary>
-    public static class PostText
+    static class PostText
     {
         // Regex for colors in a span's style
         static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase);

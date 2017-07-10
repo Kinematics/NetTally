@@ -9,7 +9,7 @@ using NetTally.Votes;
 
 namespace NetTally.Output
 {
-    public static class VoteInfo
+    static class VoteInfo
     {
         /// <summary>
         /// Get the URL for the post made by the specified voter.
@@ -23,7 +23,7 @@ namespace NetTally.Output
 
             string voteID;
             if (voters.TryGetValue(voter, out voteID))
-                return ViewModelService.MainViewModel.VoteCounter.Quest.ForumAdapter.GetPermalinkForId(voteID);
+                return ViewModelService.MainViewModel.VoteCounter.Quest.PermalinkForId(voteID);
 
             return string.Empty;
         }

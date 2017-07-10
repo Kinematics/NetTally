@@ -10,7 +10,7 @@ namespace NetTally.Votes.Experiment
     /// a vote, whether a single line, or block, or the entire post.
     /// Keeps track of the Task associated with this partition.
     /// </summary>
-    public class VotePartition
+    class VotePartition
     {
         #region Properties and fields
         public VoteLines VoteLines { get; } = new VoteLines();

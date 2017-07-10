@@ -8,7 +8,7 @@ namespace NetTally.Votes.Experiment
     /// <summary>
     /// Class to encapsulate an individual vote line.
     /// </summary>
-    public class VoteLine
+    class VoteLine
     {
         #region Regexes
         // Regex to get the different parts of the vote. Only evaluates a single line.  Anything beyond a CRLF is dropped.

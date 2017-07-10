@@ -11,7 +11,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public abstract class BaseRankVoteCounter : IRankVoteCounter
+    abstract class BaseRankVoteCounter : IRankVoteCounter
     {
         /// <summary>
         /// Counts the provided rank votes.

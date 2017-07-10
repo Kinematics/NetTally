@@ -665,7 +665,7 @@ namespace NetTally.Output
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine();
 
-            sb.AppendLine(VoteCounter.Quest.ForumAdapter.LineBreak);
+            sb.AppendLine(VoteCounter.Quest.LineBreak);
             sb.AppendLine();
         }
         #endregion

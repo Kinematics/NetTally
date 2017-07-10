@@ -91,7 +91,8 @@ namespace NetTally
         public enum ForumType
         {
             Unknown,
-            XenForo,
+            XenForo1,
+            XenForo2,
             vBulletin3,
             vBulletin4,
             vBulletin5,

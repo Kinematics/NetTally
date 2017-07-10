@@ -8,7 +8,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
     /// <summary>
     /// Individual rank result, with associated debugging info for more detailed output.
     /// </summary>
-    public class RankResult
+    class RankResult
     {
         public string Option { get; }
         public string Debug { get; }
@@ -23,7 +23,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
     /// <summary>
     /// List of preference results ordered by winner
     /// </summary>
-    public class RankResults : List<RankResult>
+    class RankResults : List<RankResult>
     {
         public RankResults() { }
 
@@ -36,5 +36,5 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
     /// <summary>
     /// Task (string), Ordered list of ranked votes
     /// </summary>
-    public class RankResultsByTask : Dictionary<string, RankResults> { }
+    class RankResultsByTask : Dictionary<string, RankResults> { }
 }

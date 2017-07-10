@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Utility;
 
 namespace NetTally.VoteCounting.RankVoteCounting
 {
@@ -11,7 +12,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public class SchulzeRankVoteCounter : BaseRankVoteCounter
+    class SchulzeRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Implementation to generate the ranking list for the provided set
@@ -58,7 +59,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
             foreach (var voter in voterRankings)
             {
                 var rankedChoices = voter.RankedVotes.Select(v => v.Vote);
-                var unrankedChoices = listOfChoices.Except(rankedChoices);
+                var unrankedChoices = listOfChoices.Except(rankedChoices, Agnostic.StringComparer);
 
                 foreach (var choice in voter.RankedVotes)
                 {

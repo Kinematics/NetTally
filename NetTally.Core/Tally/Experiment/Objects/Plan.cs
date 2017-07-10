@@ -8,7 +8,7 @@ namespace NetTally.Votes.Experiment
     /// <summary>
     /// Class to store and reason about vote plans.
     /// </summary>
-    public class Plan
+    class Plan
     {
         #region Properties
         public Identity Identity { get; }

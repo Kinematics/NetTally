@@ -7,7 +7,7 @@ namespace NetTally.Extensions
     /// <summary>
     /// Extension methods to allow grouping collections in various ways.
     /// </summary>
-    public static class GroupingExtensions
+    static class GroupingExtensions
     {
 
         // Group an enumerable list in various ways, in a single pass of reading the enumerable:

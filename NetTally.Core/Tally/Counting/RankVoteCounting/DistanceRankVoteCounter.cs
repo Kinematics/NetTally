@@ -9,7 +9,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public class DistanceRankVoteCounter : BaseRankVoteCounter
+    class DistanceRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
         /// Implementation to generate the ranking list for the provided set

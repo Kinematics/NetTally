@@ -9,7 +9,7 @@ using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    public class ForumReader
+    class ForumReader
     {
         #region Singleton
         static readonly Lazy<ForumReader> lazy = new Lazy<ForumReader>(() => new ForumReader());
@@ -63,14 +63,14 @@ namespace NetTally.Forums
         /// <returns>Returns the forum adapter that knows how to read the forum of the quest thread.</returns>
         private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
         {
-            if (quest.ForumType == ForumType.Unknown)
-            {
-                quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token).ConfigureAwait(false);
-            }
+            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, token);
 
-            var adapter = ForumAdapterSelector.GetForumAdapter(quest.ForumType, quest.ThreadUri);
+            if (quest.PostsPerPage == 0)
+                quest.PostsPerPage = adapter.DefaultPostsPerPage;
 
-            quest.ForumAdapter = adapter;
+            quest.LineBreak = adapter.LineBreak;
+
+            quest.PermalinkForId = adapter.GetPermalinkForId;
 
             if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;

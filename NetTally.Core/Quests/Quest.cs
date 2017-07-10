@@ -6,6 +6,7 @@ using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NetTally
 {
@@ -48,15 +49,10 @@ namespace NetTally
         public Uri ThreadUri { get; private set; }
 
         /// <summary>
-        /// The type of forum used at the URI site.
-        /// </summary>
-        public ForumType ForumType { get; set; }
-
-        /// <summary>
         /// Get the forum adapter being used by this quest.
         /// Gets set when the ForumType is determined.
         /// </summary>
-        public IForumAdapter ForumAdapter { get; set; }
+        internal IForumAdapter ForumAdapter { get; set; }
 
         /// <summary>
         /// The URL of the quest.
@@ -80,7 +76,6 @@ namespace NetTally
 
                 if (ThreadUri == null || ThreadUri.Host != newUri.Host)
                 {
-                    ForumType = ForumType.Unknown;
                     ForumAdapter = null;
                 }
 
@@ -259,14 +254,6 @@ namespace NetTally
         {
             get
             {
-                if (postsPerPage == 0)
-                {
-                    var ppp = ForumAdapter?.DefaultPostsPerPage;
-                    if (ppp.HasValue)
-                    {
-                        postsPerPage = ppp.Value;
-                    }
-                }
                 return postsPerPage;
             }
             set
@@ -276,6 +263,17 @@ namespace NetTally
             }
         }
 
+
+        /// <summary>
+        /// The contents of the line break allowed for the site.
+        /// </summary>
+        public string LineBreak { get; set; } = "";
+
+        /// <summary>
+        /// A function that can transform a post ID into a permalink.
+        /// This function is set per identification of the forum adapter.
+        /// </summary>
+        public Func<string, string> PermalinkForId { get; set; } = (s) => s;
         #endregion
 
         #region Quest configuration properties: Filtering

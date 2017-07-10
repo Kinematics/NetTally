@@ -89,8 +89,6 @@ namespace NetTally.Tests
             Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
             Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadUri.AbsoluteUri);
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
-            Assert.IsNull(quest.ForumAdapter);
 
             Assert.AreEqual(0, quest.PostsPerPage);
             Assert.AreEqual(1, quest.StartPost);
@@ -425,41 +423,38 @@ namespace NetTally.Tests
         [TestMethod]
         public async Task IQuest_SetThreadName()
         {
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             await Task.Delay(1);
         }
 
         [TestMethod]
         public async Task IQuest_IdentifyThread()
         {
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, forumType);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
         }
 
         [TestMethod]
         public async Task IQuest_IdentifyThread_Change_SameHost()
         {
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
         }
 
         [TestMethod]
         public async Task IQuest_InitForumAdapter_Change_DiffHost()
         {
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo, quest.ForumType);
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
-            Assert.AreEqual(ForumType.Unknown, quest.ForumType);
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
         }
         #endregion
 

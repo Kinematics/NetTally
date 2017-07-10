@@ -7,7 +7,7 @@ namespace NetTally.Votes.Experiment
     /// Class to hold a name (user or plan) and source location (forum and post ID)
     /// for any given vote.  Also allows for variants on a given name.
     /// </summary>
-    public class Identity
+    class Identity
     {
         #region Properties        
         /// <summary>

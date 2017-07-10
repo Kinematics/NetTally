@@ -9,31 +9,31 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
     // Task (string group), collection of votes (string vote, hashset of voters)
     using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
 
-    public class RankedVote
+    class RankedVote
     {
         public string Vote { get; set; }
         public int Rank { get; set; }
     }
 
-    public class RatedVote
+    class RatedVote
     {
         public string Vote { get; set; }
         public double Rating { get; set; }
     }
 
-    public class VoterRankings
+    class VoterRankings
     {
         public string Voter { get; set; }
         public List<RankedVote> RankedVotes { get; set; }
     }
 
-    public class RankedVoters
+    class RankedVoters
     {
         public int Rank { get; set; }
         public IEnumerable<string> Voters { get; set; }
     }
 
-    public class RankGroupedVoters
+    class RankGroupedVoters
     {
         public string VoteContent { get; set; }
         public IEnumerable<RankedVoters> Ranks { get; set; }
@@ -43,7 +43,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
     /// Static class to take known input lists and convert them to an
     /// enumerable list of one of the above types.
     /// </summary>
-    public static class GroupRankVotes
+    static class GroupRankVotes
     {
         public static IEnumerable<RankGroupedVoters> GroupByVoteAndRank(GroupedVotesByTask task)
         {
@@ -146,7 +146,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
     }
 
-    public class DistanceData
+    class DistanceData
     {
         public int[,] Paths { get; set; }
     }
