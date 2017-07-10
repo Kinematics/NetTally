@@ -245,5 +245,12 @@ namespace NetTally.Forums.Adapters
         }
         #endregion
 
+
+
+        public IEnumerable<NetTally.Votes.Experiment2.Post> GetPosts2(HtmlDocument page, IQuest quest)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

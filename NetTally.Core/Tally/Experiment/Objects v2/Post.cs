@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NetTally.Forums;
 
 namespace NetTally.Votes.Experiment2
 {
@@ -13,49 +14,8 @@ namespace NetTally.Votes.Experiment2
         public MessageVoteContent VoteContent { get; }
 
         public Post(string author, string postID, int number, string message, string url)
+            :this(author, postID, number, message, new Uri(url))
         {
-            if (number < 1)
-                throw new ArgumentOutOfRangeException(nameof(number), $"Invalid post number: {number} for post with Author '{author}', ID '{postID}', and URL: {url}");
-
-            Number = number;
-
-            try
-            {
-                Author = new UserIdent(author);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Invalid post author: {author ?? "<null>"} for post with ID '{postID}', number '{number}', and url: {url}", nameof(author), e);
-            }
-
-            try
-            {
-                ID = new PostID(postID);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Invalid post ID: {postID ?? "<null>"} for post with Author '{author}', number '{number}', and url: {url}", nameof(postID), e);
-            }
-
-            if (number < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(number), $"Invalid post number: {number}");
-            }
-
-            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                throw new ArgumentException($"Badly formed identity URL for post ID {postID}: {url}");
-
-            Uri = new Uri(url);
-
-            try
-            {
-                VoteContent = new MessageVoteContent(message);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Invalid message vote content for post by Author '{author}', with ID '{postID}', number '{number}', and url: {url}", nameof(message), e);
-            }
-
         }
 
         public Post(string author, string postID, int number, string message, Uri uri)
@@ -96,5 +56,25 @@ namespace NetTally.Votes.Experiment2
             }
 
         }
+
+        /// <summary>
+        /// Checks whether the current post is 'after' the starting point that
+        /// is documented in the start info object.
+        /// </summary>
+        /// <param name="startInfo">The information about where the tally starts.</param>
+        /// <returns>Returns true if this post comes after the defined starting point.</returns>
+        public bool IsAfterStart(ThreadRangeInfo startInfo)
+        {
+            if (startInfo == null)
+                throw new ArgumentNullException(nameof(startInfo));
+
+            if (startInfo.ByNumber)
+            {
+                return Number >= startInfo.Number;
+            }
+
+            return ID.Value > startInfo.ID;
+        }
+
     }
 }

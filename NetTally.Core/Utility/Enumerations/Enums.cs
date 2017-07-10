@@ -126,6 +126,14 @@ namespace NetTally
             Continuation
         }
 
+        public enum TallyType
+        {
+            Standard,
+            Approval,
+            Ranked,
+            Scored
+        }
+
         /// <summary>
         /// Enum for various partitioning modes to use for breaking votes up into components.
         /// </summary>

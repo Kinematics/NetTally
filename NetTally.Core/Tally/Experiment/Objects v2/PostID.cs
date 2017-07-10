@@ -11,8 +11,8 @@ namespace NetTally.Votes.Experiment2
 
     class PostID
     {
-        string ID { get; }
-        Int64 Value { get; }
+        public string ID { get; }
+        public int Value { get; }
 
         public PostID(string id, PostIDFormat format = PostIDFormat.Number)
         {
@@ -24,7 +24,7 @@ namespace NetTally.Votes.Experiment2
             switch (format)
             {
                 case PostIDFormat.Number:
-                    Value = Int64.Parse(id);
+                    Value = int.Parse(id);
                     if (Value < 1)
                         throw new ArgumentOutOfRangeException(nameof(id), $"Post ID ({id}) must be a positive value.");
                     break;

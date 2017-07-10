@@ -185,7 +185,8 @@ namespace NetTally.VoteCounting
 
                 var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
-                await VoteCounter.TallyPosts(posts, quest, token).ConfigureAwait(false);
+                await NetTally.Votes.Experiment2.VoteCounter.Instance.CountVotesInPosts(quest, posts, token);
+                //await VoteCounter.TallyPosts(posts, quest, token).ConfigureAwait(false);
             }
             catch (InvalidOperationException e)
             {

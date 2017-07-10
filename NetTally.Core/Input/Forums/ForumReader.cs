@@ -28,7 +28,7 @@ namespace NetTally.Forums
         /// <param name="quest">The quest to read.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of posts extracted from the quest.</returns>
-        public async Task<List<PostComponents>> ReadQuestAsync(IQuest quest, CancellationToken token)
+        public async Task<List<NetTally.Votes.Experiment2.Post>> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             IForumAdapter adapter = await GetForumAdapterAsync(quest, token).ConfigureAwait(false);
 
@@ -45,7 +45,7 @@ namespace NetTally.Forums
             if (loadedPages == null)
                 throw new InvalidOperationException("Unable to load pages for the quest.");
 
-            List<PostComponents> posts = await GetPostsFromPagesAsync(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
+            var posts = await GetPostsFromPagesAsyncExp2(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
 
             if (posts == null)
                 throw new InvalidOperationException("Unable to extract posts from quest pages.");
@@ -239,6 +239,58 @@ namespace NetTally.Forums
                             )
                       )
                 .Distinct().OrderBy(p => p.Number).ToList();
+
+            return postsList;
+        }
+
+        private async Task<List<NetTally.Votes.Experiment2.Post>> GetPostsFromPagesAsyncExp2(
+            IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
+        {
+            List<NetTally.Votes.Experiment2.Post> postsList = new List<NetTally.Votes.Experiment2.Post>();
+
+            var firstPageTask = pages.First();
+
+            while (pages.Any())
+            {
+                var finishedPage = await Task.WhenAny(pages).ConfigureAwait(false);
+                pages.Remove(finishedPage);
+
+                if (finishedPage.IsCanceled)
+                {
+                    throw new OperationCanceledException();
+                }
+
+                // This will throw any pending exceptions that occurred while trying to load the page.
+                // This removes the need to check for finishedPage.IsFaulted.
+                var page = await finishedPage.ConfigureAwait(false);
+
+                if (page == null)
+                {
+                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
+                    ae.Data["Application"] = true;
+                    throw ae;
+                }
+
+                var posts = from post in adapter.GetPosts2(page, quest)
+                            where post != null && post.VoteContent.Valid && post.IsAfterStart(rangeInfo) &&
+                                (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost)
+                            select post;
+
+                postsList.AddRange(posts);
+            }
+
+            var firstPage = firstPageTask.Result;
+
+            ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
+            ViewModelService.MainViewModel.VoteCounter.Title = threadInfo.Title;
+
+            //// Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
+            postsList = postsList.Where(p =>
+                (
+                    (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author.BasicName)) || (!quest.UseCustomUsernameFilters && p.Author.BasicName != threadInfo.Author)) &&
+                    (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.ID.Value))
+                )
+            ).Distinct().OrderBy(p => p.Number).ToList();
 
             return postsList;
         }

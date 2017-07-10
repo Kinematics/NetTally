@@ -10,19 +10,26 @@ namespace NetTally.Votes.Experiment2
         public IQuest Quest { get; set; }
 
         public List<Post> Posts { get; } = new List<Post>();
+        public HashSet<Identity> Voters { get; } = new HashSet<Identity>();
 
-        public void UsePosts(IEnumerable<Post> posts)
+        public void Reset()
+        {
+            Voters.Clear();
+        }
+
+        public void Initialize(IQuest quest, IEnumerable<Post> posts)
         {
             if (posts == null)
                 throw new ArgumentNullException(nameof(posts));
             
+            Quest = quest ?? throw new ArgumentNullException(nameof(quest));
             Posts.Clear();
-            Posts.AddRange(posts.Where(p => p.VoteContent.Valid));
+            Posts.AddRange(posts);
         }
 
-        public void Reset()
+        public void AddVoters(IEnumerable<Identity> voters)
         {
-
+            Voters.UnionWith(voters);
         }
     }
 }

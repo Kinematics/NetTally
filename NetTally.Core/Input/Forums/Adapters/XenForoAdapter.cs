@@ -216,7 +216,7 @@ namespace NetTally.Forums.Adapters
         public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from li in GetPostsList(page)
-                        //where li.HasClass("stickyFirstContainer") == false
+                            //where li.HasClass("stickyFirstContainer") == false
                         select GetPost(li, quest);
 
             return posts;
@@ -609,5 +609,79 @@ namespace NetTally.Forums.Adapters
         }
         #endregion
 
+
+        public IEnumerable<NetTally.Votes.Experiment2.Post> GetPosts2(HtmlDocument page, IQuest quest)
+        {
+            var posts = from li in GetPostsList(page)
+                        select GetPost2(li, quest);
+
+            return posts;
+        }
+
+        private NetTally.Votes.Experiment2.Post GetPost2(HtmlNode li, IQuest quest)
+        {
+            if (li == null)
+                throw new ArgumentNullException(nameof(li));
+
+            string author;
+            string id;
+            string text;
+            int number;
+
+            // Author and ID are in the basic list item attributes
+            author = PostText.CleanupWebString(li.GetAttributeValue("data-author", ""));
+            id = li.Id.Substring("post-".Length);
+
+            if (AdvancedOptions.Instance.DebugMode)
+                author = $"{author}_{id}";
+
+            // Get the primary content of the list item
+            HtmlNode primaryContent = li.GetChildWithClass("primaryContent");
+
+            // On one branch, we can get the post text
+            HtmlNode messageContent = primaryContent.GetChildWithClass("messageContent");
+            HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
+
+            // Predicate filtering out elements that we don't want to include
+            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
+                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
+            if (quest.IgnoreSpoilers)
+                excludedClasses.Add("bbCodeSpoilerContainer");
+
+            var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
+
+            // Get the full post text.
+            text = PostText.ExtractPostText(postBlock, exclusions, Host);
+
+            // On another branch of the primary content, we can get the post number.
+            HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
+            // HTML parsing of the post was corrupted somehow.
+            if (messageMeta == null)
+            {
+                return null;
+            }
+            HtmlNode publicControls = messageMeta.GetChildWithClass("publicControls");
+            HtmlNode postNumber = publicControls.GetChildWithClass("postNumber");
+
+            string postNumberText = postNumber.InnerText;
+            // Skip the leading # character.
+            if (postNumberText.StartsWith("#", StringComparison.Ordinal))
+                postNumberText = postNumberText.Substring(1);
+
+            number = int.Parse(postNumberText);
+
+            NetTally.Votes.Experiment2.Post post;
+            try
+            {
+                post = new NetTally.Votes.Experiment2.Post(author, id, number, text, quest.PermalinkForId(id));
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})", e);
+                post = null;
+            }
+
+            return post;
+        }
     }
 }

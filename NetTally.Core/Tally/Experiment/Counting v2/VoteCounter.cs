@@ -71,9 +71,7 @@ namespace NetTally.Votes.Experiment2
         /// <returns>Returns a Task, for async processing.</returns>
         public async Task CountVotesInPosts(IQuest quest, IEnumerable<Post> posts, CancellationToken token)
         {
-            Records.Quest = quest ?? throw new ArgumentNullException(nameof(quest));
-            Records.UsePosts(posts);
-
+            Records.Initialize(quest, posts);
             await CountVotesInCurrentPosts(token).ConfigureAwait(false);
         }
 
@@ -112,9 +110,12 @@ namespace NetTally.Votes.Experiment2
         /// </summary>
         private void PreprocessPosts(CancellationToken token)
         {
+            var voters = Records.Posts.Select(p => p.Author).Distinct();
+
+
             // Collection of all the plans that we find in the post list.
             Dictionary<string, List<RawVote>> planRepo = new Dictionary<string, List<RawVote>>(Agnostic.StringComparer);
-            /*
+            
             // Scan the post list once.
             foreach (var post in Records.Posts)
             {
@@ -167,8 +168,9 @@ namespace NetTally.Votes.Experiment2
             // At the end, we should have a collection of the 'best' versions of each named plan.
             // Store them in the voting records.
             VotingRecords.Instance.AddPlans(planRepo);
-            */
+            
         }
+        
 
         /// <summary>
         /// The second half of tallying the posts involves cycling through all posts for
