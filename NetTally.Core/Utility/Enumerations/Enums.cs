@@ -126,9 +126,18 @@ namespace NetTally
             Score,
         }
 
-        public enum TallyType
+        /// <summary>
+        /// The mode the tally is run in.
+        /// Standard mode allows standard votes, ranked votes, and scored votes.
+        /// Basic mode allows only standard X votes.
+        /// Approval mode allows only approval votes.
+        /// Ranked mode allows only ranked votes.
+        /// Scored mode allows only scored votes.
+        /// </summary>
+        public enum TallyMode
         {
             Standard,
+            Basic,
             Approval,
             Ranked,
             Scored
