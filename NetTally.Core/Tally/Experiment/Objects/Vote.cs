@@ -181,7 +181,7 @@ namespace NetTally.Votes.Experiment
                 {
                     string newMarker = null;
 
-                    if (line.MarkerType == MarkerType.Basic || line.MarkerType == MarkerType.Continuation)
+                    if (line.MarkerType == MarkerType.Basic)
                     {
                         newMarker = first.Marker;
                     }
@@ -230,12 +230,12 @@ namespace NetTally.Votes.Experiment
             else if (initial.MarkerType == MarkerType.Rank)
             {
                 return (current.Prefix.Length > 0 && 
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Basic));
+                    (current.MarkerType == MarkerType.Basic));
             }
             else if (initial.MarkerType == MarkerType.Score)
             {
                 return (current.Prefix.Length > 0 &&
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Basic));
+                    (current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Basic));
             }
 
             return false;

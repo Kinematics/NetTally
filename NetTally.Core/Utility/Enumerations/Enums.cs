@@ -121,10 +121,9 @@ namespace NetTally
         {
             None,
             Basic,
+            Approval,
             Rank,
             Score,
-            Approval,
-            Continuation
         }
 
         public enum TallyType
