@@ -277,7 +277,7 @@ namespace NetTally.Votes.Experiment2
                 if (m.Success)
                 {
                     if (m.Groups["vote"].Success)
-                        markerType = MarkerType.Vote;
+                        markerType = MarkerType.Basic;
                     else if (m.Groups["rank"].Success)
                         markerType = MarkerType.Rank;
                     else if (m.Groups["score"].Success)

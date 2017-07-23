@@ -81,7 +81,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[x] A simple vote line", vote.Text);
             Assert.AreEqual(string.Empty, vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual(string.Empty, vote.Task);
             Assert.AreEqual("A simple vote line", vote.Content);
@@ -100,7 +100,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[x][How?] A simple vote line with task", vote.Text);
             Assert.AreEqual(string.Empty, vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual("How?", vote.Task);
             Assert.AreEqual("A simple vote line with task", vote.Content);
@@ -119,7 +119,7 @@ namespace NetTally.Tests
             Assert.AreEqual("- - [x][How?] A simple vote line with task and prefix", vote.Text);
             Assert.AreEqual("--", vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual("How?", vote.Task);
             Assert.AreEqual("A simple vote line with task and prefix", vote.Content);
@@ -139,7 +139,7 @@ namespace NetTally.Tests
             Assert.AreEqual("- - [x][How?] A simple vote line with task and prefix", vote.Text);
             Assert.AreEqual("--", vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual("How?", vote.Task);
             Assert.AreEqual("A simple vote line with task and prefix", vote.Content);
@@ -158,7 +158,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[x] Æsir résumé", vote.Text);
             Assert.AreEqual(string.Empty, vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual(string.Empty, vote.Task);
             Assert.AreEqual("Æsir résumé", vote.Content);
@@ -177,7 +177,7 @@ namespace NetTally.Tests
             Assert.AreEqual("[x] Æsir 『b』résumé『/b』", vote.Text);
             Assert.AreEqual(string.Empty, vote.Prefix);
             Assert.AreEqual("x", vote.Marker);
-            Assert.AreEqual(MarkerType.Vote, vote.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, vote.MarkerType);
             Assert.AreEqual(0, vote.MarkerValue);
             Assert.AreEqual(string.Empty, vote.Task);
             Assert.AreEqual("Æsir 『b』résumé『/b』", vote.Content);

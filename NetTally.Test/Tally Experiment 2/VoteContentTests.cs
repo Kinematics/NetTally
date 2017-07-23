@@ -125,7 +125,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("", voteLine.Task);
             Assert.AreEqual("Is vote?", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -227,7 +227,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("", voteLine.Task);
             Assert.AreEqual("Is vote?", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -244,7 +244,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("simple task", voteLine.Task);
             Assert.AreEqual("Is vote?", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -261,7 +261,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("simple task", voteLine.Task);
             Assert.AreEqual("Is vote?", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -279,7 +279,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("", voteLine.Task);
             Assert.AreEqual("『b』Is vote?『/b』", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -296,7 +296,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("simple task", voteLine.Task);
             Assert.AreEqual("『b』Is vote?『/b』", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
 
@@ -313,7 +313,7 @@ namespace TallyUnitTest.Tally_Experiment_2
             Assert.AreEqual("x", voteLine.Marker);
             Assert.AreEqual("simple task", voteLine.Task);
             Assert.AreEqual("『b』Is vote?『/b』", voteLine.Content);
-            Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+            Assert.AreEqual(MarkerType.Basic, voteLine.MarkerType);
             Assert.AreEqual(0, voteLine.MarkerValue);
         }
         #endregion

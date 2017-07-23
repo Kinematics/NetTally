@@ -128,7 +128,7 @@ namespace NetTally.Votes.Experiment
 
                 Match m = anyPlanRegex.Match(voteGroup.Key);
 
-                if (m.Groups["base"].Success && voteGroup.First().MarkerType == MarkerType.Vote && voteGroup.Count() > 1)
+                if (m.Groups["base"].Success && voteGroup.First().MarkerType == MarkerType.Basic && voteGroup.Count() > 1)
                 {
                     var partition = new VotePartition(voteGroup, VoteType.Plan);
                     plans.Add(new Plan(m.Groups["planname"].Value, vote.Post.Identity, partition, PlanType.Base));
@@ -148,9 +148,9 @@ namespace NetTally.Votes.Experiment
                 Match m = anyPlanRegex.Match(voteGroup.Key);
 
                 if (m.Success && m.Groups["base"].Success == false && voteGroup.Count() == 1 &&
-                    voteGroup.First().MarkerType == MarkerType.Vote)
+                    voteGroup.First().MarkerType == MarkerType.Basic)
                 {
-                    var labeledGroups = voteGrouping.TakeWhile(g => g.First().MarkerType == MarkerType.Vote ||
+                    var labeledGroups = voteGrouping.TakeWhile(g => g.First().MarkerType == MarkerType.Basic ||
                         g.First().MarkerType == MarkerType.Approval);
 
                     var flattenedLines = labeledGroups.SelectMany(a => a).ToList();

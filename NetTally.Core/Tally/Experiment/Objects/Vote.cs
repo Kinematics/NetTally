@@ -155,7 +155,7 @@ namespace NetTally.Votes.Experiment
             List<VoteLines> results = new List<VoteLines>();
 
             // Votes and Approvals can be split, and carry their task with them.
-            if (first.MarkerType == MarkerType.Vote || first.MarkerType == MarkerType.Approval)
+            if (first.MarkerType == MarkerType.Basic || first.MarkerType == MarkerType.Approval)
             {
                 results.Add(new VoteLines(first));
 
@@ -181,7 +181,7 @@ namespace NetTally.Votes.Experiment
                 {
                     string newMarker = null;
 
-                    if (line.MarkerType == MarkerType.Vote || line.MarkerType == MarkerType.Continuation)
+                    if (line.MarkerType == MarkerType.Basic || line.MarkerType == MarkerType.Continuation)
                     {
                         newMarker = first.Marker;
                     }
@@ -223,19 +223,19 @@ namespace NetTally.Votes.Experiment
             {
                 return false;
             }
-            else if (initial.MarkerType == MarkerType.Vote || initial.MarkerType == MarkerType.Approval)
+            else if (initial.MarkerType == MarkerType.Basic || initial.MarkerType == MarkerType.Approval)
             {
                 return (current.Prefix.Length > 0 && current.MarkerType == initial.MarkerType);
             }
             else if (initial.MarkerType == MarkerType.Rank)
             {
                 return (current.Prefix.Length > 0 && 
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Vote));
+                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Basic));
             }
             else if (initial.MarkerType == MarkerType.Score)
             {
                 return (current.Prefix.Length > 0 &&
-                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Vote));
+                    (current.MarkerType == MarkerType.Continuation || current.MarkerType == MarkerType.Score || current.MarkerType == MarkerType.Basic));
             }
 
             return false;
