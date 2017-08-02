@@ -39,7 +39,7 @@ namespace NetTally
         // A valid vote line must start with [x] or -[x] (with any number of dashes).  It must be at the start of the line.
         readonly static Regex voteLineRegex = new Regex(@"^[-\s]*\[\s*[xX✓✔1-9]\s*\]");
         // Nomination-style votes.  @username, one per line.
-        readonly static Regex nominationLineRegex = new Regex(@"^\[url=""[^""]+?/members/\d+/""](?<username>@[^[]+)\[/url\]\s*$");
+        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』(?<username>@[^[]+)\『/url』\s*$");
 
         /// <summary>
         /// Constructor
