@@ -383,7 +383,7 @@ namespace NetTally.Output
                     }
                     else
                     {
-                        foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)))
+                        foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)).ThenBy(q => VoteInfo.LastVoteID(q.Value)))
                         {
                             if (AdvancedOptions.Instance.DisplayPlansWithNoVotes || VoteInfo.CountVote(vote) > 0)
                             {

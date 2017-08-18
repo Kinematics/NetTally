@@ -181,8 +181,32 @@ namespace NetTally.Output
                 }
             }
 
-            return nodeList.OrderByDescending(v => v.VoterCount);
+            return nodeList.OrderByDescending(v => v.VoterCount).ThenBy(v => LastVoteID(v.Voters));
         }
 
+        /// <summary>
+        /// Gets the ID number of the last vote made among the provided voters.
+        /// Returns 0 if there are no voters passed in, or no valid post ID values.
+        /// </summary>
+        /// <param name="voters">The voters for a given vote.</param>
+        /// <returns>Returns the last vote ID made for this vote.</returns>
+        public static int LastVoteID(HashSet<string> voters)
+        {
+            if (voters.Count == 0)
+                return 0;
+
+            var votersCollection = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+
+            Dictionary<string, int> voteCollInt = new Dictionary<string, int>();
+
+            var ids = from voter in voters
+                    where votersCollection.ContainsKey(voter)
+                    select int.Parse(votersCollection[voter]);
+
+            if (!ids.Any())
+                return 0;
+
+            return ids.Max();
+        }
     }
 }
