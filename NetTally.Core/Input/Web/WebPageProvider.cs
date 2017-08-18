@@ -10,6 +10,7 @@ using HtmlAgilityPack;
 using NetTally.Cache;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
+using NetTally.ViewModels;
 
 namespace NetTally.Web
 {
@@ -499,7 +500,7 @@ namespace NetTally.Web
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
-                if (ViewModels.ViewModelService.MainViewModel.Options.DebugMode)
+                if (ViewModelService.MainViewModel.Options.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
             else
@@ -507,7 +508,7 @@ namespace NetTally.Web
                 // Fail all 400/500 level responses
                 // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
-                if (ViewModels.ViewModelService.MainViewModel.Options.DebugMode)
+                if (ViewModelService.MainViewModel.Options.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
 
