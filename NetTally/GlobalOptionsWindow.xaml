@@ -44,7 +44,9 @@
                   IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
 
         <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,179,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="debugMode" Content="Debug Mode" HorizontalAlignment="Left" Margin="33,205,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,210,0,0" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=Options.DisableWebProxy}" />
+        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,231,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -78,6 +80,12 @@
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Debug Mode"/>
             <TextBlock TextWrapping="Wrap" Text="When set, tallies combine the post author with the post ID.  This allows you to tally votes from the same person across multiple posts, and ignores the thread author exception."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableWebProxy, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable Web Proxy"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, disables usage of the proxy defined on the local system, and attempts to connect to web sites directly.  Fixes a problem with some Vista and Windows 7 systems."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This only takes effect after the next program restart."/>
         </StackPanel>
 
         <Button Grid.Column="0" Grid.Row="2" x:Name="resetAllButton" Content="Reset All" Margin="10,0,0,10" Width="100" Height="32"

@@ -54,6 +54,7 @@ namespace NetTally
         bool globalSpoilers = false;
         bool displayPlansWithNoVotes = false;
 
+        bool disableWebProxy = false;
         bool debugMode = false;
         #endregion
 
@@ -70,6 +71,7 @@ namespace NetTally
         public const string _globalSpoilers = "globalSpoilers";
         public const string _displayPlansWithNoVotes = "displayPlansWithNoVotes";
         public const string _debugMode = "debugMode";
+        public const string _disableWebProxy = "disableWebProxy";
         #endregion
 
         #region General Options
@@ -282,6 +284,19 @@ namespace NetTally
 #endif
                 else
                     Logger.LoggingLevel = LoggingLevel.Error;
+            }
+        }
+
+        /// <summary>
+        /// Disable use of local proxy searches when loading web pages.
+        /// </summary>
+        public bool DisableWebProxy
+        {
+            get { return disableWebProxy; }
+            set
+            {
+                disableWebProxy = value;
+                OnPropertyChanged();
             }
         }
 

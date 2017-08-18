@@ -62,6 +62,7 @@ namespace NetTally.Web
             // proxy lookup failures, can turn it off here.
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
             //ClientHandler.UseProxy = false;
+            ClientHandler.UseProxy = !AdvancedOptions.Instance.DisableWebProxy;
 
             client = new HttpClient(ClientHandler);
 

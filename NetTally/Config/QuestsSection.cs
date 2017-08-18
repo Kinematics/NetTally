@@ -150,6 +150,14 @@ namespace NetTally
             }
             set { this["DisplayMode"] = value; }
         }
+
+        [ConfigurationProperty("DisableWebProxy", DefaultValue = false)]
+        public bool DisableWebProxy
+        {
+            get { return (bool)this["DisableWebProxy"]; }
+            set { this["DisableWebProxy"] = value; }
+        }
+
         #endregion
 
         #region Loading and saving        
@@ -207,6 +215,7 @@ namespace NetTally
                 options.AllowRankedVotes = AllowRankedVotes;
                 options.GlobalSpoilers = GlobalSpoilers;
                 options.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
+                options.DisableWebProxy = DisableWebProxy;
             }
         }
 
@@ -234,6 +243,7 @@ namespace NetTally
                 AllowRankedVotes = options.AllowRankedVotes;
                 GlobalSpoilers = options.GlobalSpoilers;
                 DisplayPlansWithNoVotes = options.DisplayPlansWithNoVotes;
+                DisableWebProxy = options.DisableWebProxy;
             }
         }
         #endregion
