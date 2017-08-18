@@ -83,7 +83,7 @@ namespace NetTally
             }
             else if (lines.All(a => nominationLineRegex.Match(a).Success))
             {
-                VoteStrings = lines.Select(a => "[X] " + a.Trim()).ToList();
+                VoteStrings = lines.Select(a => $"[X] {nominationLineRegex.Match(a).Groups["username"].Value}").ToList();
 
                 SeparateVoteStrings(VoteStrings);
             }
