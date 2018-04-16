@@ -260,11 +260,16 @@ namespace NetTally.Forums.Adapters
                     var items = channel.Elements(itemName);
 
                     XName titleName = XName.Get("title", "");
+                    XName pubDate = XName.Get("pubDate", "");
 
                     var filteredItems = from item in items
                                         let title = item.Element(titleName).Value
                                         where !((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(title)) ||
                                                 (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
+                                        let pub = item.Element(pubDate).Value
+                                        where string.IsNullOrEmpty(pub) == false
+                                        let pubStamp = DateTime.Parse(pub)
+                                        orderby pubStamp
                                         select item;
 
                     var lastItem = filteredItems.LastOrDefault();
