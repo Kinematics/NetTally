@@ -471,6 +471,7 @@ namespace NetTally
 
         PartitionMode partitionMode = PartitionMode.None;
         bool whitespaceAndPunctuationIsSignificant = false;
+        bool caseIsSignificant = false;
         bool forbidVoteLabelPlanNames = false;
         bool disableProxyVotes = false;
         bool forcePinnedProxyVotes = false;
@@ -502,6 +503,20 @@ namespace NetTally
             set
             {
                 whitespaceAndPunctuationIsSignificant = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Whether or not case is considered significant when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        public bool CaseIsSignificant
+        {
+            get { return caseIsSignificant; }
+            set
+            {
+                caseIsSignificant = value;
                 OnPropertyChanged();
             }
         }

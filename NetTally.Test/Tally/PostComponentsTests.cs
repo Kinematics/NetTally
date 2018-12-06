@@ -192,7 +192,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"- [X] At the top", p.VoteStrings[1]);
+            Assert.AreEqual(@"- [x] At the top", p.VoteStrings[1]);
         }
 
         [TestMethod]
@@ -209,7 +209,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"- - [X] - At the top", p.VoteStrings[1]);
+            Assert.AreEqual(@"- - [x] - At the top", p.VoteStrings[1]);
         }
 
         [TestMethod]
@@ -243,7 +243,7 @@ Additional:
             Assert.IsNotNull(p.VoteStrings);
             Assert.AreEqual(2, p.VoteStrings.Count);
             Assert.AreEqual(@"[x] Ferris wheel", p.VoteStrings[0]);
-            Assert.AreEqual(@"[X] 『i』Teacups『/i』", p.VoteStrings[1]);
+            Assert.AreEqual(@"[x] 『i』Teacups『/i』", p.VoteStrings[1]);
         }
 
         [TestMethod]

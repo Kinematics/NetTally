@@ -50,6 +50,9 @@ namespace NetTally.CLI
         [Option("whitespace", Default = false, HelpText = "Treat whitespace and punctuation as significant.")]
         public bool Whitespace { get; set; }
 
+        [Option("case", Default = false, HelpText = "Treat case as significant (this includes the x in votes).")]
+        public bool Case { get; set; }
+
         [Option("noplanlabels", Default = false, HelpText = "Forbid vote label plan names.")]
         public bool ForbidPlanLabels { get; set; }
 

@@ -46,12 +46,18 @@ namespace NetTally.Utility
         {
             hashFunction = hashFunction ?? DefaultAgnosticHashFunction.HashFunction;
 
-            StringComparer1 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
-            StringComparer2 = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-                CompareOptions.IgnoreSymbols | CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+            StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols |  CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+            // Case Sensitive, Symbols Sensitive.
+            StringComparerCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+            // Case Sensitive, Symbols No Sensitive.
+            StringComparerCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
 
-            currentComparer = StringComparer2;
+            currentComparer = StringComparerNoCaseNoSymbol;
 
             // This function is called by the MainViewModel during construction. Return the event handler we want to attach.
             return MainViewModel_PropertyChanged;
@@ -59,9 +65,13 @@ namespace NetTally.Utility
 
         private static IEqualityComparer<string> currentComparer;
 
-        private static IEqualityComparer<string> StringComparer1 { get; set; }
+        private static IEqualityComparer<string> StringComparerNoCaseSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparer2 { get; set; }
+        private static IEqualityComparer<string> StringComparerNoCaseNoSymbol { get; set; }
+
+        private static IEqualityComparer<string> StringComparerCaseSymbol { get; set; }
+
+        private static IEqualityComparer<string> StringComparerCaseNoSymbol { get; set; }
 
         /// <summary>
         /// Handles the PropertyChanged event of the Main View Model, watching for changes in the
@@ -74,9 +84,25 @@ namespace NetTally.Utility
         {
             if (e.PropertyName.StartsWith("SelectedQuest."))
             {
-                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant"))
+                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
                 {
-                    currentComparer = ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant ?? false ? StringComparer1 : StringComparer2;
+                    if (ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && ViewModelService.MainViewModel.SelectedQuest?.CaseIsSignificant == false)
+                    {
+                        currentComparer = StringComparerNoCaseSymbol;
+                    }
+                    else if (ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && ViewModelService.MainViewModel.SelectedQuest?.CaseIsSignificant == false)
+                    {
+                        currentComparer = StringComparerNoCaseNoSymbol;
+                    }
+                    else if (ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && ViewModelService.MainViewModel.SelectedQuest?.CaseIsSignificant == true)
+                    {
+                        currentComparer = StringComparerCaseSymbol;
+                    }
+                    else if (ViewModelService.MainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && ViewModelService.MainViewModel.SelectedQuest?.CaseIsSignificant == true)
+                    {
+                        currentComparer = StringComparerCaseNoSymbol;
+                    }
+                    else { System.Diagnostics.Debug.WriteLine($"Invalid Compare/Whitespace options set."); }
                 }
             }
         }

@@ -146,6 +146,13 @@ namespace NetTally
             set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
         }
 
+        [ConfigurationProperty("CaseIsSignificant", DefaultValue = false)]
+        public bool CaseIsSignificant
+        {
+            get { return (bool)this["CaseIsSignificant"]; }
+            set { this["CaseIsSignificant"] = value; }
+        }
+
         [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
         public bool ForbidVoteLabelPlanNames
         {

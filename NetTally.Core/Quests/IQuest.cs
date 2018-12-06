@@ -124,6 +124,11 @@ namespace NetTally
         /// </summary>
         bool WhitespaceAndPunctuationIsSignificant { get; set; }
         /// <summary>
+        /// Whether or not case is consider significant when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        bool CaseIsSignificant { get; set; }
+        /// <summary>
         /// Flag whether to allow label lines on votes to be plan names.
         /// </summary>
         bool ForbidVoteLabelPlanNames { get; set; }

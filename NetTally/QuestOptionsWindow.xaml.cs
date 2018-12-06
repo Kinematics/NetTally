@@ -43,6 +43,7 @@ namespace NetTally
         {
             forbidVoteLabelPlanNames.IsChecked = false;
             whitespaceAndPunctuationIsSignificant.IsChecked = false;
+            caseIsSignificant.IsChecked = false;
             disableProxyVotes.IsChecked = false;
             forcePinnedProxyVotes.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
