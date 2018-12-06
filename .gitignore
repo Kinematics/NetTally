@@ -16,3 +16,5 @@
 /NetTally.Test/obj/Release
 /packages
 /NetTally/obj/Debug
+/NetTally/bin/Release
+/NetTally.Core/bin/Release/netstandard1.3

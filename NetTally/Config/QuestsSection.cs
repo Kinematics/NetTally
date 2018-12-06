@@ -193,6 +193,7 @@ namespace NetTally
                         UseCustomPostFilters = questElement.UseCustomPostFilters,
                         CustomPostFilters = questElement.CustomPostFilters,
                         WhitespaceAndPunctuationIsSignificant = questElement.WhitespaceAndPunctuationIsSignificant,
+                        CaseIsSignificant = questElement.CaseIsSignificant,
                         ForbidVoteLabelPlanNames = questElement.ForbidVoteLabelPlanNames,
                         DisableProxyVotes = questElement.DisableProxyVotes,
                         ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
