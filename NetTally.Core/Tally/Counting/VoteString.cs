@@ -592,9 +592,7 @@ namespace NetTally.Votes
         /// the vote content.  If there is no task, the [] is empty.</returns>
         public static string CondenseVote(string rankVote)
         {
-            string prefix, marker, task, content;
-
-            GetVoteComponents(rankVote, out prefix, out marker, out task, out content);
+            GetVoteComponents(rankVote, out string prefix, out string marker, out string task, out string content);
 
             return $"[{task}] {content}";
         }
@@ -632,11 +630,13 @@ namespace NetTally.Votes
 
         public static Dictionary<ReferenceType, List<string>> GetVoteReferenceNamesFromContent(string contents)
         {
-            Dictionary<ReferenceType, List<string>> results = new Dictionary<ReferenceType, List<string>>();
-            results[ReferenceType.Any] = new List<string>();
-            results[ReferenceType.Plan] = new List<string>();
-            results[ReferenceType.Voter] = new List<string>();
-            results[ReferenceType.Label] = new List<string>();
+            Dictionary<ReferenceType, List<string>> results = new Dictionary<ReferenceType, List<string>>
+            {
+                [ReferenceType.Any] = new List<string>(),
+                [ReferenceType.Plan] = new List<string>(),
+                [ReferenceType.Voter] = new List<string>(),
+                [ReferenceType.Label] = new List<string>()
+            };
 
             if (string.IsNullOrEmpty(contents))
                 return results;
