@@ -198,7 +198,7 @@ namespace NetTally.Votes
         /// <returns>Returns the vote line with it's vote markers normalized.</returns>
         private static string NormalizeVoteMakers(string line)
         {
-            line = Regex.Replace(line, @"\[[xX✓✔]\]", "[x]");
+            line = Regex.Replace(line, @"\[\s*[xX✓✔]\s*\]", "[x]");
             return line;
 
         }
