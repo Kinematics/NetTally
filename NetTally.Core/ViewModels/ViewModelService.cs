@@ -54,10 +54,12 @@ namespace NetTally.ViewModels
         }
         public MainViewModel Build()
         {
-            var vm = new MainViewModel(quests, currentQuest, handler, pageProvider, voteCounter, resultsProvider, hashFunction);
+            var vm = new MainViewModel(handler, pageProvider, voteCounter, resultsProvider, hashFunction);
 
             if (MainViewModel == null)
                 MainViewModel = vm;
+
+            vm.InitializeQuests(quests, currentQuest);
 
             return vm;
         }

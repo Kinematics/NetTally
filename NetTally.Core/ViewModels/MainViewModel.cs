@@ -20,24 +20,12 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(QuestCollection quests, string currentQuest,
+        public MainViewModel(
             HttpClientHandler httpClientHandler, IPageProvider pageProvider,
             IVoteCounter voteCounter, ITextResultsProvider textResults,
             Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
             PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
-
-            if (quests != null)
-            {
-                QuestList = quests;
-                QuestList.Sort();
-                SelectQuest(currentQuest);
-            }
-            else
-            {
-                QuestList = new QuestCollection();
-                SelectQuest(null);
-            }
 
             SetupNetwork(pageProvider, httpClientHandler);
             SetupTextResults(textResults);
@@ -160,9 +148,33 @@ namespace NetTally.ViewModels
 
         #region Section: Quest collection
         /// <summary>
+        /// Initializes the quests when defining the view model.
+        /// Must be set separately from the class construction to avoid circular
+        /// references when raising events.
+        /// Takes the provided collection of quests and initializes the ViewModel
+        /// with them.  Sets the current quest, if provided.
+        /// </summary>
+        /// <param name="quests">The quests.</param>
+        /// <param name="currentQuest">The currently selected quest.</param>
+        public void InitializeQuests(QuestCollection quests, string currentQuest)
+        {
+            if (quests != null)
+            {
+                QuestList = quests;
+                QuestList.Sort();
+                SelectQuest(currentQuest);
+            }
+            else
+            {
+                QuestList = new QuestCollection();
+                SelectQuest(null);
+            }
+        }
+
+        /// <summary>
         /// List of quests for binding.
         /// </summary>
-        public QuestCollection QuestList { get; }
+        public QuestCollection QuestList { get; private set; }
 
         /// <summary>
         /// The currently selected quest.
