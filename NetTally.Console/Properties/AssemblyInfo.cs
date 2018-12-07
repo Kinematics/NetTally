@@ -9,7 +9,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wayward Gamers")]
 [assembly: AssemblyProduct("NetTally")]
-[assembly: AssemblyCopyright("Copyright (C) 2015-2017")]
+[assembly: AssemblyCopyright("Copyright (C) 2015-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
