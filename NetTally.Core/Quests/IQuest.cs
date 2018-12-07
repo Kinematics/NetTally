@@ -129,6 +129,10 @@ namespace NetTally
         /// </summary>
         bool CaseIsSignificant { get; set; }
         /// <summary>
+        /// Gets or sets a value indicating whether plans are required to have a label of 'plan' when being referenced.
+        /// </summary>
+        bool ForcePlanReferencesToBeLabeled { get; set; }
+        /// <summary>
         /// Flag whether to allow label lines on votes to be plan names.
         /// </summary>
         bool ForbidVoteLabelPlanNames { get; set; }

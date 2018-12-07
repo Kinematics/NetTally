@@ -472,6 +472,7 @@ namespace NetTally
         PartitionMode partitionMode = PartitionMode.None;
         bool whitespaceAndPunctuationIsSignificant = false;
         bool caseIsSignificant = false;
+        bool forcePlanReferencesToBeLabeled = false;
         bool forbidVoteLabelPlanNames = false;
         bool disableProxyVotes = false;
         bool forcePinnedProxyVotes = false;
@@ -517,6 +518,19 @@ namespace NetTally
             set
             {
                 caseIsSignificant = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        public bool ForcePlanReferencesToBeLabeled
+        {
+            get { return forcePlanReferencesToBeLabeled; }
+            set
+            {
+                forcePlanReferencesToBeLabeled = value;
                 OnPropertyChanged();
             }
         }

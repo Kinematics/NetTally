@@ -153,6 +153,13 @@ namespace NetTally
             set { this["CaseIsSignificant"] = value; }
         }
 
+        [ConfigurationProperty("ForcePlanReferencesToBeLabeled", DefaultValue = false)]
+        public bool ForcePlanReferencesToBeLabeled
+        {
+            get { return (bool)this["ForcePlanReferencesToBeLabeled"]; }
+            set { this["ForcePlanReferencesToBeLabeled"] = value; }
+        }
+
         [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
         public bool ForbidVoteLabelPlanNames
         {
