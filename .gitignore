@@ -1,0 +1,20 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+*.dll
+/NetTally/bin/Debug
+/NetTally/obj/Release
+/NetTally.Console/bin/Debug/netcoreapp1.1
+/NetTally.Console/obj/Debug/netcoreapp1.1
+/NetTally.Console/obj
+/NetTally.Core/bin/Debug/netstandard1.3
+/NetTally.Core/obj
+/NetTally.Test/bin/Debug
+/NetTally.Test/obj/Debug
+/NetTally.Test/obj/Release
+/packages
+/NetTally/obj/Debug
+/NetTally/bin/Release
+/NetTally.Core/bin/Release/netstandard1.3

@@ -132,6 +132,7 @@ namespace NetTally.CLI
             quest.ForcePinnedProxyVotes = options.PinProxy;
             quest.IgnoreSpoilers = options.NoSpoilers;
             quest.WhitespaceAndPunctuationIsSignificant = options.Whitespace;
+            quest.CaseIsSignificant = options.Case;
             quest.TrimExtendedText = options.Trim;
 
             return quest;

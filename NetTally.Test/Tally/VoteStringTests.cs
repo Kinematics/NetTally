@@ -318,8 +318,8 @@ namespace NetTally.Tests
         public void CleanVoteLine_LongSamplePartialColors()
         {
             string line = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb』years『/color』『/i』『color=#ebebeb』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-            string cleanLine = "[X] - Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
-
+            string cleanLine = "[x] - Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            
             Assert.AreEqual(cleanLine, VoteString.CleanVoteLineBBCode(line));
         }
         #endregion

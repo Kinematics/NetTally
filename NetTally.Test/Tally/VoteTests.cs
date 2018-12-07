@@ -102,11 +102,11 @@ namespace NetTally.Tests
         public async Task Vote_Parition_None_1()
         {
             string testVote =
-@"[X]Run";
+@"[x]Run";
 
             List<string> expected = new List<string>
             {
-@"[X]Run
+@"[x]Run
 "
         };
 
@@ -118,12 +118,12 @@ namespace NetTally.Tests
         {
 
             string testVote =
-@"[X] Run
+@"[x] Run
 [x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X] Run
+@"[x] Run
 [x] Kill
 "
         };
@@ -135,13 +135,13 @@ namespace NetTally.Tests
         public async Task Vote_Parition_None_3()
         {
             string testVote =
-@"[X] Ambush
--[X] Kill";
+@"[x] Ambush
+-[x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X] Ambush
--[X] Kill
+@"[x] Ambush
+-[x] Kill
 "
         };
 
@@ -152,11 +152,11 @@ namespace NetTally.Tests
         public async Task Vote_Parition_None_WithTask_1()
         {
             string testVote =
-@"[X][Plan]Run";
+@"[x][Plan]Run";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan]Run
+@"[x][Plan]Run
 "
         };
 
@@ -167,12 +167,12 @@ namespace NetTally.Tests
         public async Task Vote_Parition_None_WithTask_2()
         {
             string testVote =
-@"[X][Plan] Run
+@"[x][Plan] Run
 [x][Plan] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan] Run
+@"[x][Plan] Run
 [x][Plan] Kill
 "
         };
@@ -184,13 +184,13 @@ namespace NetTally.Tests
         public async Task Vote_Parition_None_WithTask_3()
         {
             string testVote =
-@"[X][Plan] Ambush
--[X] Kill";
+@"[x][Plan] Ambush
+-[x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan] Ambush
--[X] Kill
+@"[x][Plan] Ambush
+-[x] Kill
 "
         };
 
@@ -204,11 +204,11 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X]Run";
+@"[x]Run";
 
             List<string> expected = new List<string>
             {
-@"[X]Run
+@"[x]Run
 "
         };
 
@@ -221,12 +221,12 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X] Run
+@"[x] Run
 [x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X] Run
+@"[x] Run
 ",
 @"[x] Kill
 "
@@ -241,14 +241,14 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X] Ambush
--[X] Kill";
+@"[x] Ambush
+-[x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X] Ambush
+@"[x] Ambush
 ",
-@"-[X] Kill
+@"-[x] Kill
 "
         };
 
@@ -261,11 +261,11 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X][Plan]Run";
+@"[x][Plan]Run";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan]Run
+@"[x][Plan]Run
 "
         };
 
@@ -278,12 +278,12 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X][Plan] Run
+@"[x][Plan] Run
 [x][Plan] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan] Run
+@"[x][Plan] Run
 ",
 @"[x][Plan] Kill
 "
@@ -298,14 +298,14 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X][Plan] Ambush
--[X] Kill";
+@"[x][Plan] Ambush
+-[x] Kill";
 
             List<string> expected = new List<string>
             {
-@"[X][Plan] Ambush
+@"[x][Plan] Ambush
 ",
-@"-[X] Kill
+@"-[x] Kill
 "
         };
 
@@ -319,20 +319,20 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByLine;
 
             string testVote =
-@"[X][Action] Ambush
-[X][Decision] Kill
-[X] Run
-[X] Report";
+@"[x][Action] Ambush
+[x][Decision] Kill
+[x] Run
+[x] Report";
 
             List<string> expected = new List<string>
             {
-@"[X][Action] Ambush
+@"[x][Action] Ambush
 ",
-@"[X][Decision] Kill
+@"[x][Decision] Kill
 ",
-@"[X] Run
+@"[x] Run
 ",
-@"[X] Report
+@"[x] Report
 "
             };
 
@@ -346,11 +346,11 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X] Ambush";
+@"[x] Ambush";
 
             List<string> expected = new List<string>
             {
-@"[X] Ambush
+@"[x] Ambush
 "
             };
 
@@ -363,14 +363,14 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X] Ambush
-[X] Run";
+@"[x] Ambush
+[x] Run";
 
             List<string> expected = new List<string>
             {
-@"[X] Ambush
+@"[x] Ambush
 ",
-@"[X] Run
+@"[x] Run
 "
             };
 
@@ -384,16 +384,16 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X] Ambush
--[X] Kill
-[X] Run";
+@"[x] Ambush
+-[x] Kill
+[x] Run";
 
             List<string> expected = new List<string>(3)
             {
-@"[X] Ambush
--[X] Kill
+@"[x] Ambush
+-[x] Kill
 ",
-@"[X] Run
+@"[x] Run
 "
             };
 
@@ -406,11 +406,11 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X][Action] Ambush";
+@"[x][Action] Ambush";
 
             List<string> expected = new List<string>
             {
-@"[X][Action] Ambush
+@"[x][Action] Ambush
 "
             };
 
@@ -423,14 +423,14 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X][Action] Ambush
-[X] Run";
+@"[x][Action] Ambush
+[x] Run";
 
             List<string> expected = new List<string>
             {
-@"[X][Action] Ambush
+@"[x][Action] Ambush
 ",
-@"[X] Run
+@"[x] Run
 "
             };
 
@@ -444,16 +444,16 @@ namespace NetTally.Tests
             sampleQuest.PartitionMode = PartitionMode.ByBlock;
 
             string testVote =
-@"[X][Action] Ambush
--[X] Kill
-[X] Run";
+@"[x][Action] Ambush
+-[x] Kill
+[x] Run";
 
             List<string> expected = new List<string>(3)
             {
-@"[X][Action] Ambush
--[X] Kill
+@"[x][Action] Ambush
+-[x] Kill
 ",
-@"[X] Run
+@"[x] Run
 "
             };
 
@@ -467,22 +467,22 @@ namespace NetTally.Tests
         public async Task Vote_Parition_BlockAll_WithTasks_1()
         {
             string testVote =
-@"[X][Action] Plan One
--[X] Ambush
--[X][Decision] Kill
--[X] Run
-[X] Plan Two
--[X] Report";
+@"[x][Action] Plan One
+-[x] Ambush
+-[x][Decision] Kill
+-[x] Run
+[x] Plan Two
+-[x] Report";
 
             List<string> expected = new List<string>(3)
             {
-@"[X][Action] Ambush
+@"[x][Action] Ambush
 ",
-@"[X][Decision] Kill
+@"[x][Decision] Kill
 ",
-@"[X][Action] Run
+@"[x][Action] Run
 ",
-@"[X] Report
+@"[x] Report
 "
             };
 
@@ -503,13 +503,13 @@ namespace NetTally.Tests
         {
             List<string> votes = new List<string>
             {
-@"[X]Run",
-@"[X] User1"
+@"[x]Run",
+@"[x] User1"
             };
 
             List<string> expected = new List<string>
             {
-@"[X]Run
+@"[x]Run
 "
             };
 
@@ -523,18 +523,18 @@ namespace NetTally.Tests
         {
             List<string> votes = new List<string>
             {
-@"[X] Stuff
-[X] More Stuff
--[X] Yet more stuff",
-@"[X] User1"
+@"[x] Stuff
+[x] More Stuff
+-[x] Yet more stuff",
+@"[x] User1"
             };
 
 
             List<string> expected = new List<string>
             {
-@"[X] Stuff
-[X] More Stuff
--[X] Yet more stuff
+@"[x] Stuff
+[x] More Stuff
+-[x] Yet more stuff
 "
             };
 
@@ -548,19 +548,19 @@ namespace NetTally.Tests
         {
             List<string> votes = new List<string>
             {
-@"[X] Plan Dodgy
--[X] More Stuff
--[X] Yet more stuff",
-@"[X] User1",
-@"[X] Dodgy"
+@"[x] Plan Dodgy
+-[x] More Stuff
+-[x] Yet more stuff",
+@"[x] User1",
+@"[x] Dodgy"
             };
 
 
             List<string> expected = new List<string>
             {
-@"[X] Plan Dodgy
--[X] More Stuff
--[X] Yet more stuff
+@"[x] Plan Dodgy
+-[x] More Stuff
+-[x] Yet more stuff
 "
             };
 
@@ -574,19 +574,19 @@ namespace NetTally.Tests
         {
             List<string> votes = new List<string>
             {
-@"[X] Plan User1
--[X] More Stuff
--[X] Yet more stuff",
-@"[X] Plan User1",
-@"[X] User 1"
+@"[x] Plan User1
+-[x] More Stuff
+-[x] Yet more stuff",
+@"[x] Plan User1",
+@"[x] User 1"
             };
 
 
             List<string> expected = new List<string>
             {
-@"[X] Plan User1
--[X] More Stuff
--[X] Yet more stuff
+@"[x] Plan User1
+-[x] More Stuff
+-[x] Yet more stuff
 "
             };
 
@@ -600,21 +600,21 @@ namespace NetTally.Tests
         {
             List<string> votes = new List<string>
             {
-@"[X] Plan User1
--[X] More Stuff
--[X] Yet more stuff",
-@"[X] Plan User1
--[X] More Stuff
--[X] Yet more stuff",
-@"[X] User 1"
+@"[x] Plan User1
+-[x] More Stuff
+-[x] Yet more stuff",
+@"[x] Plan User1
+-[x] More Stuff
+-[x] Yet more stuff",
+@"[x] User 1"
             };
 
 
             List<string> expected = new List<string>
             {
-@"[X] Plan User1
--[X] More Stuff
--[X] Yet more stuff
+@"[x] Plan User1
+-[x] More Stuff
+-[x] Yet more stuff
 "
             };
 

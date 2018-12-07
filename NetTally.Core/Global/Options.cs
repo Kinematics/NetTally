@@ -46,6 +46,7 @@ namespace NetTally
         [Obsolete("Invert usage")]
         bool ignoreSymbols = true;
         bool whitespaceAndPunctuationIsSignificant = false;
+        bool caseIsSignificant = false;
         bool disableProxyVotes = false;
         bool forcePinnedProxyVotes = false;
         bool ignoreSpoilers = false;
@@ -64,6 +65,7 @@ namespace NetTally
         public const string _rankVoteCounterMethod = "rankVoteCounterMethod";
         public const string _forbidVoteLabelPlanNames = "forbidVoteLabelPlanNames";
         public const string _whitespaceAndPunctuationIsSignificant = "whitespaceAndPunctuationIsSignificant";
+        public const string _caseIsSignificant = "caseIsSignificant";
         public const string _disableProxyVotes = "disableProxyVotes";
         public const string _forcePinnedProxyVotes = "forcePinnedProxyVotes";
         public const string _ignoreSpoilers = "ignoreSpoilers";

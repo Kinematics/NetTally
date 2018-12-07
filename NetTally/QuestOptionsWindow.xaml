@@ -161,7 +161,19 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
-                    <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,116,0,0" VerticalAlignment="Top"
+                    <CheckBox Grid.Column="0" x:Name="caseIsSignificant" Content="Case is Significant" HorizontalAlignment="Left" Margin="10,115,0,0" VerticalAlignment="Top"
+                        IsChecked="{Binding SelectedQuest.CaseIsSignificant}" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Case is Significant"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, this makes the comparison case sensitive"/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.ForbidVoteLabelPlanNames}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -174,7 +186,7 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
-                    <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,137,0,0" VerticalAlignment="Top"
+                    <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes" HorizontalAlignment="Left" Margin="10,155,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.DisableProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -186,7 +198,7 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
-                    <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes" HorizontalAlignment="Left" Margin="10,158,0,0" VerticalAlignment="Top"
+                    <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes" HorizontalAlignment="Left" Margin="10,176,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.ForcePinnedProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -198,7 +210,7 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
-                    <CheckBox Grid.Column="0" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,179,0,0" VerticalAlignment="Top"
+                    <CheckBox Grid.Column="0" x:Name="ignoreSpoilers" Content="Ignore Spoilers" HorizontalAlignment="Left" Margin="10,197,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.IgnoreSpoilers}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -210,7 +222,7 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
-                    <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top"
+                    <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions" HorizontalAlignment="Left" Margin="10,218,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.TrimExtendedText}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -224,7 +236,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
 
-                    <CheckBox Grid.Column="0" x:Name="useRSSThreadmarks" Content="Use RSS Threadmarks" HorizontalAlignment="Left" Margin="10,233,0,0" VerticalAlignment="Top"
+                    <CheckBox Grid.Column="0" x:Name="useRSSThreadmarks" Content="Use RSS Threadmarks" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"
                               IsChecked="{Binding Path=SelectedQuest.UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
                         <CheckBox.ToolTip>
                             <ToolTip>

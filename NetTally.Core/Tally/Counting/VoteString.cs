@@ -109,12 +109,15 @@ namespace NetTally.Votes
         /// <summary>
         /// Remove BBCode from the precontent area of a vote line, while leaving it in the content area.
         /// Unmatched tags are either removed (for extra ending tags) or closed (for extra opening tags).
+        /// Vote Markers are also normalized to [x].
         /// </summary>
         /// <param name="line">A vote line.</param>
         /// <returns>Returns the vote line cleaned up of BBCode.</returns>
         public static string CleanVoteLineBBCode(string line)
         {
             line = StripPrecontentBBCode(line);
+
+            line = NormalizeVoteMakers(line);
 
             line = NormalizeContentBBCode(line);
 
@@ -186,6 +189,18 @@ namespace NetTally.Votes
             sb.Append(remainder);
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Normalize all vote markers to [x]
+        /// </summary>
+        /// <param name="line">The vote line to modify.</param>
+        /// <returns>Returns the vote line with it's vote markers normalized.</returns>
+        private static string NormalizeVoteMakers(string line)
+        {
+            line = Regex.Replace(line, @"\[[xX✓✔]\]", "[x]");
+            return line;
+
         }
 
         /// <summary>
