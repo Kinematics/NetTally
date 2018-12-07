@@ -25,8 +25,8 @@ namespace NetTally.CLI
             arguements.WithParsed(o => RunWithOptions(o));
 
 #if DEBUG
-            Console.WriteLine("Press enter to close...");
-            Console.ReadLine();
+            //Console.WriteLine("Press enter to close...");
+            //Console.ReadLine();
 #endif
         }
         #endregion
