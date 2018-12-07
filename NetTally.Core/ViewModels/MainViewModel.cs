@@ -229,6 +229,10 @@ namespace NetTally.ViewModels
             if (quest != null)
             {
                 quest.PropertyChanged += SelectedQuest_PropertyChanged;
+
+                // Some quest properties need to raise events on quest binding.
+                OnPropertyChanged($"SelectedQuest.{nameof(IQuest.CaseIsSignificant)}");
+                OnPropertyChanged($"SelectedQuest.{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}");
             }
         }
 
