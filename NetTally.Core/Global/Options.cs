@@ -46,7 +46,6 @@ namespace NetTally
         [Obsolete("Invert usage")]
         bool ignoreSymbols = true;
         bool whitespaceAndPunctuationIsSignificant = false;
-        bool caseIsSignificant = false;
         bool disableProxyVotes = false;
         bool forcePinnedProxyVotes = false;
         bool ignoreSpoilers = false;
