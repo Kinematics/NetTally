@@ -88,6 +88,8 @@ namespace NetTally
             try
             {
                 System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+                System.Net.ServicePointManager.Expect100Continue = true;
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
                 mainViewModel = ViewModelService.Instance
                     .Configure(quests, currentQuest)
