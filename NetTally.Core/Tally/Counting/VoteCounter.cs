@@ -333,7 +333,7 @@ namespace NetTally.VoteCounting
             if (votes.ContainsKey(vote))
                 return votes[vote];
 
-            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            return new HashSet<string>(Agnostic.StringComparer);
         }
 
         /// <summary>
