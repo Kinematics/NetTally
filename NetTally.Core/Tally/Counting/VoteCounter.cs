@@ -1134,13 +1134,16 @@ namespace NetTally.VoteCounting
         {
             bool removedAny = false;
 
-            var votes = GetVotesCollection(voteType);
-
-            // Remove the voter from any existing votes
-            foreach (var vote in votes)
+            if (voteType != VoteType.Plan)
             {
-                if (vote.Value.Remove(voter))
-                    removedAny = true;
+                var votes = GetVotesCollection(voteType);
+
+                // Remove the voter from any existing votes
+                foreach (var vote in votes)
+                {
+                    if (vote.Value.Remove(voter))
+                        removedAny = true;
+                }
             }
 
             return removedAny;
