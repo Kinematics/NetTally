@@ -365,56 +365,66 @@ namespace NetTally.VoteCounting
 
             string proxyName = null;
 
-            if (referenceNames[ReferenceType.Label].Any())
+
+            // Label ^ or 'pin' means it must be a user reference.
+            // Label 'plan' means it might be user or plan reference.
+
+            if (referenceNames[ReferenceType.Label].Contains("plan"))
             {
-                // If there is a "plan" prefix, then if it's a user reference,
-                // check for a ◈plan before checking for the user's base vote.
+                // If it's labeled as a 'plan', check plans first, then users.
 
                 // If the reference exists as a plan, use it.
                 if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
                 {
-                    // If this is not a user name, get the plan name as the proxy reference.
+                    // Get the plan name from the recorded plan names collection.
                     proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan]
                         .Contains(VoteString.DeUrlContent(VoteString.RemoveBBCode(p)), Agnostic.StringComparer));
                 }
-                else if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.StringComparer))
+                // If it doesn't exist as a plan, then we can check for users, as long as the quest hasn't disabled proxy votes.
+                else if (!Quest.DisableProxyVotes &&
+                        ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.InsensitiveComparer))
                 {
-                    // If it doesn't exist as a plan, then we can check for users.
-                    if (!Quest.DisableProxyVotes)
-                    {
-                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.StringComparer));
+                    proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.InsensitiveComparer));
 
-                        if (proxyName == author)
-                            proxyName = null;
-                    }
+                    // But don't allow self-references.  Some user names conflict with normal vote lines.
+                    if (proxyName == author)
+                        proxyName = null;
                 }
             }
             else
             {
-                // If there is no "plan" prefix, and if the plan name is a user
-                // reference, it may only refer to that user's vote as a whole.
+                // If it's not labeled as a 'plan', then it's either a pin or an unlabeled reference.
+                // Either way, check for users first.
 
-                // If this matches a user name, get that user name as the proxy reference.
-                if (ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.StringComparer))
+                // See if any voter names match the line (as long as we're allowing proxy votes).  If so, use that.
+                if (!Quest.DisableProxyVotes &&
+                    ReferenceVoters.Contains(referenceNames[ReferenceType.Voter].First(), Agnostic.InsensitiveComparer))
                 {
-                    if (!Quest.DisableProxyVotes)
-                    {
-                        proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.StringComparer));
+                    proxyName = ReferenceVoters.First(n => referenceNames[ReferenceType.Voter].Contains(n, Agnostic.InsensitiveComparer));
 
-                        if (proxyName == author)
-                            proxyName = null;
-                    }
+                    // And make sure it's not the user using their own name.  Some user names conflict with normal vote lines.
+                    if (proxyName == author)
+                        proxyName = null;
                 }
-                else if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
+                // If a user isn't found, only check for regular plans if there's not a non-plan label being used,
+                // but not if the quest requires plan vote lines to be labeled.
+                else if (!Quest.ForcePlanReferencesToBeLabeled && !referenceNames[ReferenceType.Label].Any())
                 {
-                    // If this is not a user name, get the plan name as the proxy reference.
-                    proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan].Contains(p, Agnostic.StringComparer));
+                    if (referenceNames[ReferenceType.Plan].Any() && HasPlan(referenceNames[ReferenceType.Plan].First()))
+                    {
+                        // Get the plan name from the recorded plan names collection.
+                        proxyName = PlanNames.First(p => referenceNames[ReferenceType.Plan]
+                            .Contains(VoteString.DeUrlContent(VoteString.RemoveBBCode(p)), Agnostic.StringComparer));
+                    }
                 }
             }
 
             if (!string.IsNullOrEmpty(proxyName))
             {
                 var planVotes = VotesWithSupporters.Where(v => v.Value.Contains(proxyName));
+
+                if (planVotes.Count() > 1)
+                    planVotes = VotesWithSupporters.Where(v => v.Value.Contains(proxyName, Agnostic.StringComparer));
 
                 results.AddRange(planVotes.Select(v => v.Key));
             }
