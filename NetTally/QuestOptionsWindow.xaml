@@ -107,7 +107,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <TextBlock x:Name="describeCustomPostFilters" Margin="29,273,11,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                               Text="Do not include votes from the specified post numbers or IDs in the tally." />
+                               Text="Do not include votes with the specified post numbers or IDs in the tally." />
                     <TextBox x:Name="customPostFilters" Height="23" Margin="30,294,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
                              Text="{Binding SelectedQuest.CustomPostFilters}" IsEnabled="{Binding IsChecked, ElementName=useCustomPostFilters}">
                         <TextBox.ToolTip>
