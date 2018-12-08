@@ -53,13 +53,7 @@ namespace NetTally.VoteCounting
 
         public Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public HashSet<string> ReferencePlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        public Dictionary<string, List<string>> ReferencePlans { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-
         public HashSet<PostComponents> FutureReferences { get; } = new HashSet<PostComponents>();
-
-        public HashSet<string> PlanNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
@@ -101,6 +95,12 @@ namespace NetTally.VoteCounting
 
         public Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; private set; } = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
 
+        public HashSet<string> ReferencePlanNames { get; private set; } = new HashSet<string>(Agnostic.StringComparer);
+
+        public Dictionary<string, List<string>> ReferencePlans { get; private set; } = new Dictionary<string, List<string>>(Agnostic.StringComparer);
+
+        public HashSet<string> PlanNames { get; private set; } = new HashSet<string>(Agnostic.StringComparer);
+
         #endregion
 
         #region Basic reset & tally
@@ -133,6 +133,12 @@ namespace NetTally.VoteCounting
                 VotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
             if (RankedVotesWithSupporters.Comparer != Agnostic.StringComparer)
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
+            if (ReferencePlans.Comparer != Agnostic.StringComparer)
+                ReferencePlans = new Dictionary<string, List<string>>(Agnostic.StringComparer);
+            if (ReferencePlanNames.Comparer != Agnostic.StringComparer)
+                ReferencePlanNames = new HashSet<string>(Agnostic.StringComparer);
+            if (PlanNames.Comparer != Agnostic.StringComparer)
+                PlanNames = new HashSet<string>(Agnostic.StringComparer);
 
             OnPropertyChanged("VoteCounter");
             OnPropertyChanged("Tasks");
