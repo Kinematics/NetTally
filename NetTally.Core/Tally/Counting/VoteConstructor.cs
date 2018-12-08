@@ -511,7 +511,7 @@ namespace NetTally.Votes
         #region Utility functions for processing votes.
 
         /// <summary>
-        /// Determine if there are any references to future (unprocessed) votes
+        /// Determine if there are any references to future (unprocessed) user votes
         /// within the current vote.
         /// </summary>
         /// <param name="post">Post containing the current vote.</param>
