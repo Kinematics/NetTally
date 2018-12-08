@@ -37,6 +37,51 @@ namespace NetTally.Utility
         }
 
         /// <summary>
+        /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
+        /// </value>
+        public static IEqualityComparer<string> QuestSensitiveStringComparer
+        {
+            get
+            {
+                if (currentComparer == null)
+                    HashStringsUsing(null);
+
+                if (ViewModelService.MainViewModel?.SelectedQuest is IQuest quest)
+                {
+                    if (quest.WhitespaceAndPunctuationIsSignificant)
+                    {
+                        if (quest.CaseIsSignificant)
+                        {
+                            return StringComparerCaseSymbol;
+                        }
+                        else
+                        {
+                            return StringComparerNoCaseSymbol;
+                        }
+                    }
+                    else
+                    {
+                        if (quest.CaseIsSignificant)
+                        {
+                            return StringComparerCaseNoSymbol;
+                        }
+                        else
+                        {
+                            return StringComparerNoCaseNoSymbol;
+                        }
+                    }
+                }
+
+                return currentComparer;
+            }
+        }
+
+        /// <summary>
+        /// Gets a string comparer object that ignores case and symbols.
+        /// </summary>
+        public static IEqualityComparer<string> InsensitiveComparer => StringComparerNoCaseNoSymbol;
+
+        /// <summary>
         /// Initialize the agnostic string comparers using the provided hash function.
         /// Injects the function from the non-PCL assembly, to get around PCL limitations.
         /// MUST be run before other objects are constructed.
