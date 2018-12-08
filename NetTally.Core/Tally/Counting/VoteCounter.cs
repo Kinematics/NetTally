@@ -563,8 +563,6 @@ namespace NetTally.VoteCounting
                 PlanNames.Add(voter);
             }
 
-            var votes = GetVotesCollection(voteType);
-
             // Remove the voter from any existing votes
             if (RemoveSupport(voter, voteType))
                 OnPropertyChanged("Voters");
