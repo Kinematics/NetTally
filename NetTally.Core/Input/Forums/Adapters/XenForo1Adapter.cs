@@ -577,9 +577,9 @@ namespace NetTally.Forums.Adapters
 
                 if (listOfThreadmarks != null)
                 {
-                    Predicate<HtmlNode> filterLambda = (n) =>
-                        (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
-                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText));
+                    Predicate<HtmlNode> filterLambda = (n) => n != null &&
+                        ((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
+                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
 
                     Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
 
