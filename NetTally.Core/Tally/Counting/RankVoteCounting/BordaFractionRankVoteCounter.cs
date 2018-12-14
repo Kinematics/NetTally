@@ -38,7 +38,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
             RankResults results = new RankResults();
 
             results.AddRange(orderedVotes.Select(a =>
-                new RankResult(a.Vote, $"BordaFraction: [{a.Rank:f5}]")));
+                new RankResult(a.Vote ?? "~Unknown", $"BordaFraction: [{a.Rank:f5}]")));
 
             return results;
         }
