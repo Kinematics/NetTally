@@ -247,7 +247,7 @@ namespace NetTally.Forums.Adapters
             {
                 // try for RSS stream
                 XDocument rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
-                    ShouldCache.No, SuppressNotifications.No, token).ConfigureAwait(false);
+                    ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
                 if (rss.Root.Name == "rss")
                 {
@@ -313,7 +313,7 @@ namespace NetTally.Forums.Adapters
 
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
-                ShouldCache.No, SuppressNotifications.No, token).ConfigureAwait(false);
+                ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
                 return new ThreadRangeInfo(true, quest.StartPost);
