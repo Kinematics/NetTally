@@ -33,7 +33,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
                 for (int i = 1; i <= 9; i++)
                 {
-                    RankResult winner = GetWinningVote(voterRankings, winningChoices, allChoices);
+                    RankResult? winner = GetWinningVote(voterRankings, winningChoices, allChoices);
    
                     if (winner == null)
                         break;
@@ -59,7 +59,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns the winning vote.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        private RankResult GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, List<string> allChoices)
+        private RankResult? GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices, List<string> allChoices)
         {
             if (voterRankings == null)
                 throw new ArgumentNullException(nameof(voterRankings));
