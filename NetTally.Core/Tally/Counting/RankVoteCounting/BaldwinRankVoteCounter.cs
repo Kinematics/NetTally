@@ -14,35 +14,6 @@ namespace NetTally.VoteCounting.RankVoteCounting
     class BaldwinRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
-        /// Local class to store a choice/count combo of fields for LINQ.
-        /// </summary>
-        protected class ChoiceCount
-        {
-            public string Choice { get; }
-            public int Count { get; }
-
-            public ChoiceCount(string choice, int count)
-            {
-                Choice = choice;
-                Count = count;
-            }
-
-            public override string ToString() => $"{Choice}: {Count}";
-        }
-
-        protected class VoteScore
-        {
-            public string Vote { get; }
-            public double Score { get; }
-
-            public VoteScore(string vote, double score)
-            {
-                Vote = vote;
-                Score = score;
-            }
-        }
-
-        /// <summary>
         /// Implementation to generate the ranking list for the provided set
         /// of votes for a specific task.
         /// </summary>
@@ -110,7 +81,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 if (!preferredVotes.Any())
                     break;
 
-                ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
+                CountedChoice best = preferredVotes.MaxObject(a => a.Count);
 
                 if (best.Count >= winCount)
                     return new RankResult(best.Choice, $"Baldwin Eliminations: [{eliminated}]");
@@ -189,11 +160,11 @@ namespace NetTally.VoteCounting.RankVoteCounting
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(localRankings);
 
             var rankedVotes = from vote in groupVotes
-                              select new VoteScore(vote.VoteContent, RankScoring.LowerWilsonScore(vote.Ranks));
+                              select new RatedVote(vote.VoteContent, RankScoring.LowerWilsonScore(vote.Ranks));
 
-            var worstVote = rankedVotes.MinObject(a => a.Score);
+            var worstVote = rankedVotes.MinObject(a => a.Rating);
 
-            Debug.Write($"({worstVote.Score:f5}) {worstVote.Vote}");
+            Debug.Write($"({worstVote.Rating:f5}) {worstVote.Vote}");
 
             return worstVote.Vote;
         }
@@ -204,13 +175,13 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private static IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
+        private static IEnumerable<CountedChoice> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = voter.RankedVotes.FirstOrDefault()?.Vote
                                  where preferred != null
                                  group voter by preferred into preffed
-                                 select new ChoiceCount(preffed.Key, preffed.Count());
+                                 select new CountedChoice(preffed.Key, preffed.Count());
 
             return preferredVotes;
         }

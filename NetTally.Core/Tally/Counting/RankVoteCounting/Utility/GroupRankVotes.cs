@@ -17,8 +17,14 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
     class RatedVote
     {
-        public string Vote { get; set; }
-        public double Rating { get; set; }
+        public string Vote { get; }
+        public double Rating { get; }
+
+        public RatedVote(string vote, double rating)
+        {
+            Vote = vote;
+            Rating = rating;
+        }
     }
 
     class VoterRankings
@@ -38,6 +44,21 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         public string VoteContent { get; set; }
         public IEnumerable<RankedVoters> Ranks { get; set; }
     }
+
+    class CountedChoice
+    {
+        public string Choice { get; }
+        public int Count { get; }
+
+        public CountedChoice(string choice, int count)
+        {
+            Choice = choice;
+            Count = count;
+        }
+
+        public override string ToString() => $"{Choice}: {Count}";
+    }
+
 
     /// <summary>
     /// Static class to take known input lists and convert them to an
