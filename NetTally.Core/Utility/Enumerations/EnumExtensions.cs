@@ -35,12 +35,9 @@ namespace NetTally.Extensions
         /// <typeparam name="T">The enum type being examined.</typeparam>
         /// <param name="description">The text description we're trying to find an enum for.</param>
         /// <returns>Returns the enum matching the description, or the default enum value.</returns>
-        public static T GetValueFromDescription<T>(string description)
+        public static T GetValueFromDescription<T>(string description) where T : struct, Enum
         {
             var typeInfo = typeof(T).GetTypeInfo();
-
-            if (!typeInfo.IsEnum)
-                throw new InvalidOperationException();
 
             foreach (var fieldInfo in typeInfo.DeclaredFields)
             {
@@ -52,7 +49,7 @@ namespace NetTally.Extensions
                 }
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -60,14 +57,9 @@ namespace NetTally.Extensions
         /// </summary>
         /// <typeparam name="T">The enum type to create a list for.</typeparam>
         /// <returns>Returns an IEnumerable list of enum values.</returns>
-        public static IEnumerable<T> EnumToList<T>()
+        public static IEnumerable<T> EnumToList<T>() where T : struct, Enum
         {
             Type enumType = typeof(T);
-
-            // Can't use generic type constraints on value types,
-            // so have to do check like this
-            if (enumType.GetTypeInfo().BaseType != typeof(Enum))
-                throw new ArgumentException("T must be of type System.Enum");
 
             return Enum.GetValues(enumType).OfType<T>();
         }
@@ -77,7 +69,7 @@ namespace NetTally.Extensions
         /// </summary>
         /// <typeparam name="T">The enum type to create a list for.</typeparam>
         /// <returns>Returns a list of string descriptions for an enum type.</returns>
-        public static IEnumerable<string> EnumDescriptionsList<T>()
+        public static IEnumerable<string> EnumDescriptionsList<T>() where T : struct, Enum
         {
             var enumDescrips = from Enum e in EnumToList<T>()
                                select e.GetDescription();
