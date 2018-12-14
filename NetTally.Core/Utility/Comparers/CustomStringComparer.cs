@@ -75,23 +75,18 @@ namespace NetTally.Comparers
             if (ReferenceEquals(x, y))
                 return true;
 
-            string? xs = x as string;
-            string? ys = y as string;
+            if (x is string xx && y is string yy)
+                return Compare(xx, yy) == 0;
 
-            if (xs is null || ys is null)
-                return false;
-
-            return Compare(xs, ys) == 0;
+            return false;
         }
 
         int IEqualityComparer.GetHashCode(object obj)
         {
-            string? str = obj as string;
-
-            if (str is null)
-                return 0;
-            else
+            if (obj is string str)
                 return GetHashCode(str);
+
+            return 0;
         }
     }
 }
