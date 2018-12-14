@@ -28,8 +28,6 @@ namespace NetTally.Extensions
         /// </exception>
         public static bool HasClass(this HtmlNode node, string @class)
         {
-            if (node == null)
-                throw new ArgumentNullException(nameof(node));
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
@@ -46,10 +44,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
         /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
-        public static HtmlNode GetChildWithClass(this HtmlNode node, string element, string @class)
+        public static HtmlNode GetChildWithClass(this HtmlNode node, string? element, string @class)
         {
-            if (node == null)
-                throw new ArgumentNullException(nameof(node));
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
@@ -81,10 +77,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
         /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
-        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string element, string @class)
+        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string? element, string @class)
         {
-            if (node == null)
-                throw new ArgumentNullException(nameof(node));
             if (string.IsNullOrEmpty(@class))
                 throw new ArgumentNullException(nameof(@class));
 
