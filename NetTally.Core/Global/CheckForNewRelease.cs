@@ -27,7 +27,7 @@ namespace NetTally.Utility
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -82,7 +82,7 @@ namespace NetTally.Utility
             Version currentVersion = ProductInfo.FileVersion;
             Version latestVersion = await GetLatestVersionAsync().ConfigureAwait(false);
 
-            if (currentVersion == null || latestVersion == null)
+            if (currentVersion == null)
                 return;
 
             if (latestVersion.CompareTo(currentVersion) > 0)
@@ -97,7 +97,7 @@ namespace NetTally.Utility
         /// <returns>Returns the current version string.</returns>
         private async Task<Version> GetLatestVersionAsync()
         {
-            Version latestVersion = null;
+            Version latestVersion = new Version();
 
             string latestVersionString = await GetLatestVersionStringAsync().ConfigureAwait(false);
 
@@ -141,10 +141,9 @@ namespace NetTally.Utility
         /// or null if it fails to load.</returns>
         private async Task<HtmlDocument> GetLatestReleasePageAsync()
         {
-            HtmlDocument doc = null;
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;
