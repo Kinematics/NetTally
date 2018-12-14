@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Utility;
 
@@ -328,6 +329,18 @@ and then another";
 
             Assert.AreEqual("Kinematics walks down the road.", safe);
         }
+        #endregion
+
+        #region Agnostic hash comparisons
+        [TestMethod]
+        public void AgnosticHash_1()
+        {
+            int result1 = Agnostic.DefaultHashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = Agnostic.DefaultHashFunction("Kinematics ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+
+            Assert.AreEqual(result1, result2);
+        }
+
         #endregion
 
     }
