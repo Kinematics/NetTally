@@ -17,16 +17,41 @@ namespace NetTally.Platform
         /// Public function to log either a text message or an exception, or both.
         /// </summary>
         /// <param name="message">The message to log.</param>
-        /// <param name="exception">The exception to log.</param>
         /// <param name="callingMethod">The method that made the request to log the error.</param>
-        /// <returns>Returns the name of the file the log was saved in.</returns>
-        public bool Log(string message, Exception exception = null, IClock clock = null, [CallerMemberName] string callingMethod = "")
+        /// <returns>Returns true if the error was logged.</returns>
+        public bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown")
         {
             try
             {
-                if (clock == null)
-                    clock = new SystemClock();
+                LastLogLocation = GetLogFilename(clock);
+                if (string.IsNullOrEmpty(LastLogLocation))
+                    return false;
 
+                string output = ComposeOutput(callingMethod, message, null, clock);
+                if (output == null)
+                    return false;
+
+                File.AppendAllText(LastLogLocation, output);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Public function to log either a text message or an exception, or both.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="exception">The exception to log.</param>
+        /// <param name="callingMethod">The method that made the request to log the error.</param>
+        /// <returns>Returns true if the error was logged.</returns>
+        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown")
+        {
+            try
+            {
                 LastLogLocation = GetLogFilename(clock);
                 if (string.IsNullOrEmpty(LastLogLocation))
                     return false;

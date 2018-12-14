@@ -105,7 +105,13 @@ namespace TallyUnitTest.General
     {
         public string LogMessage { get; set; }
 
-        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = null)
+        public bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown")
+        {
+            LogMessage = message;
+            return true;
+        }
+
+        public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown")
         {
             LogMessage = message;
             return true;
