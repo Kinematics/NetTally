@@ -5,132 +5,73 @@ using System.Reflection;
 namespace NetTally.SystemInfo
 {
     /// <summary>
-    /// Class to access program attribute information.
+    /// Class to access program name and version attribute information.
     /// </summary>
     public static class ProductInfo
     {
-        static bool hasRun;
-        static string productName;
-        static string productVersion;
-        static Version fileVersion;
-        static Version assemblyVersion;
+        /// <summary>
+        /// Static constructor.  Runs only once, to initialize static fields.
+        /// </summary>
+        static ProductInfo()
+        {
+            DefineNameAndVersion();
+        }
 
         /// <summary>
         /// Gets the name of the product.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public static string Name
-        {
-            get
-            {
-                if (!hasRun)
-                {
-                    DefineNameAndVersion();
-                }
-
-                return productName ?? string.Empty;
-            }
-        }
+        public static string Name { get; private set; } = "NetTally";
 
         /// <summary>
-        /// Gets the informational version of the product.
+        /// Gets the informational version of the product as a string.
+        /// This is the string that is expected to be publicly displayed to the user.
         /// </summary>
-        /// <value>
-        /// The version as a string.
-        /// </value>
-        public static string Version
-        {
-            get
-            {
-                if (!hasRun)
-                {
-                    DefineNameAndVersion();
-                }
-
-                return productVersion ?? string.Empty;
-            }
-        }
+        public static string Version { get; private set; } = "0.0.0.1";
 
         /// <summary>
         /// Gets the file version of the product.
         /// </summary>
-        /// <value>
-        /// The file version as a Version object.
-        /// </value>
-        public static Version FileVersion
-        {
-            get
-            {
-                if (!hasRun)
-                {
-                    DefineNameAndVersion();
-                }
-
-                return fileVersion;
-            }
-        }
+        public static Version FileVersion { get; private set; } = new Version();
 
         /// <summary>
-        /// Gets the file version of the product.
+        /// Gets the assembly version of the product.
         /// </summary>
-        /// <value>
-        /// The file version as a Version object.
-        /// </value>
-        public static Version AssemblyVersion
-        {
-            get
-            {
-                if (!hasRun)
-                {
-                    DefineNameAndVersion();
-                }
-
-                return assemblyVersion;
-            }
-        }
+        public static Version AssemblyVersion { get; private set; } = new Version();
 
         /// <summary>
-        /// Defines the name and version.
-        /// Runs once per program execution.
+        /// Defines the name and version information based on attributes pulled from the assembly file.
         /// </summary>
         private static void DefineNameAndVersion()
         {
-            if (hasRun)
-                return;
-
             try
             {
-                hasRun = true;
-
                 var assembly = typeof(ProductInfo).GetTypeInfo().Assembly;
 
                 var prod = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyProductAttribute));
                 var ver = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyInformationalVersionAttribute));
                 var fVer = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyFileVersionAttribute));
-                assemblyVersion = assembly.GetName().Version;
+
+                AssemblyVersion = assembly.GetName().Version;
 
                 if (prod != null && prod.ConstructorArguments.Count > 0)
                 {
-                    productName = prod.ConstructorArguments[0].Value as string;
+                    Name = prod.ConstructorArguments[0].Value as string ?? Name;
                 }
 
                 if (ver != null && ver.ConstructorArguments.Count > 0)
                 {
-                    productVersion = ver.ConstructorArguments[0].Value as string;
+                    Version = ver.ConstructorArguments[0].Value as string ?? Version;
                 }
 
                 if (fVer != null && fVer.ConstructorArguments.Count > 0)
                 {
-                    string fileVersionString = fVer.ConstructorArguments[0].Value as string;
-                    fileVersion = new Version(fileVersionString ?? "0.0.0.0");
+                    string fileVersionString = fVer.ConstructorArguments[0].Value as string ?? "0.0.0.1";
+                    FileVersion = new Version(fileVersionString);
                 }
             }
             catch (Exception e)
             {
                 Logger.Error("Attempt to define the name and version of the program failed.", e);
-                hasRun = false;
             }
         }
     }
