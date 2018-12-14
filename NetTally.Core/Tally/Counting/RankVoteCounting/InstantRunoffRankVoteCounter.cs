@@ -119,10 +119,10 @@ namespace NetTally.VoteCounting.RankVoteCounting
         {
             var res = from voter in voterRankings
                       select new VoterRankings
-                      {
-                          Voter = voter.Voter,
-                          RankedVotes = voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
-                      };
+                      (
+                          voter: voter.Voter,
+                          rankedVotes: voter.RankedVotes.Where(v => chosenChoices.Contains(v.Vote) == false).OrderBy(v => v.Rank).ToList()
+                      );
 
             return res.ToList();
         }

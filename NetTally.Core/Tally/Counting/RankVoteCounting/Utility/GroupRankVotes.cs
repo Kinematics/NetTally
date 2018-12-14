@@ -11,8 +11,14 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
     class RankedVote
     {
-        public string Vote { get; set; }
-        public int Rank { get; set; }
+        public string Vote { get; }
+        public int Rank { get; }
+
+        public RankedVote(string vote, int rank)
+        {
+            Vote = vote;
+            Rank = rank;
+        }
     }
 
     class RatedVote
@@ -29,20 +35,38 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
     class VoterRankings
     {
-        public string Voter { get; set; }
-        public List<RankedVote> RankedVotes { get; set; }
+        public string Voter { get; }
+        public List<RankedVote> RankedVotes { get; }
+
+        public VoterRankings(string voter, List<RankedVote> rankedVotes)
+        {
+            Voter = voter;
+            RankedVotes = rankedVotes;
+        }
     }
 
     class RankedVoters
     {
-        public int Rank { get; set; }
-        public IEnumerable<string> Voters { get; set; }
+        public int Rank { get; }
+        public IEnumerable<string> Voters { get; }
+
+        public RankedVoters(int rank, IEnumerable<string> voters)
+        {
+            Rank = rank;
+            Voters = voters;
+        }
     }
 
     class RankGroupedVoters
     {
         public string VoteContent { get; set; }
         public IEnumerable<RankedVoters> Ranks { get; set; }
+
+        public RankGroupedVoters(string voteContent, IEnumerable<RankedVoters> ranks)
+        {
+            VoteContent = voteContent;
+            Ranks = ranks;
+        }
     }
 
     class CountedChoice
@@ -70,12 +94,12 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         {
 
             var res = task.GroupBy(vote => VoteString.GetVoteContent(vote.Key), Agnostic.StringComparer)
-                .Select(votes => new RankGroupedVoters {
-                    VoteContent = votes.Key,
-                    Ranks = from v in votes
+                .Select(votes => new RankGroupedVoters (
+                    voteContent: votes.Key,
+                    ranks:  from v in votes
                             group v by VoteString.GetVoteMarker(v.Key) into vr
-                            select new RankedVoters { Rank = int.Parse(vr.Key), Voters = vr.SelectMany(a => a.Value) }
-                });
+                            select new RankedVoters ( rank: int.Parse(vr.Key), voters: vr.SelectMany(a => a.Value) )
+                ));
 
             return res;
         }
@@ -84,19 +108,19 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         {
             var r1 = rankings.SelectMany(va => va.RankedVotes).GroupBy(vb => vb.Vote, Agnostic.StringComparer)
                 .Select(vc => new RankGroupedVoters
-                {
-                    VoteContent = vc.Key,
-                    Ranks = from v2 in rankings
+                (
+                    voteContent: vc.Key,
+                    ranks:  from v2 in rankings
                             let voter = v2.Voter
                             from r in v2.RankedVotes
                             where Agnostic.StringComparer.Equals(r.Vote, vc.Key)
                             group voter by r.Rank into vs2
                             select new RankedVoters
-                            {
-                                Rank = vs2.Key,
-                                Voters = vs2.Select(g2 => g2)
-                            }
-                });
+                            (
+                                rank: vs2.Key,
+                                voters: vs2.Select(g2 => g2)
+                            )
+                ));
 
             return r1;
         }
@@ -107,15 +131,12 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
                       from voter in vote.Value
                       group vote by voter into voters
                       select new VoterRankings
-                      {
-                          Voter = voters.Key,
-                          RankedVotes = (from v in voters
-                                         select new RankedVote
-                                         {
-                                             Rank = int.Parse(VoteString.GetVoteMarker(v.Key)),
-                                             Vote = VoteString.GetVoteContent(v.Key)
-                                         }).ToList()
-                      };
+                      (
+                          voter: voters.Key,
+                          rankedVotes: (from v in voters
+                                         select new RankedVote(VoteString.GetVoteContent(v.Key), int.Parse(VoteString.GetVoteMarker(v.Key)))
+                                         ).ToList()
+                      );
 
             return res;
 

@@ -211,12 +211,12 @@ namespace NetTally.VoteCounting.RankVoteCounting
         {
             var res = from voter in voterRankings
                       select new VoterRankings
-                      {
-                          Voter = voter.Voter,
-                          RankedVotes = voter.RankedVotes
+                      (
+                          voter: voter.Voter,
+                          rankedVotes: voter.RankedVotes
                               .Where(v => !Agnostic.StringComparer.Equals(v.Vote, choice))
                               .ToList()
-                      };
+                      );
 
             return res.ToList();
         }
