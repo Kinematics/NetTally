@@ -29,7 +29,7 @@ namespace NetTally.Utility
                 for (int i = 0; i < normalized.Length; i++)
                 {
                     // only hash from letters
-                    if (char.IsLetter(normalized[i]))
+                    if (char.IsLetterOrDigit(normalized[i]))
                     {
                         // Start hash2 at i == 1
                         if (ch > 0)
