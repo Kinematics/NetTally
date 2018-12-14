@@ -12,28 +12,25 @@ namespace NetTally.Comparers
     {
         public int Compare(object x, object y)
         {
-            if (x == null)
-                throw new ArgumentNullException(nameof(x));
-            if (y == null)
-                throw new ArgumentNullException(nameof(y));
+            if (x is string xx && y is string yy)
+            {
+                if (ReferenceEquals(xx, yy))
+                    return 0;
 
-            string xs = x as string;
-            if (xs == null)
-                throw new ArgumentException("Parameter x is not a string.");
+                string marker = VoteString.GetVoteMarker(xx);
+                VoteType voteType = string.IsNullOrEmpty(marker) ? VoteType.Rank : VoteType.Plan;
 
-            string ys = y as string;
-            if (ys == null)
-                throw new ArgumentException("Parameter y is not a string.");
+                string compX = VoteString.GetVoteTask(xx, voteType) + " " + VoteString.GetVoteContent(xx, voteType);
+                string compY = VoteString.GetVoteTask(yy, voteType) + " " + VoteString.GetVoteContent(yy, voteType);
 
-            string marker = VoteString.GetVoteMarker(xs);
-            VoteType voteType = string.IsNullOrEmpty(marker) ? VoteType.Rank : VoteType.Plan;
+                int result = string.Compare(compX, compY, StringComparison.CurrentCultureIgnoreCase);
 
-            string compX = VoteString.GetVoteTask(xs, voteType) + " " + VoteString.GetVoteContent(xs, voteType);
-            string compY = VoteString.GetVoteTask(ys, voteType) + " " + VoteString.GetVoteContent(ys, voteType);
-
-            int result = string.Compare(compX, compY, StringComparison.CurrentCultureIgnoreCase);
-
-            return result;
+                return result;
+            }
+            else
+            {
+                throw new ArgumentException("Parameters are not strings.");
+            }
         }
     }
 }
