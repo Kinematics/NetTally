@@ -18,10 +18,28 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// </summary>
         protected class ChoiceCount
         {
-            public string Choice { get; set; }
-            public int Count { get; set; }
+            public string Choice { get; }
+            public int Count { get; }
+
+            public ChoiceCount(string choice, int count)
+            {
+                Choice = choice;
+                Count = count;
+            }
 
             public override string ToString() => $"{Choice}: {Count}";
+        }
+
+        protected class VoteScore
+        {
+            public string Vote { get; }
+            public double Score { get; }
+
+            public VoteScore(string vote, double score)
+            {
+                Vote = vote;
+                Score = score;
+            }
         }
 
         /// <summary>
@@ -44,7 +62,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
                 for (int i = 1; i <= 9; i++)
                 {
-                    RankResult winner = GetWinningVote(voterRankings, winningChoices);
+                    RankResult? winner = GetWinningVote(voterRankings, winningChoices);
 
                     if (winner == null)
                         break;
@@ -69,7 +87,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns the winning vote.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        private RankResult GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices)
+        private RankResult? GetWinningVote(IEnumerable<VoterRankings> voterRankings, RankResults chosenChoices)
         {
             if (voterRankings == null)
                 throw new ArgumentNullException(nameof(voterRankings));
@@ -171,11 +189,11 @@ namespace NetTally.VoteCounting.RankVoteCounting
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(localRankings);
 
             var rankedVotes = from vote in groupVotes
-                              select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
+                              select new VoteScore(vote.VoteContent, RankScoring.LowerWilsonScore(vote.Ranks));
 
-            var worstVote = rankedVotes.MinObject(a => a.Rank);
+            var worstVote = rankedVotes.MinObject(a => a.Score);
 
-            Debug.Write($"({worstVote.Rank:f5}) {worstVote.Vote}");
+            Debug.Write($"({worstVote.Score:f5}) {worstVote.Vote}");
 
             return worstVote.Vote;
         }
@@ -192,7 +210,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                                  let preferred = voter.RankedVotes.FirstOrDefault()?.Vote
                                  where preferred != null
                                  group voter by preferred into preffed
-                                 select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
+                                 select new ChoiceCount(preffed.Key, preffed.Count());
 
             return preferredVotes;
         }
