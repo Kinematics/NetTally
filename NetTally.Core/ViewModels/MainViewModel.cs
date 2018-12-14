@@ -21,13 +21,14 @@ namespace NetTally.ViewModels
     public class MainViewModel : ViewModelBase, IDisposable
     {
         public MainViewModel(
-            HttpClientHandler httpClientHandler, IPageProvider pageProvider,
-            IVoteCounter voteCounter, ITextResultsProvider textResults,
-            Func<string, CompareInfo, CompareOptions, int> hashFunction)
+            HttpClientHandler? httpClientHandler, IPageProvider? pageProvider,
+            IVoteCounter? voteCounter, ITextResultsProvider? textResults,
+            Func<string, CompareInfo, CompareOptions, int>? hashFunction)
         {
             PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
 
             SetupNetwork(pageProvider, httpClientHandler);
+
             SetupTextResults(textResults);
 
             AllVotesCollection = new ObservableCollectionExt<string>();
@@ -73,7 +74,7 @@ namespace NetTally.ViewModels
         #region Networking
         public IPageProvider PageProvider { get; private set; }
 
-        private void SetupNetwork(IPageProvider pageProvider, HttpClientHandler handler)
+        private void SetupNetwork(IPageProvider? pageProvider, HttpClientHandler? handler)
         {
             PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(handler).Build();
         }
@@ -156,7 +157,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="quests">The quests.</param>
         /// <param name="currentQuest">The currently selected quest.</param>
-        public void InitializeQuests(QuestCollection quests, string currentQuest)
+        public void InitializeQuests(QuestCollection? quests, string? currentQuest)
         {
             if (quests != null)
             {
@@ -180,7 +181,7 @@ namespace NetTally.ViewModels
         /// The currently selected quest.
         /// </summary>
         IQuest selectedQuest;
-        public IQuest SelectedQuest
+        public IQuest? SelectedQuest
         {
             get { return selectedQuest; }
             set
@@ -200,7 +201,7 @@ namespace NetTally.ViewModels
         /// Allows directly setting a quest by its thread name.
         /// </summary>
         /// <param name="threadName">The thread name of the quest being selected.</param>
-        public void SelectQuest(string threadName)
+        public void SelectQuest(string? threadName)
         {
             if (string.IsNullOrEmpty(threadName))
             {
@@ -410,7 +411,7 @@ namespace NetTally.ViewModels
         #region Section: Tally & Results Binding
         public ITextResultsProvider TextResultsProvider { get; private set; }
 
-        private void SetupTextResults(ITextResultsProvider textResults)
+        private void SetupTextResults(ITextResultsProvider? textResults)
         {
             TextResultsProvider = textResults ?? new TallyOutput();
         }
@@ -659,7 +660,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Attach to the VoteCounter's property changed event.
         /// </summary>
-        private void SetupVoteCounter(IVoteCounter voteCounter)
+        private void SetupVoteCounter(IVoteCounter? voteCounter)
         {
             VoteCounter = voteCounter ?? new VoteCounter();
             VoteCounter.PropertyChanged += VoteCounter_PropertyChanged;

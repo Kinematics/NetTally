@@ -64,13 +64,13 @@ namespace NetTally.ViewModels
             return vm;
         }
 
-        IPageProvider pageProvider;
-        HttpClientHandler handler;
-        IVoteCounter voteCounter;
-        ITextResultsProvider resultsProvider;
-        QuestCollection quests;
-        string currentQuest;
-        Func<string, CompareInfo, CompareOptions, int> hashFunction;
+        IPageProvider? pageProvider;
+        HttpClientHandler? handler;
+        IVoteCounter? voteCounter;
+        ITextResultsProvider? resultsProvider;
+        QuestCollection? quests;
+        string? currentQuest;
+        Func<string, CompareInfo, CompareOptions, int>? hashFunction;
 
         public static MainViewModel MainViewModel { get; private set; }
     }
