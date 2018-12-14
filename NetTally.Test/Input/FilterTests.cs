@@ -14,7 +14,7 @@ namespace NetTally.Tests
         {
             var filter = Filter.Empty;
             Assert.IsTrue(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -27,7 +27,7 @@ namespace NetTally.Tests
         {
             var filter = new Filter("", null);
             Assert.IsTrue(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -40,7 +40,7 @@ namespace NetTally.Tests
         {
             var filter = new Filter(null, null);
             Assert.IsTrue(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -53,7 +53,7 @@ namespace NetTally.Tests
         {
             var filter = new Filter("", "omake");
             Assert.IsFalse(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -66,7 +66,7 @@ namespace NetTally.Tests
         {
             var filter = new Filter(null, "omake");
             Assert.IsFalse(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -79,7 +79,7 @@ namespace NetTally.Tests
         {
             var filter = new Filter(null);
             Assert.IsFalse(filter.IsEmpty);
-            Assert.IsTrue(filter.IsNull);
+            Assert.IsTrue(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.IsInverted);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -95,7 +95,7 @@ namespace NetTally.Tests
             Regex r = new Regex(@"stuff|omake");
             Filter filter = new Filter(r);
             Assert.IsFalse(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -108,7 +108,7 @@ namespace NetTally.Tests
         {
             Filter filter = new Filter("/stuff|omake/", null);
             Assert.IsFalse(filter.IsEmpty);
-            Assert.IsFalse(filter.IsNull);
+            Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
