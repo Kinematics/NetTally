@@ -258,7 +258,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
@@ -392,7 +392,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
