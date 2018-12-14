@@ -13,17 +13,6 @@ namespace NetTally.VoteCounting.RankVoteCounting
     class InstantRunoffRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
-        /// Local class to store a choice/count combo of fields for LINQ.
-        /// </summary>
-        protected class ChoiceCount
-        {
-            public string Choice { get; set; }
-            public int Count { get; set; }
-
-            public override string ToString() => $"{Choice}: {Count}";
-        }
-
-        /// <summary>
         /// Implementation to generate the ranking list for the provided set
         /// of votes for a specific task.
         /// </summary>
@@ -147,13 +136,13 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
+        private IEnumerable<CountedChoice> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = GetPreferredVote(voter.RankedVotes)
                                  where preferred != null
                                  group voter by preferred into preffed
-                                 select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
+                                 select new CountedChoice(choice: preffed.Key, count: preffed.Count());
 
             return preferredVotes;
         }

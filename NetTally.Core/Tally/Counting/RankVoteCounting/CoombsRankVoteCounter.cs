@@ -14,17 +14,6 @@ namespace NetTally.VoteCounting.RankVoteCounting
     class CoombsRankVoteCounter : BaseRankVoteCounter
     {
         /// <summary>
-        /// Local class to store a choice/count combo of fields for LINQ.
-        /// </summary>
-        protected class ChoiceCount
-        {
-            public string Choice { get; set; }
-            public int Count { get; set; }
-
-            public override string ToString() => $"{Choice}: {Count}";
-        }
-
-        /// <summary>
         /// Implementation to generate the ranking list for the provided set
         /// of votes for a specific task.
         /// </summary>
@@ -95,7 +84,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
                 if (!preferredVotes.Any())
                     break;
 
-                ChoiceCount best = preferredVotes.MaxObject(a => a.Count);
+                CountedChoice best = preferredVotes.MaxObject(a => a.Count);
 
                 if (best.Count >= winCount)
                     return new RankResult(best.Choice, $"Coombs Eliminations: [{eliminated}]");
@@ -231,13 +220,13 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private static IEnumerable<ChoiceCount> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
+        private static IEnumerable<CountedChoice> GetPreferredCounts(IEnumerable<VoterRankings> voterRankings)
         {
             var preferredVotes = from voter in voterRankings
                                  let preferred = voter.RankedVotes.FirstOrDefault()?.Vote
                                  where preferred != null
                                  group voter by preferred into preffed
-                                 select new ChoiceCount { Choice = preffed.Key, Count = preffed.Count() };
+                                 select new CountedChoice(choice: preffed.Key, count: preffed.Count());
 
             return preferredVotes;
         }
