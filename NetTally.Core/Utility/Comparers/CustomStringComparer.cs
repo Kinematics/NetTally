@@ -38,8 +38,6 @@ namespace NetTally.Comparers
         public int Compare(string x, string y)
         {
             if (ReferenceEquals(x, y)) return 0;
-            if (ReferenceEquals(x, null)) return -1;
-            if (ReferenceEquals(y, null)) return 1;
 
             return Info.Compare(x, y, Options);
         }
@@ -56,10 +54,44 @@ namespace NetTally.Comparers
 
         public bool Equals(string x, string y) => Compare(x, y) == 0;
 
-        int IComparer.Compare(object x, object y) => Compare(x as string, y as string);
+        int IComparer.Compare(object x, object y)
+        {
+            if (ReferenceEquals(x, y))
+                return 0;
 
-        bool IEqualityComparer.Equals(object x, object y) => Compare(x as string, y as string) == 0;
+            string? xs = x as string;
+            string? ys = y as string;
 
-        int IEqualityComparer.GetHashCode(object obj) => GetHashCode(obj as string);
+            if (xs is null)
+                return -1;
+            if (ys is null)
+                return 1;
+            
+            return Compare(xs, ys);
+        }
+
+        bool IEqualityComparer.Equals(object x, object y)
+        {
+            if (ReferenceEquals(x, y))
+                return true;
+
+            string? xs = x as string;
+            string? ys = y as string;
+
+            if (xs is null || ys is null)
+                return false;
+
+            return Compare(xs, ys) == 0;
+        }
+
+        int IEqualityComparer.GetHashCode(object obj)
+        {
+            string? str = obj as string;
+
+            if (str is null)
+                return 0;
+            else
+                return GetHashCode(str);
+        }
     }
 }
