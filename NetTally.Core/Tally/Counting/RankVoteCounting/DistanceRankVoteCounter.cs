@@ -52,10 +52,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns a filled-in preferences array.</returns>
         private static DistanceData GetPairwiseData(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
         {
-            DistanceData data = new DistanceData
-            {
-                Paths = new int[listOfChoices.Count, listOfChoices.Count]
-            };
+            DistanceData data = new DistanceData(listOfChoices.Count, listOfChoices.Count);
 
             var choiceIndexes = GroupRankVotes.GetChoicesIndexes(listOfChoices);
 
@@ -102,10 +99,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns a table with the strongest paths between each pairwise choice.</returns>
         private static DistanceData GetStrongestPaths(DistanceData pairwiseData, int choicesCount)
         {
-            DistanceData data = new DistanceData
-            {
-                Paths = new int[choicesCount, choicesCount]
-            };
+            DistanceData data = new DistanceData(choicesCount, choicesCount);
 
             int bytesInArray = data.Paths.Length * sizeof(Int32);
             Buffer.BlockCopy(pairwiseData.Paths, 0, data.Paths, 0, bytesInArray);
@@ -138,10 +132,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
         private static DistanceData GetWinningPaths(DistanceData strengthData, int choicesCount)
         {
-            DistanceData winningData = new DistanceData
-            {
-                Paths = new int[choicesCount, choicesCount]
-            };
+            DistanceData winningData = new DistanceData(choicesCount, choicesCount);
 
             for (int i = 0; i < choicesCount; i++)
             {

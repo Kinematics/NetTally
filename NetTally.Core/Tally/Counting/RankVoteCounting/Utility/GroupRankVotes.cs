@@ -190,7 +190,12 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
     class DistanceData
     {
-        public int[,] Paths { get; set; }
+        public int[,] Paths { get; }
+
+        public DistanceData(int rows, int cols)
+        {
+            Paths = new int[rows, cols];
+        }
     }
 
 }
