@@ -10,6 +10,77 @@ namespace NetTally.Utility
 {
     public static class Agnostic
     {
+        #region Constructor
+        /// <summary>
+        /// Static constructor. Initialize on first use of the class.
+        /// </summary>
+        static Agnostic()
+        {
+            HashStringsUsing(DefaultHashFunction);
+        }
+        #endregion
+
+        #region Fields and properties
+        private static IEqualityComparer<string> currentComparer;
+
+        private static IEqualityComparer<string> StringComparerNoCaseSymbol { get; set; }
+
+        private static IEqualityComparer<string> StringComparerNoCaseNoSymbol { get; set; }
+
+        private static IEqualityComparer<string> StringComparerCaseSymbol { get; set; }
+
+        private static IEqualityComparer<string> StringComparerCaseNoSymbol { get; set; }
+
+        /// <summary>
+        /// A string comparer object that allows comparison between strings that
+        /// can ignore lots of annoying user-entered variances.
+        /// </summary>
+        public static IEqualityComparer<string> StringComparer => currentComparer;
+
+        /// <summary>
+        /// Gets a string comparer object that ignores case and symbols.
+        /// </summary>
+        public static IEqualityComparer<string> InsensitiveComparer => StringComparerNoCaseNoSymbol;
+
+        /// <summary>
+        /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
+        /// </value>
+        public static IEqualityComparer<string> QuestSensitiveStringComparer
+        {
+            get
+            {
+                if (ViewModelService.MainViewModel?.SelectedQuest is IQuest quest)
+                {
+                    if (quest.WhitespaceAndPunctuationIsSignificant)
+                    {
+                        if (quest.CaseIsSignificant)
+                        {
+                            return StringComparerCaseSymbol;
+                        }
+                        else
+                        {
+                            return StringComparerNoCaseSymbol;
+                        }
+                    }
+                    else
+                    {
+                        if (quest.CaseIsSignificant)
+                        {
+                            return StringComparerCaseNoSymbol;
+                        }
+                        else
+                        {
+                            return StringComparerNoCaseNoSymbol;
+                        }
+                    }
+                }
+
+                return currentComparer;
+            }
+        }
+        #endregion
+
+        #region Hash Function options
         /// <summary>
         /// Craft a hash function which returns identical values for strings that
         /// may vary by case or punctuation or diacriticals or punctuation.
@@ -51,75 +122,59 @@ namespace NetTally.Utility
         }
 
         /// <summary>
-        /// A string comparer object that allows comparison between strings that
-        /// can ignore lots of annoying user-entered variances.
+        /// Hashes the provided string using the given CompareOptions.
+        /// Doing this allows all custom compare options to be applied in determining the hash value.
         /// </summary>
-        public static IEqualityComparer<string> StringComparer
+        /// <param name="str">The string.</param>
+        /// <param name="info">The CompareInfo object doing the unicode-aware comparison.</param>
+        /// <param name="options">The options to apply to the comparison.</param>
+        /// <returns>Returns the hash code for the string.</returns>
+        public static int AlternateUnicodeHashFunction(string str, CompareInfo info, CompareOptions options)
         {
-            get
-            {
-                if (currentComparer == null)
-                    HashStringsUsing(null);
+            if (string.IsNullOrEmpty(str))
+                return 0;
 
-                return currentComparer;
-            }
+            SortKey sortOrder = info.GetSortKey(str, options);
+
+            int hash = GetByteArrayHash(sortOrder.KeyData);
+
+            return hash;
         }
 
         /// <summary>
-        /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
-        /// </value>
-        public static IEqualityComparer<string> QuestSensitiveStringComparer
+        /// Generates a hash code for an array of bytes.
+        /// </summary>
+        /// <param name="keyData">The key data.</param>
+        /// <returns>Returns a hash code value.</returns>
+        private static int GetByteArrayHash(byte[] keyData)
         {
-            get
+            unchecked
             {
-                if (currentComparer == null)
-                    HashStringsUsing(null);
+                const int p = 16777619;
+                int hash = (int)2166136261;
 
-                if (ViewModelService.MainViewModel?.SelectedQuest is IQuest quest)
-                {
-                    if (quest.WhitespaceAndPunctuationIsSignificant)
-                    {
-                        if (quest.CaseIsSignificant)
-                        {
-                            return StringComparerCaseSymbol;
-                        }
-                        else
-                        {
-                            return StringComparerNoCaseSymbol;
-                        }
-                    }
-                    else
-                    {
-                        if (quest.CaseIsSignificant)
-                        {
-                            return StringComparerCaseNoSymbol;
-                        }
-                        else
-                        {
-                            return StringComparerNoCaseNoSymbol;
-                        }
-                    }
-                }
+                for (int i = 0; i < keyData.Length; i++)
+                    hash = (hash ^ keyData[i]) * p;
 
-                return currentComparer;
+                hash += hash << 13;
+                hash ^= hash >> 7;
+                hash += hash << 3;
+                hash ^= hash >> 17;
+                hash += hash << 5;
+                return hash;
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Gets a string comparer object that ignores case and symbols.
-        /// </summary>
-        public static IEqualityComparer<string> InsensitiveComparer => StringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Initialize the agnostic string comparers using the provided hash function.
         /// Injects the function from the non-PCL assembly, to get around PCL limitations.
         /// MUST be run before other objects are constructed.
         /// </summary>
-        /// <param name="hashFunction"></param>
+        /// <param name="hashFunction">The hash function to use for the various forms of string comparer.</param>
         public static PropertyChangedEventHandler HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
-            hashFunction = hashFunction ?? DefaultHashFunction;
-
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
             StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
@@ -136,16 +191,6 @@ namespace NetTally.Utility
             // This function is called by the MainViewModel during construction. Return the event handler we want to attach.
             return MainViewModel_PropertyChanged;
         }
-
-        private static IEqualityComparer<string> currentComparer;
-
-        private static IEqualityComparer<string> StringComparerNoCaseSymbol { get; set; }
-
-        private static IEqualityComparer<string> StringComparerNoCaseNoSymbol { get; set; }
-
-        private static IEqualityComparer<string> StringComparerCaseSymbol { get; set; }
-
-        private static IEqualityComparer<string> StringComparerCaseNoSymbol { get; set; }
 
         /// <summary>
         /// Handles the PropertyChanged event of the Main View Model, watching for changes in the
@@ -190,11 +235,8 @@ namespace NetTally.Utility
         /// <param name="self">The list to search.</param>
         /// <param name="value">The value to compare with.</param>
         /// <returns>Returns the item in the list that matches the value, or null.</returns>
-        public static string AgnosticMatch(this IEnumerable<string> self, string value)
+        public static string? AgnosticMatch(this IEnumerable<string> self, string value)
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-
             foreach (string item in self)
             {
                 if (Agnostic.StringComparer.Equals(item, value))
@@ -212,13 +254,8 @@ namespace NetTally.Utility
         /// <param name="value">The value to compare with.</param>
         /// <param name="list">The list to search.</param>
         /// <returns>Returns the item in the list that matches the value, or null.</returns>
-        public static string AgnosticMatch(this string value, IEnumerable<string> list)
+        public static string? AgnosticMatch(this string value, IEnumerable<string> list)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-            if (list == null)
-                throw new ArgumentNullException(nameof(list));
-
             foreach (string item in list)
             {
                 if (Agnostic.StringComparer.Equals(item, value))
@@ -234,12 +271,10 @@ namespace NetTally.Utility
         /// <param name="first">First string.</param>
         /// <param name="second">Second string.</param>
         /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
-        public static int FirstDifferenceInStrings(this string first, string second)
+        public static int FirstDifferenceInStrings(string input1, string input2)
         {
-            if (first == null)
-                throw new ArgumentNullException(nameof(first));
-            if (second == null)
-                throw new ArgumentNullException(nameof(second));
+            ReadOnlySpan<char> first = input1.AsSpan();
+            ReadOnlySpan<char> second = input2.AsSpan();
 
             int length = first.Length < second.Length ? first.Length : second.Length;
 
