@@ -31,7 +31,7 @@ namespace NetTally.Forums
         {
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                HtmlDocument doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
 
                 if (doc != null)
                 {
@@ -77,30 +77,29 @@ namespace NetTally.Forums
         /// <param name="uri">The URI to load.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
-        private async static Task<HtmlDocument> GetDocumentAsync(Uri uri, CancellationToken token)
+        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, CancellationToken token)
         {
             IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
+            HtmlDocument? page = null;
 
             try
             {
-                HtmlDocument page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host,
+                page = await pageProvider.GetPage(uri.AbsoluteUri, uri.Host,
                     CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
-                    return null;
-
-                return page;
+                    page = null;
             }
             catch (OperationCanceledException)
             {
-                return null;
             }
             catch (Exception e)
             {
                 Logger.Error("Attempt to query site to determine forum adapter failed.", e);
-                return null;
             }
+
+            return page;
         }
 
         /// <summary>
