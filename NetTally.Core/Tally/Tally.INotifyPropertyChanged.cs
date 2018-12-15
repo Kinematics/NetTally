@@ -18,7 +18,7 @@ namespace NetTally.VoteCounting
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -28,7 +28,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="propertyData">The data to pass along with the property name.</param>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string propertyName = null)
+        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyDataChangedEventArgs<T>(propertyName, propertyData));
         }
