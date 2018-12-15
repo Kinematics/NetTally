@@ -25,7 +25,7 @@ namespace NetTally.Votes.Experiment
         /// <summary>
         /// Gets the vote contained within this post, if any.
         /// </summary>
-        public Vote Vote { get; }
+        public Vote? Vote { get; }
         /// <summary>
         /// Gets whether this instance has a vote.
         /// </summary>
@@ -40,7 +40,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="postID">The post identifier.</param>
         /// <param name="threadPostNumber">The post number.</param>
         /// <param name="message">The post message.</param>
-        public Post(string author, string postID, int threadPostNumber, string message, IForumAdapter adapter = null)
+        public Post(string author, string postID, int threadPostNumber, string message, IForumAdapter? adapter = null)
         {
             Identity = new Identity(author, postID, forumAdapter: adapter);
             ThreadPostNumber = threadPostNumber;
@@ -78,7 +78,7 @@ namespace NetTally.Votes.Experiment
             if (workingVoteLines == null)
                 return;
 
-            Vote.SetWorkingVote(workingVoteLines);
+            Vote?.SetWorkingVote(workingVoteLines);
 
             Processed = false;
             ForceProcess = false;
