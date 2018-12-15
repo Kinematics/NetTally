@@ -20,7 +20,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<HtmlDocument> GetPage(string url, string shortDescrip, 
+        Task<HtmlDocument?> GetPage(string url, string shortDescrip, 
             CachingMode caching, ShouldCache shouldCache, 
             SuppressNotifications suppressNotifications, CancellationToken token);
 
@@ -35,7 +35,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<XDocument> GetXmlPage(string url, string shortDescrip,
+        Task<XDocument?> GetXmlPage(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 

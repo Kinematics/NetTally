@@ -95,10 +95,10 @@ namespace NetTally.Web
         /// <returns>
         /// Returns an HTML document, if it can be loaded.
         /// </returns>
-        public async Task<HtmlDocument> GetPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<HtmlDocument?> GetPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            HtmlDocument htmldoc = null;
+            HtmlDocument? htmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
@@ -122,10 +122,10 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument> GetXmlPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<XDocument?> GetXmlPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            XDocument xmldoc = null;
+            XDocument? xmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
@@ -155,9 +155,9 @@ namespace NetTally.Web
         public async Task<string> GetRedirectUrl(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            Uri responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
+            Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
 
-            return responseUri?.AbsoluteUri;
+            return responseUri?.AbsoluteUri ?? string.Empty;
         }
         #endregion
 
@@ -227,7 +227,7 @@ namespace NetTally.Web
             }
             else
             {
-                content = await GetUrlContent(uri, url2, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+                content = await GetUrlContent(uri, url2, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
             }
 
             return content;
@@ -244,10 +244,10 @@ namespace NetTally.Web
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
-        private async Task<string> GetUrlContent(Uri uri, string url, string shortDescrip,
+        private async Task<string?> GetUrlContent(Uri uri, string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            string result = null;
+            string? result = null;
             int tries = 0;
             DateTime expires = CacheInfo.DefaultExpiration;
 
@@ -265,7 +265,7 @@ namespace NetTally.Web
                 }
 
                 HttpResponseMessage response;
-                Task<HttpResponseMessage> getResponseTask = null;
+                Task<HttpResponseMessage>? getResponseTask = null;
 
                 do
                 {
@@ -337,7 +337,7 @@ namespace NetTally.Web
 
                 } while (tries < retryLimit);
 
-                Debug.WriteLine($"Finished getting URI {uri} task ID: {getResponseTask.Id}");
+                Debug.WriteLine($"Finished getting URI {uri} task ID: {getResponseTask?.Id ?? 0}");
 
                 if (result == null && tries >= retryLimit)
                     client.CancelPendingRequests();
@@ -381,7 +381,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Whether to suppress notifications.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
-        private async Task<Uri> GetRedirectedHeaderRequestUri(string url, string shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
+        private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             var (uri, url2) = GetVerifiedUrl(url);
 

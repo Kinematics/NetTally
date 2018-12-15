@@ -103,7 +103,7 @@ namespace NetTally.Web
 
         #region Notification functions
 
-        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception e, SuppressNotifications suppressNotifications)
+        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception? e, SuppressNotifications suppressNotifications)
         {
             if (suppressNotifications == SuppressNotifications.Yes)
                 return;

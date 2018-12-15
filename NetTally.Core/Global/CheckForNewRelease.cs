@@ -114,7 +114,7 @@ namespace NetTally.Utility
         /// <returns>Returns the latest version string.</returns>
         private async Task<string> GetLatestVersionStringAsync()
         {
-            HtmlDocument htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
+            HtmlDocument? htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
 
             if (htmldoc != null)
             {
@@ -139,11 +139,11 @@ namespace NetTally.Utility
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument> GetLatestReleasePageAsync()
+        private async Task<HtmlDocument?> GetLatestReleasePageAsync()
         {
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            HtmlDocument doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument? doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;
