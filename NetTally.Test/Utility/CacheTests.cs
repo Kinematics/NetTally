@@ -50,7 +50,7 @@ namespace TallyUnitTest.Utility
             var result = await cache.GetAsync("null data");
 
             Assert.IsTrue(result.found);
-            Assert.AreEqual(data, result.content);
+            Assert.AreEqual("", result.content);
         }
 
         [TestMethod]

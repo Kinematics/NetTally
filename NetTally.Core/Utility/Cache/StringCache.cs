@@ -179,7 +179,7 @@ namespace NetTally.Cache
         private async Task<byte[]> Compress(string input)
         {
             if (input == null)
-                return null;
+                return new byte[0];
 
             using (MemoryStream ms = new MemoryStream())
             {
@@ -201,7 +201,7 @@ namespace NetTally.Cache
         private async Task<string> Decompress(byte[] input)
         {
             if (input == null)
-                return null;
+                return string.Empty;
 
             using (MemoryStream mso = new MemoryStream())
             {
