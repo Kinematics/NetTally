@@ -20,7 +20,7 @@ namespace NetTally.Output
     public class TallyOutput : ITextResultsProvider
     {
         #region Local Properties
-        IVoteCounter voteCounter;
+        IVoteCounter? voteCounter;
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb { get; set; }
@@ -45,7 +45,7 @@ namespace NetTally.Output
         {
             get
             {
-                return voteCounter ?? ViewModels.ViewModelService.MainViewModel.VoteCounter;
+                return voteCounter ?? ViewModelService.MainViewModel.VoteCounter;
             }
         }
 
