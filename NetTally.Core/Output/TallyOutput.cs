@@ -26,7 +26,7 @@ namespace NetTally.Output
         StringBuilder sb { get; set; }
         const string cancelled = "Cancelled!";
 
-        static string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+        static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
         #endregion
 
         #region Public Interface
