@@ -309,7 +309,7 @@ namespace NetTally.Output
                            select new { marker = VoteString.GetVoteMarker(v.Key), voters = v.Value };
 
             var whoDidNotVote = from v in voters
-                                where whoVoted.Any(a => a.voters.Contains(v.Key)) == false
+                                where whoVoted.Any(a => a.voters!.Contains(v.Key)) == false
                                 select v.Key;
 
             using (new Spoiler(sb, "Voters", DisplayMode == DisplayMode.SpoilerVoters || DisplayMode == DisplayMode.SpoilerAll))
@@ -599,7 +599,7 @@ namespace NetTally.Output
         /// <param name="voterName">The name of the voter.</param>
         /// <param name="voteType">The type of vote this is for.</param>
         /// <param name="marker">The marker to use for rank votes.</param>
-        private void AddVoter(string voterName, VoteType voteType = VoteType.Vote, string marker = null)
+        private void AddVoter(string voterName, VoteType voteType = VoteType.Vote, string? marker = null)
         {
             bool closeBold = false;
 
