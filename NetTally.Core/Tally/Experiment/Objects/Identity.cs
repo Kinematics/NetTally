@@ -53,11 +53,11 @@ namespace NetTally.Votes.Experiment
         /// Gets the forum adapter that was used to identify the original identity, in order
         /// to reliably create a permalink back to the original post.
         /// </summary>
-        private IForumAdapter ForumAdapter { get; }
+        private IForumAdapter? ForumAdapter { get; }
         /// <summary>
         /// Gets the host defined in the forum adapter, if any.
         /// </summary>
-        public string Host => ForumAdapter?.Site.Host;
+        public string? Host => ForumAdapter?.Site.Host;
         #endregion
 
         #region Constructors
@@ -70,7 +70,7 @@ namespace NetTally.Votes.Experiment
         /// <exception cref="System.ArgumentNullException"/>
         public Identity(string name, string postID,
             IdentityType identityType = IdentityType.User,
-            IForumAdapter forumAdapter = null,
+            IForumAdapter? forumAdapter = null,
             int number = 0)
         {
             if (string.IsNullOrEmpty(name))
