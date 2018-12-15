@@ -29,7 +29,7 @@ namespace NetTally
         // Quest hash is used to set the hash code for this object.
         // Since all other intrinsic values are mutable, it is set to 
         // an immutable random value.
-        static Random indexer = new Random();
+        static readonly Random indexer = new Random();
         private readonly int questHash;
         #endregion
 
