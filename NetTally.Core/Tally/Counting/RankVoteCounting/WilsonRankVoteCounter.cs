@@ -34,14 +34,14 @@ namespace NetTally.VoteCounting.RankVoteCounting
             var groupVotes = GroupRankVotes.GroupByVoteAndRank(task);
 
             var rankedVotes = from vote in groupVotes
-                              select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
+                              select new RatedVote(vote: vote.VoteContent, rating: RankScoring.LowerWilsonScore(vote.Ranks));
 
-            var orderedVotes = rankedVotes.OrderByDescending(a => a.Rank);
+            var orderedVotes = rankedVotes.OrderByDescending(a => a.Rating);
 
             RankResults results = new RankResults();
 
             results.AddRange(orderedVotes.Select(a =>
-                new RankResult(a.Vote, $"Wilson: [{a.Rank:f5}]")));
+                new RankResult(a.Vote, $"Wilson: [{a.Rating:f5}]")));
 
             return results;
         }
