@@ -10,7 +10,7 @@ namespace NetTally.Output
     public struct Spoiler : IDisposable
     {
         StringBuilder SB;
-        bool Display;
+        readonly bool Display;
 
         /// <summary>
         /// Constructor.  Initialize required values so we know what and whether
