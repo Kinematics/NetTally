@@ -267,7 +267,7 @@ namespace NetTally.VoteCounting
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
 
-            CancellationTokenSource cts = null;
+            CancellationTokenSource? cts = null;
 
             try
             {
@@ -291,7 +291,8 @@ namespace NetTally.VoteCounting
             }
             finally
             {
-                sources.Remove(cts);
+                if (cts != null)
+                    sources.Remove(cts);
             }
         }
 
@@ -305,7 +306,7 @@ namespace NetTally.VoteCounting
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
 
-            CancellationTokenSource cts = null;
+            CancellationTokenSource? cts = null;
 
             try
             {
@@ -329,7 +330,8 @@ namespace NetTally.VoteCounting
             }
             finally
             {
-                sources.Remove(cts);
+                if (cts != null)
+                    sources.Remove(cts);
             }
         }
 
