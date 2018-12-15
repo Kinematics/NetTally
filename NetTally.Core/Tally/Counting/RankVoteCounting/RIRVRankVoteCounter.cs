@@ -71,13 +71,11 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <returns></returns>
         private RankResult GetWinningVote(IEnumerable<VoterRankings> voterRankings, IEnumerable<RankGroupedVoters> rankedVotes)
         {
-            string option1;
-            string option2;
             string debug = "";
 
-            GetTopTwoRatedOptions(rankedVotes, out option1, out option2, ref debug);
+            GetTopTwoRatedOptions(rankedVotes, out string? option1, out string? option2, ref debug);
 
-            string winner = GetOptionWithHigherPrefCount(voterRankings, option1, option2, ref debug);
+            string winner = GetOptionWithHigherPrefCount(voterRankings, option1, option2, ref debug) ?? string.Empty;
 
             return new RankResult(winner, debug);
         }
@@ -89,7 +87,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="option1">The top rated option. Null if there aren't any options available.</param>
         /// <param name="option2">The second rated option.  Null if there is only one option available.</param>
         private static void GetTopTwoRatedOptions(IEnumerable<RankGroupedVoters> rankedVotes,
-            out string option1, out string option2, ref string debug)
+            out string? option1, out string? option2, ref string debug)
         {
             var scoredVotes = from vote in rankedVotes
                               select new { Vote = vote.VoteContent, Rank = RankScoring.LowerWilsonScore(vote.Ranks) };
@@ -133,9 +131,11 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="option1">The first option up for consideration.</param>
         /// <param name="option2">The second option up for consideration.</param>
         /// <returns>Returns the winning option.</returns>
-        private static string GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings,
-            string option1, string option2, ref string debug)
+        private static string? GetOptionWithHigherPrefCount(IEnumerable<VoterRankings> voterRankings,
+            string? option1, string? option2, ref string debug)
         {
+            if (option1 == null)
+                return null;
             if (string.IsNullOrEmpty(option2))
                 return option1;
 
@@ -144,8 +144,8 @@ namespace NetTally.VoteCounting.RankVoteCounting
 
             foreach (var voter in voterRankings)
             {
-                var rank1 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option1));
-                var rank2 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option2));
+                var rank1 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option1!));
+                var rank2 = voter.RankedVotes.FirstOrDefault(a => Agnostic.StringComparer.Equals(a.Vote, option2!));
 
                 if (rank1 == null && rank2 == null)
                     continue;
