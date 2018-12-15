@@ -15,7 +15,7 @@ namespace NetTally.Output
     /// </summary>
     class VoteNode
     {
-        readonly VoteNode Parent;
+        readonly VoteNode? Parent;
 
         public string Text { get; set; }
 
@@ -29,12 +29,12 @@ namespace NetTally.Output
         bool HasParent => Parent != null;
         bool HasChildren => Children.Count > 0;
 
-        public VoteNode(string text, HashSet<string> voters)
+        public VoteNode(string text, HashSet<string>? voters)
             : this(text, voters, null)
         {
         }
 
-        private VoteNode(string text, HashSet<string> voters, VoteNode parent)
+        private VoteNode(string text, HashSet<string>? voters, VoteNode? parent)
         {
             Parent = parent;
             Text = text;
@@ -45,7 +45,7 @@ namespace NetTally.Output
         /// Add new voters to this node's voter list.
         /// </summary>
         /// <param name="voters">Voters to add.</param>
-        public void AddVoters(HashSet<string> voters)
+        public void AddVoters(HashSet<string>? voters)
         {
             if (voters != null)
             {
