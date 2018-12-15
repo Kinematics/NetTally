@@ -23,7 +23,7 @@ namespace NetTally.Output
         IVoteCounter? voteCounter;
         DisplayMode DisplayMode { get; set; }
 
-        StringBuilder sb { get; set; } = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
         static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
