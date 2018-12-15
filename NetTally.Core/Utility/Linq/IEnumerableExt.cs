@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable disable
+
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -34,8 +36,8 @@ namespace NetTally.Extensions
             if (transform == null)
                 throw new ArgumentNullException(nameof(transform));
 
-            T min = default(T);
-            U _min = default(U);
+            T min = default;
+            U _min = default;
             bool first = true;
 
             foreach (T item in self)
@@ -91,8 +93,8 @@ namespace NetTally.Extensions
             if (transform == null)
                 throw new ArgumentNullException(nameof(transform));
 
-            T max = default(T);
-            U _max = default(U);
+            T max = default;
+            U _max = default;
             bool first = true;
 
             foreach (T item in self)
@@ -161,7 +163,7 @@ namespace NetTally.Extensions
 
 
             List<T> result = new List<T>();
-            U min = default(U);
+            U min = default;
             bool first = true;
 
             foreach (T item in self)
@@ -236,7 +238,7 @@ namespace NetTally.Extensions
 
 
             List<T> result = new List<T>();
-            U max = default(U);
+            U max = default;
             bool first = true;
 
             foreach (T item in self)

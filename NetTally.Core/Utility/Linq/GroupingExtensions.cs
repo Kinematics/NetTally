@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable disable
+
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -38,7 +40,7 @@ namespace NetTally.Extensions
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector) where TKey : IEquatable<TKey>
         {
-            TKey lastKey = default(TKey);
+            TKey lastKey = default;
             bool haveKey = false;
 
             List<TSource> list = new List<TSource>();
@@ -92,7 +94,7 @@ namespace NetTally.Extensions
             Func<TSource, TKey> defaultKey,
             Func<TSource, TKey> keySelector)
         {
-            TKey lastKey = default(TKey);
+            TKey lastKey = default;
             bool haveKey = false;
 
             List<TSource> list = new List<TSource>();
@@ -146,9 +148,9 @@ namespace NetTally.Extensions
             Func<TSource, TSource, bool> sourceMatches
             )
         {
-            TKey lastKey = default(TKey);
+            TKey lastKey = default;
             bool haveKey = false;
-            TSource lastKeySource = default(TSource);
+            TSource lastKeySource = default;
 
             List<TSource> list = new List<TSource>();
 
