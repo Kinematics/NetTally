@@ -58,7 +58,10 @@ namespace NetTally.Output
             if (voters == null || voters.Count == 0)
                 return new List<string>();
 
-            var voterList = new List<string> { GetFirstVoter(voters) };
+            var firstVoter = GetFirstVoter(voters);
+            var voterList = new List<string>();
+            if (firstVoter != null)
+                voterList.Add(firstVoter);
             var otherVoters = voters.Except(voterList);
 
             var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
@@ -72,7 +75,7 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="voters">A set of voters to check.</param>
         /// <returns>Returns which one of them is considered the first real poster.</returns>
-        public static string GetFirstVoter(HashSet<string> voters)
+        public static string? GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => ViewModelService.MainViewModel.VoteCounter.PlanNames.Contains(v));
             var votersCollection = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
@@ -126,7 +129,7 @@ namespace NetTally.Output
             var groupByFirstLine = taskGroup.GroupBy(v => v.Key.GetFirstLine(), Agnostic.StringComparer);
 
             List<VoteNode> nodeList = new List<VoteNode>();
-            VoteNode parent;
+            VoteNode? parent;
 
             foreach (var voteGroup in groupByFirstLine)
             {
