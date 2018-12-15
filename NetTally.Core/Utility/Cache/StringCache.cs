@@ -56,7 +56,7 @@ namespace NetTally.Cache
         #region Local fields
         bool _disposed;
 
-        IClock Clock { get; set; }
+        IClock Clock { get; set; } = new SystemClock();
 
         const int MaxCacheEntries = 100;
         readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
@@ -70,7 +70,7 @@ namespace NetTally.Cache
         /// Allow setting the clock interface to be used by the cache.
         /// </summary>
         /// <param name="clock">The clock interface that will be used to determine timestamps.</param>
-        public void SetClock(IClock clock)
+        public void SetClock(IClock? clock)
         {
             using (cacheLock.ReaderLock())
             {

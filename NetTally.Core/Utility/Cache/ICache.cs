@@ -10,7 +10,7 @@ namespace NetTally.Cache
     /// <typeparam name="T">The type of data that is cached.</typeparam>
     public interface ICache<T>
     {
-        void SetClock(IClock clock);
+        void SetClock(IClock? clock);
 
         Task AddAsync(string key, T content, DateTime expires);
         Task<(bool found, T content)> GetAsync(string key);
