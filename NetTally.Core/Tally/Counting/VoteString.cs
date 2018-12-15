@@ -719,7 +719,7 @@ namespace NetTally.Votes
         /// <param name="voteLine">The vote line being examined.  Cannot be null.</param>
         /// <param name="basePlan">Flag whether the vote line must be a "base plan", rather than any plan.</param>
         /// <returns>Returns the plan name, if found, or null if not.</returns>
-        public static string GetPlanName(string voteLine, bool basePlan = false)
+        public static string? GetPlanName(string voteLine, bool basePlan = false)
         {
             if (voteLine == null)
                 throw new ArgumentNullException(nameof(voteLine));
@@ -761,13 +761,9 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="voteLine">The vote line being examined.</param>
         /// <returns>Returns the modified plan name, if found, or null if not.</returns>
-        public static string GetMarkedPlanName(string voteLine)
+        public static string? GetMarkedPlanName(string voteLine)
         {
-            string planname = GetPlanName(voteLine);
-            if (planname != null)
-                return planname.MakePlanName();
-
-            return null;
+            return GetPlanName(voteLine)?.MakePlanName();
         }
 
         #endregion
@@ -815,7 +811,7 @@ namespace NetTally.Votes
         /// <param name="content">The contents of the vote.</param>
         /// <returns>Returns a complete vote line.</returns>
         public static string ModifyVoteLine(string voteLine,
-            string prefix = null, string marker = null, string task = null, string content = null,
+            string? prefix = null, string? marker = null, string? task = null, string? content = null,
             bool byPartition = false)
         {
             if (string.IsNullOrEmpty(voteLine))
