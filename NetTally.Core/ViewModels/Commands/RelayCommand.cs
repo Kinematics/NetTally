@@ -15,7 +15,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
         public RelayCommand(ViewModelBase viewModel, Action<object> execute)
-            : this(viewModel, execute, null)
+            : this(viewModel, execute, (arg) => true)
         {
         }
 
@@ -27,14 +27,11 @@ namespace NetTally.ViewModels
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
         public RelayCommand(ViewModelBase viewModel, Action<object> execute, Func<object, bool> canExecute)
         {
-            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            ViewModel = viewModel;
 
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this.execute = execute;
 
-            if (canExecute == null)
-                this.canExecute = (arg1) => true;
-            else
-                this.canExecute = canExecute;
+            this.canExecute = canExecute;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
@@ -44,7 +41,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// The action to execute.
         /// </summary>
-        private Action<object> execute;
+        private readonly Action<object> execute;
 
         /// <summary>
         /// Defines the method to be called when the command is invoked.
@@ -57,7 +54,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Function to check whether it's valid to execute the action.
         /// </summary>
-        private Func<object, bool> canExecute;
+        private readonly Func<object, bool> canExecute;
 
         /// <summary>
         /// Defines the method that determines whether the command can execute in its current state.
