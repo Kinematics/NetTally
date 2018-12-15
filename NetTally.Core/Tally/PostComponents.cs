@@ -22,12 +22,12 @@ namespace NetTally
         public string ID { get; }
         public string Text { get; }
         public int IDValue { get; }
-        public List<string> VoteStrings { get; }
-        public List<IGrouping<string, string>> BasePlans { get; private set; }
-        public List<string> VoteLines { get; private set; }
-        public List<string> RankLines { get; private set; }
+        public List<string>? VoteStrings { get; }
+        public List<IGrouping<string, string>>? BasePlans { get; private set; }
+        public List<string>? VoteLines { get; private set; }
+        public List<string>? RankLines { get; private set; }
 
-        public List<string> WorkingVote { get; private set; }
+        public List<string>? WorkingVote { get; private set; }
         public bool Processed { get; set; }
         public bool ForceProcess { get; set; }
 
@@ -47,7 +47,7 @@ namespace NetTally
         /// <param name="author">The author of the post.</param>
         /// <param name="id">The ID (string) of the post.</param>
         /// <param name="text">The text contents of the post.</param>
-        public PostComponents(string author, string id, string text, int number = 0, IQuest quest = null)
+        public PostComponents(string author, string id, string text, int number = 0, IQuest? quest = null)
         {
             if (string.IsNullOrEmpty(author))
                 throw new ArgumentNullException(nameof(author));
@@ -256,7 +256,7 @@ namespace NetTally
         /// <param name="right">The second object being compared.</param>
         /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
         /// a positive value if left is 'after' right.</returns>
-        public static int Compare(PostComponents left, PostComponents right)
+        public static int Compare(PostComponents left, PostComponents? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -265,10 +265,10 @@ namespace NetTally
             if (ReferenceEquals(right, null))
                 return 1;
 
-            if (left.IDValue == 0 || right.IDValue == 0)
-                return string.Compare(left.ID, right.ID, StringComparison.Ordinal);
+            if (left.IDValue == 0 || right!.IDValue == 0)
+                return string.Compare(left.ID, right!.ID, StringComparison.Ordinal);
 
-            return left.IDValue - right.IDValue;
+            return left.IDValue - right!.IDValue;
         }
 
         public static bool operator ==(PostComponents left, PostComponents right)
