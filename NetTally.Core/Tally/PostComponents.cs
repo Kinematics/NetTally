@@ -237,7 +237,7 @@ namespace NetTally
 
         public int CompareTo(PostComponents other) => Compare(this, other);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is PostComponents other)
             {
@@ -256,26 +256,26 @@ namespace NetTally
         /// <param name="right">The second object being compared.</param>
         /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
         /// a positive value if left is 'after' right.</returns>
-        public static int Compare(PostComponents left, PostComponents? right)
+        public static int Compare(PostComponents? left, PostComponents? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
-            if (ReferenceEquals(left, null))
+            if (left is null)
                 return -1;
-            if (ReferenceEquals(right, null))
+            if (right is null)
                 return 1;
 
             if (left.IDValue == 0 || right!.IDValue == 0)
-                return string.Compare(left.ID, right!.ID, StringComparison.Ordinal);
+                return string.Compare(left.ID, right.ID, StringComparison.Ordinal);
 
             return left.IDValue - right!.IDValue;
         }
 
-        public static bool operator ==(PostComponents left, PostComponents right)
+        public static bool operator ==(PostComponents? left, PostComponents? right)
         {
-            if (ReferenceEquals(left, null))
+            if (left is null)
             {
-                return ReferenceEquals(right, null);
+                return right is null;
             }
             return left.Equals(right);
         }
