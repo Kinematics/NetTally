@@ -13,10 +13,10 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         public string Option { get; }
         public string Debug { get; }
 
-        public RankResult(string option, string debug = null)
+        public RankResult(string option, string debug = "")
         {
             Option = option;
-            Debug = debug ?? string.Empty;
+            Debug = debug;
         }
     }
 
@@ -29,7 +29,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
         public RankResults(List<string> listOfOptions)
         {
-            AddRange(listOfOptions.Select(o => new RankResult(o, null)));
+            AddRange(listOfOptions.Select(o => new RankResult(o)));
         }
     }
 
