@@ -36,7 +36,7 @@ namespace NetTally.ViewModels
         /// Make sure we're in the proper synchronization context before sending.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
 
@@ -59,7 +59,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="propertyData">The data to pass along with the property name.</param>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string propertyName = "")
+        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string? propertyName = null)
         {
             PropertyDataChangedEventArgs<T> e = new PropertyDataChangedEventArgs<T>(propertyName, propertyData);
 
@@ -135,7 +135,7 @@ namespace NetTally.ViewModels
         /// <param name="value">The value to be stored.</param>
         /// <param name="propertyName">Name of the property being set.</param>
         /// <returns>Returns true if the value was updated, or false if no change was made.</returns>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
         {
             if (Object.Equals(storage, value))
                 return false;

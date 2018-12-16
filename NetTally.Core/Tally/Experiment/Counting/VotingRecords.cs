@@ -729,7 +729,7 @@ namespace NetTally.Votes.Experiment
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
