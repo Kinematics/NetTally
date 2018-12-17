@@ -220,10 +220,10 @@ namespace NetTally.Forums.Adapters
             if (authorNode != null)
                 author = PostText.CleanupWebString(authorNode.InnerText);
 
-            var contentArea = li.GetDescendantWithClass("div", "b-post__content");
+            HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
             // Number
-            var postCountAnchor = contentArea.GetDescendantWithClass("a", "b-post__count");
+            HtmlNode? postCountAnchor = contentArea?.GetDescendantWithClass("a", "b-post__count");
 
             if (postCountAnchor != null)
             {
@@ -235,7 +235,7 @@ namespace NetTally.Forums.Adapters
             }
 
             // Text
-            var postTextNode = contentArea.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
+            var postTextNode = contentArea?.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
 
             // Predicate filtering out elements that we don't want to include
             var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");

@@ -154,8 +154,8 @@ namespace NetTally.Forums.Adapters
                 var topicactions = pagebody.GetChildWithClass("topic-actions");
                 if (topicactions != null)
                 {
-                    var pagination = topicactions.GetChildWithClass("pagination");
-                    string paginationText = pagination?.InnerText;
+                    HtmlNode? pagination = topicactions.GetChildWithClass("pagination");
+                    string? paginationText = pagination?.InnerText;
                     if (paginationText != null)
                     {
                         Regex pageOf = new Regex(@"Page\s*\d+\s*of\s*(?<pages>\d+)");
@@ -245,21 +245,21 @@ namespace NetTally.Forums.Adapters
             id = div.Id.Substring(1);
 
 
-            var inner = div.GetChildWithClass("div", "inner");
-            var postbody = inner.GetChildWithClass("div", "postbody");
-            var authorNode = postbody.GetChildWithClass("p", "author");
-            var authorStrong = authorNode.Descendants("strong").FirstOrDefault();
-            var authorAnchor = authorStrong.Element("a");
+            HtmlNode? inner = div.GetChildWithClass("div", "inner");
+            HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
+            HtmlNode? authorNode = postbody?.GetChildWithClass("p", "author");
+            HtmlNode? authorStrong = authorNode?.Descendants("strong").FirstOrDefault();
+            HtmlNode? authorAnchor = authorStrong?.Element("a");
 
-            author = PostText.CleanupWebString(authorAnchor.InnerText);
+            author = PostText.CleanupWebString(authorAnchor?.InnerText);
 
             // No way to get the post number??
 
 
             // Get the full post text.  Two different layout variants.
-            var content = postbody.GetChildWithClass("div", "content");
+            var content = postbody?.GetChildWithClass("div", "content");
             if (content == null)
-                content = postbody.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
+                content = postbody?.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
 
             text = PostText.ExtractPostText(content, n => false, Host);
 

@@ -193,22 +193,22 @@ namespace NetTally.Forums.Adapters
                 throw new InvalidOperationException("Cannot find content on page.");
 
             // Find the thread author
-            HtmlNode titleBar = pageContent.GetDescendantWithClass("titleBar");
+            HtmlNode? titleBar = pageContent.GetDescendantWithClass("titleBar");
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
             if (titleBar == null)
                 throw new InvalidOperationException("Not a valid forum thread.");
 
-            var pageDesc = page.GetElementbyId("pageDescription");
+            HtmlNode? pageDesc = page.GetElementbyId("pageDescription");
 
-            var authorNode = pageDesc?.GetChildWithClass("username");
+            HtmlNode? authorNode = pageDesc?.GetChildWithClass("username");
 
-            author = PostText.CleanupWebString(authorNode?.InnerText);
+            author = PostText.CleanupWebString(authorNode?.InnerText ?? "");
 
             // Find the number of pages in the thread
             var pageNavLinkGroup = pageContent.GetDescendantWithClass("div", "pageNavLinkGroup");
             var pageNav = pageNavLinkGroup?.GetChildWithClass("PageNav");
-            string lastPage = pageNav?.GetAttributeValue("data-last", "");
+            string lastPage = pageNav?.GetAttributeValue("data-last", "") ?? "";
 
             if (string.IsNullOrEmpty(lastPage))
             {
@@ -265,10 +265,10 @@ namespace NetTally.Forums.Adapters
             if (quest.UseRSSThreadmarks == BoolEx.True)
             {
                 // try for RSS stream
-                XDocument rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
+                XDocument? rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
-                if (rss.Root.Name == "rss")
+                if (rss != null && rss.Root.Name == "rss")
                 {
                     XName channelName = XName.Get("channel", "");
 
@@ -331,7 +331,7 @@ namespace NetTally.Forums.Adapters
 
 
             // Load the threadmarks so that we can find the starting post page or number.
-            HtmlDocument threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
+            HtmlDocument? threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
                 ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
@@ -499,11 +499,11 @@ namespace NetTally.Forums.Adapters
                 author = $"{author}_{id}";
 
             // Get the primary content of the list item
-            HtmlNode primaryContent = li.GetChildWithClass("primaryContent");
+            HtmlNode? primaryContent = li.GetChildWithClass("primaryContent");
 
             // On one branch, we can get the post text
-            HtmlNode messageContent = primaryContent.GetChildWithClass("messageContent");
-            HtmlNode postBlock = messageContent.Element("article").Element("blockquote");
+            HtmlNode? messageContent = primaryContent?.GetChildWithClass("messageContent");
+            HtmlNode? postBlock = messageContent?.Element("article")?.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
@@ -517,14 +517,17 @@ namespace NetTally.Forums.Adapters
             text = PostText.ExtractPostText(postBlock, exclusions, Host);
 
             // On another branch of the primary content, we can get the post number.
-            HtmlNode messageMeta = primaryContent.GetChildWithClass("messageMeta");
+            HtmlNode? messageMeta = primaryContent?.GetChildWithClass("messageMeta");
             // HTML parsing of the post was corrupted somehow.
             if (messageMeta == null)
             {
                 return null;
             }
-            HtmlNode publicControls = messageMeta.GetChildWithClass("publicControls");
-            HtmlNode postNumber = publicControls.GetChildWithClass("postNumber");
+            HtmlNode? publicControls = messageMeta.GetChildWithClass("publicControls");
+            HtmlNode? postNumber = publicControls?.GetChildWithClass("postNumber");
+
+            if (postNumber == null)
+                return null;
 
             string postNumberText = postNumber.InnerText;
             // Skip the leading # character.
@@ -563,11 +566,11 @@ namespace NetTally.Forums.Adapters
             {
                 HtmlNode content = GetPageContent(page, PageType.Threadmarks);
 
-                HtmlNode threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
+                HtmlNode? threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
 
-                HtmlNode listOfThreadmarks = null;
+                HtmlNode? listOfThreadmarks = null;
 
-                HtmlNode threadmarkList = threadmarksDiv.GetDescendantWithClass("threadmarkList");
+                HtmlNode? threadmarkList = threadmarksDiv?.GetDescendantWithClass("threadmarkList");
 
                 if (threadmarkList != null)
                 {
@@ -591,7 +594,7 @@ namespace NetTally.Forums.Adapters
                 else
                 {
                     // threadmarkList was null.  There is no .threadmarkList node, so check for undecorated ul that contains .threadmarkItem list items.
-                    listOfThreadmarks = threadmarksDiv.Descendants("ul").FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
+                    listOfThreadmarks = threadmarksDiv?.Descendants("ul").FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
                 }
 
                 if (listOfThreadmarks != null)

@@ -50,7 +50,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URL that the response headers say we requested.</returns>
-        Task<string> GetRedirectUrl(string url, string shortDescrip,
+        Task<string> GetRedirectUrl(string url, string? shortDescrip,
             CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 

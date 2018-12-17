@@ -26,7 +26,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="text">The text pulled from an HTML page.</param>
         /// <returns>Returns a cleaned version of the post text.</returns>
-        public static string CleanupWebString(string text)
+        public static string CleanupWebString(string? text)
         {
             if (text == null)
                 return string.Empty;
@@ -46,7 +46,7 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.  A default is used if none is provided.</param>
         /// <returns>Returns a cleaned version of the text of the post.</returns>
         /// <exception cref="ArgumentNullException">If node is null.</exception>
-        public static string ExtractPostText(HtmlNode node, Predicate<HtmlNode> exclude, Uri host)
+        public static string ExtractPostText(HtmlNode? node, Predicate<HtmlNode> exclude, Uri host)
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));

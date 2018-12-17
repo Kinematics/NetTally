@@ -236,8 +236,8 @@ namespace NetTally.Forums.Adapters
             if (postDetails != null)
             {
                 // Author
-                HtmlNode userinfo = postDetails.GetChildWithClass("div", "userinfo");
-                HtmlNode username = userinfo?.GetChildWithClass("a", "username");
+                HtmlNode? userinfo = postDetails.GetChildWithClass("div", "userinfo");
+                HtmlNode? username = userinfo?.GetChildWithClass("a", "username");
                 author = PostText.CleanupWebString(username?.InnerText);
 
                 // Text

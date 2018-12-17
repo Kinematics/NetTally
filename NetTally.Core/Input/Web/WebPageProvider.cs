@@ -152,7 +152,7 @@ namespace NetTally.Web
         /// </returns>
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetRedirectUrl(string url, string shortDescrip,
+        public async Task<string> GetRedirectUrl(string url, string? shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
@@ -381,7 +381,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Whether to suppress notifications.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
-        private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
+        private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string? shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             var (uri, url2) = GetVerifiedUrl(url);
 

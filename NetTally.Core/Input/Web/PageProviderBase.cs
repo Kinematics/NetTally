@@ -103,7 +103,7 @@ namespace NetTally.Web
 
         #region Notification functions
 
-        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip, Exception? e, SuppressNotifications suppressNotifications)
+        protected void NotifyStatusChange(PageRequestStatusType status, string url, string? shortDescrip, Exception? e, SuppressNotifications suppressNotifications)
         {
             if (suppressNotifications == SuppressNotifications.Yes)
                 return;
@@ -156,7 +156,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="e">The e.</param>
-        private void NotifyError(string shortDescrip, Exception e)
+        private void NotifyError(string? shortDescrip, Exception e)
         {
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
@@ -170,7 +170,7 @@ namespace NetTally.Web
         /// <param name="status">The status.</param>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyResult(PageRequestStatusType status, string shortDescrip)
+        private void NotifyResult(PageRequestStatusType status, string? shortDescrip)
         {
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
