@@ -280,7 +280,7 @@ namespace NetTally
             return left.Equals(right);
         }
 
-        public static bool operator !=(PostComponents left, PostComponents right) => !(left == right);
+        public static bool operator !=(PostComponents? left, PostComponents? right) => !(left == right);
 
         public static bool operator <(PostComponents left, PostComponents right) => (Compare(left, right) < 0);
 
