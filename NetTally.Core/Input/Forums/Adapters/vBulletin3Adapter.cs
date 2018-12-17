@@ -173,7 +173,9 @@ namespace NetTally.Forums.Adapters
                 return new List<PostComponents>();
 
             var posts = from p in postList.Elements("div")
-                        select GetPost(p, quest);
+                        let post = GetPost(p, quest)
+                        where post != null
+                        select post;
 
             return posts;
         }
@@ -204,11 +206,8 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="postDiv">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode postDiv, IQuest quest)
+        private PostComponents? GetPost(HtmlNode postDiv, IQuest quest)
         {
-            if (postDiv == null)
-                throw new ArgumentNullException(nameof(postDiv));
-
             string author = "";
             string id;
             string text;
@@ -257,14 +256,15 @@ namespace NetTally.Forums.Adapters
             text = PostText.ExtractPostText(postContents, exclusion, Host);
 
 
-            PostComponents post;
+            PostComponents? post = null;
+
             try
             {
                 post = new PostComponents(author, id, text, number);
             }
             catch
             {
-                post = null;
+                //post = null;
             }
 
             return post;

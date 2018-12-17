@@ -164,7 +164,9 @@ namespace NetTally.Forums.Adapters
 
             var posts = from p in postList.Elements("li")
                         where !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", ""))
-                        select GetPost(p, quest);
+                        let post = GetPost(p, quest)
+                        where post != null
+                        select post;
 
             return posts;
         }
@@ -195,7 +197,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents GetPost(HtmlNode li, IQuest quest)
+        private PostComponents? GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -242,7 +244,7 @@ namespace NetTally.Forums.Adapters
             text = PostText.ExtractPostText(postTextNode, exclusion, Host);
 
 
-            PostComponents post;
+            PostComponents? post;
             try
             {
                 post = new PostComponents(author, id, text, number, quest);
