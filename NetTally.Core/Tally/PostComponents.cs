@@ -178,7 +178,7 @@ namespace NetTally
                 {
                     if (block.Count() > 1)
                     {
-                        string planName = VoteString.GetPlanName(block.Key, basePlan: true);
+                        string? planName = VoteString.GetPlanName(block.Key, basePlan: true);
 
                         if (planName != null && !ViewModelService.MainViewModel.VoteCounter.ReferenceVoters.Contains(planName, Agnostic.StringComparer))
                         {

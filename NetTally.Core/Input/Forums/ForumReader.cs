@@ -63,6 +63,7 @@ namespace NetTally.Forums
         /// <returns>Returns the forum adapter that knows how to read the forum of the quest thread.</returns>
         private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
         {
+
             var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, token);
 
             if (quest.PostsPerPage == 0)
@@ -159,7 +160,7 @@ namespace NetTally.Forums
 
                 string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
 
-                HtmlDocument page = await pageProvider.GetPage(firstPageUrl, $"Page {firstPageNumber}", 
+                HtmlDocument? page = await pageProvider.GetPage(firstPageUrl, $"Page {firstPageNumber}", 
                     CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 
@@ -219,7 +220,7 @@ namespace NetTally.Forums
                 }
 
                 var posts = from post in adapter.GetPosts(page, quest)
-                            where post != null && post.IsVote && post.IsAfterStart(rangeInfo) &&
+                            where post.IsVote && post.IsAfterStart(rangeInfo) &&
                                 (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost)
                             select post;
 

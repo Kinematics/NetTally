@@ -17,7 +17,7 @@ namespace NetTally.Web
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        HttpClient client;
+        HttpClient? client;
         const int retryLimit = 3;
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);

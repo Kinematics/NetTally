@@ -764,7 +764,7 @@ namespace NetTally.ViewModels
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 
-        public HashSet<string> GetVoterListForVote(string vote, VoteType voteType)
+        public HashSet<string>? GetVoterListForVote(string vote, VoteType voteType)
         {
             var votes = VoteCounter.GetVotesCollection(voteType);
             if (votes.ContainsKey(vote))
@@ -815,7 +815,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">Indicator of what quest is being requested.</param>
         /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
-        private IQuest GetThisQuest(object parameter)
+        private IQuest? GetThisQuest(object parameter)
         {
             if (parameter is IQuest quest)
             {

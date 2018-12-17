@@ -19,7 +19,7 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        Uri ThreadUri { get; }
+        Uri? ThreadUri { get; }
 
         /// <summary>
         /// The contents of the line break allowed for the site.

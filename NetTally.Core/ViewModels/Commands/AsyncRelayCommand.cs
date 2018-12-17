@@ -22,7 +22,7 @@ namespace NetTally.ViewModels
     public class AsyncRelayCommand : IAsyncCommand, ICommand
     {
         private readonly Func<object, Task> execute;
-        private readonly Func<object, bool> canExecute;
+        private readonly Func<object, bool>? canExecute;
         private bool isExecuting;
         public event EventHandler CanExecuteChanged;
 
@@ -43,7 +43,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="executeAsync">The action to execute when requested.</param>
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
-        public AsyncRelayCommand(ViewModelBase viewModel, Func<object, Task> executeAsync, Func<object, bool> canExecute)
+        public AsyncRelayCommand(ViewModelBase viewModel, Func<object, Task> executeAsync, Func<object, bool>? canExecute)
         {
             ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.execute = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));

@@ -43,7 +43,7 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        public Uri ThreadUri { get; private set; }
+        public Uri? ThreadUri { get; private set; }
 
         /// <summary>
         /// Get the forum adapter being used by this quest.
