@@ -18,7 +18,8 @@ namespace NetTally.Forums.Adapters
         /// <param name="uri">The URI of the quest thread.</param>
         public vBulletin4Adapter(Uri uri)
         {
-            Site = uri;
+            (Host, BaseSite, ThreadName) = GetSiteData(uri);
+            site = uri;
         }
 
         #region Site properties
@@ -37,29 +38,35 @@ namespace NetTally.Forums.Adapters
             }
             set
             {
-                site = value ?? throw new ArgumentNullException(nameof(Site));
-                UpdateSiteData();
+                // Get site data (which may throw an exception) before attempting
+                // to set the value of the backing field.
+                (Host, BaseSite, ThreadName) = GetSiteData(value);
+                site = value;
             }
         }
 
         /// <summary>
-        /// When the Site value changes, update the base site and thread name values appropriately.
+        /// Given a site URI (on construction, or when setting the property), extract out
+        /// the relevant host, base site, and thread name values.
         /// </summary>
-        private void UpdateSiteData()
+        /// <param name="siteUri">A URI for the quest thread.</param>
+        /// <returns>Returns a tuple of the relevalt components.</returns>
+        /// <exception cref="ArgumentException">Throws an exception if the provided URI does not
+        /// match the expected format for forums.</exception>
+        private (Uri host, string baseSite, string threadName) GetSiteData(Uri siteUri)
         {
-            if (site == null)
-                throw new InvalidOperationException("Site value is null.");
-
-            Match m = siteRegex.Match(site.AbsoluteUri);
+            Match m = siteRegex.Match(siteUri.AbsoluteUri);
             if (m.Success)
             {
-                BaseSite = m.Groups["base"].Value;
-                Host = new Uri(BaseSite);
-                ThreadName = m.Groups["thread"].Value;
+                string baseSite = m.Groups["base"].Value;
+                Uri host = new Uri(baseSite);
+                string threadName = m.Groups["thread"].Value;
+
+                return (host, baseSite, threadName);
             }
             else
             {
-                throw new ArgumentException($"Invalid vBulletin4 site URL format:\n{site.AbsoluteUri}");
+                throw new ArgumentException($"Invalid vBulletin4 site URL format:\n{siteUri.AbsoluteUri}");
             }
         }
 

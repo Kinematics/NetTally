@@ -17,6 +17,21 @@ namespace NetTally.Forums.Adapters
     /// </summary>
     class XenForo1Adapter : IForumAdapter
     {
+        #region Constructor
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="site">The URI of the thread this adapter will be handling.</param>
+        public XenForo1Adapter(Uri site)
+        {
+            this.site = site;
+            (Host, BaseSite, ThreadName) = GetSiteData(site);
+        }
+        #endregion
+
+        #region Regexes and stuff
+        // Regex for forum URL syntax.
+        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)((?<base>https?://[^/]+/([^/]+/)*)threads/)?(?<thread>[^/]+\.\d+(?=/|$))");
         // May possibly end with /page-00#post-00
         static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
         // The short HREF version gives the post ID
@@ -24,20 +39,13 @@ namespace NetTally.Forums.Adapters
 
         // The default threadmark filter.
         static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
-
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="site">The URI of the thread this adapter will be handling.</param>
-        public XenForo1Adapter(Uri site)
-        {
-            Site = site;
-        }
+        #endregion
 
         #region Site properties
+        /// <summary>
+        /// Backing property for site URI.
+        /// </summary>
         Uri site;
-        static readonly Regex siteRegex = new Regex(@"^(?!.*\s)((?<base>https?://[^/]+/([^/]+/)*)threads/)?(?<thread>[^/]+\.\d+(?=/|$))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
@@ -51,42 +59,51 @@ namespace NetTally.Forums.Adapters
             }
             set
             {
-                site = value ?? throw new ArgumentNullException(nameof(Site));
-                UpdateSiteData();
+                // Get site data (which may throw an exception) before attempting
+                // to set the value of the backing field.
+                (Host, BaseSite, ThreadName) = GetSiteData(value);
+                site = value;
             }
         }
 
         /// <summary>
-        /// When the Site value changes, update the base site and thread name values appropriately.
+        /// Given a site URI (on construction, or when setting the property), extract out
+        /// the relevant host, base site, and thread name values.
         /// </summary>
-        void UpdateSiteData()
+        /// <param name="siteUri">A URI for the quest thread.</param>
+        /// <returns>Returns a tuple of the relevalt components.</returns>
+        /// <exception cref="ArgumentException">Throws an exception if the provided URI does not
+        /// match the expected format for XenForo forums.</exception>
+        private (Uri host, string baseSite, string threadName) GetSiteData(Uri siteUri)
         {
-            Match m = siteRegex.Match(site.AbsoluteUri);
+            Match m = siteRegex.Match(siteUri.AbsoluteUri);
             if (m.Success)
             {
                 // Default to SV if no host information is provided in the Uri.
-                if (m.Groups["base"].Success)
-                    BaseSite = m.Groups["base"].Value;
-                else
-                    BaseSite = "https://forums.sufficientvelocity.com/";
+                string baseSite = "https://forums.sufficientvelocity.com/";
 
-                Host = new Uri(BaseSite);
-                ThreadName = m.Groups["thread"].Value;
+                if (m.Groups["base"].Success)
+                    baseSite = m.Groups["base"].Value;
+
+                Uri host = new Uri(baseSite);
+                string threadName = m.Groups["thread"].Value;
+
+                return (host, baseSite, threadName);
             }
             else
             {
-                throw new ArgumentException($"Invalid XenForo site URL format:\n{site.AbsoluteUri}");
+                throw new ArgumentException($"Invalid XenForo site URL format:\n{siteUri.AbsoluteUri}");
             }
         }
 
         Uri Host { get; set; }
         string BaseSite { get; set; }
         string ThreadName { get; set; }
-
         string ThreadBaseUrl => $"{BaseSite}threads/{ThreadName}/";
         string PostsBaseUrl => $"{BaseSite}posts/";
         string ThreadmarksUrl => $"{ThreadBaseUrl}threadmarks?category_id=1";
         string ThreadmarksRSSUrl => $"{ThreadBaseUrl}threadmarks.rss?category_id=1";
+
         #endregion
 
         #region Public Interface
