@@ -71,7 +71,7 @@ namespace NetTally
             return left.Equals(right);
         }
 
-        public static bool operator !=(Quest left, Quest right) => !(left == right);
+        public static bool operator !=(Quest? left, Quest? right) => !(left == right);
 
         public static bool operator <(Quest left, Quest right) => (Compare(left, right) < 0);
 
