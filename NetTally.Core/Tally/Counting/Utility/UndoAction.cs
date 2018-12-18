@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NetTally.Votes
 {
@@ -19,15 +18,15 @@ namespace NetTally.Votes
 
         public Dictionary<string, string> PostIDs { get; }
 
-        public string Vote1 { get; }
-        public string Vote2 { get; }
-        public HashSet<string> Voters1 { get; }
-        public HashSet<string> Voters2 { get; }
+        public string? Vote1 { get; } = null;
+        public string? Vote2 { get; } = null;
+        public HashSet<string> Voters1 { get; } = new HashSet<string>();
+        public HashSet<string> Voters2 { get; } = new HashSet<string>();
 
-        public List<string> JoinedVoters { get; }
-        public List<KeyValuePair<string, HashSet<string>>> PriorVotes { get; }
-        public Dictionary<KeyValuePair<string, HashSet<string>>, string> MergedVotes { get; }
-        public Dictionary<string, HashSet<string>> DeletedVotes { get; }
+        public List<string> JoinedVoters { get; } = new List<string>();
+        public List<KeyValuePair<string, HashSet<string>>> PriorVotes { get; } = new List<KeyValuePair<string, HashSet<string>>>();
+        public Dictionary<KeyValuePair<string, HashSet<string>>, string> MergedVotes { get; } = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
+        public Dictionary<string, HashSet<string>> DeletedVotes { get; } = new Dictionary<string, HashSet<string>>();
 
 
         // Delete votes
@@ -43,7 +42,6 @@ namespace NetTally.Votes
             VoteType = voteType;
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
-            DeletedVotes = new Dictionary<string, HashSet<string>>();
             foreach (var deletedVote in deletedVotes)
             {
                 DeletedVotes.Add(deletedVote.Key, new HashSet<string>(deletedVote.Value));
@@ -57,24 +55,20 @@ namespace NetTally.Votes
         {
             if (actionType != UndoActionType.Merge)
                 throw new InvalidOperationException("Invalid use of constructor for Merge undo.");
-            if (vote1 == null)
-                throw new ArgumentNullException(nameof(vote1));
             if (voters1 == null)
                 throw new ArgumentNullException(nameof(voters1));
-            if (vote2 == null)
-                throw new ArgumentNullException(nameof(vote2));
             if (voters2 == null)
                 throw new ArgumentNullException(nameof(voters2));
+
+            Vote1 = vote1 ?? throw new ArgumentNullException(nameof(vote1));
+            Vote2 = vote2 ?? throw new ArgumentNullException(nameof(vote2));
 
             ActionType = actionType;
             VoteType = voteType;
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
-            Vote1 = vote1;
-            Voters1 = new HashSet<string>(voters1 ?? Enumerable.Empty<string>());
-
-            Vote2 = vote2;
-            Voters2 = new HashSet<string>(voters2 ?? Enumerable.Empty<string>());
+            Voters1.UnionWith(voters1);
+            Voters2.UnionWith(voters2);
         }
 
         // Merge rank votes
@@ -94,7 +88,6 @@ namespace NetTally.Votes
             VoteType = voteType;
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
-            MergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
             foreach (var mergedVote in mergedVotes)
             {
                 // original vote, revised vote key
@@ -117,9 +110,8 @@ namespace NetTally.Votes
             VoteType = voteType;
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
-            JoinedVoters = new List<string>(joinedVoters);
+            JoinedVoters.AddRange(joinedVoters);
 
-            PriorVotes = new List<KeyValuePair<string, HashSet<string>>>();
             foreach (var prior in priorVotes)
             {
                 PriorVotes.Add(new KeyValuePair<string, HashSet<string>>(prior.Key, new HashSet<string>(prior.Value)));
@@ -145,8 +137,10 @@ namespace NetTally.Votes
             PostIDs = new Dictionary<string, string>(postIDs, postIDs.Comparer);
 
             Vote1 = deletedVote;
-            Voters1 = new HashSet<string>(voters ?? Enumerable.Empty<string>());
-            Voters2 = new HashSet<string>(addedVotes ?? Enumerable.Empty<string>());
+
+            Voters1.UnionWith(voters);
+            Voters2.UnionWith(addedVotes);
+
         }
 
     }
