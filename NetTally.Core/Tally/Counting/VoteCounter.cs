@@ -363,7 +363,7 @@ namespace NetTally.VoteCounting
             if (!referenceNames[ReferenceType.Any].Any())
                 return results;
 
-            string proxyName = null;
+            string? proxyName = null;
 
 
             // Label ^ or 'pin' means it must be a user reference.
@@ -1101,7 +1101,7 @@ namespace NetTally.VoteCounting
             {
                 // Find any vote that matches using an agnostic string comparison, that ignores
                 // case, spacing, and most punctuation.
-                string agVote = votes.Keys.FirstOrDefault(k =>
+                string? agVote = votes.Keys.FirstOrDefault(k =>
                     Agnostic.StringComparer.Equals(cleaned, cleanedKeys[k]));
 
                 // If we found a match, return that; otherwise this is a new vote, so return it unchanged.
