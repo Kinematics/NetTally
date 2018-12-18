@@ -496,8 +496,7 @@ namespace NetTally.VoteCounting
             if (!HasVoter(post.Author, VoteType.Vote))
                 return false;
 
-            int submittedID = 0;
-            if (!int.TryParse(GetVotersCollection(VoteType.Vote)[post.Author], out submittedID))
+            if (!int.TryParse(GetVotersCollection(VoteType.Vote)[post.Author], out int submittedID))
             {
                 return string.CompareOrdinal(GetVotersCollection(VoteType.Vote)[post.Author], post.ID) > 0;
             }
