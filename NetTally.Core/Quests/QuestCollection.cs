@@ -66,8 +66,12 @@ namespace NetTally.Collections
 
         public List<Quest> GetAsQuestType()
         {
-            var a = this.Select(q => q as Quest);
-            return a.ToList();
+            var collectionAsQuests = from q in this
+                                     let qq = q as Quest
+                                     where qq != null
+                                     select qq;
+
+            return collectionAsQuests.ToList();
         }
 
         //public void DeserializeFromXml(string xml)
