@@ -69,10 +69,10 @@ namespace NetTally.VoteCounting
         /// <param name="original">The original vote string to check for.</param>
         /// <param name="partitionMode">The partition mode.</param>
         /// <param name="result">The result of the lookup.</param>
-        /// <returns></returns>
-        public bool TryGetMergeRecord(string original, PartitionMode partitionMode, out string? result)
+        /// <returns>Returns true if the record was found, and false if not.</returns>
+        public bool TryGetMergeRecord(string original, PartitionMode partitionMode, out string result)
         {
-            result = null;
+            result = "";
 
             var merges = GetMergesFor(partitionMode);
 
