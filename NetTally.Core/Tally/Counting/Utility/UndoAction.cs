@@ -18,8 +18,8 @@ namespace NetTally.Votes
 
         public Dictionary<string, string> PostIDs { get; }
 
-        public string? Vote1 { get; } = null;
-        public string? Vote2 { get; } = null;
+        public string Vote1 { get; } = "";
+        public string Vote2 { get; } = "";
         public HashSet<string> Voters1 { get; } = new HashSet<string>();
         public HashSet<string> Voters2 { get; } = new HashSet<string>();
 
@@ -55,13 +55,9 @@ namespace NetTally.Votes
         {
             if (actionType != UndoActionType.Merge)
                 throw new InvalidOperationException("Invalid use of constructor for Merge undo.");
-            if (voters1 == null)
-                throw new ArgumentNullException(nameof(voters1));
-            if (voters2 == null)
-                throw new ArgumentNullException(nameof(voters2));
 
-            Vote1 = vote1 ?? throw new ArgumentNullException(nameof(vote1));
-            Vote2 = vote2 ?? throw new ArgumentNullException(nameof(vote2));
+            Vote1 = vote1;
+            Vote2 = vote2;
 
             ActionType = actionType;
             VoteType = voteType;
