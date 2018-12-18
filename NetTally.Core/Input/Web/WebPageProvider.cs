@@ -17,7 +17,7 @@ namespace NetTally.Web
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        HttpClient? client;
+        HttpClient client;
         const int retryLimit = 3;
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
@@ -28,7 +28,7 @@ namespace NetTally.Web
             : base(handler, clock)
         {
             SetupHandler();
-            SetupClient();
+            client = SetupClient();
         }
 
         protected override void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
@@ -38,7 +38,8 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                client.Dispose();
+                if (client != null)
+                    client.Dispose();
             }
 
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
@@ -56,7 +57,7 @@ namespace NetTally.Web
         /// Create a new HTTP Client based on the client handler.
         /// Setup properties on the HTTP Client.
         /// </summary>
-        private void SetupClient()
+        private HttpClient SetupClient()
         {
             // In the event of slow response probably caused by
             // proxy lookup failures, can turn it off here.
@@ -64,21 +65,23 @@ namespace NetTally.Web
             //ClientHandler.UseProxy = false;
             ClientHandler.UseProxy = !AdvancedOptions.Instance.DisableWebProxy;
 
-            client = new HttpClient(ClientHandler);
+            HttpClient clt = new HttpClient(ClientHandler);
 
-            client.Timeout = timeout;
-            client.DefaultRequestHeaders.Add("Accept", "text/html");
-            client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+            clt.Timeout = timeout;
+            clt.DefaultRequestHeaders.Add("Accept", "text/html");
+            clt.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+            clt.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
 
             // Native client handler breaks if we set the accept-encoding.
             // It handles auto-compression on its own.
             var handlerInfo = ClientHandler.GetType().GetTypeInfo();
             if (handlerInfo.FullName != "ModernHttpClient.NativeMessageHandler")
-                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
+                clt.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
 
             // Have to set the BaseAddress for mobile client code to work properly.
-            client.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
+            clt.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
+
+            return clt;
         }
         #endregion
 
