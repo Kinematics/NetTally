@@ -156,7 +156,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="e">The e.</param>
-        private void NotifyError(string? shortDescrip, Exception e)
+        private void NotifyError(string? shortDescrip, Exception? e)
         {
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
