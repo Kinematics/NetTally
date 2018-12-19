@@ -22,17 +22,17 @@ namespace NetTally
         public string ID { get; }
         public string Text { get; }
         public int IDValue { get; }
-        public List<string>? VoteStrings { get; }
-        public List<IGrouping<string, string>>? BasePlans { get; private set; }
-        public List<string>? VoteLines { get; private set; }
-        public List<string>? RankLines { get; private set; }
+        public List<string> VoteStrings { get; } = new List<string>();
+        public List<IGrouping<string, string>> BasePlans { get; } = new List<IGrouping<string, string>>();
+        public List<string> VoteLines { get; } = new List<string>();
+        public List<string> RankLines { get; } = new List<string>();
 
-        public List<string>? WorkingVote { get; private set; }
+        public List<string> WorkingVote { get; } = new List<string>();
         public bool Processed { get; set; }
         public bool ForceProcess { get; set; }
 
         // Indicate whether this post contains a vote of any sort.
-        public bool IsVote => VoteStrings != null && VoteStrings.Count > 0;
+        public bool IsVote => VoteStrings.Count > 0;
 
         // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
         readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
@@ -97,9 +97,6 @@ namespace NetTally
         /// <returns>Returns true if this post comes after the defined starting point.</returns>
         public bool IsAfterStart(ThreadRangeInfo startInfo)
         {
-            if (startInfo == null)
-                throw new ArgumentNullException(nameof(startInfo));
-
             if (startInfo.ByNumber)
             {
                 return Number >= startInfo.Number;
@@ -115,10 +112,7 @@ namespace NetTally
         /// <param name="fn">A function that will generate a string list from the post components.</param>
         public void SetWorkingVote(Func<PostComponents, List<string>> fn)
         {
-            if (fn == null)
-                throw new ArgumentNullException(nameof(fn));
-
-            WorkingVote = fn(this);
+            WorkingVote.AddRange(fn(this));
             Processed = false;
             ForceProcess = false;
         }
@@ -160,7 +154,6 @@ namespace NetTally
         /// <param name="voteStrings">The list of all the lines in the vote post.</param>
         private void SeparateVoteStrings(List<string> voteStrings)
         {
-            BasePlans = new List<IGrouping<string, string>>();
             List<string> consolidatedLines = new List<string>();
 
             // Group blocks based on parent vote lines (no prefix).
@@ -191,9 +184,6 @@ namespace NetTally
 
                 consolidatedLines.AddRange(block.ToList());
             }
-
-            RankLines = new List<string>();
-            VoteLines = new List<string>();
 
             foreach (var line in consolidatedLines)
             {

@@ -260,7 +260,7 @@ namespace NetTally.Votes
                 return vote;
 
             // Then check if the *entire post* should be treated as a complete plan.
-            string postPlanName = VoteString.GetPlanName(post.VoteLines.First());
+            string? postPlanName = VoteString.GetPlanName(post.VoteLines.First());
             if (postPlanName != null && VoteCounter.ReferencePlans.ContainsKey(postPlanName) &&
                     VoteCounter.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Agnostic.StringComparer))
             {
