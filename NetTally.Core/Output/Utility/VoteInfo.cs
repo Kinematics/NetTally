@@ -22,7 +22,7 @@ namespace NetTally.Output
             Dictionary<string, string> voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(voteType);
 
             if (voters.TryGetValue(voter, out string voteID))
-                return ViewModelService.MainViewModel.VoteCounter.Quest.PermalinkForId(voteID);
+                return ViewModelService.MainViewModel.VoteCounter.Quest?.PermalinkForId(voteID) ?? string.Empty;
 
             return string.Empty;
         }
