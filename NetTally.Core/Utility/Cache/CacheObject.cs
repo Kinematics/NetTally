@@ -5,6 +5,7 @@ namespace NetTally.Cache
     /// <summary>
     /// Class to save an object with an associated timestamp and expiration.
     /// Typical use would be to cache loaded web pages.
+    /// TODO: Create unit test
     /// </summary>
     public class CacheObject<T> where T : class
     {
