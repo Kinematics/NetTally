@@ -83,21 +83,24 @@ namespace NetTally.Collections
         {
             CheckReentrancy();
 
-            var itemsWithoutPredicate = Items.Where(a => !predicate(a)).ToList();
-            Items.Clear();
-            if (Items is List<T> itemsList)
+            if (Items != null)
             {
-                itemsList.AddRange(itemsWithoutPredicate);
-            }
-            else
-            {
-                foreach (var item in itemsWithoutPredicate)
-                    Items.Add(item);
-            }
+                var itemsWithoutPredicate = Items.Where(a => !predicate(a)).ToList();
+                Items.Clear();
+                if (Items is List<T> itemsList)
+                {
+                    itemsList.AddRange(itemsWithoutPredicate);
+                }
+                else if (Items != null)
+                {
+                    foreach (var item in itemsWithoutPredicate)
+                        Items.Add(item);
+                }
 
-            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+                OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
         }
 
         /// <summary>
