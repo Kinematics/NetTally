@@ -9,7 +9,7 @@ namespace NetTally.Output
     /// </summary>
     public struct Spoiler : IDisposable
     {
-        StringBuilder SB;
+        StringBuilder? SB;
         readonly bool Display;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace NetTally.Output
 
             if (Display)
             {
-                sb?.AppendLine($"[spoiler=\"{label}\"]");
+                sb.AppendLine($"[spoiler=\"{label}\"]");
             }
         }
 
