@@ -180,7 +180,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// The currently selected quest.
         /// </summary>
-        IQuest selectedQuest;
+        IQuest? selectedQuest;
         public IQuest? SelectedQuest
         {
             get { return selectedQuest; }
@@ -225,7 +225,7 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Manage Events from the Quest
-        private void BindQuest(IQuest quest)
+        private void BindQuest(IQuest? quest)
         {
             if (quest != null)
             {
@@ -237,7 +237,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private void UnbindQuest(IQuest quest)
+        private void UnbindQuest(IQuest? quest)
         {
             if (quest != null)
             {
@@ -384,7 +384,7 @@ namespace NetTally.ViewModels
         private void DoRemoveQuest(object parameter)
         {
             int index = -1;
-            IQuest questToRemove = GetThisQuest(parameter);
+            IQuest? questToRemove = GetThisQuest(parameter);
 
             if (questToRemove == null)
                 return;
@@ -486,7 +486,7 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Section: Tally Commands
-        CancellationTokenSource cts;
+        CancellationTokenSource? cts;
 
         /// <summary>
         /// Requests that the tally class update its current results.
@@ -521,7 +521,8 @@ namespace NetTally.ViewModels
                 {
                     try
                     {
-                        await tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
+                        if (SelectedQuest != null)
+                            await tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
