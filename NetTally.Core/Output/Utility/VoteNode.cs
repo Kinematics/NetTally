@@ -131,11 +131,11 @@ namespace NetTally.Output
 
 
                 sb.Append(" Plan: ");
-                string firstVoter = VoteInfo.GetFirstVoter(Voters);
+                string? firstVoter = VoteInfo.GetFirstVoter(Voters);
                 sb.Append(firstVoter);
 
                 // Only add the link if we're not showing the voters
-                if (displayMode == DisplayMode.CompactNoVoters)
+                if (displayMode == DisplayMode.CompactNoVoters && firstVoter != null)
                 {
                     string link;
 
