@@ -45,7 +45,7 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Public Interface Properties
-        public IQuest Quest { get; set; } = null;
+        public IQuest? Quest { get; set; } = null;
 
         public string Title { get; set; } = string.Empty;
 
@@ -187,7 +187,7 @@ namespace NetTally.VoteCounting
         /// <param name="token">Cancellation token.</param>
         public async Task TallyPosts(CancellationToken token)
         {
-            if (Quest == null)
+            if (Quest is null)
                 return;
 
             try
@@ -223,6 +223,9 @@ namespace NetTally.VoteCounting
         private async Task PreprocessPlans(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
+
+            if (Quest is null)
+                return;
 
             // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
             foreach (var post in PostsList)
@@ -267,6 +270,9 @@ namespace NetTally.VoteCounting
         /// </summary>
         private async Task ProcessPosts(CancellationToken token)
         {
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
+
             var unprocessed = PostsList;
 
             // Loop as long as there are any more to process.
@@ -275,7 +281,7 @@ namespace NetTally.VoteCounting
                 token.ThrowIfCancellationRequested();
 
                 // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest, token) == true).ToList();
+                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest!, token) == true).ToList();
 
                 // As long as some got processed, remove those from the unprocessed list
                 // and let the loop run again.
@@ -355,6 +361,8 @@ namespace NetTally.VoteCounting
                 throw new ArgumentNullException(nameof(voteLine));
             if (author == null)
                 throw new ArgumentNullException(nameof(author));
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
 
             List<string> results = new List<string>();
 
@@ -751,6 +759,9 @@ namespace NetTally.VoteCounting
                 throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
             if (vote.Key == revisedKey)
                 return false;
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
+
 
             if (voteType != VoteType.Rank)
             {
@@ -899,6 +910,8 @@ namespace NetTally.VoteCounting
         {
             if (string.IsNullOrEmpty(vote))
                 return false;
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
 
             // No point in partitioning rank votes
             if (voteType == VoteType.Rank)
@@ -969,6 +982,8 @@ namespace NetTally.VoteCounting
         {
             if (!HasUndoActions)
                 return false;
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
 
             var undo = UndoBuffer.Pop();
             List<string> vote;
@@ -1084,6 +1099,9 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the string that can be used as a key in the VotesWithSupporters table.</returns>
         private string GetVoteKey(string vote, VoteType voteType)
         {
+            if (Quest is null)
+                throw new InvalidOperationException("Quest is null.");
+
             // Store a lookup of the cleaned version of the vote so we don't have to repeat the processing.
             if (!cleanedKeys.TryGetValue(vote, out string cleaned))
             {

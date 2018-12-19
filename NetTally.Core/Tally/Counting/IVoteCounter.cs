@@ -8,7 +8,7 @@ namespace NetTally.VoteCounting
 {
     public interface IVoteCounter : INotifyPropertyChanged
     {
-        IQuest Quest { get; set; }
+        IQuest? Quest { get; set; }
 
         Task TallyPosts(CancellationToken token);
         Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token);

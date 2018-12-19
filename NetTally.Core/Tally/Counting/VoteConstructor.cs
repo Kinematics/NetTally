@@ -232,7 +232,7 @@ namespace NetTally.Votes
             {
                 var voters = VoteCounter.GetVotersCollection(VoteType.Plan);
                 bool checkPlan = true;
-                string planName;
+                string? planName;
 
                 foreach (var bPlan in post.BasePlans)
                 {
@@ -286,7 +286,7 @@ namespace NetTally.Votes
                     if (block.Count() > 1)
                     {
                         // See if the block key marks a known plan.
-                        string planName = VoteString.GetPlanName(block.Key);
+                        string? planName = VoteString.GetPlanName(block.Key);
 
                         if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
                             VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Agnostic.StringComparer))
@@ -338,7 +338,7 @@ namespace NetTally.Votes
                 {
                     if (block.Count() > 1)
                     {
-                        string planname = VoteString.GetPlanName(block.Key);
+                        string? planname = VoteString.GetPlanName(block.Key);
 
                         if (planname != null)
                         {
@@ -389,7 +389,7 @@ namespace NetTally.Votes
                     {
                         var firstLine = post.VoteLines.First();
 
-                        string planname = VoteString.GetPlanName(firstLine);
+                        string? planname = VoteString.GetPlanName(firstLine);
 
                         if (planname != null)
                         {
@@ -435,7 +435,7 @@ namespace NetTally.Votes
                 {
                     if (block.Count() == 1)
                     {
-                        string planname = VoteString.GetPlanName(block.Key);
+                        string? planname = VoteString.GetPlanName(block.Key);
 
                         if (planname != null)
                         {
@@ -466,8 +466,8 @@ namespace NetTally.Votes
         {
             foreach (var plan in plans)
             {
-                string planName = VoteString.GetPlanName(plan.First());
-                string cleanName = VoteString.RemoveBBCode(planName);
+                string? planName = VoteString.GetPlanName(plan.First());
+                string cleanName = VoteString.RemoveBBCode(planName ?? "");
                 cleanName = VoteString.DeUrlContent(cleanName);
 
 
@@ -490,8 +490,8 @@ namespace NetTally.Votes
         {
             foreach (var plan in plans)
             {
-                string planName = VoteString.GetMarkedPlanName(plan.First());
-                string cleanName = VoteString.RemoveBBCode(planName);
+                string? planName = VoteString.GetMarkedPlanName(plan.First());
+                string cleanName = VoteString.RemoveBBCode(planName ?? "");
                 cleanName = VoteString.DeUrlContent(cleanName);
 
                 if (!VoteCounter.HasPlan(cleanName))
@@ -540,7 +540,7 @@ namespace NetTally.Votes
                 if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
                     continue;
 
-                string refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n, Agnostic.StringComparer))
+                string? refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n, Agnostic.StringComparer))
                     ?.AgnosticMatch(VoteCounter.ReferenceVoters);
 
                 if (refVoter != null && refVoter != post.Author)
@@ -599,7 +599,7 @@ namespace NetTally.Votes
                 return plans;
 
             // Include lines where the task filter matches
-            var filtered = plans.Where(p => quest.TaskFilter.Match(VoteString.GetVoteTask(p.First())));
+            var filtered = plans.Where(p => quest.TaskFilter?.Match(VoteString.GetVoteTask(p.First())) ?? false);
 
             return filtered.ToList();
         }
@@ -621,7 +621,7 @@ namespace NetTally.Votes
             {
                 string firstLine = line.GetFirstLine();
                 string task = VoteString.GetVoteTask(firstLine);
-                bool check = quest.TaskFilter.Match(task);
+                bool check = quest.TaskFilter?.Match(task) ?? false;
                 if (check)
                     results.Add(line);
             }
@@ -649,7 +649,7 @@ namespace NetTally.Votes
 
             // If there were no explicit rankings, see if there's a reference to
             // another voter as the only line of this vote.
-            string refName = GetPureRankReference(post);
+            string? refName = GetPureRankReference(post);
 
             if (refName != null)
             {
@@ -671,7 +671,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post.</param>
         /// <returns></returns>
-        private string GetPureRankReference(PostComponents post)
+        private string? GetPureRankReference(PostComponents post)
         {
             if (post.VoteLines.Count == 1)
             {
