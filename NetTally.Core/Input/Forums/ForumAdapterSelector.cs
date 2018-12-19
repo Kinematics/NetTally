@@ -20,7 +20,7 @@ namespace NetTally.Forums
         /// <param name="site">The Uri of the site the adapter is for.</param>
         /// <returns>Returns a forum adapter matching the forum type, initialized to the provided Uri.</returns>
         //public static IForumAdapter GetForumAdapter(ForumType forumType, Uri site)
-        public static async Task<IForumAdapter> GetForumAdapterAsync(Uri site, CancellationToken token)
+        public static async Task<IForumAdapter> GetForumAdapterAsync(Uri? site, CancellationToken token)
         {
             if (site == null)
                 throw new ArgumentNullException(nameof(site));
