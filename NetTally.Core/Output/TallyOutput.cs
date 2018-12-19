@@ -107,6 +107,9 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
+            if (VoteCounter.Quest is null)
+                return;
+
             sb.Append("[b]Vote Tally");
             if (AdvancedOptions.Instance.DebugMode)
                 sb.Append(" (DEBUG)");
@@ -665,6 +668,9 @@ namespace NetTally.Output
         /// </summary>
         private void AddLineBreak()
         {
+            if (VoteCounter.Quest is null)
+                return;
+
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine();
 
