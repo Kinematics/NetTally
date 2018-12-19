@@ -49,7 +49,7 @@ namespace NetTally
         /// Get the forum adapter being used by this quest.
         /// Gets set when the ForumType is determined.
         /// </summary>
-        internal IForumAdapter ForumAdapter { get; set; }
+        internal IForumAdapter? ForumAdapter { get; set; }
 
         /// <summary>
         /// The URL of the quest.
