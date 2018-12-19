@@ -27,7 +27,7 @@ namespace NetTally.Web
         #endregion
 
         #region Constructors
-        protected PageProviderBase(HttpClientHandler handler, IClock clock)
+        protected PageProviderBase(HttpClientHandler? handler, IClock? clock)
         {
             ClientHandler = handler ?? new HttpClientHandler();
             Clock = clock ?? new SystemClock();

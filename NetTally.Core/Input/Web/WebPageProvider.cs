@@ -24,7 +24,7 @@ namespace NetTally.Web
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler, IClock clock)
+        public WebPageProvider(HttpClientHandler? handler, IClock? clock)
             : base(handler, clock)
         {
             SetupHandler();

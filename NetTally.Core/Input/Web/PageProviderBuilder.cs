@@ -16,9 +16,9 @@ namespace NetTally.Web
         #endregion
 
         #region Builder fields
-        HttpClientHandler buildHandler;
-        IClock buildClock;
-        Type providerType;
+        HttpClientHandler? buildHandler;
+        IClock? buildClock;
+        Type? providerType;
         #endregion
 
         public PageProviderBuilder HttpClientHandler(HttpClientHandler handler)
