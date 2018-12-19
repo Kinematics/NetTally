@@ -319,7 +319,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
-        public Filter ThreadmarkFilter { get; private set; }
+        public Filter ThreadmarkFilter { get; private set; } = Filter.Empty;
 
         /// <summary>
         /// Flag for whether to use custom threadmark filters to exclude threadmarks
@@ -353,7 +353,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
-        public Filter TaskFilter { get; private set; }
+        public Filter TaskFilter { get; private set; } = Filter.Empty;
 
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the user filter, based on current user filter settings.
         /// </summary>
-        public Filter UsernameFilter { get; private set; }
+        public Filter UsernameFilter { get; private set; } = Filter.Empty;
 
 
         /// <summary>
