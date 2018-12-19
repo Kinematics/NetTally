@@ -507,7 +507,10 @@ namespace NetTally.Output
 
 
             // Longer votes get condensed down to a link to the original post (and named after the first voter)
-            string firstVoter = VoteInfo.GetFirstVoter(vote.Value);
+            string? firstVoter = VoteInfo.GetFirstVoter(vote.Value);
+
+            if (firstVoter is null)
+                return;
 
             string task = VoteString.GetVoteTask(vote.Key);
             sb.Append($"[{userCountMarker}]");
