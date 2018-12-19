@@ -21,15 +21,15 @@ namespace NetTally.Web
         Type? providerType;
         #endregion
 
-        public PageProviderBuilder HttpClientHandler(HttpClientHandler handler)
+        public PageProviderBuilder HttpClientHandler(HttpClientHandler? handler)
         {
             return new PageProviderBuilder() { buildHandler = handler, buildClock = this.buildClock, providerType = this.providerType };
         }
-        public PageProviderBuilder ActiveClock(IClock clock)
+        public PageProviderBuilder ActiveClock(IClock? clock)
         {
             return new PageProviderBuilder() { buildHandler = this.buildHandler, buildClock = clock, providerType = this.providerType };
         }
-        public PageProviderBuilder ProviderType(Type type)
+        public PageProviderBuilder ProviderType(Type? type)
         {
             return new PageProviderBuilder() { buildHandler = this.buildHandler, buildClock = this.buildClock, providerType = type };
         }

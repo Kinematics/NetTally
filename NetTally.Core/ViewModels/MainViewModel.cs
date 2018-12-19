@@ -27,19 +27,26 @@ namespace NetTally.ViewModels
         {
             PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
 
-            SetupNetwork(pageProvider, httpClientHandler);
+            PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(httpClientHandler).Build();
 
-            SetupTextResults(textResults);
+            TextResultsProvider = textResults ?? new TallyOutput();
+
+            VoteCounter = voteCounter ?? new VoteCounter();
+            SetupVoteCounter();
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
-            BuildCheckForNewRelease();
-            SetupVoteCounter(voteCounter);
+            Tally = BuildTally();
 
-            BuildTally();
+            AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
+            RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
 
-            SetupCommands();
+            RunTallyCommand = new AsyncRelayCommand(this, DoRunTallyAsync, CanRunTally);
+            CancelTallyCommand = new RelayCommand(this, DoCancelTally, CanCancelTally);
+            ClearTallyCacheCommand = new RelayCommand(this, DoClearTallyCache, CanClearTallyCache);
+
+            SetupWatches();
         }
 
         #region IDisposable
@@ -63,7 +70,7 @@ namespace NetTally.ViewModels
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                tally.Dispose();
+                Tally.Dispose();
                 PageProvider.Dispose();
             }
 
@@ -71,27 +78,15 @@ namespace NetTally.ViewModels
         }
         #endregion
 
-        #region Networking
+        #region Providers
         public IPageProvider PageProvider { get; private set; }
 
-        private void SetupNetwork(IPageProvider? pageProvider, HttpClientHandler? handler)
-        {
-            PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(handler).Build();
-        }
+        public ITextResultsProvider TextResultsProvider { get; private set; }
         #endregion
 
         #region Section: Check for New Release
         /// Fields for this section
-        CheckForNewRelease checkForNewRelease;
-
-        /// <summary>
-        /// Create a new CheckForNewRelease object, and bind an event listener to it.
-        /// </summary>
-        private void BuildCheckForNewRelease()
-        {
-            checkForNewRelease = new CheckForNewRelease();
-            checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
-        }
+        readonly CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
 
         /// <summary>
         /// Pass-through flag indicating whether there is a newer release of the program available.
@@ -114,6 +109,7 @@ namespace NetTally.ViewModels
         /// </summary>
         public void CheckForNewRelease()
         {
+            checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
             Task.Run(checkForNewRelease.Update);
         }
         #endregion
@@ -175,7 +171,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// List of quests for binding.
         /// </summary>
-        public QuestCollection QuestList { get; private set; }
+        public QuestCollection QuestList { get; private set; } = new QuestCollection();
 
         /// <summary>
         /// The currently selected quest.
@@ -409,23 +405,18 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Section: Tally & Results Binding
-        public ITextResultsProvider TextResultsProvider { get; private set; }
-
-        private void SetupTextResults(ITextResultsProvider? textResults)
-        {
-            TextResultsProvider = textResults ?? new TallyOutput();
-        }
-
         /// Tally class object.
-        Tally tally;
+        Tally Tally { get; }
 
         /// <summary>
         /// Bind event watcher to the class that handles running the tallies.
         /// </summary>
-        private void BuildTally()
+        private Tally BuildTally()
         {
-            tally = new Tally(PageProvider, VoteCounter);
+            Tally tally = new Tally(PageProvider, VoteCounter);
             tally.PropertyChanged += Tally_PropertyChanged;
+
+            return tally;
         }
 
         /// <summary>
@@ -433,15 +424,15 @@ namespace NetTally.ViewModels
         /// </summary>
         private void Tally_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(tally.TallyIsRunning))
+            if (e.PropertyName == nameof(Tally.TallyIsRunning))
             {
                 OnPropertyChanged(nameof(TallyIsRunning));
             }
-            else if (e.PropertyName == nameof(tally.TallyResults))
+            else if (e.PropertyName == nameof(Tally.TallyResults))
             {
                 OnPropertyChanged(nameof(Output));
             }
-            else if (e.PropertyName == nameof(tally.HasTallyResults))
+            else if (e.PropertyName == nameof(Tally.HasTallyResults))
             {
                 OnPropertyChanged(nameof(HasOutput));
             }
@@ -457,18 +448,18 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Flag whether the tally is currently running.
         /// </summary>
-        public bool TallyIsRunning => tally.TallyIsRunning;
+        public bool TallyIsRunning => Tally.TallyIsRunning;
 
         /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
         /// </summary>
-        public string Output => tally.TallyResults;
+        public string Output => Tally.TallyResults;
 
         /// <summary>
         /// Flag whether there's any text in the Output property.
         /// </summary>
-        public bool HasOutput => tally.HasTallyResults;
+        public bool HasOutput => Tally.HasTallyResults;
 
         /// <summary>
         /// Redirection for user defined task values.
@@ -493,7 +484,7 @@ namespace NetTally.ViewModels
         /// </summary>
         public async void UpdateOutput()
         {
-            await tally.UpdateResults().ConfigureAwait(false);
+            await Tally.UpdateResults().ConfigureAwait(false);
         }
 
         #region Run the Tally
@@ -522,7 +513,7 @@ namespace NetTally.ViewModels
                     try
                     {
                         if (SelectedQuest != null)
-                            await tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
+                            await Tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
@@ -530,7 +521,7 @@ namespace NetTally.ViewModels
                         if (cts.IsCancellationRequested)
                         {
                             // User requested cancellation. Add it to the output display.
-                            tally.TallyResults += "Tally Cancelled!\n";
+                            Tally.TallyResults += "Tally Cancelled!\n";
                         }
                         else
                         {
@@ -574,11 +565,11 @@ namespace NetTally.ViewModels
         /// <param name="parameter"></param>
         private void DoCancelTally(object parameter)
         {
-            tally.Cancel();
+            Tally.Cancel();
 
             if (cts == null || cts.IsCancellationRequested)
             {
-                tally.TallyIsRunning = false;
+                Tally.TallyIsRunning = false;
             }
             else
             {
@@ -606,7 +597,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter"></param>
         private void DoClearTallyCache(object parameter)
         {
-            tally.ClearPageCache();
+            Tally.ClearPageCache();
         }
         #endregion
 
@@ -661,9 +652,8 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Attach to the VoteCounter's property changed event.
         /// </summary>
-        private void SetupVoteCounter(IVoteCounter? voteCounter)
+        private void SetupVoteCounter()
         {
-            VoteCounter = voteCounter ?? new VoteCounter();
             VoteCounter.PropertyChanged += VoteCounter_PropertyChanged;
         }
 
@@ -794,16 +784,9 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Setups the commands to attach to the view model.
         /// </summary>
-        private void SetupCommands()
+        private void SetupWatches()
         {
             NonCommandPropertyChangedValues.Add("NewRelease");
-
-            AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
-            RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
-
-            RunTallyCommand = new AsyncRelayCommand(this, DoRunTallyAsync, CanRunTally);
-            CancelTallyCommand = new RelayCommand(this, DoCancelTally, CanCancelTally);
-            ClearTallyCacheCommand = new RelayCommand(this, DoClearTallyCache, CanClearTallyCache);
         }
         #endregion
 
