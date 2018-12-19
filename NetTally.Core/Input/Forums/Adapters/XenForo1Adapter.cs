@@ -283,7 +283,7 @@ namespace NetTally.Forums.Adapters
 
                     var filteredItems = from item in items
                                         let title = item.Element(titleName).Value
-                                        where !((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(title)) ||
+                                        where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
                                                 (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
                                         let pub = item.Element(pubDate).Value
                                         where string.IsNullOrEmpty(pub) == false
@@ -600,7 +600,7 @@ namespace NetTally.Forums.Adapters
                 if (listOfThreadmarks != null)
                 {
                     Predicate<HtmlNode> filterLambda = (n) => n != null &&
-                        ((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Match(n.InnerText)) ||
+                        ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
                         (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
 
                     Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
