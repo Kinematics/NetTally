@@ -821,13 +821,8 @@ namespace NetTally.Votes
             if (prefix == null && marker == null && task == null && content == null)
                 return voteLine;
 
-            string votePrefix;
-            string voteMarker;
-            string voteTask;
-            string voteContent;
-
             // Use the original vote line value for any parameter that is null.
-            GetVoteComponents(voteLine, out votePrefix, out voteMarker, out voteTask, out voteContent, byPartition: byPartition);
+            GetVoteComponents(voteLine, out string votePrefix, out string voteMarker, out string voteTask, out string voteContent, byPartition: byPartition);
 
             prefix = prefix ?? votePrefix;
             marker = marker ?? voteMarker;
