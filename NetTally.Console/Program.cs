@@ -169,7 +169,7 @@ namespace NetTally.CLI
             }
             else if (ViewModelService.MainViewModel.TallyIsRunning == false)
             {
-                if (e.PropertyName == nameof(ViewModelService.MainViewModel.Output))
+                if (e != null && e.PropertyName == nameof(ViewModelService.MainViewModel.Output))
                 {
                     Console.WriteLine(ViewModelService.MainViewModel.Output);
 
