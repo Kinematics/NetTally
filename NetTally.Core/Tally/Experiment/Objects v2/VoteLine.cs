@@ -15,7 +15,7 @@ namespace NetTally.Votes.Experiment2
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
-        string toString;
+        string toString = "";
         int hash;
 
         public VoteLine(string prefix, string marker, string task, string content, MarkerType markerType, int markerValue)
@@ -36,7 +36,7 @@ namespace NetTally.Votes.Experiment2
             MakeHash();
         }
 
-        public VoteLine Modify(string prefix = null, string task = null, string content = null)
+        public VoteLine Modify(string? prefix = null, string? task = null, string? content = null)
         {
             return new VoteLine(prefix ?? Prefix, Marker, task ?? Task, content ?? Content, MarkerType, MarkerValue);
         }

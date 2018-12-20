@@ -15,7 +15,7 @@ namespace NetTally.Votes.Experiment
         #region Properties and fields
         public VoteLines VoteLines { get; } = new VoteLines();
         public VoteType VoteType { get; private set; } = VoteType.Vote;
-        public string Task { get; private set; }
+        public string Task { get; private set; } = "";
         #endregion
 
         #region Constructors

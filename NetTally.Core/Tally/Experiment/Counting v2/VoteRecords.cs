@@ -7,7 +7,7 @@ namespace NetTally.Votes.Experiment2
 {
     class VoteRecords
     {
-        public IQuest Quest { get; set; }
+        public IQuest? Quest { get; set; }
 
         public List<Post> Posts { get; } = new List<Post>();
 

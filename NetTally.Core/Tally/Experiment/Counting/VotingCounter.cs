@@ -45,7 +45,7 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Viewable Properties
-        public IQuest CurrentQuest { get; private set; }
+        public IQuest? CurrentQuest { get; private set; }
         public bool TallyWasCanceled { get; private set; }
         #endregion
 
@@ -191,6 +191,9 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         private void ProcessPosts(CancellationToken token)
         {
+            if (CurrentQuest is null)
+                return;
+
             // Process all the plans, to partition them and place them in the voting records.
             var plans = VotingRecords.Instance.GetPlans();
 

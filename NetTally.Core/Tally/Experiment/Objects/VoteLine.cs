@@ -21,14 +21,14 @@ namespace NetTally.Votes.Experiment
 
         #region Properties        
 
-        private string _content = null;
-        private string _simplifiedContent = null;
-        private string _marker = null;
+        private string _content = "";
+        private string _simplifiedContent = "";
+        private string _marker = "";
 
 
-        public string Text { get; private set; }
+        public string Text { get; private set; } = "";
 
-        public string Prefix { get; private set; }
+        public string Prefix { get; private set; } = "";
 
         public string Marker
         {
@@ -48,7 +48,7 @@ namespace NetTally.Votes.Experiment
         public MarkerType MarkerType { get; private set; } = MarkerType.None;
         public int MarkerValue { get; private set; }
 
-        public string Task { get; private set; }
+        public string Task { get; private set; } = "";
 
         /// <summary>
         /// The basic content is all the content of the vote, including BBCode and URLs,
@@ -73,17 +73,17 @@ namespace NetTally.Votes.Experiment
         /// The trimmed content is the content after it has (optionally) been
         /// shortened based on analysis heuristics.
         /// </summary>
-        public string TrimmedContent { get; private set; }
+        public string TrimmedContent { get; private set; } = "";
         /// <summary>
         /// The display content is all the content of the vote, including BBCode and URLs,
         /// in the format it was originally submitted.
         /// </summary>
-        public string DisplayContent { get; private set; }
+        public string DisplayContent { get; private set; } = "";
         /// <summary>
         /// The comparable content is the content of the vote without any BBCode or URLs,
         /// but with non-latin characters still in their original form (eg: Æsir).
         /// </summary>
-        public string ComparableContent { get; private set; }
+        public string ComparableContent { get; private set; } = "";
         /// <summary>
         /// The simplified content is the comparable content text after decomposing
         /// diacriticals or other non-latin characters (eg: AEsir).
@@ -100,7 +100,7 @@ namespace NetTally.Votes.Experiment
                 if (value != _simplifiedContent)
                 {
                     _simplifiedContent = value;
-                    hashcode = _simplifiedContent.GetHashCode();
+                    hashcode = _simplifiedContent?.GetHashCode() ?? 0;
                 }
             }
         }
@@ -164,16 +164,16 @@ namespace NetTally.Votes.Experiment
         /// <param name="task">The task.</param>
         /// <param name="content">The content.</param>
         /// <returns>Returns a copy of this instance, with the specified modifications.</returns>
-        public VoteLine Modify(string prefix = null, string marker = null, string task = null, string content = null)
+        public VoteLine Modify(string? prefix = null, string? marker = null, string? task = null, string? content = null)
         {
             if (prefix == null && marker == null && task == null && content == null)
                 return this;
 
             return new VoteLine(
                 prefix ?? Prefix,
-                marker ?? Marker,
+                marker ?? Marker ?? "",
                 task ?? Task,
-                content ?? Content);
+                content ?? Content ?? "");
         }
 
         #endregion

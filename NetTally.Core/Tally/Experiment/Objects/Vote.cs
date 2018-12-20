@@ -179,7 +179,7 @@ namespace NetTally.Votes.Experiment
 
                 foreach (var line in group.Skip(1))
                 {
-                    string newMarker = null;
+                    string? newMarker = null;
 
                     if (line.MarkerType == MarkerType.Vote || line.MarkerType == MarkerType.Continuation)
                     {

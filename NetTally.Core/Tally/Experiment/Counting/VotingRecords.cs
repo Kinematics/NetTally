@@ -201,7 +201,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voterName">Name of the voter.</param>
         /// <returns>The Identity Set for that voter.</returns>
-        public IdentitySet GetVoterIdentities(string voterName)
+        public IdentitySet? GetVoterIdentities(string voterName)
         {
             if (IdentityLookup.TryGetValue(voterName, out IdentitySet identities))
             {
@@ -216,7 +216,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="voterName">Name of the voter.</param>
         /// <returns>The last (by post ID) identity for that voter.</returns>
-        public Identity GetLastVoterIdentity(string voterName, string host = null)
+        public Identity? GetLastVoterIdentity(string voterName, string? host = null)
         {
             if (IdentityLookup.TryGetValue(voterName, out IdentitySet identities))
             {
@@ -253,7 +253,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="planName">The planname.</param>
         /// <returns>Returns the list of plans that match the provided name.</returns>
-        public List<Plan> GetPlans(string planName)
+        public List<Plan>? GetPlans(string planName)
         {
             if (string.IsNullOrEmpty(planName))
                 throw new ArgumentNullException(nameof(planName));
@@ -289,7 +289,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="canonicalName">Returns the canonical version of the name, if found.</param>
         /// <returns>Returns true if the requested name is found.</returns>
         /// <exception cref="ArgumentNullException"/>
-        public bool TryGetPlanName(string planName, out string canonicalName)
+        public bool TryGetPlanName(string planName, out string? canonicalName)
         {
             if (string.IsNullOrEmpty(planName))
                 throw new ArgumentNullException(nameof(planName));
@@ -309,9 +309,9 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="planName">Name of the plan.</param>
         /// <returns>Returns the name of the plan that properly matches the request, or null if not found.</returns>
-        public string GetPlanName(string planName)
+        public string? GetPlanName(string planName)
         {
-            if (TryGetPlanName(planName, out string canonicalName))
+            if (TryGetPlanName(planName, out string? canonicalName))
                 return canonicalName;
 
             return null;
@@ -679,21 +679,27 @@ namespace NetTally.Votes.Experiment
         {
             var votes = GetVoteEntries(undo.VoteType);
 
-            votes[undo.Vote1].UnionWith(undo.Voters1);
-            votes[undo.Vote2].Clear();
-            votes[undo.Vote2].UnionWith(undo.Voters2);
+            if (undo.Vote1 != null && undo.Vote2 != null)
+            {
+                votes[undo.Vote1].UnionWith(undo.Voters1);
+                votes[undo.Vote2].Clear();
+                votes[undo.Vote2].UnionWith(undo.Voters2);
+            }
         }
 
         private void UndoJoin(UndoItem undo)
         {
             var votes = GetVoteEntries(undo.VoteType);
 
-            foreach (var vote in votes)
+            if (undo.Votes1 != null && undo.Voter1 != null)
             {
-                if (undo.Votes1.Contains(vote.Key))
-                    vote.Value.Add(undo.Voter1);
-                else
-                    vote.Value.Remove(undo.Voter1);
+                foreach (var vote in votes)
+                {
+                    if (undo.Votes1.Contains(vote.Key))
+                        vote.Value.Add(undo.Voter1);
+                    else
+                        vote.Value.Remove(undo.Voter1);
+                }
             }
         }
 
@@ -701,16 +707,22 @@ namespace NetTally.Votes.Experiment
         {
             var votes = GetVoteEntries(undo.VoteType);
 
-            votes[undo.Vote1].UnionWith(undo.Voters1);
+            if (undo.Vote1 != null)
+            {
+                votes[undo.Vote1].UnionWith(undo.Voters1);
+            }
         }
 
         private void UndoRemoveVoter(UndoItem undo)
         {
             var votes = GetVoteEntries(undo.VoteType);
 
-            foreach (var vote in undo.Votes1)
+            if (undo.Votes1 != null && undo.Voter1 != null)
             {
-                votes[vote].Add(undo.Voter1);
+                foreach (var vote in undo.Votes1)
+                {
+                    votes[vote].Add(undo.Voter1);
+                }
             }
         }
 

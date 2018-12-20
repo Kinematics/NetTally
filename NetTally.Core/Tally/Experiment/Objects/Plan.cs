@@ -64,7 +64,7 @@ namespace NetTally.Votes.Experiment
         #endregion
 
         #region Equality comparisons
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Plan otherPlan)
             {
@@ -74,20 +74,20 @@ namespace NetTally.Votes.Experiment
             return false;
         }
 
-        public static bool operator ==(Plan left, Plan right)
+        public static bool operator ==(Plan? left, Plan? right)
         {
-            if (ReferenceEquals(left, null))
+            if (left is null)
             {
-                return ReferenceEquals(right, null);
+                return right is null;
             }
             return left.Equals(right);
         }
 
-        public static bool operator !=(Plan left, Plan right)
+        public static bool operator !=(Plan? left, Plan? right)
         {
-            if (ReferenceEquals(left, null))
+            if (left is null)
             {
-                return !ReferenceEquals(right, null);
+                return !(right is null);
             }
             return !left.Equals(right);
         }
@@ -107,7 +107,7 @@ namespace NetTally.Votes.Experiment
         /// </summary>
         /// <param name="vote">The vote.</param>
         /// <returns>Returns a list of all plans found within a vote.</returns>
-        public static List<Plan> GetPlansFromVote(Vote vote)
+        public static List<Plan> GetPlansFromVote(Vote? vote)
         {
             if (vote == null)
                 throw new ArgumentNullException(nameof(vote));

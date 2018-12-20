@@ -28,11 +28,6 @@ namespace NetTally.Votes.Experiment
         /// <exception cref="System.InvalidOperationException"></exception>
         internal static void ProcessPlan(Plan plan, IQuest quest, CancellationToken token)
         {
-            if (plan == null)
-                throw new ArgumentNullException(nameof(plan));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
             // Check for cancellation once per post processed.
             token.ThrowIfCancellationRequested();
 
@@ -205,12 +200,12 @@ namespace NetTally.Votes.Experiment
                 throw new ArgumentNullException(nameof(quest));
 
             List<VotePartition> results = new List<VotePartition>();
-            VotePartition partition = null;
-            VoteLine parent = null;
+            VotePartition? partition = null;
+            VoteLine? parent = null;
 
             // Move through the vote lines by index so we can modify the
             // index pointer directly when doing comparisons.
-            var voteLineArray = post.Vote.VoteLines.ToArray();
+            var voteLineArray = post.Vote?.VoteLines.ToArray() ?? new VoteLine[0];
             int index = 0;
 
             while (index < voteLineArray.Length)
@@ -231,7 +226,7 @@ namespace NetTally.Votes.Experiment
                     {
                         // Get the collection of variants of this plan name.
                         var plans = VotingRecords.Instance.GetPlans(planname);
-                        Plan plan = null;
+                        Plan? plan = null;
 
                         // Make sure we don't go over the limit of the remaining post vote lines.
                         int remainingLines = voteLineArray.Length - index - 1;
@@ -320,7 +315,7 @@ namespace NetTally.Votes.Experiment
                             else
                             {
                                 VotingRecords.Instance.NoteFutureReference(post);
-                                return null;
+                                return new List<VotePartition>();
                             }
                         }
 
@@ -365,7 +360,7 @@ namespace NetTally.Votes.Experiment
                             else
                             {
                                 VotingRecords.Instance.NoteFutureReference(post);
-                                return null;
+                                return new List<VotePartition>();
                             }
                         }
 
@@ -382,7 +377,7 @@ namespace NetTally.Votes.Experiment
 
                         // Get the collection of variants of this plan name.
                         var plans = VotingRecords.Instance.GetPlans(planname);
-                        Plan plan = null;
+                        Plan? plan = null;
 
                         // Make sure we don't go over the limit of the remaining post vote lines.
                         int remainingLines = voteLineArray.Length - index - 1;
@@ -552,7 +547,7 @@ namespace NetTally.Votes.Experiment
                 }
             }
 
-            return null;
+            return new List<VotePartition>();
         }
         
         /// <summary>
