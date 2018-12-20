@@ -37,7 +37,23 @@ namespace NetTally.Cache
 
         public override bool Equals(object obj)
         {
-            return Store.Equals(obj);
+            if (obj is CacheObject<T> cObj)
+            {
+                if (ReferenceEquals(this, cObj))
+                    return true;
+                else if (Store.Equals(cObj.Store))
+                    return true;
+                else
+                    return false;
+            }
+            else if (obj is T objStore)
+            {
+                return Store.Equals(objStore);
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
