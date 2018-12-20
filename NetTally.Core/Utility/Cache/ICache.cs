@@ -15,6 +15,8 @@ namespace NetTally.Cache
         Task AddAsync(string key, T content, DateTime expires);
         Task<(bool found, T content)> GetAsync(string key);
 
+        int MaxCacheEntries { get; }
+        int Count { get; }
         void InvalidateCache();
         void Clear();
     }

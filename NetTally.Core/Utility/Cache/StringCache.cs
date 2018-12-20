@@ -58,11 +58,16 @@ namespace NetTally.Cache
 
         IClock Clock { get; set; } = new SystemClock();
 
-        const int MaxCacheEntries = 100;
+        const int maxCacheEntries = 100;
+
+        public int MaxCacheEntries => maxCacheEntries;
+
         readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
-        Dictionary<string, CacheObject<byte[]>> GZPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(MaxCacheEntries);
+        Dictionary<string, CacheObject<byte[]>> GZPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(maxCacheEntries);
 
         readonly AsyncReaderWriterLock cacheLock = new AsyncReaderWriterLock();
+
+        public int Count => GZPageCache.Count;
         #endregion
 
         #region Public functions

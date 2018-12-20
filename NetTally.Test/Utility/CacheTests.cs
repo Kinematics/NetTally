@@ -94,5 +94,24 @@ namespace TallyUnitTest.Utility
             Assert.AreEqual(resourceContent, result.content);
         }
 
+        [TestMethod]
+        public async Task Cache_expired_data_invalidate()
+        {
+            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
+            DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
+
+            var clock = new StaticClock(clockTime);
+            cache.SetClock(clock);
+
+            int storeCount = cache.MaxCacheEntries + 2;
+            for (int i = 0; i < storeCount; i++)
+            {
+                await cache.AddAsync($"page data {i}", "A page of data", expireTime);
+            }
+
+            Assert.AreEqual(storeCount, cache.Count);
+            cache.InvalidateCache();
+            Assert.AreEqual(0, cache.Count);
+        }
     }
 }
