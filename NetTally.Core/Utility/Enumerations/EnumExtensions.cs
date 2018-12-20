@@ -59,9 +59,7 @@ namespace NetTally.Extensions
         /// <returns>Returns an IEnumerable list of enum values.</returns>
         public static IEnumerable<T> EnumToList<T>() where T : struct, Enum
         {
-            Type enumType = typeof(T);
-
-            return Enum.GetValues(enumType).OfType<T>();
+            return Enum.GetValues(typeof(T)).OfType<T>();
         }
 
         /// <summary>
