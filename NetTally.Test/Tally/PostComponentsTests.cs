@@ -125,7 +125,8 @@ Last vote was:
             PostComponents p = new PostComponents(author, id, msg);
 
             Assert.IsFalse(p.IsVote);
-            Assert.IsNull(p.VoteStrings);
+            Assert.IsNotNull(p.VoteStrings);
+            Assert.IsFalse(p.VoteStrings.Any());
         }
 
         [TestMethod]
