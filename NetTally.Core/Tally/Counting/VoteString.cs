@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
@@ -52,7 +51,7 @@ namespace NetTally.Votes
         // Regex for any closing BBCode tag.
         static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
 
-        static readonly Dictionary<string, int> countTags = new Dictionary<string, int> {["b"] = 0,["i"] = 0,["u"] = 0,["color"] = 0 };
+        static readonly Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
         #endregion
 
         #region Other regexes
@@ -215,7 +214,7 @@ namespace NetTally.Votes
         private static string NormalizeContentBBCode(string line)
         {
             var lineSplit = allBBCodeRegex.Split(line);
-            
+
             // If there were no BBCode tags, just return the original line.
             if (lineSplit.Length == 1)
                 return line;
@@ -420,7 +419,7 @@ namespace NetTally.Votes
             // only if there's more than one word before it.
             else if (matches.Count > 1)
             {
-                for (int i = matches.Count-1; i >= 0; i--)
+                for (int i = matches.Count - 1; i >= 0; i--)
                 {
                     Match m = matches[i];
                     if (m.Success && m.Index > 0 && m.Index < separatorLimit)
@@ -443,7 +442,7 @@ namespace NetTally.Votes
                 Match m = matches[0];
                 if (m.Success && m.Index > 0 && m.Index < separatorLimit)
                 {
-                    return m.Index+1;
+                    return m.Index + 1;
                 }
             }
 
@@ -577,8 +576,8 @@ namespace NetTally.Votes
 
                 return;
             }
-            
-            throw new InvalidOperationException("Unable to parse components for vote line:\n"+line);
+
+            throw new InvalidOperationException("Unable to parse components for vote line:\n" + line);
         }
         #endregion
 
