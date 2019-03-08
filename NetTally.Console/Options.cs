@@ -12,7 +12,7 @@ namespace NetTally.CLI
     public class Options
     {
         [Value(0, HelpText = "Thread to tally.", Required = true)]
-        public string Thread { get; set; }
+        public string Thread { get; set; } = "";
 
         [Option('v', "verbose", Default = false, HelpText = "Print page load details during execution.")]
         public bool Verbose { get; set; }
@@ -33,16 +33,16 @@ namespace NetTally.CLI
         public DisplayMode DisplayMode { get; set; }
 
         [Option("threadmarkfilters", HelpText = "Filters used on threadmark titles.")]
-        public string ThreadmarkFilters { get; set; }
+        public string ThreadmarkFilters { get; set; } = "";
 
         [Option("usernamefilters", HelpText = "Filters used on usernames.")]
-        public string UsernameFilters { get; set; }
+        public string UsernameFilters { get; set; } = "";
 
         [Option("postfilters", HelpText = "Filters used on post numbers or IDs.")]
-        public string PostFilters { get; set; }
+        public string PostFilters { get; set; } = "";
 
         [Option("taskfilters", HelpText = "Filters used on tasks.")]
-        public string TaskFilters { get; set; }
+        public string TaskFilters { get; set; } = "";
 
         [Option("postsperpage", Default = 0, HelpText = "The number of posts per page for the forum.  Default of 0 will try to auto-detect.")]
         public int PostsPerPage { get; set; }
