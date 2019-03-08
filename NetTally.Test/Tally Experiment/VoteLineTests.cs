@@ -31,7 +31,7 @@ namespace NetTally.Tests
             Assert.AreEqual(string.Empty, VoteLine.Empty.DisplayContent);
             Assert.AreEqual(string.Empty, VoteLine.Empty.ComparableContent);
             Assert.AreEqual(string.Empty, VoteLine.Empty.SimplifiedContent);
-            Assert.AreEqual(string.Empty.GetHashCode(), VoteLine.Empty.GetHashCode());
+            Assert.AreEqual(0, VoteLine.Empty.GetHashCode());
             Assert.AreEqual("[] ", VoteLine.Empty.ToString());
         }
 

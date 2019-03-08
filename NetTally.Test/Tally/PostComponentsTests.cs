@@ -79,7 +79,7 @@ namespace NetTally.Tests
             Assert.AreEqual(id, p.ID);
             Assert.AreEqual(12345, p.IDValue);
             Assert.IsFalse(p.IsVote);
-            Assert.IsNull(p.VoteStrings);
+            Assert.AreEqual(0, p.VoteStrings.Count);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace NetTally.Tests
             Assert.AreEqual(id, p.ID);
             Assert.AreEqual(12345, p.IDValue);
             Assert.IsFalse(p.IsVote);
-            Assert.IsNull(p.VoteStrings);
+            Assert.AreEqual(0, p.VoteStrings.Count);
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace NetTally.Tests
             Assert.AreEqual(id1, p.ID);
             Assert.AreEqual(0, p.IDValue);
             Assert.IsFalse(p.IsVote);
-            Assert.IsNull(p.VoteStrings);
+            Assert.AreEqual(0, p.VoteStrings.Count);
         }
 
         #endregion
