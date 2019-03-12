@@ -265,7 +265,7 @@ namespace NetTally.Forums.Adapters
             if (quest.UseRSSThreadmarks == BoolEx.True)
             {
                 // try for RSS stream
-                XDocument? rss = await pageProvider.GetXmlPage(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
+                XDocument? rss = await pageProvider.GetXmlPageAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
                 if (rss != null && rss.Root.Name == "rss")
@@ -331,7 +331,7 @@ namespace NetTally.Forums.Adapters
 
 
             // Load the threadmarks so that we can find the starting post page or number.
-            HtmlDocument? threadmarkPage = await pageProvider.GetPage(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
+            HtmlDocument? threadmarkPage = await pageProvider.GetPageAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
                 ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
@@ -364,7 +364,7 @@ namespace NetTally.Forums.Adapters
                 string permalink = GetPermalinkForId(tmID);
 
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
-                string fullUrl = await pageProvider.GetRedirectUrl(permalink, null, CachingMode.BypassCache, ShouldCache.No, SuppressNotifications.Yes, token).ConfigureAwait(false);
+                string fullUrl = await pageProvider.GetRedirectUrlAsync(permalink, null, CachingMode.BypassCache, ShouldCache.No, SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(fullUrl))
                     threadmarkHref = fullUrl;

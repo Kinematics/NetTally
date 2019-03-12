@@ -143,7 +143,7 @@ namespace NetTally.Utility
         {
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            HtmlDocument? doc = await ViewModelService.MainViewModel.PageProvider.GetPage(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument? doc = await ViewModelService.MainViewModel.PageProvider.GetPageAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;

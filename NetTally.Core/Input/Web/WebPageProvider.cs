@@ -98,7 +98,7 @@ namespace NetTally.Web
         /// <returns>
         /// Returns an HTML document, if it can be loaded.
         /// </returns>
-        public async Task<HtmlDocument?> GetPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<HtmlDocument?> GetPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             HtmlDocument? htmldoc = null;
@@ -125,7 +125,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument?> GetXmlPage(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<XDocument?> GetXmlPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             XDocument? xmldoc = null;
@@ -155,7 +155,7 @@ namespace NetTally.Web
         /// </returns>
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetRedirectUrl(string url, string? shortDescrip,
+        public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);

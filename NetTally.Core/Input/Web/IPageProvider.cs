@@ -20,7 +20,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<HtmlDocument?> GetPage(string url, string shortDescrip, 
+        Task<HtmlDocument?> GetPageAsync(string url, string shortDescrip, 
             CachingMode caching, ShouldCache shouldCache, 
             SuppressNotifications suppressNotifications, CancellationToken token);
 
@@ -35,7 +35,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<XDocument?> GetXmlPage(string url, string shortDescrip,
+        Task<XDocument?> GetXmlPageAsync(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 
@@ -50,7 +50,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URL that the response headers say we requested.</returns>
-        Task<string> GetRedirectUrl(string url, string? shortDescrip,
+        Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
             CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 
