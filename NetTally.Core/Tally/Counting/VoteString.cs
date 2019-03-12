@@ -39,19 +39,19 @@ namespace NetTally.Votes
 
         #region BBCode regexes
         // Regex to match any markup that we'll want to remove during comparisons.
-        static readonly Regex markupRegex = new Regex(@"『/?[ibu]』|『color=[^』]+』|『/color』");
+        static readonly Regex markupRegex = new Regex(@"『/?[ibsu]』|『color=[^』]+』|『/color』");
 
         // Regex for the pre-content area of a vote line, that will only match if there are no BBCode tags in that area of the vote line.
-        static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[\s*[xX✓✔1-9]\s*\]\s*(?!(?:(?:『/?[ibu]』|『color=[^』]+』|『/color』)\s*)+\[)\s*(\[[^]]+\])?");
+        static readonly Regex precontentRegex = new Regex(@"^(?:[\s-]*)\[\s*[xX✓✔1-9]\s*\]\s*(?!(?:(?:『/?[ibsu]』|『color=[^』]+』|『/color』)\s*)+\[)\s*(\[[^]]+\])?");
 
         // Regex for any opening or closing BBCode tag.
-        static readonly Regex allBBCodeRegex = new Regex(@"(『(?:/)?(?:b|i|u|color)(?(?<=『color)=[^』]+)』)");
+        static readonly Regex allBBCodeRegex = new Regex(@"(『(?:/)?(?:b|i|s|u|color)(?(?<=『color)=[^』]+)』)");
         // Regex for any opening BBCode tag.
-        static readonly Regex openBBCodeRegex = new Regex(@"^『(b|i|u|color)(?(?<=『color)=[^』]+)』");
+        static readonly Regex openBBCodeRegex = new Regex(@"^『(b|i|s|u|color)(?(?<=『color)=[^』]+)』");
         // Regex for any closing BBCode tag.
-        static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
+        static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|s|u|color)』");
 
-        static readonly Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
+        static readonly Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["s"] = 0, ["u"] = 0, ["color"] = 0 };
         #endregion
 
         #region Other regexes
@@ -170,7 +170,7 @@ namespace NetTally.Votes
             // Trailing spacing is stripped if it is inside BBCode.  
             // EG: [task] [/b]Content => [task]Content
             // EG: [task][/b] Content => [task] Content
-            Regex task = new Regex(@"^(?:(?:\s*(?:『/?[ibu]』|『color=[^』]+』|『/color』))*\s*(\[[^]]*])(?:\s*(?:『/[ibu]』|『/color』))*)?(.+)");
+            Regex task = new Regex(@"^(?:(?:\s*(?:『/?[ibsu]』|『color=[^』]+』|『/color』))*\s*(\[[^]]*])(?:\s*(?:『/[ibsu]』|『/color』))*)?(.+)");
 
             m = task.Match(remainder);
 

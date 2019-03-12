@@ -152,10 +152,12 @@ namespace NetTally.Forums
                         string spanStyle = child.GetAttributeValue("style", "");
                         string spanClass = child.GetAttributeValue("class", "");
 
-                        // Struck-through text is entirely skipped.
+                        // Struck-through text is retained, but may eliminate some vote lines.
                         if (spanStrikeRegex.Match(spanStyle).Success)
                         {
-                            continue;
+                            sb.Append("『s』");
+                            ExtractPostTextString(child, exclude, sb, host);
+                            sb.Append("『/s』");
                         }
                         else if (spanSpoilerRegex.Match(spanClass).Success)
                         {

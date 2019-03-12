@@ -339,6 +339,22 @@ namespace NetTally.Tests
             await TestSinglePostParsing(testVote, expected);
         }
 
+        [TestMethod]
+        public async Task Vote_Parition_Line_WithStrike_1()
+        {
+            sampleQuest.PartitionMode = PartitionMode.ByLine;
+
+            string testVote =
+@"[x] 『s』Ambush『/s』 Kill";
+
+            List<string> expected = new List<string>
+            {
+@"[x] 『s』Ambush『/s』 Kill
+"
+        };
+
+            await TestSinglePostParsing(testVote, expected);
+        }
 
         [TestMethod]
         public async Task Vote_Parition_Block_1()
