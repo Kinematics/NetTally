@@ -39,7 +39,7 @@ namespace NetTally.Votes.Experiment2
 
                 if (isVoteLine)
                 {
-                    VoteLines.Add(voteLine);
+                    VoteLines.Add(voteLine!);
                 }
             }
         }
