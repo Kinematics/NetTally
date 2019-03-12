@@ -9,7 +9,7 @@ namespace TallyUnitTest.Utility
     [TestClass]
     public class CacheTests
     {
-        static ICache<string> cache = GZStringCache.Instance;
+        static ICache<string> cache = PageCache.Instance;
         static string resourceContent = string.Empty;
 
         [ClassInitialize]
@@ -21,7 +21,7 @@ namespace TallyUnitTest.Utility
         {
             resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
 
-            cache = GZStringCache.Instance;
+            cache = PageCache.Instance;
         }
 
         [TestInitialize]
@@ -40,35 +40,35 @@ namespace TallyUnitTest.Utility
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public async Task Cache_null_key()
+        public void Cache_null_key()
         {
-            await cache.AddAsync(null, null, CacheInfo.DefaultExpiration);
+            cache.Add(null, null, CacheInfo.DefaultExpiration);
         }
 
         [TestMethod]
-        public async Task Cache_null_data()
+        public void Cache_null_data()
         {
             string data = null;
 
-            await cache.AddAsync("null data", data, CacheInfo.DefaultExpiration);
-            var result = await cache.GetAsync("null data");
+            cache.Add("null data", data, CacheInfo.DefaultExpiration);
+            var (found, content) = cache.Get("null data");
 
-            Assert.IsTrue(result.found);
-            Assert.AreEqual("", result.content);
+            Assert.IsTrue(found);
+            Assert.AreEqual("", content);
         }
 
         [TestMethod]
-        public async Task Cache_page_data()
+        public void Cache_page_data()
         {
-            await cache.AddAsync("page data", resourceContent, CacheInfo.DefaultExpiration);
-            var result = await cache.GetAsync("page data");
+            cache.Add("page data", resourceContent, CacheInfo.DefaultExpiration);
+            var (found, content) = cache.Get("page data");
 
-            Assert.IsTrue(result.found);
-            Assert.AreEqual(resourceContent, result.content);
+            Assert.IsTrue(found);
+            Assert.AreEqual(resourceContent, content);
         }
 
         [TestMethod]
-        public async Task Cache_expired_data()
+        public void Cache_expired_data()
         {
             DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
             DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
@@ -76,14 +76,14 @@ namespace TallyUnitTest.Utility
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
 
-            await cache.AddAsync("page data", resourceContent, expireTime);
-            var result = await cache.GetAsync("page data");
+            cache.Add("page data", resourceContent, expireTime);
+            var (found, _) = cache.Get("page data");
 
-            Assert.IsFalse(result.found);
+            Assert.IsFalse(found);
         }
 
         [TestMethod]
-        public async Task Cache_unexpired_data()
+        public void Cache_unexpired_data()
         {
             DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
             DateTime expireTime = new DateTime(2017, 7, 1, 12, 1, 0);
@@ -91,15 +91,15 @@ namespace TallyUnitTest.Utility
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
 
-            await cache.AddAsync("page data", resourceContent, expireTime);
-            var result = await cache.GetAsync("page data");
+            cache.Add("page data", resourceContent, expireTime);
+            var (found, content) = cache.Get("page data");
 
-            Assert.IsTrue(result.found);
-            Assert.AreEqual(resourceContent, result.content);
+            Assert.IsTrue(found);
+            Assert.AreEqual(resourceContent, content);
         }
 
         [TestMethod]
-        public async Task Cache_expired_data_invalidate()
+        public void Cache_expired_data_invalidate()
         {
             DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
             DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
@@ -110,7 +110,7 @@ namespace TallyUnitTest.Utility
             int storeCount = cache.MaxCacheEntries + 2;
             for (int i = 0; i < storeCount; i++)
             {
-                await cache.AddAsync($"page data {i}", "A page of data", expireTime);
+                cache.Add($"page data {i}", "A page of data", expireTime);
             }
 
             Assert.AreEqual(storeCount, cache.Count);

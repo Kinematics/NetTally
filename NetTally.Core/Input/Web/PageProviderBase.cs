@@ -21,7 +21,7 @@ namespace NetTally.Web
         #region Properties
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
-        protected GZStringCache Cache { get; } = GZStringCache.Instance;
+        protected PageCache Cache { get; } = PageCache.Instance;
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion

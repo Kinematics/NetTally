@@ -193,11 +193,11 @@ namespace NetTally.Web
         /// <param name="url">The URL to search for.</param>
         /// <param name="caching">The caching mode.</param>
         /// <returns>Returns a (bool,string) tuple of whether there was cached content found, and what it was if found.</returns>
-        private async Task<(bool found, string content)> GetCachedContent(string url, CachingMode caching)
+        private (bool found, string content) GetCachedContent(string url, CachingMode caching)
         {
             if (caching == CachingMode.UseCache)
             {
-                return await Cache.GetAsync(url).ConfigureAwait(false);
+                return Cache.Get(url);
             }
 
             return (false, string.Empty);
@@ -216,11 +216,11 @@ namespace NetTally.Web
         private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            string content = string.Empty;
+            string content;
 
             var (uri, url2) = GetVerifiedUrl(url);
 
-            var (found, cachedContent) = await GetCachedContent(url2, caching);
+            var (found, cachedContent) = GetCachedContent(url2, caching);
 
             if (found)
             {
@@ -369,7 +369,7 @@ namespace NetTally.Web
             }
 
             if (shouldCache == ShouldCache.Yes)
-                await Cache.AddAsync(url, result, expires);
+                Cache.Add(url, result, expires);
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 
