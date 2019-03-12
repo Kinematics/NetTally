@@ -216,21 +216,17 @@ namespace NetTally.Web
         private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            string content;
-
             var (uri, url2) = GetVerifiedUrl(url);
 
-            var (found, cachedContent) = GetCachedContent(url2, caching);
+            var (found, content) = GetCachedContent(url2, caching);
 
             if (found)
             {
-                content = cachedContent;
-
                 NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url2, shortDescrip, null, suppressNotifications);
             }
             else
             {
-                content = await GetUrlContent(uri, url2, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
+                content = await GetUrlContent(uri, url2, shortDescrip, shouldCache, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
             }
 
             return content;
@@ -248,7 +244,7 @@ namespace NetTally.Web
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
         private async Task<string?> GetUrlContent(Uri uri, string url, string shortDescrip,
-            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+            ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             string? result = null;
             int tries = 0;
