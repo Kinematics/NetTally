@@ -1,21 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\RenascenceSV.html" />
+    <Compile Include="..\NetTally.Test\**\*.cs" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <Content Include="Resources\RenascenceSV.html">
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\RenascenceSV.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+      <TargetPath>Resources\RenascenceSV.html</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.0-preview-20181205-02" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
@@ -25,5 +26,9 @@
   <ItemGroup>
     <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2'">
+    <DefineConstants>NETCOREAPP</DefineConstants>
+  </PropertyGroup>
 
 </Project>

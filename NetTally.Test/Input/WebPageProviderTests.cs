@@ -7,14 +7,17 @@ namespace NetTally.Tests
     public class WebPageProviderTests
     {
         static IPageProvider pageProvider;
+#if !NETCOREAPP
         static PrivateObject privateWeb;
-
+#endif
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             pageProvider = PageProviderBuilder.Instance.Build();
+#if !NETCOREAPP
             privateWeb = new PrivateObject(pageProvider);
+#endif
         }
 
 

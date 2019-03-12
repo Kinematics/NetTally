@@ -13,7 +13,11 @@ namespace TallyUnitTest.Utility
         static string resourceContent = string.Empty;
 
         [ClassInitialize]
+#if NETCOREAPP
+        public static async Task Initialize(TestContext context)
+#else
         public static async void Initialize(TestContext context)
+#endif
         {
             resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
 
