@@ -35,36 +35,49 @@ namespace NetTally.Forums
 
                 if (doc != null)
                 {
-                    if (IdentifyXenForo1(doc))
-                    {
-                        forumType = ForumType.XenForo1;
-                    }
-                    else if (IdentifyXenForo2(doc))
-                    {
-                        forumType = ForumType.XenForo2;
-                    }
-                    else if (IdentifyVBulletin3(doc))
-                    {
-                        forumType = ForumType.vBulletin3;
-                    }
-                    else if (IdentifyVBulletin4(doc))
-                    {
-                        forumType = ForumType.vBulletin4;
-                    }
-                    else if (IdentifyVBulletin5(doc))
-                    {
-                        forumType = ForumType.vBulletin5;
-                    }
-                    else
-                    {
-                        forumType = ForumType.Unknown;
-                    }
+                    forumType = IdentifyForumTypeFromHtmlDocument(doc);
 
                     forumTypes[uri.Host] = forumType;
                 }
                 else
                 {
                     forumType = ForumType.Unknown;
+                }
+            }
+
+            return forumType;
+        }
+
+        /// <summary>
+        /// Function to check a provided HTML document and use it to determine a forum type.
+        /// </summary>
+        /// <param name="doc">An HTML document.</param>
+        /// <returns>Returns a forum type, if it can be determined based on the provided document.</returns>
+        public static ForumType IdentifyForumTypeFromHtmlDocument(HtmlDocument? doc)
+        {
+            ForumType forumType = ForumType.Unknown;
+
+            if (doc != null)
+            {
+                if (IdentifyXenForo1(doc))
+                {
+                    forumType = ForumType.XenForo1;
+                }
+                else if (IdentifyXenForo2(doc))
+                {
+                    forumType = ForumType.XenForo2;
+                }
+                else if (IdentifyVBulletin3(doc))
+                {
+                    forumType = ForumType.vBulletin3;
+                }
+                else if (IdentifyVBulletin4(doc))
+                {
+                    forumType = ForumType.vBulletin4;
+                }
+                else if (IdentifyVBulletin5(doc))
+                {
+                    forumType = ForumType.vBulletin5;
                 }
             }
 
