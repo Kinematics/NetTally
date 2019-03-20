@@ -5,7 +5,7 @@ using NetTally.Votes.Experiment;
 using NetTally.Utility;
 using NetTally.Tests.Platform;
 
-namespace NetTally.Tests
+namespace NTTests.Experiment_1
 {
     [TestClass]
     public class VoteLineTests

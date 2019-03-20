@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Forums;
-using NetTally.Web;
 using NetTally.Votes;
+using NetTally;
 
-namespace NetTally.Tests
+namespace NTTests.QuestTests
 {
     /// <summary>
     /// Class that tests the implementation of the Quest class against the IQuest interface.

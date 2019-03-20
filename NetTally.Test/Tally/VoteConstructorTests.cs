@@ -9,8 +9,9 @@ using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
 using NetTally.VoteCounting;
+using NetTally;
 
-namespace NetTally.Tests
+namespace NTTests.Voting
 {
     [TestClass]
     public class VoteConstructorTests

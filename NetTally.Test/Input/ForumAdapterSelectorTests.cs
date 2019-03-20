@@ -3,12 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
 using NetTally.ViewModels;
-using TallyUnitTest;
+using NTTests;
 
-namespace NetTally.Tests
+namespace NTTests.Input
 {
     [TestClass]
     public class ForumAdapterSelectorTests

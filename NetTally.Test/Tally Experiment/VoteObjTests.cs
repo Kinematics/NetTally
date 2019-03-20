@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Votes;
 using NetTally.Votes.Experiment;
 
-namespace NetTally.Tests
+namespace NTTests.Voting
 {
     [TestClass]
     public class VoteObjTests

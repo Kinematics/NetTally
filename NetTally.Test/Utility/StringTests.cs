@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally;
 using NetTally.Utility;
 
-namespace NetTally.Tests
+namespace NTTests.Utility
 {
     [TestClass]
     public class StringTests

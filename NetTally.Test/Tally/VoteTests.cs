@@ -9,11 +9,12 @@ using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
+using NetTally;
 
-namespace NetTally.Tests
+namespace NTTests.Voting
 {
     [TestClass]
-    public class VoteTests
+    public class VotePartitioning
     {
         #region Setup
         static IQuest sampleQuest;

@@ -10,8 +10,9 @@ using NetTally.Votes.Experiment;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
+using NetTally;
 
-namespace NetTally.Tests
+namespace NTTests.Voting
 {
     [TestClass]
     public class VotingRecordsTests

@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.SystemInfo;
 
-namespace TallyUnitTest.General
+namespace NTTests.Utility
 {
     [TestClass]
     public class LoggerTest

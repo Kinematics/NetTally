@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Votes;
 using NetTally.Votes.Experiment2;
 
-namespace TallyUnitTest.Tally_Experiment_2
+namespace NTTests.Experiment_2
 {
     [TestClass]
     public class VoteContentTests
