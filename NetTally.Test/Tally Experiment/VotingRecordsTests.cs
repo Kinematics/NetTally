@@ -241,6 +241,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task RunVotes1()
         {
             await AddVotes_shim();
@@ -256,6 +257,7 @@ namespace NetTally.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task RunVotes2()
         {
             quest.PartitionMode = PartitionMode.ByLine;
@@ -278,6 +280,7 @@ namespace NetTally.Tests
 
         #region Get votes for identity
         [TestMethod]
+        [Ignore]
         public async Task GetIdentityVotes1()
         {
             quest.PartitionMode = PartitionMode.ByLine;
