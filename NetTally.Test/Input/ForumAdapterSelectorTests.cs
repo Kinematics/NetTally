@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
 using NetTally.ViewModels;
+using TallyUnitTest;
 
 namespace NetTally.Tests
 {
@@ -115,6 +117,17 @@ namespace NetTally.Tests
             var adapter = await ForumAdapterSelector.GetForumAdapterAsync(uri, CancellationToken.None);
             Assert.IsInstanceOfType(adapter, typeof(phpBBAdapter));
         }
-        
+
+        [TestMethod]
+        public async Task Select_Explicit()
+        {
+            var resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(resourceContent);
+            var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
+            var adapter = ForumAdapterSelector.GetForumAdapter(forumType);
+            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
+        }
+
     }
 }
