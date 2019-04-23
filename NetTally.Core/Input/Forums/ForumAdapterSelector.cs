@@ -30,6 +30,9 @@ namespace NetTally.Forums
                     case ForumType.XenForo1:
                         adapter = new XenForo1Adapter(Utility.DefaultUri.Default);
                         break;
+                    case ForumType.XenForo2:
+                        adapter = new XenForo2Adapter(Utility.DefaultUri.Default);
+                        break;
                     case ForumType.vBulletin3:
                         adapter = new vBulletin3Adapter(Utility.DefaultUri.Default);
                         break;
@@ -67,6 +70,9 @@ namespace NetTally.Forums
                 {
                     case ForumType.XenForo1:
                         adapter = new XenForo1Adapter(site);
+                        break;
+                    case ForumType.XenForo2:
+                        adapter = new XenForo2Adapter(site);
                         break;
                     case ForumType.vBulletin3:
                         adapter = new vBulletin3Adapter(site);
