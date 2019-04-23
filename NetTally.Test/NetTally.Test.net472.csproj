@@ -218,6 +218,7 @@
     <Compile Include="General\LoggerTest.cs" />
     <Compile Include="Resources\LoadResource.cs" />
     <Compile Include="Platform\UnicodeHashFunction.cs" />
+    <Compile Include="Resources\ConvertResources.cs" />
     <Compile Include="Tally Experiment 2\Identities.cs" />
     <Compile Include="Tally Experiment 2\VoteContentTests.cs" />
     <Compile Include="Tally Experiment 2\VoteLineTests.cs" />
