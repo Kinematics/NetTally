@@ -36,5 +36,20 @@ namespace NTTests
 
             return result;
         }
+
+        public static async Task Write(string filename, string content)
+        {
+            if (string.IsNullOrEmpty(filename))
+                throw new ArgumentNullException(nameof(filename));
+            if (string.IsNullOrEmpty(content))
+                throw new ArgumentNullException(nameof(content));
+
+            FileInfo fi = new FileInfo(filename);
+
+            using (var sr = fi.AppendText())
+            {
+                await sr.WriteAsync(content);
+            }
+        }
     }
 }
