@@ -201,11 +201,11 @@ namespace NetTally.Forums.Adapters
 
             {
                 var titleNode = headerNode.GetChildWithClass("div", "p-title");
-                title = PostText.CleanupWebString(titleNode?.Element("h1")?.InnerText);
+                title = PostText.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
 
                 var descripNode = headerNode.GetChildWithClass("div", "p-description");
                 var authorNode = descripNode?.GetDescendantWithClass("a", "username");
-                author = PostText.CleanupWebString(authorNode?.InnerText ?? "");
+                author = PostText.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
             }
 
             var mainNode = bodyNode.GetChildWithClass("div", "p-body-main") ??
