@@ -217,7 +217,7 @@ namespace NetTally.Forums.Adapters
             {
                 var navItems = navNode.GetChildWithClass("ul", "pageNav-main")?.Elements("li").Where(n => n.HasClass("pageNav-page"));
 
-                if (navItems.Any())
+                if (navItems != null && navItems.Any())
                 {
                     var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText);
 
