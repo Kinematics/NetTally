@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -221,7 +222,7 @@ namespace NetTally.Forums.Adapters
                 {
                     var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText);
 
-                    _ = int.TryParse(lastItem, out pages);
+                    _ = int.TryParse(lastItem, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out pages);
                 }
             }
 
@@ -520,7 +521,7 @@ namespace NetTally.Forums.Adapters
             if (postNum.StartsWith("#", StringComparison.Ordinal))
                 postNum = postNum.Substring(1);
 
-            number = int.Parse(postNum);
+            number = int.Parse(postNum, NumberStyles.AllowThousands);
 
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
