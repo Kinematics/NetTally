@@ -263,6 +263,12 @@ namespace NetTally.Web
                     ClientHandler.CookieContainer.Add(uri, cookie);
                 }
 
+                string? authorization = ForumAuthentications.GetAuthorization(uri);
+                if (authorization != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", authorization);
+                }
+
                 HttpResponseMessage response;
                 Task<HttpResponseMessage>? getResponseTask = null;
 
@@ -353,6 +359,8 @@ namespace NetTally.Web
             }
             finally
             {
+                client.DefaultRequestHeaders.Remove("Authorization");
+
                 ss.Release();
             }
 
@@ -395,6 +403,12 @@ namespace NetTally.Web
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
+                }
+
+                string? authorization = ForumAuthentications.GetAuthorization(uri);
+                if (authorization != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
                 int tries = 0;
@@ -455,6 +469,8 @@ namespace NetTally.Web
             }
             finally
             {
+                client.DefaultRequestHeaders.Remove("Authorization");
+
                 ss.Release();
             }
 
