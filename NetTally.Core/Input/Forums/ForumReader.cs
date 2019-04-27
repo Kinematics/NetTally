@@ -196,6 +196,9 @@ namespace NetTally.Forums
         {
             List<PostComponents> postsList = new List<PostComponents>();
 
+            if (pages.Count == 0)
+                return postsList;
+
             var firstPageTask = pages.First();
 
             while (pages.Any())
