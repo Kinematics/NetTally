@@ -216,11 +216,11 @@ namespace NetTally.Forums.Adapters
 
             if (navNode != null)
             {
-                var navItems = navNode.GetChildWithClass("ul", "pageNav-main")?.Elements("li").Where(n => n.HasClass("pageNav-page"));
+                var navItems = navNode.GetDescendantWithClass("ul", "pageNav-main")?.Elements("li").Where(n => n.HasClass("pageNav-page"));
 
                 if (navItems != null && navItems.Any())
                 {
-                    var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText);
+                    var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
 
                     _ = int.TryParse(lastItem, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out pages);
                 }
@@ -339,6 +339,7 @@ namespace NetTally.Forums.Adapters
                 }
             }
 
+            // If RSS read was successful, then the function will have ended.  If not, we continue with the next method.
 
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument? threadmarkPage = await pageProvider.GetPageAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
@@ -451,19 +452,26 @@ namespace NetTally.Forums.Adapters
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
-            var contentNode = doc.GetElementbyId("content");
+            var contentNode = doc.GetElementbyId("top");
 
             if (contentNode == null)
                 throw new InvalidOperationException("Page does not have a content section.");
 
+            var body = contentNode.ParentNode;
+
+            if (body == null)
+                throw new InvalidOperationException("No body found for the page.");
+
+            string dataTemplate = body.GetAttributeValue("data-template", "");
+
             switch (pageType)
             {
                 case PageType.Thread:
-                    if (!contentNode.HasClass("thread_view"))
+                    if (dataTemplate != "thread_view")
                         throw new InvalidOperationException("This page does not contain a forum thread.");
                     break;
                 case PageType.Threadmarks:
-                    if (!contentNode.HasClass("threadmarks"))
+                    if (!dataTemplate.Contains("threadmark_list"))
                         throw new InvalidOperationException("This page does not contain threadmarks.");
                     break;
             }
@@ -559,57 +567,46 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="quest">The quest.</param>
         /// <param name="page">The index page of the threadmarks.</param>
-        /// <returns>Returns a list of all unfiltered threadmark links.</returns>
+        /// <returns>Returns a list of anchor tags for all threadmarks, after filtering.</returns>
         static IEnumerable<HtmlNode> GetThreadmarksListFromIndex(IQuest quest, HtmlDocument page)
         {
             try
             {
-                HtmlNode content = GetPageContent(page, PageType.Threadmarks);
+                HtmlNode topNode = GetPageContent(page, PageType.Threadmarks);
 
-                HtmlNode? threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
+                var threadmarkCat1List = page.GetElementbyId("threadmark-category-1");
 
-                HtmlNode? listOfThreadmarks = null;
-
-                HtmlNode? threadmarkList = threadmarksDiv?.GetDescendantWithClass("threadmarkList");
-
-                if (threadmarkList != null)
+                if (threadmarkCat1List != null)
                 {
-                    // We have a .threadmarkList node.  This is either an ol itself, or it will contain a ThreadmarkCategory_# ol node.  We want category 1.
+                    var threadmarkDivs = threadmarkCat1List.GetDescendantsWithClass("div", "structItem--threadmark");
 
-                    if (threadmarkList.Name == "ol")
+                    if (threadmarkDivs != null)
                     {
-                        if (threadmarkList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
+                        return threadmarkDivs
+                            .Select(n => n.GetDescendantWithClass("a", ""))
+                            .Where(n => !filterLambda(n))!; // Keep anything the filter returns false for. Guarantee there are no nulls.
+
+                        // Filter returns true if the item should be removed from consideration.
+                        bool filterLambda(HtmlNode? n)
                         {
-                            if (!threadmarkList.HasClass("ThreadmarkCategory_1"))
-                                return new List<HtmlNode>();
+                            if (n == null)
+                                return true;
+
+                            if (quest.UseCustomThreadmarkFilters)
+                            {
+                                if (quest.ThreadmarkFilter != null)
+                                {
+                                    return quest.ThreadmarkFilter.Match(n.InnerText);
+                                }
+                            }
+                            else
+                            {
+                                return DefaultThreadmarkFilter.Match(n.InnerText);
+                            }
+
+                            return true;
                         }
-
-                        listOfThreadmarks = threadmarkList;
                     }
-                    else
-                    {
-                        listOfThreadmarks = threadmarkList.GetDescendantWithClass("ol", "ThreadmarkCategory_1");
-                    }
-                }
-                else
-                {
-                    // threadmarkList was null.  There is no .threadmarkList node, so check for undecorated ul that contains .threadmarkItem list items.
-                    listOfThreadmarks = threadmarksDiv?.Descendants("ul").FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
-                }
-
-                if (listOfThreadmarks != null)
-                {
-                    Predicate<HtmlNode> filterLambda = (n) => n != null &&
-                        ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
-                        (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
-
-                    Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
-
-                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? new List<HtmlNode>();
-
-                    var results = listOfThreadmarks.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
-
-                    return results;
                 }
             }
             catch (ArgumentNullException e)
@@ -626,13 +623,13 @@ namespace NetTally.Forums.Adapters
         /// Static detection of whether the provided web page is a XenForo forum thread.
         /// </summary>
         /// <param name="page">Web page to examine.</param>
-        /// <returns>Returns true if it's detected as a XenForo page.  Otherwise, false.</returns>
+        /// <returns>Returns true if it's detected as a XenForo2 page.  Otherwise, false.</returns>
         public static bool CanHandlePage(HtmlDocument page)
         {
             if (page == null)
                 return false;
 
-            return (page.DocumentNode.Element("html").Id == "XenForo");
+            return (page.DocumentNode.Element("html").Id == "XF");
         }
         #endregion
 
