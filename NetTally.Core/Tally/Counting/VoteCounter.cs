@@ -661,7 +661,7 @@ namespace NetTally.VoteCounting
             if (fromVote == toVote)
                 return false;
 
-            bool merged = false;
+            bool merged;
 
             if (voteType == VoteType.Rank)
                 merged = MergeRanks(fromVote, toVote);

@@ -148,7 +148,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="voterRankings">A voter's rankings.</param>
         /// <returns>Returns the vote component of the most preferred vote in the list,
         /// or null if none are present.</returns>
-        private static string GetPreferredVote(IEnumerable<RankedVote> voterRankings)
+        private static string? GetPreferredVote(IEnumerable<RankedVote> voterRankings)
         {
             var choice = voterRankings.OrderBy(a => a.Rank).FirstOrDefault()?.Vote;
             return choice;

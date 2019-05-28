@@ -1,5 +1,5 @@
-﻿using System;
-using NetTally.Forums;
+﻿using NetTally.Forums;
+using System;
 
 namespace NetTally.Votes.Experiment
 {
@@ -85,12 +85,12 @@ namespace NetTally.Votes.Experiment
             ForumAdapter = forumAdapter;
             Number = number;
 
-            Int64 value = 0;
+            long value;
 
             if (ForumAdapter != null)
                 value = ForumAdapter.GetValueOfPostID(PostID);
             else
-                Int64.TryParse(PostID, out value);
+                long.TryParse(PostID, out value);
 
             PostIDValue = value;
         }
@@ -103,7 +103,7 @@ namespace NetTally.Votes.Experiment
         /// <param name="originatingIdentity">The originating identity.</param>
         /// <param name="identityType">Type of the identity.</param>
         public Identity(string name, Identity originatingIdentity, IdentityType identityType = IdentityType.User)
-            : this(name, originatingIdentity?.PostID, identityType, originatingIdentity?.ForumAdapter, 0)
+            : this(name, originatingIdentity?.PostID ?? "-1", identityType, originatingIdentity?.ForumAdapter, 0)
         {
         }
         #endregion
