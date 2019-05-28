@@ -175,7 +175,7 @@ namespace NetTally.Utility
         /// <param name="hashFunction">The hash function to use for the various forms of string comparer.</param>
         public static PropertyChangedEventHandler HashStringsUsing(Func<string, CompareInfo, CompareOptions, int>? hashFunction)
         {
-            hashFunction = hashFunction ?? DefaultHashFunction;
+            hashFunction ??= DefaultHashFunction;
 
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
