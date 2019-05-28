@@ -6,6 +6,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
     <LangVersion>8.0</LangVersion>
+    <RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>

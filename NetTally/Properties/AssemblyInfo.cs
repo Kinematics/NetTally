@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wayward Gamers")]
 [assembly: AssemblyProduct("NetTally")]
-[assembly: AssemblyCopyright("Copyright ©  2015-2018")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -53,6 +53,6 @@ using System.Windows;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion("2.0.0.0")]
-[assembly: AssemblyInformationalVersion("2.0.0pre1")]
+[assembly: AssemblyInformationalVersion("3.0.0pre1")]
 [assembly: NeutralResourcesLanguage("en")]
 
