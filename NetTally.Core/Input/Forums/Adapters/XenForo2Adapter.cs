@@ -521,15 +521,25 @@ namespace NetTally.Forums.Adapters
             if (attribution == null)
                 return null;
 
-            string postNum = attribution.Element("div")?.Element("a")?.InnerText ?? "";
+            string postNum = attribution.Descendants("a").LastOrDefault(c => c.ChildNodes.Count == 1)?.InnerText.Trim() ?? "";
 
             if (string.IsNullOrEmpty(postNum))
                 return null;
 
-            if (postNum.StartsWith("#", StringComparison.Ordinal))
-                postNum = postNum.Substring(1);
 
-            number = int.Parse(postNum, NumberStyles.AllowThousands);
+            if (postNum[0] == '#')
+            {
+                var numSpan = postNum.AsSpan()[1..];
+
+                if (!int.TryParse(numSpan, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out number))
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
 
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
