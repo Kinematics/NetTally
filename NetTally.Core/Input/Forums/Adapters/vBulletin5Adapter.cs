@@ -133,7 +133,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = doc.Element("head").Element("title")?.InnerText;
+            title = doc.Element("head").Element("title")?.InnerText ?? "";
             title = PostText.CleanupWebString(title);
 
             var threadViewTab = page.GetElementbyId("thread-view-tab");

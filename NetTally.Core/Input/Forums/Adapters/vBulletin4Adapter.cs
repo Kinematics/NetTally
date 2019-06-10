@@ -133,7 +133,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode;
 
             // Find the page title
-            title = doc.Element("html").Element("head").Element("title")?.InnerText;
+            title = doc.Element("html").Element("head").Element("title")?.InnerText ?? "";
             title = PostText.CleanupWebString(title);
 
             // Get the number of pages from the navigation elements
