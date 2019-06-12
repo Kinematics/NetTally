@@ -194,7 +194,7 @@ namespace NetTally.Forums.Adapters
             var pagebody = page?.GetElementbyId("page-body");
 
             if (pagebody == null)
-                return new List<PostComponents>();
+                return Enumerable.Empty<PostComponents>();
 
             var posts = from p in pagebody.Elements("div")
                         where p.GetAttributeValue("class", "").Split(' ').Contains("post")

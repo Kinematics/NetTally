@@ -473,7 +473,7 @@ namespace NetTally.Forums.Adapters
             var messageList = page?.GetElementbyId("messageList");
 
             // Return all found list items in the message list, or an empty list.
-            return messageList?.Elements("li") ?? new List<HtmlNode>();
+            return messageList?.Elements("li") ?? Enumerable.Empty<HtmlNode>();
         }
 
         /// <summary>

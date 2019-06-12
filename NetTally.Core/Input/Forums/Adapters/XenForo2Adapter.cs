@@ -489,7 +489,7 @@ namespace NetTally.Forums.Adapters
         {
             var top = page.GetElementbyId("top");
 
-            var articles = top.GetDescendantsWithClass("article", "message");
+            var articles = top?.GetDescendantsWithClass("article", "message") ?? Enumerable.Empty<HtmlNode>();
 
             return articles;
         }

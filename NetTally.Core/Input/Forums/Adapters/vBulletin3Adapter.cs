@@ -170,7 +170,7 @@ namespace NetTally.Forums.Adapters
             var postList = page?.GetElementbyId("posts");
 
             if (postList == null)
-                return new List<PostComponents>();
+                return Enumerable.Empty<PostComponents>();
 
             var posts = from p in postList.Elements("div")
                         let post = GetPost(p, quest)

@@ -166,7 +166,7 @@ namespace NetTally.Forums.Adapters
             var postlist = topic?.GetChildWithClass("ul", "posts");
 
             if (postlist == null)
-                return new List<PostComponents>();
+                return Enumerable.Empty<PostComponents>();
 
             var posts = from p in postlist.Elements("li")
                         let post = GetPost(p, quest)

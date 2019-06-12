@@ -160,7 +160,7 @@ namespace NetTally.Forums.Adapters
             var postList = page?.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
             if (postList == null)
-                return new List<PostComponents>();
+                return Enumerable.Empty<PostComponents>();
 
             var posts = from p in postList.Elements("li")
                         where !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", ""))

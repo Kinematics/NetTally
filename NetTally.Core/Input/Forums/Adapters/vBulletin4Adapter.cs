@@ -174,7 +174,7 @@ namespace NetTally.Forums.Adapters
             var postlist = page?.GetElementbyId("posts");
 
             if (postlist == null)
-                return new List<PostComponents>();
+                return Enumerable.Empty<PostComponents>();
 
             var posts = from p in postlist.Elements("li")
                         where p.Id.StartsWith("post_", StringComparison.Ordinal)
