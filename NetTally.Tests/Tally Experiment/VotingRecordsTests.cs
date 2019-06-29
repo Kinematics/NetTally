@@ -20,7 +20,7 @@ namespace NTTests.Voting
         static Identity defaultIdentity;
         static VotePartition defaultPlanPartition;
 
-        static List<string> notifications = new List<string>();
+        readonly static List<string> notifications = new List<string>();
 
         static IQuest quest = new Quest();
 

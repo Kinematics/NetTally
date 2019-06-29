@@ -50,7 +50,7 @@ Make sure it's OK."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsFalse(post.HasVote);
-            var plans = Plan.GetPlansFromVote(post.Vote);
+            var _ = Plan.GetPlansFromVote(post.Vote);
         }
 
         [TestMethod]

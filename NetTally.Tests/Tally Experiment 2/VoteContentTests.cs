@@ -14,7 +14,7 @@ namespace NTTests.Experiment_2
         {
             string text = "Something or other";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsFalse(flagIgnore);
@@ -25,7 +25,7 @@ namespace NTTests.Experiment_2
         {
             string text = "--*[x] Is vote?";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsFalse(flagIgnore);
@@ -36,7 +36,7 @@ namespace NTTests.Experiment_2
         {
             string text = "--[] Preliminary vote";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsFalse(flagIgnore);
@@ -47,7 +47,7 @@ namespace NTTests.Experiment_2
         {
             string text = "[jk] just kidding!";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsFalse(flagIgnore);
@@ -60,7 +60,7 @@ namespace NTTests.Experiment_2
         {
             string text = "##### NetTally";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsTrue(flagIgnore);
@@ -71,7 +71,7 @@ namespace NTTests.Experiment_2
         {
             string text = "#### NetTally";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsFalse(flagIgnore);
@@ -82,7 +82,7 @@ namespace NTTests.Experiment_2
         {
             string text = "『color=transparent』##### NetTally『/color』";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsTrue(flagIgnore);
@@ -93,7 +93,7 @@ namespace NTTests.Experiment_2
         {
             string text = "##『b』##『/b』# NetTally";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsTrue(flagIgnore);
@@ -104,7 +104,7 @@ namespace NTTests.Experiment_2
         {
             string text = "『color=transparent』##『b』##『/b』# NetTally『/color』";
 
-            var (isVoteLine, flagIgnore, voteLine) = MessageVoteContent.AnalyzeLine(text);
+            var (isVoteLine, flagIgnore, _) = MessageVoteContent.AnalyzeLine(text);
 
             Assert.IsFalse(isVoteLine);
             Assert.IsTrue(flagIgnore);

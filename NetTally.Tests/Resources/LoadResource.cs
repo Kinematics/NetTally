@@ -46,10 +46,8 @@ namespace NTTests
 
             FileInfo fi = new FileInfo(filename);
 
-            using (var sr = fi.AppendText())
-            {
-                await sr.WriteAsync(content);
-            }
+            using var sr = fi.AppendText();
+            await sr.WriteAsync(content);
         }
     }
 }

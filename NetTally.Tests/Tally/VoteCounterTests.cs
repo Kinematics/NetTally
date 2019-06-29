@@ -527,9 +527,7 @@ namespace NTTests.Voting
             // Check for non-case sensitivity in referencing other voters.
             PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
             PostComponents p2 = new PostComponents("Mini", "12345", "[x] beyogi");
-            List<PostComponents> posts = new List<PostComponents>();
-            posts.Add(p1);
-            posts.Add(p2);
+            List<PostComponents> posts = new List<PostComponents> { p1, p2 };
             Task t =  voteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
             await t;
 

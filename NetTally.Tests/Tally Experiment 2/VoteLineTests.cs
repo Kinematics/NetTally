@@ -12,33 +12,33 @@ namespace NTTests.Experiment_2
         [TestMethod]
         public void Construct_null_prefix()
         {
-            VoteLine line = new VoteLine(null, "x", "", "content", MarkerType.Vote, 0);
+            VoteLine _ = new VoteLine(null, "x", "", "content", MarkerType.Vote, 0);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_null_marker()
         {
-            VoteLine line = new VoteLine("", null, "", "content", MarkerType.Vote, 0);
+            VoteLine _ = new VoteLine("", null, "", "content", MarkerType.Vote, 0);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_empty_marker()
         {
-            VoteLine line = new VoteLine("", "", "", "content", MarkerType.Vote, 0);
+            VoteLine _ = new VoteLine("", "", "", "content", MarkerType.Vote, 0);
         }
 
         [TestMethod]
         public void Construct_null_task()
         {
-            VoteLine line = new VoteLine("", "x", null, "content", MarkerType.Vote, 0);
+            VoteLine _ = new VoteLine("", "x", null, "content", MarkerType.Vote, 0);
         }
 
         [TestMethod]
         public void Construct_null_content()
         {
-            VoteLine line = new VoteLine("", "x", "", null, MarkerType.Vote, 0);
+            VoteLine _ = new VoteLine("", "x", "", null, MarkerType.Vote, 0);
         }
 #nullable enable
 

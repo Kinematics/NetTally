@@ -8,8 +8,8 @@ namespace NTTests.Input
     [TestClass]
     public class PostComponentsTests
     {
-        static string author = "Kinematics";
-        static string id = "12345";
+        readonly static string author = "Kinematics";
+        readonly static string id = "12345";
 
 #nullable disable
 
@@ -20,7 +20,7 @@ namespace NTTests.Input
         {
             string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents(null, id, msg);
+            PostComponents _ = new PostComponents(null, id, msg);
         }
 
         [TestMethod]
@@ -29,7 +29,7 @@ namespace NTTests.Input
         {
             string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents(author, null, msg);
+            PostComponents _ = new PostComponents(author, null, msg);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace NTTests.Input
         {
             //string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents(author, id, null);
+            PostComponents _ = new PostComponents(author, id, null);
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace NTTests.Input
         {
             string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents("", id, msg);
+            PostComponents _ = new PostComponents("", id, msg);
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace NTTests.Input
         {
             string msg = @"What do you think they'll be doing now?";
 
-            PostComponents p = new PostComponents(author, "", msg);
+            PostComponents _ = new PostComponents(author, "", msg);
         }
 
         [TestMethod]

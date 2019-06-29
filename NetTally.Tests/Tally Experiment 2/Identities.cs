@@ -19,28 +19,28 @@ namespace NTTests.Experiment_2
         [ExpectedException(typeof(ArgumentNullException))]
         public void Create_user_null()
         {
-            UserIdent user = new UserIdent(null);
+            UserIdent _ = new UserIdent(null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Create_plan_null()
         {
-            PlanIdent plan = new PlanIdent(null);
+            PlanIdent _ = new PlanIdent(null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Create_user_empty()
         {
-            UserIdent user = new UserIdent("");
+            UserIdent _ = new UserIdent("");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Create_plan_empty()
         {
-            PlanIdent plan = new PlanIdent("");
+            PlanIdent _ = new PlanIdent("");
         }
 #nullable enable
 
@@ -51,7 +51,7 @@ namespace NTTests.Experiment_2
             UserIdent user = new UserIdent(username);
 
             Assert.IsNotNull(user);
-            Assert.IsTrue(user is Identity ident);
+            Assert.IsTrue(user is Identity _);
             Assert.AreEqual(username, user.Name);
             Assert.IsFalse(user.IsPlan);
             Assert.AreEqual(0, user.Number);
@@ -70,7 +70,7 @@ namespace NTTests.Experiment_2
             PlanIdent plan = new PlanIdent(planname);
 
             Assert.IsNotNull(plan);
-            Assert.IsTrue(plan is Identity ident);
+            Assert.IsTrue(plan is Identity _);
             Assert.AreEqual(planname, plan.BasicName);
             Assert.IsTrue(plan.IsPlan);
             Assert.AreEqual(0, plan.Number);
