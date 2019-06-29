@@ -85,7 +85,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(2, post.Vote.VoteLines.Count);
+            Assert.AreEqual(2, post.Vote?.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(0, plans.Count);
         }
@@ -104,7 +104,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(3, post.Vote.VoteLines.Count);
+            Assert.AreEqual(3, post.Vote?.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("getaway", plans[0].Identity.Name);
@@ -126,7 +126,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(3, post.Vote.VoteLines.Count);
+            Assert.AreEqual(3, post.Vote?.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("getaway", plans[0].Identity.Name);
@@ -149,7 +149,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(4, post.Vote.VoteLines.Count);
+            Assert.AreEqual(4, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
@@ -176,7 +176,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(6, post.Vote.VoteLines.Count);
+            Assert.AreEqual(6, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
@@ -211,7 +211,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(9, post.Vote.VoteLines.Count);
+            Assert.AreEqual(9, post.Vote?.VoteLines.Count);
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(3, plans.Count);
 
@@ -243,7 +243,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(4, post.Vote.VoteLines.Count);
+            Assert.AreEqual(4, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
@@ -271,7 +271,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(6, post.Vote.VoteLines.Count);
+            Assert.AreEqual(6, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(1, plans.Count);
@@ -298,7 +298,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(5, post.Vote.VoteLines.Count);
+            Assert.AreEqual(5, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
@@ -330,7 +330,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(5, post.Vote.VoteLines.Count);
+            Assert.AreEqual(5, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
@@ -362,7 +362,7 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(6, post.Vote.VoteLines.Count);
+            Assert.AreEqual(6, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(2, plans.Count);
@@ -399,18 +399,18 @@ I don't want this to be counted."
             Assert.AreEqual(12345, post.Identity.PostIDValue);
             Assert.AreEqual(12, post.ThreadPostNumber);
             Assert.IsTrue(post.HasVote);
-            Assert.AreEqual(9, post.Vote.VoteLines.Count);
+            Assert.AreEqual(9, post.Vote?.VoteLines.Count);
 
             var plans = Plan.GetPlansFromVote(post.Vote);
             Assert.AreEqual(3, plans.Count);
 
-            var componentsByBlock = post.Vote.GetComponents(PartitionMode.ByBlock);
-            var componentsByLine = post.Vote.GetComponents(PartitionMode.ByLine);
+            var componentsByBlock = post.Vote?.GetComponents(PartitionMode.ByBlock);
+            var componentsByLine = post.Vote?.GetComponents(PartitionMode.ByLine);
 
-            Assert.AreEqual(3, componentsByBlock.Count);
-            Assert.AreEqual(7, componentsByLine.Count);
-            Assert.AreEqual("Where", componentsByLine[4][0].Task);
-            Assert.AreEqual(8, componentsByLine[4][0].MarkerValue);
+            Assert.AreEqual(3, componentsByBlock?.Count);
+            Assert.AreEqual(7, componentsByLine?.Count);
+            Assert.AreEqual("Where", componentsByLine?[4][0].Task);
+            Assert.AreEqual(8, componentsByLine?[4][0].MarkerValue);
         }
 
     }

@@ -14,6 +14,7 @@ namespace NTTests.Experiment_2
             //var ident = new Identity("", false, 0);
         }
 
+#nullable disable
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Create_user_null()
@@ -41,6 +42,7 @@ namespace NTTests.Experiment_2
         {
             PlanIdent plan = new PlanIdent("");
         }
+#nullable enable
 
         [TestMethod]
         public void Create_user()

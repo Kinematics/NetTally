@@ -8,6 +8,7 @@ namespace NTTests.Experiment_2
     [TestClass]
     public class VoteLineTests
     {
+#nullable disable
         [TestMethod]
         public void Construct_null_prefix()
         {
@@ -39,6 +40,7 @@ namespace NTTests.Experiment_2
         {
             VoteLine line = new VoteLine("", "x", "", null, MarkerType.Vote, 0);
         }
+#nullable enable
 
         [TestMethod]
         public void Trimming()

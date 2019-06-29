@@ -117,7 +117,7 @@ namespace NetTally
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    displayName = value;
+                    displayName = "";
                 else
                     displayName = value.RemoveUnsafeCharacters();
 

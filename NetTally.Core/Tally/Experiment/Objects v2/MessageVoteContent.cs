@@ -65,11 +65,11 @@ namespace NetTally.Votes.Experiment2
         /// <returns>Returns a tuple indicating if this was a vote line, whether this line indicated
         /// that this post should be ignored, and the encapsulated vote line, if applicable.</returns>
         /// <exception cref="InvalidOperationException">Throws if it gets into an unknown state.</exception>
-        internal static (bool isVoteLine, bool flagIgnore, VoteLine? voteLine) AnalyzeLine(string line)
+        internal static (bool isVoteLine, bool flagIgnore, VoteLine voteLine) AnalyzeLine(string line)
         {
             bool isVoteLine = false;
             bool flagIgnore = false;
-            VoteLine? voteLine = null;
+            VoteLine voteLine = VoteLine.Empty;
 
             if (string.IsNullOrEmpty(line))
                 return (isVoteLine, flagIgnore, voteLine);

@@ -114,7 +114,8 @@ namespace NTTests.Voting
 
             var idents = VotingRecords.Instance.GetVoterIdentities("Kinematics");
 
-            Assert.AreEqual(2, idents.Count);
+            Assert.IsNotNull(idents);
+            Assert.AreEqual(2, idents!.Count);
 
             var ident = idents.First();
 
@@ -129,7 +130,8 @@ namespace NTTests.Voting
 
             var ident = VotingRecords.Instance.GetLastVoterIdentity("Kinematics");
 
-            Assert.AreEqual("Kinematics", ident.Name);
+            Assert.IsNotNull(ident);
+            Assert.AreEqual("Kinematics", ident!.Name);
             Assert.AreEqual("12348", ident.PostID);
         }
 
@@ -290,7 +292,8 @@ namespace NTTests.Voting
 
             var ident = VotingRecords.Instance.GetLastVoterIdentity("Kinematics");
 
-            var vs = VotingRecords.Instance.GetPartitionsForIdentity(ident);
+            Assert.IsNotNull(ident);
+            var vs = VotingRecords.Instance.GetPartitionsForIdentity(ident!);
 
             Assert.AreEqual(2, vs.Count);
         }

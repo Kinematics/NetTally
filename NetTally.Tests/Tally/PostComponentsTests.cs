@@ -11,6 +11,8 @@ namespace NTTests.Input
         static string author = "Kinematics";
         static string id = "12345";
 
+#nullable disable
+
         #region Exceptions during construction
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -66,6 +68,8 @@ namespace NTTests.Input
             Assert.IsFalse(p.IsVote);
         }
         #endregion
+
+#nullable enable
 
         #region Basic non-votes, and checking author and ID
 

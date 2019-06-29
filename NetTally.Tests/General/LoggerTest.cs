@@ -103,7 +103,7 @@ namespace NTTests.Utility
 
     internal class TestLogger : ILogger
     {
-        public string LogMessage { get; set; }
+        public string LogMessage { get; set; } = "";
 
         public bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown")
         {

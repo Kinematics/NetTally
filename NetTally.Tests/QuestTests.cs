@@ -31,7 +31,7 @@ namespace NTTests.QuestTests
     public abstract class IQuestTestBase
     {
         #region Local vars, setup, and teardown
-        protected IQuest quest { get; set; }
+        protected IQuest quest { get; set; } = new Quest();
         bool notified;
         readonly List<string> propertiesRaised = new List<string>();
 
@@ -88,7 +88,7 @@ namespace NTTests.QuestTests
         {
             Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
             Assert.AreEqual("fake-thread.00000", quest.DisplayName);
-            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadUri.AbsoluteUri);
+            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadUri?.AbsoluteUri);
 
             Assert.AreEqual(0, quest.PostsPerPage);
             Assert.AreEqual(1, quest.StartPost);
@@ -106,6 +106,8 @@ namespace NTTests.QuestTests
             Assert.AreEqual(quest.DisplayName, quest.ToString());
         }
         #endregion
+
+#nullable disable
 
         #region Thread Name
         [TestMethod]
@@ -201,12 +203,15 @@ namespace NTTests.QuestTests
         }
 
         #endregion
+#nullable enable
 
         #region Display Name
         [TestMethod]
         public void IQuest_DisplayName_Null()
         {
+#nullable disable
             quest.DisplayName = null;
+#nullable enable
             Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }
@@ -255,7 +260,9 @@ namespace NTTests.QuestTests
         public void IQuest_DisplayName_ResetNull()
         {
             quest.DisplayName = "My Quest";
+#nullable disable
             quest.DisplayName = null;
+#nullable enable
             Assert.AreEqual("fake-thread.00000", quest.DisplayName);
             VerifyNotification("DisplayName");
         }

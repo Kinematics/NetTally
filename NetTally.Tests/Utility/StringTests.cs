@@ -99,7 +99,9 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_make_null()
         {
+#nullable disable
             string planName = Strings.MakePlanName(null);
+#nullable enable
 
             Assert.AreEqual("", planName);
         }
@@ -151,7 +153,9 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_test_null()
         {
+#nullable disable
             Assert.IsFalse(Strings.IsPlanName(null));
+#nullable enable
         }
         #endregion
 
@@ -211,6 +215,8 @@ and then another";
             Assert.AreEqual("Saying one thing", lines[0]);
         }
 
+#nullable disable
+
         [TestMethod]
         public void Split_null_1()
         {
@@ -229,6 +235,8 @@ and then another";
             Assert.IsNotNull(lines);
             Assert.AreEqual(0, lines.Count);
         }
+
+#nullable enable
 
         [TestMethod]
         public void Split_empty()
@@ -282,9 +290,11 @@ and then another";
         [TestMethod]
         public void FirstLine_null()
         {
+#nullable disable
             string input = null;
 
             var line = input.GetFirstLine();
+#nullable enable
 
             Assert.IsNotNull(line);
             Assert.AreEqual("", line);

@@ -9,15 +9,15 @@ namespace NTTests
 {
     public class LoadResource
     {
-        public static async Task<string> Read(string filename)
+        public static async Task<string?> Read(string filename)
         {
             if (string.IsNullOrEmpty(filename))
                 throw new ArgumentNullException(nameof(filename));
 
             FileInfo fi = new FileInfo(filename);
 
-            byte[] buffer = null;
-            string result = null;
+            byte[]? buffer = null;
+            string? result = null;
 
             if (fi.Exists)
             {

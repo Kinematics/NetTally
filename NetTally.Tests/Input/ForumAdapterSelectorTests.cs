@@ -51,8 +51,7 @@ namespace NTTests.Input
         public async Task Select_XenForo_DefaultUri()
         {
             IQuest quest = new Quest();
-            Uri uri = quest.ThreadUri;
-            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(uri, CancellationToken.None);
+            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, CancellationToken.None);
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 

@@ -97,6 +97,8 @@ namespace NTTests.Voting
         }
         #endregion
 
+#nullable disable
+
         #region Add Vote param checks
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -139,6 +141,8 @@ namespace NTTests.Voting
             voteCounter.AddVotes(new List<string>(), "me", "", VoteType.Vote);
         }
         #endregion
+
+#nullable enable
 
         #region Add Votes
         [TestMethod]

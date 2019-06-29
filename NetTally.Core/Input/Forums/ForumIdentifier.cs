@@ -27,8 +27,11 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public async static Task<ForumType> IdentifyForumTypeAsync(Uri uri, CancellationToken token)
+        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, CancellationToken token)
         {
+            if (uri == null)
+                return ForumType.Unknown;
+
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
                 var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);

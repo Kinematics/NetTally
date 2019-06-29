@@ -10,7 +10,7 @@ namespace NTTests.Utility
     public class CacheTests
     {
         static ICache<string> cache = PageCache.Instance;
-        static string resourceContent = string.Empty;
+        static string? resourceContent = string.Empty;
 
         [ClassInitialize]
 #if NETCOREAPP
@@ -34,9 +34,11 @@ namespace NTTests.Utility
         public void ContentLoaded()
         {
             Assert.IsFalse(string.IsNullOrEmpty(resourceContent));
-            Assert.IsTrue(resourceContent.Length > 200000);
-            Assert.IsTrue(resourceContent.Length < 250000);
+            Assert.IsTrue(resourceContent!.Length > 200000);
+            Assert.IsTrue(resourceContent!.Length < 250000);
         }
+
+#nullable disable
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -57,10 +59,12 @@ namespace NTTests.Utility
             Assert.AreEqual("", content);
         }
 
+#nullable enable
+
         [TestMethod]
         public void Cache_page_data()
         {
-            cache.Add("page data", resourceContent, CacheInfo.DefaultExpiration);
+            cache.Add("page data", resourceContent!, CacheInfo.DefaultExpiration);
             var (found, content) = cache.Get("page data");
 
             Assert.IsTrue(found);
@@ -76,7 +80,7 @@ namespace NTTests.Utility
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
 
-            cache.Add("page data", resourceContent, expireTime);
+            cache.Add("page data", resourceContent!, expireTime);
             var (found, _) = cache.Get("page data");
 
             Assert.IsFalse(found);
@@ -91,7 +95,7 @@ namespace NTTests.Utility
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
 
-            cache.Add("page data", resourceContent, expireTime);
+            cache.Add("page data", resourceContent!, expireTime);
             var (found, content) = cache.Get("page data");
 
             Assert.IsTrue(found);
