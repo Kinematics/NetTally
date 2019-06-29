@@ -5,7 +5,8 @@
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Kinematics/NetTally</PackageProjectUrl>
   </PropertyGroup>
@@ -19,8 +20,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.7" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.2.1" />
-    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.0.0-preview6.19303.8" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.0.0" />
     <PackageReference Include="Nito.AsyncEx.Tasks" Version="5.0.0" />
   </ItemGroup>
