@@ -17,7 +17,7 @@ namespace NetTally.ViewModels
         /// The thread context that this class was originally created in, so that we
         /// can send notifications back on that same thread.
         /// </summary>
-        readonly SynchronizationContext synchronizationContext = SynchronizationContext.Current;
+        readonly SynchronizationContext originalSynchronizationContext = SynchronizationContext.Current;
 
         /// <summary>
         /// A collection of any property changed notification values that should not be
@@ -36,11 +36,11 @@ namespace NetTally.ViewModels
         /// Make sure we're in the proper synchronization context before sending.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
 
-            if (SynchronizationContext.Current == synchronizationContext)
+            if (SynchronizationContext.Current == originalSynchronizationContext)
             {
                 // Execute the PropertyChanged event on the current thread
                 RaisePropertyChanged(e);
@@ -48,7 +48,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                synchronizationContext.Send(RaisePropertyChanged, e);
+                originalSynchronizationContext.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -59,11 +59,11 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="propertyData">The data to pass along with the property name.</param>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string? propertyName = null)
+        protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string propertyName = "")
         {
             PropertyDataChangedEventArgs<T> e = new PropertyDataChangedEventArgs<T>(propertyName, propertyData);
 
-            if (SynchronizationContext.Current == synchronizationContext)
+            if (SynchronizationContext.Current == originalSynchronizationContext)
             {
                 // Execute the PropertyChanged event on the current thread
                 RaisePropertyChanged(e);
@@ -71,7 +71,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                synchronizationContext.Send(RaisePropertyChanged, e);
+                originalSynchronizationContext.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -81,8 +81,11 @@ namespace NetTally.ViewModels
         /// <param name="param">The parameter.</param>
         private void RaisePropertyChanged(object param)
         {
-            // We are in the creator thread, call the base implementation directly.
-            PropertyChanged?.Invoke(this, (PropertyChangedEventArgs)param);
+            if (param is PropertyChangedEventArgs paramArgs)
+            {
+                // We are in the creator thread, call the base implementation directly.
+                PropertyChanged?.Invoke(this, paramArgs);
+            }
         }
         #endregion
 
@@ -101,7 +104,7 @@ namespace NetTally.ViewModels
         {
             ExceptionEventArgs args = new ExceptionEventArgs(e);
 
-            if (SynchronizationContext.Current == synchronizationContext)
+            if (SynchronizationContext.Current == originalSynchronizationContext)
             {
                 // Execute the PropertyChanged event on the current thread
                 RaiseExceptionRaised(args);
@@ -109,7 +112,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                synchronizationContext.Send(RaiseExceptionRaised, args);
+                originalSynchronizationContext.Send(RaiseExceptionRaised, args);
             }
 
             return args;
@@ -121,8 +124,11 @@ namespace NetTally.ViewModels
         /// <param name="param">The parameter.</param>
         private void RaiseExceptionRaised(object param)
         {
-            // We are in the creator thread, call the base implementation directly
-            ExceptionRaised?.Invoke(this, (ExceptionEventArgs)param);
+            if (param is ExceptionEventArgs paramArgs)
+            {
+                // We are in the creator thread, call the base implementation directly
+                ExceptionRaised?.Invoke(this, paramArgs);
+            }
         }
         #endregion
 
@@ -135,7 +141,7 @@ namespace NetTally.ViewModels
         /// <param name="value">The value to be stored.</param>
         /// <param name="propertyName">Name of the property being set.</param>
         /// <returns>Returns true if the value was updated, or false if no change was made.</returns>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
         {
             if (Object.Equals(storage, value))
                 return false;
