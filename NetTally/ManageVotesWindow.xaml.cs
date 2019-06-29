@@ -34,10 +34,10 @@ namespace NetTally
 
         bool displayStandardVotes = true;
 
-        List<MenuItem> ContextMenuCommands = new List<MenuItem>();
-        List<MenuItem> ContextMenuTasks = new List<MenuItem>();
+        readonly List<MenuItem> ContextMenuCommands = new List<MenuItem>();
+        readonly List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        MainViewModel? _mainViewModel = null;
+        readonly MainViewModel? _mainViewModel = null;
         MainViewModel MainViewModel
         {
             get
@@ -486,7 +486,7 @@ namespace NetTally
                     {
                         if (box.SelectedItem?.ToString() is string selectedVote)
                         {
-                            string changedVote = "";
+                            string changedVote;
 
                             if (mi.Header.ToString() == "Clear Task")
                                 changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
