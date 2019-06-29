@@ -22,13 +22,13 @@ namespace NetTally
     public partial class ManageVotesWindow : Window, INotifyPropertyChanged
     {
         #region Constructor and variables
-        public ListCollectionView VoteView1 { get; }
-        public ListCollectionView VoteView2 { get; }
+        public ListCollectionView VoteView1 { get; } = new ListCollectionView(new string[] { });
+        public ListCollectionView VoteView2 { get; } = new ListCollectionView(new string[] { });
 
-        public ListCollectionView VoterView1 { get; }
-        public ListCollectionView VoterView2 { get; }
+        public ListCollectionView VoterView1 { get; } = new ListCollectionView(new string[] { });
+        public ListCollectionView VoterView2 { get; } = new ListCollectionView(new string[] { });
 
-        object lastSelected2 = null;
+        object? lastSelected2 = null;
         int lastPosition1 = -1;
         int lastPosition2 = -1;
 
@@ -37,12 +37,22 @@ namespace NetTally
         List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        MainViewModel MainViewModel { get; }
+        MainViewModel? _mainViewModel = null;
+        MainViewModel MainViewModel
+        {
+            get
+            {
+                if (_mainViewModel == null)
+                    throw new InvalidOperationException("Main view model has not been initialized.");
 
-        ListBox newTaskBox = null;
+                return _mainViewModel;
+            }
+        }
 
-        string filter1String;
-        string filter2String;
+        ListBox? newTaskBox = null;
+
+        string filter1String = "";
+        string filter2String = "";
 
 
         /// <summary>
@@ -61,7 +71,7 @@ namespace NetTally
         {
             InitializeComponent();
 
-            MainViewModel = mainViewModel;
+            _mainViewModel = mainViewModel;
 
             MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
@@ -134,7 +144,7 @@ namespace NetTally
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -304,10 +314,11 @@ namespace NetTally
             if (!VotesCanMerge)
                 return;
 
-            string fromVote = VoteView1.CurrentItem?.ToString();
-            string toVote = VoteView2.CurrentItem?.ToString();
+            string? fromVote = VoteView1.CurrentItem?.ToString();
+            string? toVote = VoteView2.CurrentItem?.ToString();
 
-            MergeVotes(fromVote, toVote);
+            if (fromVote != null && toVote != null)
+                MergeVotes(fromVote, toVote);
         }
 
         /// <summary>
@@ -353,7 +364,7 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString(), CurrentVoteType))
+                if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString() ?? "", CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -401,7 +412,7 @@ namespace NetTally
             if (!(cm.PlacementTarget is ListBox listBox))
                 return;
 
-            string selectedVote = listBox.SelectedItem?.ToString();
+            string selectedVote = listBox.SelectedItem?.ToString() ?? "";
 
             // Only enable the Parition Children context menu item if it's a valid action for the vote.
             if (!string.IsNullOrEmpty(selectedVote))
@@ -511,7 +522,7 @@ namespace NetTally
                 {
                     if (cm.PlacementTarget is ListBox box)
                     {
-                        string selectedVote = box.SelectedItem?.ToString();
+                        string selectedVote = box.SelectedItem?.ToString() ?? "";
 
                         if (string.IsNullOrEmpty(selectedVote))
                             return;
@@ -544,7 +555,7 @@ namespace NetTally
 
             // Update the selected item of the list box
 
-            string selectedVote = newTaskBox?.SelectedItem?.ToString();
+            string? selectedVote = newTaskBox?.SelectedItem?.ToString();
 
             if (selectedVote != null)
             {
@@ -552,7 +563,7 @@ namespace NetTally
 
                 MergeVotes(selectedVote, changedVote);
 
-                newTaskBox.SelectedItem = changedVote;
+                newTaskBox!.SelectedItem = changedVote;
             }
 
             newTaskBox = null;

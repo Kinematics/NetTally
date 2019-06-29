@@ -27,7 +27,7 @@ namespace NetTally.Platform
                 if (string.IsNullOrEmpty(LastLogLocation))
                     return false;
 
-                string output = ComposeOutput(callingMethod, message, null, clock);
+                string? output = ComposeOutput(callingMethod, message, null, clock);
                 if (output == null)
                     return false;
 
@@ -56,7 +56,7 @@ namespace NetTally.Platform
                 if (string.IsNullOrEmpty(LastLogLocation))
                     return false;
 
-                string output = ComposeOutput(callingMethod, message, exception, clock);
+                string? output = ComposeOutput(callingMethod, message, exception, clock);
                 if (output == null)
                     return false;
 
@@ -85,7 +85,7 @@ namespace NetTally.Platform
         /// <param name="message">Text message to output.</param>
         /// <param name="ex">The exception whose message and stack trace will be output.</param>
         /// <returns>Returns the compiled output string.</returns>
-        private static string ComposeOutput(string callingMethod, string message, Exception ex, IClock clock)
+        private static string? ComposeOutput(string callingMethod, string message, Exception? ex, IClock clock)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace NetTally.Platform
                     sb.Append($"Message is: {ex.Message}\n\n");
                     sb.Append($"Stack Trace is:\n{ex.StackTrace}\n");
 
-                    Exception iex = GetInnermostException(ex);
+                    Exception? iex = GetInnermostException(ex);
 
                     if (iex != null)
                     {
@@ -141,7 +141,7 @@ namespace NetTally.Platform
         /// </summary>
         /// <param name="ex">The exception to check.</param>
         /// <returns>Returns the innermost contained exception.</returns>
-        private static Exception GetInnermostException(Exception ex)
+        private static Exception? GetInnermostException(Exception ex)
         {
             if (ex == null)
                 return null;

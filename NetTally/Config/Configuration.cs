@@ -21,7 +21,7 @@ namespace NetTally
         /// quests.
         /// </summary>
         /// <returns>Returns the quests wrapper to store data in.</returns>
-        public static void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions options)
+        public static void Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions? options)
         {
             List<Configuration> configs = NetTallyConfigHelper.GetConfigsToLoadFrom();
 
@@ -34,11 +34,11 @@ namespace NetTally
         /// </summary>
         /// <param name="configs">The list of configuration objects to attempt to read.</param>
         /// <param name="quests">The quests wrapper to store data in.</param>
-        private static void ReadConfigInformation(List<Configuration> configs, out QuestCollection quests, out string currentQuest, AdvancedOptions options)
+        private static void ReadConfigInformation(List<Configuration> configs, out QuestCollection quests, out string? currentQuest, AdvancedOptions? options)
         {
             if (configs.Count > 0)
             {
-                ConfigurationException failure = null;
+                ConfigurationException? failure = null;
 
                 ConfigPrefs.Strict = true;
 

@@ -168,7 +168,7 @@ namespace NetTally
         /// <param name="quests">The collection of saved quests.</param>
         /// <param name="currentQuest">The currently selected quest.</param>
         /// <param name="options">The program configuration options.</param>
-        public void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions options)
+        public void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions? options)
         {
             currentQuest = CurrentQuest;
             quests = new QuestCollection();

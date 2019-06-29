@@ -13,9 +13,9 @@ namespace NetTally
     public partial class ReorderTasksWindow : Window
     {
         #region Constructor and variables
-        public ListCollectionView TaskView { get; }
+        public ListCollectionView TaskView { get; } = new ListCollectionView(new string[] { });
 
-        MainViewModel MainViewModel { get; }
+        MainViewModel? MainViewModel { get; }
 
         /// <summary>
         /// Default constructor
@@ -53,7 +53,7 @@ namespace NetTally
 
         protected override void OnClosed(EventArgs e)
         {
-            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+            MainViewModel!.PropertyChanged -= MainViewModel_PropertyChanged;
 
             base.OnClosed(e);
         }
@@ -75,22 +75,22 @@ namespace NetTally
 
         private void up_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.DecreaseTaskPosition(TaskView.CurrentPosition);
+            MainViewModel!.DecreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void down_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.IncreaseTaskPosition(TaskView.CurrentPosition);
+            MainViewModel!.IncreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void alpha_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.ResetTasksOrder(TasksOrdering.Alphabetical);
+            MainViewModel!.ResetTasksOrder(TasksOrdering.Alphabetical);
         }
 
         private void default_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.ResetTasksOrder(TasksOrdering.AsTallied);
+            MainViewModel!.ResetTasksOrder(TasksOrdering.AsTallied);
         }
         #endregion
     }

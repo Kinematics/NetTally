@@ -11,7 +11,7 @@ namespace NetTally.Converters
         /// Convert from source (property BoolEx) to target (control bool?).
         /// </summary>
         /// <returns>Returns whether the specified target control value should be on or off.</returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             switch (value)
             {

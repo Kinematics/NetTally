@@ -90,7 +90,7 @@ namespace NetTally.Config
         /// <returns>Returns the most recent roaming config it can find.</returns>
         private static Configuration GetRecentRoamingConfig()
         {
-            ExeConfigurationFileMap map = GetRecentRoamingMap();
+            ExeConfigurationFileMap? map = GetRecentRoamingMap();
 
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.PerUserRoaming);
 
@@ -136,7 +136,7 @@ namespace NetTally.Config
         /// Searches for a directory version no higher than the current assembly version.
         /// </summary>
         /// <returns>Returns the most recent findable roaming config file.</returns>
-        private static ExeConfigurationFileMap GetRecentRoamingMap()
+        private static ExeConfigurationFileMap? GetRecentRoamingMap()
         {
             Configuration defaultConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
             FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
@@ -151,7 +151,7 @@ namespace NetTally.Config
 
             string product = GetProductDirectory();
 
-            DirectoryInfo dir = null;
+            DirectoryInfo? dir = null;
 
             var productDir = noHashParent.EnumerateDirectories().FirstOrDefault(d => d.Name == product);
 
@@ -204,7 +204,7 @@ namespace NetTally.Config
         /// </summary>
         /// <param name="parent">The parent directory being searched.</param>
         /// <returns>Returns the best directory match it can find, or null.</returns>
-        private static DirectoryInfo GetLatestVersionDirectory(DirectoryInfo parent)
+        private static DirectoryInfo? GetLatestVersionDirectory(DirectoryInfo parent)
         {
             if (!parent.Exists)
                 return null;

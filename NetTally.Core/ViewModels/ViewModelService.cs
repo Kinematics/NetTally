@@ -40,7 +40,7 @@ namespace NetTally.ViewModels
             this.handler = handler;
             return this;
         }
-        public ViewModelService Configure(QuestCollection quests, string currentQuest)
+        public ViewModelService Configure(QuestCollection? quests, string? currentQuest)
         {
             if (this.quests == null)
                 this.quests = quests;
