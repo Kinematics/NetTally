@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using NetTally.Forums;
 using NetTally.Votes;
 using NetTally;
+using NetTally.Web;
+using NetTally.SystemInfo;
 
 namespace NTTests.QuestTests
 {
@@ -34,6 +36,7 @@ namespace NTTests.QuestTests
         protected IQuest quest { get; set; } = new Quest();
         bool notified;
         readonly List<string> propertiesRaised = new List<string>();
+        readonly IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), new SystemClock());
 
         /// <summary>
         /// General initialization for the test, in addition to whatever the
@@ -438,7 +441,7 @@ namespace NTTests.QuestTests
         public async Task IQuest_IdentifyThread()
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo1, forumType);
         }
 
@@ -446,10 +449,10 @@ namespace NTTests.QuestTests
         public async Task IQuest_IdentifyThread_Change_SameHost()
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo1, forumType);
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
-            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo1, forumType);
         }
 
@@ -457,10 +460,10 @@ namespace NTTests.QuestTests
         public async Task IQuest_InitForumAdapter_Change_DiffHost()
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo1, forumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
-            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, CancellationToken.None).ConfigureAwait(false);
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo1, forumType);
         }
         #endregion

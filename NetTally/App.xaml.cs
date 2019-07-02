@@ -21,6 +21,7 @@ using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Navigation;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
@@ -47,6 +48,8 @@ namespace NetTally
             // Build the IServiceProvider and set our reference to it
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
+            _serviceProvider.GetRequiredService<ViewModelService>();
+
             // Request the navigation service and create our main window.
             var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();
             var task = navigationService.ShowAsync<MainWindow>();
@@ -61,7 +64,7 @@ namespace NetTally
             // or override services provided by the core library.
 
             // Add IoCNavigationService for the application.
-            services.AddScoped<IoCNavigationService>();
+            services.AddSingleton<IoCNavigationService>();
 
             // Register all the Windows of the applications via the service provider.
             services.AddTransient<MainWindow>();

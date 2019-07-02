@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
-using NetTally.VoteCounting;
-using NetTally;
 
 namespace NTTests.Voting
 {
@@ -18,6 +18,7 @@ namespace NTTests.Voting
     {
         static IQuest sampleQuest;
         static VoteConstructor voteConstructor;
+        static IServiceProvider serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -26,7 +27,15 @@ namespace NTTests.Voting
 
             sampleQuest = new Quest();
 
-            ViewModelService.Instance.Build();
+            // Create a service collection and configure our dependencies
+            var serviceCollection = new ServiceCollection();
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(serviceCollection);
+
+            // Build the IServiceProvider and set our reference to it
+            serviceProvider = serviceCollection.BuildServiceProvider();
+
+            serviceProvider.GetRequiredService<ViewModelService>();
 
             voteConstructor = ViewModelService.MainViewModel.VoteCounter.VoteConstructor;
         }

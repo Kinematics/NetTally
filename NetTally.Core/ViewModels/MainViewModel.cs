@@ -12,6 +12,7 @@ using NetTally.CustomEventArgs;
 using NetTally.Extensions;
 using NetTally.Output;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.Web;
@@ -21,23 +22,23 @@ namespace NetTally.ViewModels
     public class MainViewModel : ViewModelBase, IDisposable
     {
         public MainViewModel(
-            HttpClientHandler? httpClientHandler, IPageProvider? pageProvider,
-            IVoteCounter? voteCounter, ITextResultsProvider? textResults,
-            Func<string, CompareInfo, CompareOptions, int>? hashFunction)
+            HttpClientHandler httpClientHandler, IPageProvider pageProvider,
+            IVoteCounter voteCounter, ITextResultsProvider textResults,
+            Tally tally, CheckForNewRelease newRelease)
         {
-            PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
+            checkForNewRelease = newRelease;
 
             PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(httpClientHandler).Build();
 
-            TextResultsProvider = textResults ?? new TallyOutput();
+            TextResultsProvider = textResults;
 
-            VoteCounter = voteCounter ?? new VoteCounter();
+            VoteCounter = voteCounter;
             SetupVoteCounter();
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
-            Tally = BuildTally();
+            Tally = tally;
 
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
@@ -86,7 +87,7 @@ namespace NetTally.ViewModels
 
         #region Section: Check for New Release
         /// Fields for this section
-        readonly CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
+        readonly CheckForNewRelease checkForNewRelease;
 
         /// <summary>
         /// Pass-through flag indicating whether there is a newer release of the program available.
@@ -166,6 +167,8 @@ namespace NetTally.ViewModels
                 QuestList = new QuestCollection();
                 SelectQuest(null);
             }
+
+            InitTally();
         }
 
         /// <summary>
@@ -411,12 +414,10 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Bind event watcher to the class that handles running the tallies.
         /// </summary>
-        private Tally BuildTally()
+        private void InitTally()
         {
-            Tally tally = new Tally(PageProvider, VoteCounter);
-            tally.PropertyChanged += Tally_PropertyChanged;
-
-            return tally;
+            Tally.Initialize(this);
+            Tally.PropertyChanged += Tally_PropertyChanged;
         }
 
         /// <summary>
@@ -721,23 +722,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Gets the known tallied and user-defined tasks.
         /// </summary>
-        public IEnumerable<string> KnownTasks
-        {
-            get
-            {
-                var voteTasks = VoteCounter.GetVotesCollection(VoteType.Vote).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var rankTasks = VoteCounter.GetVotesCollection(VoteType.Rank).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var userTasks = UserDefinedTasks.ToList();
-
-                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Where(v => !string.IsNullOrEmpty(v));
-
-                return allTasks;
-            }
-        }
+        public IEnumerable<string> KnownTasks => VoteCounter.KnownTasks;
 
         public bool VoteExists(string vote, VoteType voteType) => VoteCounter.HasVote(vote, voteType);
 

@@ -516,7 +516,7 @@ namespace NetTally.Web
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
-                if (ViewModelService.MainViewModel.Options.DebugMode)
+                if (AdvancedOptions.Instance.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
             else
@@ -524,7 +524,7 @@ namespace NetTally.Web
                 // Fail all 400/500 level responses
                 // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
-                if (ViewModelService.MainViewModel.Options.DebugMode)
+                if (AdvancedOptions.Instance.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
 

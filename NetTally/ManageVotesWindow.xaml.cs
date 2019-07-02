@@ -5,11 +5,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using NetTally.Comparers;
+using NetTally.Navigation;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
@@ -19,7 +21,7 @@ namespace NetTally
     /// <summary>
     /// Interaction logic for MergeVotesWindow.xaml
     /// </summary>
-    public partial class ManageVotesWindow : Window, INotifyPropertyChanged
+    public partial class ManageVotesWindow : Window, INotifyPropertyChanged, IActivable
     {
         #region Constructor and variables
         public ListCollectionView VoteView1 { get; } = new ListCollectionView(new string[] { });
@@ -37,30 +39,21 @@ namespace NetTally
         readonly List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         readonly List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        readonly MainViewModel? _mainViewModel = null;
-        MainViewModel MainViewModel
-        {
-            get
-            {
-                if (_mainViewModel == null)
-                    throw new InvalidOperationException("Main view model has not been initialized.");
-
-                return _mainViewModel;
-            }
-        }
+        readonly MainViewModel _mainViewModel;
 
         ListBox? newTaskBox = null;
 
         string filter1String = "";
         string filter2String = "";
 
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public ManageVotesWindow()
+        public Task ActivateAsync(object? parameter)
         {
-            InitializeComponent();
+            if (parameter is Window owner)
+            {
+                this.Owner = owner;
+            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -69,15 +62,15 @@ namespace NetTally
         /// <param name="mainViewModel">The primary view model of the program.</param>
         public ManageVotesWindow(MainViewModel mainViewModel)
         {
-            InitializeComponent();
-
             _mainViewModel = mainViewModel;
 
-            MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            InitializeComponent();
+
+            _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
             // Create filtered, sortable views into the collection for display in the window.
-            VoteView1 = new ListCollectionView(MainViewModel.AllVotesCollection);
-            VoteView2 = new ListCollectionView(MainViewModel.AllVotesCollection);
+            VoteView1 = new ListCollectionView(_mainViewModel.AllVotesCollection);
+            VoteView2 = new ListCollectionView(_mainViewModel.AllVotesCollection);
 
             if (VoteView1.CanSort)
             {
@@ -99,8 +92,8 @@ namespace NetTally
 
 
             // Create filtered views for display in the window.
-            VoterView1 = new ListCollectionView(MainViewModel.AllVotersCollection);
-            VoterView2 = new ListCollectionView(MainViewModel.AllVotersCollection);
+            VoterView1 = new ListCollectionView(_mainViewModel.AllVotersCollection);
+            VoterView2 = new ListCollectionView(_mainViewModel.AllVotersCollection);
 
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
@@ -128,7 +121,7 @@ namespace NetTally
         /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
         protected override void OnClosed(EventArgs e)
         {
-            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+            _mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
 
             base.OnClosed(e);
         }
@@ -188,12 +181,12 @@ namespace NetTally
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
-        public bool HasRankedVotes => MainViewModel.HasRankedVotes;
+        public bool HasRankedVotes => _mainViewModel.HasRankedVotes;
 
         /// <summary>
         /// Returns whether there are stored undo actions in the vote tally.
         /// </summary>
-        public bool HasUndoActions => MainViewModel.HasUndoActions;
+        public bool HasUndoActions => _mainViewModel.HasUndoActions;
 
         /// <summary>
         /// Flag whether we should be displaying standard votes or ranked votes.
@@ -341,7 +334,7 @@ namespace NetTally
 
             try
             {
-                if (MainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
+                if (_mainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -364,7 +357,7 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (MainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString() ?? "", CurrentVoteType))
+                if (_mainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString() ?? "", CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -504,14 +497,14 @@ namespace NetTally
 
         private void reorderTasks_Click(object sender, RoutedEventArgs e)
         {
-            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(MainViewModel)
+            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(_mainViewModel)
             {
                 Owner = this
             };
 
             reorderWindow.ShowDialog();
 
-            MainViewModel.UpdateOutput();
+            _mainViewModel.UpdateOutput();
         }
 
         private void partitionChildren_Click(object sender, RoutedEventArgs e)
@@ -529,7 +522,7 @@ namespace NetTally
 
                         PartitionChildren(selectedVote);
 
-                        MainViewModel.UpdateOutput();
+                        _mainViewModel.UpdateOutput();
                     }
                 }
             }
@@ -590,7 +583,7 @@ namespace NetTally
         {
             try
             {
-                if (MainViewModel.UndoVoteModification())
+                if (_mainViewModel.UndoVoteModification())
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -610,11 +603,11 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(MainViewModel.AllVotesCollection))
+            if (e.PropertyName == nameof(_mainViewModel.AllVotesCollection))
             {
                 UpdateVoteCollections();
             }
-            else if (e.PropertyName == nameof(MainViewModel.AllVotersCollection))
+            else if (e.PropertyName == nameof(_mainViewModel.AllVotersCollection))
             {
                 UpdateVoterCollections();
             }
@@ -630,7 +623,7 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes1(string vote)
         {
-            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+            if (!_mainViewModel.VoteExists(vote, CurrentVoteType))
                 return false;
 
             if (string.IsNullOrEmpty(Filter1String))
@@ -641,7 +634,7 @@ namespace NetTally
 
             if (CurrentVoteType == VoteType.Vote)
             {
-                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                var voters = _mainViewModel.GetVoterListForVote(vote, CurrentVoteType);
                 if (voters != null)
                 {
                     if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))
@@ -660,7 +653,7 @@ namespace NetTally
         /// <returns>Returns true if the vote is valid for the current vote type.</returns>
         bool FilterVotes2(string vote)
         {
-            if (!MainViewModel.VoteExists(vote, CurrentVoteType))
+            if (!_mainViewModel.VoteExists(vote, CurrentVoteType))
                 return false;
 
             if (string.IsNullOrEmpty(Filter2String))
@@ -671,7 +664,7 @@ namespace NetTally
 
             if (CurrentVoteType == VoteType.Vote)
             {
-                var voters = MainViewModel.GetVoterListForVote(vote, CurrentVoteType);
+                var voters = _mainViewModel.GetVoterListForVote(vote, CurrentVoteType);
                 if (voters != null)
                 {
                     if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))
@@ -700,7 +693,7 @@ namespace NetTally
 
             string currentVote = voteView.CurrentItem.ToString();
 
-            var voters = MainViewModel.GetVoterListForVote(currentVote, CurrentVoteType);
+            var voters = _mainViewModel.GetVoterListForVote(currentVote, CurrentVoteType);
 
             return voters?.Contains(voterName) ?? false;
         }
@@ -760,7 +753,7 @@ namespace NetTally
                 lastPosition2 = -1;
                 lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
 
-                if (MainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
+                if (_mainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -778,7 +771,7 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (MainViewModel.PartitionChildren(vote, CurrentVoteType))
+                if (_mainViewModel.PartitionChildren(vote, CurrentVoteType))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -845,7 +838,7 @@ namespace NetTally
         /// </summary>
         private void InitKnownTasks()
         {
-            foreach (var task in MainViewModel.KnownTasks)
+            foreach (var task in _mainViewModel.KnownTasks)
                 ContextMenuTasks.Add(CreateContextMenuItem(task));
         }
 
@@ -881,7 +874,7 @@ namespace NetTally
                     switch (header.Header.ToString())
                     {
                         case "Re-Order Tasks":
-                            header.IsEnabled = MainViewModel.TaskList.Any();
+                            header.IsEnabled = _mainViewModel.TaskList.Any();
                             break;
                         case "Partition Children":
                             pMenu.Items.Add(new Separator());
@@ -912,7 +905,7 @@ namespace NetTally
             if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
                 return;
 
-            MainViewModel.AddUserDefinedTask(task);
+            _mainViewModel.AddUserDefinedTask(task);
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));
 

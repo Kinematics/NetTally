@@ -16,6 +16,8 @@ using NetTally.CustomEventArgs;
 using NetTally.Navigation;
 using NetTally.Platform;
 using NetTally.SystemInfo;
+using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 
 namespace NetTally
@@ -28,21 +30,9 @@ namespace NetTally
         #region Fields and Properties
         bool _disposed = false;
         private bool updateFlag;
-        readonly SynchronizationContext _syncContext = SynchronizationContext.Current;
-
+        private readonly MainViewModel mainViewModel;
         private readonly IoCNavigationService navigationService;
-
-        MainViewModel? _mainViewModel;
-        MainViewModel MainViewModel
-        {
-            get
-            {
-                if (_mainViewModel == null)
-                    throw new InvalidOperationException("Main view model has not been initialized.");
-
-                return _mainViewModel;
-            }
-        }
+        private readonly SynchronizationContext _syncContext;
         #endregion
 
         #region Startup/shutdown events
@@ -50,21 +40,23 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(IoCNavigationService navigationService)
+        public MainWindow(MainViewModel model, IoCNavigationService navigationService, IHash hash)
         {
+            // Initialize the readonly fields.
+            this.mainViewModel = model;
             this.navigationService = navigationService;
+            this._syncContext = SynchronizationContext.Current;
 
             try
             {
-                _syncContext = SynchronizationContext.Current;
-
-
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
                 // Set up the logger to use the Windows error log.
                 Logger.LogUsing(new WindowsErrorLog());
+
+                Agnostic.HashStringsUsing(hash.HashFunction);
 
                 // Initialize the window.
                 InitializeComponent();
@@ -108,16 +100,13 @@ namespace NetTally
                 System.Net.ServicePointManager.Expect100Continue = true;
                 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
-                _mainViewModel = ViewModelService.Instance
-                    .Configure(quests, currentQuest)
-                    .HashAgnosticStringsUsing(UnicodeHashFunction.HashFunction)
-                    .Build();
+                mainViewModel.InitializeQuests(quests, currentQuest);
 
-                DataContext = _mainViewModel;
-                _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                _mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
+                DataContext = mainViewModel;
+                mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
 
-                ViewModelService.MainViewModel.CheckForNewRelease();
+                mainViewModel.CheckForNewRelease();
             }
             catch (InvalidOperationException e)
             {
@@ -176,12 +165,12 @@ namespace NetTally
         {
             try
             {
-                if (_mainViewModel == null)
+                if (mainViewModel == null)
                     return;
 
-                string selectedQuest = MainViewModel.SelectedQuest?.ThreadName ?? "";
+                string selectedQuest = mainViewModel.SelectedQuest?.ThreadName ?? "";
 
-                NetTallyConfig.Save(MainViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
+                NetTallyConfig.Save(mainViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
             }
             catch (Exception ex)
             {
@@ -237,7 +226,7 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                _mainViewModel?.Dispose();
+                mainViewModel?.Dispose();
 
                 HwndSource? source = PresentationSource.FromVisual(this) as HwndSource;
                 source?.RemoveHook(WndProc);
@@ -294,7 +283,7 @@ namespace NetTally
         {
             if (!updateFlag)
             {
-                if (MainViewModel.TallyIsRunning)
+                if (mainViewModel.TallyIsRunning)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith(t => Reload());
                     return;
@@ -302,16 +291,16 @@ namespace NetTally
 
                 NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, null);
 
-                var removedQuests = MainViewModel.QuestList.Where(q => !quests.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
-                var addedQuests = quests.Where(q => !MainViewModel.QuestList.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
-                var renamedQuests = quests.Where(q => MainViewModel.QuestList.Where(qq => qq.ThreadName == q.ThreadName).Any(qqr => qqr.DisplayName != q.DisplayName)).ToList();
+                var removedQuests = mainViewModel.QuestList.Where(q => !quests.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
+                var addedQuests = quests.Where(q => !mainViewModel.QuestList.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
+                var renamedQuests = quests.Where(q => mainViewModel.QuestList.Where(qq => qq.ThreadName == q.ThreadName).Any(qqr => qqr.DisplayName != q.DisplayName)).ToList();
 
                 foreach (var q in removedQuests)
-                    MainViewModel.RemoveQuestQuiet(q);
+                    mainViewModel.RemoveQuestQuiet(q);
                 foreach (var q in addedQuests)
-                    MainViewModel.AddQuestQuiet(q);
+                    mainViewModel.AddQuestQuiet(q);
                 foreach (var q in renamedQuests)
-                    MainViewModel.RenameQuestQuiet(q.ThreadName, q.DisplayName);
+                    mainViewModel.RenameQuestQuiet(q.ThreadName, q.DisplayName);
             }
 
             updateFlag = false;
@@ -354,6 +343,11 @@ namespace NetTally
                 SaveConfig();
                 BroadcastUpdateNotification();
             }
+            else if ((e.PropertyName.StartsWith("SelectedQuest.")) &&
+                    (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant")))
+            {
+                Agnostic.ComparisonPropertyChanged(mainViewModel, e);
+            }
         }
 
         /// <summary>
@@ -394,14 +388,14 @@ namespace NetTally
         {
             try
             {
-                Clipboard.SetText(MainViewModel.Output);
+                Clipboard.SetText(mainViewModel.Output);
             }
             catch (Exception)
             {
                 try
                 {
                     // Try again
-                    Clipboard.SetDataObject(MainViewModel.Output, false);
+                    Clipboard.SetDataObject(mainViewModel.Output, false);
                 }
                 catch (Exception)
                 {
@@ -424,16 +418,18 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
+        private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow(MainViewModel)
+            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(Application.Current.MainWindow);
+
+            ManageVotesWindow manageWindow = new ManageVotesWindow(mainViewModel)
             {
                 Owner = Application.Current.MainWindow
             };
 
             manageWindow.ShowDialog();
 
-            MainViewModel.UpdateOutput();
+            mainViewModel.UpdateOutput();
         }
 
         /// <summary>
@@ -444,7 +440,7 @@ namespace NetTally
         private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<GlobalOptionsWindow>(
-                (owner: Application.Current.MainWindow, model: MainViewModel));
+                (owner: Application.Current.MainWindow, model: mainViewModel));
         }
 
         /// <summary>
@@ -455,7 +451,7 @@ namespace NetTally
         private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<QuestOptionsWindow>(
-                (owner: Application.Current.MainWindow, model: MainViewModel));
+                (owner: Application.Current.MainWindow, model: mainViewModel));
         }
 
         /// <summary>
@@ -584,7 +580,7 @@ namespace NetTally
         /// <param name="startWithThread">If set to <c>true</c> [start with thread].</param>
         private void StartEdit(bool startWithThread = false)
         {
-            if (MainViewModel.SelectedQuest == null)
+            if (mainViewModel.SelectedQuest == null)
             {
                 HideEditBoxes();
                 return;
@@ -660,7 +656,7 @@ namespace NetTally
         {
             BindingExpression? be = GetCurrentEditBinding();
 
-            if (be != null && MainViewModel.SelectedQuest != null)
+            if (be != null && mainViewModel.SelectedQuest != null)
                 be.UpdateTarget();
         }
 
@@ -671,7 +667,7 @@ namespace NetTally
         {
             BindingExpression? be = GetCurrentEditBinding();
 
-            if (be != null && MainViewModel.SelectedQuest != null)
+            if (be != null && mainViewModel.SelectedQuest != null)
                 be.UpdateSource();
         }
 

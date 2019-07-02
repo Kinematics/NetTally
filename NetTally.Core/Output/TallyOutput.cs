@@ -20,13 +20,19 @@ namespace NetTally.Output
     public class TallyOutput : ITextResultsProvider
     {
         #region Local Properties
-        IVoteCounter? voteCounter;
+        readonly IVoteCounter voteCounter;
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
         static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+
+
+        public TallyOutput(IVoteCounter counter)
+        {
+            voteCounter = counter;
+        }
         #endregion
 
         #region Public Interface
@@ -37,15 +43,13 @@ namespace NetTally.Output
         /// <param name="voteCounter">The vote counter to use.</param>
         public void UsingVoteCounter(IVoteCounter voteCounter)
         {
-            if (voteCounter != null)
-                this.voteCounter = voteCounter;
         }
 
         public IVoteCounter VoteCounter
         {
             get
             {
-                return voteCounter ?? ViewModelService.MainViewModel.VoteCounter;
+                return voteCounter;
             }
         }
 
@@ -173,9 +177,9 @@ namespace NetTally.Output
 
                 IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
 
-                if (ViewModelService.MainViewModel.VoteCounter.OrderedTaskList != null)
+                if (VoteCounter.OrderedTaskList != null)
                 {
-                    orderedRes = results.OrderBy(v => ViewModelService.MainViewModel.VoteCounter.OrderedTaskList.IndexOf(v.Key));
+                    orderedRes = results.OrderBy(v => VoteCounter.OrderedTaskList.IndexOf(v.Key));
                 }
                 else
                 {

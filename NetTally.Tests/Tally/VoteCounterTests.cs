@@ -10,6 +10,7 @@ using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NTTests.Voting
 {
@@ -19,6 +20,7 @@ namespace NTTests.Voting
         #region Setup
         static IVoteCounter voteCounter;
         static IQuest sampleQuest;
+        static IServiceProvider serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -27,7 +29,16 @@ namespace NTTests.Voting
 
             sampleQuest = new Quest();
 
-            ViewModelService.Instance.Build();
+            // Create a service collection and configure our dependencies
+            var serviceCollection = new ServiceCollection();
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(serviceCollection);
+
+            // Build the IServiceProvider and set our reference to it
+            serviceProvider = serviceCollection.BuildServiceProvider();
+
+            serviceProvider.GetRequiredService<ViewModelService>();
+
             voteCounter = ViewModelService.MainViewModel.VoteCounter;
         }
 

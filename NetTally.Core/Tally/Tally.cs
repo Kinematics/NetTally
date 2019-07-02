@@ -26,19 +26,27 @@ namespace NetTally.VoteCounting
         string changingResults = string.Empty;
 
         IVoteCounter VoteCounter;
+        MainViewModel? mainViewModel;
+        ForumReader forumReader;
 
         // Tracking cancellations
         List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
         #endregion
 
         #region Construction
-        public Tally(IPageProvider pageProvider, IVoteCounter voteCounter)
+        public Tally(IPageProvider pageProvider, IVoteCounter voteCounter, ForumReader reader)
         {
-            VoteCounter = voteCounter ?? throw new ArgumentNullException(nameof(voteCounter));
+            VoteCounter = voteCounter;
+            forumReader = reader;
 
             // Hook up to event notifications
             pageProvider.StatusChanged += PageProvider_StatusChanged;
             AdvancedOptions.Instance.PropertyChanged += Options_PropertyChanged;
+        }
+
+        public void Initialize(MainViewModel mainViewModel)
+        {
+            this.mainViewModel = mainViewModel;
         }
         #endregion
 
@@ -61,8 +69,12 @@ namespace NetTally.VoteCounting
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                ViewModelService.MainViewModel.PageProvider.StatusChanged -= PageProvider_StatusChanged;
                 AdvancedOptions.Instance.PropertyChanged -= Options_PropertyChanged;
+            }
+
+            if (mainViewModel != null)
+            {
+                mainViewModel.PageProvider.StatusChanged -= PageProvider_StatusChanged;
             }
 
             _disposed = true;
@@ -183,7 +195,7 @@ namespace NetTally.VoteCounting
 
                 VoteCounter.ResetUserDefinedTasks(quest.DisplayName);
 
-                var posts = await ForumReader.Instance.ReadQuestAsync(quest, token).ConfigureAwait(false);
+                var posts = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
                 await VoteCounter.TallyPosts(posts, quest, token).ConfigureAwait(false);
             }
@@ -207,7 +219,7 @@ namespace NetTally.VoteCounting
 
                 // Notify the page provider that we're done, and that the cache
                 // can be cleared out as needed:
-                ViewModelService.MainViewModel.PageProvider.DoneLoading();
+                mainViewModel?.PageProvider.DoneLoading();
 
                 // Free memory used by loading pages as soon as we're done:
                 GC.Collect();
@@ -230,7 +242,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void ClearPageCache()
         {
-            ViewModelService.MainViewModel.PageProvider.ClearPageCache();
+            mainViewModel?.PageProvider.ClearPageCache();
             VoteCounter.ResetUserMerges();
         }
         #endregion
@@ -251,8 +263,11 @@ namespace NetTally.VoteCounting
         /// </summary>
         private async Task UpdateResults(CancellationToken token)
         {
-            TallyResults = await ViewModelService.MainViewModel.TextResultsProvider
-                .BuildOutputAsync(AdvancedOptions.Instance.DisplayMode, token).ConfigureAwait(false);
+            if (mainViewModel != null)
+            {
+                TallyResults = await mainViewModel.TextResultsProvider
+                    .BuildOutputAsync(AdvancedOptions.Instance.DisplayMode, token).ConfigureAwait(false);
+            }
         }
         #endregion
 

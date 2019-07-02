@@ -27,14 +27,14 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, CancellationToken token)
+        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
         {
             if (uri == null)
                 return ForumType.Unknown;
 
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, pageProvider, token).ConfigureAwait(false);
 
                 if (doc != null)
                 {
@@ -93,9 +93,8 @@ namespace NetTally.Forums
         /// <param name="uri">The URI to load.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
-        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, CancellationToken token)
+        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, IPageProvider pageProvider, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
             HtmlDocument? page = null;
 
             try

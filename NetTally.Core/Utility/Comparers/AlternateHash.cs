@@ -1,10 +1,8 @@
-﻿using System;
-using System.Globalization;
-using NetTally.Utility.Comparers;
+﻿using System.Globalization;
 
-namespace NetTally.Platform
+namespace NetTally.Utility.Comparers
 {
-    public class UnicodeHashFunction : IHash
+    public class AlternateHash : IHash
     {
         /// <summary>
         /// Hashes the provided string using the given CompareOptions.
@@ -16,9 +14,6 @@ namespace NetTally.Platform
         /// <returns>Returns the hash code for the string.</returns>
         public int HashFunction(string str, CompareInfo info, CompareOptions options)
         {
-            if (info == null)
-                throw new ArgumentNullException(nameof(info));
-
             if (string.IsNullOrEmpty(str))
                 return 0;
 

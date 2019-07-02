@@ -5,19 +5,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.ViewModels;
+using NetTally.VoteCounting;
 using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    class ForumReader
+    public class ForumReader
     {
-        #region Singleton
-        static readonly Lazy<ForumReader> lazy = new Lazy<ForumReader>(() => new ForumReader());
+        #region Constructor
+        readonly IPageProvider pageProvider;
+        readonly IVoteCounter voteCounter;
 
-        public static ForumReader Instance => lazy.Value;
-
-        ForumReader()
+        public ForumReader(IPageProvider provider, IVoteCounter counter)
         {
+            pageProvider = provider;
+            voteCounter = counter;
         }
         #endregion
 
@@ -64,7 +66,7 @@ namespace NetTally.Forums
         private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
         {
 
-            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, token);
+            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, pageProvider, token);
 
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.DefaultPostsPerPage;
@@ -89,8 +91,6 @@ namespace NetTally.Forums
         /// <returns>Returns the quest's thread range info.</returns>
         private async Task<ThreadRangeInfo> GetStartInfoAsync(IQuest quest, IForumAdapter adapter, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
-
             ThreadRangeInfo rangeInfo = await adapter.GetStartingPostNumberAsync(quest, pageProvider, token).ConfigureAwait(false);
 
             return rangeInfo;
@@ -112,8 +112,6 @@ namespace NetTally.Forums
             // We will store the loaded pages in a new List.
             List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
 
-            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
-
             // Initiate the async tasks to load the pages
             if (pagesToScan > 0)
             {
@@ -121,7 +119,8 @@ namespace NetTally.Forums
                 var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
                               let pageUrl = adapter.GetUrlForPage(pageNum, quest.PostsPerPage)
                               let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
-                              select pageProvider.GetPageAsync(pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
+                              select pageProvider.GetPageAsync(
+                                  pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
 
                 pages.AddRange(results.ToList());
             }
@@ -141,8 +140,6 @@ namespace NetTally.Forums
         private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
-
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
             int lastPageNumber = 0;
             int pagesToScan = 0;
@@ -233,7 +230,7 @@ namespace NetTally.Forums
             var firstPage = firstPageTask.Result;
 
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
-            ViewModelService.MainViewModel.VoteCounter.Title = threadInfo.Title;
+            voteCounter.Title = threadInfo.Title;
 
             // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
             postsList = postsList

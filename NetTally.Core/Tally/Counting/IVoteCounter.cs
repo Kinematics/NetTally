@@ -44,6 +44,7 @@ namespace NetTally.VoteCounting
 
         HashSet<string> UserDefinedTasks { get; }
         List<string> OrderedTaskList { get; }
+        IEnumerable<string> KnownTasks { get; }
         void ResetUserDefinedTasks(string forQuestName);
         void ResetUserMerges();
 

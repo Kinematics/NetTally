@@ -61,6 +61,27 @@ namespace NetTally.VoteCounting
 
         public List<string> OrderedTaskList { get; } = new List<string>();
 
+        /// <summary>
+        /// Gets the known tallied and user-defined tasks.
+        /// </summary>
+        public IEnumerable<string> KnownTasks
+        {
+            get
+            {
+                var voteTasks = GetVotesCollection(VoteType.Vote).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var rankTasks = GetVotesCollection(VoteType.Rank).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var userTasks = UserDefinedTasks.ToList();
+
+                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Where(v => !string.IsNullOrEmpty(v));
+
+                return allTasks;
+            }
+        }
+
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
@@ -212,7 +233,7 @@ namespace NetTally.VoteCounting
                 VoteCounterIsTallying = false;
             }
 
-            OrderedTaskList.AddRange(ViewModelService.MainViewModel.KnownTasks);
+            OrderedTaskList.AddRange(KnownTasks);
             OnPropertyChanged("Tasks");
         }
 

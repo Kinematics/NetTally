@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Forums.Adapters;
+using NetTally.Web;
 
 namespace NetTally.Forums
 {
@@ -57,12 +58,12 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="site">The Uri of the site the adapter is for.</param>
         /// <returns>Returns a forum adapter matching the forum type of the page at the provided Uri.</returns>
-        public static async Task<IForumAdapter> GetForumAdapterAsync(Uri? site, CancellationToken token)
+        public static async Task<IForumAdapter> GetForumAdapterAsync(Uri? site, IPageProvider pageProvider, CancellationToken token)
         {
             if (site == null)
                 throw new ArgumentNullException(nameof(site));
 
-            ForumType forumType = await ForumIdentifier.IdentifyForumTypeAsync(site, token);
+            ForumType forumType = await ForumIdentifier.IdentifyForumTypeAsync(site, pageProvider, token);
 
             if (!cachedAdapters.TryGetValue(forumType, out IForumAdapter adapter))
             {
