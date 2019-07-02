@@ -166,6 +166,7 @@ namespace NetTally
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             SaveConfig();
+            this.Dispose();
         }
 
         /// <summary>
@@ -440,15 +441,10 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void globalOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            GlobalOptionsWindow options = new GlobalOptionsWindow
-            {
-                Owner = Application.Current.MainWindow,
-                DataContext = MainViewModel
-            };
-
-            options.ShowDialog();
+            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(
+                (owner: Application.Current.MainWindow, model: MainViewModel));
         }
 
         /// <summary>
@@ -456,15 +452,10 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void questOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            QuestOptionsWindow options = new QuestOptionsWindow
-            {
-                Owner = Application.Current.MainWindow,
-                DataContext = MainViewModel
-            };
-
-            options.ShowDialog();
+            await navigationService.ShowDialogAsync<QuestOptionsWindow>(
+                (owner: Application.Current.MainWindow, model: MainViewModel));
         }
 
         /// <summary>

@@ -1,17 +1,31 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using NetTally.Navigation;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
     /// <summary>
     /// Interaction logic for QuestOptionsWindow.xaml
     /// </summary>
-    public partial class QuestOptionsWindow : Window
+    public partial class QuestOptionsWindow : Window, IActivable
     {
         public QuestOptionsWindow()
         {
             InitializeComponent();
+        }
+
+        public Task ActivateAsync(object? parameter)
+        {
+            if (parameter is (Window owner, MainViewModel model))
+            {
+                this.Owner = owner;
+                this.DataContext = model;
+            }
+
+            return Task.CompletedTask;
         }
 
         private void resetFiltersButton_Click(object sender, RoutedEventArgs e)
