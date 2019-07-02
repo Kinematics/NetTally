@@ -13,6 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Navigation;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
+using NetTally.Navigation;
 using NetTally.Platform;
 using NetTally.SystemInfo;
 using NetTally.ViewModels;
@@ -28,6 +29,8 @@ namespace NetTally
         bool _disposed = false;
         private bool updateFlag;
         readonly SynchronizationContext _syncContext = SynchronizationContext.Current;
+
+        private readonly IoCNavigationService navigationService;
 
         MainViewModel? _mainViewModel;
         MainViewModel MainViewModel
@@ -47,11 +50,14 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow()
+        public MainWindow(IoCNavigationService navigationService)
         {
+            this.navigationService = navigationService;
+
             try
             {
                 _syncContext = SynchronizationContext.Current;
+
 
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;

@@ -17,7 +17,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+using System;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using NetTally.Navigation;
 
 namespace NetTally
 {
@@ -26,6 +29,47 @@ namespace NetTally
     /// </summary>
     public partial class App : Application
     {
+        private IServiceProvider? _serviceProvider;
+        public IServiceProvider ServiceProvider
+        {
+            get
+            {
+                return _serviceProvider ?? throw new InvalidOperationException("No service provider set.");
+            }
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            // Create a service collection and configure our dependencies
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+
+            // Build the IServiceProvider and set our reference to it
+            _serviceProvider = serviceCollection.BuildServiceProvider();
+
+            // Request the navigation service and create our main window.
+            var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();
+            var task = navigationService.ShowAsync<MainWindow>();
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(services);
+
+            // Then add services known by the current assembly,
+            // or override services provided by the core library.
+
+            // Add IoCNavigationService for the application.
+            services.AddScoped<IoCNavigationService>();
+
+            // Register all the Windows of the applications via the service provider.
+            services.AddTransient<MainWindow>();
+            services.AddTransient<GlobalOptionsWindow>();
+            services.AddTransient<QuestOptionsWindow>();
+            services.AddTransient<ManageVotesWindow>();
+            services.AddTransient<ReorderTasksWindow>();
+        }
 
     }
 }
