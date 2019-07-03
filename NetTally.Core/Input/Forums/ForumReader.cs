@@ -89,7 +89,7 @@ namespace NetTally.Forums
         private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
         {
 
-            var adapter = await ForumAdapterSelector.GetForumAdapterAsync(quest.ThreadUri, pageProvider, token);
+            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(quest.ThreadUri, pageProvider, token);
 
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.DefaultPostsPerPage;

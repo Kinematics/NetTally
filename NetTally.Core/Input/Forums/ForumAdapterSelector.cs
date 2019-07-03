@@ -10,7 +10,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    class ForumAdapterSelector
+    class ForumAdapterFactory
     {
         /// <summary>
         /// A dictionary cache for created forum adapters.

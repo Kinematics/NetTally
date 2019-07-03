@@ -19,7 +19,7 @@ namespace NTTests.Resources
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(resourceContent);
             var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
-            var adapter = ForumAdapterSelector.GetForumAdapter(forumType);
+            var adapter = ForumAdapterFactory.GetForumAdapter(forumType);
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
 
             Quest quest = new Quest
