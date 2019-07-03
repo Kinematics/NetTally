@@ -30,7 +30,6 @@ namespace NetTally.VoteCounting
         readonly IVoteCounter voteCounter;
         readonly IServiceProvider serviceProvider;
         readonly VoteConstructor voteConstructor;
-        readonly ITextResultsProvider textResultsProvider;
         readonly IGeneralOutputOptions outputOptions;
 
         public VoteConstructor VoteConstructor => voteConstructor;
@@ -41,12 +40,11 @@ namespace NetTally.VoteCounting
 
         #region Construction
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
-            IVoteCounter counter, ITextResultsProvider textResults, IGeneralOutputOptions options)
+            IVoteCounter counter, IGeneralOutputOptions options)
         {
             this.serviceProvider = serviceProvider;
             voteConstructor = constructor;
             voteCounter = counter;
-            textResultsProvider = textResults;
             outputOptions = options;
 
             // Hook up to event notifications
@@ -265,6 +263,8 @@ namespace NetTally.VoteCounting
         /// </summary>
         private async Task UpdateResults(CancellationToken token)
         {
+            var textResultsProvider = serviceProvider.GetRequiredService<ITextResultsProvider>();
+
             TallyResults = await textResultsProvider
                 .BuildOutputAsync(outputOptions.DisplayMode, token).ConfigureAwait(false);
         }
@@ -335,6 +335,11 @@ namespace NetTally.VoteCounting
                         TallyIsRunning = true;
 
                         await action(cts.Token).ConfigureAwait(false);
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        // This might be called on startup, in which case an error is thrown because there's no quest set yet.
+                        System.Diagnostics.Debug.WriteLine("InvalidOperationException");
                     }
                     finally
                     {

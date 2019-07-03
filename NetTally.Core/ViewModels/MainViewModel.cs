@@ -23,10 +23,9 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(Tally tally, IVoteCounter voteCounter, ITextResultsProvider textResults,
+        public MainViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
         {
-            TextResultsProvider = textResults;
             VoteCounter = voteCounter;
             PageCache = cache;
             checkForNewRelease = newRelease;
@@ -79,8 +78,6 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Providers
-        public ITextResultsProvider TextResultsProvider { get; private set; }
-
         public ICache<string> PageCache { get; }
         #endregion
 
@@ -522,6 +519,12 @@ namespace NetTally.ViewModels
                     catch (Exception e)
                     {
                         cts.Cancel();
+
+                        if (e.Data["Notify"] is true)
+                        {
+                            Tally.TallyResults += e.Message;
+                            return;
+                        }
 
                         if (!OnExceptionRaised(e).Handled)
                             throw;

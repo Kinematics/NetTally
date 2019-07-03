@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.ViewModels;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -36,16 +35,16 @@ namespace NetTally.Forums
             {
                 var doc = await GetDocumentAsync(uri, pageProvider, token).ConfigureAwait(false);
 
-                if (doc != null)
+                if (doc == null)
                 {
-                    forumType = IdentifyForumTypeFromHtmlDocument(doc);
+                    ArgumentException e = new ArgumentException($"Unable to load forum URL:  {uri.AbsoluteUri}");
+                    e.Data["Notify"] = true;
+                    throw e;
+                }
 
-                    forumTypes[uri.Host] = forumType;
-                }
-                else
-                {
-                    forumType = ForumType.Unknown;
-                }
+                forumType = IdentifyForumTypeFromHtmlDocument(doc);
+
+                forumTypes[uri.Host] = forumType;
             }
 
             return forumType;

@@ -371,7 +371,7 @@ namespace NetTally
             }
             MessageBox.Show(exmsg, "Error");
             if (!(ex.Data.Contains("Application")))
-                Logger.Error("Exception bubbled up from the view model.", ex);
+                Logger.Error("Exception bubbled up from the view model.\n", ex);
 
             e.Handled = true;
         }

@@ -8,7 +8,6 @@ using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.Utility;
-using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
@@ -23,6 +22,8 @@ namespace NetTally.Output
         #region Local Properties
         readonly IVoteCounter voteCounter;
         readonly IGeneralOutputOptions outputOptions;
+        readonly VoteInfo voteInfo;
+
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb = new StringBuilder();
@@ -31,10 +32,11 @@ namespace NetTally.Output
         static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
 
 
-        public TallyOutput(IVoteCounter counter, IGeneralOutputOptions options)
+        public TallyOutput(IVoteCounter counter, VoteInfo info, IGeneralOutputOptions options)
         {
-            this.voteCounter = counter;
-            this.outputOptions = options;
+            voteCounter = counter;
+            voteInfo = info;
+            outputOptions = options;
         }
         #endregion
 
@@ -48,14 +50,6 @@ namespace NetTally.Output
         {
         }
 
-        public IVoteCounter VoteCounter
-        {
-            get
-            {
-                return voteCounter;
-            }
-        }
-
         /// <summary>
         /// Public function to generate the full output for the tally.
         /// </summary>
@@ -64,9 +58,9 @@ namespace NetTally.Output
         /// <returns>Returns the full string to be displayed.</returns>
         public async Task<string> BuildOutputAsync(DisplayMode displayMode, CancellationToken token)
         {
-            if (VoteCounter.Quest == null)
+            if (voteCounter.Quest == null)
                 return string.Empty;
-            if (VoteCounter.TallyWasCanceled)
+            if (voteCounter.TallyWasCanceled)
                 return cancelled;
 
             DisplayMode = displayMode;
@@ -114,14 +108,14 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
-            if (VoteCounter.Quest is null)
+            if (voteCounter.Quest is null)
                 return;
 
             sb.Append("[b]Vote Tally");
             if (outputOptions.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
-            sb.Append(VoteCounter.Title);
+            sb.Append(voteCounter.Title);
 
             GetPostRange(out int first, out int last);
             if (last > 0)
@@ -131,14 +125,14 @@ namespace NetTally.Output
 
             sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
 
-            if (VoteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(VoteCounter.Quest.CustomUsernameFilters))
+            if (voteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(voteCounter.Quest.CustomUsernameFilters))
             {
-                sb.AppendLine($"[color=transparent]Username Filters: {VoteCounter.Quest.CustomUsernameFilters}[/color]");
+                sb.AppendLine($"[color=transparent]Username Filters: {voteCounter.Quest.CustomUsernameFilters}[/color]");
             }
 
-            if (VoteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(VoteCounter.Quest.CustomPostFilters))
+            if (voteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(voteCounter.Quest.CustomPostFilters))
             {
-                sb.AppendLine($"[color=transparent]Post Filters: {VoteCounter.Quest.CustomPostFilters}[/color]");
+                sb.AppendLine($"[color=transparent]Post Filters: {voteCounter.Quest.CustomPostFilters}[/color]");
             }
 
             sb.AppendLine();
@@ -155,7 +149,7 @@ namespace NetTally.Output
             first = 0;
             last = 0;
 
-            foreach (var post in VoteCounter.PostsList)
+            foreach (var post in voteCounter.PostsList)
             {
                 if (first == 0 || post.Number < first)
                     first = post.Number;
@@ -173,16 +167,16 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
-            if (VoteCounter.HasRankedVotes)
+            if (voteCounter.HasRankedVotes)
             {
                 IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(outputOptions.RankVoteCounterMethod);
-                RankResultsByTask results = counter.CountVotes(VoteCounter.GetVotesCollection(VoteType.Rank));
+                RankResultsByTask results = counter.CountVotes(voteCounter.GetVotesCollection(VoteType.Rank));
 
                 IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
 
-                if (VoteCounter.OrderedTaskList != null)
+                if (voteCounter.OrderedTaskList != null)
                 {
-                    orderedRes = results.OrderBy(v => VoteCounter.OrderedTaskList.IndexOf(v.Key));
+                    orderedRes = results.OrderBy(v => voteCounter.OrderedTaskList.IndexOf(v.Key));
                 }
                 else
                 {
@@ -199,7 +193,7 @@ namespace NetTally.Output
                 }
 
                 // Output the total number of voters
-                AddTotalVoterCount(VoteInfo.RankedVoterCount);
+                AddTotalVoterCount(voteInfo.RankedVoterCount);
                 sb.AppendLine("");
             }
         }
@@ -285,7 +279,7 @@ namespace NetTally.Output
         /// <param name="taskName">The name of the task.</param>
         private void AddRankedOptions(string taskName)
         {
-            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
+            var votes = voteCounter.GetVotesCollection(VoteType.Rank);
             var voteContents = votes.
                 Where(v => Agnostic.StringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName)).
                 Select(v => VoteString.GetVoteContent(v.Key));
@@ -310,8 +304,8 @@ namespace NetTally.Output
         /// <param name="choice">The name of the choice selected.</param>
         private void AddRankedVoters(string taskName, string choice)
         {
-            var votes = VoteCounter.GetVotesCollection(VoteType.Rank);
-            var voters = VoteCounter.GetVotersCollection(VoteType.Rank);
+            var votes = voteCounter.GetVotesCollection(VoteType.Rank);
+            var voters = voteCounter.GetVotersCollection(VoteType.Rank);
 
             var whoVoted = from v in votes
                            where Agnostic.StringComparer.Equals(VoteString.GetVoteTask(v.Key), taskName) &&
@@ -356,11 +350,11 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
-            if (VoteInfo.NormalVoterCount == 0)
+            if (voteInfo.NormalVoterCount == 0)
                 return;
 
-            var allVotes = VoteCounter.GetVotesCollection(VoteType.Vote);
-            var votesGroupedByTask = VoteInfo.GroupVotesByTask(allVotes);
+            var allVotes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var votesGroupedByTask = voteInfo.GroupVotesByTask(allVotes);
 
             bool firstTask = true;
 
@@ -381,7 +375,7 @@ namespace NetTally.Output
 
                     if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                     {
-                        var nodes = VoteInfo.GetVoteNodes(taskGroup);
+                        var nodes = voteInfo.GetVoteNodes(taskGroup);
 
                         foreach (var vote in nodes)
                         {
@@ -393,9 +387,9 @@ namespace NetTally.Output
                     }
                     else
                     {
-                        foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)).ThenBy(q => VoteInfo.LastVoteID(q.Value)))
+                        foreach (var vote in taskGroup.OrderByDescending(v => voteInfo.CountVote(v)).ThenBy(q => voteInfo.LastVoteID(q.Value)))
                         {
-                            if (outputOptions.DisplayPlansWithNoVotes || VoteInfo.CountVote(vote) > 0)
+                            if (outputOptions.DisplayPlansWithNoVotes || voteInfo.CountVote(vote) > 0)
                             {
                                 AddVote(vote);
                                 AddVoteCount(vote);
@@ -407,7 +401,7 @@ namespace NetTally.Output
                 }
             }
 
-            AddTotalVoterCount(VoteInfo.NormalVoterCount);
+            AddTotalVoterCount(voteInfo.NormalVoterCount);
         }
 
         #region Add by VoteNode
@@ -497,7 +491,7 @@ namespace NetTally.Output
             if (voteLines.Count == 0)
                 return;
 
-            int userCount = VoteInfo.CountVote(vote);
+            int userCount = voteInfo.CountVote(vote);
             string userCountMarker = userCount.ToString();
 
             // Single-line votes are always shown.
@@ -517,7 +511,7 @@ namespace NetTally.Output
 
 
             // Longer votes get condensed down to a link to the original post (and named after the first voter)
-            string? firstVoter = VoteInfo.GetFirstVoter(vote.Value);
+            string? firstVoter = voteInfo.GetFirstVoter(vote.Value);
 
             if (firstVoter is null)
                 return;
@@ -531,11 +525,11 @@ namespace NetTally.Output
 
             if (firstVoter.IsPlanName())
             {
-                link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Plan);
+                link = voteInfo.GetVoterUrl(firstVoter, VoteType.Plan);
             }
             else
             {
-                link = VoteInfo.GetVoterUrl(firstVoter, VoteType.Vote);
+                link = voteInfo.GetVoterUrl(firstVoter, VoteType.Vote);
             }
 
             sb.Append($" Plan: {firstVoter} — {link}\r\n");
@@ -550,7 +544,7 @@ namespace NetTally.Output
         {
             if (DisplayMode != DisplayMode.Compact && DisplayMode != DisplayMode.CompactNoVoters)
             {
-                AddVoterCount(VoteInfo.CountVote(vote));
+                AddVoterCount(voteInfo.CountVote(vote));
             }
         }
         #endregion
@@ -591,7 +585,7 @@ namespace NetTally.Output
 
             using (new Spoiler(sb, spoilerLabel, DisplayMode != DisplayMode.Normal))
             {
-                var orderedVoters = VoteInfo.GetOrderedVoterList(voters);
+                var orderedVoters = voteInfo.GetOrderedVoterList(voters);
 
                 foreach (var voter in orderedVoters)
                 {
@@ -622,14 +616,14 @@ namespace NetTally.Output
                 sb.Append(marker);
                 sb.Append("] ");
             }
-            else if (VoteCounter.PlanNames.Contains(voterName))
+            else if (voteCounter.PlanNames.Contains(voterName))
             {
                 sb.Append("[b]Plan: ");
                 closeBold = true;
             }
 
             sb.Append("[url=\"");
-            sb.Append(VoteInfo.GetVoterUrl(voterName, voteType));
+            sb.Append(voteInfo.GetVoterUrl(voterName, voteType));
             sb.Append("\"]");
             sb.Append(voterName);
             sb.Append("[/url]");
@@ -675,13 +669,13 @@ namespace NetTally.Output
         /// </summary>
         private void AddLineBreak()
         {
-            if (VoteCounter.Quest is null)
+            if (voteCounter.Quest is null)
                 return;
 
             if (DisplayMode == DisplayMode.Compact || DisplayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine();
 
-            sb.AppendLine(VoteCounter.Quest.LineBreak);
+            sb.AppendLine(voteCounter.Quest.LineBreak);
             sb.AppendLine();
         }
         #endregion

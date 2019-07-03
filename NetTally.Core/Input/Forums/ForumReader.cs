@@ -236,7 +236,7 @@ namespace NetTally.Forums
                 if (page == null)
                 {
                     Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
-                    ae.Data["Application"] = true;
+                    ae.Data["Notify"] = true;
                     throw ae;
                 }
 
