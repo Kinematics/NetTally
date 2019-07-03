@@ -16,9 +16,9 @@ namespace NetTally.Forums
     {
         static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
         {
-            ["forums.sufficientvelocity.com"] = ForumType.XenForo1,
-            ["forums.spacebattles.com"] = ForumType.XenForo1,
-            ["forum.questionablequesting.com"] = ForumType.XenForo1,
+            //["forums.sufficientvelocity.com"] = ForumType.XenForo1,
+            //["forums.spacebattles.com"] = ForumType.XenForo1,
+            //["forum.questionablequesting.com"] = ForumType.XenForo1,
         };
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace NetTally.Forums
             try
             {
                 page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
-                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token)
+                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.Yes, token)
                     .ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)

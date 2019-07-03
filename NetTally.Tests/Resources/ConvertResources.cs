@@ -1,16 +1,33 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
+using NetTally.Tests;
+using NetTally.Web;
 
 namespace NTTests.Resources
 {
     [TestClass]
     public class ConvertResources
     {
+        static IPageProvider pageProvider;
+        static IServiceProvider serviceProvider;
+        static ForumAdapterFactory forumAdapterFactory;
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            serviceProvider = TestStartup.ConfigureServices();
+
+            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+            forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
+        }
+
         [TestMethod]
         [Ignore]
         public async Task ConvertResourcePosts()
@@ -19,7 +36,7 @@ namespace NTTests.Resources
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(resourceContent);
             var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
-            var adapter = ForumAdapterFactory.GetForumAdapter(forumType);
+            var adapter = forumAdapterFactory.CreateForumAdapter(forumType, null);
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
 
             Quest quest = new Quest

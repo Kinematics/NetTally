@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 
@@ -20,6 +21,10 @@ namespace NetTally
         /// The URI that represents the thread URL string.
         /// </summary>
         Uri? ThreadUri { get; }
+        /// <summary>
+        /// The type of forum this quest is hosted on.
+        /// </summary>
+        ForumType ForumType { get; set; }
 
         /// <summary>
         /// The contents of the line break allowed for the site.

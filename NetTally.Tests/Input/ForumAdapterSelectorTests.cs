@@ -2,12 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
 using NetTally.SystemInfo;
+using NetTally.Tests;
 using NetTally.ViewModels;
 using NetTally.Web;
 using NTTests;
@@ -15,73 +17,60 @@ using NTTests;
 namespace NTTests.Input
 {
     [TestClass]
+    [Ignore]
     public class ForumAdapterSelectorTests
     {
-        static IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), PageCache.Instance,
-            new SystemClock(), AdvancedOptions.Instance);
+        static IPageProvider pageProvider;
+        static IServiceProvider serviceProvider;
+        static ForumAdapterFactory forumAdapterFactory;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
+            serviceProvider = TestStartup.ConfigureServices();
+
+            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+            forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
         }
 
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public async Task Select_XenForo_NoUri()
-        {
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(null, pageProvider, CancellationToken.None);
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task Select_XenForo_BaseUri()
-        {
-            Uri uri = new Uri("http://forums.sufficientvelocity.com/");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
-        }
-
-        [TestMethod]
-        public async Task Select_XenForo_ThreadUri()
-        {
-            Uri uri = new Uri("http://forums.sufficientvelocity.com/threads/vote-tally-program.199/");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
-        }
-
-
-        [TestMethod]
-        public async Task Select_XenForo_DefaultUri()
+        public async Task Select_XenForo_SV()
         {
             IQuest quest = new Quest();
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(quest.ThreadUri, pageProvider, CancellationToken.None);
+            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/vote-tally-program.199/";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 
         [TestMethod]
-        public async Task Select_SpaceBattles()
+        public async Task Select_XenForo_SB()
         {
-            Uri uri = new Uri("https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 
         [TestMethod]
-        public async Task Select_QuestionableQuesting()
+        public async Task Select_XenForo_QQ()
         {
-            Uri uri = new Uri("https://forum.questionablequesting.com/threads/qq-vote-tally-program.1065/");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "https://forum.questionablequesting.com/threads/qq-vote-tally-program.1065/";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 
         [TestMethod]
-        [Ignore]
         public async Task Select_vBulletin3()
         {
-            Uri uri = new Uri("http://forums.animesuki.com/showthread.php?t=128882");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "http://forums.animesuki.com/showthread.php?t=128882";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(vBulletin3Adapter));
         }
 
@@ -89,48 +78,55 @@ namespace NTTests.Input
         [Ignore]
         public async Task Select_vBulletin4()
         {
-            Uri uri = new Uri("http://www.fandompost.com/oldforums/showthread.php?48716-One-Punch-Man-Discussion-Thread/page1");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            // Fandompost changed to vBulletin 5.  Need to find another vBulletin 4 for testing.
+            quest.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?48716-One-Punch-Man-Discussion-Thread/page1";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(vBulletin4Adapter));
         }
 
         [TestMethod]
-        [Ignore]
         public async Task Select_vBulletin5()
         {
-            Uri uri = new Uri("http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/4333101-vbulletin-5-1-10-connect-is-now-available");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/4333101-vbulletin-5-1-10-connect-is-now-available";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(vBulletin5Adapter));
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        [Ignore]
         public async Task Select_NodeBB()
         {
-            Uri uri = new Uri("https://community.nodebb.org/topic/6298/nodebb-v0-7-3");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "https://community.nodebb.org/topic/6298/nodebb-v0-7-3";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(NodeBBAdapter));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        [Ignore]
         public async Task Select_phpBB()
         {
-            Uri uri = new Uri("http://www.ilovephilosophy.com/viewtopic.php?f=1&t=175054");
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(uri, pageProvider, CancellationToken.None);
+            IQuest quest = new Quest();
+            quest.ThreadName = "http://www.ilovephilosophy.com/viewtopic.php?f=1&t=175054";
+            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
+
             Assert.IsInstanceOfType(adapter, typeof(phpBBAdapter));
         }
 
         [TestMethod]
         public async Task Select_Explicit()
         {
+            Uri uri = new Uri("https://example.com/threads/RenascenceSV.html.100/");
             var resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(resourceContent);
             var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
-            var adapter = ForumAdapterFactory.GetForumAdapter(forumType);
+
+            var adapter = forumAdapterFactory.CreateForumAdapter(forumType, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 

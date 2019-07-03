@@ -9,14 +9,19 @@ using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    public class ForumReader : IDisposable
+    /// <summary>
+    /// Class for handling reading forum posts from a quest's forum.
+    /// </summary>
+    class ForumReader : IDisposable
     {
         #region Constructor
         readonly IPageProvider pageProvider;
+        readonly ForumAdapterFactory forumAdapterFactory;
 
-        public ForumReader(IPageProvider provider)
+        public ForumReader(IPageProvider provider, ForumAdapterFactory factory)
         {
             pageProvider = provider;
+            forumAdapterFactory = factory;
 
             pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
@@ -55,10 +60,9 @@ namespace NetTally.Forums
         /// <returns>Returns a list of posts extracted from the quest.</returns>
         public async Task<(string threadTitle, List<PostComponents> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
-            IForumAdapter adapter = await GetForumAdapterAsync(quest, token).ConfigureAwait(false);
+            IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
 
-            if (adapter == null)
-                throw new InvalidOperationException("Unable to acquire forum adapter for the quest.");
+            SyncQuestWithForumAdapter(quest, adapter);
 
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, token).ConfigureAwait(false);
 
@@ -81,16 +85,12 @@ namespace NetTally.Forums
 
         #region Helper functions
         /// <summary>
-        /// Get the forum adapter for the provided quest.
+        /// Update the quest with information from the forum adapter.
         /// </summary>
-        /// <param name="quest">The quest to get a forum adapter for.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns the forum adapter that knows how to read the forum of the quest thread.</returns>
-        private async Task<IForumAdapter> GetForumAdapterAsync(IQuest quest, CancellationToken token)
+        /// <param name="quest">The quest to sync up.</param>
+        /// <param name="adapter">The forum adapter created for the quest.</param>
+        private void SyncQuestWithForumAdapter(IQuest quest, IForumAdapter adapter)
         {
-
-            var adapter = await ForumAdapterFactory.GetForumAdapterAsync(quest.ThreadUri, pageProvider, token);
-
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.DefaultPostsPerPage;
 
@@ -100,8 +100,6 @@ namespace NetTally.Forums
 
             if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
-
-            return adapter;
         }
 
         /// <summary>

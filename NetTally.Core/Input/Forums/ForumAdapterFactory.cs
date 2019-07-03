@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Forums.Adapters;
@@ -13,89 +12,51 @@ namespace NetTally.Forums
     class ForumAdapterFactory
     {
         /// <summary>
-        /// A dictionary cache for created forum adapters.
+        /// Create a new forum adapter appropriate to the provided quest.
         /// </summary>
-        static readonly Dictionary<ForumType, IForumAdapter> cachedAdapters = new Dictionary<ForumType, IForumAdapter>();
+        /// <param name="quest">The quest that we need a forum adapter for.</param>
+        /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
+        /// <param name="token">A cancellation token for if we need to make a web request.</param>
+        /// <returns>Returns a forum adapter for the quest.</returns>
+        public async Task<IForumAdapter> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        {
+            if (quest.ThreadUri == null)
+                throw new InvalidOperationException("Quest has no valid web host.");
+
+            if (quest.ForumType == ForumType.Unknown)
+            {
+                quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, token);
+            }
+
+            return CreateForumAdapter(quest.ForumType, quest.ThreadUri);
+        }
 
         /// <summary>
         /// Get a forum adapter to match the provided forum type.
         /// </summary>
         /// <param name="forumType">The type of forum being requested.</param>
         /// <returns>Returns a forum adapter matching the requested forum type.</returns>
-        public static IForumAdapter GetForumAdapter(ForumType forumType)
+        public IForumAdapter CreateForumAdapter(ForumType forumType, Uri uri)
         {
-            if (!cachedAdapters.TryGetValue(forumType, out IForumAdapter adapter))
+            switch (forumType)
             {
-                switch (forumType)
-                {
-                    case ForumType.XenForo1:
-                        adapter = new XenForo1Adapter(Utility.DefaultUri.DefaultSV);
-                        break;
-                    case ForumType.XenForo2:
-                        adapter = new XenForo2Adapter(Utility.DefaultUri.DefaultSV);
-                        break;
-                    case ForumType.vBulletin3:
-                        adapter = new vBulletin3Adapter(Utility.DefaultUri.Default);
-                        break;
-                    case ForumType.vBulletin4:
-                        adapter = new vBulletin4Adapter(Utility.DefaultUri.Default);
-                        break;
-                    case ForumType.vBulletin5:
-                        adapter = new vBulletin5Adapter(Utility.DefaultUri.Default);
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown forum type: {forumType}", nameof(forumType));
-                }
-
-                cachedAdapters[forumType] = adapter;
+                case ForumType.XenForo1:
+                    return new XenForo1Adapter(uri);
+                case ForumType.XenForo2:
+                    return new XenForo2Adapter(uri);
+                case ForumType.vBulletin3:
+                    return new vBulletin3Adapter(uri);
+                case ForumType.vBulletin4:
+                    return new vBulletin4Adapter(uri);
+                case ForumType.vBulletin5:
+                    return new vBulletin5Adapter(uri);
+                case ForumType.phpBB:
+                    return new phpBBAdapter(uri);
+                case ForumType.NodeBB:
+                    return new NodeBBAdapter(uri);
+                default:
+                    throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
             }
-
-            return adapter;
-        }
-
-        /// <summary>
-        /// Gets a forum adapter to match the provided Uri.
-        /// </summary>
-        /// <param name="site">The Uri of the site the adapter is for.</param>
-        /// <returns>Returns a forum adapter matching the forum type of the page at the provided Uri.</returns>
-        public static async Task<IForumAdapter> GetForumAdapterAsync(Uri? site, IPageProvider pageProvider, CancellationToken token)
-        {
-            if (site == null)
-                throw new ArgumentNullException(nameof(site));
-
-            ForumType forumType = await ForumIdentifier.IdentifyForumTypeAsync(site, pageProvider, token);
-
-            if (!cachedAdapters.TryGetValue(forumType, out IForumAdapter adapter))
-            {
-                switch (forumType)
-                {
-                    case ForumType.XenForo1:
-                        adapter = new XenForo1Adapter(site);
-                        break;
-                    case ForumType.XenForo2:
-                        adapter = new XenForo2Adapter(site);
-                        break;
-                    case ForumType.vBulletin3:
-                        adapter = new vBulletin3Adapter(site);
-                        break;
-                    case ForumType.vBulletin4:
-                        adapter = new vBulletin4Adapter(site);
-                        break;
-                    case ForumType.vBulletin5:
-                        adapter = new vBulletin5Adapter(site);
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown forum type: {forumType} for site {site.Host}", nameof(forumType));
-                }
-
-                cachedAdapters[forumType] = adapter;
-            }
-            else
-            {
-                adapter.Site = site;
-            }
-
-            return adapter;
         }
     }
 }

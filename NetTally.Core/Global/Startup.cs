@@ -37,6 +37,7 @@ namespace NetTally
             services.AddSingleton<VoteConstructor>();
             services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<CheckForNewRelease>();
+            services.AddSingleton<ForumAdapterFactory>();
         }
     }
 }
