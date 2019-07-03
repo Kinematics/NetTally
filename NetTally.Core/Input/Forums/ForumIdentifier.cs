@@ -99,7 +99,7 @@ namespace NetTally.Forums
 
             try
             {
-                page = await pageProvider.GetPageAsync(uri.AbsoluteUri, uri.Host,
+                page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
                     CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 

@@ -30,12 +30,6 @@ namespace NTTests.Input
 
 
         [TestMethod]
-        public void ClearPageCacheTest()
-        {
-            pageProvider.ClearPageCache();
-        }
-
-        [TestMethod]
         public void LoadPagesTest()
         {
         }

@@ -5,14 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using NetTally.Cache;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
-using NetTally.ViewModels;
 using NetTally.Votes;
-using NetTally.Web;
 
 namespace NetTally.VoteCounting
 {
@@ -107,8 +104,8 @@ namespace NetTally.VoteCounting
         /// <param name="e">Contains info about which program option was updated.</param>
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "DisplayMode" 
-                || e.PropertyName == "RankVoteCounterMethod" 
+            if (e.PropertyName == "DisplayMode"
+                || e.PropertyName == "RankVoteCounterMethod"
                 || e.PropertyName == "DebugMode")
             {
                 await RunWithTallyFlagAsync(UpdateResults);

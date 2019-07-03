@@ -20,7 +20,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<HtmlDocument?> GetPageAsync(string url, string shortDescrip, 
+        Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, 
             CachingMode caching, ShouldCache shouldCache, 
             SuppressNotifications suppressNotifications, CancellationToken token);
 
@@ -35,7 +35,7 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<XDocument?> GetXmlPageAsync(string url, string shortDescrip,
+        Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 
@@ -58,10 +58,5 @@ namespace NetTally.Web
         /// Have an event that can be watched for status messages.
         /// </summary>
         event EventHandler<MessageEventArgs> StatusChanged;
-
-        /// <summary>
-        /// Clear the cache of any previously loaded pages.
-        /// </summary>
-        void ClearPageCache();
     }
 }

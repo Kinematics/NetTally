@@ -67,15 +67,7 @@ namespace NetTally.Web
         }
         #endregion
 
-        #region IPageProvider
-        /// <summary>
-        /// Allow manual clearing of the page cache.
-        /// </summary>
-        public void ClearPageCache()
-        {
-            Cache.Clear();
-        }
-
+        #region Event handling
         /// <summary>
         /// Event handler hook for status messages.
         /// </summary>
@@ -92,36 +84,29 @@ namespace NetTally.Web
 
             StatusChanged?.Invoke(this, new MessageEventArgs(message));
         }
-        #endregion
 
-        #region Notification functions
-
-        protected void NotifyStatusChange(PageRequestStatusType status, string url, string? shortDescrip, Exception? e, SuppressNotifications suppressNotifications)
+        protected void NotifyStatusChange(PageRequestStatusType status, string url, string? shortDescrip,
+            Exception? e, SuppressNotifications suppressNotifications)
         {
             if (suppressNotifications == SuppressNotifications.Yes)
                 return;
 
-            if (status == PageRequestStatusType.Requested)
+            switch (status)
             {
-                NotifyRequest(url);
-                return;
+                case PageRequestStatusType.Requested:
+                    NotifyRequest(url);
+                    break;
+                case PageRequestStatusType.Cancelled:
+                    NotifyCancel();
+                    break;
+                case PageRequestStatusType.Error:
+                    NotifyError(shortDescrip, e);
+                    break;
+                default:
+                    NotifyResult(status, shortDescrip);
+                    break;
             }
-
-            if (status == PageRequestStatusType.Cancelled)
-            {
-                NotifyCancel();
-                return;
-            }
-
-            if (status == PageRequestStatusType.Error)
-            {
-                NotifyError(shortDescrip, e);
-                return;
-            }
-
-            NotifyResult(status, shortDescrip);
         }
-
 
         /// <summary>
         /// Send status update when requesting a page URL.

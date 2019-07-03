@@ -146,7 +146,7 @@ namespace NetTally.Forums
                 var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
                               let pageUrl = adapter.GetUrlForPage(pageNum, quest.PostsPerPage)
                               let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
-                              select pageProvider.GetPageAsync(
+                              select pageProvider.GetHtmlDocumentAsync(
                                   pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
 
                 pages.AddRange(results.ToList());
@@ -184,7 +184,7 @@ namespace NetTally.Forums
 
                 string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
 
-                HtmlDocument? page = await pageProvider.GetPageAsync(firstPageUrl, $"Page {firstPageNumber}", 
+                HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}", 
                     CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 

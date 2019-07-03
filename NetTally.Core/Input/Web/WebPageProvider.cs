@@ -18,7 +18,8 @@ namespace NetTally.Web
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        HttpClient client;
+        readonly HttpClient httpClient;
+
         const int retryLimit = 3;
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
@@ -27,14 +28,15 @@ namespace NetTally.Web
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler, ICache<string> pageCache, IClock clock,
+        public WebPageProvider(HttpClientHandler handler,
+            ICache<string> pageCache, IClock clock,
             IGeneralInputOptions inputOptions)
             : base(handler, pageCache, clock)
         {
             this.inputOptions = inputOptions;
 
             SetupHandler();
-            client = SetupClient();
+            httpClient = SetupClient();
         }
 
         protected override void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
@@ -44,8 +46,8 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                if (client != null)
-                    client.Dispose();
+                if (httpClient != null)
+                    httpClient.Dispose();
             }
 
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
@@ -66,28 +68,27 @@ namespace NetTally.Web
         private HttpClient SetupClient()
         {
             // In the event of slow response probably caused by
-            // proxy lookup failures, can turn it off here.
+            // proxy lookup failures, we can turn it off here.
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
-            //ClientHandler.UseProxy = false;
             ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
-            HttpClient clt = new HttpClient(ClientHandler);
+            HttpClient client = new HttpClient(ClientHandler);
 
-            clt.Timeout = timeout;
-            clt.DefaultRequestHeaders.Add("Accept", "text/html");
-            clt.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            clt.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+            client.Timeout = timeout;
+            client.DefaultRequestHeaders.Add("Accept", "text/html");
+            client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+            client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
 
             // Native client handler breaks if we set the accept-encoding.
             // It handles auto-compression on its own.
             var handlerInfo = ClientHandler.GetType().GetTypeInfo();
             if (handlerInfo.FullName != "ModernHttpClient.NativeMessageHandler")
-                clt.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
 
             // Have to set the BaseAddress for mobile client code to work properly.
-            clt.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
+            client.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
 
-            return clt;
+            return client;
         }
         #endregion
 
@@ -104,7 +105,7 @@ namespace NetTally.Web
         /// <returns>
         /// Returns an HTML document, if it can be loaded.
         /// </returns>
-        public async Task<HtmlDocument?> GetPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             HtmlDocument? htmldoc = null;
@@ -131,7 +132,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument?> GetXmlPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             XDocument? xmldoc = null;
@@ -270,9 +271,9 @@ namespace NetTally.Web
                 }
 
                 string? authorization = ForumAuthentications.GetAuthorization(uri);
-                if (authorization != null)
+                if (authorization != null && !httpClient.DefaultRequestHeaders.Contains("Authorization"))
                 {
-                    client.DefaultRequestHeaders.Add("Authorization", authorization);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
                 HttpResponseMessage response;
@@ -287,7 +288,7 @@ namespace NetTally.Web
                         // Delay any additional attempts after the first.
                         await Task.Delay(retryDelay, token).ConfigureAwait(false);
 
-                        // Notify the user if we're re-trying to load the page.
+                        // Notify the user if we're making another attempt to load the page.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
                     }
 
@@ -295,7 +296,7 @@ namespace NetTally.Web
 
                     try
                     {
-                        getResponseTask = client.GetAsync(uri, token).TimeoutAfter(timeout, token);
+                        getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
                         Debug.WriteLine($"Get URI {uri} task ID: {getResponseTask.Id}");
 
                         using (response = await getResponseTask.ConfigureAwait(false))
@@ -351,7 +352,7 @@ namespace NetTally.Web
                 Debug.WriteLine($"Finished getting URI {uri} task ID: {getResponseTask?.Id ?? 0}");
 
                 if (result == null && tries >= retryLimit)
-                    client.CancelPendingRequests();
+                    httpClient.CancelPendingRequests();
             }
             catch (OperationCanceledException)
             {
@@ -365,8 +366,6 @@ namespace NetTally.Web
             }
             finally
             {
-                client.DefaultRequestHeaders.Remove("Authorization");
-
                 ss.Release();
             }
 
@@ -414,7 +413,7 @@ namespace NetTally.Web
                 string? authorization = ForumAuthentications.GetAuthorization(uri);
                 if (authorization != null)
                 {
-                    client.DefaultRequestHeaders.Add("Authorization", authorization);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
                 int tries = 0;
@@ -440,7 +439,7 @@ namespace NetTally.Web
                     {
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
-                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
+                        using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -475,7 +474,7 @@ namespace NetTally.Web
             }
             finally
             {
-                client.DefaultRequestHeaders.Remove("Authorization");
+                httpClient.DefaultRequestHeaders.Remove("Authorization");
 
                 ss.Release();
             }
