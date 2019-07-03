@@ -21,16 +21,17 @@ namespace NetTally.Web
         #region Properties
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
-        protected PageCache Cache { get; } = PageCache.Instance;
+        protected ICache<string> Cache { get; }
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion
 
         #region Constructors
-        protected PageProviderBase(HttpClientHandler? handler, IClock? clock)
+        protected PageProviderBase(HttpClientHandler handler, ICache<string> pageCache, IClock clock)
         {
-            ClientHandler = handler ?? new HttpClientHandler();
-            Clock = clock ?? new SystemClock();
+            ClientHandler = handler;
+            Cache = pageCache;
+            Clock = clock;
 
             Cache.SetClock(Clock);
         }

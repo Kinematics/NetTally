@@ -15,6 +15,7 @@ namespace NTTests.Experiment_2
             VoteLine _ = new VoteLine(null, "x", "", "content", MarkerType.Vote, 0);
         }
 
+        [Ignore]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_null_marker()
@@ -22,6 +23,7 @@ namespace NTTests.Experiment_2
             VoteLine _ = new VoteLine("", null, "", "content", MarkerType.Vote, 0);
         }
 
+        [Ignore]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_empty_marker()

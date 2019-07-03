@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.Utility;
 using NetTally.ViewModels;
@@ -21,6 +22,7 @@ namespace NetTally.Output
     {
         #region Local Properties
         readonly IVoteCounter voteCounter;
+        readonly IGeneralOutputOptions outputOptions;
         DisplayMode DisplayMode { get; set; }
 
         StringBuilder sb = new StringBuilder();
@@ -29,9 +31,10 @@ namespace NetTally.Output
         static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
 
 
-        public TallyOutput(IVoteCounter counter)
+        public TallyOutput(IVoteCounter counter, IGeneralOutputOptions options)
         {
-            voteCounter = counter;
+            this.voteCounter = counter;
+            this.outputOptions = options;
         }
         #endregion
 
@@ -93,7 +96,7 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
-            using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll || AdvancedOptions.Instance.GlobalSpoilers))
+            using (new Spoiler(sb, "Tally Results", DisplayMode == DisplayMode.SpoilerAll || outputOptions.GlobalSpoilers))
             {
                 AddHeader(token);
 
@@ -115,7 +118,7 @@ namespace NetTally.Output
                 return;
 
             sb.Append("[b]Vote Tally");
-            if (AdvancedOptions.Instance.DebugMode)
+            if (outputOptions.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
             sb.Append(VoteCounter.Title);
@@ -172,7 +175,7 @@ namespace NetTally.Output
 
             if (VoteCounter.HasRankedVotes)
             {
-                IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(AdvancedOptions.Instance.RankVoteCounterMethod);
+                IRankVoteCounter counter = VoteCounterLocator.GetRankVoteCounter(outputOptions.RankVoteCounterMethod);
                 RankResultsByTask results = counter.CountVotes(VoteCounter.GetVotesCollection(VoteType.Rank));
 
                 IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
@@ -235,7 +238,7 @@ namespace NetTally.Output
                 if (entry.Option == null)
                     continue;
 
-                string debug = AdvancedOptions.Instance.DebugMode ? $" >>> {entry.Debug}" : string.Empty;
+                string debug = outputOptions.DebugMode ? $" >>> {entry.Debug}" : string.Empty;
                 sb.AppendLine($"[{num++}] {entry.Option}{debug}");
             }
         }
@@ -261,7 +264,7 @@ namespace NetTally.Output
                 sb.Append(":[/b] ");
                 sb.Append(VoteString.FormatBBCodeForOutput(winner.Option));
 
-                if (AdvancedOptions.Instance.DebugMode)
+                if (outputOptions.DebugMode)
                     sb.AppendLine($" >>> {VoteString.FormatBBCodeForOutput(winner.Debug)}");
                 else
                     sb.AppendLine();
@@ -392,7 +395,7 @@ namespace NetTally.Output
                     {
                         foreach (var vote in taskGroup.OrderByDescending(v => VoteInfo.CountVote(v)).ThenBy(q => VoteInfo.LastVoteID(q.Value)))
                         {
-                            if (AdvancedOptions.Instance.DisplayPlansWithNoVotes || VoteInfo.CountVote(vote) > 0)
+                            if (outputOptions.DisplayPlansWithNoVotes || VoteInfo.CountVote(vote) > 0)
                             {
                                 AddVote(vote);
                                 AddVoteCount(vote);

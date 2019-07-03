@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
+using NetTally.Tests;
 using NetTally.Tests.Platform;
 using NetTally.Utility;
 using NetTally.ViewModels;
+using NetTally.VoteCounting;
 using NetTally.Votes;
 
 namespace NTTests.Voting
@@ -16,36 +18,31 @@ namespace NTTests.Voting
     [TestClass]
     public class VoteConstructorTests
     {
+        static IServiceProvider serviceProvider;
+
         static IQuest sampleQuest;
         static VoteConstructor voteConstructor;
-        static IServiceProvider serviceProvider;
+        static IVoteCounter voteCounter;
+        static Tally tally;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
+            serviceProvider = TestStartup.ConfigureServices();
+
+            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
+            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+            tally = serviceProvider.GetRequiredService<Tally>();
 
             sampleQuest = new Quest();
-
-            // Create a service collection and configure our dependencies
-            var serviceCollection = new ServiceCollection();
-            // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(serviceCollection);
-
-            // Build the IServiceProvider and set our reference to it
-            serviceProvider = serviceCollection.BuildServiceProvider();
-
-            serviceProvider.GetRequiredService<ViewModelService>();
-
-            voteConstructor = ViewModelService.MainViewModel.VoteCounter.VoteConstructor;
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            ViewModelService.MainViewModel.VoteCounter.Reset();
-            ViewModelService.MainViewModel.VoteCounter.PostsList.Clear();
-            ViewModelService.MainViewModel.VoteCounter.Quest = sampleQuest;
+            voteCounter.Reset();
+            voteCounter.PostsList.Clear();
+            voteCounter.Quest = sampleQuest;
             sampleQuest.PartitionMode = PartitionMode.None;
         }
 
@@ -70,8 +67,8 @@ namespace NTTests.Voting
 
             voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(voters.Count == 1);
             //Assert.IsTrue(voteCounter.VotesWithSupporters.ContainsKey(testVote));
@@ -100,8 +97,8 @@ namespace NTTests.Voting
 
             voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -126,8 +123,8 @@ namespace NTTests.Voting
 
             voteConstructor.ProcessPost(p, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(voters.Count == 1);
         }
@@ -184,17 +181,17 @@ namespace NTTests.Voting
             int refPostNum = 101;
             PostComponents p2 = new PostComponents(refAuthor, refID, referralVote, refPostNum);
 
-            ViewModelService.MainViewModel.VoteCounter.PostsList.Add(p1);
-            ViewModelService.MainViewModel.VoteCounter.PostsList.Add(p2);
+            voteCounter.PostsList.Add(p1);
+            voteCounter.PostsList.Add(p2);
 
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 1);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -228,10 +225,10 @@ namespace NTTests.Voting
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 3);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -265,10 +262,10 @@ namespace NTTests.Voting
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 7);
             Assert.IsTrue(votes.All(v => v.Value.Count == 2));
             Assert.IsTrue(voters.Count == 2);
@@ -303,10 +300,10 @@ namespace NTTests.Voting
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 2);
             Assert.IsTrue(votes.All(v => v.Value.Count == 1));
             Assert.IsTrue(voters.Count == 2);
@@ -341,10 +338,10 @@ namespace NTTests.Voting
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 4);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 3);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -380,10 +377,10 @@ namespace NTTests.Voting
             posts.Add(p1);
             posts.Add(p2);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
-            var voters = ViewModelService.MainViewModel.VoteCounter.GetVotersCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
+            var voters = voteCounter.GetVotersCollection(VoteType.Vote);
             Assert.IsTrue(votes.Count == 8);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 2) == 7);
             Assert.IsTrue(votes.Count(v => v.Value.Count == 1) == 1);
@@ -409,7 +406,7 @@ namespace NTTests.Voting
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -438,7 +435,7 @@ namespace NTTests.Voting
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -471,7 +468,7 @@ namespace NTTests.Voting
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }
@@ -503,7 +500,7 @@ namespace NTTests.Voting
             p1.SetWorkingVote(voteConstructor.GetWorkingVote);
 
             voteConstructor.ProcessPost(p1, sampleQuest, CancellationToken.None);
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(VoteType.Vote);
+            var votes = voteCounter.GetVotesCollection(VoteType.Vote);
 
             Assert.IsTrue(votes.Keys.SequenceEqual(expected, Agnostic.StringComparer));
         }

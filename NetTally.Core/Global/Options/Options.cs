@@ -3,10 +3,11 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using NetTally.Output;
 using NetTally.VoteCounting;
+using NetTally.Options;
 
 namespace NetTally
 {
-    public class AdvancedOptions : INotifyPropertyChanged
+    public class AdvancedOptions : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
     {
         #region Lazy singleton creation
         static readonly Lazy<AdvancedOptions> lazy = new Lazy<AdvancedOptions>(() => new AdvancedOptions());

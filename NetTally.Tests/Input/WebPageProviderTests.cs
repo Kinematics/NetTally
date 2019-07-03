@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Tests;
 using NetTally.Web;
 
 namespace NTTests.Input
@@ -7,6 +10,8 @@ namespace NTTests.Input
     public class WebPageProviderTests
     {
         static IPageProvider pageProvider;
+        static IServiceProvider serviceProvider;
+
 #if !NETCOREAPP
         static PrivateObject privateWeb;
 #endif
@@ -14,7 +19,10 @@ namespace NTTests.Input
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            pageProvider = PageProviderBuilder.Instance.Build();
+            serviceProvider = TestStartup.ConfigureServices();
+
+            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+
 #if !NETCOREAPP
             privateWeb = new PrivateObject(pageProvider);
 #endif

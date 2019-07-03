@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 
@@ -18,15 +19,17 @@ namespace NetTally.Votes
         #region Fields
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        readonly IGeneralInputOptions inputOptions;
+
+        public IVoteCounter VoteCounter { get; }
         #endregion
 
         #region Constructor
-        public VoteConstructor(IVoteCounter voteCounter)
+        public VoteConstructor(IVoteCounter voteCounter, IGeneralInputOptions options)
         {
-            VoteCounter = voteCounter ?? throw new ArgumentNullException(nameof(voteCounter));
+            VoteCounter = voteCounter;
+            inputOptions = options;
         }
-
-        public IVoteCounter VoteCounter { get; }
         #endregion
 
         #region Public functions
@@ -156,7 +159,7 @@ namespace NetTally.Votes
             }
 
             // Handle ranking votes, if applicable.
-            if (AdvancedOptions.Instance.AllowRankedVotes)
+            if (inputOptions.AllowRankedVotes)
             {
                 var rankings = GetRankingsFromPost(post, quest);
 

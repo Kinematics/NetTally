@@ -10,6 +10,7 @@ using System.Windows.Input;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.Output;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
@@ -22,23 +23,22 @@ namespace NetTally.ViewModels
     public class MainViewModel : ViewModelBase, IDisposable
     {
         public MainViewModel(
-            HttpClientHandler httpClientHandler, IPageProvider pageProvider,
-            IVoteCounter voteCounter, ITextResultsProvider textResults,
-            Tally tally, CheckForNewRelease newRelease)
+            IPageProvider pageProvider, IVoteCounter voteCounter, ITextResultsProvider textResults,
+            Tally tally, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
         {
-            checkForNewRelease = newRelease;
-
-            PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(httpClientHandler).Build();
-
+            PageProvider = pageProvider;
             TextResultsProvider = textResults;
-
             VoteCounter = voteCounter;
+            checkForNewRelease = newRelease;
+            Options = globalOptions;
+
             SetupVoteCounter();
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
             Tally = tally;
+            Tally.PropertyChanged += Tally_PropertyChanged;
 
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
@@ -139,7 +139,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Public link to the advanced options instance, for data binding.
         /// </summary>
-        public AdvancedOptions Options => AdvancedOptions.Instance;
+        public IGlobalOptions Options { get; }
         #endregion
 
         #region Quests
@@ -167,8 +167,6 @@ namespace NetTally.ViewModels
                 QuestList = new QuestCollection();
                 SelectQuest(null);
             }
-
-            InitTally();
         }
 
         /// <summary>
@@ -410,15 +408,6 @@ namespace NetTally.ViewModels
         #region Section: Tally & Results Binding
         /// Tally class object.
         Tally Tally { get; }
-
-        /// <summary>
-        /// Bind event watcher to the class that handles running the tallies.
-        /// </summary>
-        private void InitTally()
-        {
-            Tally.Initialize(this);
-            Tally.PropertyChanged += Tally_PropertyChanged;
-        }
 
         /// <summary>
         /// Handles the PropertyChanged event of the Tally control.
@@ -736,7 +725,7 @@ namespace NetTally.ViewModels
 
         public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Delete(vote, voteType);
 
-        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType);
+        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType, Tally.VoteConstructor);
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 

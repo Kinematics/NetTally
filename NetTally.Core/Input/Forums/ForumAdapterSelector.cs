@@ -29,10 +29,10 @@ namespace NetTally.Forums
                 switch (forumType)
                 {
                     case ForumType.XenForo1:
-                        adapter = new XenForo1Adapter(Utility.DefaultUri.Default);
+                        adapter = new XenForo1Adapter(Utility.DefaultUri.DefaultSV);
                         break;
                     case ForumType.XenForo2:
-                        adapter = new XenForo2Adapter(Utility.DefaultUri.Default);
+                        adapter = new XenForo2Adapter(Utility.DefaultUri.DefaultSV);
                         break;
                     case ForumType.vBulletin3:
                         adapter = new vBulletin3Adapter(Utility.DefaultUri.Default);

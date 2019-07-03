@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Cache;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.ViewModels;
 
@@ -21,12 +22,17 @@ namespace NetTally.Web
         const int retryLimit = 3;
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
+
+        readonly IGeneralInputOptions inputOptions;
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler? handler, IClock? clock)
-            : base(handler, clock)
+        public WebPageProvider(HttpClientHandler handler, ICache<string> pageCache, IClock clock,
+            IGeneralInputOptions inputOptions)
+            : base(handler, pageCache, clock)
         {
+            this.inputOptions = inputOptions;
+
             SetupHandler();
             client = SetupClient();
         }
@@ -63,7 +69,7 @@ namespace NetTally.Web
             // proxy lookup failures, can turn it off here.
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
             //ClientHandler.UseProxy = false;
-            ClientHandler.UseProxy = !AdvancedOptions.Instance.DisableWebProxy;
+            ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
             HttpClient clt = new HttpClient(ClientHandler);
 
@@ -516,7 +522,7 @@ namespace NetTally.Web
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
-                if (AdvancedOptions.Instance.DebugMode)
+                if (inputOptions.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
             else
@@ -524,7 +530,7 @@ namespace NetTally.Web
                 // Fail all 400/500 level responses
                 // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
-                if (AdvancedOptions.Instance.DebugMode)
+                if (inputOptions.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
 

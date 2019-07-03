@@ -48,11 +48,11 @@ namespace NetTally
             // Build the IServiceProvider and set our reference to it
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
-            _serviceProvider.GetRequiredService<ViewModelService>();
+            ServiceProvider.GetRequiredService<ViewModelService>();
 
             // Request the navigation service and create our main window.
             var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();
-            var task = navigationService.ShowAsync<MainWindow>();
+            _ = navigationService.ShowAsync<MainWindow>();
         }
 
         private void ConfigureServices(IServiceCollection services)

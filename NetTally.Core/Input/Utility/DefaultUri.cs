@@ -11,5 +11,6 @@ namespace NetTally.Utility
         /// The static default Uri to be used in the program.
         /// </summary>
         public static Uri Default = new Uri(@"http://example.com/");
+        public static Uri DefaultSV = new Uri(@"https://example.com/threads/example.101/");
     }
 }

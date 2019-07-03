@@ -10,21 +10,17 @@ namespace NetTally.VoteCounting
     {
         IQuest? Quest { get; set; }
 
-        Task TallyPosts(CancellationToken token);
-        Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token);
-
-        VoteConstructor VoteConstructor { get; }
         List<PostComponents> PostsList { get; }
         void Reset();
-        bool VoteCounterIsTallying { get; }
-        bool TallyWasCanceled { get; }
+        bool VoteCounterIsTallying { get; set; }
+        bool TallyWasCanceled { get; set; }
 
         void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
 
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
         bool Delete(string vote, VoteType voteType);
-        bool PartitionChildren(string vote, VoteType voteType);
+        bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor);
 
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
         Dictionary<string, string> GetVotersCollection(VoteType voteType);

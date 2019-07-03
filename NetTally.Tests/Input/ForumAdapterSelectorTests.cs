@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
+using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
 using NetTally.SystemInfo;
@@ -16,7 +17,8 @@ namespace NTTests.Input
     [TestClass]
     public class ForumAdapterSelectorTests
     {
-        static IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), new SystemClock());
+        static IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), PageCache.Instance,
+            new SystemClock(), AdvancedOptions.Instance);
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

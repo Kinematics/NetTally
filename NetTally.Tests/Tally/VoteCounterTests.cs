@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Tests.Platform;
+using NetTally.Tests;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
@@ -21,25 +21,17 @@ namespace NTTests.Voting
         static IVoteCounter voteCounter;
         static IQuest sampleQuest;
         static IServiceProvider serviceProvider;
+        static Tally tally;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
+            serviceProvider = TestStartup.ConfigureServices();
+
+            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+            tally = serviceProvider.GetRequiredService<Tally>();
 
             sampleQuest = new Quest();
-
-            // Create a service collection and configure our dependencies
-            var serviceCollection = new ServiceCollection();
-            // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(serviceCollection);
-
-            // Build the IServiceProvider and set our reference to it
-            serviceProvider = serviceCollection.BuildServiceProvider();
-
-            serviceProvider.GetRequiredService<ViewModelService>();
-
-            voteCounter = ViewModelService.MainViewModel.VoteCounter;
         }
 
         [TestInitialize]
@@ -47,6 +39,7 @@ namespace NTTests.Voting
         {
             voteCounter.Reset();
             voteCounter.PostsList.Clear();
+            voteCounter.Quest = sampleQuest;
         }
         #endregion
 
@@ -539,7 +532,7 @@ namespace NTTests.Voting
             PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
             PostComponents p2 = new PostComponents("Mini", "12345", "[x] beyogi");
             List<PostComponents> posts = new List<PostComponents> { p1, p2 };
-            Task t =  voteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            Task t = tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
             await t;
 
             Assert.AreEqual(2, voteCounter.GetVotersCollection(VoteType.Vote).Count);

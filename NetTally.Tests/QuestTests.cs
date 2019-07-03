@@ -9,6 +9,7 @@ using NetTally.Votes;
 using NetTally;
 using NetTally.Web;
 using NetTally.SystemInfo;
+using NetTally.Cache;
 
 namespace NTTests.QuestTests
 {
@@ -36,7 +37,8 @@ namespace NTTests.QuestTests
         protected IQuest quest { get; set; } = new Quest();
         bool notified;
         readonly List<string> propertiesRaised = new List<string>();
-        readonly IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), new SystemClock());
+        readonly IPageProvider pageProvider = new WebPageProvider(new System.Net.Http.HttpClientHandler(), PageCache.Instance,
+            new SystemClock(), AdvancedOptions.Instance);
 
         /// <summary>
         /// General initialization for the test, in addition to whatever the

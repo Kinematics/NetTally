@@ -156,6 +156,7 @@ namespace NetTally
         {
             SaveConfig();
             this.Dispose();
+            Application.Current.Shutdown();
         }
 
         /// <summary>
