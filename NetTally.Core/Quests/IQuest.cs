@@ -27,16 +27,6 @@ namespace NetTally
         ForumType ForumType { get; set; }
 
         /// <summary>
-        /// The contents of the line break allowed for the site.
-        /// </summary>
-        string LineBreak { get; set; }
-        /// <summary>
-        /// A function that can transform a post ID into a permalink.
-        /// This function is set per identification of the forum adapter.
-        /// </summary>
-        Func<string, string> PermalinkForId { get; set; }
-
-        /// <summary>
         /// The number of posts per page for this forum thread.
         /// </summary>
         int PostsPerPage { get; set; }

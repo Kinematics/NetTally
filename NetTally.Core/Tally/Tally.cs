@@ -336,7 +336,7 @@ namespace NetTally.VoteCounting
 
                         await action(cts.Token).ConfigureAwait(false);
                     }
-                    catch (InvalidOperationException e)
+                    catch (InvalidOperationException)
                     {
                         // This might be called on startup, in which case an error is thrown because there's no quest set yet.
                         System.Diagnostics.Debug.WriteLine("InvalidOperationException");

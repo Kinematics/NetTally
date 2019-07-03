@@ -94,10 +94,6 @@ namespace NetTally.Forums
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.DefaultPostsPerPage;
 
-            quest.LineBreak = adapter.LineBreak;
-
-            quest.PermalinkForId = adapter.GetPermalinkForId;
-
             if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
         }
@@ -235,9 +231,9 @@ namespace NetTally.Forums
 
                 if (page == null)
                 {
-                    Exception ae = new Exception("Not all pages loaded.  Rerun tally.");
-                    ae.Data["Notify"] = true;
-                    throw ae;
+                    Exception e = new Exception("Not all pages loaded.  Rerun tally.");
+                    e.Data["Notify"] = true;
+                    throw e;
                 }
 
                 var posts = from post in adapter.GetPosts(page, quest)

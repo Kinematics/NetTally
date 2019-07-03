@@ -38,6 +38,8 @@ namespace NetTally.Output
 
             return string.Empty;
         }
+
+        public string LineBreak => forumAdapter.LineBreak;
         
         /// <summary>
         /// Property to get the total number of ranked voters in the tally.

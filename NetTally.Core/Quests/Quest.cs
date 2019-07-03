@@ -260,18 +260,6 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
-
-
-        /// <summary>
-        /// The contents of the line break allowed for the site.
-        /// </summary>
-        public string LineBreak { get; set; } = "";
-
-        /// <summary>
-        /// A function that can transform a post ID into a permalink.
-        /// This function is set per identification of the forum adapter.
-        /// </summary>
-        public Func<string, string> PermalinkForId { get; set; } = (s) => s;
         #endregion
 
         #region Quest configuration properties: Filtering
