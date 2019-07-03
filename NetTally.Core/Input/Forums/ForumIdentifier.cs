@@ -82,6 +82,14 @@ namespace NetTally.Forums
                 {
                     forumType = ForumType.vBulletin5;
                 }
+                else if (IdentifyPhpBB(doc))
+                {
+                    forumType = ForumType.phpBB;
+                }
+                else if (IdentifyNodeBB(doc))
+                {
+                    forumType = ForumType.NodeBB;
+                }
             }
 
             return forumType;
@@ -195,6 +203,33 @@ namespace NetTally.Forums
                 return false;
 
             return doc.DocumentNode.Element("html").Element("body")?.Id == "vb-page-body";
+        }
+
+        /// <summary>
+        /// Determine if a web page is from a phpBB forum.
+        /// </summary>
+        /// <param name="doc">The HTML page to check.</param>
+        /// <returns>Returns true if the HTML is phpBB</returns>
+        private static bool IdentifyPhpBB(HtmlDocument doc)
+        {
+            if (doc == null)
+                return false;
+
+            return doc.DocumentNode.Element("html").Element("body")?.Id == "phpbb";
+        }
+
+        /// <summary>
+        /// Determine if a web page is from a NodeBB forum.
+        /// </summary>
+        /// <param name="doc">The HTML page to check.</param>
+        /// <returns>Returns true if the HTML is NodeBB</returns>
+        private static bool IdentifyNodeBB(HtmlDocument doc)
+        {
+            if (doc == null)
+                return false;
+
+            // There is currently no known means of identifying NodeBB forums.
+            return false;
         }
     }
 }
