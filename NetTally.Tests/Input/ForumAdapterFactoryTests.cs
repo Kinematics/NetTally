@@ -5,20 +5,16 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
-using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
-using NetTally.SystemInfo;
 using NetTally.Tests;
-using NetTally.ViewModels;
 using NetTally.Web;
-using NTTests;
 
 namespace NTTests.Input
 {
     [TestClass]
     [Ignore]
-    public class ForumAdapterSelectorTests
+    public class ForumAdapterFactoryTests
     {
         static IPageProvider pageProvider;
         static IServiceProvider serviceProvider;
@@ -129,6 +125,5 @@ namespace NTTests.Input
             var adapter = forumAdapterFactory.CreateForumAdapter(forumType, uri);
             Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
-
     }
 }
