@@ -202,7 +202,9 @@ namespace NetTally.VoteCounting
                     {
                         forumReader.StatusChanged += ForumReader_StatusChanged;
 
-                        var posts = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
+                        var (threadTitle, posts) = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
+
+                        voteCounter.Title = threadTitle;
 
                         await TallyPosts(posts, quest, token).ConfigureAwait(false);
                     }

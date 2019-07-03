@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.CustomEventArgs;
-using NetTally.ViewModels;
-using NetTally.VoteCounting;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -15,12 +13,10 @@ namespace NetTally.Forums
     {
         #region Constructor
         readonly IPageProvider pageProvider;
-        readonly IVoteCounter voteCounter;
 
-        public ForumReader(IPageProvider provider, IVoteCounter counter)
+        public ForumReader(IPageProvider provider)
         {
             pageProvider = provider;
-            voteCounter = counter;
 
             pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
@@ -57,7 +53,7 @@ namespace NetTally.Forums
         /// <param name="quest">The quest to read.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of posts extracted from the quest.</returns>
-        public async Task<List<PostComponents>> ReadQuestAsync(IQuest quest, CancellationToken token)
+        public async Task<(string threadTitle, List<PostComponents> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             IForumAdapter adapter = await GetForumAdapterAsync(quest, token).ConfigureAwait(false);
 
@@ -74,12 +70,12 @@ namespace NetTally.Forums
             if (loadedPages == null)
                 throw new InvalidOperationException("Unable to load pages for the quest.");
 
-            List<PostComponents> posts = await GetPostsFromPagesAsync(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
+            var (title, posts) = await GetPostsFromPagesAsync(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
 
             if (posts == null)
                 throw new InvalidOperationException("Unable to extract posts from quest pages.");
 
-            return posts;
+            return (title, posts);
         }
         #endregion
 
@@ -184,7 +180,7 @@ namespace NetTally.Forums
 
                 string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
 
-                HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}", 
+                HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}",
                     CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
                     .ConfigureAwait(false);
 
@@ -215,13 +211,13 @@ namespace NetTally.Forums
         /// <param name="pages">The pages that are being loaded.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of PostComponents comprising the posts from the threads that fall within the specified range.</returns>
-        private async Task<List<PostComponents>> GetPostsFromPagesAsync(
+        private async Task<(string threadTitle, List<PostComponents> posts)> GetPostsFromPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
         {
             List<PostComponents> postsList = new List<PostComponents>();
 
             if (pages.Count == 0)
-                return postsList;
+                return (string.Empty, postsList);
 
             var firstPageTask = pages.First();
 
@@ -257,18 +253,16 @@ namespace NetTally.Forums
             var firstPage = firstPageTask.Result;
 
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
-            voteCounter.Title = threadInfo.Title;
 
             // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
             postsList = postsList
-                .Where(p => (
-                            (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) || (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author)) &&
-                            (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.IDValue))
-                            )
+                .Where(p =>
+                        ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) || (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author))
+                     && (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.IDValue)))
                       )
                 .Distinct().OrderBy(p => p.Number).ToList();
 
-            return postsList;
+            return (threadInfo.Title, postsList);
         }
         #endregion
     }
