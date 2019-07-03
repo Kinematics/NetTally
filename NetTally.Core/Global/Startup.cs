@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
 using NetTally.Forums;

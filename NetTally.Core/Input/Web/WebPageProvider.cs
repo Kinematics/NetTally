@@ -11,7 +11,6 @@ using NetTally.Cache;
 using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.SystemInfo;
-using NetTally.ViewModels;
 
 namespace NetTally.Web
 {
@@ -504,7 +503,7 @@ namespace NetTally.Web
             return (response.StatusCode == HttpStatusCode.Moved ||
                     response.StatusCode == HttpStatusCode.MovedPermanently ||
                     response.StatusCode == HttpStatusCode.Redirect ||
-                    response.StatusCode == HttpStatusCode.TemporaryRedirect) ;
+                    response.StatusCode == HttpStatusCode.TemporaryRedirect);
         }
 
         /// <summary>
