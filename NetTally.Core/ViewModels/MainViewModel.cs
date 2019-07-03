@@ -523,11 +523,11 @@ namespace NetTally.ViewModels
                         if (e.Data["Notify"] is true)
                         {
                             Tally.TallyResults += e.Message;
-                            return;
                         }
-
-                        if (!OnExceptionRaised(e).Handled)
+                        else if (!OnExceptionRaised(e).Handled)
+                        {
                             throw;
+                        }
                     }
                 }
             }

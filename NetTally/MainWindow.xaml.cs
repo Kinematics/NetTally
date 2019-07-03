@@ -421,14 +421,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(Application.Current.MainWindow);
-
-            ManageVotesWindow manageWindow = new ManageVotesWindow(mainViewModel)
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            manageWindow.ShowDialog();
+            await navigationService.ShowDialogAsync<ManageVotesWindow>(Application.Current.MainWindow);
 
             mainViewModel.UpdateOutput();
         }
