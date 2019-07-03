@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Extensions;
@@ -22,13 +23,12 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(
-            IPageProvider pageProvider, IVoteCounter voteCounter, ITextResultsProvider textResults,
-            Tally tally, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
+        public MainViewModel(Tally tally, IVoteCounter voteCounter, ITextResultsProvider textResults,
+            ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
         {
-            PageProvider = pageProvider;
             TextResultsProvider = textResults;
             VoteCounter = voteCounter;
+            PageCache = cache;
             checkForNewRelease = newRelease;
             Options = globalOptions;
 
@@ -72,7 +72,6 @@ namespace NetTally.ViewModels
             if (itIsSafeToAlsoFreeManagedObjects)
             {
                 Tally.Dispose();
-                PageProvider.Dispose();
             }
 
             _disposed = true;
@@ -80,9 +79,9 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Providers
-        public IPageProvider PageProvider { get; private set; }
-
         public ITextResultsProvider TextResultsProvider { get; private set; }
+
+        public ICache<string> PageCache { get; }
         #endregion
 
         #region Section: Check for New Release
@@ -581,13 +580,13 @@ namespace NetTally.ViewModels
         private bool CanClearTallyCache(object parameter) => !TallyIsRunning;
 
         /// <summary>
-        /// Adds a new quest to the quest list, selects it, and notifies any
-        /// listeners that it happened.
+        /// Allow manual clearing of the page cache.
         /// </summary>
         /// <param name="parameter"></param>
         private void DoClearTallyCache(object parameter)
         {
-            Tally.ClearPageCache();
+            PageCache.Clear();
+            VoteCounter.ResetUserMerges();
         }
         #endregion
 

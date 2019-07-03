@@ -63,11 +63,5 @@ namespace NetTally.Web
         /// Clear the cache of any previously loaded pages.
         /// </summary>
         void ClearPageCache();
-
-        /// <summary>
-        /// If we're notified that a given attempt to load pages is done, we can
-        /// tell the web page cache to expire old data.
-        /// </summary>
-        void DoneLoading();
     }
 }

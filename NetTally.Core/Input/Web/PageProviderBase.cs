@@ -60,6 +60,7 @@ namespace NetTally.Web
             {
                 ClientHandler?.Dispose();
                 ss.Dispose();
+                Cache.InvalidateCache();
             }
 
             _disposed = true;
@@ -73,15 +74,6 @@ namespace NetTally.Web
         public void ClearPageCache()
         {
             Cache.Clear();
-        }
-
-        /// <summary>
-        /// If we're notified that a given attempt to load pages is done, we can
-        /// tell the web page cache to expire old data.
-        /// </summary>
-        public void DoneLoading()
-        {
-            Cache.InvalidateCache();
         }
 
         /// <summary>

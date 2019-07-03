@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.CustomEventArgs;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    public class ForumReader
+    public class ForumReader : IDisposable
     {
         #region Constructor
         readonly IPageProvider pageProvider;
@@ -20,7 +21,33 @@ namespace NetTally.Forums
         {
             pageProvider = provider;
             voteCounter = counter;
+
+            pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
+
+        public void Dispose()
+        {
+            if (pageProvider != null)
+            {
+                pageProvider.StatusChanged -= PageProvider_StatusChanged;
+                pageProvider.Dispose();
+            }
+        }
+        #endregion
+
+        #region Event passing
+        private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                StatusChanged?.Invoke(sender, e);
+            }
+        }
+
+        /// <summary>
+        /// Event handler hook for status messages.
+        /// </summary>
+        public event EventHandler<MessageEventArgs> StatusChanged;
         #endregion
 
         #region Public method

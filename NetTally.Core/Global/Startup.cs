@@ -18,24 +18,24 @@ namespace NetTally
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<MainViewModel>();
-
             services.AddSingleton<IGlobalOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralOutputOptions>(AdvancedOptions.Instance);
 
-            services.AddSingleton<ITextResultsProvider, TallyOutput>();
-            services.AddSingleton<IPageProvider, WebPageProvider>();
-            services.AddSingleton<IVoteCounter, VoteCounter>();
-            services.AddSingleton<HttpClientHandler, HttpClientHandler>();
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<ViewModelService>();
+
+            services.AddTransient<IPageProvider, WebPageProvider>();
+            services.AddTransient<HttpClientHandler, HttpClientHandler>();
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();
-            services.AddSingleton<IHash, NormalHash>();
+            services.AddTransient<ForumReader>();
+            services.AddSingleton<IVoteCounter, VoteCounter>();
+            services.AddSingleton<ITextResultsProvider, TallyOutput>();
             services.AddSingleton<Tally>();
             services.AddSingleton<VoteConstructor>();
+            services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<CheckForNewRelease>();
-            services.AddSingleton<ForumReader>();
-            services.AddSingleton<ViewModelService>();
         }
     }
 }

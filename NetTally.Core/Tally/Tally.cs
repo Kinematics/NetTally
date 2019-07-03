@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using NetTally.Cache;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Options;
@@ -28,9 +30,8 @@ namespace NetTally.VoteCounting
         bool tallyIsRunning;
         string results = string.Empty;
 
-        readonly IPageProvider pageProvider;
         readonly IVoteCounter voteCounter;
-        readonly ForumReader forumReader;
+        readonly IServiceProvider serviceProvider;
         readonly VoteConstructor voteConstructor;
         readonly ITextResultsProvider textResultsProvider;
         readonly IGeneralOutputOptions outputOptions;
@@ -42,18 +43,16 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Construction
-        public Tally(IPageProvider provider, ForumReader reader, VoteConstructor constructor,
+        public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
             IVoteCounter counter, ITextResultsProvider textResults, IGeneralOutputOptions options)
         {
-            pageProvider = provider;
-            forumReader = reader;
+            this.serviceProvider = serviceProvider;
             voteConstructor = constructor;
             voteCounter = counter;
             textResultsProvider = textResults;
             outputOptions = options;
 
             // Hook up to event notifications
-            pageProvider.StatusChanged += PageProvider_StatusChanged;
             outputOptions.PropertyChanged += Options_PropertyChanged;
         }
         #endregion
@@ -80,11 +79,6 @@ namespace NetTally.VoteCounting
                 outputOptions.PropertyChanged -= Options_PropertyChanged;
             }
 
-            if (pageProvider != null)
-            {
-                pageProvider.StatusChanged -= PageProvider_StatusChanged;
-            }
-
             _disposed = true;
         }
         #endregion
@@ -96,12 +90,12 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">Contains the text to be added to the output.</param>
-        private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
+        private void ForumReader_StatusChanged(object sender, MessageEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Message))
             {
                 OnPropertyDataChanged(e.Message, "TallyResultsStatusChanged");
-                TallyResults = TallyResults + e.Message;
+                TallyResults += e.Message;
             }
         }
 
@@ -205,9 +199,21 @@ namespace NetTally.VoteCounting
 
                 voteCounter.ResetUserDefinedTasks(quest.DisplayName);
 
-                var posts = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
+                using (var forumReader = serviceProvider.GetRequiredService<ForumReader>())
+                {
+                    try
+                    {
+                        forumReader.StatusChanged += ForumReader_StatusChanged;
 
-                await TallyPosts(posts, quest, token).ConfigureAwait(false);
+                        var posts = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
+
+                        await TallyPosts(posts, quest, token).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        forumReader.StatusChanged -= ForumReader_StatusChanged;
+                    }
+                }
             }
             catch (InvalidOperationException e)
             {
@@ -227,10 +233,6 @@ namespace NetTally.VoteCounting
             {
                 TallyIsRunning = false;
 
-                // Notify the page provider that we're done, and that the cache
-                // can be cleared out as needed:
-                pageProvider.DoneLoading();
-
                 // Free memory used by loading pages as soon as we're done:
                 GC.Collect();
             }
@@ -245,15 +247,6 @@ namespace NetTally.VoteCounting
         public async Task UpdateResults()
         {
             await RunWithTallyFlagAsync(UpdateResults);
-        }
-
-        /// <summary>
-        /// Allow manual clearing of the page cache.
-        /// </summary>
-        public void ClearPageCache()
-        {
-            pageProvider.ClearPageCache();
-            voteCounter.ResetUserMerges();
         }
         #endregion
 
