@@ -237,8 +237,7 @@ namespace NetTally.Forums
                 }
 
                 var posts = from post in adapter.GetPosts(page, quest)
-                            where post.IsVote && post.IsAfterStart(rangeInfo) &&
-                                (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost)
+                            where post.IsVote && PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo)
                             select post;
 
                 postsList.AddRange(posts);
@@ -247,17 +246,32 @@ namespace NetTally.Forums
             var firstPage = firstPageTask.Result;
 
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
+            postsList = FilteredPosts(postsList, quest, threadInfo);
 
+            return (threadInfo.Title, postsList);
+        }
+
+        private bool PostIsAfterStart(PostComponents post, ThreadRangeInfo rangeInfo)
+        {
+            return (rangeInfo.ByNumber && post.Number >= rangeInfo.Number) || post.IDValue > rangeInfo.ID;
+        }
+
+        private bool PostIsBeforeEnd(PostComponents post, IQuest quest, ThreadRangeInfo rangeInfo)
+        {
+            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost);
+        }
+
+        private List<PostComponents> FilteredPosts(List<PostComponents> postsList, IQuest quest, ThreadInfo threadInfo)
+        {
             // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
-            postsList = postsList
+            return postsList
                 .Where(p =>
                         ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) || (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author))
                      && (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.IDValue)))
                       )
                 .Distinct().OrderBy(p => p.Number).ToList();
-
-            return (threadInfo.Title, postsList);
         }
+
         #endregion
     }
 }
