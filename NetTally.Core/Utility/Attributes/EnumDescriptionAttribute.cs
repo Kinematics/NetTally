@@ -6,7 +6,7 @@ namespace NetTally.Attributes
     /// Custom attribute to be used on enums, to provide user-friendly values.
     /// The standard DescriptionAttribute is not available due to framework target level,
     /// so for the attributes to be available to mobile products, a custom attribute is
-    /// used instead.
+    /// used instead. 
     /// </summary>
     /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Field)]
