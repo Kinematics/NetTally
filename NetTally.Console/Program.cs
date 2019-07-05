@@ -5,6 +5,7 @@ using System.Threading;
 using NetTally.CustomEventArgs;
 using NetTally.ViewModels;
 using CommandLine;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NetTally.CLI
 {
@@ -13,12 +14,22 @@ namespace NetTally.CLI
         #region Variables
         static ManualResetEventSlim waiting = new ManualResetEventSlim(false);
         static bool verbose = false;
+
+        static IServiceProvider serviceProvider;
         #endregion
 
         #region Main entry point
         static void Main(string[] args)
         {
-            ViewModelService.Instance.Build();
+            // Create a service collection and configure our dependencies
+            var serviceCollection = new ServiceCollection();
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(serviceCollection);
+
+            // Build the IServiceProvider and set our reference to it
+            serviceProvider = serviceCollection.BuildServiceProvider();
+
+            serviceProvider.GetRequiredService<ViewModelService>();
 
             var arguements = Parser.Default.ParseArguments<Options>(args);
 

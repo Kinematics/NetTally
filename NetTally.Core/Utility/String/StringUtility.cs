@@ -112,6 +112,46 @@ namespace NetTally.Utility
 
         #endregion
 
+        #region Agnostic string comparison utilities
+        /// <summary>
+        /// Returns the first match within the enumerable list that agnostically
+        /// equals the provided value.
+        /// Extends the enumerable.
+        /// </summary>
+        /// <param name="self">The list to search.</param>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string? AgnosticMatch(this IEnumerable<string> self, string value)
+        {
+            foreach (string item in self)
+            {
+                if (Agnostic.StringComparer.Equals(item, value))
+                    return item;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the first match within the enumerable list that agnostically
+        /// equals the provided value.
+        /// Extends a string.
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <param name="list">The list to search.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string? AgnosticMatch(this string value, IEnumerable<string> list)
+        {
+            foreach (string item in list)
+            {
+                if (Agnostic.StringComparer.Equals(item, value))
+                    return item;
+            }
+
+            return null;
+        }
+        #endregion
+
         #region Diacritical cleanup
         /// <summary>
         /// Return the simplified latin form of a string, after removing diacriticals.

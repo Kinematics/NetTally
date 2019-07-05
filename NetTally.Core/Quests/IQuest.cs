@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 
@@ -20,16 +21,10 @@ namespace NetTally
         /// The URI that represents the thread URL string.
         /// </summary>
         Uri? ThreadUri { get; }
-
         /// <summary>
-        /// The contents of the line break allowed for the site.
+        /// The type of forum this quest is hosted on.
         /// </summary>
-        string LineBreak { get; set; }
-        /// <summary>
-        /// A function that can transform a post ID into a permalink.
-        /// This function is set per identification of the forum adapter.
-        /// </summary>
-        Func<string, string> PermalinkForId { get; set; }
+        ForumType ForumType { get; set; }
 
         /// <summary>
         /// The number of posts per page for this forum thread.

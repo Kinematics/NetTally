@@ -3,6 +3,7 @@ using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 
 namespace NTTests.Utility
 {
@@ -346,8 +347,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_01_space()
         {
-            int result1 = Agnostic.DefaultHashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("Kinematics ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("Kinematics ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -355,8 +357,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_02_extra_chars()
         {
-            int result1 = Agnostic.DefaultHashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("Kinematicss", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("Kinematicss", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreNotEqual(result1, result2);
         }
@@ -364,8 +367,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_03_diacritical()
         {
-            int result1 = Agnostic.DefaultHashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -373,8 +377,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_04_diacritical()
         {
-            int result1 = Agnostic.DefaultHashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -382,8 +387,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_05_fraction_form()
         {
-            int result1 = Agnostic.DefaultHashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("Ranma 1/2 ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("Ranma 1/2 ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -391,8 +397,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_05a_fraction_not_ignored()
         {
-            int result1 = Agnostic.DefaultHashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("Ranma", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("Ranma", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreNotEqual(result1, result2);
         }
@@ -400,8 +407,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_06_punctuation()
         {
-            int result1 = Agnostic.DefaultHashFunction("[bank]", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("[bank]", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -409,8 +417,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_07_capitalization()
         {
-            int result1 = Agnostic.DefaultHashFunction("BANK", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("BANK", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -418,8 +427,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_08_extra_letter()
         {
-            int result1 = Agnostic.DefaultHashFunction("bahnk", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("bahnk", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreNotEqual(result1, result2);
         }
@@ -427,8 +437,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_09_spacing()
         {
-            int result1 = Agnostic.DefaultHashFunction("ban k", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("ban k", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreEqual(result1, result2);
         }
@@ -436,8 +447,9 @@ and then another";
         [TestMethod]
         public void AgnosticHash_10_extra_number()
         {
-            int result1 = Agnostic.DefaultHashFunction("runover", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = Agnostic.DefaultHashFunction("run over 1", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            IHash hash = new NormalHash();
+            int result1 = hash.HashFunction("runover", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
+            int result2 = hash.HashFunction("run over 1", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
             Assert.AreNotEqual(result1, result2);
         }

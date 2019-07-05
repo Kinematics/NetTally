@@ -22,11 +22,6 @@ namespace NetTally.Votes.Experiment2
 
         public VoteLine(string prefix, string marker, string task, string content, MarkerType markerType, int markerValue)
         {
-            if (string.IsNullOrEmpty(marker))
-                throw new ArgumentNullException(nameof(marker));
-            if (markerType == MarkerType.None)
-                throw new ArgumentOutOfRangeException(nameof(markerType), $"Invalid marker type {markerType} for vote line. (Marker: {marker??""}, content: {content??""}");
-
             Prefix = prefix ?? "";
             Marker = marker.Trim();
             Task = task?.Trim() ?? "";

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Tests.Platform;
+using NetTally.Tests;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NTTests.Voting
 {
@@ -18,22 +19,26 @@ namespace NTTests.Voting
     {
         #region Setup
         static IQuest sampleQuest;
+        static IServiceProvider serviceProvider;
+        static Tally tally;
+        static IVoteCounter voteCounter;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
+            serviceProvider = TestStartup.ConfigureServices();
+
+            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+            tally = serviceProvider.GetRequiredService<Tally>();
 
             sampleQuest = new Quest();
-
-            ViewModelService.Instance.Build();
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            ViewModelService.MainViewModel.VoteCounter.Reset();
-            ViewModelService.MainViewModel.VoteCounter.PostsList.Clear();
+            voteCounter.Reset();
+            voteCounter.PostsList.Clear();
             sampleQuest = new Quest();
         }
         #endregion
@@ -49,7 +54,7 @@ namespace NTTests.Voting
             List<PostComponents> posts = new List<PostComponents>();
             posts.Add(post);
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             var votes = GetVotesBy(author, VoteType.Vote);
 
@@ -58,7 +63,7 @@ namespace NTTests.Voting
 
         public static List<string> GetVotesBy(string author, VoteType voteType)
         {
-            var votes = ViewModelService.MainViewModel.VoteCounter.GetVotesCollection(voteType);
+            var votes = voteCounter.GetVotesCollection(voteType);
             return votes.Where(v => v.Value.Contains(author)).Select(v => v.Key).ToList();
         }
 
@@ -75,11 +80,11 @@ namespace NTTests.Voting
                 posts.Add(post);
             }
 
-            await ViewModelService.MainViewModel.VoteCounter.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            await tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
 
             for (int i = 0; i < results.Count; i++)
             {
-                var post = ViewModelService.MainViewModel.VoteCounter.PostsList[i];
+                var post = voteCounter.PostsList[i];
                 var userVotes = GetVotesBy(post.Author, VoteType.Vote);
                 CollectionAssert.AreEqual(results[i], userVotes);
             }

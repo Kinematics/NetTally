@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.ViewModels;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -16,9 +15,9 @@ namespace NetTally.Forums
     {
         static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
         {
-            ["forums.sufficientvelocity.com"] = ForumType.XenForo1,
-            ["forums.spacebattles.com"] = ForumType.XenForo1,
-            ["forum.questionablequesting.com"] = ForumType.XenForo1,
+            //["forums.sufficientvelocity.com"] = ForumType.XenForo1,
+            //["forums.spacebattles.com"] = ForumType.XenForo1,
+            //["forum.questionablequesting.com"] = ForumType.XenForo1,
         };
 
         /// <summary>
@@ -27,25 +26,25 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, CancellationToken token)
+        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
         {
             if (uri == null)
                 return ForumType.Unknown;
 
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, pageProvider, token).ConfigureAwait(false);
 
-                if (doc != null)
+                if (doc == null)
                 {
-                    forumType = IdentifyForumTypeFromHtmlDocument(doc);
+                    ArgumentException e = new ArgumentException($"Unable to load forum URL:  {uri.AbsoluteUri}");
+                    e.Data["Notify"] = true;
+                    throw e;
+                }
 
-                    forumTypes[uri.Host] = forumType;
-                }
-                else
-                {
-                    forumType = ForumType.Unknown;
-                }
+                forumType = IdentifyForumTypeFromHtmlDocument(doc);
+
+                forumTypes[uri.Host] = forumType;
             }
 
             return forumType;
@@ -82,6 +81,14 @@ namespace NetTally.Forums
                 {
                     forumType = ForumType.vBulletin5;
                 }
+                else if (IdentifyPhpBB(doc))
+                {
+                    forumType = ForumType.phpBB;
+                }
+                else if (IdentifyNodeBB(doc))
+                {
+                    forumType = ForumType.NodeBB;
+                }
             }
 
             return forumType;
@@ -93,15 +100,14 @@ namespace NetTally.Forums
         /// <param name="uri">The URI to load.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
-        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, CancellationToken token)
+        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, IPageProvider pageProvider, CancellationToken token)
         {
-            IPageProvider pageProvider = ViewModelService.MainViewModel.PageProvider;
             HtmlDocument? page = null;
 
             try
             {
-                page = await pageProvider.GetPageAsync(uri.AbsoluteUri, uri.Host,
-                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.No, token)
+                page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
+                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.Yes, token)
                     .ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
@@ -196,6 +202,33 @@ namespace NetTally.Forums
                 return false;
 
             return doc.DocumentNode.Element("html").Element("body")?.Id == "vb-page-body";
+        }
+
+        /// <summary>
+        /// Determine if a web page is from a phpBB forum.
+        /// </summary>
+        /// <param name="doc">The HTML page to check.</param>
+        /// <returns>Returns true if the HTML is phpBB</returns>
+        private static bool IdentifyPhpBB(HtmlDocument doc)
+        {
+            if (doc == null)
+                return false;
+
+            return doc.DocumentNode.Element("html").Element("body")?.Id == "phpbb";
+        }
+
+        /// <summary>
+        /// Determine if a web page is from a NodeBB forum.
+        /// </summary>
+        /// <param name="doc">The HTML page to check.</param>
+        /// <returns>Returns true if the HTML is NodeBB</returns>
+        private static bool IdentifyNodeBB(HtmlDocument doc)
+        {
+            if (doc == null)
+                return false;
+
+            // There is currently no known means of identifying NodeBB forums.
+            return false;
         }
     }
 }

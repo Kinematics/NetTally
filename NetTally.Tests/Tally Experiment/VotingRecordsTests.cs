@@ -11,6 +11,7 @@ using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
 using NetTally;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NTTests.Voting
 {
@@ -19,6 +20,7 @@ namespace NTTests.Voting
     {
         static Identity defaultIdentity;
         static VotePartition defaultPlanPartition;
+        static IServiceProvider serviceProvider;
 
         readonly static List<string> notifications = new List<string>();
 
@@ -29,7 +31,17 @@ namespace NTTests.Voting
         public static void ClassInit(TestContext context)
         {
             Agnostic.HashStringsUsing(UnicodeHashFunction.HashFunction);
-            ViewModelService.Instance.Build();
+
+            // Create a service collection and configure our dependencies
+            var serviceCollection = new ServiceCollection();
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(serviceCollection);
+
+            // Build the IServiceProvider and set our reference to it
+            serviceProvider = serviceCollection.BuildServiceProvider();
+
+            serviceProvider.GetRequiredService<ViewModelService>();
+
             VotingRecords.Instance.PropertyChanged += Instance_PropertyChanged;
 
             defaultIdentity = new Identity("Name", "1");

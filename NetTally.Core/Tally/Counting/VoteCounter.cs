@@ -19,12 +19,10 @@ namespace NetTally.VoteCounting
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         readonly MergeRecords userMerges = new MergeRecords();
         public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
-        public VoteConstructor VoteConstructor { get; }
 
         #region Constructor
         public VoteCounter()
         {
-            VoteConstructor = new VoteConstructor(this);
         }
         #endregion
 
@@ -61,6 +59,27 @@ namespace NetTally.VoteCounting
 
         public List<string> OrderedTaskList { get; } = new List<string>();
 
+        /// <summary>
+        /// Gets the known tallied and user-defined tasks.
+        /// </summary>
+        public IEnumerable<string> KnownTasks
+        {
+            get
+            {
+                var voteTasks = GetVotesCollection(VoteType.Vote).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var rankTasks = GetVotesCollection(VoteType.Rank).Keys
+                    .Select(v => VoteString.GetVoteTask(v));
+                var userTasks = UserDefinedTasks.ToList();
+
+                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Where(v => !string.IsNullOrEmpty(v));
+
+                return allTasks;
+            }
+        }
+
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
 
         public bool HasUndoActions => UndoBuffer.Count > 0;
@@ -73,7 +92,7 @@ namespace NetTally.VoteCounting
         public bool VoteCounterIsTallying
         {
             get { return voteCounterIsTallying; }
-            private set
+            set
             {
                 if (voteCounterIsTallying != value)
                 {
@@ -83,7 +102,7 @@ namespace NetTally.VoteCounting
             }
         }
 
-        public bool TallyWasCanceled { get; private set; }
+        public bool TallyWasCanceled { get; set; }
         #endregion
 
         #region Public Class Properties
@@ -165,144 +184,7 @@ namespace NetTally.VoteCounting
         {
             userMerges.Reset();
         }
-
-        /// <summary>
-        /// Run the tally using the provided posts, for the selected quest.
-        /// </summary>
-        /// <param name="posts">The posts to be tallied.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="token">Cancellation token.</param>
-        public async Task TallyPosts(IEnumerable<PostComponents> posts, IQuest quest, CancellationToken token)
-        {
-            Quest = quest;
-            PostsList.Clear();
-            PostsList.AddRange(posts);
-            await TallyPosts(token).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Construct the tally results based on the stored list of posts.
-        /// Run async so that it doesn't cause UI jank.
-        /// </summary>
-        /// <param name="token">Cancellation token.</param>
-        public async Task TallyPosts(CancellationToken token)
-        {
-            if (Quest is null)
-                return;
-
-            try
-            {
-                VoteCounterIsTallying = true;
-                TallyWasCanceled = false;
-
-                Reset();
-
-                if (PostsList == null || PostsList.Count == 0)
-                    return;
-
-                await PreprocessPlans(token).ConfigureAwait(false);
-                await ProcessPosts(token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                TallyWasCanceled = true;
-            }
-            finally
-            {
-                VoteCounterIsTallying = false;
-            }
-
-            OrderedTaskList.AddRange(ViewModelService.MainViewModel.KnownTasks);
-            OnPropertyChanged("Tasks");
-        }
-
-        /// <summary>
-        /// The first half of tallying posts involves doing the preprocessing
-        /// work on the plans in the post list.
-        /// </summary>
-        private async Task PreprocessPlans(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            if (Quest is null)
-                return;
-
-            // Preprocessing Phase 1 (Only plans with contents are counted as plans.)
-            foreach (var post in PostsList)
-            {
-                ReferenceVoters.Add(post.Author);
-                ReferenceVoterPosts[post.Author] = post.ID;
-                VoteConstructor.PreprocessPlansWithContent(post, Quest);
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            // Preprocessing Phase 2 (Full-post plans may be named (ie: where the plan name has no contents).)
-            // Total vote must have multiple lines.
-            foreach (var post in PostsList)
-            {
-                VoteConstructor.PreprocessPlanLabelsWithContent(post, Quest);
-            }
-
-            token.ThrowIfCancellationRequested();
-            
-            // Preprocessing Phase 3 (Full-post plans may be named (ie: where the plan name has no contents).)
-            // Total vote may be only one line.
-            foreach (var post in PostsList)
-            {
-                VoteConstructor.PreprocessPlanLabelsWithoutContent(post, Quest);
-            }
-
-            token.ThrowIfCancellationRequested();
-            
-            // Once all the plans are in place, set the working votes for each post.
-            foreach (var post in PostsList)
-            {
-                post.SetWorkingVote(p => VoteConstructor.GetWorkingVote(p));
-            }
-
-            await Task.FromResult(0);
-        }
-
-        /// <summary>
-        /// The second half of tallying the posts involves cycling through for
-        /// as long as future references need to be handled.
-        /// </summary>
-        private async Task ProcessPosts(CancellationToken token)
-        {
-            if (Quest is null)
-                throw new InvalidOperationException("Quest is null.");
-
-            var unprocessed = PostsList;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                token.ThrowIfCancellationRequested();
-
-                // Get the list of the ones that were processed.
-                var processed = unprocessed.Where(p => VoteConstructor.ProcessPost(p, Quest!, token) == true).ToList();
-
-                // As long as some got processed, remove those from the unprocessed list
-                // and let the loop run again.
-                if (processed.Any())
-                {
-                    unprocessed = unprocessed.Except(processed).ToList();
-                }
-                else
-                {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var p in unprocessed)
-                    {
-                        p.ForceProcess = true;
-                    }
-                }
-            }
-
-            await Task.FromResult(0);
-        }
-
+        
         #endregion
 
         #region Query on collection stuff
@@ -906,7 +788,7 @@ namespace NetTally.VoteCounting
         /// <param name="vote">The vote to partition.</param>
         /// <param name="voteType">The type of vote.</param>
         /// <returns>Returns true if the process was completed, or false otherwise.</returns>
-        public bool PartitionChildren(string vote, VoteType voteType)
+        public bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor)
         {
             if (string.IsNullOrEmpty(vote))
                 return false;
@@ -940,7 +822,7 @@ namespace NetTally.VoteCounting
 
             var promotedVoteLines = afterVoteLines.Select(a => a.Substring(indentCount)).ToList();
 
-            var partitionedVotes = VoteConstructor.PartitionVoteStrings(promotedVoteLines, Quest, PartitionMode.ByBlock);
+            var partitionedVotes = constructor.PartitionVoteStrings(promotedVoteLines, Quest, PartitionMode.ByBlock);
 
             HashSet<string> addedVotes = new HashSet<string>();
 

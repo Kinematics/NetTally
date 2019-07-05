@@ -16,6 +16,12 @@ namespace NetTally.Utility
     {
         bool newRelease = false;
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
+        readonly IPageProvider pageProvider;
+
+        public CheckForNewRelease(IPageProvider provider)
+        {
+            pageProvider = provider;
+        }
 
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
@@ -143,7 +149,7 @@ namespace NetTally.Utility
         {
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            HtmlDocument? doc = await ViewModelService.MainViewModel.PageProvider.GetPageAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;

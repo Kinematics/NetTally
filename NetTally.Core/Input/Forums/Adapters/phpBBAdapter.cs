@@ -26,7 +26,7 @@ namespace NetTally.Forums.Adapters
         Uri site;
         // Example: https://www.phpbb.com/community/viewtopic.php?f=466&t=2347241&start=15#p14278841
         // https://www.phpbb.com/community/viewtopic.php?t=2347241&p14278841
-        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)viewtopic.php?(f=\d+&)?(t=(?<thread>\d+(?=\?|#|$)))");
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)viewtopic.php\?(f=\d+&)?(t=(?<thread>\d+(?=\?|#|$)))");
 
         /// <summary>
         /// Property for the site this adapter is handling.

@@ -46,10 +46,11 @@ namespace NetTally
         public Uri? ThreadUri { get; private set; }
 
         /// <summary>
-        /// Get the forum adapter being used by this quest.
-        /// Gets set when the ForumType is determined.
+        /// Gets the type of forum used by this quest.
+        /// Resets to unknown if the URL changes.
+        /// Is set when a forum adapter is created/identified.
         /// </summary>
-        internal IForumAdapter? ForumAdapter { get; set; }
+        public ForumType ForumType { get; set; } = ForumType.Unknown;
 
         /// <summary>
         /// The URL of the quest.
@@ -73,7 +74,7 @@ namespace NetTally
 
                 if (ThreadUri == null || ThreadUri.Host != newUri.Host)
                 {
-                    ForumAdapter = null;
+                    ForumType = ForumType.Unknown;
                 }
 
                 string oldThreadName = threadName;
@@ -259,18 +260,6 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
-
-
-        /// <summary>
-        /// The contents of the line break allowed for the site.
-        /// </summary>
-        public string LineBreak { get; set; } = "";
-
-        /// <summary>
-        /// A function that can transform a post ID into a permalink.
-        /// This function is set per identification of the forum adapter.
-        /// </summary>
-        public Func<string, string> PermalinkForId { get; set; } = (s) => s;
         #endregion
 
         #region Quest configuration properties: Filtering

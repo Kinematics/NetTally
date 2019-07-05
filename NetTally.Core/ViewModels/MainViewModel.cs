@@ -7,11 +7,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.Output;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.Web;
@@ -20,24 +23,21 @@ namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public MainViewModel(
-            HttpClientHandler? httpClientHandler, IPageProvider? pageProvider,
-            IVoteCounter? voteCounter, ITextResultsProvider? textResults,
-            Func<string, CompareInfo, CompareOptions, int>? hashFunction)
+        public MainViewModel(Tally tally, IVoteCounter voteCounter,
+            ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
         {
-            PropertyChanged += Agnostic.HashStringsUsing(hashFunction);
+            VoteCounter = voteCounter;
+            PageCache = cache;
+            checkForNewRelease = newRelease;
+            Options = globalOptions;
 
-            PageProvider = pageProvider ?? PageProviderBuilder.Instance.HttpClientHandler(httpClientHandler).Build();
-
-            TextResultsProvider = textResults ?? new TallyOutput();
-
-            VoteCounter = voteCounter ?? new VoteCounter();
             SetupVoteCounter();
 
             AllVotesCollection = new ObservableCollectionExt<string>();
             AllVotersCollection = new ObservableCollectionExt<string>();
 
-            Tally = BuildTally();
+            Tally = tally;
+            Tally.PropertyChanged += Tally_PropertyChanged;
 
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
@@ -71,7 +71,6 @@ namespace NetTally.ViewModels
             if (itIsSafeToAlsoFreeManagedObjects)
             {
                 Tally.Dispose();
-                PageProvider.Dispose();
             }
 
             _disposed = true;
@@ -79,14 +78,12 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Providers
-        public IPageProvider PageProvider { get; private set; }
-
-        public ITextResultsProvider TextResultsProvider { get; private set; }
+        public ICache<string> PageCache { get; }
         #endregion
 
         #region Section: Check for New Release
         /// Fields for this section
-        readonly CheckForNewRelease checkForNewRelease = new CheckForNewRelease();
+        readonly CheckForNewRelease checkForNewRelease;
 
         /// <summary>
         /// Pass-through flag indicating whether there is a newer release of the program available.
@@ -138,7 +135,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Public link to the advanced options instance, for data binding.
         /// </summary>
-        public AdvancedOptions Options => AdvancedOptions.Instance;
+        public IGlobalOptions Options { get; }
         #endregion
 
         #region Quests
@@ -409,17 +406,6 @@ namespace NetTally.ViewModels
         Tally Tally { get; }
 
         /// <summary>
-        /// Bind event watcher to the class that handles running the tallies.
-        /// </summary>
-        private Tally BuildTally()
-        {
-            Tally tally = new Tally(PageProvider, VoteCounter);
-            tally.PropertyChanged += Tally_PropertyChanged;
-
-            return tally;
-        }
-
-        /// <summary>
         /// Handles the PropertyChanged event of the Tally control.
         /// </summary>
         private void Tally_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -534,8 +520,14 @@ namespace NetTally.ViewModels
                     {
                         cts.Cancel();
 
-                        if (!OnExceptionRaised(e).Handled)
+                        if (e.Data["Notify"] is true)
+                        {
+                            Tally.TallyResults += e.Message;
+                        }
+                        else if (!OnExceptionRaised(e).Handled)
+                        {
                             throw;
+                        }
                     }
                 }
             }
@@ -591,13 +583,13 @@ namespace NetTally.ViewModels
         private bool CanClearTallyCache(object parameter) => !TallyIsRunning;
 
         /// <summary>
-        /// Adds a new quest to the quest list, selects it, and notifies any
-        /// listeners that it happened.
+        /// Allow manual clearing of the page cache.
         /// </summary>
         /// <param name="parameter"></param>
         private void DoClearTallyCache(object parameter)
         {
-            Tally.ClearPageCache();
+            PageCache.Clear();
+            VoteCounter.ResetUserMerges();
         }
         #endregion
 
@@ -721,23 +713,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Gets the known tallied and user-defined tasks.
         /// </summary>
-        public IEnumerable<string> KnownTasks
-        {
-            get
-            {
-                var voteTasks = VoteCounter.GetVotesCollection(VoteType.Vote).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var rankTasks = VoteCounter.GetVotesCollection(VoteType.Rank).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var userTasks = UserDefinedTasks.ToList();
-
-                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Where(v => !string.IsNullOrEmpty(v));
-
-                return allTasks;
-            }
-        }
+        public IEnumerable<string> KnownTasks => VoteCounter.KnownTasks;
 
         public bool VoteExists(string vote, VoteType voteType) => VoteCounter.HasVote(vote, voteType);
 
@@ -751,7 +727,7 @@ namespace NetTally.ViewModels
 
         public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Delete(vote, voteType);
 
-        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType);
+        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType, Tally.VoteConstructor);
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 

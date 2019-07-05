@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Globalization;
+using NetTally.Utility.Comparers;
 
 namespace NetTally.Platform
 {
-    public static class UnicodeHashFunction
+    public class UnicodeHashFunction : IHash
     {
         /// <summary>
         /// Hashes the provided string using the given CompareOptions.
@@ -13,7 +14,7 @@ namespace NetTally.Platform
         /// <param name="info">The CompareInfo object doing the unicode-aware comparison.</param>
         /// <param name="options">The options to apply to the comparison.</param>
         /// <returns>Returns the hash code for the string.</returns>
-        public static int HashFunction(string str, CompareInfo info, CompareOptions options)
+        public int HashFunction(string str, CompareInfo info, CompareOptions options)
         {
             if (info == null)
                 throw new ArgumentNullException(nameof(info));

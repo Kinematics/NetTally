@@ -13,14 +13,14 @@ namespace NetTally.Output
     /// Meta-vote class to allow storing the primary vote, along with any
     /// 'child' votes that have the same first line of text as the main vote.
     /// </summary>
-    class VoteNode
+    public class VoteNode
     {
         readonly VoteNode? Parent;
+        readonly VoteInfo voteInfo;
 
         public string Text { get; set; }
 
         public List<VoteNode> Children { get; } = new List<VoteNode>();
-
         public HashSet<string> Voters { get; } = new HashSet<string>();
         public HashSet<string> AllVoters { get; } = new HashSet<string>();
 
@@ -29,15 +29,16 @@ namespace NetTally.Output
         bool HasParent => Parent != null;
         bool HasChildren => Children.Count > 0;
 
-        public VoteNode(string text, HashSet<string>? voters)
-            : this(text, voters, null)
+        public VoteNode(string text, HashSet<string>? voters, VoteInfo info)
+            : this(text, voters, info, null)
         {
         }
 
-        private VoteNode(string text, HashSet<string>? voters, VoteNode? parent)
+        private VoteNode(string text, HashSet<string>? voters, VoteInfo info, VoteNode? parent)
         {
             Parent = parent;
             Text = text;
+            voteInfo = info;
             AddVoters(voters);
         }
 
@@ -66,7 +67,7 @@ namespace NetTally.Output
 
             if (child == null)
             {
-                child = new VoteNode(text, voters, this);
+                child = new VoteNode(text, voters, voteInfo, this);
                 Children.Add(child);
             }
             else
@@ -131,7 +132,7 @@ namespace NetTally.Output
 
 
                 sb.Append(" Plan: ");
-                string? firstVoter = VoteInfo.GetFirstVoter(Voters);
+                string? firstVoter = voteInfo.GetFirstVoter(Voters);
                 sb.Append(firstVoter);
 
                 // Only add the link if we're not showing the voters
@@ -140,7 +141,7 @@ namespace NetTally.Output
                     string link;
 
                     VoteType voteType = firstVoter.IsPlanName() ? VoteType.Plan : VoteType.Vote;
-                    link = VoteInfo.GetVoterUrl(firstVoter, voteType);
+                    link = voteInfo.GetVoterUrl(firstVoter, voteType);
 
                     sb.Append(" — ");
                     sb.Append(link);
