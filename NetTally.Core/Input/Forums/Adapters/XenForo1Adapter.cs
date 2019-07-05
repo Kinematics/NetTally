@@ -230,7 +230,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                         //where p.HasClass("stickyFirstContainer") == false
@@ -481,7 +481,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode li, IQuest quest)
+        private Experiment3.Post? GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -536,10 +536,14 @@ namespace NetTally.Forums.Adapters
 
             number = int.Parse(postNumberText);
 
-            PostComponents? post;
+            Experiment3.Post? post;
+            NetTally.Experiment3.Post? post1;
+
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                post = new Experiment3.Post(author, id, text, number, quest);
+
+                post1 = new Experiment3.Post(author, id, text, number);
             }
             catch (Exception e)
             {

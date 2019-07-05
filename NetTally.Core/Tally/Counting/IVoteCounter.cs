@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Votes;
+using NetTally.Experiment3;
 
 namespace NetTally.VoteCounting
 {
@@ -10,7 +11,7 @@ namespace NetTally.VoteCounting
     {
         IQuest? Quest { get; set; }
 
-        List<PostComponents> PostsList { get; }
+        List<Experiment3.Post> PostsList { get; }
         void Reset();
         bool VoteCounterIsTallying { get; set; }
         bool TallyWasCanceled { get; set; }
@@ -36,7 +37,7 @@ namespace NetTally.VoteCounting
         bool HasVote(string vote, VoteType voteType);
         bool HasVoter(string voterName, VoteType voteType);
         bool HasUserEnteredVoter(string voterName, VoteType voteType);
-        bool HasNewerVote(PostComponents post);
+        bool HasNewerVote(Experiment3.Post post);
 
         HashSet<string> UserDefinedTasks { get; }
         List<string> OrderedTaskList { get; }
@@ -48,8 +49,21 @@ namespace NetTally.VoteCounting
         Dictionary<string, string> ReferenceVoterPosts { get; }
         HashSet<string> ReferencePlanNames { get; }
         Dictionary<string, List<string>> ReferencePlans { get; }
+        Dictionary<string, List<VoteLine>> ReferencePlansEx3 { get; }
 
-        HashSet<PostComponents> FutureReferences { get; }
+        bool AddReferencePlan(string planName, IEnumerable<string> planBlock, string postID);
+        bool AddReferencePlan(string planName, IEnumerable<VoteLine> planBlock, string postID);
+        string GetPlanPostId(string planName);
+
+        bool AddReferenceVoter(string voterName, string postID);
+        bool HasReferenceVoter(string voterName);
+        string? GetReferenceVoter(string voterName);
+        string? GetReferenceVoterPostId(string voterName);
+        bool AddFutureReference(Post post);
+
+        void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, string postID, VoteType voteType);
+
+        HashSet<Experiment3.Post> FutureReferences { get; }
 
         bool HasUndoActions { get; }
         bool Undo();

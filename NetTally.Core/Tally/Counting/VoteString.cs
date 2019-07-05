@@ -22,7 +22,7 @@ namespace NetTally.Votes
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|↑|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
@@ -66,14 +66,14 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="text">The text to clean up.</param>
         /// <returns>Returns the text without any BBCode markup.</returns>
-        public static string RemoveBBCode(string text) => markupRegex.Replace(text, "").Trim();
+        public static string RemoveBBCode(this string text) => markupRegex.Replace(text, "").Trim();
 
         /// <summary>
         /// Remove URL BBCode from a vote line's content.
         /// </summary>
         /// <param name="contents">The contents of a vote line.</param>
         /// <returns>Returns the contents without any URL markup.</returns>
-        public static string DeUrlContent(string contents)
+        public static string DeUrlContent(this string contents)
         {
             string result = contents;
 
@@ -88,7 +88,7 @@ namespace NetTally.Votes
                 m = linkedReferenceRegex.Match(result);
             }
 
-            return result;
+            return result.Trim();
         }
 
         /// <summary>
@@ -657,7 +657,7 @@ namespace NetTally.Votes
                     results[ReferenceType.Label].Add(label);
 
                     // ^ can only be used for user proxies.
-                    if (label == "^")
+                    if (label == "^" || label == "↑")
                     {
                         // [x] ^Kinematics => Kinematics
                         results[ReferenceType.Any].Add(name);

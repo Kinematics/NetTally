@@ -106,13 +106,6 @@ namespace NTTests.Voting
         #region Add Vote param checks
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void AddVoteParamsTest1()
-        {
-            voteCounter.AddVotes(null, null, null, VoteType.Vote);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void AddVoteParamsTest2()
         {
             voteCounter.AddVotes(new List<string>(), null, null, VoteType.Vote);
@@ -526,14 +519,16 @@ namespace NTTests.Voting
         }
 
         [TestMethod]
+        [Ignore]
         public async Task NameReferenceTest()
         {
             // Check for non-case sensitivity in referencing other voters.
             PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
             PostComponents p2 = new PostComponents("Mini", "12345", "[x] beyogi");
             List<PostComponents> posts = new List<PostComponents> { p1, p2 };
-            Task t = tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
-            await t;
+            //Task t = tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
+            //await t;
+            await Task.FromResult(0);
 
             Assert.AreEqual(2, voteCounter.GetVotersCollection(VoteType.Vote).Count);
             Assert.AreEqual(1, voteCounter.GetVotesCollection(VoteType.Vote).Count);

@@ -33,12 +33,13 @@ namespace NetTally
             services.AddTransient<ForumReader>();
             services.AddSingleton<IVoteCounter, VoteCounter>();
             services.AddSingleton<Tally>();
-            services.AddSingleton<VoteConstructor>();
             services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<CheckForNewRelease>();
             services.AddSingleton<ForumAdapterFactory>();
             services.AddTransient<VoteInfo>();
             services.AddTransient<ITextResultsProvider, TallyOutput>();
+
+            services.AddSingleton<Experiment3.VoteConstructor>();
         }
     }
 }

@@ -9,6 +9,7 @@ using NetTally.Extensions;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
+using NetTally.Experiment3;
 
 
 namespace NetTally.VoteCounting
@@ -18,7 +19,7 @@ namespace NetTally.VoteCounting
         readonly Dictionary<string, string> cleanVoteLookup = new Dictionary<string, string>();
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         readonly MergeRecords userMerges = new MergeRecords();
-        public List<PostComponents> PostsList { get; private set; } = new List<PostComponents>();
+        public List<Experiment3.Post> PostsList { get; private set; } = new List<Experiment3.Post>();
 
         #region Constructor
         public VoteCounter()
@@ -49,9 +50,10 @@ namespace NetTally.VoteCounting
 
         public HashSet<string> ReferenceVoters { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // TODO: change to int post IDs
         public Dictionary<string, string> ReferenceVoterPosts { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public HashSet<PostComponents> FutureReferences { get; } = new HashSet<PostComponents>();
+        public HashSet<Experiment3.Post> FutureReferences { get; } = new HashSet<Experiment3.Post>();
 
         public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
@@ -117,8 +119,11 @@ namespace NetTally.VoteCounting
         public HashSet<string> ReferencePlanNames { get; private set; } = new HashSet<string>(Agnostic.StringComparer);
 
         public Dictionary<string, List<string>> ReferencePlans { get; private set; } = new Dictionary<string, List<string>>(Agnostic.StringComparer);
+        public Dictionary<string, List<VoteLine>> ReferencePlansEx3 { get; private set; } = new Dictionary<string, List<VoteLine>>(Agnostic.StringComparer);
 
         public HashSet<string> PlanNames { get; private set; } = new HashSet<string>(Agnostic.StringComparer);
+
+        public Dictionary<string, string> PlanMessageId { get; } = new Dictionary<string, string>(Agnostic.StringComparer);
 
         #endregion
 
@@ -134,10 +139,13 @@ namespace NetTally.VoteCounting
             RankedVoterMessageId.Clear();
             PlanNames.Clear();
 
+            VoteBlockSupporters.Clear();
+
             ReferenceVoters.Clear();
             ReferenceVoterPosts.Clear();
             ReferencePlanNames.Clear();
             ReferencePlans.Clear();
+            ReferencePlansEx3.Clear();
 
             FutureReferences.Clear();
 
@@ -154,6 +162,8 @@ namespace NetTally.VoteCounting
                 RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
             if (ReferencePlans.Comparer != Agnostic.StringComparer)
                 ReferencePlans = new Dictionary<string, List<string>>(Agnostic.StringComparer);
+            if (ReferencePlansEx3.Comparer != Agnostic.StringComparer)
+                ReferencePlansEx3 = new Dictionary<string, List<VoteLine>>(Agnostic.StringComparer);
             if (ReferencePlanNames.Comparer != Agnostic.StringComparer)
                 ReferencePlanNames = new HashSet<string>(Agnostic.StringComparer);
             if (PlanNames.Comparer != Agnostic.StringComparer)
@@ -378,7 +388,7 @@ namespace NetTally.VoteCounting
         /// <param name="post">The post being checked.</param>
         /// <returns>Returns true if the voter has a newer vote
         /// already submitted to the counter.</returns>
-        public bool HasNewerVote(PostComponents post)
+        public bool HasNewerVote(Experiment3.Post post)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
@@ -1086,6 +1096,150 @@ namespace NetTally.VoteCounting
             }
         }
 
+        #endregion
+
+        #region New Experiment3
+
+        public bool AddReferencePlan(string planName, IEnumerable<VoteLine> planBlock, string postID)
+        {
+            if (!ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
+            {
+                ReferencePlanNames.Add(planName);
+                PlanMessageId[planName] = postID;
+                ReferencePlansEx3[planName] = planBlock.ToList();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool AddReferencePlan(string planName, IEnumerable<string> planBlock, string postID)
+        {
+            if (!ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
+            {
+                ReferencePlanNames.Add(planName);
+                PlanMessageId[planName] = postID;
+                ReferencePlans[planName] = planBlock.ToList();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public string GetPlanPostId(string planName)
+        {
+            if (PlanMessageId.TryGetValue(planName, out string postId))
+            {
+                return postId;
+            }
+
+            return "";
+        }
+
+        public bool AddReferenceVoter(string voterName, string postID)
+        {
+            ReferenceVoterPosts[voterName] = postID;
+            return ReferenceVoters.Add(voterName);
+        }
+
+        public bool HasReferenceVoter(string voterName)
+        {
+            if (voterName is null)
+                return false;
+
+            return ReferenceVoters.Contains(voterName, Agnostic.StringComparer);
+        }
+
+        public string? GetReferenceVoter(string voterName)
+        {
+            if (HasReferenceVoter(voterName))
+            {
+                string properVoterName = ReferenceVoters.FirstOrDefault(v => Agnostic.StringComparer.Equals(v, voterName));
+                return properVoterName;
+            }
+
+            return null;
+        }
+
+        public string? GetReferenceVoterPostId(string voterName)
+        {
+            return ReferenceVoterPosts[voterName];
+        }
+
+        public bool AddFutureReference(Post post)
+        {
+            return FutureReferences.Add(post);
+        }
+
+        /// <summary>
+        /// Add a collection of votes to the vote counter.
+        /// </summary>
+        /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
+        /// <param name="voter">The voter for this vote.</param>
+        /// <param name="postID">The post ID for this vote.</param>
+        /// <param name="voteType">The type of vote being added.</param>
+        public void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, string postID, VoteType voteType)
+        {
+            if (!voteParts.Any())
+                return;
+
+            // Store/update the post ID of the voter
+            AddVoterPostID(voter, postID, voteType);
+
+            // Track plan names
+            if (voteType == VoteType.Plan)
+            {
+                PlanNames.Add(voter);
+            }
+
+            // Remove the voter from any existing votes
+            if (RemoveSupport(voter, voteType))
+                OnPropertyChanged("Voters");
+
+            // Add/update all segments of the provided vote
+            foreach (var part in voteParts)
+            {
+                AddVote(part, voter, voteType);
+            }
+
+            // Cleanup any votes that no longer have any support
+            if (CleanupEmptyVotes(voteType))
+                OnPropertyChanged("Votes");
+
+        }
+
+        public Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>> VoteBlockSupporters { get; private set; } 
+            = new Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>>();
+
+        /// <summary>
+        /// Adds an individual vote.
+        /// </summary>
+        /// <param name="vote">The vote that is being added to.</param>
+        /// <param name="voter">The voter that is supporting the vote.</param>
+        /// <param name="voteType">Type of the vote.</param>
+        /// <exception cref="System.ArgumentNullException">vote and voter must not be null or empty.</exception>
+        private void AddVote(VoteLineBlock vote, string voter, VoteType voteType)
+        {
+            var votes = VoteBlockSupporters;
+
+            if (!votes.TryGetValue(vote, out var supporters))
+            {
+                supporters = new Dictionary<string, HashSet<VoteLineBlock>>(StringComparer.OrdinalIgnoreCase);
+                votes.Add(vote, supporters);
+            }
+
+            if (!supporters.TryGetValue(voter, out var voterVotes))
+            {
+                voterVotes = new HashSet<VoteLineBlock>();
+                supporters.Add(voter, voterVotes);
+                OnPropertyChanged("Voters");
+            }
+
+            voterVotes.Add(vote);
+            OnPropertyChanged("Votes");
+        }
         #endregion
     }
 }

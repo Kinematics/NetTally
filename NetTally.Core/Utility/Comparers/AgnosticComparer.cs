@@ -79,6 +79,8 @@ namespace NetTally.Utility
                 return currentComparer;
             }
         }
+
+        public static Func<string, CompareInfo, CompareOptions, int> HashFunction { get; private set; }
         #endregion
 
         /// <summary>
@@ -89,6 +91,8 @@ namespace NetTally.Utility
         /// <param name="hashFunction">The hash function to use for the various forms of string comparer.</param>
         public static void HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
+            HashFunction = hashFunction;
+
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
             StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
@@ -143,21 +147,18 @@ namespace NetTally.Utility
         /// <param name="first">First string.</param>
         /// <param name="second">Second string.</param>
         /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
-        public static int FirstDifferenceInStrings(string input1, string input2)
+        public static int FirstDifferenceInStrings(ReadOnlySpan<char> input1, ReadOnlySpan<char> input2)
         {
-            ReadOnlySpan<char> first = input1.AsSpan();
-            ReadOnlySpan<char> second = input2.AsSpan();
-
-            int length = first.Length < second.Length ? first.Length : second.Length;
+            int length = input1.Length < input2.Length ? input1.Length : input2.Length;
 
             for (int i = 0; i < length; i++)
             {
-                if (first[i] != second[i])
+                if (input1[i] != input2[i])
                     return i;
             }
 
-            if (first.Length != second.Length)
-                return Math.Min(first.Length, second.Length);
+            if (input1.Length != input2.Length)
+                return Math.Min(input1.Length, input2.Length);
 
             return -1;
         }

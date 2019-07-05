@@ -3,189 +3,159 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;
+using NetTally.Votes;
 
-namespace NetTally.Votes.Original
+namespace NetTally.Experiment3
 {
     /// <summary>
     /// Class that can handle constructing votes (in various manners) from the base text of a post.
     /// </summary>
     public class VoteConstructor
     {
-        #region Fields
-        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
-        readonly IGeneralInputOptions inputOptions;
-
-        public IVoteCounter VoteCounter { get; }
-        #endregion
-
-        #region Constructor
         public VoteConstructor(IVoteCounter voteCounter, IGeneralInputOptions options)
         {
             VoteCounter = voteCounter;
             inputOptions = options;
         }
+
+        #region Fields
+        // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+        static readonly Regex basePlanRegex = new Regex(@"base\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+
+        readonly IGeneralInputOptions inputOptions;
+
+        public IVoteCounter VoteCounter { get; }
         #endregion
 
-        #region Public functions
+        #region Plans
         /// <summary>
-        /// First pass review of posts to extract and store plans.
-        /// In this pass, only plans that have actual content (ie: indented
-        /// sub-lines) are considered.
+        /// Get plans from the provided post during the preprocessing phase.
+        /// It takes a parameter for the function that will be used to analyze each
+        /// block of the post (or the entire post, if asBlocks is false).
         /// </summary>
-        /// <param name="post">Post to be examined.</param>
-        /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlansWithContent(PostComponents post, IQuest quest)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            var plans = GetAllPlansWithContent(post);
-
-            var filteredPlans = FilterPlansByTask(plans, quest);
-
-            StorePlanReferences(filteredPlans);
-
-            ProcessPlans(filteredPlans, post, quest.PartitionMode);
-        }
-
-        /// <summary>
-        /// Second pass review of posts to extract and store plans.
-        /// In this pass, plans that are simply labels for the entire post,
-        /// and don't have any content themselves, are considered.
-        /// The overall vote must have more than one line, however.
-        /// </summary>
-        /// <param name="post">Post to be examined.</param>
-        /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlanLabelsWithContent(PostComponents post, IQuest quest)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            if (quest.ForbidVoteLabelPlanNames)
-                return;
-
-            var plans = GetAllFullPostPlans(post);
-
-            var filteredPlans = FilterPlansByTask(plans, quest);
-
-            StorePlanReferences(filteredPlans);
-
-            ProcessPlans(filteredPlans, post, quest.PartitionMode);
-        }
-
-        /// <summary>
-        /// Third pass review of posts to extract and store plans.
-        /// In this pass, plans that are simply labels for the entire post,
-        /// and don't have any content themselves, are considered.
-        /// The overall vote may have just one line.
-        /// </summary>
-        /// <param name="post">Post to be examined.</param>
-        /// <param name="quest">Quest being tallied.</param>
-        public void PreprocessPlanLabelsWithoutContent(PostComponents post, IQuest quest)
-        {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            if (quest.ForbidVoteLabelPlanNames)
-                return;
-
-            var plans = GetAllOneLinePlans(post);
-
-            var filteredPlans = FilterPlansByTask(plans, quest);
-
-            StorePlanReferences(filteredPlans);
-
-            ProcessPlans(filteredPlans, post, quest.PartitionMode);
-        }
-
-        /// <summary>
-        /// Second pass processing of a post, to handle actual vote processing.
-        /// </summary>
-        /// <param name="post">The post to process.</param>
+        /// <param name="post">The post to examine.</param>
         /// <param name="quest">The quest being tallied.</param>
-        /// <returns>True if the post was processed, false if it was not.</returns>
-        public bool ProcessPost(PostComponents post, IQuest quest, CancellationToken token)
+        /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
+        /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
+        /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
+        public Dictionary<string, VoteLineBlock> PreprocessGetPlans(Post post, IQuest quest,
+            bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)
         {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (!post.IsVote)
-                throw new ArgumentException("Post is not a valid vote.");
+            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>();
 
-            token.ThrowIfCancellationRequested();
+            // Either split the vote into blocks, or encapsulate the vote into an enumerable
+            // so that it can be treated the same way.
+            var blocks = asBlocks ? VoteBlocks.GetBlocks(post.VoteLines) : new List<VoteLineBlock>() { new VoteLineBlock(post.VoteLines) };
 
-            // If the vote has content, deal with it
-            if (post.WorkingVote != null && post.WorkingVote.Count > 0)
+            foreach (var block in blocks)
             {
-                // If it has a reference to a plan or voter that has not been processed yet,
-                // delay processing.
-                if (HasFutureReference(post, quest))
+                var (isPlan, planName) = isPlanFunction(block);
+
+                if (isPlan && IsValidPlanName(planName, post.Author) && IsTaskAllowed(block, quest))
                 {
-                    VoteCounter.FutureReferences.Add(post);
+                    plans[planName] = block;
+                }
+            }
+
+            return plans;
+        }
+
+        /// <summary>
+        /// Make sure the provided plan name is valid.
+        /// A named vote that is named after a user is only valid if it matches the post author's name.
+        /// </summary>
+        /// <param name="planName">The name of the plan.</param>
+        /// <param name="postAuthor">The post's author.</param>
+        /// <returns>Returns true if the plan name is deemed valid.</returns>
+        private bool IsValidPlanName(string planName, string postAuthor)
+        {
+            // A named vote that is named after a user is only valid if it matches the post author's name.
+            if (VoteCounter.HasReferenceVoter(planName))
+            {
+                if (!Agnostic.StringComparer.Equals(planName, postAuthor))
+                {
                     return false;
                 }
-
-                // If a newer vote has been registered in the vote counter, that means
-                // that this post was a prior future reference that got overridden later.
-                // Indicate that it has been processed so that it doesn't try to
-                // re-submit it later.
-                if (VoteCounter.HasNewerVote(post))
-                {
-                    return true;
-                }
-
-                // Get the list of all vote partitions, built according to current preferences.
-                // One of: By line, By block, or By post (ie: entire vote)
-                List<string> votePartitions = GetVotePartitions(post.WorkingVote, quest.PartitionMode, VoteType.Vote, post.Author);
-
-                var filteredPartitions = FilterVotesByTask(votePartitions, quest);
-
-                // Add those to the vote counter.
-                VoteCounter.AddVotes(filteredPartitions, post.Author, post.ID, VoteType.Vote);
-
             }
 
-            // Handle ranking votes, if applicable.
-            if (inputOptions.AllowRankedVotes)
-            {
-                var rankings = GetRankingsFromPost(post, quest);
-
-                if (rankings.Count > 0)
-                    ProcessRankings(rankings, post);
-            }
-
-            post.Processed = true;
             return true;
         }
 
         /// <summary>
-        /// Allows partitioning a provided vote (unified vote string) using the specified partition mode.
+        /// Determine whether the task of the provided vote line block falls within the
+        /// filter range of allowed/desired tasks.
         /// </summary>
-        /// <param name="vote">The vote string.</param>
-        /// <param name="quest">The quest, for filter parameters.</param>
-        /// <param name="partitionMode">The partition mode to use.</param>
-        /// <returns>Returns the partitioned vote as a list of strings.</returns>
-        public List<string> PartitionVoteString(string vote, IQuest quest, PartitionMode partitionMode)
+        /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
+        private bool IsTaskAllowed(VoteLineBlock block, IQuest quest)
         {
-            if (string.IsNullOrEmpty(vote))
-                return new List<string>();
+            // Always allow if no filters are active.
+            if (!quest.UseCustomTaskFilters)
+                return true;
 
-            var voteLines = vote.GetStringLines();
-            return PartitionVoteStrings(voteLines, quest, partitionMode);
+            if (string.IsNullOrEmpty(block.Task))
+                return false;
+
+            return quest.TaskFilter?.Match(block.Task) ?? false;
         }
+        #endregion
+
+
+        public List<VoteLineBlock>? ProcessPostEx3(Post post, IQuest quest)
+        {
+            // * Extract any base plan definitions.  They are explicitly not being voted for.
+            // Be able to work out proxy votes (users and plans). These may refer to future votes in the analysis chain.
+            // Split the plan up based on the partitioning method. 
+            // Deal with pinned references. ↑^
+            // Deal with different marker classes.
+
+            // If the vote has content, process it.
+            if (post.WorkingVoteLines.Count > 0)
+            {
+                // If it has a reference to a voter that has not been processed yet,
+                // delay processing.
+                if (HasFutureReference(post, quest))
+                {
+                    VoteCounter.AddFutureReference(post);
+                    return null;
+                }
+
+                // If a newer vote has been registered in the vote counter, that means
+                // that this post was a prior future reference that got overridden later.
+                // If so, don't process it now, but allow the post to be marked as
+                // processed so that it doesn't try to re-submit it later.
+                if (!VoteCounter.HasNewerVote(post))
+                {
+                    // Get the results of partitioning the post.
+                    var results = PartitionPost(post, quest.PartitionMode, VoteType.Vote);
+
+                    // Apply task filtering.
+                    var filteredResults = results.Where(p => IsTaskAllowed(p, quest)).ToList();
+
+                    post.Processed = true;
+                    return filteredResults;
+                }
+            }
+
+            post.Processed = true;
+            return null;
+        }
+
+
+
+        private List<VoteLineBlock> PartitionPost(Post post, PartitionMode partitionMode, VoteType vote)
+        {
+            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
+
+            return partitions;
+        }
+
+        #region Public functions
 
         /// <summary>
         /// Allows partitioning a provided vote (already broken into a list of lines) using the
@@ -213,302 +183,6 @@ namespace NetTally.Votes.Original
 
             return filteredPartitions;
         }
-
-        /// <summary>
-        /// Get the lines of the vote that we will be processing out of the post.
-        /// Only take the .VoteLines, and condense any instances of known plans
-        /// to just a reference to the plan name.
-        /// </summary>
-        /// <param name="post">The post we're getting the vote from.</param>
-        /// <returns>Returns the vote with plans compressed.</returns>
-        public List<string> GetWorkingVote(PostComponents post)
-        {
-            List<string> vote = new List<string>();
-
-            if (post == null || !post.IsVote)
-                return vote;
-
-            // First determine if any base plans are copies of an original definition, or being defined in this post.
-            // If they're just copies, then embed them in the working vote.
-
-            if (post.BasePlans.Any())
-            {
-                var voters = VoteCounter.GetVotersCollection(VoteType.Plan);
-                bool checkPlan = true;
-                string? planName;
-
-                foreach (var bPlan in post.BasePlans)
-                {
-                    planName = VoteString.GetMarkedPlanName(bPlan.Key);
-                    if (planName == null)
-                        continue;
-
-                    // As long as we keep finding base plans that are defined in this post, keep skipping.
-                    if (checkPlan)
-                    {
-                        if (VoteCounter.HasPlan(planName) && voters[planName] == post.ID)
-                            continue;
-                    }
-
-                    checkPlan = false;
-
-                    // If we reach here, any further plans are copy/pastes of defined plans, and should
-                    // have the key added to the working vote.
-                    vote.Add(bPlan.Key);
-                }
-            }
-
-            // Then make sure there are actual vote lines to process.
-            if (!post.VoteLines.Any())
-                return vote;
-
-            // Then check if the *entire post* should be treated as a complete plan.
-            string? postPlanName = VoteString.GetPlanName(post.VoteLines.First());
-            if (postPlanName != null && VoteCounter.ReferencePlans.ContainsKey(postPlanName) &&
-                    VoteCounter.ReferencePlans[postPlanName].Skip(1).SequenceEqual(post.VoteLines.Skip(1), Agnostic.StringComparer))
-            {
-                // Replace known plans with just the plan key.  They'll be expanded later.
-                vote.Add(post.VoteLines.First());
-            }
-            else
-            {
-                // If the entire post isn't an auto-plan, break it down into blocks.
-
-                // Break the remainder of the vote into blocks so that we can compare vs auto-plans.
-                // Group blocks based on parent vote lines (no prefix).
-                // Key for each block is the parent vote line.
-                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
-                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
-                    (s) => s,
-                    (s) => s);
-
-
-                foreach (var block in voteBlocks)
-                {
-                    // Multi-line blocks might be a plan.  Check.
-                    if (block.Count() > 1)
-                    {
-                        // See if the block key marks a known plan.
-                        string? planName = VoteString.GetPlanName(block.Key);
-
-                        if (planName != null && VoteCounter.ReferencePlans.ContainsKey(planName) &&
-                            VoteCounter.ReferencePlans[planName].Skip(1).SequenceEqual(block.Skip(1), Agnostic.StringComparer))
-                        {
-                            // Replace known plans with just the plan key.  They'll be expanded later.
-                            vote.Add(block.Key);
-                        }
-                        else
-                        {
-                            // If it's not a known plan, pass everything through.
-                            vote.AddRange(block);
-                        }
-                    }
-                    else
-                    {
-                        // Single lines can be added normally
-                        vote.AddRange(block);
-                        //vote.Add(block.Key);
-                    }
-                }
-            }
-
-            return vote;
-        }
-        #endregion
-
-        #region Utility functions for processing plans.        
-        /// <summary>
-        /// Gets a list of all plans within the post that have defined content (child lines).
-        /// </summary>
-        /// <param name="post">The post to extract plans from.</param>
-        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private List<List<string>> GetAllPlansWithContent(PostComponents post)
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            results.AddRange(post.BasePlans.Select(a => a.ToList()));
-
-            if (post.VoteLines.Any())
-            {
-                // Group blocks based on parent vote lines (no prefix).
-                // Key for each block is the parent vote line.
-                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
-                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
-                    (s) => s,
-                    (s) => s);
-
-                foreach (var block in voteBlocks)
-                {
-                    if (block.Count() > 1)
-                    {
-                        string? planname = VoteString.GetPlanName(block.Key);
-
-                        if (planname != null)
-                        {
-                            // Add a named vote that is named after a user only if it matches the post author's name.
-                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
-                            {
-                                if (Agnostic.StringComparer.Equals(planname, post.Author))
-                                {
-                                    results.Add(block.ToList());
-                                }
-                            }
-                            else
-                            {
-                                // If it's not named after a user, add it normally.
-                                results.Add(block.ToList());
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Gets a list of all full-vote plans (of which there will only be one, if found).
-        /// </summary>
-        /// <param name="post">The post to extract plans from.</param>
-        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private List<List<string>> GetAllFullPostPlans(PostComponents post)
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            if (post.VoteLines.Any())
-            {
-                // Group blocks based on parent vote lines (no prefix).
-                // Key for each block is the parent vote line.
-                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
-                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
-                    (s) => s,
-                    (s) => s);
-
-                // If the vote has any plans with content in them, we can't make this a full-post plan.
-                if (!voteBlocks.Any(b => b.Count() > 1 && VoteString.GetPlanName(b.Key) != null))
-                {
-                    // The post must have more than one line to count for a plan label.
-                    if (post.VoteLines.Count > 1)
-                    {
-                        var firstLine = post.VoteLines.First();
-
-                        string? planname = VoteString.GetPlanName(firstLine);
-
-                        if (planname != null)
-                        {
-                            // If it's named after a user, it must be the post author.  Otherwise, anything is fine.
-                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
-                            {
-                                if (Agnostic.StringComparer.Equals(planname, post.Author))
-                                {
-                                    results.Add(post.VoteLines);
-                                }
-                            }
-                            else
-                            {
-                                results.Add(post.VoteLines);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Gets a list of all full-vote plans (of which there will only be one, if found).
-        /// </summary>
-        /// <param name="post">The post to extract plans from.</param>
-        /// <returns>Returns a list of plans (which are lists of vote lines).</returns>
-        private List<List<string>> GetAllOneLinePlans(PostComponents post)
-        {
-            List<List<string>> results = new List<List<string>>();
-
-            if (post.VoteLines.Any())
-            {
-                // Group blocks based on parent vote lines (no prefix).
-                // Key for each block is the parent vote line.
-                var voteBlocks = post.VoteLines.GroupAdjacentToPreviousKey(
-                    (s) => string.IsNullOrEmpty(VoteString.GetVotePrefix(s)),
-                    (s) => s,
-                    (s) => s);
-
-                foreach (var block in voteBlocks)
-                {
-                    if (block.Count() == 1)
-                    {
-                        string? planname = VoteString.GetPlanName(block.Key);
-
-                        if (planname != null)
-                        {
-                            if (VoteCounter.ReferenceVoters.Contains(planname, Agnostic.StringComparer))
-                            {
-                                if (Agnostic.StringComparer.Equals(planname, post.Author))
-                                {
-                                    results.Add(block.ToList());
-                                }
-                            }
-                            else
-                            {
-                                results.Add(block.ToList());
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Store original plan name and contents in reference containers.
-        /// </summary>
-        /// <param name="plans">A list of valid plans.</param>
-        private void StorePlanReferences(IEnumerable<List<string>> plans)
-        {
-            foreach (var plan in plans)
-            {
-                string? planName = VoteString.GetPlanName(plan.First());
-                string cleanName = VoteString.RemoveBBCode(planName ?? "");
-                cleanName = VoteString.DeUrlContent(cleanName);
-
-
-                if (!VoteCounter.ReferencePlanNames.Contains(cleanName, Agnostic.StringComparer))
-                {
-                    VoteCounter.ReferencePlanNames.Add(cleanName);
-                    VoteCounter.ReferencePlans[cleanName] = plan;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Put any plans found in the grouped vote lines into the standard tracking sets,
-        /// after handling any partitioning needed.
-        /// </summary>
-        /// <param name="plans">List of plans to be processed.</param>
-        /// <param name="post">Post the plans were pulled from.</param>
-        /// <param name="partitionMode">Partition mode being used.</param>
-        private void ProcessPlans(IEnumerable<List<string>> plans, PostComponents post, PartitionMode partitionMode)
-        {
-            foreach (var plan in plans)
-            {
-                string? planName = VoteString.GetMarkedPlanName(plan.First());
-                string cleanName = VoteString.RemoveBBCode(planName ?? "");
-                cleanName = VoteString.DeUrlContent(cleanName);
-
-                if (!VoteCounter.HasPlan(cleanName))
-                {
-                    var nPlan = NormalizePlanName(plan);
-
-                    // Get the list of all vote partitions, built according to current preferences.
-                    // One of: By line, By block, or By post (ie: entire vote)
-                    var votePartitions = GetVotePartitions(nPlan, partitionMode, VoteType.Plan, post.Author);
-
-                    VoteCounter.AddVotes(votePartitions, cleanName, post.ID, VoteType.Plan);
-                }
-            }
-        }
         #endregion
 
         #region Utility functions for processing votes.
@@ -519,7 +193,7 @@ namespace NetTally.Votes.Original
         /// </summary>
         /// <param name="post">Post containing the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(PostComponents post, IQuest quest)
+        private bool HasFutureReference(Experiment3.Post post, IQuest quest)
         {
             // If we decide it has to be forced, ignore all checks in here.
             if (post.ForceProcess)
@@ -530,21 +204,20 @@ namespace NetTally.Votes.Original
             if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
                 return false;
 
-            foreach (var line in post.WorkingVote)
+            foreach (var line in post.WorkingVoteLines)
             {
                 // Get the possible proxy references this line contains
-                var refNames = VoteString.GetVoteReferenceNames(line);
+                var refNames = VoteString.GetVoteReferenceNames(line.Content);
 
                 // Pinned references (^ or pin keywords) are explicitly not future references
-                if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "pin"))
+                if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "↑" || a == "pin"))
                     continue;
 
                 // Any references to plans automatically work, as they are defined in a preprocess phase.
                 if (refNames[ReferenceType.Plan].Any(VoteCounter.HasPlan))
                     continue;
 
-                string? refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => VoteCounter.ReferenceVoters.Contains(n, Agnostic.StringComparer))
-                    ?.AgnosticMatch(VoteCounter.ReferenceVoters);
+                string? refVoter = VoteCounter.GetReferenceVoter(refNames[ReferenceType.Voter].FirstOrDefault());
 
                 if (refVoter != null && refVoter != post.Author)
                 {
@@ -556,7 +229,7 @@ namespace NetTally.Votes.Original
 
                     // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
                     // then this can't be treated as a future reference.
-                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVote.Count > 0);
+                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVoteLines.Count > 0);
 
                     if (!refWorkingVotes.Any())
                         continue;
@@ -574,37 +247,6 @@ namespace NetTally.Votes.Original
 
             // No future references were found.
             return false;
-        }
-
-        /// <summary>
-        /// Partition the vote and store the vote and voter.
-        /// </summary>
-        /// <param name="post">The post it was derived from.</param>
-        /// <param name="partitionMode">The partition mode being used.</param>
-        private void ProcessVote(PostComponents post, PartitionMode partitionMode)
-        {
-            // Get the list of all vote partitions, built according to current preferences.
-            // One of: By line, By block, or By post (ie: entire vote)
-            List<string> votePartitions = GetVotePartitions(post.WorkingVote, partitionMode, VoteType.Vote, post.Author);
-
-            VoteCounter.AddVotes(votePartitions, post.Author, post.ID, VoteType.Vote);
-        }
-
-        /// <summary>
-        /// Filters the plans by task.
-        /// </summary>
-        /// <param name="plans">The plans.</param>
-        /// <param name="taskFilter">The task filter.</param>
-        /// <returns>Returns the plans after filtering with the task filter.</returns>
-        private static List<List<string>> FilterPlansByTask(List<List<string>> plans, IQuest quest)
-        {
-            if (!quest.UseCustomTaskFilters)
-                return plans;
-
-            // Include lines where the task filter matches
-            var filtered = plans.Where(p => quest.TaskFilter?.Match(VoteString.GetVoteTask(p.First())) ?? false);
-
-            return filtered.ToList();
         }
 
         /// <summary>
@@ -630,75 +272,6 @@ namespace NetTally.Votes.Original
             }
 
             return results;
-        }
-
-        #endregion
-
-        #region Utility functions for processing ranked votes.
-        /// <summary>
-        /// Get the ranking lines from a post.
-        /// May pull either the direct values, if provided, or copy a referenced
-        /// users vote if available.
-        /// </summary>
-        /// <param name="post">The post.</param>
-        /// <returns>
-        /// Returns any ranked vote lines in the vote.
-        /// </returns>
-        private List<string> GetRankingsFromPost(PostComponents post, IQuest quest)
-        {
-            // If there are any explicit rank vote lines, return those.
-            if (post.RankLines.Any())
-                return FilterVotesByTask(post.RankLines, quest);
-
-            // If there were no explicit rankings, see if there's a reference to
-            // another voter as the only line of this vote.
-            string? refName = GetPureRankReference(post);
-
-            if (refName != null)
-            {
-                // If so, see if that voter made any rank votes.
-                var indirect = VoteCounter.GetVotesCollection(VoteType.Rank).Where(r => r.Value.Contains(refName)).Select(v => v.Key);
-
-                // If so, return those votes.
-                if (indirect.Any())
-                    return indirect.ToList();
-            }
-
-            // Otherwise, there are no rankings for this vote.
-            return new List<string>();
-        }
-
-        /// <summary>
-        /// Get the name of a voter that is referenced if that is the only
-        /// reference in the vote.
-        /// </summary>
-        /// <param name="post">The post.</param>
-        /// <returns></returns>
-        private string? GetPureRankReference(PostComponents post)
-        {
-            if (post.VoteLines.Count == 1)
-            {
-                var refNames = VoteString.GetVoteReferenceNames(post.VoteLines.First());
-
-                var refVoter = refNames[ReferenceType.Voter].FirstOrDefault(n => n != post.Author && VoteCounter.HasUserEnteredVoter(n, VoteType.Rank));
-
-                return refVoter;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Put any ranking votes found in the grouped vote lines into the standard tracking sets.
-        /// </summary>
-        /// <param name="ranksList">A list of all rank votes in the post.</param>
-        /// <param name="post">The components of the original post.</param>
-        private void ProcessRankings(List<string> ranksList, PostComponents post)
-        {
-            if (ranksList.Count > 0)
-            {
-                VoteCounter.AddVotes(ranksList, post.Author, post.ID, VoteType.Rank);
-            }
         }
 
         #endregion
