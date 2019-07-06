@@ -211,7 +211,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="line">The vote line to modify.</param>
         /// <returns>Returns a normalized version of the vote line, with proper matching BBCode tags.</returns>
-        private static string NormalizeContentBBCode(string line)
+        public static string NormalizeContentBBCode(string line)
         {
             var lineSplit = allBBCodeRegex.Split(line);
 

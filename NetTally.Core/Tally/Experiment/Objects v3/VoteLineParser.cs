@@ -33,6 +33,8 @@ namespace NetTally.Experiment3
         static readonly char[] prefixChars = new char[] { '-', '–', '—' };
         // Marker chars: X, check, numeric rank, rank marker, score marker, approval/disapproval
         static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '√', '✓', '✔', '×', '☒', '☑', '+', '-' };
+        // Newline chars
+        static readonly char[] newlineChars = new char[] { '\r', '\n' };
 
         /// <summary>
         /// Takes a line of text and attempts to parse it, looking for a valid vote line.
@@ -59,6 +61,10 @@ namespace NetTally.Experiment3
 
             foreach (var ch in line)
             {
+                // Skip newlines entirely, if they somehow get into the line we're parsing.
+                if (newlineChars.Contains(ch))
+                    continue;
+
                 switch (currentState)
                 {
                     case TokenState.None:
@@ -214,13 +220,16 @@ namespace NetTally.Experiment3
         doneExamining:
 
             if (currentState == TokenState.Content)
-                return new VoteLine(prefixSB.ToString(), markerSB.ToString(), taskSB.ToString(), contentSB.ToString(), markerType, markerValue);
+            {
+                string content = VoteString.NormalizeContentBBCode(contentSB.ToString());
+                return new VoteLine(prefixSB.ToString(), markerSB.ToString(), taskSB.ToString(), content, markerType, markerValue);
+            }
 
             return null;
         }
 
 
-        static readonly Regex markerRegex = new Regex(@"(?<marker>(?<vote>[xX×√✓✔☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))");
+        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX×√✓✔☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$");
 
         /// <summary>
         /// Examines a provided vote marker string and determines what type of marker it is.
