@@ -11,34 +11,37 @@ namespace NetTally.Utility.Comparers
         /// may vary by case or punctuation or diacriticals or punctuation.
         /// This ensures strings which the agnostic comparer may consider the same
         /// get the same hash code, so that the full comparison is actually made.
+        /// Based on: https://github.com/microsoft/referencesource/blob/e0bf122d0e52a42688b92bb4be2cfd66ca3c2f07/System.Web/Util/StringUtil.cs#L257
         /// </summary>
         public int HashFunction(string str, CompareInfo info, CompareOptions options)
         {
-            var normalized = str.Normalize(NormalizationForm.FormKD).AsSpan();
+            ReadOnlySpan<char> normalized = str.Normalize(NormalizationForm.FormKD).AsSpan();
 
             unchecked
             {
-                int hash1 = 5381;
+                int hash1 = (5381 << 16) + 5381;
                 int hash2 = hash1;
-                ushort ch = 0;
+                char c;
+                bool alternate = false;
 
                 for (int i = 0; i < normalized.Length; i++)
                 {
-                    // only hash from letters
+                    // Only hash from letters and numbers. Skip spaces and punctuation.
                     if (char.IsLetterOrDigit(normalized[i]))
                     {
-                        // Start hash2 at i == 1
-                        if (ch > 0)
-                        {
-                            hash2 = ((hash2 << 5) + hash2) ^ ch;
-                        }
+                        // Convert to lowercase.  Comparison is case-insensitive.
+                        c = char.ToLower(normalized[i], CultureInfo.InvariantCulture);
 
-                        // convert to lowercase if it's in ASCII range
-                        ch = Convert.ToUInt16(normalized[i]);
-                        if (ch > 64 && ch < 91)
-                            ch += 32;
+                        // Convert to numeric value.
+                        ushort ch = Convert.ToUInt16(c);
 
-                        hash1 = ((hash1 << 5) + hash1) ^ ch;
+                        // Alternate between which hash we modify as we move through the characters.
+                        alternate = !alternate;
+
+                        if (alternate)
+                            hash1 = ((hash1 << 5) + hash1 + (hash1 >> 27)) ^ ch;
+                        else
+                            hash2 = ((hash2 << 5) + hash2 + (hash2 >> 27)) ^ ch;
                     }
                 }
 
