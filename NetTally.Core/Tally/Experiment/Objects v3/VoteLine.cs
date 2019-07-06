@@ -112,7 +112,7 @@ namespace NetTally.Experiment3
 
         public override int GetHashCode()
         {
-            return Agnostic.StringComparer.GetHashCode(Content);
+            return Agnostic.InsensitiveComparer.GetHashCode(CleanContent);
         }
 
         public static bool operator >(VoteLine first, VoteLine second) => Compare(first, second) == 1;
