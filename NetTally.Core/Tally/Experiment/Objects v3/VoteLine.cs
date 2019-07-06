@@ -14,6 +14,8 @@ namespace NetTally.Experiment3
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
+        private int _hash;
+
         public static VoteLine Empty = new VoteLine("", "", "", "", MarkerType.None, 0);
 
         /// <summary>
@@ -31,7 +33,8 @@ namespace NetTally.Experiment3
             MarkerValue = markerValue;
 
             Depth = Prefix.Length;
-            CleanContent = Content.RemoveBBCode().DeUrlBBCodeContent();
+            CleanContent = VoteLineParser.StripBBCode(Content);
+            _hash = Agnostic.InsensitiveComparer.GetHashCode(CleanContent);
         }
 
         public VoteLine GetPromotedLine(int level = 1)
@@ -60,7 +63,7 @@ namespace NetTally.Experiment3
         public string ToComparableString()
         {
             string task = Task.Length > 0 ? $"[{Task}]" : "";
-            return $"{Prefix}[]{task} {Content}";
+            return $"{Prefix}[]{task} {CleanContent}";
         }
 
 #nullable disable
@@ -112,7 +115,7 @@ namespace NetTally.Experiment3
 
         public override int GetHashCode()
         {
-            return Agnostic.InsensitiveComparer.GetHashCode(CleanContent);
+            return _hash;
         }
 
         public static bool operator >(VoteLine first, VoteLine second) => Compare(first, second) == 1;
