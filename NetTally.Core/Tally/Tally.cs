@@ -468,7 +468,7 @@ namespace NetTally.VoteCounting
 
                 foreach (var post in unprocessed)
                 {
-                    var filteredResults = voteConstructor.ProcessPostEx3(post, voteCounter.Quest);
+                    var filteredResults = voteConstructor.ProcessPost(post, voteCounter.Quest);
 
                     if (post.Processed)
                         processedAny = true;
@@ -517,16 +517,16 @@ namespace NetTally.VoteCounting
 
                     foreach (var plan in plans)
                     {
-                        bool added = voteCounter.AddReferencePlan(plan.Key, plan.Value, post.ID);
+                        var normalizedPlan = voteConstructor.NormalizePlan(plan);
+
+                        bool added = voteCounter.AddReferencePlan(normalizedPlan.Key, normalizedPlan.Value, post.ID);
 
                         if (added)
                         {
-                            //var nPlan = NormalizePlanName(plan);
+                            var planPartitions = voteConstructor.PartitionPlan(normalizedPlan.Value, quest.PartitionMode);
+                            voteCounter.AddVotes(planPartitions, normalizedPlan.Key, post.ID, VoteType.Plan);
 
-                            //var votePartitions = voteConstructor.GetVotePartitions(plan.Value, quest.PartitionMode, VoteType.Plan, post.Author);
-                            //voteCounter.AddVotes(votePartitions, plan.Key, post.ID, VoteType.Plan);
-
-                            allPlans.Add(plan.Key, plan.Value);
+                            allPlans.Add(normalizedPlan.Key, normalizedPlan.Value);
                         }
                     }
                 }

@@ -31,7 +31,7 @@ namespace NetTally.Experiment3
         public IVoteCounter VoteCounter { get; }
         #endregion
 
-        #region Plans
+        #region Public functions
         /// <summary>
         /// Get plans from the provided post during the preprocessing phase.
         /// It takes a parameter for the function that will be used to analyze each
@@ -64,6 +64,75 @@ namespace NetTally.Experiment3
             return plans;
         }
 
+        public List<VoteLineBlock>? ProcessPost(Post post, IQuest quest)
+        {
+            // * Extract any base plan definitions.  They are explicitly not being voted for.
+            // Be able to work out proxy votes (users and plans). These may refer to future votes in the analysis chain.
+            // Split the plan up based on the partitioning method. 
+            // Deal with pinned references. ↑^
+            // Deal with different marker classes.
+
+            // If the vote has content, process it.
+            if (post.WorkingVoteLines.Count > 0)
+            {
+                // If it has a reference to a voter that has not been processed yet,
+                // delay processing.
+                if (HasFutureReference(post, quest))
+                {
+                    VoteCounter.AddFutureReference(post);
+                    return null;
+                }
+
+                // If a newer vote has been registered in the vote counter, that means
+                // that this post was a prior future reference that got overridden later.
+                // If so, don't process it now, but allow the post to be marked as
+                // processed so that it doesn't try to re-submit it later.
+                if (!VoteCounter.HasNewerVote(post))
+                {
+                    // Get the results of partitioning the post.
+                    var results = PartitionPost(post, quest.PartitionMode);
+
+                    // Apply task filtering.
+                    var filteredResults = results.Where(p => IsTaskAllowed(p, quest)).ToList();
+
+                    post.Processed = true;
+                    return filteredResults;
+                }
+            }
+
+            post.Processed = true;
+            return null;
+        }
+
+        /// <summary>
+        /// Allows partitioning a provided vote (already broken into a list of lines) using the
+        /// specified partition mode.
+        /// </summary>
+        /// <param name="voteLines">The vote lines.</param>
+        /// <param name="quest">The quest, for filter parameters.</param>
+        /// <param name="partitionMode">The partition mode to use.</param>
+        /// <returns>Returns the partitioned vote as a list of strings.</returns>
+        public List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
+        {
+            if (voteLines == null)
+                throw new ArgumentNullException(nameof(voteLines));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
+
+            if (voteLines.Count == 0)
+                return new List<string>();
+
+            // Get the list of all vote partitions, built according to current preferences.
+            // One of: By line, By block, or By post (ie: entire vote)
+            List<string> votePartitions = GetVotePartitions(voteLines, partitionMode, VoteType.Vote, "This is a fake voter name~~~~~~~");
+
+            var filteredPartitions = FilterVotesByTask(votePartitions, quest);
+
+            return filteredPartitions;
+        }
+        #endregion
+
+        #region Utility functions for processing votes.
         /// <summary>
         /// Make sure the provided plan name is valid.
         /// A named vote that is named after a user is only valid if it matches the post author's name.
@@ -103,89 +172,6 @@ namespace NetTally.Experiment3
 
             return quest.TaskFilter?.Match(block.Task) ?? false;
         }
-        #endregion
-
-
-        public List<VoteLineBlock>? ProcessPostEx3(Post post, IQuest quest)
-        {
-            // * Extract any base plan definitions.  They are explicitly not being voted for.
-            // Be able to work out proxy votes (users and plans). These may refer to future votes in the analysis chain.
-            // Split the plan up based on the partitioning method. 
-            // Deal with pinned references. ↑^
-            // Deal with different marker classes.
-
-            // If the vote has content, process it.
-            if (post.WorkingVoteLines.Count > 0)
-            {
-                // If it has a reference to a voter that has not been processed yet,
-                // delay processing.
-                if (HasFutureReference(post, quest))
-                {
-                    VoteCounter.AddFutureReference(post);
-                    return null;
-                }
-
-                // If a newer vote has been registered in the vote counter, that means
-                // that this post was a prior future reference that got overridden later.
-                // If so, don't process it now, but allow the post to be marked as
-                // processed so that it doesn't try to re-submit it later.
-                if (!VoteCounter.HasNewerVote(post))
-                {
-                    // Get the results of partitioning the post.
-                    var results = PartitionPost(post, quest.PartitionMode, VoteType.Vote);
-
-                    // Apply task filtering.
-                    var filteredResults = results.Where(p => IsTaskAllowed(p, quest)).ToList();
-
-                    post.Processed = true;
-                    return filteredResults;
-                }
-            }
-
-            post.Processed = true;
-            return null;
-        }
-
-
-
-        private List<VoteLineBlock> PartitionPost(Post post, PartitionMode partitionMode, VoteType vote)
-        {
-            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
-
-            return partitions;
-        }
-
-        #region Public functions
-
-        /// <summary>
-        /// Allows partitioning a provided vote (already broken into a list of lines) using the
-        /// specified partition mode.
-        /// </summary>
-        /// <param name="voteLines">The vote lines.</param>
-        /// <param name="quest">The quest, for filter parameters.</param>
-        /// <param name="partitionMode">The partition mode to use.</param>
-        /// <returns>Returns the partitioned vote as a list of strings.</returns>
-        public List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
-        {
-            if (voteLines == null)
-                throw new ArgumentNullException(nameof(voteLines));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            if (voteLines.Count == 0)
-                return new List<string>();
-
-            // Get the list of all vote partitions, built according to current preferences.
-            // One of: By line, By block, or By post (ie: entire vote)
-            List<string> votePartitions = GetVotePartitions(voteLines, partitionMode, VoteType.Vote, "This is a fake voter name~~~~~~~");
-
-            var filteredPartitions = FilterVotesByTask(votePartitions, quest);
-
-            return filteredPartitions;
-        }
-        #endregion
-
-        #region Utility functions for processing votes.
 
         /// <summary>
         /// Determine if there are any references to future (unprocessed) user votes
@@ -193,7 +179,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="post">Post containing the current vote.</param>
         /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(Experiment3.Post post, IQuest quest)
+        private bool HasFutureReference(Post post, IQuest quest)
         {
             // If we decide it has to be forced, ignore all checks in here.
             if (post.ForceProcess)
@@ -275,6 +261,131 @@ namespace NetTally.Experiment3
         }
 
         #endregion
+
+
+        /// <summary>
+        /// Partition a plan after initial preprocessing.
+        /// </summary>
+        /// <param name="block">The block defining the plan.</param>
+        /// <param name="partitionMode">The current partitioning mode.</param>
+        /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
+        public List<VoteLineBlock> PartitionPlan(VoteLineBlock block, PartitionMode partitionMode)
+        {
+            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
+
+            // If we're not partitioning, we have no work to do.
+            if (partitionMode == PartitionMode.None)
+            {
+                partitions.Add(block);
+                return partitions;
+            }
+
+            // Single line plans don't need extra handling.
+            if (block.Lines.Count == 1)
+            {
+                partitions.Add(block);
+                return partitions;
+            }
+
+            // Implicit plans carry some assumptions that don't require additional work.
+            if (VoteBlocks.IsBlockAnImplicitPlan(block).isPlan)
+            {
+                // ByLine only needs to skip the first line, and take the rest as-is.
+                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+                {
+                    foreach (var line in block.Skip(1))
+                    {
+                        partitions.Add(new VoteLineBlock(line));
+                    }
+
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlock || partitionMode == PartitionMode.ByBlockAll)
+                {
+                    return VoteBlocks.GetBlocks(block.Skip(1)).ToList();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                }
+            }
+            else
+            {
+                // Everything else is an Explicit plan.
+
+                // ByLine only needs to skip the first line, and take the rest after promoting one indent level.
+                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+                {
+                    foreach (var line in block.Skip(1))
+                    {
+                        var pLine = line.GetPromotedLine();
+                        partitions.Add(new VoteLineBlock(pLine));
+                    }
+
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlock)
+                {
+                    // Explicit plans are themselves blocks, so don't need modification.
+                    partitions.Add(block);
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlockAll)
+                {
+                    // Visual Studio crashes whenever I try to use the Min() LINQ function.
+
+                    int minDepth = int.MaxValue;
+                    foreach (var line in block.Skip(1))
+                    {
+                        if (line.Depth < minDepth)
+                            minDepth = line.Depth;
+                    }
+
+                    return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                }
+            }
+        }
+
+
+        private List<VoteLineBlock> PartitionPost(Post post, PartitionMode partitionMode)
+        {
+            // Stage 1: Expand the working vote to fill in plans and proxy votes.
+
+            VoteLineBlock expandedVote = GetExpandedVote(post);
+
+
+            // Stage 2: Break the vote up as desired by the partition mode.
+
+            PartitionVote(expandedVote, partitionMode);
+
+
+
+            return new List<VoteLineBlock>();
+        }
+
+        private VoteLineBlock GetExpandedVote(Post post)
+        {
+            //var checkPost = VoteCounter.GetLastPostByAuthor("author");
+            //if (checkPost != null && checkPost.Processed)
+            //{
+
+            //}
+
+            throw new NotImplementedException();
+        }
+
+
+        private List<VoteLineBlock> PartitionVote(VoteLineBlock voteLines, PartitionMode partitionMode)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
 
         #region Partitioning handling
         /// <summary>
@@ -681,34 +792,31 @@ namespace NetTally.Experiment3
         }
 
         /// <summary>
-        /// Takes a list of string lines and, if the first line contains a plan
-        /// name using "Base Plan", convert it to a version that only uses "Plan".
+        /// Given a plan block, if the plan is a base plan, rename it as just a "Plan".
         /// </summary>
-        /// <param name="lines">A list of lines defining a plan.</param>
-        /// <returns>Returns the list of lines, with the assurance that
-        /// any plan name starts with just "Plan".</returns>
-        private static IEnumerable<string> NormalizePlanName(IEnumerable<string> lines)
+        /// <param name="plan">The plan to examine.</param>
+        /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
+        public KeyValuePair<string, VoteLineBlock> NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
         {
-            string firstLine = lines.First();
-            var remainder = lines.Skip(1);
+            VoteLine firstLine = plan.Value.First();
 
-            string nameContent = VoteString.GetVoteContent(firstLine, VoteType.Plan);
+            var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
-            Match m = basePlanRegex.Match(nameContent);
-            if (m.Success)
+            if (planType == VoteBlocks.LineStatus.BasePlan)
             {
-                nameContent = $"Plan{m.Groups[1]}{m.Groups["planname"]}";
+                string content = $"Plan: {planName}";
+                VoteLine revisedFirstLine = new VoteLine(firstLine.Prefix, firstLine.Marker, firstLine.Task, content, firstLine.MarkerType, firstLine.MarkerValue);
 
-                firstLine = VoteString.ModifyVoteLine(firstLine, content: nameContent);
+                List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
+                voteLines.AddRange(plan.Value.Skip(1));
 
-                List<string> results = new List<string>(lines.Count()) { firstLine };
-                results.AddRange(remainder);
-
-                return results;
+                return new KeyValuePair<string, VoteLineBlock>(plan.Key, new VoteLineBlock(voteLines));
             }
 
-            return lines;
+            return plan;
         }
+
+
         #endregion
     }
 }

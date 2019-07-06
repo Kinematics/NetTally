@@ -61,6 +61,8 @@ namespace NetTally.VoteCounting
         string? GetReferenceVoterPostId(string voterName);
         bool AddFutureReference(Post post);
 
+        Post? GetLastPostByAuthor(string voterName, int maxPostId = 0);
+
         void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, string postID, VoteType voteType);
 
         HashSet<Experiment3.Post> FutureReferences { get; }

@@ -1173,6 +1173,19 @@ namespace NetTally.VoteCounting
             return FutureReferences.Add(post);
         }
 
+        public Post? GetLastPostByAuthor(string author, int maxPostId = 0)
+        {
+            if (!HasReferenceVoter(author))
+                return null;
+
+            var lastAuthorPost = PostsList.Where(p =>
+                                                Agnostic.StringComparer.Equals(author, p.Author)
+                                                && (maxPostId == 0 || p.IDValue < maxPostId))
+                .OrderBy(p => p.IDValue).LastOrDefault();
+
+            return lastAuthorPost;
+        }
+
         /// <summary>
         /// Add a collection of votes to the vote counter.
         /// </summary>
