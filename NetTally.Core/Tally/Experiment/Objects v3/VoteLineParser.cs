@@ -36,6 +36,12 @@ namespace NetTally.Experiment3
         // Newline chars
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
 
+        static readonly StringBuilder prefixSB = new StringBuilder();
+        static readonly StringBuilder markerSB = new StringBuilder();
+        static readonly StringBuilder taskSB = new StringBuilder();
+        static readonly StringBuilder contentSB = new StringBuilder();
+        static readonly StringBuilder tempContent = new StringBuilder();
+
         /// <summary>
         /// Takes a line of text and attempts to parse it, looking for a valid vote line.
         /// If it's a valid vote line, returns a VoteLine. Otherwise returns null.
@@ -47,11 +53,11 @@ namespace NetTally.Experiment3
             if (line.Length == 0)
                 return null;
 
-            StringBuilder prefixSB = new StringBuilder();
-            StringBuilder markerSB = new StringBuilder();
-            StringBuilder taskSB = new StringBuilder();
-            StringBuilder contentSB = new StringBuilder();
-            StringBuilder tempContent = new StringBuilder();
+            prefixSB.Clear();
+            markerSB.Clear();
+            taskSB.Clear();
+            contentSB.Clear();
+            tempContent.Clear();
 
             MarkerType markerType = MarkerType.None;
             int markerValue = 0;
@@ -59,8 +65,10 @@ namespace NetTally.Experiment3
             Stack<TokenState> state = new Stack<TokenState>();
             TokenState currentState = TokenState.None;
 
-            foreach (var ch in line)
+            for (int c = 0; c < line.Length; c++)
             {
+                char ch = line[c];
+
                 // Skip newlines entirely, if they somehow get into the line we're parsing.
                 if (newlineChars.Contains(ch))
                     continue;
@@ -85,8 +93,7 @@ namespace NetTally.Experiment3
                         {
                             // Shortcut for a complete marker
                             markerSB.Append(ch);
-                            markerType = MarkerType.Vote;
-                            markerValue = 100;
+                            (markerType, markerValue) = GetMarkerType(markerSB.ToString());
                             currentState = TokenState.PostMarker;
                         }
                         else if (ch == openBBCode)
@@ -116,8 +123,7 @@ namespace NetTally.Experiment3
                         {
                             // Shortcut for a complete marker
                             markerSB.Append(ch);
-                            markerType = MarkerType.Vote;
-                            markerValue = 100;
+                            (markerType, markerValue) = GetMarkerType(markerSB.ToString());
                             currentState = TokenState.PostMarker;
                         }
                         else if (ch == openBBCode)
@@ -200,8 +206,10 @@ namespace NetTally.Experiment3
                         }
                         break;
                     case TokenState.Content:
-                        contentSB.Append(ch);
-                        break;
+                        {
+                            contentSB.Append(line[c..]);
+                            goto doneExamining;
+                        }
                     case TokenState.BBCode:
                         if (state.Peek() == TokenState.PostMarker)
                         {
@@ -226,6 +234,53 @@ namespace NetTally.Experiment3
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Function to strip all BBCode from the provided input string.
+        /// </summary>
+        /// <param name="input">The input string to strip BBCode from.</param>
+        /// <returns>Returns the string without any BBCode.</returns>
+        public static string StripBBCode(ReadOnlySpan<char> input)
+        {
+            if (input.Length == 0)
+                return "";
+
+            contentSB.Clear();
+
+            // Use a stripped down version of the parsing state machine.
+            Stack<TokenState> state = new Stack<TokenState>();
+            TokenState currentState = TokenState.None;
+
+            for (int c = 0; c < input.Length; c++)
+            {
+                char ch = input[c];
+
+                switch (currentState)
+                {
+                    case TokenState.None:
+                        if (ch == openBBCode)
+                        {
+                            state.Push(currentState);
+                            currentState = TokenState.BBCode;
+                        }
+                        else
+                        {
+                            contentSB.Append(ch);
+                        }
+                        break;
+                    case TokenState.BBCode:
+                        if (ch == closeBBCode)
+                        {
+                            currentState = state.Pop();
+                        }
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown token state value: {currentState}.");
+                }
+            }
+
+            return contentSB.ToString();
         }
 
 
