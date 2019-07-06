@@ -1,5 +1,5 @@
 ﻿{
   "additionalProbingPaths": [
-    "./lib"   
+    "bin"   
   ]
 }
