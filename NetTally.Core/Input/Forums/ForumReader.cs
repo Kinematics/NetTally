@@ -267,7 +267,7 @@ namespace NetTally.Forums
 
         private bool PostIsAfterStart(Experiment3.Post post, ThreadRangeInfo rangeInfo)
         {
-            return (rangeInfo.ByNumber && post.Number >= rangeInfo.Number) || post.IDValue > rangeInfo.ID;
+            return (rangeInfo.ByNumber && post.Number >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.IDValue > rangeInfo.ID);
         }
 
         private bool PostIsBeforeEnd(Experiment3.Post post, IQuest quest, ThreadRangeInfo rangeInfo)
