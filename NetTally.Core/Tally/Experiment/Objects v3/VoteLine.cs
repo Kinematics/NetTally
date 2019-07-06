@@ -13,6 +13,8 @@ namespace NetTally.Experiment3
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
+        public static VoteLine Empty = new VoteLine("", "", "", "", MarkerType.None, 0);
+
         /// <summary>
         /// How many steps deep the prefix indicator places this line at.
         /// </summary>
@@ -28,6 +30,22 @@ namespace NetTally.Experiment3
             MarkerValue = markerValue;
 
             Depth = Prefix.Length;
+        }
+
+        public VoteLine GetPromotedLine(int level = 1)
+        {
+            if (level == 0)
+                return this;
+
+            if (level < 1)
+                level = 1;
+
+            if (level > Depth)
+                level = Depth;
+
+            string prefix = Depth > 0 ? Prefix.Substring(level) : "";
+
+            return new VoteLine(prefix, Marker, Task, Content, MarkerType, MarkerValue);
         }
 
         public override string ToString()

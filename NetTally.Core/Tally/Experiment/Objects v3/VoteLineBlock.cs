@@ -9,12 +9,12 @@ namespace NetTally.Experiment3
 {
     public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>
     {
-        public string Task { get; }
+        public string Task { get; set; }
         public string Marker { get; }
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
-        private List<VoteLine> Lines { get; }
+        public List<VoteLine> Lines { get; }
 
         public VoteLineBlock(IEnumerable<VoteLine> source)
         {
@@ -28,6 +28,16 @@ namespace NetTally.Experiment3
             Marker = firstLine.Marker;
             MarkerType = firstLine.MarkerType;
             MarkerValue = firstLine.MarkerValue;
+        }
+
+        public VoteLineBlock(VoteLine source)
+        {
+            Lines = new List<VoteLine>() { source };
+
+            Task = source.Task;
+            Marker = source.Marker;
+            MarkerType = source.MarkerType;
+            MarkerValue = source.MarkerValue;
         }
 
         public IEnumerator<VoteLine> GetEnumerator()

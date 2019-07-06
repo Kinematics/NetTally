@@ -11,7 +11,7 @@ namespace NetTally.Experiment3
 {
     public static class VoteBlocks
     {
-        public static IEnumerable<VoteLineBlock> GetBlocks(List<VoteLine> lines)
+        public static IEnumerable<VoteLineBlock> GetBlocks(IEnumerable<VoteLine> lines)
         {
             var blocks = lines.GroupAdjacentToPreviousKey(a => a.Depth == 0, a => a.Content, a => a.Content);
 
@@ -87,14 +87,14 @@ namespace NetTally.Experiment3
         // Check for a plan reference, alternate format. "Arkatekt's Plan"
         static readonly Regex altPlanRegex = new Regex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase);
 
-        private enum LineStatus
+        public enum LineStatus
         {
             None,
             Plan,
             BasePlan
         }
 
-        private static (LineStatus status, string name) CheckIfPlan(VoteLine line)
+        public static (LineStatus status, string name) CheckIfPlan(VoteLine line)
         {
             Match m;
             string content = line.Content.RemoveBBCode().DeUrlContent();
