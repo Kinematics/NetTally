@@ -16,9 +16,6 @@ namespace NetTally.Forums
     {
         static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
         {
-            ["forums.sufficientvelocity.com"] = ForumType.XenForo1,
-            ["forums.spacebattles.com"] = ForumType.XenForo1,
-            ["forum.questionablequesting.com"] = ForumType.XenForo1,
         };
 
         /// <summary>
