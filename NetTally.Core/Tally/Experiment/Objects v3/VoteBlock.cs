@@ -97,17 +97,16 @@ namespace NetTally.Experiment3
         public static (LineStatus status, string name) CheckIfPlan(VoteLine line)
         {
             Match m;
-            string content = line.Content.RemoveBBCode().DeUrlContent();
 
-            m = basePlanRegex.Match(content);
+            m = basePlanRegex.Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.BasePlan, m.Groups["planname"].Value.Trim());
 
-            m = anyPlanRegex.Match(content);
+            m = anyPlanRegex.Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
 
-            m = altPlanRegex.Match(content);
+            m = altPlanRegex.Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
 

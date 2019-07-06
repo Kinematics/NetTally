@@ -106,7 +106,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void DeUrl_Url()
         {
-            string content = "[url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url]";
+            string content = "『url=\"https://forum.questionablequesting.com/members/2392/\"』Xryuran『/url』";
             string clean = "Xryuran";
 
             Assert.AreEqual(clean, VoteString.DeUrlContent(content));
@@ -115,7 +115,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void DeUrl_AtUrl()
         {
-            string content = "[url=https://forum.questionablequesting.com/members/2392/]@Xryuran[/url]";
+            string content = "『url=\"https://forum.questionablequesting.com/members/2392/\"』@Xryuran『/url』";
             string clean = "Xryuran";
 
             Assert.AreEqual(clean, VoteString.DeUrlContent(content));
@@ -124,7 +124,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void DeUrl_Image()
         {
-            string content = "[url=http://google.com/image/1.jpg]<Image>[/url]";
+            string content = "『url='http://google.com/image/1.jpg'』<Image>『/url』";
             string clean = "<Image>";
 
             Assert.AreEqual(clean, VoteString.DeUrlContent(content));
@@ -133,7 +133,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void DeUrl_Link()
         {
-            string content = "Vote for [url=http://google.com/myhome.html]me[/url]!";
+            string content = "Vote for 『url='http://google.com/myhome.html'』me『/url』!";
             string clean = "Vote for me!";
 
             Assert.AreEqual(clean, VoteString.DeUrlContent(content));
@@ -530,7 +530,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void GetVotePlanNameTest5()
         {
-            string input = "[x] Plan [url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url]";
+            string input = "[x] Plan 『url='https://forum.questionablequesting.com/members/2392/'』Xryuran『/url』";
             string expected1 = "Xryuran";
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
@@ -542,7 +542,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void GetVotePlanNameTest6()
         {
-            string input = "[x] [url=https://forum.questionablequesting.com/members/2392/]Xryuran[/url].";
+            string input = "[x] 『url='https://forum.questionablequesting.com/members/2392/'』Xryuran『/url』.";
             string expected1 = "Xryuran.";
             string expected2 = "\u25C8Xryuran.";
             string expected3 = "Xryuran";
@@ -558,7 +558,7 @@ namespace NTTests.Voting
         [TestMethod]
         public void GetVotePlanNameTest7()
         {
-            string input = "[x] [url=https://forum.questionablequesting.com/members/2392/]@Xryuran[/url]";
+            string input = "[x] 『url='https://forum.questionablequesting.com/members/2392/'』@Xryuran『/url』";
             string expected1 = "Xryuran";
             string expected2 = "\u25C8Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);

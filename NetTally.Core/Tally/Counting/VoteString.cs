@@ -51,6 +51,9 @@ namespace NetTally.Votes
         // Regex for any closing BBCode tag.
         static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
 
+        static readonly Regex urlBBCodeRegex = new Regex(@"(?<pre>.*?)(『url=[^』]+』)(?<content>.*?)(『/url』)(?<post>.*)", RegexOptions.IgnoreCase);
+        static readonly Regex urlBBCodeRegexAt = new Regex(@"(?<pre>.*?)(『url=[^』]+』)@?(?<content>.*?)(『/url』)(?<post>.*)", RegexOptions.IgnoreCase);
+
         static readonly Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
         #endregion
 
@@ -77,15 +80,29 @@ namespace NetTally.Votes
         {
             string result = contents;
 
-            Match m = linkedReferenceRegex.Match(contents);
+            Match m = urlBBCodeRegexAt.Match(result);
             while (m.Success)
             {
-                // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
-                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
-                string replacement = "$1$3$4";
-                result = Regex.Replace(result, pattern, replacement);
+                // Reformat the content without the 『url』.  It will only find the first instance each loop.
+                result = $"{m.Groups["pre"].Value}{m.Groups["content"].Value}{m.Groups["post"].Value}";
 
-                m = linkedReferenceRegex.Match(result);
+                m = urlBBCodeRegexAt.Match(result);
+            }
+
+            return result.Trim();
+        }
+
+        public static string DeUrlBBCodeContent(this string contents)
+        {
+            string result = contents;
+
+            Match m = urlBBCodeRegex.Match(result);
+            while (m.Success)
+            {
+                // Reformat the content without the 『url』.  It will only find the first instance each loop.
+                result = $"{m.Groups["pre"].Value}{m.Groups["content"].Value}{m.Groups["post"].Value}";
+
+                m = urlBBCodeRegex.Match(result);
             }
 
             return result.Trim();

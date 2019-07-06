@@ -10,6 +10,7 @@ namespace NetTally.Experiment3
         public string Marker { get; }
         public string Task { get; }
         public string Content { get; }
+        public string CleanContent { get; }
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
@@ -30,6 +31,7 @@ namespace NetTally.Experiment3
             MarkerValue = markerValue;
 
             Depth = Prefix.Length;
+            CleanContent = Content.RemoveBBCode().DeUrlBBCodeContent();
         }
 
         public VoteLine GetPromotedLine(int level = 1)
@@ -71,10 +73,7 @@ namespace NetTally.Experiment3
             if (right is null)
                 return 1;
 
-            string cleanLeft = left.Content.RemoveBBCode().DeUrlContent();
-            string cleanRight = right.Content.RemoveBBCode().DeUrlContent();
-
-            if (Agnostic.StringComparer.Equals(cleanLeft, cleanRight))
+            if (Agnostic.StringComparer.Equals(left.CleanContent, right.CleanContent))
             {
                 if (Agnostic.StringComparer.Equals(left.Task, right.Task))
                 {
@@ -87,7 +86,7 @@ namespace NetTally.Experiment3
             }
             else
             {
-                return string.Compare(cleanLeft, cleanRight);
+                return string.Compare(left.CleanContent, right.CleanContent);
             }
         }
 

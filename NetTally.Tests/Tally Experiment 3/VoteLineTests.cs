@@ -134,6 +134,32 @@ namespace NetTally.Tests.Experiment3
             Assert.AreNotEqual(vote1, vote2);
         }
 
+        [TestMethod]
+        public void Compare_BBCode_1()
+        {
+            VoteLine vote1 = new VoteLine("", "X", "", "A normal vote line", MarkerType.Vote, 100);
+            VoteLine vote2 = new VoteLine("", "X", "", "A 『b』normal『/b』 vote line", MarkerType.Vote, 100);
+
+            Assert.AreEqual(vote1, vote2);
+        }
+
+        [TestMethod]
+        public void Compare_BBCode_2()
+        {
+            VoteLine vote1 = new VoteLine("", "X", "", "A normal vote line", MarkerType.Vote, 100);
+            VoteLine vote2 = new VoteLine("", "X", "", "『b』A normal vote line『/b』", MarkerType.Vote, 100);
+
+            Assert.AreEqual(vote1, vote2);
+        }
+
+        [TestMethod]
+        public void Compare_BBCode_3()
+        {
+            VoteLine vote1 = new VoteLine("", "X", "", "A normal vote line", MarkerType.Vote, 100);
+            VoteLine vote2 = new VoteLine("", "X", "", "『b』A 『url='http://example.com/image.jpg'』normal『/url』 vote line『/b』", MarkerType.Vote, 100);
+
+            Assert.AreEqual(vote1, vote2);
+        }
 
 
 
