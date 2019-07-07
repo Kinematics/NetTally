@@ -33,7 +33,7 @@ namespace NetTally.VoteCounting
         HashSet<string> PlanNames { get; }
 
         bool HasRankedVotes { get; }
-        bool HasPlan(string planName);
+        bool HasPlan(string? planName);
         bool HasVote(string vote, VoteType voteType);
         bool HasVoter(string voterName, VoteType voteType);
         bool HasUserEnteredVoter(string voterName, VoteType voteType);
@@ -57,15 +57,19 @@ namespace NetTally.VoteCounting
 
         bool AddReferenceVoter(string voterName, string postID);
         bool HasReferenceVoter(string voterName);
-        string? GetReferenceVoter(string voterName);
+        string? GetReferenceVoterName(string voterName);
         string? GetReferenceVoterPostId(string voterName);
         bool AddFutureReference(Post post);
+        string? GetPlanName(string planName);
+        List<VoteLineBlock> GetVotesBy(string voterName);
 
         Post? GetLastPostByAuthor(string voterName, int maxPostId = 0);
 
         void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, string postID, VoteType voteType);
 
-        HashSet<Experiment3.Post> FutureReferences { get; }
+        HashSet<Post> FutureReferences { get; }
+
+        public Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>> VoteBlockSupporters { get; }
 
         bool HasUndoActions { get; }
         bool Undo();

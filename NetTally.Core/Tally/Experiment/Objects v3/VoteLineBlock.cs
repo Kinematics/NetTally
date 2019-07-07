@@ -13,8 +13,9 @@ namespace NetTally.Experiment3
         public string Marker { get; }
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
+        public IReadOnlyList<VoteLine> Lines { get; }
 
-        public List<VoteLine> Lines { get; }
+        readonly int _hash;
 
         public VoteLineBlock(IEnumerable<VoteLine> source)
         {
@@ -28,6 +29,7 @@ namespace NetTally.Experiment3
             Marker = firstLine.Marker;
             MarkerType = firstLine.MarkerType;
             MarkerValue = firstLine.MarkerValue;
+            _hash = ComputeHash();
         }
 
         public VoteLineBlock(VoteLine source)
@@ -38,6 +40,7 @@ namespace NetTally.Experiment3
             Marker = source.Marker;
             MarkerType = source.MarkerType;
             MarkerValue = source.MarkerValue;
+            _hash = ComputeHash();
         }
 
         public IEnumerator<VoteLine> GetEnumerator()
@@ -72,7 +75,7 @@ namespace NetTally.Experiment3
 
             foreach (var z in zip)
             {
-                if (!Agnostic.StringComparer.Equals(z.a.Content, z.b.Content))
+                if (!Agnostic.StringComparer.Equals(z.a.CleanContent, z.b.CleanContent))
                 {
                     return false;
                 }
@@ -81,16 +84,21 @@ namespace NetTally.Experiment3
             return true;
         }
 
-        public override int GetHashCode()
+        private int ComputeHash()
         {
-            int hash = int.MaxValue;
+            int hash = Lines.First().GetHashCode();
 
-            foreach (var line in Lines)
+            foreach (var line in Lines.Skip(1))
             {
                 hash ^= line.GetHashCode();
             }
 
             return hash;
+        }
+
+        public override int GetHashCode()
+        {
+            return _hash;
         }
 #nullable enable
     }

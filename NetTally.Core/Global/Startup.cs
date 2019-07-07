@@ -40,6 +40,7 @@ namespace NetTally
             services.AddTransient<ITextResultsProvider, TallyOutput>();
 
             services.AddSingleton<Experiment3.VoteConstructor>();
+            services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();
         }
     }
 }

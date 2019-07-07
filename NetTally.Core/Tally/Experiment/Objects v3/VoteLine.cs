@@ -4,6 +4,9 @@ using NetTally.Votes;
 
 namespace NetTally.Experiment3
 {
+    /// <summary>
+    /// Immutable class storing data on a vote line.
+    /// </summary>
     public class VoteLine : IComparable, IComparable<VoteLine>, IEquatable<VoteLine>
     {
         public string Prefix { get; }
@@ -16,13 +19,25 @@ namespace NetTally.Experiment3
 
         private int _hash;
 
-        public static VoteLine Empty = new VoteLine("", "", "", "", MarkerType.None, 0);
-
         /// <summary>
         /// How many steps deep the prefix indicator places this line at.
         /// </summary>
         public int Depth { get; }
 
+        /// <summary>
+        /// Default empty vote line.
+        /// </summary>
+        public static VoteLine Empty = new VoteLine("", "", "", "", MarkerType.None, 0);
+
+        /// <summary>
+        /// Constructor for the <see cref="VoteLine"/> class.
+        /// </summary>
+        /// <param name="prefix">Optional indention prefix for the vote line.</param>
+        /// <param name="marker">The vote marker used for the vote line.</param>
+        /// <param name="task">The task specified for the vote line.</param>
+        /// <param name="content">The content of the vote line.</param>
+        /// <param name="markerType">The classification of the marker used for the vote.</param>
+        /// <param name="markerValue">The value of the marker used for the vote.</param>
         public VoteLine(string prefix, string marker, string task, string content, MarkerType markerType, int markerValue)
         {
             Prefix = prefix;
@@ -37,6 +52,13 @@ namespace NetTally.Experiment3
             _hash = Agnostic.InsensitiveComparer.GetHashCode(CleanContent);
         }
 
+        /// <summary>
+        /// Return a new version of the current instance, with a specified number of
+        /// indention levels removed.  Default is 1.
+        /// </summary>
+        /// <param name="level">The number of indention levels to remove.</param>
+        /// <returns>Returns a new vote line at the new indention level, or
+        /// the current vote line if nothing was changed.</returns>
         public VoteLine GetPromotedLine(int level = 1)
         {
             if (level == 0)
@@ -53,6 +75,15 @@ namespace NetTally.Experiment3
             return new VoteLine(prefix, Marker, Task, Content, MarkerType, MarkerValue);
         }
 
+        public VoteLine WithTask(string task)
+        {
+            return new VoteLine(Prefix, Marker, task, Content, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
+        /// Formats the current object as a string.
+        /// </summary>
+        /// <returns>Returns a string representing the current object.</returns>
         public override string ToString()
         {
             string marker = Marker == "☒" || Marker == "☑" ? Marker : $"[{Marker}]";
@@ -60,6 +91,11 @@ namespace NetTally.Experiment3
             return $"{Prefix}{marker}{task} {Content}";
         }
 
+        /// <summary>
+        /// Formats the current object as a simplified string, without components that might
+        /// be considered equivalent or irrelevant to the comparison.
+        /// </summary>
+        /// <returns>Returns a string representing the current object.</returns>
         public string ToComparableString()
         {
             string task = Task.Length > 0 ? $"[{Task}]" : "";

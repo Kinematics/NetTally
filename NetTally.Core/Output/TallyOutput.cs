@@ -41,15 +41,6 @@ namespace NetTally.Output
         #endregion
 
         #region Public Interface
-
-        /// <summary>
-        /// Provide a vote counter to use when compiling the output.
-        /// </summary>
-        /// <param name="voteCounter">The vote counter to use.</param>
-        public void UsingVoteCounter(IVoteCounter voteCounter)
-        {
-        }
-
         /// <summary>
         /// Public function to generate the full output for the tally.
         /// </summary>

@@ -266,7 +266,7 @@ namespace NetTally.VoteCounting
             string? proxyName = null;
 
 
-            // Label ^ or 'pin' means it must be a user reference.
+            // Label ^ or '↑' means it must be a user reference.
             // Label 'plan' means it might be user or plan reference.
 
             if (referenceNames[ReferenceType.Label].Contains("plan"))
@@ -339,7 +339,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="planName">The name of the plan to check for.</param>
         /// <returns>Returns whether the provided plan name exists in the current PlanNames hash set.</returns>
-        public bool HasPlan(string planName)
+        public bool HasPlan(string? planName)
         {
             if (string.IsNullOrEmpty(planName))
                 return false;
@@ -741,7 +741,7 @@ namespace NetTally.VoteCounting
         }
 
 
-        public bool Delete(string vote, VoteType voteType) => Delete(vote, voteType, false);
+        public bool Delete(string vote, VoteType voteType) => Delete(vote, voteType, suppressUndo: false);
 
         /// <summary>
         /// Delete a vote from the vote list specified.
@@ -1144,7 +1144,7 @@ namespace NetTally.VoteCounting
             return ReferenceVoters.Add(voterName);
         }
 
-        public bool HasReferenceVoter(string voterName)
+        public bool HasReferenceVoter(string? voterName)
         {
             if (voterName is null)
                 return false;
@@ -1152,12 +1152,28 @@ namespace NetTally.VoteCounting
             return ReferenceVoters.Contains(voterName, Agnostic.StringComparer);
         }
 
-        public string? GetReferenceVoter(string voterName)
+        /// <summary>
+        /// Get canonical version of the provided voter name.
+        /// </summary>
+        /// <param name="voterName"></param>
+        /// <returns></returns>
+        public string? GetReferenceVoterName(string voterName)
         {
             if (HasReferenceVoter(voterName))
             {
                 string properVoterName = ReferenceVoters.FirstOrDefault(v => Agnostic.StringComparer.Equals(v, voterName));
                 return properVoterName;
+            }
+
+            return null;
+        }
+
+        public string? GetPlanName(string planName)
+        {
+            if (HasPlan(planName))
+            {
+                string properPlanName = PlanNames.FirstOrDefault(v => Agnostic.InsensitiveComparer.Equals(v, planName));
+                return properPlanName;
             }
 
             return null;
@@ -1184,6 +1200,11 @@ namespace NetTally.VoteCounting
                 .OrderBy(p => p.IDValue).LastOrDefault();
 
             return lastAuthorPost;
+        }
+
+        public List<VoteLineBlock> GetVotesBy(string voterName)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -1225,6 +1246,7 @@ namespace NetTally.VoteCounting
 
         public Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>> VoteBlockSupporters { get; private set; } 
             = new Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>>();
+
 
         /// <summary>
         /// Adds an individual vote.

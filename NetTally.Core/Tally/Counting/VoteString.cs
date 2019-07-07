@@ -22,7 +22,7 @@ namespace NetTally.Votes
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|↑|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
@@ -639,7 +639,7 @@ namespace NetTally.Votes
         /// <returns>Returns possible plan names from the vote line.</returns>
         public static Dictionary<ReferenceType, List<string>> GetVoteReferenceNames(string voteLine)
         {
-            string contents = GetVoteContent(voteLine);
+            string contents = GetVoteContent(voteLine).RemoveBBCode().DeUrlBBCodeContent();
 
             return GetVoteReferenceNamesFromContent(contents);
         }
@@ -656,9 +656,6 @@ namespace NetTally.Votes
 
             if (string.IsNullOrEmpty(contents))
                 return results;
-
-            contents = RemoveBBCode(contents);
-            contents = DeUrlContent(contents);
 
             Match m = referenceNameRegex.Match(contents);
             if (m.Success)
@@ -679,19 +676,6 @@ namespace NetTally.Votes
                         // [x] ^Kinematics => Kinematics
                         results[ReferenceType.Any].Add(name);
                         results[ReferenceType.Voter].Add(name);
-                    }
-                    // "Pin" can be used for user proxies, but also need to allow the
-                    // entire contents to be stored as a plan name.
-                    else if (label == "pin")
-                    {
-                        // [x] pin Kinematics => Kinematics
-                        results[ReferenceType.Any].Add(name);
-                        results[ReferenceType.Voter].Add(name);
-
-                        // [x] Pin the tail on the donkey => ◈Pin the tail on the donkey
-                        string pContent = contents.MakePlanName();
-                        results[ReferenceType.Any].Add(pContent);
-                        results[ReferenceType.Plan].Add(pContent);
                     }
                     else
                     {
