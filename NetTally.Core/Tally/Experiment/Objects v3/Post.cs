@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
-using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 
@@ -41,7 +39,7 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Any vote lines found in the post's text.
         /// </summary>
-        public List<VoteLine> VoteLines { get; } = new List<VoteLine>();
+        public IReadOnlyList<VoteLine> VoteLines { get; }
         /// <summary>
         /// Vote lines with base/proposed plans removed.
         /// </summary>
@@ -63,30 +61,40 @@ namespace NetTally.Experiment3
         /// <param name="number">The thread post number.</param>
         public Post(string author, string postId, string text, int number = 0, IQuest? quest = null)
         {
-            Text = text ?? throw new ArgumentNullException(nameof(text));
             Author = author ?? throw new ArgumentNullException(nameof(author));
             ID = postId ?? throw new ArgumentNullException(nameof(postId));
+            Text = text ?? throw new ArgumentNullException(nameof(text));
             Number = number;
 
             int.TryParse(postId, out int idnum);
             IDValue = idnum;
 
-            AnalyzePost();
+            VoteLines = GetPostAnalysisResults(Text);
         }
 
         /// <summary>
-        /// Analyze the text of the post to determine if it contains vote lines.
-        /// If so, mark it as having a vote.
+        /// Get the list of all found vote lines in the post's text content.
+        /// If no normal votes are found, also check if this is a nomination post.
         /// </summary>
-        private void AnalyzePost()
+        /// <param name="text">Text of the post.</param>
+        /// <returns>Returns a readonly list of any vote lines found.</returns>
+        private IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
         {
+            List<VoteLine> results = new List<VoteLine>();
+
             if (!IsTallyPost())
             {
-                var postTextLines = Text.GetStringLines();
+                var postTextLines = text.GetStringLines();
 
-                VoteLines.Clear();
-                VoteLines.AddRange(GetVoteLines(postTextLines));
+                results.AddRange(GetVoteLines(postTextLines));
+
+                if (results.Count == 0)
+                {
+                    results.AddRange(GetNominationVoteLines(postTextLines));
+                }
             }
+
+            return results;
         }
 
         /// <summary>
@@ -98,7 +106,7 @@ namespace NetTally.Experiment3
         {
             // If the post contains the string "#####" at the start of the line for part of its text,
             // it's a tally post.
-            string cleanText = VoteString.RemoveBBCode(Text);
+            string cleanText = VoteLineParser.StripBBCode(Text);
             return (tallyRegex.Matches(cleanText).Count > 0);
         }
 
@@ -117,6 +125,36 @@ namespace NetTally.Experiment3
                     yield return voteLine;
             }
         }
+
+        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
+        /// <summary>
+        /// Examine the post to see if it qualifies as a nomination post.
+        /// If so, return the nomination lines formatted as votes.
+        /// </summary>
+        /// <param name="postTextLines">The set of lines from the post.</param>
+        /// <returns>Returns the list of nomination votes, or an empty list.</returns>
+        private List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
+        {
+            List<VoteLine> results = new List<VoteLine>();
+
+            foreach (var line in postTextLines)
+            {
+                Match m = nominationLineRegex.Match(line);
+                if (m.Success)
+                {
+                    VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
+                    results.Add(voteLine);
+                }
+                else
+                {
+                    results.Clear();
+                    return results;
+                }
+            }
+
+            return results;
+        }
+
 
 #nullable disable
         public static int Compare(Post left, Post right)
