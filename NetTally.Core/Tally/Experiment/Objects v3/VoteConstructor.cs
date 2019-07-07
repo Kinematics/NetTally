@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;
@@ -12,7 +10,7 @@ using NetTally.Votes;
 namespace NetTally.Experiment3
 {
     /// <summary>
-    /// Class that can handle constructing votes (in various manners) from the base text of a post.
+    /// Class that can handle constructing votes from the base text of a post.
     /// </summary>
     public class VoteConstructor
     {
@@ -36,7 +34,7 @@ namespace NetTally.Experiment3
         /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
         /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
         /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
-        public Dictionary<string, VoteLineBlock> PreprocessGetPlans(Post post, IQuest quest,
+        public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
             bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)
         {
             Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>();
@@ -58,15 +56,17 @@ namespace NetTally.Experiment3
             return plans;
         }
 
-        public List<VoteLineBlock>? ProcessPost(Post post, IQuest quest)
+        /// <summary>
+        /// Get votes from the provided post during the processing phase.
+        /// </summary>
+        /// <param name="post">The post being processed.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <returns>Returns a list of all vote partitions from this post.
+        /// May return null if nothing was processed.</returns>
+        public List<VoteLineBlock>? ProcessPostGetVotes(Post post, IQuest quest)
         {
-            // * Extract any base plan definitions.  They are explicitly not being voted for.
-            // Be able to work out proxy votes (users and plans). These may refer to future votes in the analysis chain.
-            // Split the plan up based on the partitioning method. 
-            // Deal with pinned references. ↑^
-            // Deal with different marker classes.
-
-            // If the vote has content, process it.
+            // If the vote has content, process it. Base plans have already been
+            // extracted from the Working Vote lines.
             if (post.WorkingVoteLines.Count > 0)
             {
                 // If it has a reference to a voter that has not been processed yet,
@@ -97,33 +97,6 @@ namespace NetTally.Experiment3
             post.Processed = true;
             return null;
         }
-
-        /// <summary>
-        /// Allows partitioning a provided vote (already broken into a list of lines) using the
-        /// specified partition mode.
-        /// </summary>
-        /// <param name="voteLines">The vote lines.</param>
-        /// <param name="quest">The quest, for filter parameters.</param>
-        /// <param name="partitionMode">The partition mode to use.</param>
-        /// <returns>Returns the partitioned vote as a list of strings.</returns>
-        public List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
-        {
-            if (voteLines == null)
-                throw new ArgumentNullException(nameof(voteLines));
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-
-            if (voteLines.Count == 0)
-                return new List<string>();
-
-            // Get the list of all vote partitions, built according to current preferences.
-            // One of: By line, By block, or By post (ie: entire vote)
-            List<string> votePartitions = GetVotePartitions(voteLines, partitionMode, VoteType.Vote, "This is a fake voter name~~~~~~~");
-
-            var filteredPartitions = FilterVotesByTask(votePartitions, quest);
-
-            return filteredPartitions;
-        }
         #endregion
 
         #region Utility functions for processing votes.
@@ -151,6 +124,7 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Determine whether the task of the provided vote line block falls within the
         /// filter range of allowed/desired tasks.
+        /// If task filters are active, the block must have a task that matches what's allowed.
         /// </summary>
         /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
         /// <param name="quest">The quest being tallied.</param>
@@ -201,11 +175,7 @@ namespace NetTally.Experiment3
 
                 if (refVoter != null && refVoter != post.Author)
                 {
-                    var refVoterPosts = voteCounter.PostsList.Where(p => p.Author == refVoter).ToList();
-
-                    // If ref voter has no posts (how did we get here?), it can't be a future reference.
-                    if (!refVoterPosts.Any())
-                        continue;
+                    var refVoterPosts = voteCounter.PostsList.Where(p => p.Author == refVoter);
 
                     // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
                     // then this can't be treated as a future reference.
@@ -230,33 +200,32 @@ namespace NetTally.Experiment3
         }
 
         /// <summary>
-        /// Filters the votes by task.
+        /// Given a plan block, if the plan is a base plan, rename it as just a "Plan".
         /// </summary>
-        /// <param name="lines">The lines.</param>
-        /// <param name="taskFilter">The task filter.</param>
-        /// <returns>Returns the votes after filtering with the task filter.</returns>
-        private static List<string> FilterVotesByTask(List<string> lines, IQuest quest)
+        /// <param name="plan">The plan to examine.</param>
+        /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
+        public KeyValuePair<string, VoteLineBlock> NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
         {
-            if (!quest.UseCustomTaskFilters)
-                return lines;
+            VoteLine firstLine = plan.Value.First();
 
-            List<string> results = new List<string>();
+            var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
-            foreach (var line in lines)
+            if (planType == VoteBlocks.LineStatus.BasePlan)
             {
-                string firstLine = line.GetFirstLine();
-                string task = VoteString.GetVoteTask(firstLine);
-                bool check = quest.TaskFilter?.Match(task) ?? false;
-                if (check)
-                    results.Add(line);
+                string content = $"Plan: {planName}";
+                VoteLine revisedFirstLine = new VoteLine(firstLine.Prefix, firstLine.Marker, firstLine.Task, content, firstLine.MarkerType, firstLine.MarkerValue);
+
+                List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
+                voteLines.AddRange(plan.Value.Skip(1));
+
+                return new KeyValuePair<string, VoteLineBlock>(plan.Key, new VoteLineBlock(voteLines));
             }
 
-            return results;
+            return plan;
         }
-
         #endregion
 
-
+        #region Partitioning
         /// <summary>
         /// Partition a plan after initial preprocessing.
         /// </summary>
@@ -399,6 +368,12 @@ namespace NetTally.Experiment3
             return new List<VoteLineBlock>() { workingBlock };
         }
 
+        /// <summary>
+        /// Generate the vote partitions for a post, using line-level partitioning.
+        /// Incorporates any proxy references.
+        /// </summary>
+        /// <param name="post">The post with the vote to be partitioned.</param>
+        /// <returns>Returns a list of vote blocks.</returns>
         private List<VoteLineBlock> PartitionPostByLine(Post post)
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
@@ -418,6 +393,13 @@ namespace NetTally.Experiment3
             return working;
         }
 
+        /// <summary>
+        /// Generate the vote partitions for a post, using line-level partitioning.
+        /// Incorporates any proxy references.
+        /// This cascades tasks from higher level lines to lower level ones when partitioning.
+        /// </summary>
+        /// <param name="post">The post with the vote to be partitioned.</param>
+        /// <returns>Returns a list of vote blocks.</returns>
         private List<VoteLineBlock> PartitionPostByLineTask(Post post)
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
@@ -487,6 +469,12 @@ namespace NetTally.Experiment3
             return working;
         }
 
+        /// <summary>
+        /// Generate the vote partitions for a post, using block-level partitioning.
+        /// Incorporates any proxy references.
+        /// </summary>
+        /// <param name="post">The post with the vote to be partitioned.</param>
+        /// <returns>Returns a list of vote blocks.</returns>
         private List<VoteLineBlock> PartitionPostByBlock(Post post)
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
@@ -510,6 +498,16 @@ namespace NetTally.Experiment3
             return working;
         }
 
+        /// <summary>
+        /// Examines a vote line to determine whether it's a proxy reference.
+        /// If so, it returns information about the proxy, including 
+        /// </summary>
+        /// <param name="voteLine">The vote line to check for proxy references.</param>
+        /// <param name="postAuthor">The author of the post.</param>
+        /// <param name="proxyName">The determined name of the proxy reference.</param>
+        /// <param name="voteType">The determined type of proxy reference.</param>
+        /// <param name="pinned">Whether the proxy reference was pinned.</param>
+        /// <returns>Returns true if it found a valid proxy reference.</returns>
         private bool IsProxyReference(VoteLine voteLine, string postAuthor, out string proxyName, out VoteType voteType, out bool pinned)
         {
             // Could be a plan, with "Plan X" in the vote line
@@ -613,16 +611,77 @@ namespace NetTally.Experiment3
             return false;
         }
 
-        private IEnumerable<VoteLineBlock> GetProxyBlocks(string proxyName, VoteType voteType, bool pinned, int postId)
+        /// <summary>
+        /// Gets the vote blocks associated with a provided proxy name.
+        /// </summary>
+        /// <param name="proxyName">The name of the proxy.</param>
+        /// <param name="voteType">The type of vote being requested.</param>
+        /// <param name="pinned">Whether the proxy vote was pinned.</param>
+        /// <param name="postId">The post ID, to provide a reference for a pinned proxy vote.</param>
+        /// <returns>Returns a list of vote blocks associated with the proxy.</returns>
+        private List<VoteLineBlock> GetProxyBlocks(string proxyName, VoteType voteType, bool pinned, int postId)
         {
             var currentVoteBlocks = voteCounter.GetVotesBy(proxyName);
             return currentVoteBlocks;
         }
+        #endregion
 
 
 
+        #region Partitioning handling - Obsolete
+        /// <summary>
+        /// Allows partitioning a provided vote (already broken into a list of lines) using the
+        /// specified partition mode.
+        /// </summary>
+        /// <param name="voteLines">The vote lines.</param>
+        /// <param name="quest">The quest, for filter parameters.</param>
+        /// <param name="partitionMode">The partition mode to use.</param>
+        /// <returns>Returns the partitioned vote as a list of strings.</returns>
+        public List<string> PartitionVoteStrings(List<string> voteLines, IQuest quest, PartitionMode partitionMode)
+        {
+            if (voteLines == null)
+                throw new ArgumentNullException(nameof(voteLines));
+            if (quest == null)
+                throw new ArgumentNullException(nameof(quest));
 
-        #region Partitioning handling
+            if (voteLines.Count == 0)
+                return new List<string>();
+
+            // Get the list of all vote partitions, built according to current preferences.
+            // One of: By line, By block, or By post (ie: entire vote)
+            List<string> votePartitions = GetVotePartitions(voteLines, partitionMode, VoteType.Vote, "This is a fake voter name~~~~~~~");
+
+            var filteredPartitions = FilterVotesByTask(votePartitions, quest);
+
+            return filteredPartitions;
+        }
+
+        /// <summary>
+        /// Filters the votes by task.
+        /// </summary>
+        /// <param name="lines">The lines.</param>
+        /// <param name="taskFilter">The task filter.</param>
+        /// <returns>Returns the votes after filtering with the task filter.</returns>
+        private static List<string> FilterVotesByTask(List<string> lines, IQuest quest)
+        {
+            if (!quest.UseCustomTaskFilters)
+                return lines;
+
+            List<string> results = new List<string>();
+
+            foreach (var line in lines)
+            {
+                string firstLine = line.GetFirstLine();
+                string task = VoteString.GetVoteTask(firstLine);
+                bool check = quest.TaskFilter?.Match(task) ?? false;
+                if (check)
+                    results.Add(line);
+            }
+
+            return results;
+        }
+
+
         /// <summary>
         /// Gets the partitions of a vote based on partition mode and vote type.
         /// </summary>
@@ -1000,9 +1059,7 @@ namespace NetTally.Experiment3
 
             return results;
         }
-        #endregion
 
-        #region Functions dealing with plan formatting.
         /// <summary>
         /// If all sub-lines of a provided group of lines are indented (have a prefix),
         /// then 'promote' them up a tier (remove one level of the prefix) while discarding
@@ -1025,33 +1082,6 @@ namespace NetTally.Experiment3
 
             return remainder;
         }
-
-        /// <summary>
-        /// Given a plan block, if the plan is a base plan, rename it as just a "Plan".
-        /// </summary>
-        /// <param name="plan">The plan to examine.</param>
-        /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-        public KeyValuePair<string, VoteLineBlock> NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
-        {
-            VoteLine firstLine = plan.Value.First();
-
-            var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
-
-            if (planType == VoteBlocks.LineStatus.BasePlan)
-            {
-                string content = $"Plan: {planName}";
-                VoteLine revisedFirstLine = new VoteLine(firstLine.Prefix, firstLine.Marker, firstLine.Task, content, firstLine.MarkerType, firstLine.MarkerValue);
-
-                List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
-                voteLines.AddRange(plan.Value.Skip(1));
-
-                return new KeyValuePair<string, VoteLineBlock>(plan.Key, new VoteLineBlock(voteLines));
-            }
-
-            return plan;
-        }
-
-
         #endregion
     }
 }

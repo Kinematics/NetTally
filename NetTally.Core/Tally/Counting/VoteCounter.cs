@@ -792,6 +792,7 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
+        /// TODO: Move this into the VoteConstructor class.
         /// Partitions the child components of a vote into separate vote entries, passing
         /// the voters into those child entries and removing the original.
         /// </summary>
@@ -1204,7 +1205,8 @@ namespace NetTally.VoteCounting
 
         public List<VoteLineBlock> GetVotesBy(string voterName)
         {
-            throw new NotImplementedException();
+            var voteInstances = VoteBlockSupporters.Values.SelectMany(a => a[voterName]).ToList();
+            return voteInstances;
         }
 
         /// <summary>

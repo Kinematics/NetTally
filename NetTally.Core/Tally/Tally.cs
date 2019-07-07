@@ -6,12 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.CustomEventArgs;
+using NetTally.Experiment3;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.Votes;
-using NetTally.Experiment3;
-using NetTally.Utility;
 
 namespace NetTally.VoteCounting
 {
@@ -21,7 +20,7 @@ namespace NetTally.VoteCounting
     /// </summary>
     public partial class Tally : INotifyPropertyChanged, IDisposable
     {
-        #region Local State
+        #region Construction
         // Disposal
         bool _disposed;
 
@@ -38,9 +37,7 @@ namespace NetTally.VoteCounting
 
         // Tracking cancellations
         readonly List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
-        #endregion
 
-        #region Construction
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
             IVoteCounter counter, IGeneralOutputOptions options)
         {
@@ -82,7 +79,7 @@ namespace NetTally.VoteCounting
 
         #region Event monitoring
         /// <summary>
-        /// Keep watch for any status messasges from the page provider, and add them
+        /// Keep watch for any status messasges from the forum reader, and add them
         /// to the TallyResults string so that they can be displayed in the UI.
         /// </summary>
         /// <param name="sender"></param>
@@ -368,15 +365,14 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-        #region From VoteCounter
-
+        #region Handle running the actual tally
         /// <summary>
         /// Run the tally using the provided posts, for the selected quest.
         /// </summary>
         /// <param name="posts">The posts to be tallied.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="token">Cancellation token.</param>
-        public async Task TallyPosts(IEnumerable<Experiment3.Post> posts, IQuest quest, CancellationToken token)
+        public async Task TallyPosts(IEnumerable<Post> posts, IQuest quest, CancellationToken token)
         {
             voteCounter.Quest = quest;
             voteCounter.PostsList.Clear();
@@ -404,7 +400,7 @@ namespace NetTally.VoteCounting
                 if (voteCounter.PostsList == null || voteCounter.PostsList.Count == 0)
                     return;
 
-                await PreprocessVotes(token).ConfigureAwait(false);
+                await PreprocessPosts(token).ConfigureAwait(false);
                 await ProcessPosts(token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
@@ -419,12 +415,14 @@ namespace NetTally.VoteCounting
             voteCounter.OrderedTaskList.AddRange(voteCounter.KnownTasks);
             OnPropertyChanged("Tasks");
         }
+        #endregion
 
+        #region Preprocessing
         /// <summary>
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        private async Task PreprocessVotes(CancellationToken token)
+        private async Task PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
                 return;
@@ -447,60 +445,16 @@ namespace NetTally.VoteCounting
             await Task.FromResult(0);
         }
 
+
         /// <summary>
-        /// The second half of tallying the posts involves cycling through for
-        /// as long as future references need to be handled.
+        /// Run the logic for the sequence of processing phases for plan
+        /// examination and extraction.
         /// </summary>
-        private async Task ProcessPosts(CancellationToken token)
-        {
-            if (voteCounter.Quest is null)
-                throw new InvalidOperationException("Quest is null.");
-
-
-            var unprocessed = voteCounter.PostsList;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                token.ThrowIfCancellationRequested();
-
-                bool processedAny = false;
-
-                foreach (var post in unprocessed)
-                {
-                    var filteredResults = voteConstructor.ProcessPost(post, voteCounter.Quest);
-
-                    if (post.Processed)
-                        processedAny = true;
-
-                    if (filteredResults != null)
-                    {
-                        // Add those to the vote counter.
-                        voteCounter.AddVotes(filteredResults, post.Author, post.ID, VoteType.Vote);
-                    }
-                }
-
-                if (processedAny)
-                {
-                    // As long as some got processed, remove those from the unprocessed list
-                    // and let the loop run again.
-                    unprocessed = unprocessed.Where(p => !p.Processed).ToList();
-                }
-                else
-                {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var post in unprocessed)
-                    {
-                        post.ForceProcess = true;
-                    }
-                }
-            }
-
-            await Task.FromResult(0);
-        }
-
-
+        /// <param name="posts">The posts being examined for plans.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="planProcesses">The list of functions to run on the posts.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
         private Dictionary<string, IEnumerable<VoteLine>> RunPlanPreprocessing(List<Post> posts, IQuest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
@@ -513,16 +467,19 @@ namespace NetTally.VoteCounting
 
                 foreach (var post in posts)
                 {
-                    var plans = voteConstructor.PreprocessGetPlans(post, quest, asBlocks, isPlanFunction);
+                    var plans = voteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
 
                     foreach (var plan in plans)
                     {
+                        // Convert "Base Plan" to "Plan" before saving.
                         var normalizedPlan = voteConstructor.NormalizePlan(plan);
 
                         bool added = voteCounter.AddReferencePlan(normalizedPlan.Key, normalizedPlan.Value, post.ID);
 
                         if (added)
                         {
+                            // Each new plan that gets added also needs to be run through partitioning,
+                            // and have those results added as votes.
                             var planPartitions = voteConstructor.PartitionPlan(normalizedPlan.Value, quest.PartitionMode);
                             voteCounter.AddVotes(planPartitions, normalizedPlan.Key, post.ID, VoteType.Plan);
 
@@ -623,6 +580,61 @@ namespace NetTally.VoteCounting
                 post.WorkingVoteLines.Clear();
                 post.WorkingVoteLines.AddRange(tempVote);
             }
+        }
+        #endregion
+
+        #region Processing
+        /// <summary>
+        /// The second half of tallying the posts involves cycling through for
+        /// as long as future references need to be handled.
+        /// </summary>
+        private async Task ProcessPosts(CancellationToken token)
+        {
+            if (voteCounter.Quest is null)
+                throw new InvalidOperationException("Quest is null.");
+
+
+            var unprocessed = voteCounter.PostsList;
+
+            // Loop as long as there are any more to process.
+            while (unprocessed.Any())
+            {
+                token.ThrowIfCancellationRequested();
+
+                bool processedAny = false;
+
+                foreach (var post in unprocessed)
+                {
+                    var filteredResults = voteConstructor.ProcessPostGetVotes(post, voteCounter.Quest);
+
+                    if (post.Processed)
+                        processedAny = true;
+
+                    if (filteredResults != null)
+                    {
+                        // Add those to the vote counter.
+                        voteCounter.AddVotes(filteredResults, post.Author, post.ID, VoteType.Vote);
+                    }
+                }
+
+                if (processedAny)
+                {
+                    // As long as some got processed, remove those from the unprocessed list
+                    // and let the loop run again.
+                    unprocessed = unprocessed.Where(p => !p.Processed).ToList();
+                }
+                else
+                {
+                    // If none got processed (and there must be at least some waiting on processing),
+                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                    foreach (var post in unprocessed)
+                    {
+                        post.ForceProcess = true;
+                    }
+                }
+            }
+
+            await Task.FromResult(0);
         }
         #endregion
     }
