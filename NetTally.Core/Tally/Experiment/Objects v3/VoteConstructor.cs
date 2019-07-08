@@ -105,9 +105,9 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="plan">The plan to examine.</param>
         /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-        public (string name, VoteLineBlock contents) NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
+        public (string name, VoteLineBlock contents) NormalizePlan(string keyName, VoteLineBlock keyContents)
         {
-            VoteLine firstLine = plan.Value.First();
+            VoteLine firstLine = keyContents.First();
 
             var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
@@ -117,12 +117,12 @@ namespace NetTally.Experiment3
                 VoteLine revisedFirstLine = new VoteLine(firstLine.Prefix, firstLine.Marker, firstLine.Task, content, firstLine.MarkerType, firstLine.MarkerValue);
 
                 List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
-                voteLines.AddRange(plan.Value.Skip(1));
+                voteLines.AddRange(keyContents.Skip(1));
 
                 return (planName, new VoteLineBlock(voteLines));
             }
 
-            return (plan.Key, plan.Value);
+            return (keyName, keyContents);
         }
 
         /// <summary>
@@ -133,85 +133,7 @@ namespace NetTally.Experiment3
         /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
         public List<VoteLineBlock> PartitionPlan(VoteLineBlock block, PartitionMode partitionMode)
         {
-            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
-
-            // If we're not partitioning, we have no work to do.
-            if (partitionMode == PartitionMode.None)
-            {
-                partitions.Add(block);
-                return partitions;
-            }
-
-            // Single line plans don't need extra handling.
-            if (block.Lines.Count == 1)
-            {
-                partitions.Add(block);
-                return partitions;
-            }
-
-            // Implicit plans carry some assumptions that don't require additional work.
-            if (VoteBlocks.IsBlockAnImplicitPlan(block).isPlan)
-            {
-                // ByLine only needs to skip the first line, and take the rest as-is.
-                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
-                {
-                    foreach (var line in block.Skip(1))
-                    {
-                        partitions.Add(new VoteLineBlock(line));
-                    }
-
-                    return partitions;
-                }
-                else if (partitionMode == PartitionMode.ByBlock || partitionMode == PartitionMode.ByBlockAll)
-                {
-                    return VoteBlocks.GetBlocks(block.Skip(1)).ToList();
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
-                }
-            }
-            else
-            {
-                // Everything else is an Explicit plan.
-
-                // ByLine only needs to skip the first line, and take the rest after promoting one indent level.
-                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
-                {
-                    foreach (var line in block.Skip(1))
-                    {
-                        var pLine = line.GetPromotedLine();
-                        partitions.Add(new VoteLineBlock(pLine));
-                    }
-
-                    return partitions;
-                }
-                else if (partitionMode == PartitionMode.ByBlock)
-                {
-                    // Explicit plans are themselves blocks, so don't need modification.
-                    partitions.Add(block);
-                    return partitions;
-                }
-                else if (partitionMode == PartitionMode.ByBlockAll)
-                {
-                    // Visual Studio crashes whenever I try to use the Min() LINQ function.
-
-                    int minDepth = int.MaxValue;
-                    foreach (var line in block.Skip(1))
-                    {
-                        if (line.Depth < minDepth)
-                            minDepth = line.Depth;
-                    }
-
-                    // Maybe: Apply main line task to sub blocks.
-
-                    return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
-                }
-            }
+            return Partition(block, partitionMode, asPlan: true);
         }
 
         /// <summary>
@@ -220,12 +142,10 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="vote">The vote to partition.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        public bool PartitionChildren(VoteLineBlock vote)
+        public List<VoteLineBlock> PartitionChildren(VoteLineBlock vote)
         {
-            // Break vote block into child blocks
-            var parts = PartitionPlan(vote, PartitionMode.ByBlockAll);
-
-            return voteCounter.Split(vote, parts);
+            // Break vote block into child blocks and return them.
+            return Partition(vote, PartitionMode.ByBlockAll);
         }
         #endregion
 
@@ -331,6 +251,102 @@ namespace NetTally.Experiment3
         #endregion
 
         #region Partitioning utility functions for partitioning posts
+        /// <summary>
+        /// Run partitioning on a vote block, without consideration for proxy votes.
+        /// Will not cascade tasks.
+        /// </summary>
+        /// <param name="block">The block to partition.</param>
+        /// <param name="partitionMode">The partitioning mode.</param>
+        /// <returns></returns>
+        private List<VoteLineBlock> Partition(VoteLineBlock block, PartitionMode partitionMode, bool asPlan = false)
+        {
+            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
+
+            // If we're not partitioning, we have no work to do.
+            if (partitionMode == PartitionMode.None)
+            {
+                partitions.Add(block);
+                return partitions;
+            }
+
+            // Single line blocks don't need extra handling.
+            if (block.Lines.Count == 1)
+            {
+                partitions.Add(block);
+                return partitions;
+            }
+
+            // A content block is the same as an explicit plan.
+            if (VoteBlocks.IsThisAContentBlock(block))
+            {
+                // ByLine only needs to skip the first line, and take the rest after promoting one indent level.
+                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+                {
+                    int minDepth = int.MaxValue;
+                    foreach (var line in block.Skip(1))
+                    {
+                        if (line.Depth < minDepth)
+                            minDepth = line.Depth;
+                    }
+
+                    foreach (var line in block.Skip(1))
+                    {
+                        var pLine = line.GetPromotedLine(minDepth);
+                        partitions.Add(new VoteLineBlock(pLine));
+                    }
+
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlock)
+                {
+                    // A content block is already partitioned by block
+                    partitions.Add(block);
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlockAll)
+                {
+                    // Visual Studio crashes whenever I try to use the Min() LINQ function.
+
+                    int minDepth = int.MaxValue;
+                    foreach (var line in block.Skip(1))
+                    {
+                        if (line.Depth < minDepth)
+                            minDepth = line.Depth;
+                    }
+
+                    // Maybe: Apply main task to sub blocks.
+
+                    return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                }
+            }
+            // A non-content block is anything else, like an implicit plan.
+            else
+            {
+                // ByLine is simple.
+                if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+                {
+                    foreach (var line in block.Skip(asPlan ? 1 : 0))
+                    {
+                        partitions.Add(new VoteLineBlock(line));
+                    }
+
+                    return partitions;
+                }
+                else if (partitionMode == PartitionMode.ByBlock || partitionMode == PartitionMode.ByBlockAll)
+                {
+                    return VoteBlocks.GetBlocks(block.Skip(asPlan ? 1 : 0)).ToList();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                }
+            }
+        }
+
         /// <summary>
         /// Partition a post based on the requested partition mode.
         /// </summary>

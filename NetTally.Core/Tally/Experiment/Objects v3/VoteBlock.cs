@@ -20,6 +20,25 @@ namespace NetTally.Experiment3
             return blocksOfLines;
         }
 
+        public static bool IsThisAContentBlock(IEnumerable<VoteLine> block)
+        {
+            if (!block.Any())
+                return false;
+
+            if (block.First().Depth != 0)
+                return false;
+
+            var remainder = block.Skip(1);
+            if (!remainder.Any())
+                return false;
+
+            if (remainder.All(a => a.Depth > 0))
+                return true;
+
+            return false;
+        }
+
+
         public static (bool isPlan, string planName) IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;

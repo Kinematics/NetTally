@@ -53,7 +53,8 @@ namespace NetTally.Experiment3
 
 
         /// <summary>
-        /// Constructor for the Post object.
+        /// Constructor for the a new post.
+        /// Stores the post data, and extracts any vote lines if this isn't a tally post.
         /// </summary>
         /// <param name="author">The author of the post.</param>
         /// <param name="postId">The ID of the post.</param>
@@ -67,6 +68,8 @@ namespace NetTally.Experiment3
             Number = number;
 
             int.TryParse(postId, out int idnum);
+            if (idnum < 0)
+                throw new ArgumentOutOfRangeException($"Post ID is negative ({postId})");
             IDValue = idnum;
 
             VoteLines = GetPostAnalysisResults(Text);

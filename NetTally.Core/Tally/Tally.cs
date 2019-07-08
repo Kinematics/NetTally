@@ -471,7 +471,7 @@ namespace NetTally.VoteCounting
                     foreach (var plan in plans)
                     {
                         // Convert "Base Plan" to "Plan" before saving.
-                        (string name, VoteLineBlock contents) = voteConstructor.NormalizePlan(plan);
+                        (string name, VoteLineBlock contents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
 
                         bool added = voteCounter.AddPlanReference(name, post.ID, contents);
 
