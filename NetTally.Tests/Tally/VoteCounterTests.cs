@@ -38,7 +38,7 @@ namespace NTTests.Voting
         public void Initialize()
         {
             voteCounter.Reset();
-            voteCounter.PostsList.Clear();
+            voteCounter.ClearPosts();
             voteCounter.Quest = sampleQuest;
         }
         #endregion
@@ -53,13 +53,8 @@ namespace NTTests.Voting
             Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Rank).Count);
             Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Rank).Count);
 
-            Assert.AreEqual(0, voteCounter.ReferencePlanNames.Count);
-            Assert.AreEqual(0, voteCounter.ReferencePlans.Count);
-            Assert.AreEqual(0, voteCounter.ReferenceVoters.Count);
-            Assert.AreEqual(0, voteCounter.ReferenceVoterPosts.Count);
             Assert.AreEqual(0, voteCounter.FutureReferences.Count);
 
-            Assert.AreEqual(0, voteCounter.PlanNames.Count);
             Assert.AreEqual("", voteCounter.Title);
         }
 
@@ -478,10 +473,10 @@ namespace NTTests.Voting
             List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
+            voteCounter.AddVoterReference(voter1, postId1);
+            voteCounter.AddVoterReference(voter2, postId2);
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
             voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-            voteCounter.ReferenceVoters.Add(voter1);
-            voteCounter.ReferenceVoters.Add(voter2);
 
             var votes = voteCounter.GetVotesFromReference("[x] me", "Him");
             Assert.AreEqual(1, votes.Count);
@@ -501,10 +496,10 @@ namespace NTTests.Voting
             List<string> vote2 = new List<string> { voteLine1, voteLine2 };
             VoteType voteType = VoteType.Vote;
 
+            voteCounter.AddVoterReference(voter1, postId1);
+            voteCounter.AddVoterReference(voter2, postId2);
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
             voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-            voteCounter.ReferenceVoters.Add(voter1);
-            voteCounter.ReferenceVoters.Add(voter2);
 
             var votes = voteCounter.GetVotesFromReference("[x] you", "Him");
             Assert.AreEqual(2, votes.Count);

@@ -140,7 +140,7 @@ namespace NetTally.Output
             first = 0;
             last = 0;
 
-            foreach (var post in voteCounter.PostsList)
+            foreach (var post in voteCounter.Posts)
             {
                 if (first == 0 || post.Number < first)
                     first = post.Number;
@@ -607,7 +607,7 @@ namespace NetTally.Output
                 sb.Append(marker);
                 sb.Append("] ");
             }
-            else if (voteCounter.PlanNames.Contains(voterName))
+            else if (voteCounter.HasPlan(voterName))
             {
                 sb.Append("[b]Plan: ");
                 closeBold = true;

@@ -39,7 +39,7 @@ namespace NTTests.Voting
         public void Initialize()
         {
             voteCounter.Reset();
-            voteCounter.PostsList.Clear();
+            voteCounter.ClearPosts();
             sampleQuest = new Quest();
         }
         #endregion
@@ -87,7 +87,7 @@ namespace NTTests.Voting
 
             for (int i = 0; i < results.Count; i++)
             {
-                var post = voteCounter.PostsList[i];
+                var post = voteCounter.Posts[i];
                 var userVotes = GetVotesBy(post.Author, VoteType.Vote);
                 CollectionAssert.AreEqual(results[i], userVotes);
             }

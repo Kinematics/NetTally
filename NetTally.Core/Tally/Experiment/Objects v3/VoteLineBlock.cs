@@ -43,6 +43,11 @@ namespace NetTally.Experiment3
             _hash = ComputeHash();
         }
 
+        public HashSet<string> GetAllTasks()
+        {
+            return Lines.Where(l => !string.IsNullOrEmpty(l.Task)).Select(l => l.Task).ToHashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
         public IEnumerator<VoteLine> GetEnumerator()
         {
             foreach (var line in Lines)

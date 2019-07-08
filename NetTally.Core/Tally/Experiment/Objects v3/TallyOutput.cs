@@ -126,7 +126,7 @@ namespace NetTally.Experiment3
             int first = 0;
             int last = 0;
 
-            foreach (var post in voteCounter.PostsList)
+            foreach (var post in voteCounter.Posts)
             {
                 if (first == 0 || post.Number < first)
                     first = post.Number;

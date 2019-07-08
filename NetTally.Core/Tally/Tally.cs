@@ -375,8 +375,7 @@ namespace NetTally.VoteCounting
         public async Task TallyPosts(IEnumerable<Post> posts, IQuest quest, CancellationToken token)
         {
             voteCounter.Quest = quest;
-            voteCounter.PostsList.Clear();
-            voteCounter.PostsList.AddRange(posts);
+            voteCounter.AddPosts(posts);
             await TallyPosts(token).ConfigureAwait(false);
         }
 
@@ -397,7 +396,7 @@ namespace NetTally.VoteCounting
 
                 voteCounter.Reset();
 
-                if (voteCounter.PostsList == null || voteCounter.PostsList.Count == 0)
+                if (voteCounter.Posts.Count == 0)
                     return;
 
                 await PreprocessPosts(token).ConfigureAwait(false);
@@ -438,7 +437,7 @@ namespace NetTally.VoteCounting
                 };
 
             // Run the above series of preprocessing functions to extract plans from the post list.
-            var allPlans = RunPlanPreprocessing(voteCounter.PostsList, voteCounter.Quest, planProcesses, token);
+            var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
 
             PrepPostsForProcessing();
 
@@ -455,7 +454,7 @@ namespace NetTally.VoteCounting
         /// <param name="planProcesses">The list of functions to run on the posts.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-        private Dictionary<string, IEnumerable<VoteLine>> RunPlanPreprocessing(List<Post> posts, IQuest quest,
+        private Dictionary<string, IEnumerable<VoteLine>> RunPlanPreprocessing(IReadOnlyList<Post> posts, IQuest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
@@ -472,18 +471,18 @@ namespace NetTally.VoteCounting
                     foreach (var plan in plans)
                     {
                         // Convert "Base Plan" to "Plan" before saving.
-                        var normalizedPlan = voteConstructor.NormalizePlan(plan);
+                        (string name, VoteLineBlock contents) = voteConstructor.NormalizePlan(plan);
 
-                        bool added = voteCounter.AddReferencePlan(normalizedPlan.Key, normalizedPlan.Value, post.ID);
+                        bool added = voteCounter.AddPlanReference(name, post.ID, contents);
 
                         if (added)
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
-                            var planPartitions = voteConstructor.PartitionPlan(normalizedPlan.Value, quest.PartitionMode);
-                            voteCounter.AddVotes(planPartitions, normalizedPlan.Key, post.ID, VoteType.Plan);
+                            var planPartitions = voteConstructor.PartitionPlan(contents, quest.PartitionMode);
+                            voteCounter.AddVotes(planPartitions, name, post.ID, VoteType.Plan);
 
-                            allPlans.Add(normalizedPlan.Key, normalizedPlan.Value);
+                            allPlans.Add(name, contents);
                         }
                     }
                 }
@@ -502,7 +501,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         private void PrepPostsForProcessing()
         {
-            foreach (var post in voteCounter.PostsList)
+            foreach (var post in voteCounter.Posts)
             {
                 // Reset the processed state of all the posts.
                 post.Processed = false;
@@ -510,11 +509,11 @@ namespace NetTally.VoteCounting
                 UpdateWorkingVoteLines(post);
             }
 
-            foreach (var post in voteCounter.PostsList)
+            foreach (var post in voteCounter.Posts)
             {
                 // And store all post authors and their last post ID with an actual vote for later.
                 if (post.WorkingVoteLines.Count > 0)
-                    voteCounter.AddReferenceVoter(post.Author, post.ID);
+                    voteCounter.AddVoterReference(post.Author, post.ID);
             }
         }
 
@@ -536,7 +535,7 @@ namespace NetTally.VoteCounting
 
                 if (isBasePlan)
                 {
-                    string originalPostIdForPlan = voteCounter.GetPlanPostId(basePlanName);
+                    string? originalPostIdForPlan = voteCounter.GetPlanPostId(basePlanName);
                     if (originalPostIdForPlan == post.ID)
                     {
                         continue;
@@ -594,7 +593,7 @@ namespace NetTally.VoteCounting
                 throw new InvalidOperationException("Quest is null.");
 
 
-            var unprocessed = voteCounter.PostsList;
+            var unprocessed = voteCounter.Posts;
 
             // Loop as long as there are any more to process.
             while (unprocessed.Any())

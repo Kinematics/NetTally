@@ -10,17 +10,19 @@ using NetTally.Votes;
 namespace NetTally.Experiment3
 {
     /// <summary>
-    /// Class that can handle constructing votes from the base text of a post.
+    /// Class that can handle constructing votes from the parsed text of a post.
     /// </summary>
     public class VoteConstructor
     {
-        readonly IGeneralInputOptions inputOptions;
         readonly IVoteCounter voteCounter;
 
-        public VoteConstructor(IVoteCounter voteCounter, IGeneralInputOptions options)
+        /// <summary>
+        /// <see cref="VoteConstructor"/> class has a dependency on <see cref="IVoteCounter"/>.
+        /// </summary>
+        /// <param name="voteCounter">The vote counter to store locally and use within this class.</param>
+        public VoteConstructor(IVoteCounter voteCounter)
         {
             this.voteCounter = voteCounter;
-            inputOptions = options;
         }
 
         #region Public functions
@@ -97,114 +99,13 @@ namespace NetTally.Experiment3
             post.Processed = true;
             return null;
         }
-        #endregion
-
-        #region Utility functions for processing votes.
-        /// <summary>
-        /// Make sure the provided plan name is valid.
-        /// A named vote that is named after a user is only valid if it matches the post author's name.
-        /// </summary>
-        /// <param name="planName">The name of the plan.</param>
-        /// <param name="postAuthor">The post's author.</param>
-        /// <returns>Returns true if the plan name is deemed valid.</returns>
-        private bool IsValidPlanName(string planName, string postAuthor)
-        {
-            // A named vote that is named after a user is only valid if it matches the post author's name.
-            if (voteCounter.HasReferenceVoter(planName))
-            {
-                if (!Agnostic.StringComparer.Equals(planName, postAuthor))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Determine whether the task of the provided vote line block falls within the
-        /// filter range of allowed/desired tasks.
-        /// If task filters are active, the block must have a task that matches what's allowed.
-        /// </summary>
-        /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-        private bool IsTaskAllowed(VoteLineBlock block, IQuest quest)
-        {
-            // Always allow if no filters are active.
-            if (!quest.UseCustomTaskFilters)
-                return true;
-
-            if (string.IsNullOrEmpty(block.Task))
-                return false;
-
-            return quest.TaskFilter?.Match(block.Task) ?? false;
-        }
-
-        /// <summary>
-        /// Determine if there are any references to future (unprocessed) user votes
-        /// within the current vote.
-        /// </summary>
-        /// <param name="post">Post containing the current vote.</param>
-        /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(Post post, IQuest quest)
-        {
-            // If we decide it has to be forced, ignore all checks in here.
-            if (post.ForceProcess)
-                return false;
-
-            // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
-            // Likewise, if we're forcing all proxy votes to be pinned, there can't be any future references.
-            if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
-                return false;
-
-            foreach (var line in post.WorkingVoteLines)
-            {
-                // Get the possible proxy references this line contains
-                var refNames = VoteString.GetVoteReferenceNames(line.Content);
-
-                // Pinned references (^ or ↑ symbols) are explicitly not future references
-                if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "↑"))
-                    continue;
-
-                // Any references to plans automatically work, as they are defined in a preprocess phase.
-                if (refNames[ReferenceType.Plan].Any(voteCounter.HasPlan))
-                    continue;
-
-                string? refVoter = voteCounter.GetReferenceVoterName(refNames[ReferenceType.Voter].FirstOrDefault());
-
-                if (refVoter != null && refVoter != post.Author)
-                {
-                    var refVoterPosts = voteCounter.PostsList.Where(p => p.Author == refVoter);
-
-                    // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
-                    // then this can't be treated as a future reference.
-                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVoteLines.Count > 0);
-
-                    if (!refWorkingVotes.Any())
-                        continue;
-                    
-                    // If there's no 'plan' label, then we need to verify that the last vote that the
-                    // ref voter made (has a working vote) was processed.
-                    // If it's been processed, then we're OK to let this vote through.
-                    if (refWorkingVotes.Last().Processed)
-                        continue;
-
-                    // If none of the conditions above are met, then consider this a future reference.
-                    return true;
-                }
-            }
-
-            // No future references were found.
-            return false;
-        }
 
         /// <summary>
         /// Given a plan block, if the plan is a base plan, rename it as just a "Plan".
         /// </summary>
         /// <param name="plan">The plan to examine.</param>
         /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-        public KeyValuePair<string, VoteLineBlock> NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
+        public (string name, VoteLineBlock contents) NormalizePlan(KeyValuePair<string, VoteLineBlock> plan)
         {
             VoteLine firstLine = plan.Value.First();
 
@@ -218,14 +119,12 @@ namespace NetTally.Experiment3
                 List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
                 voteLines.AddRange(plan.Value.Skip(1));
 
-                return new KeyValuePair<string, VoteLineBlock>(plan.Key, new VoteLineBlock(voteLines));
+                return (planName, new VoteLineBlock(voteLines));
             }
 
-            return plan;
+            return (plan.Key, plan.Value);
         }
-        #endregion
 
-        #region Partitioning
         /// <summary>
         /// Partition a plan after initial preprocessing.
         /// </summary>
@@ -315,6 +214,123 @@ namespace NetTally.Experiment3
             }
         }
 
+        /// <summary>
+        /// Given a vote block, partition it by block and save the resulting
+        /// split votes in the vote counter.
+        /// </summary>
+        /// <param name="vote">The vote to partition.</param>
+        /// <returns>Returns true if successfully completed.</returns>
+        public bool PartitionChildren(VoteLineBlock vote)
+        {
+            // Break vote block into child blocks
+            var parts = PartitionPlan(vote, PartitionMode.ByBlockAll);
+
+            return voteCounter.Split(vote, parts);
+        }
+        #endregion
+
+        #region Utility functions for processing votes.
+        /// <summary>
+        /// Make sure the provided plan name is valid.
+        /// A named vote that is named after a user is only valid if it matches the post author's name.
+        /// </summary>
+        /// <param name="planName">The name of the plan.</param>
+        /// <param name="postAuthor">The post's author.</param>
+        /// <returns>Returns true if the plan name is deemed valid.</returns>
+        private bool IsValidPlanName(string planName, string postAuthor)
+        {
+            // A named vote that is named after a user is only valid if it matches the post author's name.
+            if (voteCounter.HasReferenceVoter(planName))
+            {
+                if (!Agnostic.StringComparer.Equals(planName, postAuthor))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determine whether the task of the provided vote line block falls within the
+        /// filter range of allowed/desired tasks.
+        /// If task filters are active, the block must have a task that matches what's allowed.
+        /// </summary>
+        /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
+        private bool IsTaskAllowed(VoteLineBlock block, IQuest quest)
+        {
+            // Always allow if no filters are active.
+            if (!quest.UseCustomTaskFilters)
+                return true;
+
+            if (string.IsNullOrEmpty(block.Task))
+                return false;
+
+            return quest.TaskFilter?.Match(block.Task) ?? false;
+        }
+
+        /// <summary>
+        /// Determine if there are any references to future (unprocessed) user votes
+        /// within the current vote.
+        /// </summary>
+        /// <param name="post">Post containing the current vote.</param>
+        /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
+        private bool HasFutureReference(Post post, IQuest quest)
+        {
+            // If we decide it has to be forced, ignore all checks in here.
+            if (post.ForceProcess)
+                return false;
+
+            // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
+            // Likewise, if we're forcing all proxy votes to be pinned, there can't be any future references.
+            if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
+                return false;
+
+            foreach (var line in post.WorkingVoteLines)
+            {
+                // Get the possible proxy references this line contains
+                var refNames = VoteString.GetVoteReferenceNames(line.Content);
+
+                // Pinned references (^ or ↑ symbols) are explicitly not future references
+                if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "↑"))
+                    continue;
+
+                // Any references to plans automatically work, as they are defined in a preprocess phase.
+                if (refNames[ReferenceType.Plan].Any(voteCounter.HasPlan))
+                    continue;
+
+                string? refVoter = voteCounter.GetVoterProperName(refNames[ReferenceType.Voter].FirstOrDefault());
+
+                if (refVoter != null && refVoter != post.Author)
+                {
+                    var refVoterPosts = voteCounter.Posts.Where(p => p.Author == refVoter);
+
+                    // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
+                    // then this can't be treated as a future reference.
+                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVoteLines.Count > 0);
+
+                    if (!refWorkingVotes.Any())
+                        continue;
+                    
+                    // If there's no 'plan' label, then we need to verify that the last vote that the
+                    // ref voter made (has a working vote) was processed.
+                    // If it's been processed, then we're OK to let this vote through.
+                    if (refWorkingVotes.Last().Processed)
+                        continue;
+
+                    // If none of the conditions above are met, then consider this a future reference.
+                    return true;
+                }
+            }
+
+            // No future references were found.
+            return false;
+        }
+        #endregion
+
+        #region Partitioning utility functions for partitioning posts
         /// <summary>
         /// Partition a post based on the requested partition mode.
         /// </summary>
@@ -524,7 +540,7 @@ namespace NetTally.Experiment3
 
                 if (planName != null)
                 {
-                    string? properPlanName = voteCounter.GetPlanName(planName);
+                    string? properPlanName = voteCounter.GetPlanProperName(planName);
 
                     if (properPlanName != null)
                     {
@@ -539,7 +555,7 @@ namespace NetTally.Experiment3
 
                         if (voterName != null)
                         {
-                            string? properVoterName = voteCounter.GetReferenceVoterName(voterName);
+                            string? properVoterName = voteCounter.GetVoterProperName(voterName);
 
                             // Make sure we have a proper voter name, but don't allow self-references.
                             // Some user names conflict with normal vote lines.
@@ -565,7 +581,7 @@ namespace NetTally.Experiment3
                 // See if any voter names match the line (as long as we're allowing proxy votes).  If so, use that.
                 if (!voteCounter.Quest!.DisableProxyVotes && voteCounter.HasReferenceVoter(voterName))
                 {
-                    string? properVoterName = voteCounter.GetReferenceVoterName(voterName);
+                    string? properVoterName = voteCounter.GetVoterProperName(voterName);
 
                     // Make sure we have a proper voter name, but don't allow self-references.
                     // Some user names conflict with normal vote lines.
@@ -590,7 +606,7 @@ namespace NetTally.Experiment3
 
                     if (planName != null)
                     {
-                        string? properPlanName = voteCounter.GetPlanName(planName);
+                        string? properPlanName = voteCounter.GetPlanProperName(planName);
 
                         if (properPlanName != null)
                         {

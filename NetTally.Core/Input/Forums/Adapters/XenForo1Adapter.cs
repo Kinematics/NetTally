@@ -38,7 +38,7 @@ namespace NetTally.Forums.Adapters
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
 
         // The default threadmark filter.
-        static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
+        static readonly Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
         #endregion
 
         #region Site properties
@@ -603,7 +603,7 @@ namespace NetTally.Forums.Adapters
 
                 if (listOfThreadmarks != null)
                 {
-                    Predicate<HtmlNode> filterLambda = (n) => n != null &&
+                    Func<HtmlNode, bool> filterLambda = (n) => n != null &&
                         ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
                         (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
 

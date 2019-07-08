@@ -57,7 +57,7 @@ namespace NetTally.Output
         /// <param name="vote">The vote containing a list of voters.</param>
         /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
         public int CountVote(KeyValuePair<string, HashSet<string>> vote) =>
-            vote.Value?.Count(vc => voteCounter.PlanNames.Contains(vc) == false) ?? 0;
+            vote.Value?.Count(vc => voteCounter.HasPlan(vc) == false) ?? 0;
 
         /// <summary>
         /// Get a list of voters, ordered alphabetically, except the first voter,
@@ -90,7 +90,7 @@ namespace NetTally.Output
         /// <returns>Returns which one of them is considered the first real poster.</returns>
         public string? GetFirstVoter(HashSet<string> voters)
         {
-            var planVoters = voters.Where(v => voteCounter.PlanNames.Contains(v));
+            var planVoters = voters.Where(v => voteCounter.HasPlan(v));
             var votersCollection = voteCounter.GetVotersCollection(VoteType.Vote);
 
             if (planVoters.Any())
