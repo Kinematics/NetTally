@@ -75,9 +75,48 @@ namespace NetTally.Experiment3
             return new VoteLine(prefix, Marker, Task, Content, MarkerType, MarkerValue);
         }
 
+        /// <summary>
+        /// Creates a copy of this vote line, but with the specified task value.
+        /// </summary>
+        /// <param name="task">The new task for the vote line.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the task changed.</returns>
         public VoteLine WithTask(string task)
         {
             return new VoteLine(Prefix, Marker, task, Content, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
+        /// Creates a copy of this vote line, but with the specified content.
+        /// </summary>
+        /// <param name="content">The new content for the vote line.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the content changed.</returns>
+        public VoteLine WithContent(string content)
+        {
+            return new VoteLine(Prefix, Marker, Task, content, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
+        /// Creates a copy of this vote line, but with the specified marker information.
+        /// If the <paramref name="ifSameType"/> value is specified, but the markers are
+        /// different, keep the original value.
+        /// If this uses a MarkerType of None, then it will always update
+        /// with the new values.
+        /// </summary>
+        /// <param name="marker">The marker to substitute.</param>
+        /// <param name="markerType">The marker type to substitute.</param>
+        /// <param name="markerValue">The marker value to substitute.</param>
+        /// <param name="ifSameType">Flag whether it will modify the markers only when they are the same type.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
+        public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue, bool ifSameType = false)
+        {
+            if (!ifSameType || MarkerType == markerType || MarkerType == MarkerType.None)
+            {
+                return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
+            }
+            else
+            {
+                return new VoteLine(Prefix, Marker, Task, Content, MarkerType, MarkerValue);
+            }
         }
 
         /// <summary>
@@ -100,6 +139,12 @@ namespace NetTally.Experiment3
         {
             string task = Task.Length > 0 ? $"[{Task}]" : "";
             return $"{Prefix}[]{task} {CleanContent}";
+        }
+
+        public string ToStringWithMarker(string marker = "X")
+        {
+            string task = Task.Length > 0 ? $"[{Task}]" : "";
+            return $"{Prefix}[{marker}]{task} {Content}";
         }
 
 #nullable disable

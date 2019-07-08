@@ -43,7 +43,7 @@ But might include something else...
 [x] Loot the boxes";
 
             Post post = new Post(author, postId, postText, postNumber);
-            post.WorkingVoteLines.AddRange(post.VoteLines);
+            voteConstructor.ConfigureWorkingVote(post);
 
             return post;
         }
@@ -59,7 +59,7 @@ But might include something else...
 [x] Loot the boxes";
 
             Post post = new Post(author, postId, postText, postNumber);
-            post.WorkingVoteLines.AddRange(post.VoteLines);
+            voteConstructor.ConfigureWorkingVote(post);
 
             return post;
         }
@@ -76,7 +76,7 @@ But might include something else...
 [x] And catch them in the act.";
 
             Post post = new Post(author, postId, postText, postNumber);
-            post.WorkingVoteLines.AddRange(post.VoteLines);
+            voteConstructor.ConfigureWorkingVote(post);
 
             return post;
         }
@@ -128,8 +128,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post1_NoPartitioning()
         {
-            Post post = GetPost1();
             quest.PartitionMode = PartitionMode.None;
+            Post post = GetPost1();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -142,8 +142,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post2_NoPartitioning()
         {
-            Post post = GetPost2();
             quest.PartitionMode = PartitionMode.None;
+            Post post = GetPost2();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -156,8 +156,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post3_NoPartitioning()
         {
-            Post post = GetPost3();
             quest.PartitionMode = PartitionMode.None;
+            Post post = GetPost3();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -170,8 +170,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post1_BlockPartitioning()
         {
-            Post post = GetPost1();
             quest.PartitionMode = PartitionMode.ByBlock;
+            Post post = GetPost1();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -184,8 +184,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post2_BlockPartitioning()
         {
-            Post post = GetPost2();
             quest.PartitionMode = PartitionMode.ByBlock;
+            Post post = GetPost2();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -198,8 +198,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post3_BlockPartitioning()
         {
-            Post post = GetPost3();
             quest.PartitionMode = PartitionMode.ByBlock;
+            Post post = GetPost3();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -212,8 +212,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post1_LinePartitioning()
         {
-            Post post = GetPost1();
             quest.PartitionMode = PartitionMode.ByLine;
+            Post post = GetPost1();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -226,8 +226,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post2_LinePartitioning()
         {
-            Post post = GetPost2();
             quest.PartitionMode = PartitionMode.ByLine;
+            Post post = GetPost2();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -240,8 +240,8 @@ But might include something else...
         [TestMethod]
         public void Process_Post3_LinePartitioning()
         {
-            Post post = GetPost3();
             quest.PartitionMode = PartitionMode.ByLine;
+            Post post = GetPost3();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -255,10 +255,10 @@ But might include something else...
         [TestMethod]
         public void Process_Post3_LinePartitioning_TaskFilter()
         {
-            Post post = GetPost3();
             quest.PartitionMode = PartitionMode.ByLine;
             quest.UseCustomTaskFilters = true;
             quest.CustomTaskFilters = "Action";
+            Post post = GetPost3();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 
@@ -274,10 +274,10 @@ But might include something else...
         [TestMethod]
         public void Process_Post3_LineTaskPartitioning_TaskFilter()
         {
-            Post post = GetPost3();
             quest.PartitionMode = PartitionMode.ByLineTask;
             quest.UseCustomTaskFilters = true;
             quest.CustomTaskFilters = "Action";
+            Post post = GetPost3();
 
             var results = voteConstructor.ProcessPostGetVotes(post, quest);
 

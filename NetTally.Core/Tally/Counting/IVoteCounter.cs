@@ -60,7 +60,7 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The post ID the plan was defined in.</param>
         /// <param name="planBlock">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        bool AddPlanReference(string planName, string postID, VoteLineBlock planBlock);
+        bool AddReferencePlan(string planName, string postID, VoteLineBlock planBlock);
         /// <summary>
         /// Store a voter and their post ID.
         /// </summary>
@@ -99,6 +99,12 @@ namespace NetTally.VoteCounting
         /// <param name="planName">The name of the plan to check on.</param>
         /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
         string? GetPlanPostId(string planName);
+        /// <summary>
+        /// Get the reference plan corresponding to the provided plan name.
+        /// </summary>
+        /// <param name="planName">The name of the plan to get.</param>
+        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
+        VoteLineBlock? GetReferencePlan(string planName);
         /// <summary>
         /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
         /// </summary>

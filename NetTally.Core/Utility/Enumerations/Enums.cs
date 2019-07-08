@@ -124,7 +124,7 @@ namespace NetTally
             Rank,
             Score,
             Approval,
-            Continuation
+            Continuation // Obsolete; delete when experimental stuff is removed.
         }
 
         /// <summary>

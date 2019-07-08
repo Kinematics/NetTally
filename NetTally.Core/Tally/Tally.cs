@@ -430,7 +430,7 @@ namespace NetTally.VoteCounting
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses =
                 new List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)>()
                 {
-                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockABasePlan),
+                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
                     (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
                     (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
@@ -439,7 +439,15 @@ namespace NetTally.VoteCounting
             // Run the above series of preprocessing functions to extract plans from the post list.
             var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
 
-            PrepPostsForProcessing();
+            foreach (var post in voteCounter.Posts)
+            {
+                // Reset the processed state of all the posts.
+                post.Processed = false;
+                post.ForceProcess = false;
+                post.WorkingVoteComplete = false;
+                post.WorkingVote.Clear();
+                voteCounter.AddVoterReference(post.Author, post.ID);
+            }
 
             await Task.FromResult(0);
         }
@@ -454,11 +462,11 @@ namespace NetTally.VoteCounting
         /// <param name="planProcesses">The list of functions to run on the posts.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-        private Dictionary<string, IEnumerable<VoteLine>> RunPlanPreprocessing(IReadOnlyList<Post> posts, IQuest quest,
+        private Dictionary<string, VoteLineBlock> RunPlanPreprocessing(IReadOnlyList<Post> posts, IQuest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
-            Dictionary<string, IEnumerable<VoteLine>> allPlans = new Dictionary<string, IEnumerable<VoteLine>>();
+            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>();
 
             foreach (var (asBlocks, isPlanFunction) in planProcesses)
             {
@@ -470,115 +478,27 @@ namespace NetTally.VoteCounting
 
                     foreach (var plan in plans)
                     {
-                        // Convert "Base Plan" to "Plan" before saving.
-                        (string name, VoteLineBlock contents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
+                        // Convert "Base/Proposed Plan" to "Plan" before saving.
+                        // Set to an undefined marker.
+                        (string normalPlanName, VoteLineBlock normalPlanContents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
 
-                        bool added = voteCounter.AddPlanReference(name, post.ID, contents);
+                        bool added = voteCounter.AddReferencePlan(normalPlanName, post.ID, normalPlanContents);
 
                         if (added)
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
-                            var planPartitions = voteConstructor.PartitionPlan(contents, quest.PartitionMode);
-                            voteCounter.AddVotes(planPartitions, name, post.ID, VoteType.Plan);
+                            // TODO: set markers for plan "voter" to None/0.
+                            var planPartitions = voteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
+                            voteCounter.AddVotes(planPartitions, normalPlanName, post.ID, VoteType.Plan);
 
-                            allPlans.Add(name, contents);
+                            allPlans.Add(normalPlanName, normalPlanContents);
                         }
                     }
                 }
             }
 
             return allPlans;
-        }
-
-        /// <summary>
-        /// Run through each post and determine if any of them contain
-        /// base/proposal plans (which are registered, but not voted for).
-        /// If so, strip them from the list of vote lines we work on during
-        /// processing.
-        /// Also condense regular plan votes to just the plan vote line.
-        /// That allows votes to be expanded later, as needed.
-        /// </summary>
-        private void PrepPostsForProcessing()
-        {
-            foreach (var post in voteCounter.Posts)
-            {
-                // Reset the processed state of all the posts.
-                post.Processed = false;
-                post.ForceProcess = false;
-                UpdateWorkingVoteLines(post);
-            }
-
-            foreach (var post in voteCounter.Posts)
-            {
-                // And store all post authors and their last post ID with an actual vote for later.
-                if (post.WorkingVoteLines.Count > 0)
-                    voteCounter.AddVoterReference(post.Author, post.ID);
-            }
-        }
-
-        /// <summary>
-        /// Update the working vote based on filtering out components of preprocessed plans.
-        /// </summary>
-        /// <param name="post">The post to update.</param>
-        private void UpdateWorkingVoteLines(Post post)
-        {
-            post.WorkingVoteLines.Clear();
-
-            // Base plans are skipped entirely, if this is the original post that proposed the plan.
-            // Keep everything else.
-            var blocks = VoteBlocks.GetBlocks(post.VoteLines);
-
-            foreach (var block in blocks)
-            {
-                var (isBasePlan, basePlanName) = VoteBlocks.IsBlockABasePlan(block);
-
-                if (isBasePlan)
-                {
-                    string? originalPostIdForPlan = voteCounter.GetPlanPostId(basePlanName);
-                    if (originalPostIdForPlan == post.ID)
-                    {
-                        continue;
-                    }
-                }
-
-                post.WorkingVoteLines.AddRange(block);
-            }
-
-            // An implicit plan takes up the entire working vote.
-            // Save the first line that names it; we'll expand it again later.
-            var (isImplicitPlan, _) = VoteBlocks.IsBlockAnImplicitPlan(post.WorkingVoteLines);
-
-            if (isImplicitPlan)
-            {
-                var line = post.WorkingVoteLines.First();
-                post.WorkingVoteLines.Clear();
-                post.WorkingVoteLines.Add(line);
-            }
-            else
-            {
-                // Any other plans get condensed down to just the naming line.
-                // Any non-plan lines are kept as-is.
-                blocks = VoteBlocks.GetBlocks(post.WorkingVoteLines);
-                List<VoteLine> tempVote = new List<VoteLine>();
-
-                foreach (var block in blocks)
-                {
-                    var (isExplicitPlan, _) = VoteBlocks.IsBlockAnExplicitPlan(block);
-
-                    if (isExplicitPlan)
-                    {
-                        tempVote.Add(block.First());
-                    }
-                    else
-                    {
-                        tempVote.AddRange(block);
-                    }
-                }
-
-                post.WorkingVoteLines.Clear();
-                post.WorkingVoteLines.AddRange(tempVote);
-            }
         }
         #endregion
 

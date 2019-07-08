@@ -41,14 +41,23 @@ namespace NetTally.Experiment3
         /// </summary>
         public IReadOnlyList<VoteLine> VoteLines { get; }
         /// <summary>
-        /// Vote lines with base/proposed plans removed.
+        /// Vote lines after processing to expand plans within the original vote, and remove proposed plans.
+        /// The <see cref="VoteLine"/> is a normal line, while the <see cref="VoteLineBlock"/> represents a complete plan.
+        /// The <see cref="WorkingVote"/> is a sequence of one or the other.
         /// </summary>
-        public List<VoteLine> WorkingVoteLines { get; } = new List<VoteLine>();
-
-        // A post with ##### at the start of one of the lines is a posting of tally results.  Don't read it.
-        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
-
+        public List<(VoteLine? line, VoteLineBlock? block)> WorkingVote { get; } = new List<(VoteLine? line, VoteLineBlock? block)>();
+ 
+        /// <summary>
+        /// Flag whether the WorkingVote has been completely filled in.
+        /// </summary>
+        public bool WorkingVoteComplete { get; set; }
+        /// <summary>
+        /// Flag whether this post has been processed.
+        /// </summary>
         public bool Processed { get; set; }
+        /// <summary>
+        /// Flag to bypass process restrictions, if normal processing doesn't happen.
+        /// </summary>
         public bool ForceProcess { get; set; }
 
 
@@ -100,12 +109,14 @@ namespace NetTally.Experiment3
             return results;
         }
 
+        // A post with ##### at the start of one of the lines is a posting of tally results.
+        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
         /// <summary>
         /// Determine if the provided post text is someone posting the results of a tally.
         /// </summary>
         /// <param name="postText">The text of the post to check.</param>
         /// <returns>Returns true if the post contains tally results.</returns>
-        bool IsTallyPost()
+        private bool IsTallyPost()
         {
             // If the post contains the string "#####" at the start of the line for part of its text,
             // it's a tally post.
@@ -131,7 +142,7 @@ namespace NetTally.Experiment3
 
         readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
         /// <summary>
-        /// Examine the post to see if it qualifies as a nomination post.
+        /// Examine the post to see if it qualifies as a nomination post — a post that contains nothing but username links.
         /// If so, return the nomination lines formatted as votes.
         /// </summary>
         /// <param name="postTextLines">The set of lines from the post.</param>
@@ -158,7 +169,7 @@ namespace NetTally.Experiment3
             return results;
         }
 
-
+        #region IComparable/IEquatable
 #nullable disable
         public static int Compare(Post left, Post right)
         {
@@ -207,5 +218,6 @@ namespace NetTally.Experiment3
         public static bool operator ==(Post first, Post second) => Compare(first, second) == 0;
         public static bool operator !=(Post first, Post second) => Compare(first, second) != 0;
 #nullable enable
+        #endregion
     }
 }

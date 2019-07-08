@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;
@@ -67,23 +68,24 @@ namespace NetTally.Experiment3
         /// May return null if nothing was processed.</returns>
         public List<VoteLineBlock>? ProcessPostGetVotes(Post post, IQuest quest)
         {
-            // If the vote has content, process it. Base plans have already been
-            // extracted from the Working Vote lines.
-            if (post.WorkingVoteLines.Count > 0)
-            {
-                // If it has a reference to a voter that has not been processed yet,
-                // delay processing.
-                if (HasFutureReference(post, quest))
-                {
-                    voteCounter.AddFutureReference(post);
-                    return null;
-                }
+            if (post.Processed)
+                return null;
 
+            if (!post.WorkingVoteComplete)
+                ConfigureWorkingVote(post);
+
+            // If the working vote configuration is complete, process the post.
+            if (post.WorkingVoteComplete)
+            {
                 // If a newer vote has been registered in the vote counter, that means
                 // that this post was a prior future reference that got overridden later.
                 // If so, don't process it now, but allow the post to be marked as
                 // processed so that it doesn't try to re-submit it later.
-                if (!voteCounter.HasNewerVote(post))
+                if (voteCounter.HasNewerVote(post))
+                {
+                    post.Processed = true;
+                }
+                else
                 {
                     // Get the results of partitioning the post.
                     var results = PartitionPost(post, quest.PartitionMode);
@@ -94,14 +96,15 @@ namespace NetTally.Experiment3
                     post.Processed = true;
                     return filteredResults;
                 }
+
             }
 
-            post.Processed = true;
             return null;
         }
 
         /// <summary>
-        /// Given a plan block, if the plan is a base plan, rename it as just a "Plan".
+        /// Given a plan block, if the plan is a base/proposed plan, rename it as just a "Plan".
+        /// Convert the marker for all lines to None.
         /// </summary>
         /// <param name="plan">The plan to examine.</param>
         /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
@@ -111,13 +114,21 @@ namespace NetTally.Experiment3
 
             var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
-            if (planType == VoteBlocks.LineStatus.BasePlan)
+            // Proposed needs to be converted to an unadorned plan name.
+            if (planType == VoteBlocks.LineStatus.Proposed)
             {
                 string content = $"Plan: {planName}";
-                VoteLine revisedFirstLine = new VoteLine(firstLine.Prefix, firstLine.Marker, firstLine.Task, content, firstLine.MarkerType, firstLine.MarkerValue);
+                firstLine = firstLine.WithContent(content);
+            }
+            
+            // All vote lines in a plan should have MarkerType of None.
+            // This allows them to be part of any comparison, and easily mesh with various output.
+            if (planType != VoteBlocks.LineStatus.None)
+            {
+                firstLine = firstLine.WithMarker("", MarkerType.None, 0);
 
-                List<VoteLine> voteLines = new List<VoteLine>() { revisedFirstLine };
-                voteLines.AddRange(keyContents.Skip(1));
+                List<VoteLine> voteLines = new List<VoteLine>() { firstLine };
+                voteLines.AddRange(keyContents.Skip(1).Select(v => v.WithMarker("", MarkerType.None, 0)));
 
                 return (planName, new VoteLineBlock(voteLines));
             }
@@ -148,6 +159,186 @@ namespace NetTally.Experiment3
             return Partition(vote, PartitionMode.ByBlockAll);
         }
         #endregion
+
+        #region Working Vote Configuration
+        /// <summary>
+        /// Work through the original post line, remove any base plans, and expand
+        /// any vote or plan references.  Store the information in the WorkingVote.
+        /// </summary>
+        /// <param name="post">The post with the working vote to configure.</param>
+        public void ConfigureWorkingVote(Post post)
+        {
+            if (post.WorkingVoteComplete)
+                return;
+
+            List<(VoteLine? line, VoteLineBlock? block)> workingVote = new List<(VoteLine? line, VoteLineBlock? block)>();
+
+            // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
+            // Keep everything else, flattening the blocks back into a simple list of vote lines.
+            var validVoteLines = VoteBlocks.GetBlocks(post.VoteLines).Where(b => !IsProposedPlan(b)).SelectMany(a => a).ToList();
+
+            for (int i = 0; i < validVoteLines.Count; i++)
+            {
+                var currentLine = validVoteLines[i];
+
+                var (isReference, isPlan, isPinnedUser, refName) = GetReference(currentLine);
+
+                if (isReference)
+                {
+                    if (isPlan)
+                    {
+                        // We can rely on GetReference returning a valid plan name.
+                        var refPlan = voteCounter.GetReferencePlan(refName);
+
+                        // If there is no available reference plan, just add the line and continue.
+                        if (refPlan == null)
+                        {
+                            workingVote.Add((currentLine, null));
+                            continue;
+                        }
+
+                        // Is the plan reference a single line, or is the entire plan embedded in the vote?
+                        var partial = validVoteLines.Skip(i).Take(refPlan.Lines.Count);
+
+                        // If it's a full match, keep the user-entered version, and update our current index.
+                        if (refPlan.Equals(partial))
+                        {
+                            workingVote.Add((null, new VoteLineBlock(partial)));
+                            i += refPlan.Lines.Count - 1; // compensate for the i++ increment
+                        }
+                        // Otherwise use the reference version, but with the markers specified by the user.
+                        else
+                        {
+                            workingVote.Add((null, new VoteLineBlock(refPlan.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue))));
+                        }
+                    }
+                    // Users
+                    else
+                    {
+                        int postSearchLimit = isPinnedUser ? post.IDValue : 0;
+
+                        Post? refUserPost = voteCounter.GetLastPostByAuthor(refName, postSearchLimit);
+
+                        // If we can't find the reference post, just treat this as a normal line.
+                        if (refUserPost == null)
+                        {
+                            workingVote.Add((currentLine, null));
+                        }
+                        // If the reference post hasn't been processed yet, bail out entirely,
+                        // because we're in a future reference position.
+                        else if (!refUserPost.Processed && !post.ForceProcess)
+                        {
+                            return;
+                        }
+                        // Otherwise save the reference vote.
+                        else
+                        {
+                            List<(VoteLine? line, VoteLineBlock? block)> refWorkingVote1 = new List<(VoteLine? line, VoteLineBlock? block)>();
+
+                            var refWorkingVote2 = refUserPost.WorkingVote.Select(wv =>
+                                (wv.line?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true),
+                                 wv.block?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true)));
+
+                            workingVote.AddRange(refWorkingVote2);
+                        }
+                    }
+                }
+                // Non-references just get added directly.
+                else
+                {
+                    workingVote.Add((currentLine, null));
+                }
+            }
+
+            post.WorkingVote.AddRange(workingVote);
+            post.WorkingVoteComplete = true;
+
+            return;
+
+            // Local function to handle determining if the block is part of a Proposed Plan or not.
+            bool IsProposedPlan(VoteLineBlock block)
+            {
+                var (isProposedPlan, proposedPlanName) = VoteBlocks.IsBlockAProposedPlan(block);
+
+                if (isProposedPlan)
+                {
+                    string? originalPostIdForPlan = voteCounter.GetPlanPostId(proposedPlanName);
+                    if (originalPostIdForPlan == post.ID)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        // A regex to extract potential references from a vote line.
+        static readonly Regex referenceNameRegex = 
+            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Attempt to determine if the content of the provided vote line is a reference to a user or plan.
+        /// If so, determine what type, and extract the reference name.
+        /// </summary>
+        /// <param name="voteLine">The vote line to examine.</param>
+        /// <returns>Returns a tuple with the discovered information.</returns>
+        private (bool isReference, bool isPlan, bool isPinnedUser, string refName) GetReference(VoteLine voteLine)
+        {
+            Match m = referenceNameRegex.Match(voteLine.CleanContent);
+            if (m.Success)
+            {
+                string label = m.Groups["label"].Value;
+                string refName = m.Groups["reference"].Value;
+
+                if (label == "^" || label == "↑")
+                {
+                    string? refUser = voteCounter.GetVoterProperName(refName);
+
+                    if (refUser != null)
+                        return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
+                }
+                else if (label.StartsWith("base") || label.StartsWith("proposed"))
+                {
+                    string? refPlan = voteCounter.GetPlanProperName(refName);
+
+                    if (refPlan != null)
+                        return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
+                }
+                else if (label.Contains("plan"))
+                {
+                    string? refPlan = voteCounter.GetPlanProperName(refName);
+
+                    if (refPlan != null)
+                        return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
+
+                    // Check user names second
+                    string? refUser = voteCounter.GetVoterProperName(refName);
+
+                    if (refUser != null)
+                        return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
+                }
+                else // Any unlabeled lines
+                {
+                    // Check user names first
+                    string? refUser = voteCounter.GetVoterProperName(refName);
+
+                    if (refUser != null)
+                        return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
+
+                    string? refPlan = voteCounter.GetPlanProperName(refName);
+
+                    if (refPlan != null)
+                        return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
+                }
+            }
+
+            return (isReference: false, isPlan: false, isPinnedUser: false, refName: "");
+        }
+        #endregion
+
+
+
 
         #region Utility functions for processing votes.
         /// <summary>
@@ -208,10 +399,14 @@ namespace NetTally.Experiment3
             if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
                 return false;
 
-            foreach (var line in post.WorkingVoteLines)
+            foreach (var voteObj in post.WorkingVote)
             {
+                // Only normal lines are considered for future references. Blocks have already pulled in the reference.
+                if (voteObj.line == null)
+                    continue;
+
                 // Get the possible proxy references this line contains
-                var refNames = VoteString.GetVoteReferenceNames(line.Content);
+                var refNames = VoteString.GetVoteReferenceNames(voteObj.line.Content);
 
                 // Pinned references (^ or ↑ symbols) are explicitly not future references
                 if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "↑"))
@@ -229,7 +424,7 @@ namespace NetTally.Experiment3
 
                     // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
                     // then this can't be treated as a future reference.
-                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVoteLines.Count > 0);
+                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVote.Count > 0);
 
                     if (!refWorkingVotes.Any())
                         continue;
@@ -360,8 +555,8 @@ namespace NetTally.Experiment3
                 PartitionMode.None => PartitionPostByNone(post),
                 PartitionMode.ByLine => PartitionPostByLine(post),
                 PartitionMode.ByLineTask => PartitionPostByLineTask(post),
-                PartitionMode.ByBlock => PartitionPostByBlock(post),
-                PartitionMode.ByBlockAll => PartitionPostByBlock(post),
+                PartitionMode.ByBlock => PartitionPostByBlock(post, partitionMode),
+                PartitionMode.ByBlockAll => PartitionPostByBlock(post, partitionMode),
                 _ => throw new InvalidOperationException($"Unknown partition mode: {partitionMode}")
             };
 
@@ -378,20 +573,15 @@ namespace NetTally.Experiment3
         {
             List<VoteLine> working = new List<VoteLine>();
 
-            foreach (var line in post.WorkingVoteLines)
+            foreach (var (line, block) in post.WorkingVote)
             {
-                if (line.Depth == 0 && IsProxyReference(line, post.Author, out string proxyName, out VoteType voteType, out bool pinned))
-                {
-                    var blocks = GetProxyBlocks(proxyName, voteType, pinned, post.IDValue);
-
-                    foreach (var block in blocks)
-                    {
-                        working.AddRange(block);
-                    }
-                }
-                else
+                if (line != null)
                 {
                     working.Add(line);
+                }
+                else if (block != null)
+                {
+                    working.AddRange(block);
                 }
             }
 
@@ -410,15 +600,15 @@ namespace NetTally.Experiment3
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
 
-            foreach (var line in post.WorkingVoteLines)
+            foreach (var (line, block) in post.WorkingVote)
             {
-                if (line.Depth == 0 && IsProxyReference(line, post.Author, out string proxyName, out VoteType voteType, out bool pinned))
-                {
-                    working.AddRange(GetProxyBlocks(proxyName, voteType, pinned, post.IDValue));
-                }
-                else
+                if (line != null)
                 {
                     working.Add(new VoteLineBlock(line));
+                }
+                else if (block != null)
+                {
+                    working.AddRange(block.Select(a => new VoteLineBlock(a)));
                 }
             }
 
@@ -439,222 +629,127 @@ namespace NetTally.Experiment3
             (int depth, string task) currentTask = (0, "");
             Stack<(int depth, string task)> taskStack = new Stack<(int depth, string task)>();
 
-            foreach (var line in post.WorkingVoteLines)
+            foreach (var (line, block) in post.WorkingVote)
             {
-                if (line.Depth == 0 && IsProxyReference(line, post.Author, out string proxyName, out VoteType voteType, out bool pinned))
+                if (line != null)
                 {
-                    working.AddRange(GetProxyBlocks(proxyName, voteType, pinned, post.IDValue));
+                    working.Add(CascadeLineTask(line, ref currentTask, ref taskStack));
                 }
-                else
+                else if (block != null)
                 {
-                    // If we have no task, and the line has no task, do nothing.
-                    if (line.Task.Length == 0 && currentTask.task.Length == 0)
-                    {
-                        working.Add(new VoteLineBlock(line));
-                        continue;
-                    }
+                    // If we hit an embedded block, reset the current task, break the block up, and do the task cascade.
+                    taskStack.Clear();
+                    currentTask = (0, "");
 
-                    // If we've moved up a depth level, then make sure to pop off the stack until
-                    // our current task is appropriate to the line level.
-                    // Once we've done that, we'll be back to checking if the line is equal or greater
-                    // depth than the current task.
-                    if (line.Depth < currentTask.depth)
+                    foreach (var blockLine in block)
                     {
-                        while (currentTask.depth > line.Depth && taskStack.Count > 0)
-                        {
-                            currentTask = taskStack.Pop();
-                        }
+                        working.Add(CascadeLineTask(blockLine, ref currentTask, ref taskStack));
                     }
-
-                    // If we move to a new line that's of the same depth as our current task, update the task.
-                    if (line.Depth == currentTask.depth)
-                    {
-                        currentTask.task = line.Task;
-                        working.Add(new VoteLineBlock(line));
-                        continue;
-                    }
-
-                    // If we move to a greater depth...
-                    if (line.Depth > currentTask.depth)
-                    {
-                        // If the new line has no task, just propogate the current task and move on.
-                        if (line.Task.Length == 0)
-                        {
-                            working.Add(new VoteLineBlock(line.WithTask(currentTask.task)));
-                            continue;
-                        }
-                        // Otherwise save the current task on the stack and update to the new task.
-                        else
-                        {
-                            taskStack.Push(currentTask);
-                            currentTask = (line.Depth, line.Task);
-                            working.Add(new VoteLineBlock(line));
-                            continue;
-                        }
-                    }
-
-                    // We should never get here, but if we do, just save the line.
-                    working.Add(new VoteLineBlock(line));
                 }
             }
 
             return working;
+        }
+
+        private VoteLineBlock CascadeLineTask(VoteLine line, ref (int depth, string task) currentTask, ref Stack<(int depth, string task)> taskStack)
+        {
+            // If we have no task, and the line has no task, do nothing.
+            if (line.Task.Length == 0 && currentTask.task.Length == 0)
+            {
+                return new VoteLineBlock(line);
+            }
+
+            // If we've moved up a depth level, then make sure to pop off the stack until
+            // our current task is appropriate to the line level.
+            // Once we've done that, we'll be back to checking if the line is equal or greater
+            // depth than the current task.
+            if (line.Depth < currentTask.depth)
+            {
+                while (currentTask.depth > line.Depth && taskStack.Count > 0)
+                {
+                    currentTask = taskStack.Pop();
+                }
+            }
+
+            // If we move to a new line that's of the same depth as our current task, update the task.
+            if (line.Depth == currentTask.depth)
+            {
+                currentTask.task = line.Task;
+                return new VoteLineBlock(line);
+            }
+
+            // If we move to a greater depth...
+            if (line.Depth > currentTask.depth)
+            {
+                // If the new line has no task, just propogate the current task and move on.
+                if (line.Task.Length == 0)
+                {
+                    return new VoteLineBlock(line.WithTask(currentTask.task));
+                }
+                // Otherwise save the current task on the stack and update to the new task.
+                else
+                {
+                    taskStack.Push(currentTask);
+                    currentTask = (line.Depth, line.Task);
+                    return new VoteLineBlock(line);
+                }
+            }
+
+            // We should never get here, but if we do, just return the line.
+            return new VoteLineBlock(line);
         }
 
         /// <summary>
         /// Generate the vote partitions for a post, using block-level partitioning.
-        /// Incorporates any proxy references.
         /// </summary>
         /// <param name="post">The post with the vote to be partitioned.</param>
         /// <returns>Returns a list of vote blocks.</returns>
-        private List<VoteLineBlock> PartitionPostByBlock(Post post)
+        private List<VoteLineBlock> PartitionPostByBlock(Post post, PartitionMode partitionMode)
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
+            List<VoteLine> tempList = new List<VoteLine>();
 
-            var blocks = VoteBlocks.GetBlocks(post.WorkingVoteLines);
-
-            foreach (var block in blocks)
+            foreach (var (line, block) in post.WorkingVote)
             {
-                VoteLine top = block.Lines.First();
+                if (line != null)
+                {
+                    // Start a new block if we reach a new 0-depth line.
+                    if (line.Depth == 0 && tempList.Count > 0)
+                    {
+                        working.Add(new VoteLineBlock(tempList));
+                        tempList.Clear();
+                    }
 
-                if (top.Depth == 0 && IsProxyReference(top, post.Author, out string proxyName, out VoteType voteType, out bool pinned))
-                {
-                    working.AddRange(GetProxyBlocks(proxyName, voteType, pinned, post.IDValue));
+                    tempList.Add(line);
                 }
-                else
+                else if (block != null)
                 {
-                    working.Add(block);
+                    // Save the accumulated lines if we run into a block element.
+                    if (tempList.Count > 0)
+                    {
+                        working.Add(new VoteLineBlock(tempList));
+                        tempList.Clear();
+                    }
+
+                    if (partitionMode == PartitionMode.ByBlockAll)
+                    {
+                        working.AddRange(Partition(block, partitionMode));
+                    }
+                    else
+                    {
+                        working.Add(block);
+                    }
                 }
+            }
+
+            // Save any remainder
+            if (tempList.Count > 0)
+            {
+                working.Add(new VoteLineBlock(tempList));
+                tempList.Clear();
             }
 
             return working;
-        }
-
-        /// <summary>
-        /// Examines a vote line to determine whether it's a proxy reference.
-        /// If so, it returns information about the proxy, including 
-        /// </summary>
-        /// <param name="voteLine">The vote line to check for proxy references.</param>
-        /// <param name="postAuthor">The author of the post.</param>
-        /// <param name="proxyName">The determined name of the proxy reference.</param>
-        /// <param name="voteType">The determined type of proxy reference.</param>
-        /// <param name="pinned">Whether the proxy reference was pinned.</param>
-        /// <returns>Returns true if it found a valid proxy reference.</returns>
-        private bool IsProxyReference(VoteLine voteLine, string postAuthor, out string proxyName, out VoteType voteType, out bool pinned)
-        {
-            // Could be a plan, with "Plan X" in the vote line
-            // Could be a reference to a user, with or without a "Plan".
-            // Could be a pinned user name, like ^Kinematics or ↑Kinematics.
-
-            var refNames = VoteString.GetVoteReferenceNamesFromContent(voteLine.CleanContent);
-
-            if (refNames[ReferenceType.Label].Any(a => a.Contains("plan")))
-            {
-                // If it's labeled as a 'plan', check plans first, then users.
-
-                string? planName = refNames[ReferenceType.Plan].FirstOrDefault();
-
-                if (planName != null)
-                {
-                    string? properPlanName = voteCounter.GetPlanProperName(planName);
-
-                    if (properPlanName != null)
-                    {
-                        proxyName = properPlanName;
-                        voteType = VoteType.Plan;
-                        pinned = false;
-                        return true;
-                    }
-                    else if (!voteCounter.Quest!.DisableProxyVotes)
-                    {
-                        string? voterName = refNames[ReferenceType.Voter].FirstOrDefault();
-
-                        if (voterName != null)
-                        {
-                            string? properVoterName = voteCounter.GetVoterProperName(voterName);
-
-                            // Make sure we have a proper voter name, but don't allow self-references.
-                            // Some user names conflict with normal vote lines.
-                            if (properVoterName != null && properVoterName != postAuthor)
-                            {
-                                proxyName = properVoterName;
-                                voteType = VoteType.Vote;
-                                pinned = false;
-                                return true;
-                            }
-                        }
-                    }
-                }
-
-            }
-            else
-            {
-                // If it's not labeled as a 'plan', then it's either a pin or an unlabeled reference.
-                // Either way, check for users first.
-
-                string? voterName = refNames[ReferenceType.Voter].FirstOrDefault();
-
-                // See if any voter names match the line (as long as we're allowing proxy votes).  If so, use that.
-                if (!voteCounter.Quest!.DisableProxyVotes && voteCounter.HasReferenceVoter(voterName))
-                {
-                    string? properVoterName = voteCounter.GetVoterProperName(voterName);
-
-                    // Make sure we have a proper voter name, but don't allow self-references.
-                    // Some user names conflict with normal vote lines.
-                    if (properVoterName != null && properVoterName != postAuthor)
-                    {
-                        proxyName = properVoterName;
-                        voteType = VoteType.Vote;
-
-                        if (refNames[ReferenceType.Label].Contains("^") || refNames[ReferenceType.Label].Contains("↑"))
-                            pinned = true;
-                        else
-                            pinned = false;
-
-                        return true;
-                    }
-                }
-                // If a user isn't found, only check for regular plans if there's not a non-plan label being used,
-                // but not if the quest requires plan vote lines to be labeled.
-                else if (!voteCounter.Quest!.ForcePlanReferencesToBeLabeled && !refNames[ReferenceType.Label].Any())
-                {
-                    string? planName = refNames[ReferenceType.Plan].FirstOrDefault();
-
-                    if (planName != null)
-                    {
-                        string? properPlanName = voteCounter.GetPlanProperName(planName);
-
-                        if (properPlanName != null)
-                        {
-                            proxyName = properPlanName;
-                            voteType = VoteType.Plan;
-                            pinned = false;
-                            return true;
-                        }
-
-                    }
-                }
-            }
-
-            // Nothing was found.
-            proxyName = "";
-            voteType = VoteType.Vote;
-            pinned = false;
-            return false;
-        }
-
-        /// <summary>
-        /// Gets the vote blocks associated with a provided proxy name.
-        /// </summary>
-        /// <param name="proxyName">The name of the proxy.</param>
-        /// <param name="voteType">The type of vote being requested.</param>
-        /// <param name="pinned">Whether the proxy vote was pinned.</param>
-        /// <param name="postId">The post ID, to provide a reference for a pinned proxy vote.</param>
-        /// <returns>Returns a list of vote blocks associated with the proxy.</returns>
-        private List<VoteLineBlock> GetProxyBlocks(string proxyName, VoteType voteType, bool pinned, int postId)
-        {
-            var currentVoteBlocks = voteCounter.GetVotesBy(proxyName);
-            return currentVoteBlocks;
         }
         #endregion
 

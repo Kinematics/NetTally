@@ -195,7 +195,7 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The post ID the plan was defined in.</param>
         /// <param name="planBlock">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        public bool AddPlanReference(string planName, string postID, VoteLineBlock planBlock)
+        public bool AddReferencePlan(string planName, string postID, VoteLineBlock planBlock)
         {
             if (!ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
             {
@@ -273,6 +273,26 @@ namespace NetTally.VoteCounting
             if (PlanMessageId.TryGetValue(planName, out string postId))
             {
                 return postId;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the reference plan corresponding to the provided plan name.
+        /// </summary>
+        /// <param name="planName">The name of the plan to get.</param>
+        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
+        public VoteLineBlock? GetReferencePlan(string planName)
+        {
+            var properName = GetPlanProperName(planName);
+
+            if (properName != null)
+            {
+                if (ReferencePlansEx3.TryGetValue(properName, out VoteLineBlock plan))
+                {
+                    return plan;
+                }
             }
 
             return null;
