@@ -45,19 +45,19 @@ namespace NetTally.Output
             string permalink = string.Empty;
             bool plan = false;
 
-            var postID = voteCounter.GetFinalVoterPostId(voter);
+            int postID = voteCounter.GetVoterReferencePostId(voter);
 
-            if (string.IsNullOrEmpty(postID))
+            if (postID == 0)
             {
-                postID = voteCounter.GetPlanPostId(voter);
+                postID = voteCounter.GetPlanReferencePostId(voter);
 
-                if (postID != null)
+                if (postID != 0)
                     plan = true;
             }
 
-            if (postID != null)
+            if (postID != 0)
             {
-                permalink = forumAdapter.GetPermalinkForId(postID) ?? string.Empty;
+                permalink = forumAdapter.GetPermalinkForId(postID.ToString()) ?? string.Empty;
             }
 
             return (permalink, plan);
@@ -168,10 +168,10 @@ namespace NetTally.Output
 
             if (planVoters.Any())
             {
-                return planVoters.Select(p => new { vote = p, id = voteCounter.GetPlanPostId(p.Key) }).MinObject(a => a.id).vote;
+                return planVoters.Select(p => new { vote = p, id = voteCounter.GetPlanReferencePostId(p.Key) }).MinObject(a => a.id).vote;
             }
 
-            return voters.Select(p => new { vote = p, id = voteCounter.GetFinalVoterPostId(p.Key) }).MinObject(a => a.id).vote;
+            return voters.Select(p => new { vote = p, id = voteCounter.GetVoterReferencePostId(p.Key) }).MinObject(a => a.id).vote;
         }
 
         /// <summary>

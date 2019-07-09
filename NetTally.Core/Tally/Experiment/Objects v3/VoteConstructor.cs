@@ -130,9 +130,11 @@ namespace NetTally.Experiment3
                 List<VoteLine> voteLines = new List<VoteLine>() { firstLine };
                 voteLines.AddRange(keyContents.Skip(1).Select(v => v.WithMarker("", MarkerType.None, 0)));
 
+                planName = $"{Strings.PlanNameMarker}{planName}";
                 return (planName, new VoteLineBlock(voteLines));
             }
 
+            // If it's not a plan, how did we get here?
             return (keyName, keyContents);
         }
 
@@ -200,17 +202,32 @@ namespace NetTally.Experiment3
                         // Is the plan reference a single line, or is the entire plan embedded in the vote?
                         var partial = validVoteLines.Skip(i).Take(refPlan.Lines.Count);
 
-                        // If it's a full match, keep the user-entered version, and update our current index.
+                        // If it's a full match, we need to skip past these lines in the next index increment.
                         if (refPlan.Equals(partial))
                         {
-                            workingVote.Add((null, new VoteLineBlock(partial)));
                             i += refPlan.Lines.Count - 1; // compensate for the i++ increment
                         }
-                        // Otherwise use the reference version, but with the markers specified by the user.
-                        else
+
+
+                        // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
+
+                        var voteBlocks = voteCounter.GetVotesBy(refName);
+
+                        foreach (var voteBlock in voteBlocks)
                         {
-                            workingVote.Add((null, new VoteLineBlock(refPlan.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue))));
+                            workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                         }
+
+                        //if (refPlan.Equals(partial))
+                        //{
+                        //    workingVote.Add((null, new VoteLineBlock(partial)));
+                        //    i += refPlan.Lines.Count - 1; // compensate for the i++ increment
+                        //}
+                        //// Otherwise use the reference version, but with the markers specified by the user.
+                        //else
+                        //{
+                        //    workingVote.Add((null, new VoteLineBlock(refPlan.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue))));
+                        //}
                     }
                     // Users
                     else
@@ -233,13 +250,21 @@ namespace NetTally.Experiment3
                         // Otherwise save the reference vote.
                         else
                         {
-                            List<(VoteLine? line, VoteLineBlock? block)> refWorkingVote1 = new List<(VoteLine? line, VoteLineBlock? block)>();
+                            var voteBlocks = voteCounter.GetVotesBy(refName);
 
-                            var refWorkingVote2 = refUserPost.WorkingVote.Select(wv =>
-                                (wv.line?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true),
-                                 wv.block?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true)));
+                            foreach (var voteBlock in voteBlocks)
+                            {
+                                workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                            }
 
-                            workingVote.AddRange(refWorkingVote2);
+
+                            //List<(VoteLine? line, VoteLineBlock? block)> refWorkingVote1 = new List<(VoteLine? line, VoteLineBlock? block)>();
+
+                            //var refWorkingVote2 = refUserPost.WorkingVote.Select(wv =>
+                            //    (wv.line?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true),
+                            //     wv.block?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true)));
+
+                            //workingVote.AddRange(refWorkingVote2);
                         }
                     }
                 }
@@ -262,8 +287,8 @@ namespace NetTally.Experiment3
 
                 if (isProposedPlan)
                 {
-                    string? originalPostIdForPlan = voteCounter.GetPlanPostId(proposedPlanName);
-                    if (originalPostIdForPlan == post.ID)
+                    int originalPostIdForPlan = voteCounter.GetPlanReferencePostId(proposedPlanName);
+                    if (originalPostIdForPlan == post.IDValue)
                     {
                         return true;
                     }
@@ -293,27 +318,27 @@ namespace NetTally.Experiment3
 
                 if (label == "^" || label == "↑")
                 {
-                    string? refUser = voteCounter.GetVoterProperName(refName);
+                    string? refUser = voteCounter.GetProperVoterName(refName);
 
                     if (refUser != null)
                         return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
                 }
                 else if (label.StartsWith("base") || label.StartsWith("proposed"))
                 {
-                    string? refPlan = voteCounter.GetPlanProperName(refName);
+                    string? refPlan = voteCounter.GetProperPlanName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
                 }
-                else if (label.Contains("plan"))
+                else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
                 {
-                    string? refPlan = voteCounter.GetPlanProperName(refName);
+                    string? refPlan = voteCounter.GetProperPlanName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                     // Check user names second
-                    string? refUser = voteCounter.GetVoterProperName(refName);
+                    string? refUser = voteCounter.GetProperVoterName(refName);
 
                     if (refUser != null)
                         return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
@@ -321,12 +346,12 @@ namespace NetTally.Experiment3
                 else // Any unlabeled lines
                 {
                     // Check user names first
-                    string? refUser = voteCounter.GetVoterProperName(refName);
+                    string? refUser = voteCounter.GetProperVoterName(refName);
 
                     if (refUser != null)
                         return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
 
-                    string? refPlan = voteCounter.GetPlanProperName(refName);
+                    string? refPlan = voteCounter.GetProperPlanName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
@@ -351,7 +376,7 @@ namespace NetTally.Experiment3
         private bool IsValidPlanName(string planName, string postAuthor)
         {
             // A named vote that is named after a user is only valid if it matches the post author's name.
-            if (voteCounter.HasReferenceVoter(planName))
+            if (voteCounter.HasVoter(planName))
             {
                 if (!Agnostic.StringComparer.Equals(planName, postAuthor))
                 {
@@ -416,7 +441,7 @@ namespace NetTally.Experiment3
                 if (refNames[ReferenceType.Plan].Any(voteCounter.HasPlan))
                     continue;
 
-                string? refVoter = voteCounter.GetVoterProperName(refNames[ReferenceType.Voter].FirstOrDefault());
+                string? refVoter = voteCounter.GetProperVoterName(refNames[ReferenceType.Voter].FirstOrDefault());
 
                 if (refVoter != null && refVoter != post.Author)
                 {
@@ -651,54 +676,6 @@ namespace NetTally.Experiment3
             return working;
         }
 
-        private VoteLineBlock CascadeLineTask(VoteLine line, ref (int depth, string task) currentTask, ref Stack<(int depth, string task)> taskStack)
-        {
-            // If we have no task, and the line has no task, do nothing.
-            if (line.Task.Length == 0 && currentTask.task.Length == 0)
-            {
-                return new VoteLineBlock(line);
-            }
-
-            // If we've moved up a depth level, then make sure to pop off the stack until
-            // our current task is appropriate to the line level.
-            // Once we've done that, we'll be back to checking if the line is equal or greater
-            // depth than the current task.
-            if (line.Depth < currentTask.depth)
-            {
-                while (currentTask.depth > line.Depth && taskStack.Count > 0)
-                {
-                    currentTask = taskStack.Pop();
-                }
-            }
-
-            // If we move to a new line that's of the same depth as our current task, update the task.
-            if (line.Depth == currentTask.depth)
-            {
-                currentTask.task = line.Task;
-                return new VoteLineBlock(line);
-            }
-
-            // If we move to a greater depth...
-            if (line.Depth > currentTask.depth)
-            {
-                // If the new line has no task, just propogate the current task and move on.
-                if (line.Task.Length == 0)
-                {
-                    return new VoteLineBlock(line.WithTask(currentTask.task));
-                }
-                // Otherwise save the current task on the stack and update to the new task.
-                else
-                {
-                    taskStack.Push(currentTask);
-                    currentTask = (line.Depth, line.Task);
-                    return new VoteLineBlock(line);
-                }
-            }
-
-            // We should never get here, but if we do, just return the line.
-            return new VoteLineBlock(line);
-        }
-
         /// <summary>
         /// Generate the vote partitions for a post, using block-level partitioning.
         /// </summary>
@@ -750,6 +727,54 @@ namespace NetTally.Experiment3
             }
 
             return working;
+        }
+
+        private VoteLineBlock CascadeLineTask(VoteLine line, ref (int depth, string task) currentTask, ref Stack<(int depth, string task)> taskStack)
+        {
+            // If we have no task, and the line has no task, do nothing.
+            if (line.Task.Length == 0 && currentTask.task.Length == 0)
+            {
+                return new VoteLineBlock(line);
+            }
+
+            // If we've moved up a depth level, then make sure to pop off the stack until
+            // our current task is appropriate to the line level.
+            // Once we've done that, we'll be back to checking if the line is equal or greater
+            // depth than the current task.
+            if (line.Depth < currentTask.depth)
+            {
+                while (currentTask.depth > line.Depth && taskStack.Count > 0)
+                {
+                    currentTask = taskStack.Pop();
+                }
+            }
+
+            // If we move to a new line that's of the same depth as our current task, update the task.
+            if (line.Depth == currentTask.depth)
+            {
+                currentTask.task = line.Task;
+                return new VoteLineBlock(line);
+            }
+
+            // If we move to a greater depth...
+            if (line.Depth > currentTask.depth)
+            {
+                // If the new line has no task, just propogate the current task and move on.
+                if (line.Task.Length == 0)
+                {
+                    return new VoteLineBlock(line.WithTask(currentTask.task));
+                }
+                // Otherwise save the current task on the stack and update to the new task.
+                else
+                {
+                    taskStack.Push(currentTask);
+                    currentTask = (line.Depth, line.Task);
+                    return new VoteLineBlock(line);
+                }
+            }
+
+            // We should never get here, but if we do, just return the line.
+            return new VoteLineBlock(line);
         }
         #endregion
 

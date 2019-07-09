@@ -473,8 +473,8 @@ namespace NTTests.Voting
             List<string> vote2 = new List<string> { voteLine2 };
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoterReference(voter1, postId1);
-            voteCounter.AddVoterReference(voter2, postId2);
+            voteCounter.AddReferenceVoter(voter1, postId1);
+            voteCounter.AddReferenceVoter(voter2, postId2);
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
             voteCounter.AddVotes(vote2, voter2, postId2, voteType);
 
@@ -496,8 +496,8 @@ namespace NTTests.Voting
             List<string> vote2 = new List<string> { voteLine1, voteLine2 };
             VoteType voteType = VoteType.Vote;
 
-            voteCounter.AddVoterReference(voter1, postId1);
-            voteCounter.AddVoterReference(voter2, postId2);
+            voteCounter.AddReferenceVoter(voter1, postId1);
+            voteCounter.AddReferenceVoter(voter2, postId2);
             voteCounter.AddVotes(vote1, voter1, postId1, voteType);
             voteCounter.AddVotes(vote2, voter2, postId2, voteType);
 

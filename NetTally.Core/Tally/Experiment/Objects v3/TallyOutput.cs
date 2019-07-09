@@ -8,6 +8,7 @@ using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.SystemInfo;
+using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -220,8 +221,6 @@ namespace NetTally.Experiment3
         {
             if (votes.Count == 0)
             {
-                sb.AppendLine("No ranked votes");
-                sb.AppendLine();
                 return;
             }
 
@@ -251,7 +250,7 @@ namespace NetTally.Experiment3
                         int rank = 2;
 
                         sb.AppendLine(vote.Key.ToStringWithMarker($"#{rank}"));
-                        AddVoterCount(vote.Value.Count);
+                        AddVoterCount(vote);
                         AddVoters(vote.Value);
                         sb.AppendLine();
                     }
@@ -265,8 +264,6 @@ namespace NetTally.Experiment3
         {
             if (votes.Count == 0)
             {
-                sb.AppendLine("No scored votes");
-                sb.AppendLine();
                 return;
             }
 
@@ -296,7 +293,7 @@ namespace NetTally.Experiment3
                     foreach (var vote in orderedVotes)
                     {
                         sb.AppendLine(vote.vote.Key.ToStringWithMarker($"{vote.score}%"));
-                        AddVoterCount(vote.vote.Value.Count);
+                        AddVoterCount(vote.vote);
                         AddVoters(vote.vote.Value);
                         sb.AppendLine();
                     }
@@ -310,8 +307,6 @@ namespace NetTally.Experiment3
         {
             if (votes.Count == 0)
             {
-                sb.AppendLine("No approved votes");
-                sb.AppendLine();
                 return;
             }
 
@@ -341,7 +336,7 @@ namespace NetTally.Experiment3
                         int approval = 200;
 
                         sb.AppendLine(vote.Key.ToStringWithMarker($"{approval}"));
-                        AddVoterCount(vote.Value.Count);
+                        AddVoterCount(vote);
                         AddVoters(vote.Value);
                         sb.AppendLine();
                     }
@@ -362,8 +357,6 @@ namespace NetTally.Experiment3
         {
             if (votes.Count == 0)
             {
-                sb.AppendLine("No standard votes");
-                sb.AppendLine();
                 return;
             }
 
@@ -388,7 +381,7 @@ namespace NetTally.Experiment3
                     foreach (var vote in orderedVotes)
                     {
                         sb.AppendLine(vote.Key.ToStringWithMarker());
-                        AddVoterCount(vote.Value.Count);
+                        AddVoterCount(vote);
                         AddVoters(vote.Value);
                         sb.AppendLine();
                     }
@@ -397,6 +390,7 @@ namespace NetTally.Experiment3
                 }
             }
         }
+
 
         private void AddVoters(Dictionary<string, VoteLineBlock> voters, string spoilerLabel = "Voters")
         {
@@ -417,11 +411,13 @@ namespace NetTally.Experiment3
         private void AddVoter(KeyValuePair<string, VoteLineBlock> voter)
         {
             var (permalink, plan) = voteInfo.GetVoterPostPermalink(voter.Key);
+            string name = voter.Key;
+            if (name[0] == Strings.PlanNameMarkerChar) name = name.Substring(1);
 
             if (plan) sb.Append("[b]");
 
             sb.Append("[");
-            sb.Append(voter.Value.Marker);
+            sb.Append(plan ? Strings.PlanNameMarker : voter.Value.Marker);
             sb.Append("] ");
 
             if (plan) sb.Append("Plan: ");
@@ -429,7 +425,7 @@ namespace NetTally.Experiment3
             sb.Append("[url=\"");
             sb.Append(permalink);
             sb.Append("\"]");
-            sb.Append(voter.Key);
+            sb.Append(name);
             sb.Append("[/url]");
 
             if (plan) sb.Append("[/b]");
@@ -437,31 +433,23 @@ namespace NetTally.Experiment3
             sb.AppendLine();
         }
 
-
-        private int GetVoteScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
-        {
-            int count = vote.Value.Count;
-
-            int scoreTotal = vote.Value.Sum(v => v.Value.MarkerValue);
-
-            return (int)Math.Round((double)scoreTotal / count, 0);
-        }
-
-
-
-
-
-
         /// <summary>
         /// Add a line showing the specified number of voters.
         /// </summary>
         /// <param name="count">The count to display.</param>
-        private void AddVoterCount(int count)
+        private void AddVoterCount(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
         {
+            if (outputOptions.DisplayMode == DisplayMode.Compact || outputOptions.DisplayMode == DisplayMode.CompactNoVoters)
+                return;
+
+            int count = vote.Value.Count(v => v.Key[0] != Strings.PlanNameMarkerChar);
+            int count1 = vote.Value.Count;
+
             sb.Append("[b]No. of Votes: ");
             sb.Append(count);
             sb.AppendLine("[/b]");
         }
+
 
         /// <summary>
         /// Add a label for the specified task.
@@ -492,6 +480,19 @@ namespace NetTally.Experiment3
             sb.AppendLine(voteInfo.LineBreak);
             sb.AppendLine();
         }
+
+
+
+        private int GetVoteScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        {
+            int count = vote.Value.Count;
+
+            int scoreTotal = vote.Value.Sum(v => v.Value.MarkerValue);
+
+            return (int)Math.Round((double)scoreTotal / count, 0);
+        }
+
+
 
     }
 }
