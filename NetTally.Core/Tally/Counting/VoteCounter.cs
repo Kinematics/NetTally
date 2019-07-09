@@ -79,15 +79,10 @@ namespace NetTally.VoteCounting
 
 
 
-        public Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>> VoteBlockSupporters { get; private set; }
-            = new Dictionary<VoteLineBlock, Dictionary<string, HashSet<VoteLineBlock>>>();
-
-
+        public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; private set; }
+            = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>();
 
         public HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
-
-        public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
-
 
         #endregion
 
@@ -250,7 +245,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the post ID for the voter, or null if not found.</returns>
         public string? GetFinalVoterPostId(string voterName)
         {
-            return ReferenceVoterPosts[voterName];
+            return ReferenceVoterPosts.GetValueOrDefault(voterName);
         }
 
         /// <summary>
@@ -305,8 +300,8 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
         public List<VoteLineBlock> GetVotesBy(string voterName)
         {
-            var voteInstances = VoteBlockSupporters.Values.SelectMany(a => a[voterName]).ToList();
-            return voteInstances;
+            var votesByVoter = VoteBlockSupporters.SelectMany(a => a.Value).Where(a => a.Key == voterName).Select(a => a.Value);
+            return votesByVoter.ToList();
         }
 
         /// <summary>
@@ -346,21 +341,6 @@ namespace NetTally.VoteCounting
             return PlanNames.Contains(planName, Agnostic.StringComparer);
         }
 
-        /// <summary>
-        /// Check to see whether the specified vote has been recorded.
-        /// Ranking votes are checked against their condensed forms.
-        /// </summary>
-        /// <param name="vote">The vote to check.</param>
-        /// <param name="voteType">The type of vote being checked.</param>
-        /// <returns>Returns true if found.</returns>
-        public bool HasVote(string vote, VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return HasCondensedRankVote(vote);
-
-            var votes = GetVotesCollection(voteType);
-            return votes.ContainsKey(vote);
-        }
 
         /// <summary>
         /// Check to see whether the specified vote has been recorded.
@@ -462,7 +442,7 @@ namespace NetTally.VoteCounting
             // Add/update all segments of the provided vote
             foreach (var part in voteParts)
             {
-                AddVote(part, voter, voteType);
+                AddVote(part, voter);
             }
 
             // Cleanup any votes that no longer have any support
@@ -478,24 +458,17 @@ namespace NetTally.VoteCounting
         /// <param name="voter">The voter that is supporting the vote.</param>
         /// <param name="voteType">Type of the vote.</param>
         /// <exception cref="System.ArgumentNullException">vote and voter must not be null or empty.</exception>
-        private void AddVote(VoteLineBlock vote, string voter, VoteType voteType)
+        private void AddVote(VoteLineBlock vote, string voter)
         {
-            var votes = VoteBlockSupporters;
-
-            if (!votes.TryGetValue(vote, out var supporters))
+            if (!VoteBlockSupporters.TryGetValue(vote, out var supporters))
             {
-                supporters = new Dictionary<string, HashSet<VoteLineBlock>>(StringComparer.OrdinalIgnoreCase);
-                votes.Add(vote, supporters);
+                var referenceVote = vote.WithMarker("", MarkerType.None, 0);
+                supporters = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
+                VoteBlockSupporters.Add(referenceVote, supporters);
             }
 
-            if (!supporters.TryGetValue(voter, out var voterVotes))
-            {
-                voterVotes = new HashSet<VoteLineBlock>();
-                supporters.Add(voter, voterVotes);
-                OnPropertyChanged("Voters");
-            }
+            supporters.Add(voter, vote);
 
-            voterVotes.Add(vote);
             OnPropertyChanged("Votes");
         }
 
@@ -1253,7 +1226,10 @@ namespace NetTally.VoteCounting
 
 
 
+        #region Deprecated
 
+
+        public bool HasRankedVotes => RankedVotesWithSupporters.Count > 0;
 
 
         #region Query on collection stuff
@@ -1418,9 +1394,24 @@ namespace NetTally.VoteCounting
             return false;
         }
 
+        /// <summary>
+        /// Check to see whether the specified vote has been recorded.
+        /// Ranking votes are checked against their condensed forms.
+        /// </summary>
+        /// <param name="vote">The vote to check.</param>
+        /// <param name="voteType">The type of vote being checked.</param>
+        /// <returns>Returns true if found.</returns>
+        public bool HasVote(string vote, VoteType voteType)
+        {
+            if (voteType == VoteType.Rank)
+                return HasCondensedRankVote(vote);
+
+            var votes = GetVotesCollection(voteType);
+            return votes.ContainsKey(vote);
+        }
+
         #endregion
 
-        #region Deprecated
         #endregion
 
     }

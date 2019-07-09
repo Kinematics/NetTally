@@ -323,7 +323,7 @@ namespace NetTally.Extensions
         /// </summary>
         /// <typeparam name="T">The type of the enumerable.</typeparam>
         /// <param name="items">The list of items to check.</param>
-        /// <param name="predicate">The predicate test to use on each item. Has a default value of 83% (5/6 would pass).</param>
+        /// <param name="predicate">The predicate test to use on each item. Has a default value of 83% (5/6 success rate would pass).</param>
         /// <param name="threshold">What percentage of the checks must pass for the function to return true.</param>
         /// <returns>Returns true if most of the items in the sequence pass the predicate check.</returns>
         public static bool Most<T>(this IEnumerable<T> items, Func<T, bool> predicate, double threshold = 0.83)

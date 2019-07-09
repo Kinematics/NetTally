@@ -728,6 +728,7 @@ namespace NetTally.ViewModels
         public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Delete(vote, voteType);
 
         public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType, Tally.VoteConstructor);
+        public bool PartitionChildren2(Experiment3.VoteLineBlock vote, VoteType voteType) => VoteCounter.Split(vote, Tally.VoteConstructor.PartitionChildren(vote));
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 

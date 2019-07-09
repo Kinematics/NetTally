@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Experiment3;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
@@ -37,6 +38,29 @@ namespace NetTally.Output
                 return forumAdapter.GetPermalinkForId(voteID) ?? string.Empty;
 
             return string.Empty;
+        }
+
+        public (string permalink, bool plan) GetVoterPostPermalink(string voter)
+        {
+            string permalink = string.Empty;
+            bool plan = false;
+
+            var postID = voteCounter.GetFinalVoterPostId(voter);
+
+            if (string.IsNullOrEmpty(postID))
+            {
+                postID = voteCounter.GetPlanPostId(voter);
+
+                if (postID != null)
+                    plan = true;
+            }
+
+            if (postID != null)
+            {
+                permalink = forumAdapter.GetPermalinkForId(postID) ?? string.Empty;
+            }
+
+            return (permalink, plan);
         }
 
         public string LineBreak => forumAdapter.LineBreak;
@@ -111,6 +135,43 @@ namespace NetTally.Output
             }
 
             return null;
+        }
+
+        public List<KeyValuePair<string, VoteLineBlock>> GetOrderedVoterList(Dictionary<string, VoteLineBlock> voters)
+        {
+            var voterList = new List<KeyValuePair<string, VoteLineBlock>>();
+
+            if (voters == null || voters.Count == 0)
+            {
+                return voterList;
+            }
+
+            if (voters.Count == 1)
+            {
+                voterList.AddRange(voters);
+                return voterList;
+            }
+
+            voterList.AddRange(voters.OrderBy(v => v.Key));
+
+            var firstVoter = GetFirstVoter(voters);
+
+            voterList.Remove(firstVoter);
+            voterList.Insert(0, firstVoter);
+
+            return voterList;
+        }
+
+        public KeyValuePair<string, VoteLineBlock> GetFirstVoter(Dictionary<string, VoteLineBlock> voters)
+        {
+            var planVoters = voters.Where(v => voteCounter.HasPlan(v.Key));
+
+            if (planVoters.Any())
+            {
+                return planVoters.Select(p => new { vote = p, id = voteCounter.GetPlanPostId(p.Key) }).MinObject(a => a.id).vote;
+            }
+
+            return voters.Select(p => new { vote = p, id = voteCounter.GetFinalVoterPostId(p.Key) }).MinObject(a => a.id).vote;
         }
 
         /// <summary>
