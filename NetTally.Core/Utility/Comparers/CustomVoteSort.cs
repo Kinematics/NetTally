@@ -27,6 +27,10 @@ namespace NetTally.Comparers
 
                 return result;
             }
+            else if (x is Experiment3.VoteLineBlock xv && y is Experiment3.VoteLineBlock yv)
+            {
+                return xv.CompareTo(yv);
+            }
             else
             {
                 throw new ArgumentException("Parameters are not strings.");

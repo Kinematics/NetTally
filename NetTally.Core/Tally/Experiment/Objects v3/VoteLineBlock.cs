@@ -7,7 +7,7 @@ using NetTally.Votes;
 
 namespace NetTally.Experiment3
 {
-    public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>
+    public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>, IComparable<VoteLineBlock>
     {
         public string Task { get; set; }
         public string Marker { get; }
@@ -168,6 +168,27 @@ namespace NetTally.Experiment3
         public override int GetHashCode()
         {
             return _hash;
+        }
+
+        public int CompareTo(VoteLineBlock other)
+        {
+            var zip = Lines.Zip(other.Lines, (a, b) => new { a, b });
+            int result;
+
+            foreach (var z in zip)
+            {
+                result = Agnostic.StringComparer.Compare(z.a.Task, z.b.Task);
+
+                if (result != 0)
+                    return result;
+
+                result = Agnostic.StringComparer.Compare(z.a.CleanContent, z.b.CleanContent);
+
+                if (result != 0)
+                    return result;
+            }
+
+            return Lines.Count.CompareTo(other.Lines.Count);
         }
 #nullable enable
     }
