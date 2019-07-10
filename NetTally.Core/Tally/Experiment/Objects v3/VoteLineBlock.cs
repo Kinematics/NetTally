@@ -121,7 +121,7 @@ namespace NetTally.Experiment3
 
             foreach (var z in zip)
             {
-                if (!Agnostic.StringComparer.Equals(z.a.CleanContent, z.b.CleanContent))
+                if (!(z.a == z.b))
                 {
                     return false;
                 }
@@ -138,24 +138,18 @@ namespace NetTally.Experiment3
             if (this.Lines.Count != other.Lines.Count)
                 return false;
 
-            // MarkerType of None matches any other marker
-            if (this.Lines.Count == 0 && other.Lines.Count == 0)
-                return (MarkerType == other.MarkerType || MarkerType == MarkerType.None || other.MarkerType == MarkerType.None);
-
-            if (this.Lines.First() != other.Lines.First())
-                return false;
-
             var zip = Lines.Zip(other.Lines, (a, b) => new { a, b });
 
             foreach (var z in zip)
             {
-                if (!Agnostic.StringComparer.Equals(z.a.CleanContent, z.b.CleanContent))
+                if (!(z.a == z.b))
                 {
                     return false;
                 }
             }
 
-            // MarkerType of None matches any other marker
+            // Lines do not compare markers for equality, but blocks do.
+            // MarkerType of None matches any other marker.
             return (MarkerType == other.MarkerType || MarkerType == MarkerType.None || other.MarkerType == MarkerType.None);
         }
 

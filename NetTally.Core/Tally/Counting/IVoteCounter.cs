@@ -26,6 +26,13 @@ namespace NetTally.VoteCounting
         bool TallyWasCanceled { get; set; }
 
         /// <summary>
+        /// A collection structure to store votes and the voters who voted for them.
+        /// Also stores the specific variant that each voter used.
+        /// </summary>
+        public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
+
+
+        /// <summary>
         /// Reset internal storage for a new tally.
         /// </summary>
         void Reset();
@@ -79,17 +86,23 @@ namespace NetTally.VoteCounting
         bool AddFutureReference(Post post);
 
         /// <summary>
+        /// Get canonical version of the provided plan name.
+        /// </summary>
+        /// <param name="planName">The name of the plan being checked for.</param>
+        /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
+        string? GetProperPlanName(string planName);
+        /// <summary>
         /// Get canonical version of the provided voter name.
         /// </summary>
         /// <param name="voterName">The name of the voter being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
         string? GetProperVoterName(string voterName);
         /// <summary>
-        /// Get canonical version of the provided plan name.
+        /// Get the post ID stored for the specified plan, which is the post that it was defined in.
         /// </summary>
-        /// <param name="planName">The name of the plan being checked for.</param>
-        /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-        string? GetProperPlanName(string planName);
+        /// <param name="planName">The name of the plan to check on.</param>
+        /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
+        int GetPlanReferencePostId(string planName);
         /// <summary>
         /// Get the post ID stored for the specified voter.  This will always be the last one entered.
         /// </summary>
@@ -97,11 +110,20 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the post ID for the voter, or null if not found.</returns>
         int GetVoterReferencePostId(string voterName);
         /// <summary>
-        /// Get the post ID stored for the specified plan, which is the post that it was defined in.
+        /// Get the ID of the post by the specified author at the time of the request.
+        /// This may change over the course of a tally.
         /// </summary>
-        /// <param name="planName">The name of the plan to check on.</param>
-        /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
-        int GetPlanReferencePostId(string planName);
+        /// <param name="voterName">The name of the voter to check for.</param>
+        /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
+        int GetLatestVoterPostId(string voterName);
+        /// <summary>
+        /// Get the last post made by a given author.
+        /// Possibly restrict the search range to no more than the specified post ID.
+        /// </summary>
+        /// <param name="voterName">The voter being queried.</param>
+        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
+        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
+        Post? GetLastPostByAuthor(string voterName, int maxPostId = 0);
         /// <summary>
         /// Get the reference plan corresponding to the provided plan name.
         /// </summary>
@@ -114,15 +136,6 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The name of the voter or plan being requested.</param>
         /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
         List<VoteLineBlock> GetVotesBy(string voterName);
-        /// <summary>
-        /// Get the last post made by a given author.
-        /// Possibly restrict the search range to no more than the specified post ID.
-        /// </summary>
-        /// <param name="voterName">The voter being queried.</param>
-        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
-        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-        Post? GetLastPostByAuthor(string voterName, int maxPostId = 0);
-        int GetLatestVoterPostId(string voterName);
 
         /// <summary>
         /// Determine if the requested plan name exists in the current list of plans.
@@ -150,11 +163,6 @@ namespace NetTally.VoteCounting
         bool HasNewerVote(Post post);
 
 
-        /// <summary>
-        /// A collection structure to store votes and the voters who voted for them.
-        /// Also stores the specific variant that each voter used.
-        /// </summary>
-        public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
         /// <summary>
         /// Function to add the provided votes to the current vote stores.
         /// </summary>
