@@ -333,6 +333,29 @@ namespace NetTally.VoteCounting
                 .ToList();
         }
 
+
+        public IEnumerable<VoteLineBlock> GetSupportedVotesList()
+        {
+            // TODO: Possibly filter out unsupported votes
+            return VoteBlockSupporters.Keys;
+        }
+
+        public IEnumerable<string> GetFullVotersList()
+        {
+            // TODO: Possibly filter out plans?
+            var voters = VoteBlockSupporters.SelectMany(a => a.Value.Keys).Distinct().OrderBy(a => a);
+            return voters;
+        }
+
+        public IEnumerable<string> GetVotersFor(VoteLineBlock vote)
+        {
+            if (VoteBlockSupporters.TryGetValue(vote, out var supporters))
+            {
+                return supporters.Select(a => a.Key);
+            }
+
+            return Enumerable.Empty<string>();
+        }
         #endregion
 
         #region Query if counter Has ...
@@ -578,14 +601,15 @@ namespace NetTally.VoteCounting
 
             foreach (var (supporterName, oldVote) in fromSupport)
             {
-                var newVote = toVote.WithMarker(oldVote.Marker, oldVote.MarkerType, oldVote.MarkerValue);
-                toSupport.Add(supporterName, newVote);
-                merged = true;
+                if (!toSupport.ContainsKey(supporterName))
+                {
+                    var newVote = toVote.WithMarker(oldVote.Marker, oldVote.MarkerType, oldVote.MarkerValue);
+                    toSupport.Add(supporterName, newVote);
+                    merged = true;
+                }
             }
 
-            VoteBlockSupporters.Remove(fromVote);
-
-            return merged;
+            return VoteBlockSupporters.Remove(fromVote) || merged;
         }
 
         /// <summary>
@@ -603,21 +627,33 @@ namespace NetTally.VoteCounting
             if (!sourceVoterVotes.Any() || !targetVoterVotes.Any())
                 return false;
 
+            bool joined = false;
+
             foreach (var (vote, support) in sourceVoterVotes)
             {
-                support.Remove(joiningVoter);
-                if (!support.Any())
+                // Don't remove support if you're already supporting the same ticket.
+                if (!support.ContainsKey(voterToJoin))
                 {
-                    VoteBlockSupporters.Remove(vote);
+                    support.Remove(joiningVoter);
+                    if (!support.Any())
+                    {
+                        VoteBlockSupporters.Remove(vote);
+                        joined = true;
+                    }
                 }
             }
 
             foreach (var voteBlock in targetVoterVotes)
             {
-                voteBlock.Add(joiningVoter, voteBlock[voterToJoin]);
+                // Don't add if voter is already present
+                if (!voteBlock.ContainsKey(joiningVoter))
+                {
+                    voteBlock.Add(joiningVoter, voteBlock[voterToJoin]);
+                    joined = true;
+                }
             }
 
-            return true;
+            return joined;
         }
 
         /// <summary>
@@ -660,11 +696,14 @@ namespace NetTally.VoteCounting
 
         #endregion
 
+
+        public bool ReplaceTask(VoteLineBlock vote, string task)
+        {
+            throw new NotImplementedException();
+        }
+
+
         #region Modifying Votes
-
-
-
-
 
         /// <summary>
         /// Undoes the most recently performed modification to the vote count.

@@ -15,6 +15,7 @@ using NetTally.Navigation;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
+using NetTally.Experiment3;
 
 namespace NetTally
 {
@@ -75,15 +76,14 @@ namespace NetTally
             if (VoteView1.CanSort)
             {
                 IComparer voteCompare = new CustomVoteSort();
-                //IComparer voteCompare = StringComparer.InvariantCultureIgnoreCase;
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }
 
             if (VoteView1.CanFilter)
             {
-                VoteView1.Filter = (a) => FilterVotes1(a.ToString());
-                VoteView2.Filter = (a) => FilterVotes2(a.ToString());
+                VoteView1.Filter = (a) => FilterVotes(VoteView1, Filter1String, a as VoteLineBlock);
+                VoteView2.Filter = (a) => FilterVotes(VoteView2, Filter2String, a as VoteLineBlock);
             }
 
             // Initialize starting selected positions
@@ -95,8 +95,8 @@ namespace NetTally
             VoterView1 = new ListCollectionView(_mainViewModel.AllVotersCollection);
             VoterView2 = new ListCollectionView(_mainViewModel.AllVotersCollection);
 
-            VoterView1.Filter = (a) => FilterVoters(VoteView1, a.ToString());
-            VoterView2.Filter = (a) => FilterVoters(VoteView2, a.ToString());
+            VoterView1.Filter = (a) => FilterVoters(VoteView1, a as string);
+            VoterView2.Filter = (a) => FilterVoters(VoteView2, a as string);
 
             // Update the voters to match the votes.
             VoterView1.Refresh();
@@ -144,40 +144,6 @@ namespace NetTally
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Returns whether or not it's valid to merge votes based on the current list selections.
-        /// </summary>
-        public bool VotesCanMerge
-        {
-            get
-            {
-                // Can't merge if nothing is selected
-                if (VoteView1.CurrentItem == null || VoteView2.CurrentItem == null)
-                    return false;
-
-                string fromVote = VoteView1.CurrentItem.ToString();
-                string toVote = VoteView2.CurrentItem.ToString();
-
-                if (CurrentVoteType == VoteType.Rank)
-                {
-                    // Don't allow merging if they're not the same rank.
-                    // Changing: If they're not the same rank, the merge just changes the text of the "from" vote to the "to" vote
-
-                    // Don't allow merging if they're not the same task.
-
-                    string taskFrom = VoteString.GetVoteTask(fromVote, CurrentVoteType);
-                    string taskTo = VoteString.GetVoteTask(toVote, CurrentVoteType);
-
-                    if (taskFrom != taskTo)
-                        return false;
-                }
-
-                // Otherwise, allow merge if they're not the same
-                return (fromVote != toVote);
-            }
-        }
-
         /// <summary>
         /// Returns whether there are ranked votes available in the vote tally.
         /// </summary>
@@ -282,7 +248,6 @@ namespace NetTally
         private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             VoterView1.Refresh();
-            merge.IsEnabled = VotesCanMerge;
         }
 
         /// <summary>
@@ -294,7 +259,6 @@ namespace NetTally
         private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             VoterView2.Refresh();
-            merge.IsEnabled = VotesCanMerge;
         }
 
         /// <summary>
@@ -304,14 +268,10 @@ namespace NetTally
         /// <param name="e"></param>
         private void merge_Click(object sender, RoutedEventArgs e)
         {
-            if (!VotesCanMerge)
-                return;
-
-            string? fromVote = VoteView1.CurrentItem?.ToString();
-            string? toVote = VoteView2.CurrentItem?.ToString();
-
-            if (fromVote != null && toVote != null)
+            if (VoteView1.CurrentItem is VoteLineBlock fromVote && VoteView2.CurrentItem is VoteLineBlock toVote)
+            {
                 MergeVotes(fromVote, toVote);
+            }
         }
 
         /// <summary>
@@ -334,7 +294,7 @@ namespace NetTally
 
             try
             {
-                if (_mainViewModel.JoinVoters(fromVoters, joinVoter, CurrentVoteType))
+                if (_mainViewModel.JoinVoters(fromVoters, joinVoter))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -357,9 +317,12 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (_mainViewModel.DeleteVote(VoteView1.CurrentItem?.ToString() ?? "", CurrentVoteType))
+                if (VoteView1.CurrentItem is VoteLineBlock currentVote)
                 {
-                    OnPropertyChanged(nameof(HasUndoActions));
+                    if (_mainViewModel.DeleteVote(currentVote))
+                    {
+                        OnPropertyChanged(nameof(HasUndoActions));
+                    }
                 }
             }
             catch (Exception ex)
@@ -397,32 +360,27 @@ namespace NetTally
         #region Context Menu events
         private void TaskContextMenu_Opened(object sender, RoutedEventArgs e)
         {
-            bool enabled = false;
-
             if (!(sender is ContextMenu cm))
                 return;
 
             if (!(cm.PlacementTarget is ListBox listBox))
                 return;
 
-            string selectedVote = listBox.SelectedItem?.ToString() ?? "";
-
-            // Only enable the Parition Children context menu item if it's a valid action for the vote.
-            if (!string.IsNullOrEmpty(selectedVote))
+            if (listBox.SelectedItem is VoteLineBlock selectedVote)
             {
-                if (HasChildLines(selectedVote))
-                    enabled = true;
-            }
+                // Only enable the Parition Children context menu item if it's a valid action for the vote.
+                bool enabled = HasChildLines(selectedVote);
 
-            if (Resources["TaskContextMenu"] is ContextMenu pMenu)
-            {
-                foreach (object item in pMenu.Items)
+                if (Resources["TaskContextMenu"] is ContextMenu pMenu)
                 {
-                    if (item is MenuItem mItem)
+                    foreach (object item in pMenu.Items)
                     {
-                        if (mItem.Header.ToString() == "Partition Children")
+                        if (item is MenuItem mItem)
                         {
-                            mItem.IsEnabled = enabled;
+                            if (mItem.Header.ToString() == "Partition Children")
+                            {
+                                mItem.IsEnabled = enabled;
+                            }
                         }
                     }
                 }
@@ -477,18 +435,14 @@ namespace NetTally
                 {
                     if (cm.PlacementTarget is ListBox box)
                     {
-                        if (box.SelectedItem?.ToString() is string selectedVote)
+                        if (box.SelectedItem is VoteLineBlock selectedVote)
                         {
-                            string changedVote;
+                            string newTask = mi.Header.ToString();
 
-                            if (mi.Header.ToString() == "Clear Task")
-                                changedVote = VoteString.ReplaceTask(selectedVote, "", CurrentVoteType);
+                            if (newTask == "Clear Task")
+                                _mainViewModel.ReplaceTask(selectedVote, "");
                             else
-                                changedVote = VoteString.ReplaceTask(selectedVote, mi.Header.ToString(), CurrentVoteType);
-
-                            MergeVotes(selectedVote, changedVote);
-
-                            box.SelectedItem = changedVote;
+                                _mainViewModel.ReplaceTask(selectedVote, newTask);
                         }
                     }
                 }
@@ -515,14 +469,12 @@ namespace NetTally
                 {
                     if (cm.PlacementTarget is ListBox box)
                     {
-                        string selectedVote = box.SelectedItem?.ToString() ?? "";
+                        if (box.SelectedItem is VoteLineBlock selectedVote)
+                        {
+                            PartitionChildren(selectedVote);
 
-                        if (string.IsNullOrEmpty(selectedVote))
-                            return;
-
-                        PartitionChildren(selectedVote);
-
-                        _mainViewModel.UpdateOutput();
+                            _mainViewModel.UpdateOutput();
+                        }
                     }
                 }
             }
@@ -548,15 +500,9 @@ namespace NetTally
 
             // Update the selected item of the list box
 
-            string? selectedVote = newTaskBox?.SelectedItem?.ToString();
-
-            if (selectedVote != null)
+            if (newTaskBox?.SelectedItem is VoteLineBlock selectedVote)
             {
-                string changedVote = VoteString.ReplaceTask(selectedVote, newTask, CurrentVoteType);
-
-                MergeVotes(selectedVote, changedVote);
-
-                newTaskBox!.SelectedItem = changedVote;
+                _mainViewModel.ReplaceTask(selectedVote, newTask);
             }
 
             newTaskBox = null;
@@ -615,64 +561,29 @@ namespace NetTally
         #endregion
 
         #region Utility functions
-        /// <summary>
-        /// Filter to be used by a collection view to determine which votes should
-        /// be displayed in the main (from) list box.
-        /// </summary>
-        /// <param name="vote">The vote to be checked.</param>
-        /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        bool FilterVotes1(string vote)
-        {
-            if (!_mainViewModel.VoteExists(vote, CurrentVoteType))
-                return false;
-
-            if (string.IsNullOrEmpty(Filter1String))
-                return true;
-
-            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter1String, CompareOptions.IgnoreCase) >= 0)
-                return true;
-
-            if (CurrentVoteType == VoteType.Vote)
-            {
-                var voters = _mainViewModel.GetVoterListForVote(vote, CurrentVoteType);
-                if (voters != null)
-                {
-                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter1String, CompareOptions.IgnoreCase) >= 0))
-                        return true;
-                }
-            }
-
-            return false;
-        }
 
         /// <summary>
-        /// Filter to be used by a collection view to determine which votes should
-        /// be displayed in the main (to) list box.
+        /// Filter to be used by the vote display to determine which votes should be
+        /// shown in the list box.
         /// </summary>
-        /// <param name="vote">The vote to be checked.</param>
-        /// <returns>Returns true if the vote is valid for the current vote type.</returns>
-        bool FilterVotes2(string vote)
+        /// <param name="voteView">The view being filtered.</param>
+        /// <param name="filterString">The filter string being used.</param>
+        /// <param name="vote">The vote being checked by the filter delegate.</param>
+        /// <returns>Returns true if the vote should be displayed, or false if it should be hidden.</returns>
+        bool FilterVotes(ICollectionView voteView, string filterString, VoteLineBlock? vote)
         {
-            if (!_mainViewModel.VoteExists(vote, CurrentVoteType))
+            if (vote == null)
                 return false;
 
-            if (string.IsNullOrEmpty(Filter2String))
+            if (string.IsNullOrEmpty(filterString))
                 return true;
 
-            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote, Filter2String, CompareOptions.IgnoreCase) >= 0)
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
                 return true;
 
-            if (CurrentVoteType == VoteType.Vote)
-            {
-                var voters = _mainViewModel.GetVoterListForVote(vote, CurrentVoteType);
-                if (voters != null)
-                {
-                    if (voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, Filter2String, CompareOptions.IgnoreCase) >= 0))
-                        return true;
-                }
-            }
+            var voters = _mainViewModel.GetVoterListForVote(vote);
 
-            return false;
+            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, filterString, CompareOptions.IgnoreCase) >= 0);
         }
 
         /// <summary>
@@ -683,19 +594,21 @@ namespace NetTally
         /// <param name="voterName">The name of the voter being checked.</param>
         /// <returns>Returns true if that voter supports the currently selected
         /// vote in the vote view.</returns>
-        private bool FilterVoters(ICollectionView voteView, string voterName)
+        private bool FilterVoters(ICollectionView voteView, string? voterName)
         {
+            if (voterName == null)
+                return false;
+
             if (voteView.IsEmpty)
                 return false;
 
-            if (voteView.CurrentItem == null)
-                return false;
+            if (voteView.CurrentItem is VoteLineBlock currentVote)
+            {
+                var voters = _mainViewModel.GetVoterListForVote(currentVote);
+                return voters.Contains(voterName);
+            }
 
-            string currentVote = voteView.CurrentItem.ToString();
-
-            var voters = _mainViewModel.GetVoterListForVote(currentVote, CurrentVoteType);
-
-            return voters?.Contains(voterName) ?? false;
+            return false;
         }
 
         /// <summary>
@@ -745,7 +658,7 @@ namespace NetTally
         /// </summary>
         /// <param name="fromVote">The vote being merged.</param>
         /// <param name="toVote">The vote being merged into.</param>
-        private void MergeVotes(string fromVote, string toVote)
+        private void MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
             try
             {
@@ -753,7 +666,7 @@ namespace NetTally
                 lastPosition2 = -1;
                 lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
 
-                if (_mainViewModel.MergeVotes(fromVote, toVote, CurrentVoteType))
+                if (_mainViewModel.MergeVotes(fromVote, toVote))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -764,14 +677,14 @@ namespace NetTally
             }
         }
 
-        private void PartitionChildren(string vote)
+        private void PartitionChildren(VoteLineBlock vote)
         {
             try
             {
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (_mainViewModel.PartitionChildren(vote, CurrentVoteType))
+                if (_mainViewModel.PartitionChildren(vote))
                 {
                     OnPropertyChanged(nameof(HasUndoActions));
                 }
@@ -782,21 +695,9 @@ namespace NetTally
             }
         }
 
-        private bool HasChildLines(string vote)
+        private bool HasChildLines(VoteLineBlock vote)
         {
-            if (string.IsNullOrEmpty(vote))
-                return false;
-
-            var voteLines = vote.GetStringLines();
-
-            if (voteLines.Count < 2)
-                return false;
-
-            var topIndent = VoteString.GetVotePrefix(voteLines.First()).Length;
-
-            var voteLinesPlus = voteLines.Skip(1);
-
-            return voteLinesPlus.All(a => VoteString.GetVotePrefix(a).Length > topIndent);
+            return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
 
         #endregion

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -14,30 +12,32 @@ using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.Utility;
-using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using NetTally.Web;
+using NetTally.Experiment3;
 
 namespace NetTally.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
+        readonly Tally tally;
+        readonly IVoteCounter voteCounter;
+        readonly ICache<string> cache;
+        readonly CheckForNewRelease checkForNewRelease;
+        readonly IGlobalOptions globalOptions;
+
         public MainViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
         {
-            VoteCounter = voteCounter;
-            PageCache = cache;
-            checkForNewRelease = newRelease;
-            Options = globalOptions;
+            // Save our dependencies in readonly fields.
+            this.tally = tally;
+            this.voteCounter = voteCounter;
+            this.cache = cache;
+            this.globalOptions = globalOptions;
+            this.checkForNewRelease = newRelease;
 
-            SetupVoteCounter();
-
-            AllVotesCollection = new ObservableCollectionExt<string>();
-            AllVotersCollection = new ObservableCollectionExt<string>();
-
-            Tally = tally;
-            Tally.PropertyChanged += Tally_PropertyChanged;
+            tally.PropertyChanged += Tally_PropertyChanged;
+            voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
 
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
@@ -78,13 +78,10 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Providers
-        public ICache<string> PageCache { get; }
+        public ICache<string> PageCache => cache;
         #endregion
 
         #region Section: Check for New Release
-        /// Fields for this section
-        readonly CheckForNewRelease checkForNewRelease;
-
         /// <summary>
         /// Pass-through flag indicating whether there is a newer release of the program available.
         /// </summary>
@@ -111,7 +108,7 @@ namespace NetTally.ViewModels
         }
         #endregion
 
-        #region Section: Options        
+        #region Section: User Options        
         /// <summary>
         /// Gets the user-readable list of display modes, for use in the view.
         /// </summary>
@@ -135,7 +132,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Public link to the advanced options instance, for data binding.
         /// </summary>
-        public IGlobalOptions Options { get; }
+        public IGlobalOptions Options => globalOptions;
         #endregion
 
         #region Quests
@@ -403,10 +400,11 @@ namespace NetTally.ViewModels
 
         #region Section: Tally & Results Binding
         /// Tally class object.
-        Tally Tally { get; }
+        Tally Tally => tally;
 
         /// <summary>
         /// Handles the PropertyChanged event of the Tally control.
+        /// Redirects some events to point at properties of the MainViewModel.
         /// </summary>
         private void Tally_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -596,8 +594,8 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Section: Vote Counter
-        public ObservableCollectionExt<string> AllVotesCollection { get; }
-        public ObservableCollectionExt<string> AllVotersCollection { get; }
+        public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
+        public ObservableCollectionExt<string> AllVotersCollection { get; } = new ObservableCollectionExt<string>();
         public List<string> TaskList => VoteCounter.OrderedTaskList;
 
         /// <summary>
@@ -639,29 +637,14 @@ namespace NetTally.ViewModels
             }
         }
 
-        public IVoteCounter VoteCounter { get; private set; }
-
-        /// <summary>
-        /// Attach to the VoteCounter's property changed event.
-        /// </summary>
-        private void SetupVoteCounter()
-        {
-            VoteCounter.PropertyChanged += VoteCounter_PropertyChanged;
-        }
+        public IVoteCounter VoteCounter => voteCounter;
 
         /// <summary>
         /// Update the observable collection of votes.
         /// </summary>
         private void UpdateVotesCollection()
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         {
-            var votesWithSupporters = VoteCounter.GetVotesCollection(VoteType.Vote);
-
-            List<string> votes = votesWithSupporters.Keys
-                .Concat(VoteCounter.GetCondensedRankVotes())
-                .Distinct(Agnostic.StringComparer).ToList();
-
-            AllVotesCollection.Replace(votes);
+            AllVotesCollection.Replace(VoteCounter.GetSupportedVotesList());
 
             OnPropertyChanged(nameof(AllVotesCollection));
         }
@@ -671,14 +654,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotersCollection()
         {
-            var voteVoters = VoteCounter.GetVotersCollection(VoteType.Vote);
-            var rankVoters = VoteCounter.GetVotersCollection(VoteType.Rank);
-
-            List<string> voters = voteVoters.Select(v => v.Key)
-                .Concat(rankVoters.Select(v => v.Key))
-                .Distinct().OrderBy(v => v).ToList();
-
-            AllVotersCollection.Replace(voters);
+            AllVotersCollection.Replace(VoteCounter.GetFullVotersList());
 
             OnPropertyChanged(nameof(AllVotersCollection));
         }
@@ -721,39 +697,19 @@ namespace NetTally.ViewModels
 
         public bool HasUndoActions => VoteCounter.HasUndoActions;
 
-        public bool MergeVotes(string fromVote, string toVote, VoteType voteType) => VoteCounter.Merge(fromVote, toVote, voteType);
+        public bool MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote) => VoteCounter.Merge(fromVote, toVote);
 
-        public bool JoinVoters(List<string> voters, string voterToJoin, VoteType voteType) => VoteCounter.Join(voters, voterToJoin, voteType);
+        public bool JoinVoters(List<string> voters, string voterToJoin) => VoteCounter.Join(voters, voterToJoin);
 
-        public bool DeleteVote(string vote, VoteType voteType) => VoteCounter.Delete(vote, voteType);
+        public bool DeleteVote(VoteLineBlock vote) => VoteCounter.Delete(vote);
 
-        public bool PartitionChildren(string vote, VoteType voteType) => VoteCounter.PartitionChildren(vote, voteType, Tally.VoteConstructor);
-        public bool PartitionChildren2(Experiment3.VoteLineBlock vote, VoteType voteType) => VoteCounter.Split(vote, Tally.VoteConstructor.PartitionChildren(vote));
+        public bool PartitionChildren(VoteLineBlock vote) => VoteCounter.Split(vote, Tally.VoteConstructor.PartitionChildren(vote));
+
+        public bool ReplaceTask(VoteLineBlock vote, string task) => VoteCounter.ReplaceTask(vote, task);
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 
-        public HashSet<string>? GetVoterListForVote(string vote, VoteType voteType)
-        {
-            var votes = VoteCounter.GetVotesCollection(voteType);
-            if (votes.ContainsKey(vote))
-                return votes[vote];
-
-            if (voteType == VoteType.Rank)
-            {
-                var condensedVoters = votes.Where(k => Agnostic.StringComparer.Equals(VoteString.CondenseVote(k.Key), vote)).Select(k => k.Value);
-
-                HashSet<string> condensedHash = new HashSet<string>();
-
-                foreach (var cond in condensedVoters)
-                {
-                    condensedHash.UnionWith(cond);
-                }
-
-                return condensedHash;
-            }
-
-            return null;
-        }
+        public IEnumerable<string> GetVoterListForVote(VoteLineBlock vote) => VoteCounter.GetVotersFor(vote);
 
         #endregion
 

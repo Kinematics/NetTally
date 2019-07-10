@@ -137,6 +137,11 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
         List<VoteLineBlock> GetVotesBy(string voterName);
 
+        IEnumerable<VoteLineBlock> GetSupportedVotesList();
+        IEnumerable<string> GetFullVotersList();
+        IEnumerable<string> GetVotersFor(VoteLineBlock vote);
+
+
         /// <summary>
         /// Determine if the requested plan name exists in the current list of plans.
         /// </summary>
@@ -192,7 +197,7 @@ namespace NetTally.VoteCounting
         /// <param name="voters">The voters that will support the new voter.</param>
         /// <param name="voterToJoin">The voter to join.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        bool Join(List<string> voters, string voterToJoin, VoteType voteType);
+        bool Join(List<string> voters, string voterToJoin);
         /// <summary>
         /// Delete an entire vote and all associated supporters.
         /// </summary>
@@ -208,6 +213,8 @@ namespace NetTally.VoteCounting
         /// Check whether there are any stored undo actions.
         /// </summary>
         bool HasUndoActions { get; }
+
+        bool ReplaceTask(VoteLineBlock vote, string task);
 
 
         HashSet<string> UserDefinedTasks { get; }
@@ -229,6 +236,8 @@ namespace NetTally.VoteCounting
         bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor);
         bool HasVote(string vote, VoteType voteType);
         bool HasRankedVotes { get; }
+        bool Join(List<string> voters, string voterToJoin, VoteType voteType);
+
 
         #endregion
     }

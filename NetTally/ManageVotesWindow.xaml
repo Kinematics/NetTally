@@ -106,7 +106,13 @@
         <!-- Grid 1,0 : Vote Controls -->
 
         <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="⟹" Height="35" Margin="10,47,10,0" VerticalAlignment="Top"
-                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False" ToolTipService.ShowOnDisabled="True">
+                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" ToolTipService.ShowOnDisabled="True">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="InvertVoteLineBlock">
+                    <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -142,7 +148,7 @@
         <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⦔Delete⦓" Margin="10,196,10,0" VerticalAlignment="Top" Height="35" RenderTransformOrigin="0.507,0.1"
                 ToolTipService.ShowOnDisabled="True" Click="delete_Click">
             <Button.IsEnabled>
-                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay">
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="VoteLineBlock">
                     <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
                     <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
                 </MultiBinding>

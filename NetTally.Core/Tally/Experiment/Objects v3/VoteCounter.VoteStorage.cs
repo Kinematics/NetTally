@@ -41,7 +41,7 @@ namespace NetTally.VoteCounting.Experiment3
         public class VoteStorage : IVoteStorageReader, IVoteStorageReaderWriter
         {
             public void Clear() { }
-            public IEnumerable<VoteRecord> Votes { get; }
+            public IEnumerable<VoteRecord> Votes { get; } = Enumerable.Empty<VoteRecord>();
         }
 
         // Local vote storage.
