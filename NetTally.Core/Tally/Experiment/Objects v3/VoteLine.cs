@@ -158,6 +158,8 @@ namespace NetTally.Experiment3
             task = task.Length > 0 ? $"[{task}]" : "";
             return $"{Prefix}[{marker}]{task} {Content}";
         }
+
+        public string ManageVotesString => ToStringWithReplacement(marker: "");
         #endregion
 
         #region IComparable and IEquatable interface implementations.

@@ -97,6 +97,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The name of the voter being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
         string? GetProperVoterName(string voterName);
+
         /// <summary>
         /// Get the post ID stored for the specified plan, which is the post that it was defined in.
         /// </summary>

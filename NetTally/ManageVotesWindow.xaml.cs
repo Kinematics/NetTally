@@ -35,8 +35,6 @@ namespace NetTally
         int lastPosition1 = -1;
         int lastPosition2 = -1;
 
-        bool displayStandardVotes = true;
-
         readonly List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         readonly List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
@@ -73,14 +71,18 @@ namespace NetTally
             VoteView1 = new ListCollectionView(this.mainViewModel.AllVotesCollection);
             VoteView2 = new ListCollectionView(this.mainViewModel.AllVotesCollection);
 
-            if (VoteView1.CanSort)
+            PropertyGroupDescription groupDescription = new PropertyGroupDescription("Category");
+            VoteView1.GroupDescriptions.Add(groupDescription);
+            VoteView2.GroupDescriptions.Add(groupDescription);
+
+            if (VoteView1.CanSort && VoteView2.CanSort)
             {
                 IComparer voteCompare = new CustomVoteSort();
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }
 
-            if (VoteView1.CanFilter)
+            if (VoteView1.CanFilter && VoteView2.CanFilter)
             {
                 VoteView1.Filter = (a) => FilterVotes(VoteView1, Filter1String, a as VoteLineBlock);
                 VoteView2.Filter = (a) => FilterVotes(VoteView2, Filter2String, a as VoteLineBlock);
@@ -153,37 +155,6 @@ namespace NetTally
         /// Returns whether there are stored undo actions in the vote tally.
         /// </summary>
         public bool HasUndoActions => mainViewModel.HasUndoActions;
-
-        /// <summary>
-        /// Flag whether we should be displaying standard votes or ranked votes.
-        /// </summary>
-        public bool DisplayStandardVotes
-        {
-            get
-            {
-                return displayStandardVotes;
-            }
-            set
-            {
-                displayStandardVotes = value;
-                ChangeVotesDisplayed();
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Get the VoteType enum value that corresponds to the current display.
-        /// </summary>
-        public VoteType CurrentVoteType
-        {
-            get
-            {
-                if (DisplayStandardVotes)
-                    return VoteType.Vote;
-                else
-                    return VoteType.Rank;
-            }
-        }
         #endregion
 
         #region Filtering
@@ -647,17 +618,6 @@ namespace NetTally
         {
             VoterView1.Refresh();
             VoterView2.Refresh();
-        }
-
-        /// <summary>
-        /// Updated the observed collection when the vote display mode is changed.
-        /// </summary>
-        private void ChangeVotesDisplayed()
-        {
-            VoteView1.Refresh();
-            VoteView2.Refresh();
-            VoteView1.MoveCurrentToFirst();
-            VoteView2.MoveCurrentToFirst();
         }
 
         /// <summary>

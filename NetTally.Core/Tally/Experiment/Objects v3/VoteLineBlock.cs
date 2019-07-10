@@ -7,7 +7,7 @@ using NetTally.Votes;
 
 namespace NetTally.Experiment3
 {
-    public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>, IComparable<VoteLineBlock>
+    public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>, IComparable<VoteLineBlock>, IComparable
     {
         #region Construction and public properties
         public string Task { get; set; }
@@ -103,7 +103,7 @@ namespace NetTally.Experiment3
 
             var aggregate = Lines.Select(s => s == first ? firstString : s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
 
-            return aggregate + "\n";
+            return aggregate;
         }
 
         public string ToComparableString()
@@ -121,6 +121,22 @@ namespace NetTally.Experiment3
 
             return aggregate ?? "";
         }
+
+        public string ManageVotesDisplay
+        {
+            get
+            {
+                var first = Lines.First();
+                string firstString = first.ToStringWithReplacement(marker: "", task: Task);
+
+                var aggregate = Lines.Select(s => s == first ? firstString : s.ManageVotesString).Aggregate((a, b) => $"{a}\n{b}");
+
+                return aggregate;
+            }
+        }
+
+        public MarkerType Category { get; set; } = MarkerType.None;
+
         #endregion
 
         #region IEnumerable, IComparable, and IEquatable interface implementations.
@@ -156,6 +172,17 @@ namespace NetTally.Experiment3
         public int CompareTo(VoteLineBlock other)
         {
             return Compare(this, other);
+        }
+
+        public int CompareTo(object obj)
+        {
+            return obj switch
+            {
+                null => 1,
+                VoteLineBlock vlb => Compare(this, vlb),
+                IEnumerable<VoteLine> lines => Compare(this, lines),
+                _ => 1
+            };
         }
 
         public static int Compare(VoteLineBlock left, VoteLineBlock right)

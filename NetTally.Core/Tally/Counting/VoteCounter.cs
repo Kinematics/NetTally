@@ -340,8 +340,33 @@ namespace NetTally.VoteCounting
 
         public IEnumerable<VoteLineBlock> GetSupportedVotesList()
         {
-            // TODO: Possibly filter out unsupported votes
-            return VoteBlockSupporters.Keys;
+            foreach (var (vote, supporters) in VoteBlockSupporters)
+            {
+                vote.Category = GetCategoryOf(supporters);
+                yield return vote;
+            }
+        }
+
+        private MarkerType GetCategoryOf(Dictionary<string, VoteLineBlock> supporters)
+        {
+            int total = supporters.Count;
+
+            if (total == 0)
+                return MarkerType.None;
+
+            double threshold = 0.83;
+
+            var supporterMarkers = supporters.GroupBy(s => s.Value.MarkerType);
+
+            foreach (var supporterMarker in supporterMarkers)
+            {
+                if (((double)supporterMarker.Count() / total) > threshold)
+                {
+                    return supporterMarker.Key;
+                }
+            }
+
+            return MarkerType.Vote;
         }
 
         public IEnumerable<string> GetFullVotersList()
@@ -360,6 +385,8 @@ namespace NetTally.VoteCounting
 
             return Enumerable.Empty<string>();
         }
+
+
         #endregion
 
         #region Query if counter Has ...
@@ -1107,9 +1134,6 @@ namespace NetTally.VoteCounting
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
-
-
-
 
         #region Deprecated
 
