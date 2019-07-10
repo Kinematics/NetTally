@@ -144,9 +144,9 @@ namespace NetTally.Experiment3
         {
             var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
 
-            if (voteCounter.OrderedTaskList != null)
+            if (voteCounter.TaskList != null)
             {
-                groupByTask = groupByTask.OrderBy(v => voteCounter.OrderedTaskList.IndexOf(v.Key));
+                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
             }
 
             return groupByTask;

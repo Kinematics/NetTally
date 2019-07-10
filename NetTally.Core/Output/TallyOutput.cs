@@ -165,9 +165,9 @@ namespace NetTally.Output
 
                 IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
 
-                if (voteCounter.OrderedTaskList != null)
+                if (voteCounter.TaskList != null)
                 {
-                    orderedRes = results.OrderBy(v => voteCounter.OrderedTaskList.IndexOf(v.Key));
+                    orderedRes = results.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
                 }
                 else
                 {

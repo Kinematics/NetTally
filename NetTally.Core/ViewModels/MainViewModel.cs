@@ -444,20 +444,6 @@ namespace NetTally.ViewModels
         /// Flag whether there's any text in the Output property.
         /// </summary>
         public bool HasOutput => Tally.HasTallyResults;
-
-        /// <summary>
-        /// Redirection for user defined task values.
-        /// </summary>
-        public HashSet<string> UserDefinedTasks => VoteCounter.UserDefinedTasks;
-
-        public void AddUserDefinedTask(string task)
-        {
-            if (UserDefinedTasks.Add(task))
-            {
-                TaskList.Add(task);
-                OnPropertyChanged("Tasks");
-            }
-        }
         #endregion
 
         #region Section: Tally Commands
@@ -594,50 +580,36 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Section: Vote Counter
+        public IVoteCounter VoteCounter => voteCounter;
+
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
         public ObservableCollectionExt<string> AllVotersCollection { get; } = new ObservableCollectionExt<string>();
-        public List<string> TaskList => VoteCounter.OrderedTaskList;
+        public List<string> TaskList => VoteCounter.TaskList;
+
+        /// <summary>
+        /// Adds a new user-defined task to the known collection of tasks.
+        /// </summary>
+        /// <param name="task">The task to add.</param>
+        public void AddUserDefinedTask(string task) => VoteCounter.AddUserDefinedTask(task);
 
         /// <summary>
         /// Increases the task position in the task list.
         /// </summary>
         /// <param name="currentPosition">The task position to modify.</param>
-        public void IncreaseTaskPosition(int currentPosition)
-        {
-            TaskList.Swap(currentPosition, currentPosition + 1);
-            OnPropertyChanged("Tasks");
-        }
+        public void IncreaseTaskPosition(int currentPosition) => VoteCounter.IncreaseTaskPosition(currentPosition);
 
         /// <summary>
         /// Decreases the task position in the task list.
         /// </summary>
         /// <param name="currentPosition">The task position to modify.</param>
-        public void DecreaseTaskPosition(int currentPosition)
-        {
-            TaskList.Swap(currentPosition, currentPosition - 1);
-            OnPropertyChanged("Tasks");
-        }
+        public void DecreaseTaskPosition(int currentPosition) => VoteCounter.DecreaseTaskPosition(currentPosition);
 
         /// <summary>
         /// Resets the tasks order.
         /// </summary>
         /// <param name="order">The type of ordering to use.</param>
-        public void ResetTasksOrder(TasksOrdering order)
-        {
-            if (order == TasksOrdering.Alphabetical)
-            {
-                TaskList.Sort();
-                OnPropertyChanged("Tasks");
-            }
-            else if (order == TasksOrdering.AsTallied)
-            {
-                TaskList.Clear();
-                TaskList.AddRange(KnownTasks);
-                OnPropertyChanged("Tasks");
-            }
-        }
+        public void ResetTasksOrder(TasksOrdering order) => VoteCounter.ResetTasksOrder(order);
 
-        public IVoteCounter VoteCounter => voteCounter;
 
         /// <summary>
         /// Update the observable collection of votes.
@@ -686,12 +658,6 @@ namespace NetTally.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the known tallied and user-defined tasks.
-        /// </summary>
-        public IEnumerable<string> KnownTasks => VoteCounter.KnownTasks;
-
-        public bool VoteExists(string vote, VoteType voteType) => VoteCounter.HasVote(vote, voteType);
 
         public bool HasRankedVotes => VoteCounter.HasRankedVotes;
 

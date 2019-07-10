@@ -406,68 +406,6 @@ namespace NetTally.Experiment3
 
             return quest.TaskFilter?.Match(block.Task) ?? false;
         }
-
-        /// <summary>
-        /// Determine if there are any references to future (unprocessed) user votes
-        /// within the current vote.
-        /// </summary>
-        /// <param name="post">Post containing the current vote.</param>
-        /// <returns>Returns true if a future reference is found. Otherwise false.</returns>
-        private bool HasFutureReference(Post post, IQuest quest)
-        {
-            // If we decide it has to be forced, ignore all checks in here.
-            if (post.ForceProcess)
-                return false;
-
-            // If proxy votes are disabled, we don't need to look for proxy names, so there can't be future references.
-            // Likewise, if we're forcing all proxy votes to be pinned, there can't be any future references.
-            if (quest.DisableProxyVotes || quest.ForcePinnedProxyVotes)
-                return false;
-
-            foreach (var voteObj in post.WorkingVote)
-            {
-                // Only normal lines are considered for future references. Blocks have already pulled in the reference.
-                if (voteObj.line == null)
-                    continue;
-
-                // Get the possible proxy references this line contains
-                var refNames = VoteString.GetVoteReferenceNames(voteObj.line.Content);
-
-                // Pinned references (^ or ↑ symbols) are explicitly not future references
-                if (refNames[ReferenceType.Label].Any(a => a == "^" || a == "↑"))
-                    continue;
-
-                // Any references to plans automatically work, as they are defined in a preprocess phase.
-                if (refNames[ReferenceType.Plan].Any(voteCounter.HasPlan))
-                    continue;
-
-                string? refVoter = voteCounter.GetProperVoterName(refNames[ReferenceType.Voter].FirstOrDefault());
-
-                if (refVoter != null && refVoter != post.Author)
-                {
-                    var refVoterPosts = voteCounter.Posts.Where(p => p.Author == refVoter);
-
-                    // If the referenced voter never made a real vote (eg: only made base plans or rank votes),
-                    // then this can't be treated as a future reference.
-                    var refWorkingVotes = refVoterPosts.Where(p => p.WorkingVote.Count > 0);
-
-                    if (!refWorkingVotes.Any())
-                        continue;
-                    
-                    // If there's no 'plan' label, then we need to verify that the last vote that the
-                    // ref voter made (has a working vote) was processed.
-                    // If it's been processed, then we're OK to let this vote through.
-                    if (refWorkingVotes.Last().Processed)
-                        continue;
-
-                    // If none of the conditions above are met, then consider this a future reference.
-                    return true;
-                }
-            }
-
-            // No future references were found.
-            return false;
-        }
         #endregion
 
         #region Partitioning utility functions for partitioning posts

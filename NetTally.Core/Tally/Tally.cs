@@ -410,9 +410,6 @@ namespace NetTally.VoteCounting
             {
                 voteCounter.VoteCounterIsTallying = false;
             }
-
-            voteCounter.OrderedTaskList.AddRange(voteCounter.KnownTasks);
-            OnPropertyChanged("Tasks");
         }
         #endregion
 
@@ -488,7 +485,6 @@ namespace NetTally.VoteCounting
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
-                            // TODO: set markers for plan "voter" to None/0.
                             var planPartitions = voteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
                             voteCounter.AddVotes(planPartitions, normalPlanName, post.IDValue);
 
@@ -511,7 +507,6 @@ namespace NetTally.VoteCounting
         {
             if (voteCounter.Quest is null)
                 throw new InvalidOperationException("Quest is null.");
-
 
             var unprocessed = voteCounter.Posts;
 
@@ -552,6 +547,8 @@ namespace NetTally.VoteCounting
                     }
                 }
             }
+
+            voteCounter.AddUserDefinedTasksToTaskList();
 
             await Task.FromResult(0);
         }

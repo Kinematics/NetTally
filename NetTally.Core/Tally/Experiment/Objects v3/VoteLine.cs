@@ -9,6 +9,7 @@ namespace NetTally.Experiment3
     /// </summary>
     public class VoteLine : IComparable, IComparable<VoteLine>, IEquatable<VoteLine>
     {
+        #region Construction and public properties
         public string Prefix { get; }
         public string Marker { get; }
         public string Task { get; }
@@ -51,7 +52,9 @@ namespace NetTally.Experiment3
             CleanContent = VoteLineParser.StripBBCode(Content);
             _hash = Agnostic.InsensitiveComparer.GetHashCode(CleanContent);
         }
+        #endregion
 
+        #region Creation of new VoteLine instances based on the current one
         /// <summary>
         /// Return a new version of the current instance, with a specified number of
         /// indention levels removed.  Default is 1.
@@ -118,7 +121,9 @@ namespace NetTally.Experiment3
                 return new VoteLine(Prefix, Marker, Task, Content, MarkerType, MarkerValue);
             }
         }
+        #endregion
 
+        #region ToString variations
         /// <summary>
         /// Formats the current object as a string.
         /// </summary>
@@ -131,8 +136,7 @@ namespace NetTally.Experiment3
         }
 
         /// <summary>
-        /// Formats the current object as a simplified string, without components that might
-        /// be considered equivalent or irrelevant to the comparison.
+        /// Creates a string that displays the cleaned content, and without any particular marker.
         /// </summary>
         /// <returns>Returns a string representing the current object.</returns>
         public string ToComparableString()
@@ -141,12 +145,22 @@ namespace NetTally.Experiment3
             return $"{Prefix}[]{task} {CleanContent}";
         }
 
-        public string ToStringWithMarker(string marker = "X")
+        /// <summary>
+        /// Creates a string that displays the full vote line content, using the specified marker
+        /// instead of the intrinsic vote line's.
+        /// </summary>
+        /// <param name="marker">The marker to use in the generated output.</param>
+        /// <returns>Returns a string representing the current object.</returns>
+        public string ToStringWithReplacement(string? marker = null, string? task = null)
         {
-            string task = Task.Length > 0 ? $"[{Task}]" : "";
+            marker ??= Marker;
+            task ??= Task;
+            task = task.Length > 0 ? $"[{task}]" : "";
             return $"{Prefix}[{marker}]{task} {Content}";
         }
+        #endregion
 
+        #region IComparable and IEquatable interface implementations.
 #nullable disable
         public static int Compare(VoteLine left, VoteLine right)
         {
@@ -206,6 +220,6 @@ namespace NetTally.Experiment3
         public static bool operator ==(VoteLine first, VoteLine second) => Compare(first, second) == 0;
         public static bool operator !=(VoteLine first, VoteLine second) => Compare(first, second) != 0;
 #nullable enable
-
+        #endregion
     }
 }

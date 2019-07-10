@@ -155,12 +155,6 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if the voter has voted in the tally.</returns>
         bool HasVoter(string? voterName);
         /// <summary>
-        /// Determines if the specified vote block exists in the current votes.
-        /// </summary>
-        /// <param name="vote">The vote to check for.</param>
-        /// <returns>Returns true if the vote is known to exist.</returns>
-        bool HasVote(VoteLineBlock vote);
-        /// <summary>
         /// Determines if there is a more recent vote made by the author of the provided post.
         /// </summary>
         /// <param name="post">The post made by some author.</param>
@@ -216,10 +210,15 @@ namespace NetTally.VoteCounting
 
         bool ReplaceTask(VoteLineBlock vote, string task);
 
+        bool AddUserDefinedTask(string task);
+        void AddUserDefinedTasksToTaskList();
+        void IncreaseTaskPosition(int currentPosition);
+        void DecreaseTaskPosition(int currentPosition);
+        void ResetTasksOrder(TasksOrdering order);
 
-        HashSet<string> UserDefinedTasks { get; }
-        List<string> OrderedTaskList { get; }
-        IEnumerable<string> KnownTasks { get; }
+        List<string> TaskList { get; }
+
+
         HashSet<Post> FutureReferences { get; }
 
 
@@ -228,16 +227,14 @@ namespace NetTally.VoteCounting
         #region deprecated
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
         Dictionary<string, string> GetVotersCollection(VoteType voteType);
-        List<string> GetCondensedRankVotes();
         List<string> GetVotesFromReference(string voteLine, string author);
+        bool HasRankedVotes { get; }
+
         void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
         bool Merge(string fromVote, string toVote, VoteType voteType);
         bool Delete(string vote, VoteType voteType);
         bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor);
-        bool HasVote(string vote, VoteType voteType);
-        bool HasRankedVotes { get; }
         bool Join(List<string> voters, string voterToJoin, VoteType voteType);
-
 
         #endregion
     }

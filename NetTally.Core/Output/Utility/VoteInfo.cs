@@ -183,9 +183,9 @@ namespace NetTally.Output
         {
             var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
 
-            if (voteCounter.OrderedTaskList != null)
+            if (voteCounter.TaskList != null)
             {
-                grouped = grouped.OrderBy(v => voteCounter.OrderedTaskList.IndexOf(v.Key));
+                grouped = grouped.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
             }
             
             return grouped;

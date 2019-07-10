@@ -114,7 +114,10 @@ namespace NetTally.VoteCounting
 
             UndoBuffer.Clear();
 
-            OrderedTaskList.Clear();
+            VoteDefinedTasks.Clear();
+            OrderedVoteTaskList.Clear();
+
+            TaskList.Clear();
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
@@ -147,6 +150,7 @@ namespace NetTally.VoteCounting
             if (Quest == null || Quest.DisplayName != forQuestName)
             {
                 UserDefinedTasks.Clear();
+                OrderedUserTaskList.Clear();
                 ResetUserMerges();
             }
         }
@@ -388,17 +392,6 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// Check to see whether the specified vote has been recorded.
-        /// Ranking votes are checked against their condensed forms.
-        /// </summary>
-        /// <param name="vote">The vote to check.</param>
-        /// <returns>Returns true if found.</returns>
-        public bool HasVote(VoteLineBlock vote)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Determines whether the author of the provided post has made a newer vote submission.
         /// </summary>
         /// <param name="post">The post being checked.</param>
@@ -469,6 +462,8 @@ namespace NetTally.VoteCounting
 
             supporters.Add(voter, vote);
 
+            AddPotentialVoteTask(vote.Task);
+
             OnPropertyChanged("Votes");
         }
 
@@ -480,7 +475,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if successfully completed.</returns>
         public bool Merge(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
-            bool merged = MergeImpl(fromVote, toVote);
+            bool merged = MergeImplWrapper(fromVote, toVote);
 
             if (merged)
             {
@@ -503,7 +498,7 @@ namespace NetTally.VoteCounting
 
             foreach (var toVote in toVotes)
             {
-                merged = MergeImpl(fromVote, toVote) || merged;
+                merged = MergeImplWrapper(fromVote, toVote) || merged;
             }
 
             if (merged)
@@ -573,21 +568,17 @@ namespace NetTally.VoteCounting
             return removed;
         }
 
-
         /// <summary>
-        /// Implement merging logic without sending notifications.
+        /// The wrapper handles the process of extracting the vote support from
+        /// the storage before passing the pieces on to the implementation.
         /// </summary>
         /// <param name="fromVote">The vote being merged.</param>
         /// <param name="toVote">The vote being merged into.</param>
-        /// <returns>Returns true if the merge was completed.</returns>
-        private bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote)
+        /// <returns>Returns true if there was a successful merge.</returns>
+        private bool MergeImplWrapper(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
             if (fromVote == toVote)
                 return false;
-
-            bool merged = false;
-
-            // TODO: Undo
 
             if (!VoteBlockSupporters.TryGetValue(fromVote, out var fromSupport))
             {
@@ -599,6 +590,27 @@ namespace NetTally.VoteCounting
                 return false;
             }
 
+            // Theoretically, all the supporters in the from vote could already
+            // be in the to vote, in which case no merging would happen.
+            MergeImpl(fromVote, toVote, fromSupport, toSupport);
+
+            // But we still want to remove the from vote.
+            return VoteBlockSupporters.Remove(fromVote);
+        }
+
+        /// <summary>
+        /// Implement the logic for combining two support blocks of voters.
+        /// </summary>
+        /// <param name="fromVote">The vote being merged from.</param>
+        /// <param name="toVote">The vote being merged into.</param>
+        /// <param name="fromSupport">The support block for the from vote.</param>
+        /// <param name="toSupport">The support block for the to vote.</param>
+        /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
+        private bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
+            Dictionary<string, VoteLineBlock> fromSupport, Dictionary<string, VoteLineBlock> toSupport)
+        {
+            bool merged = false;
+
             foreach (var (supporterName, oldVote) in fromSupport)
             {
                 if (!toSupport.ContainsKey(supporterName))
@@ -609,7 +621,7 @@ namespace NetTally.VoteCounting
                 }
             }
 
-            return VoteBlockSupporters.Remove(fromVote) || merged;
+            return merged;
         }
 
         /// <summary>
@@ -695,12 +707,6 @@ namespace NetTally.VoteCounting
         }
 
         #endregion
-
-
-        public bool ReplaceTask(VoteLineBlock vote, string task)
-        {
-            throw new NotImplementedException();
-        }
 
 
         #region Modifying Votes
@@ -924,29 +930,165 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Task properties
-        public HashSet<string> VoteDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        public HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        public List<string> OrderedTaskList { get; } = new List<string>();
+        HashSet<string> VoteDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        List<string> OrderedVoteTaskList { get; } = new List<string>();
+        List<string> OrderedUserTaskList { get; } = new List<string>();
+        public List<string> TaskList { get; } = new List<string>();
 
         /// <summary>
-        /// Gets the known tallied and user-defined tasks.
+        /// Add tasks as we add votes.  If we register a new vote-defined task, add it
+        /// to the ordered task lists.
         /// </summary>
-        public IEnumerable<string> KnownTasks
+        /// <param name="task">The new task to add to the knowledge base.</param>
+        private void AddPotentialVoteTask(string task)
         {
-            get
+            if (string.IsNullOrEmpty(task))
+                return;
+
+            if (!UserDefinedTasks.Contains(task))
             {
-                var voteTasks = GetVotesCollection(VoteType.Vote).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var rankTasks = GetVotesCollection(VoteType.Rank).Keys
-                    .Select(v => VoteString.GetVoteTask(v));
-                var userTasks = UserDefinedTasks.ToList();
-
-                var allTasks = voteTasks.Concat(rankTasks).Concat(userTasks)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Where(v => !string.IsNullOrEmpty(v));
-
-                return allTasks;
+                if (VoteDefinedTasks.Add(task))
+                {
+                    OrderedVoteTaskList.Add(task);
+                    TaskList.Add(task);
+                    OnPropertyChanged("Tasks");
+                }
             }
+        }
+
+        /// <summary>
+        /// Add a new user-defined vote.
+        /// </summary>
+        /// <param name="task">The task to add.</param>
+        /// <returns>Returns true if the task was added to the knowledge base.</returns>
+        public bool AddUserDefinedTask(string task)
+        {
+            if (string.IsNullOrEmpty(task))
+                return false;
+
+            if (UserDefinedTasks.Add(task))
+            {
+                OrderedUserTaskList.Add(task);
+                TaskList.Add(task);
+                OnPropertyChanged("Tasks");
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Update the general task list with any user-defined 
+        /// tasks at the end of a tally.
+        /// </summary>
+        public void AddUserDefinedTasksToTaskList()
+        {
+            TaskList.AddRange(OrderedUserTaskList);
+        }
+
+        /// <summary>
+        /// Increases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void IncreaseTaskPosition(int currentPosition)
+        {
+            // The Swap extension function handles bounds checking.
+            TaskList.Swap(currentPosition, currentPosition + 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Decreases the task position in the task list.
+        /// </summary>
+        /// <param name="currentPosition">The task position to modify.</param>
+        public void DecreaseTaskPosition(int currentPosition)
+        {
+            // The Swap extension function handles bounds checking.
+            TaskList.Swap(currentPosition, currentPosition - 1);
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Resets the tasks order.
+        /// </summary>
+        /// <param name="order">The type of ordering to use.</param>
+        public void ResetTasksOrder(TasksOrdering order)
+        {
+            if (order == TasksOrdering.Alphabetical)
+            {
+                TaskList.Sort();
+            }
+            else if (order == TasksOrdering.AsTallied)
+            {
+                TaskList.Clear();
+                TaskList.AddRange(OrderedVoteTaskList);
+                TaskList.AddRange(OrderedUserTaskList);
+            }
+
+            OnPropertyChanged("Tasks");
+        }
+
+        /// <summary>
+        /// Replace the task on the provided vote with the requested task.
+        /// </summary>
+        /// <param name="vote">The vote to update the task on.</param>
+        /// <param name="task">The new task label.</param>
+        /// <returns>Returns true if the task was updated.</returns>
+        public bool ReplaceTask(VoteLineBlock vote, string task)
+        {
+            if (StringComparer.OrdinalIgnoreCase.Equals(vote.Task, task))
+            {
+                return false;
+            }
+
+            if (VoteBlockSupporters.TryGetValue(vote, out var supporters))
+            {
+                VoteBlockSupporters.Remove(vote);
+
+                string originalTask = vote.Task;
+                vote.Task = task;
+
+                // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
+                if (VoteBlockSupporters.ContainsKey(vote))
+                {
+                    if (VoteBlockSupporters.TryGetValue(vote, out var toSupport))
+                    {
+                        foreach (var (supporterName, supporterVote) in supporters)
+                        {
+                            if (!toSupport.ContainsKey(supporterName))
+                            {
+                                supporterVote.Task = task;
+                                toSupport.Add(supporterName, supporterVote);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Undo the attempt if we couldn't get the conflicting vote data
+                        vote.Task = originalTask;
+
+                        VoteBlockSupporters.Add(vote, supporters);
+
+                        return false;
+                    }
+                }
+                // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
+                else
+                {
+                    foreach (var (supporter, supporterVote) in supporters)
+                    {
+                        supporterVote.Task = task;
+                    }
+
+                    VoteBlockSupporters.Add(vote, supporters);
+                }
+
+                OnPropertyChanged("Votes");
+                return true;
+            }
+
+            return false;
         }
         #endregion
 
@@ -1215,51 +1357,6 @@ namespace NetTally.VoteCounting
 
             return results;
         }
-
-        /// <summary>
-        /// Gets a list of ranking votes in condensed form.
-        /// </summary>
-        /// <returns>Returns a list of ranking votes in condensed form.</returns>
-        public List<string> GetCondensedRankVotes()
-        {
-            var condensed = RankedVotesWithSupporters.Keys.Select(k => VoteString.CondenseVote(k)).Distinct().ToList();
-            return condensed;
-        }
-
-        /// <summary>
-        /// Determines whether the provided vote string can be found in
-        /// condensed form in the rank votes.
-        /// </summary>
-        /// <param name="rankVote">The vote to check for.</param>
-        /// <returns>Returns true if found.</returns>
-        private bool HasCondensedRankVote(string rankVote)
-        {
-            foreach (var vote in RankedVotesWithSupporters)
-            {
-                if (VoteString.CondenseVote(vote.Key) == rankVote)
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Check to see whether the specified vote has been recorded.
-        /// Ranking votes are checked against their condensed forms.
-        /// </summary>
-        /// <param name="vote">The vote to check.</param>
-        /// <param name="voteType">The type of vote being checked.</param>
-        /// <returns>Returns true if found.</returns>
-        public bool HasVote(string vote, VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return HasCondensedRankVote(vote);
-
-            var votes = GetVotesCollection(voteType);
-            return votes.ContainsKey(vote);
-        }
-
-
         #endregion
 
         #region Modifying votes
