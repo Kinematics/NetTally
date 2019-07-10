@@ -52,12 +52,22 @@ namespace NetTally.Experiment3
             return new VoteLineBlock(lines);
         }
 
-        public VoteLineBlock WithMarker(string marker, MarkerType markerType, int markerValue, bool ifSameType = false)
+        public VoteLineBlock WithMarker(string marker, MarkerType markerType, int markerValue, bool ifSameType = false, bool allLines = false)
         {
             var firstLine = Lines.First().WithMarker(marker, markerType, markerValue, ifSameType);
 
             var lines = new List<VoteLine>() { firstLine };
-            lines.AddRange(Lines.Skip(1));
+
+            var remaining = Lines.Skip(1);
+
+            if (allLines)
+            {
+                lines.AddRange(remaining.Select(a => a.WithMarker(marker, markerType, markerValue)));
+            }
+            else
+            {
+                lines.AddRange(remaining);
+            }
 
             return new VoteLineBlock(lines);
         }

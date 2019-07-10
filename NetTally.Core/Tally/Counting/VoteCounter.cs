@@ -438,7 +438,7 @@ namespace NetTally.VoteCounting
         {
             if (!VoteBlockSupporters.TryGetValue(vote, out var supporters))
             {
-                var referenceVote = vote.WithMarker("", MarkerType.None, 0);
+                var referenceVote = vote.WithMarker("", MarkerType.None, 0, allLines: true);
                 supporters = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
 
                 VoteBlockSupporters.Add(referenceVote, supporters);
