@@ -502,12 +502,19 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if successfully completed.</returns>
         public bool Merge(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
+            UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteBlockSupporters));
+
             bool merged = MergeImplWrapper(fromVote, toVote);
 
             if (merged)
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
             }
 
             return merged;
@@ -523,6 +530,8 @@ namespace NetTally.VoteCounting
         {
             bool merged = false;
 
+            UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteBlockSupporters));
+
             foreach (var toVote in toVotes)
             {
                 merged = MergeImplWrapper(fromVote, toVote) || merged;
@@ -532,6 +541,11 @@ namespace NetTally.VoteCounting
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
             }
 
             return merged;
@@ -548,7 +562,7 @@ namespace NetTally.VoteCounting
         {
             bool joined = false;
 
-            // TODO: Undo
+            UndoBuffer.Push(new UndoAction(UndoActionType.Join, VoteBlockSupporters));
 
             foreach (var voter in voters)
             {
@@ -559,6 +573,11 @@ namespace NetTally.VoteCounting
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
             }
 
             return joined;
@@ -573,23 +592,22 @@ namespace NetTally.VoteCounting
         {
             bool removed = false;
 
-            var eligibleVotes = VoteBlockSupporters.Where(v => vote.Equals(v.Key)).Select(v => v.Key).ToList();
-
-            // TODO: Undo
-
-            if (eligibleVotes.Any())
+            if (VoteBlockSupporters.ContainsKey(vote))
             {
-                foreach (var eligible in eligibleVotes)
-                {
-                    if (VoteBlockSupporters.Remove(eligible))
-                        removed = true;
-                }
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, VoteBlockSupporters));
+
+                removed = VoteBlockSupporters.Remove(vote);
             }
 
             if (removed)
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
             }
 
             return removed;
@@ -746,96 +764,21 @@ namespace NetTally.VoteCounting
         {
             if (!HasUndoActions)
                 return false;
+
             if (Quest is null)
                 throw new InvalidOperationException("Quest is null.");
 
             var undo = UndoBuffer.Pop();
-            List<string> vote;
 
-            switch (undo.ActionType)
+            if (undo.Undo(this))
             {
-                case UndoActionType.Delete:
-                    foreach (var v in undo.DeletedVotes)
-                    {
-                        foreach (var voter in v.Value)
-                        {
-                            AddVote(v.Key, voter, undo.VoteType);
-                            AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
-                        }
-                    }
-                    break;
-                case UndoActionType.Merge:
-                    if (undo.VoteType == VoteType.Rank)
-                    {
-                        foreach (var mergedVote in undo.MergedVotes)
-                        {
-                            userMerges.RemoveMergeRecord(mergedVote.Key.Key, mergedVote.Value, Quest.PartitionMode);
-
-                            LimitVoters(mergedVote.Value, mergedVote.Key.Value, VoteType.Rank);
-
-                            foreach (var voter in mergedVote.Key.Value)
-                            {
-                                AddVote(mergedVote.Key.Key, voter, undo.VoteType);
-                                AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        userMerges.RemoveMergeRecord(undo.Vote1, undo.Vote2, Quest.PartitionMode);
-
-                        LimitVoters(undo.Vote2, undo.Voters2, undo.VoteType);
-
-                        vote = new List<string> { undo.Vote1 };
-                        foreach (var voter in undo.Voters1)
-                        {
-                            AddVote(undo.Vote1, voter, undo.VoteType);
-                            AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
-                        }
-                    }
-                    break;
-                case UndoActionType.Join:
-                    foreach (string voter in undo.JoinedVoters)
-                    {
-                        RemoveSupport(voter, undo.VoteType);
-
-                        foreach (var priorVote in undo.PriorVotes)
-                        {
-                            if (priorVote.Value.Contains(voter))
-                            {
-                                vote = new List<string> { priorVote.Key };
-
-                                AddVote(priorVote.Key, voter, undo.VoteType);
-                                AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
-                            }
-                        }
-                    }
-                    break;
-                case UndoActionType.PartitionChildren:
-                    var votes = GetVotesCollection(undo.VoteType);
-
-                    foreach (var voter in undo.Voters1)
-                    {
-                        AddVote(undo.Vote1, voter, undo.VoteType);
-                        AddVoterPostID(voter, undo.PostIDs[voter], undo.VoteType);
-
-                        foreach (var addedVote in undo.Voters2)
-                        {
-                            if (votes.TryGetValue(addedVote, out HashSet<string> vs))
-                                vs.Remove(voter);
-                        }
-                    }
-
-                    break;
-                default:
-                    return false;
+                OnPropertyChanged("Votes");
+                OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+                return true;
             }
 
-            CleanupEmptyVotes(undo.VoteType);
-
-            OnPropertyChanged("VoteCounter");
-
-            return true;
+            return false;
         }
 
         #endregion
@@ -1071,6 +1014,8 @@ namespace NetTally.VoteCounting
 
             if (VoteBlockSupporters.TryGetValue(vote, out var supporters))
             {
+                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteBlockSupporters, vote));
+
                 VoteBlockSupporters.Remove(vote);
 
                 string originalTask = vote.Task;
@@ -1097,6 +1042,8 @@ namespace NetTally.VoteCounting
 
                         VoteBlockSupporters.Add(vote, supporters);
 
+                        UndoBuffer.Pop();
+
                         return false;
                     }
                 }
@@ -1112,6 +1059,7 @@ namespace NetTally.VoteCounting
                 }
 
                 OnPropertyChanged("Votes");
+                OnPropertyChanged(nameof(HasUndoActions));
                 return true;
             }
 
@@ -1136,112 +1084,6 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Deprecated
-
-        #region Adding votes
-
-        /// <summary>
-        /// Add a collection of votes to the vote counter.
-        /// </summary>
-        /// <param name="voteParts">A string list of all the parts of the vote to be added.</param>
-        /// <param name="voter">The voter for this vote.</param>
-        /// <param name="postID">The post ID for this vote.</param>
-        /// <param name="voteType">The type of vote being added.</param>
-        public void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType)
-        {
-            if (voteParts == null)
-                throw new ArgumentNullException(nameof(voteParts));
-            if (string.IsNullOrEmpty(voter))
-                throw new ArgumentNullException(nameof(voter));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
-
-            if (!voteParts.Any())
-                return;
-
-            // Store/update the post ID of the voter
-            AddVoterPostID(voter, postID, voteType);
-
-            // Track plan names
-            if (voteType == VoteType.Plan)
-            {
-                PlanNames.Add(voter);
-            }
-
-            // Remove the voter from any existing votes
-            if (RemoveSupport(voter, voteType))
-                OnPropertyChanged("Voters");
-
-            // Add/update all segments of the provided vote
-            foreach (var part in voteParts)
-            {
-                AddVote(part, voter, voteType);
-            }
-
-            // Cleanup any votes that no longer have any support
-            if (CleanupEmptyVotes(voteType))
-                OnPropertyChanged("Votes");
-
-        }
-
-        /// <summary>
-        /// Adds an individual vote.
-        /// </summary>
-        /// <param name="vote">The vote that is being added to.</param>
-        /// <param name="voter">The voter that is supporting the vote.</param>
-        /// <param name="voteType">Type of the vote.</param>
-        /// <exception cref="System.ArgumentNullException">vote and voter must not be null or empty.</exception>
-        private void AddVote(string vote, string voter, VoteType voteType)
-        {
-            if (string.IsNullOrEmpty(vote))
-                throw new ArgumentNullException(nameof(vote));
-            if (string.IsNullOrEmpty(voter))
-                throw new ArgumentNullException(nameof(voter));
-
-            string voteKey = GetVoteKey(vote, voteType);
-            var votes = GetVotesCollection(voteType);
-
-            // Make sure there's a hashset for the voter list available for the vote key.
-            if (votes.ContainsKey(voteKey) == false)
-            {
-                votes[voteKey] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                OnPropertyChanged("Votes");
-            }
-
-            string cleanVoter = VoteString.RemoveBBCode(voter);
-            cleanVoter = VoteString.DeUrlContent(cleanVoter);
-
-            // Update the supporters list if the voter isn't already in it.
-            if (votes[voteKey].Contains(cleanVoter))
-                return;
-
-            votes[voteKey].Add(cleanVoter);
-
-            OnPropertyChanged("Voters");
-        }
-
-        /// <summary>
-        /// Adds the voter post identifier.
-        /// </summary>
-        /// <param name="voter">The voter.</param>
-        /// <param name="postID">The post identifier.</param>
-        /// <param name="voteType">Type of the vote.</param>
-        /// <exception cref="System.ArgumentNullException">voter and postID may not be null or empty.</exception>
-        private void AddVoterPostID(string voter, string postID, VoteType voteType)
-        {
-            if (string.IsNullOrEmpty(voter))
-                throw new ArgumentNullException(nameof(voter));
-            if (string.IsNullOrEmpty(postID))
-                throw new ArgumentNullException(nameof(postID));
-
-            string cleanVoter = VoteString.RemoveBBCode(voter);
-            cleanVoter = VoteString.DeUrlContent(cleanVoter);
-
-            // Store/update the post ID of the voter
-            var voters = GetVotersCollection(voteType);
-            voters[cleanVoter] = postID;
-        }
-
-        #endregion
 
         #region Query on collection stuff
 
@@ -1383,353 +1225,6 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-        #region Modifying votes
-        /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the 'from' vote's key.
-        /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <param name="voteType">The type of vote being merged.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        public bool Merge(string fromVote, string toVote, VoteType voteType)
-        {
-            if (string.IsNullOrEmpty(fromVote))
-                throw new ArgumentNullException(nameof(fromVote));
-            if (string.IsNullOrEmpty(toVote))
-                throw new ArgumentNullException(nameof(toVote));
-            if (fromVote == toVote)
-                return false;
-
-            bool merged;
-
-            if (voteType == VoteType.Rank)
-                merged = MergeRanks(fromVote, toVote);
-            else
-                merged = MergeVotes(fromVote, toVote);
-
-            if (merged)
-            {
-                OnPropertyChanged("VoteCounter");
-            }
-
-            return merged;
-        }
-
-        /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
-        /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        private bool MergeRanks(string fromVote, string toVote)
-        {
-            var votes = GetVotesCollection(VoteType.Rank);
-
-            Dictionary<KeyValuePair<string, HashSet<string>>, string> mergedVotes = new Dictionary<KeyValuePair<string, HashSet<string>>, string>();
-
-            foreach (var vote in votes)
-            {
-                if (VoteString.CondenseVote(vote.Key) == fromVote)
-                {
-                    string toContent = VoteString.GetVoteContent(toVote, VoteType.Rank);
-                    string toTask = VoteString.GetVoteTask(toVote, VoteType.Rank);
-                    string revisedKey = VoteString.ModifyVoteLine(vote.Key, task: toTask, content: toContent);
-
-                    mergedVotes.Add(vote, revisedKey);
-                }
-            }
-
-            if (mergedVotes.Count > 0)
-            {
-                var voters = GetVotersCollection(VoteType.Rank);
-                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteType.Rank, voters, mergedVotes));
-
-                foreach (var merge in mergedVotes)
-                {
-                    Rename(merge.Key, merge.Value, VoteType.Rank);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Merges the specified from vote into the specified to vote, assuming the votes aren't the same.
-        /// Moves the voters from the from vote into the to vote list, and removes the from vote's key.
-        /// </summary>
-        /// <param name="fromVote">Vote that is being merged.</param>
-        /// <param name="toVote">Vote that is being merged into.</param>
-        /// <returns>Returns true if there were any changes.</returns>
-        private bool MergeVotes(string fromVote, string toVote) => Rename(fromVote, toVote, VoteType.Vote);
-
-        /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="oldVote">The old vote text.</param>
-        /// <param name="newVote">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        private bool Rename(string oldVote, string newVote, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-
-            var oldVoteObj = votes.FirstOrDefault(v => v.Key == oldVote);
-
-            return Rename(oldVoteObj, newVote, voteType);
-        }
-
-        /// <summary>
-        /// Rename a vote.
-        /// </summary>
-        /// <param name="vote">The old vote object.</param>
-        /// <param name="revisedKey">The new vote text.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if it renamed the vote.</returns>
-        private bool Rename(KeyValuePair<string, HashSet<string>> vote, string revisedKey, VoteType voteType)
-        {
-            if ((string.IsNullOrEmpty(vote.Key)) || (vote.Value == null))
-                throw new ArgumentNullException(nameof(vote));
-            if (revisedKey == null)
-                throw new ArgumentNullException(nameof(revisedKey));
-            if (revisedKey.Length == 0)
-                throw new ArgumentException("New vote key is empty.", nameof(revisedKey));
-            if (vote.Key == revisedKey)
-                return false;
-            if (Quest is null)
-                throw new InvalidOperationException("Quest is null.");
-
-
-            if (voteType != VoteType.Rank)
-            {
-                var voters = GetVotersCollection(voteType);
-                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, voteType, voters,
-                    vote.Key, vote.Value, revisedKey, GetVoters(revisedKey, voteType)));
-            }
-
-            var votes = GetVotesCollection(voteType);
-
-            if (votes.ContainsKey(revisedKey))
-            {
-                bool isRevisedSameAsVote = Agnostic.StringComparer.Equals(vote.Key, revisedKey);
-
-                if (isRevisedSameAsVote)
-                {
-                    var priorVotes = vote.Value;
-                    votes.Remove(vote.Key);
-                    votes[revisedKey] = priorVotes;
-                }
-                else
-                {
-                    votes[revisedKey].UnionWith(vote.Value);
-                    votes.Remove(vote.Key);
-                }
-            }
-            else
-            {
-                votes[revisedKey] = vote.Value;
-                votes.Remove(vote.Key);
-            }
-
-            userMerges.AddMergeRecord(vote.Key, revisedKey, Quest.PartitionMode);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Merges voter support.
-        /// All of the list of provided voters are adjusted to support the same votes
-        /// as those supported by the voterToJoin.
-        /// </summary>
-        /// <param name="voters">List of voters that are being adjusted.</param>
-        /// <param name="voterToJoin">Voter that all specified voters will be joining.</param>
-        /// <param name="voteType">The type of vote being manipulated.</param>
-        /// <returns>Returns true if adjustments were made.</returns>
-        public bool Join(List<string> voters, string voterToJoin, VoteType voteType)
-        {
-            if (voters == null)
-                throw new ArgumentNullException(nameof(voters));
-            if (string.IsNullOrEmpty(voterToJoin))
-                throw new ArgumentNullException(nameof(voterToJoin));
-            if (voters.Count == 0)
-                return false;
-
-            var votes = GetVotesCollection(voteType);
-
-            var joinVotersVotes = votes.Where(v => v.Value.Contains(voterToJoin));
-
-            int count = 0;
-
-            var priorVotes = votes.Where(v => v.Value.Any(u => voters.Contains(u)));
-            var voterIDList = GetVotersCollection(voteType);
-            UndoBuffer.Push(new UndoAction(UndoActionType.Join, voteType, voterIDList, voters, priorVotes));
-
-            foreach (string voter in voters)
-            {
-                if (voter != voterToJoin)
-                {
-                    count++;
-                    RemoveSupport(voter, voteType);
-
-                    foreach (var vote in joinVotersVotes)
-                    {
-                        vote.Value.Add(voter);
-                    }
-                }
-            }
-
-            CleanupEmptyVotes(voteType);
-
-            OnPropertyChanged("VoteCounter");
-
-            return count > 0;
-        }
-
-        public bool Delete(string vote, VoteType voteType) => Delete(vote, voteType, suppressUndo: false);
-
-        /// <summary>
-        /// Delete a vote from the vote list specified.
-        /// </summary>
-        /// <param name="vote">The vote to remove.</param>
-        /// <param name="voteType">The type of vote to remove.</param>
-        /// <returns>Returns true if a vote was removed.</returns>
-        public bool Delete(string vote, VoteType voteType, bool suppressUndo = false)
-        {
-            if (string.IsNullOrEmpty(vote))
-                return false;
-
-            bool removed = false;
-
-            var votes = GetVotesCollection(voteType);
-            Dictionary<string, HashSet<string>> deletedVotes = new Dictionary<string, HashSet<string>>();
-
-            foreach (var v in votes)
-            {
-                if (v.Key == vote || (voteType == VoteType.Rank && VoteString.CondenseVote(v.Key) == vote))
-                {
-                    deletedVotes.Add(v.Key, v.Value);
-                }
-            }
-
-            if (deletedVotes.Count > 0)
-            {
-                if (!suppressUndo)
-                    UndoBuffer.Push(new UndoAction(UndoActionType.Delete, voteType, GetVotersCollection(voteType), deletedVotes));
-
-                foreach (var del in deletedVotes)
-                {
-                    removed = votes.Remove(del.Key) || removed;
-                }
-            }
-
-            foreach (var v in deletedVotes)
-            {
-                foreach (var voter in v.Value)
-                {
-                    TrimVoter(voter, voteType);
-                }
-            }
-
-            OnPropertyChanged("VoteCounter");
-
-            return removed;
-        }
-
-        /// <summary>
-        /// TODO: Move this into the VoteConstructor class.
-        /// Partitions the child components of a vote into separate vote entries, passing
-        /// the voters into those child entries and removing the original.
-        /// </summary>
-        /// <param name="vote">The vote to partition.</param>
-        /// <param name="voteType">The type of vote.</param>
-        /// <returns>Returns true if the process was completed, or false otherwise.</returns>
-        public bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor)
-        {
-            if (string.IsNullOrEmpty(vote))
-                return false;
-            if (Quest is null)
-                throw new InvalidOperationException("Quest is null.");
-
-            // No point in partitioning rank votes
-            if (voteType == VoteType.Rank)
-            {
-                return false;
-            }
-
-            // Make sure the provided vote exists
-            string voteKey = GetVoteKey(vote, voteType);
-            var votes = GetVotesCollection(voteType);
-
-            if (votes.ContainsKey(voteKey) == false)
-            {
-                return false;
-            }
-
-            // Construct the new votes that the vote is being partitioned into.
-            var voteLines = vote.GetStringLines();
-
-            if (voteLines.Count < 2)
-                return false;
-
-            var afterVoteLines = voteLines.Skip(1);
-
-            int indentCount = afterVoteLines.Min(a => VoteString.GetVotePrefix(a).Length);
-
-            var promotedVoteLines = afterVoteLines.Select(a => a.Substring(indentCount)).ToList();
-
-            var partitionedVotes = constructor.PartitionVoteStrings(promotedVoteLines, Quest, PartitionMode.ByBlock);
-
-            HashSet<string> addedVotes = new HashSet<string>();
-
-            var voters = votes[voteKey];
-            bool votesChanged = false;
-
-            foreach (var v in partitionedVotes)
-            {
-                var key = GetVoteKey(v, voteType);
-
-                if (!votes.ContainsKey(key))
-                {
-                    votes[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    votesChanged = true;
-                }
-
-                votes[key].UnionWith(voters);
-
-                addedVotes.Add(key);
-            }
-
-            UndoBuffer.Push(new UndoAction(UndoActionType.PartitionChildren, voteType, GetVotersCollection(voteType), addedVotes, voteKey, voters));
-
-            Delete(vote, voteType, true);
-
-            if (votesChanged)
-                OnPropertyChanged("Votes");
-
-            OnPropertyChanged("VoteCounter");
-
-            return true;
-        }
-
-        private void LimitVoters(string vote2, HashSet<string> voters2, VoteType voteType)
-        {
-            var votes = GetVotesCollection(voteType);
-            var vote = votes[vote2];
-
-            if (voteType == VoteType.Rank)
-            {
-                vote.ExceptWith(voters2);
-            }
-            else
-            {
-                vote.IntersectWith(voters2);
-            }
-        }
-
-        #endregion
 
         #endregion
 

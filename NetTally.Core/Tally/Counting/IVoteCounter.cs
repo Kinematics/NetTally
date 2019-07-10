@@ -231,12 +231,6 @@ namespace NetTally.VoteCounting
         List<string> GetVotesFromReference(string voteLine, string author);
         bool HasRankedVotes { get; }
 
-        void AddVotes(IEnumerable<string> voteParts, string voter, string postID, VoteType voteType);
-        bool Merge(string fromVote, string toVote, VoteType voteType);
-        bool Delete(string vote, VoteType voteType);
-        bool PartitionChildren(string vote, VoteType voteType, VoteConstructor constructor);
-        bool Join(List<string> voters, string voterToJoin, VoteType voteType);
-
         #endregion
     }
 }

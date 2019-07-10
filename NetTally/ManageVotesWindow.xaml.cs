@@ -317,10 +317,7 @@ namespace NetTally
 
             try
             {
-                if (mainViewModel.JoinVoters(fromVoters, joinVoter))
-                {
-                    OnPropertyChanged(nameof(HasUndoActions));
-                }
+                mainViewModel.JoinVoters(fromVoters, joinVoter);
             }
             catch (Exception ex)
             {
@@ -342,10 +339,7 @@ namespace NetTally
 
                 if (VoteView1.CurrentItem is VoteLineBlock currentVote)
                 {
-                    if (mainViewModel.DeleteVote(currentVote))
-                    {
-                        OnPropertyChanged(nameof(HasUndoActions));
-                    }
+                    mainViewModel.DeleteVote(currentVote);
                 }
             }
             catch (Exception ex)
@@ -557,10 +551,7 @@ namespace NetTally
         {
             try
             {
-                if (mainViewModel.UndoVoteModification())
-                {
-                    OnPropertyChanged(nameof(HasUndoActions));
-                }
+                mainViewModel.UndoVoteModification();
             }
             catch (Exception ex)
             {
@@ -584,6 +575,10 @@ namespace NetTally
             else if (e.PropertyName == nameof(mainViewModel.AllVotersCollection))
             {
                 UpdateVoterCollections();
+            }
+            else if (!string.IsNullOrEmpty(e.PropertyName))
+            {
+                OnPropertyChanged(e.PropertyName);
             }
         }
         #endregion
@@ -632,11 +627,7 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = -1;
                 lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
-
-                if (mainViewModel.MergeVotes(fromVote, toVote))
-                {
-                    OnPropertyChanged(nameof(HasUndoActions));
-                }
+                mainViewModel.MergeVotes(fromVote, toVote);
             }
             catch (ArgumentException ex)
             {
@@ -651,10 +642,7 @@ namespace NetTally
                 lastPosition1 = VoteView1.CurrentPosition;
                 lastPosition2 = VoteView2.CurrentPosition;
 
-                if (mainViewModel.PartitionChildren(vote))
-                {
-                    OnPropertyChanged(nameof(HasUndoActions));
-                }
+                mainViewModel.PartitionChildren(vote);
             }
             catch (ArgumentException ex)
             {

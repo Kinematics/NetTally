@@ -59,6 +59,14 @@ namespace NetTally.Experiment3
         #endregion
 
         #region Creation of new VoteLineBlock instances based on the current one
+        public VoteLineBlock Clone()
+        {
+            var copy = new VoteLineBlock(Lines.ToList());
+            copy.Task = Task;
+
+            return copy;
+        }
+
         public VoteLineBlock WithTask(string task)
         {
             var firstLine = Lines.First().WithTask(task);

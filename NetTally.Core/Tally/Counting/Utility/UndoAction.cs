@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NetTally.Votes
+namespace NetTally.Votes.Original
 {
     public enum UndoActionType
     {

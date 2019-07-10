@@ -10,7 +10,6 @@ using NetTally.Experiment3;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
-using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
