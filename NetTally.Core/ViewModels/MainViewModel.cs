@@ -655,6 +655,10 @@ namespace NetTally.ViewModels
                 {
                     UpdateVotersCollection();
                 }
+                else
+                {
+                    OnPropertyChanged(e.PropertyName);
+                }
             }
         }
 
