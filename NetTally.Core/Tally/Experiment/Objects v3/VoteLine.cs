@@ -165,12 +165,12 @@ namespace NetTally.Experiment3
                 }
                 else
                 {
-                    return string.Compare(left.Task, right.Task);
+                    return Agnostic.StringComparer.Compare(left.Task, right.Task);
                 }
             }
             else
             {
-                return string.Compare(left.CleanContent, right.CleanContent);
+                return Agnostic.StringComparer.Compare(left.CleanContent, right.CleanContent);
             }
         }
 

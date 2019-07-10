@@ -22,31 +22,32 @@ namespace NetTally.Utility
         #endregion
 
         #region Fields and properties
-        private static IEqualityComparer<string> currentComparer;
+        private static CustomStringComparer currentComparer;
 
-        private static IEqualityComparer<string> StringComparerNoCaseSymbol { get; set; }
+        private static CustomStringComparer StringComparerNoCaseSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerNoCaseNoSymbol { get; set; }
+        private static CustomStringComparer StringComparerNoCaseNoSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerCaseSymbol { get; set; }
+        private static CustomStringComparer StringComparerCaseSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerCaseNoSymbol { get; set; }
+        private static CustomStringComparer StringComparerCaseNoSymbol { get; set; }
 
         /// <summary>
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> StringComparer => currentComparer;
+        public static CustomStringComparer StringComparer => currentComparer;
+
 
         /// <summary>
         /// Gets a string comparer object that ignores case and symbols.
         /// </summary>
-        public static IEqualityComparer<string> InsensitiveComparer => StringComparerNoCaseNoSymbol;
+        public static CustomStringComparer InsensitiveComparer => StringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
         /// </value>
-        public static IEqualityComparer<string> QuestSensitiveStringComparer
+        public static CustomStringComparer QuestSensitiveStringComparer
         {
             get
             {
