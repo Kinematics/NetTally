@@ -41,6 +41,7 @@ namespace NetTally
 
             services.AddSingleton<Experiment3.VoteConstructor>();
             services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();
+            services.AddSingleton<Experiment3.RankVoteCounterFactory>();
         }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Experiment3;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVoteCounting.Utility
 {
     static class RankScoring
     {
+        #region Calculations made on old RankedVoters collections
         /// <summary>
         /// Calculates the Borda score for the provided list of voter rankings of a given vote.
         /// </summary>
@@ -108,6 +111,90 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
 
             return 1.0 - (decrement * 0.125);
         }
+        #endregion
 
+        #region Calculations made on new VoteLineBlock collections
+        /// <summary>
+        /// Calculates the Borda score for the provided list of voter rankings of a given vote.
+        /// </summary>
+        /// <param name="votes">Votes with rank information included.</param>
+        /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
+        public static double BordaScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        {
+            double voteValue = 0;
+
+            // Normalize to 9 points for #1, 8 points for #2, etc.
+            foreach (var vote in votes.Value)
+            {
+                if (vote.Value.MarkerType == MarkerType.Rank && vote.Value.MarkerValue > 0 && vote.Value.MarkerValue < 10)
+                {
+                    voteValue += (10 - vote.Value.MarkerValue);
+                }
+            }
+
+            return voteValue;
+        }
+
+        /// <summary>
+        /// Calculates the inverse Borda score for the provided list of voter rankings of a given vote.
+        /// </summary>
+        /// <param name="votes">Votes with rank information included.</param>
+        /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
+        public static double InverseBordaScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        {
+            double voteValue = 0;
+
+            // Value of each rank is 1/N.
+            foreach (var vote in votes.Value)
+            {
+                if (vote.Value.MarkerType == MarkerType.Rank && vote.Value.MarkerValue > 0 && vote.Value.MarkerValue < 10)
+                {
+                    voteValue += (1.0 / vote.Value.MarkerValue);
+                }
+            }
+
+            return voteValue;
+        }
+
+
+        /// <summary>
+        /// Calculates the lower bound of the Wilson score for the provided list of voter rankings of a given vote.
+        /// Reference: http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
+        /// </summary>
+        /// <param name="votes">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
+        /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
+        public static (double score, int count) LowerWilsonScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        {
+            int n = votes.Value.Count(v => v.Value.MarkerType == MarkerType.Rank);
+
+            if (n == 0)
+                return (0, 0);
+
+            double positiveScore = 0.0;
+            double negativeScore = 0.0;
+
+            // Add up the sum of the number of voters times the value of each rank.
+            // Value of each rank is 1/N.
+            foreach (var vote in votes.Value)
+            {
+                if (vote.Value.MarkerType == MarkerType.Rank && vote.Value.MarkerValue > 0 && vote.Value.MarkerValue < 10)
+                {
+                    double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.MarkerValue);
+
+                    positiveScore += scaledPositiveScore;
+                    negativeScore += (1.0 - scaledPositiveScore);
+                }
+            }
+
+            double p̂ = positiveScore / (positiveScore + negativeScore);
+            double z = 1.96;
+            double sqTerm = (p̂ * (1 - p̂) + z * z / (4 * n)) / n;
+
+            double lowerWilson = (p̂ + (z * z / (2 * n)) - z * Math.Sqrt(sqTerm)) / (1 + z * z / n);
+
+            return (lowerWilson, n);
+        }
+
+        #endregion
     }
 }

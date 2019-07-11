@@ -11,26 +11,6 @@ namespace NetTally.VoteCounting
     static class VoteCounterLocator
     {
         /// <summary>
-        /// Generic function to get the default vote counter for a given vote type.
-        /// </summary>
-        /// <param name="voteType">Type of the vote.</param>
-        /// <returns>Returns a base vote counter interface.</returns>
-        public static IBaseVoteCounter GetVoteCounter(VoteType voteType)
-        {
-            switch (voteType)
-            {
-                case VoteType.Rank:
-                    return GetRankVoteCounter();
-                case VoteType.Vote:
-                    return GetStandardVoteCounter();
-                case VoteType.Approval:
-                    return GetApprovalVoteCounter();
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(voteType));
-            }
-        }
-
-        /// <summary>
         /// Gets a rank vote counter.
         /// </summary>
         /// <param name="method">The methodology that the requested vote rank counter should use.</param>
@@ -65,36 +45,6 @@ namespace NetTally.VoteCounting
                     return new RIRVRankVoteCounter();
                 default:
                     return new RIRVRankVoteCounter();
-            }
-        }
-
-        /// <summary>
-        /// Gets a standard vote counter.
-        /// </summary>
-        /// <param name="method">The methodology that the requested vote counter should use.</param>
-        /// <returns>Returns a class to handle counting standard votes using the requested methodology.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public static IRankVoteCounter GetStandardVoteCounter(StandardVoteCounterMethod method = StandardVoteCounterMethod.Default)
-        {
-            switch (method)
-            {
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// Gets an approval vote counter.
-        /// </summary>
-        /// <param name="method">The methodology that the requested vote counter should use.</param>
-        /// <returns>Returns a class to handle counting approval votes using the requested methodology.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public static IRankVoteCounter GetApprovalVoteCounter(ApprovalVoteCounterMethod method = ApprovalVoteCounterMethod.Default)
-        {
-            switch (method)
-            {
-                default:
-                    throw new NotImplementedException();
             }
         }
     }

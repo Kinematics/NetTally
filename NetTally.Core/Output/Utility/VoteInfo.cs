@@ -29,15 +29,6 @@ namespace NetTally.Output
 
 
 
-
-
-
-
-
-
-
-
-
         /// <summary>
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
