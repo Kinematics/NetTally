@@ -32,7 +32,7 @@ namespace NetTally.Experiment3
         // Prefix chars: dash, en-dash, em-dash
         static readonly char[] prefixChars = new char[] { '-', '–', '—' };
         // Marker chars: X, check, numeric rank, rank marker, score marker, approval/disapproval
-        static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '×', '☒', '☑', '+', '-' };
+        static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '✗', '✘', '☒', '☑', '+', '-' };
         // Newline chars
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
 
@@ -284,7 +284,7 @@ namespace NetTally.Experiment3
         }
 
 
-        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX×✓✔☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$");
+        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$");
 
         /// <summary>
         /// Examines a provided vote marker string and determines what type of marker it is.
@@ -326,9 +326,9 @@ namespace NetTally.Experiment3
                     else if (markerType == MarkerType.Approval)
                     {
                         if (m.Groups["approval"].Value == "+")
-                            markerValue = 100;
+                            markerValue = 80;
                         else
-                            markerValue = 0;
+                            markerValue = 20;
                     }
                     else if (m.Groups["value"].Success)
                     {

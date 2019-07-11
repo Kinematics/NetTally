@@ -337,6 +337,10 @@ namespace NetTally.VoteCounting
                 .ToList();
         }
 
+        public int GetTotalVoterCount()
+        {
+            return ReferenceVoterNames.Count;
+        }
 
         public IEnumerable<VoteLineBlock> GetSupportedVotesList()
         {

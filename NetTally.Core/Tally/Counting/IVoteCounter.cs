@@ -141,6 +141,7 @@ namespace NetTally.VoteCounting
         IEnumerable<VoteLineBlock> GetSupportedVotesList();
         IEnumerable<string> GetFullVotersList();
         IEnumerable<string> GetVotersFor(VoteLineBlock vote);
+        int GetTotalVoterCount();
 
 
         /// <summary>
