@@ -423,8 +423,8 @@ namespace NetTally.VoteCounting
                 return;
 
 
-            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses =
-                new List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)>()
+            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
+                new List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)>()
                 {
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
@@ -459,7 +459,7 @@ namespace NetTally.VoteCounting
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
         private Dictionary<string, VoteLineBlock> RunPlanPreprocessing(IReadOnlyList<Post> posts, IQuest quest,
-            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)> planProcesses,
+            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
             Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>();

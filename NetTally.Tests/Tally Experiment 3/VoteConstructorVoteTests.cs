@@ -43,7 +43,7 @@ But might include something else...
 [x] Loot the boxes";
 
             Post post = new Post(author, postId, postText, postNumber);
-            voteConstructor.ConfigureWorkingVote(post);
+            voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
@@ -59,7 +59,7 @@ But might include something else...
 [x] Loot the boxes";
 
             Post post = new Post(author, postId, postText, postNumber);
-            voteConstructor.ConfigureWorkingVote(post);
+            voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
@@ -76,7 +76,7 @@ But might include something else...
 [x] And catch them in the act.";
 
             Post post = new Post(author, postId, postText, postNumber);
-            voteConstructor.ConfigureWorkingVote(post);
+            voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }

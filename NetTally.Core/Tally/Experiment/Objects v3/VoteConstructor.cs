@@ -38,7 +38,7 @@ namespace NetTally.Experiment3
         /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
         /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
         public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
-            bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, string planName)> isPlanFunction)
+            bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
         {
             Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>();
 
@@ -48,9 +48,12 @@ namespace NetTally.Experiment3
 
             foreach (var block in blocks)
             {
-                var (isPlan, planName) = isPlanFunction(block);
+                var (isPlan, isImplicit, planName) = isPlanFunction(block);
 
-                if (isPlan && IsValidPlanName(planName, post.Author) && IsTaskAllowed(block, quest))
+                if (isPlan && 
+                    !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
+                    IsValidPlanName(planName, post.Author) && 
+                    IsTaskAllowed(block, quest))
                 {
                     plans[planName] = block;
                 }
@@ -72,7 +75,7 @@ namespace NetTally.Experiment3
                 return null;
 
             if (!post.WorkingVoteComplete)
-                ConfigureWorkingVote(post);
+                ConfigureWorkingVote(post, quest);
 
             // If the working vote configuration is complete, process the post.
             if (post.WorkingVoteComplete)
@@ -168,7 +171,8 @@ namespace NetTally.Experiment3
         /// any vote or plan references.  Store the information in the WorkingVote.
         /// </summary>
         /// <param name="post">The post with the working vote to configure.</param>
-        public void ConfigureWorkingVote(Post post)
+        /// <param name="quest">The quest being tallied.</param>
+        public void ConfigureWorkingVote(Post post, IQuest quest)
         {
             if (post.WorkingVoteComplete)
                 return;
@@ -183,7 +187,7 @@ namespace NetTally.Experiment3
             {
                 var currentLine = validVoteLines[i];
 
-                var (isReference, isPlan, isPinnedUser, refName) = GetReference(currentLine);
+                var (isReference, isPlan, isPinnedUser, refName) = GetReference(currentLine, quest);
 
                 if (isReference)
                 {
@@ -283,7 +287,7 @@ namespace NetTally.Experiment3
             // Local function to handle determining if the block is part of a Proposed Plan or not.
             bool IsProposedPlan(VoteLineBlock block)
             {
-                var (isProposedPlan, proposedPlanName) = VoteBlocks.IsBlockAProposedPlan(block);
+                var (isProposedPlan, isImplicit, proposedPlanName) = VoteBlocks.IsBlockAProposedPlan(block);
 
                 if (isProposedPlan)
                 {
@@ -307,9 +311,14 @@ namespace NetTally.Experiment3
         /// If so, determine what type, and extract the reference name.
         /// </summary>
         /// <param name="voteLine">The vote line to examine.</param>
+        /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
-        private (bool isReference, bool isPlan, bool isPinnedUser, string refName) GetReference(VoteLine voteLine)
+        private (bool isReference, bool isPlan, bool isPinnedUser, string refName) GetReference(VoteLine voteLine, IQuest quest)
         {
+            // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
+            if (voteLine.CleanContent.Length > 100)
+                goto noReference;
+
             Match m = referenceNameRegex.Match(voteLine.CleanContent);
             if (m.Success)
             {
@@ -320,7 +329,8 @@ namespace NetTally.Experiment3
                 {
                     string? refUser = voteCounter.GetProperVoterName(refName);
 
-                    if (refUser != null)
+                    // Check to make sure the quest hasn't disabled user proxy votes.
+                    if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
                 }
                 else if (label.StartsWith("base") || label.StartsWith("proposed"))
@@ -340,24 +350,29 @@ namespace NetTally.Experiment3
                     // Check user names second
                     string? refUser = voteCounter.GetProperVoterName(refName);
 
-                    if (refUser != null)
-                        return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
+                    // Check to make sure the quest hasn't disabled user proxy votes.
+                    // Force pinning if requested.
+                    if (refUser != null && quest.DisableProxyVotes == false)
+                        return (isReference: true, isPlan: false, isPinnedUser: false || quest.ForcePinnedProxyVotes, refName: refUser);
                 }
                 else // Any unlabeled lines
                 {
                     // Check user names first
                     string? refUser = voteCounter.GetProperVoterName(refName);
 
-                    if (refUser != null)
-                        return (isReference: true, isPlan: false, isPinnedUser: false, refName: refUser);
+                    // Check to make sure the quest hasn't disabled user proxy votes.
+                    if (refUser != null && quest.DisableProxyVotes == false)
+                        return (isReference: true, isPlan: false, isPinnedUser: false || quest.ForcePinnedProxyVotes, refName: refUser);
 
                     string? refPlan = voteCounter.GetProperPlanName(refName);
 
-                    if (refPlan != null)
+                    // Check to make sure the quest doesn't forbid non-labeled plan references.
+                    if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
                 }
             }
 
+            noReference:
             return (isReference: false, isPlan: false, isPinnedUser: false, refName: "");
         }
         #endregion

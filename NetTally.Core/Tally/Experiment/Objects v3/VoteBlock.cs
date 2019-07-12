@@ -39,7 +39,7 @@ namespace NetTally.Experiment3
         }
 
 
-        public static (bool isPlan, string planName) IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -51,10 +51,10 @@ namespace NetTally.Experiment3
                 isPlan = (firstLine.Depth == 0 && remainder.Any() && remainder.All(a => a.Depth > 0));
             }
 
-            return (isPlan, planName);
+            return (isPlan, false, planName);
         }
 
-        public static (bool isPlan, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLine> block)
         {
             if (block.Count() > 1)
             {
@@ -64,14 +64,14 @@ namespace NetTally.Experiment3
 
                 if (lineStatus == LineStatus.Plan && secondLine.Depth == 0)
                 {
-                    return (true, planName);
+                    return (true, true, planName);
                 }
             }
 
-            return (false, "");
+            return (false, false, "");
         }
 
-        public static (bool isPlan, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLineBlock> blocks)
+        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLineBlock> blocks)
         {
             var firstBlock = blocks.First();
 
@@ -81,14 +81,14 @@ namespace NetTally.Experiment3
 
                 if (lineStatus == LineStatus.Plan)
                 {
-                    return (true, planName);
+                    return (true, true, planName);
                 }
             }
 
-            return (false, "");
+            return (false, false, "");
         }
 
-        public static (bool isPlan, string planName) IsBlockAProposedPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName) IsBlockAProposedPlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -100,10 +100,10 @@ namespace NetTally.Experiment3
                 isPlan = (firstLine.Depth == 0 && remainder.Any() && remainder.All(a => a.Depth > 0));
             }
 
-            return (isPlan, planName);
+            return (isPlan, false, planName);
         }
 
-        public static (bool isPlan, string planName) IsBlockASingleLinePlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName) IsBlockASingleLinePlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -114,7 +114,7 @@ namespace NetTally.Experiment3
                 isPlan = true;
             }
 
-            return (isPlan, planName);
+            return (isPlan, false, planName);
         }
 
 
