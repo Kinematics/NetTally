@@ -344,5 +344,36 @@ namespace NetTally.Extensions
 
             return ((double)pass / (pass + fail) >= threshold);
         }
+
+
+        public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)
+        {
+            if (!list1.Any() && !list2.Any())
+                return true;
+
+            if (!list1.Any() || !list2.Any())
+                return false;
+
+            var e1 = list1.GetEnumerator();
+            var e2 = list2.GetEnumerator();
+
+            while (true)
+            {
+                bool move1 = e1.MoveNext();
+                bool move2 = e2.MoveNext();
+
+                if (move1 ^ move2)
+                    return false;
+
+                if (!move1)
+                    break;
+
+                if (!(comparer.Compare(selector(e1.Current), selector(e2.Current)) == 0))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

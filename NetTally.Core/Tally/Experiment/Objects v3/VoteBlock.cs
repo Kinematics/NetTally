@@ -164,20 +164,7 @@ namespace NetTally.Experiment3
             if (a.Count != b.Count)
                 return (false, task);
 
-            var zip = a.Zip(b, (x,y) => new { x, y });
-
-            bool content = true;
-
-            foreach (var z in zip)
-            {
-                if (!Agnostic.StringComparer.Equals(z.x.Content, z.y.Content))
-                {
-                    content = false;
-                    break;
-                }
-            }
-
-            return (content, task);
+            return (a.SequenceEquals(b, item => item.CleanContent, Agnostic.StringComparer), task);
         }
     }
 }

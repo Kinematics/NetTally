@@ -165,8 +165,8 @@ namespace NetTally
 
         public enum IdentityType
         {
+            Plan,
             User,
-            Plan
         }
     }
 
