@@ -27,8 +27,6 @@ namespace NetTally.Output
         }
 
 
-
-
         /// <summary>
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
@@ -281,54 +279,12 @@ namespace NetTally.Output
         /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
         public string GetVoterUrl(string voter, VoteType voteType)
         {
-            Dictionary<string, string> voters = voteCounter.GetVotersCollection(voteType);
+            Dictionary<string, string> voters = new Dictionary<string, string>(); // voteCounter.GetVotersCollection(voteType);
 
             if (voters.TryGetValue(voter, out string voteID))
                 return forumAdapter.GetPermalinkForId(voteID) ?? string.Empty;
 
             return string.Empty;
-        }
-
-
-        
-        /// <summary>
-        /// Property to get the total number of ranked voters in the tally.
-        /// </summary>
-        public int RankedVoterCount => voteCounter.GetVotersCollection(VoteType.Rank).Count;
-
-        /// <summary>
-        /// Property to get the total number of normal voters in the tally.
-        /// </summary>
-        public int NormalVoterCount => voteCounter.GetVotersCollection(VoteType.Vote).Count(voter => !voter.Key.IsPlanName());
-
-        /// <summary>
-        /// Calculate the number of non-plan voters in the provided vote object.
-        /// </summary>
-        /// <param name="vote">The vote containing a list of voters.</param>
-        /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
-        public int CountVote(KeyValuePair<string, HashSet<string>> vote) =>
-            vote.Value?.Count(vc => voteCounter.HasPlan(vc) == false) ?? 0;
-
-        /// <summary>
-        /// Get a list of voters, ordered alphabetically, except the first voter,
-        /// who is the 'earliest' of the provided voters (ie: the first person to
-        /// vote for this vote or plan).
-        /// </summary>
-        /// <param name="voters">A set of voters.</param>
-        /// <returns>Returns an organized, sorted list.</returns>
-        public IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
-        {
-            if (voters == null || voters.Count == 0)
-                return new List<string>();
-
-            var firstVoter = GetFirstVoter(voters);
-            var voterList = new List<string>();
-            if (firstVoter != null)
-                voterList.Add(firstVoter);
-            var otherVoters = voters.Except(voterList);
-
-            var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
-            return orderedVoters;
         }
 
         /// <summary>
@@ -341,7 +297,7 @@ namespace NetTally.Output
         public string? GetFirstVoter(HashSet<string> voters)
         {
             var planVoters = voters.Where(v => voteCounter.HasPlan(v));
-            var votersCollection = voteCounter.GetVotersCollection(VoteType.Vote);
+            Dictionary<string, string> votersCollection = new Dictionary<string, string>(); // voteCounter.GetVotersCollection(voteType);
 
             if (planVoters.Any())
             {
@@ -361,22 +317,6 @@ namespace NetTally.Output
             }
 
             return null;
-        }
-
-
-
-        /// <summary>
-        /// Group votes by task.
-        /// </summary>
-        /// <param name="allVotes">A list of all votes.</param>
-        /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
-        public IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
-        {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
-
-            grouped = grouped.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
-
-            return grouped;
         }
 
         /// <summary>
@@ -446,33 +386,9 @@ namespace NetTally.Output
                 }
             }
 
-            return nodeList.OrderByDescending(v => v.VoterCount).ThenBy(v => LastVoteID(v.Voters));
+            return nodeList.OrderByDescending(v => v.VoterCount);
         }
 
-        /// <summary>
-        /// Gets the ID number of the last vote made among the provided voters.
-        /// Returns 0 if there are no voters passed in, or no valid post ID values.
-        /// </summary>
-        /// <param name="voters">The voters for a given vote.</param>
-        /// <returns>Returns the last vote ID made for this vote.</returns>
-        public int LastVoteID(HashSet<string> voters)
-        {
-            if (voters.Count == 0)
-                return 0;
-
-            var votersCollection = voteCounter.GetVotersCollection(VoteType.Vote);
-
-            Dictionary<string, int> voteCollInt = new Dictionary<string, int>();
-
-            var ids = from voter in voters
-                    where votersCollection.ContainsKey(voter)
-                    select int.Parse(votersCollection[voter]);
-
-            if (!ids.Any())
-                return 0;
-
-            return ids.Max();
-        }
 
         #endregion
     }

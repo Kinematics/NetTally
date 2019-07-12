@@ -270,16 +270,5 @@ namespace NetTally.VoteCounting
         /// <param name="task">The new task to use.</param>
         /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
         bool ReplaceTask(VoteLineBlock vote, string task);
-
-
-
-
-
-
-        #region deprecated
-        Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
-        Dictionary<string, string> GetVotersCollection(VoteType voteType);
-
-        #endregion
     }
 }

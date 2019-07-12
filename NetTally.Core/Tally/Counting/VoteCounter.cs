@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using NetTally.Utility;
-using NetTally.Votes;
 using NetTally.Experiment3;
 using NetTally.Extensions;
+using NetTally.Utility;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
@@ -27,7 +27,6 @@ namespace NetTally.VoteCounting
         /// </summary>
         public IReadOnlyList<Post> Posts => postsList;
 
-
         readonly MergeRecords userMerges = new MergeRecords();
         readonly List<Post> postsList = new List<Post>();
         readonly List<string> taskList = new List<string>();
@@ -40,13 +39,6 @@ namespace NetTally.VoteCounting
         Dictionary<string, int> VoterReferenceMessageId { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, int> VoterMessageId { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, VoteLineBlock> ReferencePlans { get; set; } = new Dictionary<string, VoteLineBlock>(Agnostic.InsensitiveComparer);
-
-
-        // Deprecated collections:
-        Dictionary<string, string> VoterMessageIdOrig { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, string> RankedVoterMessageId { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, HashSet<string>> VotesWithSupporters { get; set; } = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
-        Dictionary<string, HashSet<string>> RankedVotesWithSupporters { get; set; } = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
         #endregion
 
         #region General Tally Properties
@@ -103,11 +95,6 @@ namespace NetTally.VoteCounting
             VoterReferenceMessageId.Clear();
             VoterMessageId.Clear();
 
-            VotesWithSupporters.Clear();
-            VoterMessageIdOrig.Clear();
-            RankedVotesWithSupporters.Clear();
-            RankedVoterMessageId.Clear();
-
             FutureReferences.Clear();
 
             UndoBuffer.Clear();
@@ -117,10 +104,6 @@ namespace NetTally.VoteCounting
 
             taskList.Clear();
 
-            if (VotesWithSupporters.Comparer != Agnostic.StringComparer)
-                VotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
-            if (RankedVotesWithSupporters.Comparer != Agnostic.StringComparer)
-                RankedVotesWithSupporters = new Dictionary<string, HashSet<string>>(Agnostic.StringComparer);
             if (ReferencePlans.Comparer != Agnostic.StringComparer)
                 ReferencePlans = new Dictionary<string, VoteLineBlock>(Agnostic.StringComparer);
             if (ReferencePlanNames.Comparer != Agnostic.StringComparer)
@@ -973,41 +956,5 @@ namespace NetTally.VoteCounting
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
-
-
-
-
-
-
-        #region Deprecated
-
-        /// <summary>
-        /// Get the dictionary collection of votes for the requested vote type.
-        /// </summary>
-        /// <param name="voteType">The type of vote being requested.</param>
-        /// <returns>Returns a dictionary collection of the requested vote type.</returns>
-        public Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return RankedVotesWithSupporters;
-            else
-                return VotesWithSupporters;
-        }
-
-        /// <summary>
-        /// Get the dictionary collection of voters and post IDs for the requested vote type.
-        /// </summary>
-        /// <param name="voteType">The type of vote being requested.</param>
-        /// <returns>Returns a dictionary collection of the requested voter type.</returns>
-        public Dictionary<string, string> GetVotersCollection(VoteType voteType)
-        {
-            if (voteType == VoteType.Rank)
-                return RankedVoterMessageId;
-            else
-                return VoterMessageIdOrig;
-        }
-
-        #endregion
-
     }
 }
