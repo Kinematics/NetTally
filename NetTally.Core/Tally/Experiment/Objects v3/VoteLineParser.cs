@@ -313,7 +313,7 @@ namespace NetTally.Experiment3
                     else if (m.Groups["score"].Success)
                         markerType = MarkerType.Score;
                     else if (m.Groups["value"].Success)
-                        markerType = MarkerType.Rank; // Default value type here.
+                        markerType = MarkerType.Rank; // Default value type if no # or % used.
                     else if (m.Groups["approval"].Success)
                         markerType = MarkerType.Approval;
                     else

@@ -409,13 +409,7 @@ namespace NetTally
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
-        public HashSet<int> PostsToFilter
-        {
-            get
-            {
-                return postsToFilter;
-            }
-        }
+        public HashSet<int> PostsToFilter => postsToFilter;
 
         /// <summary>
         /// Function to convert the CustomPostFilters string to a hashset of post

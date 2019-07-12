@@ -130,9 +130,8 @@ namespace NetTally.Experiment3
         /// <returns>Returns a string representing the current object.</returns>
         public override string ToString()
         {
-            string marker = Marker == "☒" || Marker == "☑" ? Marker : $"[{Marker}]";
             string task = Task.Length > 0 ? $"[{Task}]" : "";
-            return $"{Prefix}{marker}{task} {Content}";
+            return $"{Prefix}[{Marker}]{task} {Content}";
         }
 
         /// <summary>
@@ -149,18 +148,37 @@ namespace NetTally.Experiment3
         /// Creates a string that displays the full vote line content, using the specified marker
         /// instead of the intrinsic vote line's.
         /// </summary>
-        /// <param name="marker">The marker to use in the generated output.</param>
+        /// <param name="displayMarker">The marker to use in the generated output.</param>
         /// <returns>Returns a string representing the current object.</returns>
-        public string ToStringWithReplacement(string? marker = null, string? task = null)
+        public string ToOverrideString(string? displayMarker = null, string? displayTask = null)
         {
-            marker ??= Marker;
-            task ??= Task;
-            task = task.Length > 0 ? $"[{task}]" : "";
-            return $"{Prefix}[{marker}]{task} {Content}";
+            displayMarker ??= Marker;
+            displayTask ??= Task;
+            displayTask = displayTask.Length > 0 ? $"[{displayTask}]" : "";
+            return $"{Prefix}[{displayMarker}]{displayTask} {Content}";
         }
 
-        public string ManageVotesString => ToStringWithReplacement(marker: "");
+        public string ToOutputString(string displayMarker = "X", string? displayTask = null)
+        {
+            displayMarker ??= Marker;
+            displayTask ??= Task;
+            displayTask = displayTask.Length > 0 ? $"[{displayTask}]" : "";
+            string displayContent = FormatBBCodeForOutput(Content);
+            return $"{Prefix}[{displayMarker}]{displayTask} {displayContent}";
+        }
+
+        private static string FormatBBCodeForOutput(string input)
+        {
+            string output = input.Replace('『', '[');
+            output = output.Replace('』', ']');
+
+            return output;
+        }
+
         #endregion
+
+
+
 
         #region IComparable and IEquatable interface implementations.
 #nullable disable

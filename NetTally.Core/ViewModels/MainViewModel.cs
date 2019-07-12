@@ -680,10 +680,6 @@ namespace NetTally.ViewModels
         }
 
 
-        public bool HasRankedVotes => VoteCounter.HasRankedVotes;
-
-        public bool HasUndoActions => VoteCounter.HasUndoActions;
-
         public bool MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote) => VoteCounter.Merge(fromVote, toVote);
 
         public bool JoinVoters(List<string> voters, string voterToJoin) => VoteCounter.Join(voters, voterToJoin);

@@ -145,18 +145,6 @@ namespace NetTally
         }
         #endregion
 
-        #region Properties
-        /// <summary>
-        /// Returns whether there are ranked votes available in the vote tally.
-        /// </summary>
-        public bool HasRankedVotes => mainViewModel.HasRankedVotes;
-
-        /// <summary>
-        /// Returns whether there are stored undo actions in the vote tally.
-        /// </summary>
-        public bool HasUndoActions => mainViewModel.HasUndoActions;
-        #endregion
-
         #region Filtering
         /// <summary>
         /// Property for holding the string used to filter the 'from' votes.

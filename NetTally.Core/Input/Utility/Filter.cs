@@ -200,33 +200,18 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="input">The string to check against the filter.</param>
         /// <returns>Returns true (or false, if inverted) if the the input string is matched against the filter.</returns>
-        public bool Match(string input)
-        {
-            return filterRegex.Match(input).Success ^ IsInverted;
-        }
+        public bool Match(string input) => filterRegex.Match(input).Success ^ IsInverted;
 
         /// <summary>
         /// Gets a value indicating whether this instance is uses the empty string regex.
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return filterRegex == EmptyRegex;
-            }
-        }
+        public bool IsEmpty => filterRegex == EmptyRegex;
 
         /// <summary>
         /// Gets a value indicating whether this instance is uses a null regex.
         /// A null regex will always return false on Match tests.
         /// </summary>
-        public bool IsAlwaysFalse
-        {
-            get
-            {
-                return filterRegex == alwaysFalse;
-            }
-        }
+        public bool IsAlwaysFalse => filterRegex == alwaysFalse;
 
         /// <summary>
         /// Gets whether this instance inverts the results of a Match.

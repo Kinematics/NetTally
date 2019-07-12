@@ -107,7 +107,6 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The name of the voter being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
         string? GetProperVoterName(string voterName);
-
         /// <summary>
         /// Get the post ID stored for the specified plan, which is the post that it was defined in.
         /// </summary>
@@ -147,10 +146,26 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The name of the voter or plan being requested.</param>
         /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
         List<VoteLineBlock> GetVotesBy(string voterName);
-
+        /// <summary>
+        /// Get a collection of all the votes that currently have supporters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
         IEnumerable<VoteLineBlock> GetSupportedVotesList();
+        /// <summary>
+        /// Get a list of all known voters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
         IEnumerable<string> GetFullVotersList();
+        /// <summary>
+        /// Gets all voters that are supporting the specified vote.
+        /// </summary>
+        /// <param name="vote">The vote to check on.</param>
+        /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
         IEnumerable<string> GetVotersFor(VoteLineBlock vote);
+        /// <summary>
+        /// Gets a count of the known voters.
+        /// </summary>
+        /// <returns>Returns a count of the registered reference voters.</returns>
         int GetTotalVoterCount();
 
 
@@ -220,18 +235,43 @@ namespace NetTally.VoteCounting
         /// </summary>
         bool HasUndoActions { get; }
 
-        bool ReplaceTask(VoteLineBlock vote, string task);
 
+        /// <summary>
+        /// Add a user-defined task to the current list of tasks.
+        /// </summary>
+        /// <param name="task">The task to add.</param>
+        /// <returns>Returns true if the task was added, or false if it already exists.</returns>
         bool AddUserDefinedTask(string task);
+        /// <summary>
+        /// Request an update of the current task list to include any user-defined tasks.
+        /// Run because the task list is cleared before each running of the tally.
+        /// </summary>
         void AddUserDefinedTasksToTaskList();
+        /// <summary>
+        /// Increase a task item in the positional order of the task list.
+        /// </summary>
+        /// <param name="currentPosition">The position of the task item being moved.</param>
         void IncreaseTaskPosition(int currentPosition);
+        /// <summary>
+        /// Decrease a task item in the positional order of the task list.
+        /// </summary>
+        /// <param name="currentPosition">The position of the task item being moved.</param>
         void DecreaseTaskPosition(int currentPosition);
+        /// <summary>
+        /// Reset the tasks list order based on the ordering type provided.
+        /// </summary>
+        /// <param name="order">The type of ordering to perform on the task list.</param>
         void ResetTasksOrder(TasksOrdering order);
 
-        List<string> TaskList { get; }
+        /// <summary>
+        /// Replace the task on the given vote block with the new specified task.
+        /// </summary>
+        /// <param name="vote">The vote whose task is being changed.</param>
+        /// <param name="task">The new task to use.</param>
+        /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
+        bool ReplaceTask(VoteLineBlock vote, string task);
 
 
-        HashSet<Post> FutureReferences { get; }
 
 
 
@@ -239,8 +279,6 @@ namespace NetTally.VoteCounting
         #region deprecated
         Dictionary<string, HashSet<string>> GetVotesCollection(VoteType voteType);
         Dictionary<string, string> GetVotersCollection(VoteType voteType);
-        List<string> GetVotesFromReference(string voteLine, string author);
-        bool HasRankedVotes { get; }
 
         #endregion
     }

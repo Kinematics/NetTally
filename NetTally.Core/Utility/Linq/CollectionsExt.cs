@@ -48,6 +48,14 @@ namespace NetTally.Extensions
             }
         }
 
+        /// <summary>
+        /// Find the index of the requested object within the readonly list.
+        /// Uses a sequential search.
+        /// </summary>
+        /// <typeparam name="T">The type of objects in the list.</typeparam>
+        /// <param name="list">The list being scanned.</param>
+        /// <param name="obj">The object being searched for.</param>
+        /// <returns>Returns the index the object was found at, or -1 if not found.</returns>
         public static int IndexOf<T>(this IReadOnlyList<T> list, T obj) where T: IEquatable<T>
         {
             for (int i = 0; i < list.Count; i++)

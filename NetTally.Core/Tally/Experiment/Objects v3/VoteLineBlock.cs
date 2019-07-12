@@ -15,6 +15,7 @@ namespace NetTally.Experiment3
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
         public IReadOnlyList<VoteLine> Lines { get; }
+        public MarkerType Category { get; set; } = MarkerType.None;
 
         readonly int _hash;
 
@@ -107,7 +108,7 @@ namespace NetTally.Experiment3
         public override string ToString()
         {
             var first = Lines.First();
-            string firstString = first.ToStringWithReplacement(task: Task);
+            string firstString = first.ToOverrideString(displayTask: Task);
 
             var aggregate = Lines.Select(s => s == first ? firstString : s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -116,16 +117,20 @@ namespace NetTally.Experiment3
 
         public string ToComparableString()
         {
-            var aggregate = Lines.Select(s => s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
-            return aggregate ?? "";
+            var first = Lines.First();
+            string firstString = first.ToOverrideString(displayTask: Task);
+
+            string aggregate = Lines.Select(s => s == first ? firstString : s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
+
+            return aggregate;
         }
 
-        public string ToStringWithMarker(string marker = "X")
+        public string ToOutputString(string mainDisplayMarker = "X", string subDisplayMarker = "X")
         {
             var first = Lines.First();
-            string firstString = first.ToStringWithReplacement(marker: marker, task: Task);
+            string firstString = first.ToOutputString(displayMarker: mainDisplayMarker, displayTask: Task);
 
-            var aggregate = Lines.Select(s => s == first ? firstString : s.ToStringWithReplacement(marker: "X")).Aggregate((a, b) => $"{a}\n{b}");
+            var aggregate = Lines.Select(s => s == first ? firstString : s.ToOutputString(displayMarker: subDisplayMarker)).Aggregate((a, b) => $"{a}\n{b}");
 
             return aggregate ?? "";
         }
@@ -134,16 +139,9 @@ namespace NetTally.Experiment3
         {
             get
             {
-                var first = Lines.First();
-                string firstString = first.ToStringWithReplacement(marker: "", task: Task);
-
-                var aggregate = Lines.Select(s => s == first ? firstString : s.ManageVotesString).Aggregate((a, b) => $"{a}\n{b}");
-
-                return aggregate;
+                return ToOutputString(mainDisplayMarker: "", subDisplayMarker: "");
             }
         }
-
-        public MarkerType Category { get; set; } = MarkerType.None;
 
         #endregion
 

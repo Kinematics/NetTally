@@ -41,6 +41,7 @@ namespace NetTally.Experiment3
         }
         #endregion
 
+        #region Public ITextResultsProvider functions
         /// <summary>
         /// Public function to initiate generating output for the information
         /// in the current Vote Counter.
@@ -71,6 +72,7 @@ namespace NetTally.Experiment3
 
             return sb.ToString();
         }
+        #endregion
 
         #region Setup for generating output
         /// <summary>
@@ -119,7 +121,7 @@ namespace NetTally.Experiment3
         /// <returns>Returns the grouped collection.</returns>
         private Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>> GetVoteGroupings()
         {
-            Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>> group1 =
+            Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>> group =
                 new Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>>
                 {
                     [MarkerType.Rank] = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(),
@@ -137,7 +139,7 @@ namespace NetTally.Experiment3
                     // Using the default threshold for 'Most'.  Change if necessary.
                     if (block.Value.Most(v => v.Value.MarkerType == marker))
                     {
-                        group1[marker].Add(block.Key, block.Value);
+                        group[marker].Add(block.Key, block.Value);
                     }
                 }
             }
@@ -146,30 +148,15 @@ namespace NetTally.Experiment3
             {
                 if (block.Value.Any(v => v.Value.MarkerType == MarkerType.Vote))
                 {
-                    group1[MarkerType.Vote].Add(block.Key, block.Value);
+                    group[MarkerType.Vote].Add(block.Key, block.Value);
                 }
             }
 
-            return group1;
-        }
-
-        /// <summary>
-        /// Function to wrap the logic of grouping votes by task.
-        /// </summary>
-        /// <param name="votes">The original vote set.</param>
-        /// <returns>Returns the votes grouped by task.</returns>
-        private IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>>>
-            GetVotesGroupedByTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
-        {
-            var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
-
-            groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
-
-            return groupByTask;
+            return group;
         }
         #endregion
 
-        #region Header Construction
+        #region Header and Footer Construction
         /// <summary>
         /// Add the header indicating the title of the thread that was tallied,
         /// and the marker that this is a tally result (along with the program version number).
@@ -206,6 +193,28 @@ namespace NetTally.Experiment3
             }
 
             sb.AppendLine();
+
+            /// <summary>
+            /// Gets the post range of the votes that the VoteCounter tallied.
+            /// Returns values of 0 if no valid posts are available.
+            /// </summary>
+            /// <param name="first">The first post number.</param>
+            /// <param name="last">The last post number.</param>
+            (int first, int last) GetPostRange()
+            {
+                int first = 0;
+                int last = 0;
+
+                foreach (var post in voteCounter.Posts)
+                {
+                    if (first == 0 || post.Number < first)
+                        first = post.Number;
+                    if (post.Number > last)
+                        last = post.Number;
+                }
+
+                return (first, last);
+            }
         }
 
         /// <summary>
@@ -215,35 +224,16 @@ namespace NetTally.Experiment3
         {
             int voterCount = voteCounter.GetTotalVoterCount();
 
-            if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine();
-
-            sb.Append("Total No. of Voters: ");
-            sb.Append(voterCount);
-            sb.AppendLine();
-            sb.AppendLine();
-        }
-
-        /// <summary>
-        /// Gets the post range of the votes that the VoteCounter tallied.
-        /// Returns values of 0 if no valid posts are available.
-        /// </summary>
-        /// <param name="first">The first post number.</param>
-        /// <param name="last">The last post number.</param>
-        private (int first, int last) GetPostRange()
-        {
-            int first = 0;
-            int last = 0;
-
-            foreach (var post in voteCounter.Posts)
+            if (voterCount > 0)
             {
-                if (first == 0 || post.Number < first)
-                    first = post.Number;
-                if (post.Number > last)
-                    last = post.Number;
-            }
+                if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
+                    sb.AppendLine();
 
-            return (first, last);
+                sb.Append("Total No. of Voters: ");
+                sb.Append(voterCount);
+                sb.AppendLine();
+                sb.AppendLine();
+            }
         }
         #endregion
 
@@ -301,6 +291,21 @@ namespace NetTally.Experiment3
 
                     sb.AppendLine();
                 }
+            }
+
+            /// <summary>
+            /// Function to wrap the logic of grouping votes by task.
+            /// </summary>
+            /// <param name="votes">The original vote set.</param>
+            /// <returns>Returns the votes grouped by task.</returns>
+            IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>>>
+                GetVotesGroupedByTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+            {
+                var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
+
+                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
+
+                return groupByTask;
             }
         }
 
@@ -496,9 +501,9 @@ namespace NetTally.Experiment3
         {
             // TODO: Make sure to properly handle BBCode conversion
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToStringWithMarker(supportCount.ToString()));
+                sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString()));
             else
-                sb.AppendLine(vote.Key.ToStringWithMarker("X"));
+                sb.AppendLine(vote.Key.ToOutputString("X"));
         }
 
         /// <summary>
@@ -510,9 +515,9 @@ namespace NetTally.Experiment3
         private void AddApprovalVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int positive, int negative) approval)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToStringWithMarker($"+{approval.positive}/-{approval.negative}"));
+                sb.AppendLine(vote.Key.ToOutputString($"+{approval.positive}/-{approval.negative}"));
             else
-                sb.AppendLine(vote.Key.ToStringWithMarker("±"));
+                sb.AppendLine(vote.Key.ToOutputString("±"));
         }
 
         /// <summary>
@@ -524,9 +529,9 @@ namespace NetTally.Experiment3
         private void AddScoreVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int simpleScore, double limitScore) score)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToStringWithMarker($"{score.simpleScore}%"));
+                sb.AppendLine(vote.Key.ToOutputString($"{score.simpleScore}%"));
             else
-                sb.AppendLine(vote.Key.ToStringWithMarker("%"));
+                sb.AppendLine(vote.Key.ToOutputString("%"));
         }
 
         /// <summary>
@@ -538,9 +543,9 @@ namespace NetTally.Experiment3
         private void AddRankVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int rank, double rankScore) ranking)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToStringWithMarker($"#{ranking.rank}"));
+                sb.AppendLine(vote.Key.ToOutputString($"#{ranking.rank}"));
             else
-                sb.AppendLine(vote.Key.ToStringWithMarker("#"));
+                sb.AppendLine(vote.Key.ToOutputString("#"));
         }
 
         /// <summary>
@@ -659,6 +664,5 @@ namespace NetTally.Experiment3
             sb.AppendLine();
         }
         #endregion
-
     }
 }
