@@ -48,6 +48,17 @@ namespace NetTally.Extensions
             }
         }
 
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T obj) where T: IEquatable<T>
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(obj))
+                    return i;
+            }
+
+            return -1;
+        }
+
         public static TValue? GetValueOrDefault1<TKey, TValue> (this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class
         {
             return dictionary.TryGetValue(key, out TValue value) ? value : default;
