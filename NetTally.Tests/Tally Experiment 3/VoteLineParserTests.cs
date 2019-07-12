@@ -278,14 +278,14 @@ namespace NetTally.Tests.Experiment3
         [TestMethod]
         public void Marker_Checkmark()
         {
-            string line = "[√] A normal vote line";
+            string line = "[✓] A normal vote line";
             VoteLine? voteLine = VoteLineParser.ParseLine(line);
 
             if (voteLine != null)
             {
                 Assert.AreEqual("", voteLine.Prefix);
                 Assert.AreEqual(0, voteLine.Depth);
-                Assert.AreEqual("√", voteLine.Marker);
+                Assert.AreEqual("✓", voteLine.Marker);
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
@@ -487,7 +487,7 @@ namespace NetTally.Tests.Experiment3
                 Assert.AreEqual(0, voteLine.Depth);
                 Assert.AreEqual("+", voteLine.Marker);
                 Assert.AreEqual(MarkerType.Approval, voteLine.MarkerType);
-                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual(80, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
                 Assert.AreEqual("", voteLine.Task);
             }
@@ -507,7 +507,7 @@ namespace NetTally.Tests.Experiment3
                 Assert.AreEqual(0, voteLine.Depth);
                 Assert.AreEqual("-", voteLine.Marker);
                 Assert.AreEqual(MarkerType.Approval, voteLine.MarkerType);
-                Assert.AreEqual(0, voteLine.MarkerValue);
+                Assert.AreEqual(20, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
                 Assert.AreEqual("", voteLine.Task);
             }

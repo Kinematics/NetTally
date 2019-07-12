@@ -17,6 +17,7 @@ namespace NetTally.Tests.Experiment3
             serviceProvider = TestStartup.ConfigureServices();
         }
 
+        #region General failures
 #nullable disable
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -60,9 +61,10 @@ namespace NetTally.Tests.Experiment3
             Post post = new Post("Kinematics", "4294967296", "Some text", 1);
             Assert.AreEqual(0, post.IDValue);
         }
+        #endregion
 
         [TestMethod]
-        public void Check_Unmodified()
+        public void Check_That_Class_Does_Not_Modify_Parameters()
         {
             string author = "Kinematics";
             string postId = "123456";
@@ -97,7 +99,7 @@ what we might consider doing.";
         }
 
         [TestMethod]
-        public void VoteLines_Count_Tally()
+        public void VoteLines_Count_Tally_Post()
         {
             string author = "Kinematics";
             string postId = "123456";
@@ -179,7 +181,7 @@ what we might consider doing.";
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.IsVote);
-            Assert.AreEqual("[] Line 1", post.VoteLines.First().ToComparableString());
+            Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
         }
 
         [TestMethod]
@@ -199,7 +201,7 @@ But might include something else...
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.IsVote);
-            Assert.AreEqual("[] Line 1", post.VoteLines.First().ToComparableString());
+            Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
         }
 
         [TestMethod]
@@ -235,7 +237,7 @@ But might include something else...
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.IsVote);
-            Assert.AreEqual("[] Kinematics", post.VoteLines.First().ToComparableString());
+            Assert.AreEqual("[] Kinematics", post.VoteLines[0].ToComparableString());
         }
 
         [TestMethod]
@@ -255,7 +257,91 @@ But might include something else...
 
             Assert.AreEqual(5, post.VoteLines.Count);
             Assert.IsTrue(post.IsVote);
-            Assert.AreEqual("[] Line 1", post.VoteLines.First().ToComparableString());
+            Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
+        }
+
+        [TestMethod]
+        public void VoteLines_BBCode_Unbalanced()
+        {
+            string author = "Kinematics";
+            string postId = "123456";
+            string postText =
+@"What do you think they'll be doing now?
+『b』[x] Ferris wheel
+-[x] At the top『/b』";
+            int postNumber = 10;
+
+            Post post = new Post(author, postId, postText, postNumber);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.IsVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("-[] At the top", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("-[x] At the top", post.VoteLines[1].ToString());
+        }
+
+        [TestMethod]
+        public void VoteLines_BBCode_Internal_Italics()
+        {
+            string author = "Kinematics";
+            string postId = "123456";
+            string postText =
+@"What do you think they'll be doing now?
+[x] Ferris wheel
+[X] 『i』Teacups『/i』";
+            int postNumber = 10;
+
+            Post post = new Post(author, postId, postText, postNumber);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.IsVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("[X] 『i』Teacups『/i』", post.VoteLines[1].ToString());
+        }
+
+        [TestMethod]
+        public void VoteLines_BBCode_Internal_Color_Named()
+        {
+            string author = "Kinematics";
+            string postId = "123456";
+            string postText =
+@"What do you think they'll be doing now?
+[x] Ferris wheel
+[x] 『color=orange』Teacups『/color』";
+            int postNumber = 10;
+
+            Post post = new Post(author, postId, postText, postNumber);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.IsVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("[x] 『color=orange』Teacups『/color』", post.VoteLines[1].ToString());
+        }
+
+        [TestMethod]
+        public void VoteLines_BBCode_Internal_Color_HTML()
+        {
+            string author = "Kinematics";
+            string postId = "123456";
+            string postText =
+@"What do you think they'll be doing now?
+[x] Ferris wheel
+[x] 『color=#ff00AA』Teacups『/color』";
+            int postNumber = 10;
+
+            Post post = new Post(author, postId, postText, postNumber);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.IsVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("[x] 『color=#ff00AA』Teacups『/color』", post.VoteLines[1].ToString());
         }
 
     }

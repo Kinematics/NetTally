@@ -158,6 +158,13 @@ namespace NetTally.Experiment3
             return $"{Prefix}[{displayMarker}]{displayTask} {Content}";
         }
 
+        /// <summary>
+        /// Formats a vote line for output, with optional override marker and task.
+        /// </summary>
+        /// <param name="displayMarker">The marker to use when displaying the vote line as a string.</param>
+        /// <param name="displayTask">The task to use when displaying the vote line as a string.
+        /// Will use the default task if left null.</param>
+        /// <returns>Returns a string representing the current vote line.</returns>
         public string ToOutputString(string displayMarker = "X", string? displayTask = null)
         {
             displayMarker ??= Marker;
@@ -167,6 +174,11 @@ namespace NetTally.Experiment3
             return $"{Prefix}[{displayMarker}]{displayTask} {displayContent}";
         }
 
+        /// <summary>
+        /// Function to convert placeholder symbols in a vote line to BBCode brackets.
+        /// </summary>
+        /// <param name="input">An input string.</param>
+        /// <returns>The string with any 『』 brackets converted to [].</returns>
         private static string FormatBBCodeForOutput(string input)
         {
             string output = input.Replace('『', '[');

@@ -22,9 +22,9 @@ namespace NetTally.ViewModels
     {
         readonly Tally tally;
         readonly IVoteCounter voteCounter;
-        readonly ICache<string> cache;
         readonly CheckForNewRelease checkForNewRelease;
         readonly IGlobalOptions globalOptions;
+        public ICache<string> PageCache { get; }
 
         public MainViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
@@ -32,7 +32,7 @@ namespace NetTally.ViewModels
             // Save our dependencies in readonly fields.
             this.tally = tally;
             this.voteCounter = voteCounter;
-            this.cache = cache;
+            this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
 
@@ -75,10 +75,6 @@ namespace NetTally.ViewModels
 
             _disposed = true;
         }
-        #endregion
-
-        #region Providers
-        public ICache<string> PageCache => cache;
         #endregion
 
         #region Section: Check for New Release

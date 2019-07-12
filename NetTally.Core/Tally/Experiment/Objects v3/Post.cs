@@ -11,6 +11,7 @@ namespace NetTally.Experiment3
     /// </summary>
     public class Post : IComparable<Post>, IEquatable<Post>, IComparable
     {
+        #region Properties and Construction
         /// <summary>
         /// The author of the post.
         /// </summary>
@@ -60,7 +61,6 @@ namespace NetTally.Experiment3
         /// </summary>
         public bool ForceProcess { get; set; }
 
-
         /// <summary>
         /// Constructor for the a new post.
         /// Stores the post data, and extracts any vote lines if this isn't a tally post.
@@ -83,6 +83,13 @@ namespace NetTally.Experiment3
 
             VoteLines = GetPostAnalysisResults(Text);
         }
+        #endregion
+
+        #region Private analysis of post
+        // A post with ##### at the start of one of the lines is a posting of tally results.
+        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        // A line solely composed of a callout to a given user is used for nomination tallying.
+        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
 
         /// <summary>
         /// Get the list of all found vote lines in the post's text content.
@@ -94,7 +101,7 @@ namespace NetTally.Experiment3
         {
             List<VoteLine> results = new List<VoteLine>();
 
-            if (!IsTallyPost())
+            if (!IsTallyPost(text))
             {
                 var postTextLines = text.GetStringLines();
 
@@ -107,67 +114,68 @@ namespace NetTally.Experiment3
             }
 
             return results;
-        }
 
-        // A post with ##### at the start of one of the lines is a posting of tally results.
-        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
-        /// <summary>
-        /// Determine if the provided post text is someone posting the results of a tally.
-        /// </summary>
-        /// <param name="postText">The text of the post to check.</param>
-        /// <returns>Returns true if the post contains tally results.</returns>
-        private bool IsTallyPost()
-        {
-            // If the post contains the string "#####" at the start of the line for part of its text,
-            // it's a tally post.
-            string cleanText = VoteLineParser.StripBBCode(Text);
-            return (tallyRegex.Matches(cleanText).Count > 0);
-        }
+            ////////////////////////////////
+            // Private functions
 
-        /// <summary>
-        /// Extracts vote lines from the text lines of the post.
-        /// </summary>
-        /// <param name="postTextLines">The lines from the post.</param>
-        /// <returns>Returns an enumerable of all the vote lines found in the post text.</returns>
-        private IEnumerable<VoteLine> GetVoteLines(List<string> postTextLines)
-        {
-            foreach (var line in postTextLines)
+            /// <summary>
+            /// Determine if the provided post text is someone posting the results of a tally.
+            /// </summary>
+            /// <param name="postText">The text of the post to check.</param>
+            /// <returns>Returns true if the post contains tally results.</returns>
+            static bool IsTallyPost(string text)
             {
-                var voteLine = VoteLineParser.ParseLine(line);
-
-                if (voteLine != null)
-                    yield return voteLine;
+                // If the post contains the string "#####" at the start of the line for part of its text,
+                // it's a tally post.
+                string cleanText = VoteLineParser.StripBBCode(text);
+                return (tallyRegex.Matches(cleanText).Count > 0);
             }
-        }
 
-        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
-        /// <summary>
-        /// Examine the post to see if it qualifies as a nomination post — a post that contains nothing but username links.
-        /// If so, return the nomination lines formatted as votes.
-        /// </summary>
-        /// <param name="postTextLines">The set of lines from the post.</param>
-        /// <returns>Returns the list of nomination votes, or an empty list.</returns>
-        private List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
-        {
-            List<VoteLine> results = new List<VoteLine>();
-
-            foreach (var line in postTextLines)
+            /// <summary>
+            /// Extracts vote lines from the text lines of the post.
+            /// </summary>
+            /// <param name="postTextLines">The lines from the post.</param>
+            /// <returns>Returns an enumerable of all the vote lines found in the post text.</returns>
+            static IEnumerable<VoteLine> GetVoteLines(List<string> postTextLines)
             {
-                Match m = nominationLineRegex.Match(line);
-                if (m.Success)
+                foreach (var line in postTextLines)
                 {
-                    VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
-                    results.Add(voteLine);
-                }
-                else
-                {
-                    results.Clear();
-                    return results;
+                    var voteLine = VoteLineParser.ParseLine(line);
+
+                    if (voteLine != null)
+                        yield return voteLine;
                 }
             }
 
-            return results;
+            /// <summary>
+            /// Examine the post to see if it qualifies as a nomination post — a post that contains nothing but username links.
+            /// If so, return the nomination lines formatted as votes.
+            /// </summary>
+            /// <param name="postTextLines">The set of lines from the post.</param>
+            /// <returns>Returns the list of nomination votes, or an empty list.</returns>
+            static List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
+            {
+                List<VoteLine> results = new List<VoteLine>();
+
+                foreach (var line in postTextLines)
+                {
+                    Match m = nominationLineRegex.Match(line);
+                    if (m.Success)
+                    {
+                        VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
+                        results.Add(voteLine);
+                    }
+                    else
+                    {
+                        results.Clear();
+                        return results;
+                    }
+                }
+
+                return results;
+            }
         }
+        #endregion
 
         #region IComparable/IEquatable
 #nullable disable

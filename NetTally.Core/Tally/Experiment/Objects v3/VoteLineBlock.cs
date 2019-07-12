@@ -118,7 +118,7 @@ namespace NetTally.Experiment3
         public string ToComparableString()
         {
             var first = Lines.First();
-            string firstString = first.ToOverrideString(displayTask: Task);
+            string firstString = first.ToOverrideString(displayMarker: "", displayTask: Task);
 
             string aggregate = Lines.Select(s => s == first ? firstString : s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
 

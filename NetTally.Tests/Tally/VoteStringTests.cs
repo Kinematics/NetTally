@@ -559,8 +559,8 @@ namespace NTTests.Voting
         public void GetVotePlanNameTest7()
         {
             string input = "[x] 『url='https://forum.questionablequesting.com/members/2392/'』@Xryuran『/url』";
-            string expected1 = "Xryuran";
-            string expected2 = "\u25C8Xryuran";
+            string expected1 = "@Xryuran";
+            string expected2 = "\u25C8@Xryuran";
             var result = VoteString.GetVoteReferenceNames(input);
             Assert.AreEqual(2, result[ReferenceType.Any].Count);
             Assert.IsTrue(result[ReferenceType.Any].Contains(expected1));

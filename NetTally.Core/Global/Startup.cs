@@ -37,7 +37,6 @@ namespace NetTally
             services.AddSingleton<CheckForNewRelease>();
             services.AddSingleton<ForumAdapterFactory>();
             services.AddTransient<VoteInfo>();
-            services.AddTransient<ITextResultsProvider, TallyOutput>();
 
             services.AddSingleton<Experiment3.VoteConstructor>();
             services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();

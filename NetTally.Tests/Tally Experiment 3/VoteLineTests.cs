@@ -419,7 +419,7 @@ namespace NetTally.Tests.Experiment3
         {
             VoteLine vote = new VoteLine("", "☒", "", "A basic vote line", MarkerType.Vote, 100);
 
-            Assert.AreEqual("☒ A basic vote line", vote.ToString());
+            Assert.AreEqual("[☒] A basic vote line", vote.ToString());
         }
 
         [TestMethod]
@@ -467,7 +467,7 @@ namespace NetTally.Tests.Experiment3
         {
             VoteLine vote = new VoteLine("", "☒", "Hat", "A basic vote line", MarkerType.Vote, 100);
 
-            Assert.AreEqual("☒[Hat] A basic vote line", vote.ToString());
+            Assert.AreEqual("[☒][Hat] A basic vote line", vote.ToString());
         }
 
         /*******************************/

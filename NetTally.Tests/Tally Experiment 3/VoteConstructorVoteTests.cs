@@ -12,6 +12,7 @@ namespace NetTally.Tests.Experiment3
     [TestClass]
     public class VoteConstructorVoteTests
     {
+        #region Setup
         static IServiceProvider serviceProvider;
         static VoteConstructor voteConstructor;
         static IVoteCounter voteCounter;
@@ -24,10 +25,15 @@ namespace NetTally.Tests.Experiment3
 
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+        }
 
+        [TestInitialize]
+        public void TestInit()
+        {
             quest = new Quest();
             voteCounter.Quest = quest;
         }
+        #endregion
 
         #region Sample Posts
         Post GetPost1()
@@ -92,7 +98,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("Sound of Music", block);
+            return ("◈Sound of Music", block);
         }
 
         (string name, VoteLineBlock block) GetBasePlan2()
@@ -106,7 +112,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("Sound of Music", block);
+            return ("◈Sound of Music", block);
         }
 
         (string name, VoteLineBlock block) GetBasePlan3()
@@ -120,7 +126,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("Sound of Music", block);
+            return ("◈Sound of Music", block);
         }
         #endregion
 
@@ -266,9 +272,6 @@ But might include something else...
             Assert.AreEqual(1, results!.Count);
             Assert.AreEqual("Action", results.First().Task);
             Assert.AreEqual(1, results!.First().Lines.Count);
-
-            quest.UseCustomTaskFilters = false;
-            quest.CustomTaskFilters = "";
         }
 
         [TestMethod]
@@ -285,9 +288,6 @@ But might include something else...
             Assert.AreEqual(2, results!.Count);
             Assert.AreEqual("Action", results.First().Task);
             Assert.AreEqual(1, results!.First().Lines.Count);
-
-            quest.UseCustomTaskFilters = false;
-            quest.CustomTaskFilters = "";
         }
 
         [TestMethod]
