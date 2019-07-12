@@ -32,7 +32,7 @@ namespace NetTally
             TaskView = new ListCollectionView(this.mainViewModel.TaskList);
 
             // Initialize starting selected positions
-            //taskView.MoveCurrentToPosition(-1);
+            TaskView.MoveCurrentToPosition(-1);
 
             // Set the data context for binding.
             DataContext = this;
@@ -56,7 +56,7 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks")
+            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
                 TaskView.Refresh();
             }

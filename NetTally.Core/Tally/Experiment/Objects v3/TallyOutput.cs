@@ -158,15 +158,12 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="votes">The original vote set.</param>
         /// <returns>Returns the votes grouped by task.</returns>
-        private IOrderedEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>>>
+        private IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>>>
             GetVotesGroupedByTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
         {
             var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
 
-            if (voteCounter.TaskList != null)
-            {
-                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
-            }
+            groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
 
             return groupByTask;
         }
@@ -662,7 +659,6 @@ namespace NetTally.Experiment3
             sb.AppendLine();
         }
         #endregion
-
 
     }
 }

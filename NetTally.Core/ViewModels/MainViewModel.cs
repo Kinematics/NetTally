@@ -584,7 +584,7 @@ namespace NetTally.ViewModels
 
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
         public ObservableCollectionExt<string> AllVotersCollection { get; } = new ObservableCollectionExt<string>();
-        public List<string> TaskList => VoteCounter.TaskList;
+        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
 
         /// <summary>
         /// Adds a new user-defined task to the known collection of tasks.
@@ -631,6 +631,16 @@ namespace NetTally.ViewModels
             OnPropertyChanged(nameof(AllVotersCollection));
         }
 
+        /// <summary>
+        /// Update the observable collection of voters.
+        /// </summary>
+        private void UpdateTaskCollection()
+        {
+            TaskList.Replace(VoteCounter.TaskList);
+
+            OnPropertyChanged(nameof(TaskList));
+        }
+
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!VoteCounter.VoteCounterIsTallying)
@@ -638,14 +648,17 @@ namespace NetTally.ViewModels
                 if (e.PropertyName == nameof(VoteCounter.VoteCounterIsTallying))
                 {
                     // Called when the vote counter has finished its tallying.
-                    // Update both observable collections.
+                    // Update observable collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
+                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "VoteCounter")
                 {
+                    // Update all vote counter collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
+                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "Votes")
                 {
@@ -654,6 +667,10 @@ namespace NetTally.ViewModels
                 else if (e.PropertyName == "Voters")
                 {
                     UpdateVotersCollection();
+                }
+                else if (e.PropertyName == "Tasks")
+                {
+                    UpdateTaskCollection();
                 }
                 else
                 {

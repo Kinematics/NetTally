@@ -30,6 +30,16 @@ namespace NetTally.VoteCounting
         /// Also stores the specific variant that each voter used.
         /// </summary>
         public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
+        /// <summary>
+        /// Record any posts that make references to future posts, and thus can't be processed
+        /// in the original post order.
+        /// </summary>
+        HashSet<Post> FutureReferences { get; }
+        /// <summary>
+        /// The list of tasks that have been recorded for the tally, whether drawn from
+        /// votes as they are tallied, or manually entered by the user.
+        /// </summary>
+        IReadOnlyList<string> TaskList { get; }
 
 
         /// <summary>

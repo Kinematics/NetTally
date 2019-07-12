@@ -17,6 +17,7 @@ namespace NetTally.VoteCounting
         readonly Dictionary<string, string> cleanedKeys = new Dictionary<string, string>();
         readonly MergeRecords userMerges = new MergeRecords();
         readonly List<Post> postsList = new List<Post>();
+        readonly List<string> taskList = new List<string>();
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
@@ -117,7 +118,7 @@ namespace NetTally.VoteCounting
             VoteDefinedTasks.Clear();
             OrderedVoteTaskList.Clear();
 
-            TaskList.Clear();
+            taskList.Clear();
 
             cleanVoteLookup.Clear();
             cleanedKeys.Clear();
@@ -908,7 +909,7 @@ namespace NetTally.VoteCounting
         HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         List<string> OrderedVoteTaskList { get; } = new List<string>();
         List<string> OrderedUserTaskList { get; } = new List<string>();
-        public List<string> TaskList { get; } = new List<string>();
+        public IReadOnlyList<string> TaskList => taskList;
 
         /// <summary>
         /// Add tasks as we add votes.  If we register a new vote-defined task, add it

@@ -165,14 +165,7 @@ namespace NetTally.Output
 
                 IOrderedEnumerable<KeyValuePair<string, RankResults>> orderedRes;
 
-                if (voteCounter.TaskList != null)
-                {
-                    orderedRes = results.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
-                }
-                else
-                {
-                    orderedRes = results.OrderBy(a => a.Key);
-                }
+                orderedRes = results.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
 
                 // Output the ranking results for each task
                 foreach (var task in orderedRes)
