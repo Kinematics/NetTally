@@ -10,7 +10,10 @@ namespace NetTally.Experiment3
 
         public PostId(string input)
         {
-            Text = input;
+            if (input == "")
+                throw new ArgumentOutOfRangeException(nameof(input), "No post ID provided.");
+
+            Text = input ?? throw new ArgumentNullException(nameof(input));
 
             if (long.TryParse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long inputNumber) 
                 && inputNumber > 0)
@@ -29,7 +32,7 @@ namespace NetTally.Experiment3
 
         public static int Compare(PostId first, long second)
         {
-            if (first is null || first.Value == 0)
+            if (first is null)
                 return -1;
 
             return first.Value.CompareTo(second);
@@ -39,10 +42,13 @@ namespace NetTally.Experiment3
         {
             if (ReferenceEquals(first, second))
                 return 0;
-            if (first is null || first.Value == 0)
+            if (first is null)
                 return -1;
-            if (second is null || second.Value == 0)
+            if (second is null)
                 return 1;
+
+            if (first.Value == 0 && second.Value == 0)
+                return first.Text.CompareTo(second.Text);
 
             return first.Value.CompareTo(second.Value);
         }
@@ -64,7 +70,7 @@ namespace NetTally.Experiment3
             {
                 null => false,
                 PostId other => Equals(other),
-                long otherValue => Equals(otherValue),
+                long longValue => Equals(longValue),
                 _ => false
             };
         }
