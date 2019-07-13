@@ -191,6 +191,7 @@ namespace NetTally.Experiment3
                         }
                         break;
                     case TokenState.Task:
+                        tempContent.Clear();
                         if (ch == closeBracket)
                         {
                             currentState = state.Pop();

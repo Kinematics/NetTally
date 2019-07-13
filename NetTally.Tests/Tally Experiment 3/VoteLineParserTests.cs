@@ -662,6 +662,27 @@ namespace NetTally.Tests.Experiment3
             Assert.AreNotEqual(null, voteLine);
         }
 
+        [TestMethod]
+        public void General_Bold_Task()
+        {
+            string line = @"[X]『i』『b』[Shopping]『/b』『/i』 Shopping 1";
+            // Poor matching may result in the Content == 『i』『b』『/b』『/i』 Shopping 1
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("Shopping 1", voteLine.Content);
+                Assert.AreEqual("Shopping", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
         #endregion
     }
 }
