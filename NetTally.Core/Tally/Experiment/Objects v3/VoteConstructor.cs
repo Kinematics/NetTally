@@ -213,7 +213,15 @@ namespace NetTally.Experiment3
                         {
                             i += refPlan.Lines.Count - 1; // compensate for the i++ increment
                         }
+                        else if ((i+1) < validVoteLines.Count && validVoteLines[i+1].Depth > 0)
+                        {
+                            // If a block references a plan, but does not match the original plan in full (eg: missing lines),
+                            // don't treat the initial line as a plan reference and then leave junk lines, but just add the
+                            // line as normal text.
 
+                            JustAddDirectly(currentLine);
+                            continue;
+                        }
 
                         // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
 
@@ -223,17 +231,6 @@ namespace NetTally.Experiment3
                         {
                             workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                         }
-
-                        //if (refPlan.Equals(partial))
-                        //{
-                        //    workingVote.Add((null, new VoteLineBlock(partial)));
-                        //    i += refPlan.Lines.Count - 1; // compensate for the i++ increment
-                        //}
-                        //// Otherwise use the reference version, but with the markers specified by the user.
-                        //else
-                        //{
-                        //    workingVote.Add((null, new VoteLineBlock(refPlan.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue))));
-                        //}
                     }
                     // Users
                     else
