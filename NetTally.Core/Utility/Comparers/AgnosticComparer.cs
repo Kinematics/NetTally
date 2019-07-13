@@ -51,7 +51,7 @@ namespace NetTally.Utility
         {
             get
             {
-                if (ViewModelService.MainViewModel?.SelectedQuest is IQuest quest)
+                if (ViewModelService.MainViewModel.SelectedQuest is IQuest quest)
                 {
                     if (quest.WhitespaceAndPunctuationIsSignificant)
                     {
@@ -121,19 +121,19 @@ namespace NetTally.Utility
             {
                 if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
                 {
-                    if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel?.SelectedQuest?.CaseIsSignificant == false)
+                    if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
                     {
                         currentComparer = StringComparerNoCaseSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel?.SelectedQuest?.CaseIsSignificant == false)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
                     {
                         currentComparer = StringComparerNoCaseNoSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel?.SelectedQuest?.CaseIsSignificant == true)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
                     {
                         currentComparer = StringComparerCaseSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel?.SelectedQuest?.CaseIsSignificant == true)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
                     {
                         currentComparer = StringComparerCaseNoSymbol;
                     }

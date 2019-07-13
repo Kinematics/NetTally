@@ -146,7 +146,8 @@ namespace NetTally.Experiment3
 
             foreach (var block in voteCounter.VoteStorage)
             {
-                if (block.Value.Any(v => v.Value.MarkerType == MarkerType.Vote))
+                if (block.Value.Any(v => v.Value.MarkerType == MarkerType.Vote) ||
+                    (outputOptions.DisplayPlansWithNoVotes && block.Value.Any(v => v.Value.MarkerType == MarkerType.Plan)))
                 {
                     group[MarkerType.Vote].Add(block.Key, block.Value);
                 }
@@ -499,7 +500,6 @@ namespace NetTally.Experiment3
         /// <param name="supportCount">The support the vote has.</param>
         private void AddStandardVoteDisplay(KeyValuePair<VoteLineBlock, VoterStorage> vote, int supportCount)
         {
-            // TODO: Make sure to properly handle BBCode conversion
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString()));
             else

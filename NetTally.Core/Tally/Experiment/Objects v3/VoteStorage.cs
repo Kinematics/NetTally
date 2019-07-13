@@ -138,7 +138,7 @@ namespace NetTally.Experiment3
                 Add(referenceVote, localVoters);
             }
 
-            localVoters.Add(supporter, vote);
+            localVoters[supporter] = vote;
         }
 
         internal bool RemoveSupporterFromVote(VoteLineBlock vote, Origin supporter)

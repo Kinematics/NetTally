@@ -92,7 +92,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("◈Sound of Music", block);
+            return ("Sound of Music", block);
         }
 
         (string name, VoteLineBlock block) GetBasePlan2()
@@ -106,7 +106,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("◈Sound of Music", block);
+            return ("Sound of Music", block);
         }
 
         (string name, VoteLineBlock block) GetBasePlan3()
@@ -120,7 +120,7 @@ But might include something else...
 
             VoteLineBlock block = new VoteLineBlock(lines);
 
-            return ("◈Sound of Music", block);
+            return ("Sound of Music", block);
         }
         #endregion
 

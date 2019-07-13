@@ -228,8 +228,9 @@ namespace NetTally.Experiment3
                     result = left.Lines.Count.CompareTo(right.Lines.Count);
 
                     // Lines do not compare markers for equality, but blocks do.
-                    // MarkerType of None matches any other marker.
-                    if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None))
+                    // MarkerType of None or Plan matches any other marker.
+                    if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None)
+                        && (left.MarkerType != MarkerType.Plan && right.MarkerType != MarkerType.Plan))
                     {
                         result = left.MarkerType.CompareTo(right.MarkerType);
                     }
@@ -281,7 +282,8 @@ namespace NetTally.Experiment3
 
                     // Lines do not compare markers for equality, but blocks do.
                     // MarkerType of None matches any other marker.
-                    if (result == 0 && (left.MarkerType != MarkerType.None && first.MarkerType != MarkerType.None))
+                    if (result == 0 && (left.MarkerType != MarkerType.None && first.MarkerType != MarkerType.None)
+                        && (left.MarkerType != MarkerType.Plan && first.MarkerType != MarkerType.Plan))
                     {
                         result = left.MarkerType.CompareTo(first.MarkerType);
                     }

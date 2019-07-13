@@ -53,7 +53,7 @@ namespace NetTally.Experiment3
                 if (isPlan && 
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
                     IsValidPlanName(planName, post.Origin.Author) && 
-                    IsTaskAllowed(block, quest))
+                    DoesTaskFilterPass(block, quest))
                 {
                     plans[planName] = block;
                 }
@@ -94,7 +94,7 @@ namespace NetTally.Experiment3
                     var results = PartitionPost(post, quest.PartitionMode);
 
                     // Apply task filtering.
-                    var filteredResults = results.Where(p => IsTaskAllowed(p, quest)).ToList();
+                    var filteredResults = results.Where(p => DoesTaskFilterPass(p, quest)).ToList();
 
                     post.Processed = true;
                     return filteredResults;
@@ -201,7 +201,7 @@ namespace NetTally.Experiment3
                         // If there is no available reference plan, just add the line and continue.
                         if (refPlan == null)
                         {
-                            workingVote.Add((currentLine, null));
+                            JustAddDirectly(currentLine);
                             continue;
                         }
 
@@ -277,7 +277,7 @@ namespace NetTally.Experiment3
                 // Non-references just get added directly.
                 else
                 {
-                    workingVote.Add((currentLine, null));
+                    JustAddDirectly(currentLine);
                 }
             }
 
@@ -285,6 +285,8 @@ namespace NetTally.Experiment3
             post.WorkingVoteComplete = true;
 
             return;
+
+            //////////////////////////////////////////
 
             // Local function to handle determining if the block is part of a Proposed Plan or not.
             bool IsProposedPlan(VoteLineBlock block)
@@ -303,7 +305,25 @@ namespace NetTally.Experiment3
 
                 return false;
             }
+
+            // Just add the vote line directly to the working vote if it's
+            // not a reference, or we can't find the reference.
+            void JustAddDirectly(VoteLine currentLine)
+            {
+                // Handle trimming extended text.
+                if (quest.TrimExtendedText)
+                {
+                    workingVote.Add((currentLine.WithTrimmedContent(), null));
+                }
+                else
+                {
+                    workingVote.Add((currentLine, null));
+                }
+            }
         }
+
+
+
 
         // A regex to extract potential references from a vote line.
         static readonly Regex referenceNameRegex = 
@@ -356,7 +376,7 @@ namespace NetTally.Experiment3
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     // Force pinning if requested.
                     if (refUser != null && quest.DisableProxyVotes == false)
-                        return (isReference: true, isPlan: false, isPinnedUser: false || quest.ForcePinnedProxyVotes, refName: refUser);
+                        return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
                 }
                 else // Any unlabeled lines
                 {
@@ -365,7 +385,7 @@ namespace NetTally.Experiment3
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
-                        return (isReference: true, isPlan: false, isPinnedUser: false || quest.ForcePinnedProxyVotes, refName: refUser);
+                        return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
                     Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
@@ -410,7 +430,7 @@ namespace NetTally.Experiment3
         /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-        private bool IsTaskAllowed(VoteLineBlock block, IQuest quest)
+        private bool DoesTaskFilterPass(VoteLineBlock block, IQuest quest)
         {
             // Always allow if no filters are active.
             if (!quest.UseCustomTaskFilters)

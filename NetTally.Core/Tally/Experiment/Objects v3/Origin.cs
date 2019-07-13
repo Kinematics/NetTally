@@ -70,7 +70,7 @@ namespace NetTally.Experiment3
         public override string ToString()
         {
             if (AuthorType == IdentityType.Plan)
-                return $"{Strings.PlanNameMarker}Author";
+                return $"{Strings.PlanNameMarker}{Author}";
             else
                 return Author;
         }

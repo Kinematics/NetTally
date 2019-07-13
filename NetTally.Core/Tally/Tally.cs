@@ -422,6 +422,15 @@ namespace NetTally.VoteCounting
             if (voteCounter.Quest is null)
                 return;
 
+            foreach (var post in voteCounter.Posts)
+            {
+                // Reset the processed state of all the posts.
+                post.Processed = false;
+                post.ForceProcess = false;
+                post.WorkingVoteComplete = false;
+                post.WorkingVote.Clear();
+                voteCounter.AddReferenceVoter(post.Origin);
+            }
 
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
                 new List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)>()
@@ -434,16 +443,6 @@ namespace NetTally.VoteCounting
 
             // Run the above series of preprocessing functions to extract plans from the post list.
             var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
-
-            foreach (var post in voteCounter.Posts)
-            {
-                // Reset the processed state of all the posts.
-                post.Processed = false;
-                post.ForceProcess = false;
-                post.WorkingVoteComplete = false;
-                post.WorkingVote.Clear();
-                voteCounter.AddReferenceVoter(post.Origin);
-            }
 
             await Task.FromResult(0);
         }

@@ -444,7 +444,7 @@ namespace NTTests.QuestTests
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo1, forumType);
+            Assert.AreEqual(ForumType.XenForo2, forumType);
         }
 
         [TestMethod]
@@ -452,10 +452,10 @@ namespace NTTests.QuestTests
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo1, forumType);
+            Assert.AreEqual(ForumType.XenForo2, forumType);
             quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
             forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo1, forumType);
+            Assert.AreEqual(ForumType.XenForo2, forumType);
         }
 
         [TestMethod]
@@ -463,10 +463,10 @@ namespace NTTests.QuestTests
         {
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo1, forumType);
+            Assert.AreEqual(ForumType.XenForo2, forumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
             forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo1, forumType);
+            Assert.AreEqual(ForumType.XenForo2, forumType);
         }
         #endregion
 

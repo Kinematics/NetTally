@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using NetTally.Utility;
 using NetTally.Votes;
 
@@ -99,6 +100,17 @@ namespace NetTally.Experiment3
         }
 
         /// <summary>
+        /// Creates a copy of this vote line, but with content trimmed
+        /// by the rules of trimming extended content.
+        /// </summary>
+        /// <returns>Returns a new version of this vote line with trimmed content.</returns>
+        public VoteLine WithTrimmedContent()
+        {
+            string trimmedContent = GetTrimmedContent();
+            return new VoteLine(Prefix, Marker, Task, trimmedContent, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
         /// Creates a copy of this vote line, but with the specified marker information.
         /// If the <paramref name="ifSameType"/> value is specified, but the markers are
         /// different, keep the original value.
@@ -189,8 +201,112 @@ namespace NetTally.Experiment3
 
         #endregion
 
+        #region Trimming Content
+        private string GetTrimmedContent()
+        {
+            int trimIndex = GetTrimIndexForContent();
+
+            if (trimIndex > 0)
+                return CleanContent.Substring(0, trimIndex);
+            else
+                return CleanContent;
+        }
+
+        static readonly Regex extendedTextRegex = new Regex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
+        static readonly Regex extendedTextSentenceRegex = new Regex(@"(?<!\([^)]*)(?<![pP][lL][aA][nN]\b.+)(((?<=\S{4,})|(?<=\s[\p{Ll}]\S+))([.?!])(?:\s+[^\p{Ll}]))");
+
+        /// <summary>
+        /// Gets the index to trim from for a given content line.
+        /// Determines the trim point as the last valid separation
+        /// character that fits under the length limit.  If there are
+        /// multiple separation points on the line, the untrimmed portion
+        /// of the line must have more than one word in it.
+        /// </summary>
+        /// <param name="lineContent">Content of the vote line.</param>
+        /// <returns>Returns the index that marks where to remove further text, or 0 if none.</returns>
+        private int GetTrimIndexForContent()
+        {
+            // If content is less than about 8 words long, don't try to trim it.
+            if (CleanContent.Length < 50)
+                return 0;
+
+            // The furthest into the content area that we're going to allow a
+            // separator to be placed is 30% into the line length.
+            int separatorLimit = CleanContent.Length * 3 / 10;
+
+            // Colons are always allowed as separators, though it needs
+            // to run through a regex to be sure it's not part of a plan
+            // definition line, or part of an absolute path on Windows.
+
+            // Em dashes are always allowed as separators.
+
+            // Search for any instances of hyphens in the content.
+            // Only counts if there's a space after the hyphen, or if
+            // the next word starts with a capital letter.
+
+            // Select the one that comes closest to, without passing,
+            // the separator limit.
 
 
+            MatchCollection matches = extendedTextRegex.Matches(CleanContent);
+
+            // If there is only one separator, use it as long as it's within the limit.
+            if (matches.Count == 1)
+            {
+                Match m = matches[0];
+                if (m.Success && m.Index > 0 && m.Index < separatorLimit)
+                {
+                    return m.Index;
+                }
+            }
+            // If there's more than one separator, take the last one that fits, but
+            // only if there's more than one word before it.
+            else if (matches.Count > 1)
+            {
+                for (int i = matches.Count - 1; i >= 0; i--)
+                {
+                    Match m = matches[i];
+                    if (m.Success && m.Index > 0 && m.Index < separatorLimit)
+                    {
+                        string partial = CleanContent.Substring(0, m.Index);
+
+                        if (CountWords(partial) > 1)
+                            return m.Index;
+                    }
+                }
+            }
+
+            // Alternate trimming that reduces the vote to only the first sentence.
+            matches = extendedTextSentenceRegex.Matches(CleanContent);
+            // Sentences may be taken up to half the line length.
+            separatorLimit = CleanContent.Length / 2;
+
+            if (matches.Count > 0)
+            {
+                Match m = matches[0];
+                if (m.Success && m.Index > 0 && m.Index < separatorLimit)
+                {
+                    return m.Index + 1;
+                }
+            }
+
+            // If no proper matches were found, return 0.
+            return 0;
+        }
+
+        static readonly Regex wordCountRegex = new Regex(@"\S+\b");
+
+        /// <summary>
+        /// Counts the words in the provided string.
+        /// </summary>
+        /// <param name="partial">Part of a content line that we're going to count the words of.</param>
+        /// <returns>Returns the number of words found in the provided string.</returns>
+        private static int CountWords(string partial)
+        {
+            var matches = wordCountRegex.Matches(partial);
+            return matches.Count;
+        }
+        #endregion
 
         #region IComparable and IEquatable interface implementations.
 #nullable disable
