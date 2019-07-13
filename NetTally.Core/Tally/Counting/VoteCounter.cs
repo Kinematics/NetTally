@@ -13,11 +13,12 @@ namespace NetTally.VoteCounting
     public class VoteCounter : IVoteCounter
     {
         #region Data Collections
+        // Public
+
         /// <summary>
         /// The overall collection of voters and supporters.
         /// </summary>
-        public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; private set; }
-            = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>();
+        public VoteStorage VoteStorage { get; } = new VoteStorage();
         /// <summary>
         /// The list of posts that reference future posts, preventing immediate tallying.
         /// </summary>
@@ -27,18 +28,17 @@ namespace NetTally.VoteCounting
         /// </summary>
         public IReadOnlyList<Post> Posts => postsList;
 
+        // Private
+
         readonly MergeRecords userMerges = new MergeRecords();
         readonly List<Post> postsList = new List<Post>();
         readonly List<string> taskList = new List<string>();
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
-        HashSet<string> ReferencePlanNames { get; set; } = new HashSet<string>(Agnostic.StringComparer);
-        HashSet<string> ReferenceVoterNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, PostId> PlanMessageId { get; set; } = new Dictionary<string, PostId>(Agnostic.StringComparer);
-        Dictionary<string, PostId> VoterReferenceMessageId { get; } = new Dictionary<string, PostId>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, PostId> VoterMessageId { get; } = new Dictionary<string, PostId>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, VoteLineBlock> ReferencePlans { get; set; } = new Dictionary<string, VoteLineBlock>(Agnostic.InsensitiveComparer);
+
+        VoterStorage ReferencePlans { get; } = new VoterStorage();
+        HashSet<Origin> ReferenceOrigins { get; } = new HashSet<Origin>();
         #endregion
 
         #region General Tally Properties
@@ -85,32 +85,15 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void Reset()
         {
-            VoteBlockSupporters.Clear();
-
-            ReferencePlanNames.Clear();
-            ReferenceVoterNames.Clear();
+            VoteStorage.Clear();
+            ReferenceOrigins.Clear();
             ReferencePlans.Clear();
-
-            PlanMessageId.Clear();
-            VoterReferenceMessageId.Clear();
-            VoterMessageId.Clear();
-
             FutureReferences.Clear();
-
             UndoBuffer.Clear();
 
             VoteDefinedTasks.Clear();
             OrderedVoteTaskList.Clear();
-
             taskList.Clear();
-
-            if (ReferencePlans.Comparer != Agnostic.StringComparer)
-                ReferencePlans = new Dictionary<string, VoteLineBlock>(Agnostic.StringComparer);
-            if (ReferencePlanNames.Comparer != Agnostic.StringComparer)
-                ReferencePlanNames = new HashSet<string>(Agnostic.StringComparer);
-
-            if (PlanMessageId.Comparer != Agnostic.StringComparer)
-                PlanMessageId = new Dictionary<string, PostId>(Agnostic.StringComparer);
 
             OnPropertyChanged("VoteCounter");
             OnPropertyChanged("Tasks");
@@ -169,16 +152,13 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="planName">The canonical name of the plan.</param>
         /// <param name="postID">The post ID the plan was defined in.</param>
-        /// <param name="planBlock">The the vote line block that defines the plan.</param>
+        /// <param name="plan">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        public bool AddReferencePlan(string planName, PostId postID, VoteLineBlock planBlock)
+        public bool AddReferencePlan(Origin planOrigin, VoteLineBlock plan)
         {
-            if (!ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
+            if (ReferenceOrigins.Add(planOrigin))
             {
-                ReferencePlanNames.Add(planName);
-                PlanMessageId[planName] = postID;
-                ReferencePlans[planName] = planBlock;
-
+                ReferencePlans.Add(planOrigin, plan);
                 return true;
             }
 
@@ -193,12 +173,9 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The proper name of the voter.</param>
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-        public bool AddReferenceVoter(string voterName, PostId postID)
+        public bool AddReferenceVoter(Origin voter)
         {
-            bool added = ReferenceVoterNames.Add(voterName);
-            VoterReferenceMessageId[voterName] = postID;
-
-            return added;
+            return ReferenceOrigins.Add(voter);
         }
 
         /// <summary>
@@ -212,15 +189,25 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-        #region Get Reference Data
+        #region Get Reference Data using strings
         /// <summary>
         /// Get canonical version of the provided plan name.
         /// </summary>
         /// <param name="planName">The name of the plan being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-        public string? GetProperPlanName(string planName)
+        public Origin? GetPlanOriginByName(string? planName)
         {
-            return ReferencePlanNames.FirstOrDefault(n => Agnostic.InsensitiveComparer.Equals(n, planName));
+            if (string.IsNullOrEmpty(planName))
+                return null;
+
+            Origin test = new Origin(planName, IdentityType.Plan);
+
+            if (ReferenceOrigins.TryGetValue(test, out Origin actual))
+            {
+                return actual;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -228,161 +215,21 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterName">The name of the voter being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-        public string? GetProperVoterName(string voterName)
+        public Origin? GetVoterOriginByName(string? voterName)
         {
-            return ReferenceVoterNames.FirstOrDefault(v => Agnostic.StringComparer.Equals(v, voterName));
-        }
-
-        /// <summary>
-        /// Get the post ID stored for the specified plan, which is the post that it was defined in.
-        /// </summary>
-        /// <param name="planName">The name of the plan to check on.</param>
-        /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
-        public PostId? GetPlanReferencePostId(string planName)
-        {
-            return PlanMessageId.GetValueOrDefault(planName);
-        }
-
-        /// <summary>
-        /// Get the post ID stored for the specified voter.  This will always be the last one entered.
-        /// </summary>
-        /// <param name="voterName">The name of the voter to check on.</param>
-        /// <returns>Returns the post ID for the voter, or null if not found.</returns>
-        public PostId? GetVoterReferencePostId(string voterName)
-        {
-            return VoterReferenceMessageId.GetValueOrDefault(voterName);
-        }
-
-        /// <summary>
-        /// Get the ID of the post by the specified author at the time of the request.
-        /// This may change over the course of a tally.
-        /// </summary>
-        /// <param name="voterName">The name of the voter to check for.</param>
-        /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-        public PostId? GetLatestVoterPostId(string voterName)
-        {
-            return VoterMessageId.GetValueOrDefault(voterName);
-        }
-
-        /// <summary>
-        /// Get the last post made by a given author.
-        /// Possibly restrict the search range to no more than the specified post ID.
-        /// </summary>
-        /// <param name="voterName">The voter being queried.</param>
-        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
-        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-        public Post? GetLastPostByAuthor(string author, PostId maxPostId)
-        {
-            if (!HasVoter(author))
+            if (string.IsNullOrEmpty(voterName))
                 return null;
 
-            var lastAuthorPost = postsList.Where(p =>
-                                                Agnostic.StringComparer.Equals(author, p.Origin.Author)
-                                                && (maxPostId == 0 || p.Origin.ID < maxPostId))
-                                          .MaxObject(p => p.Origin.ID);
+            Origin test = new Origin(voterName, IdentityType.User);
 
-            return lastAuthorPost;
-        }
-
-        /// <summary>
-        /// Get the reference plan corresponding to the provided plan name.
-        /// </summary>
-        /// <param name="planName">The name of the plan to get.</param>
-        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-        public VoteLineBlock? GetReferencePlan(string planName)
-        {
-            return ReferencePlans.GetValueOrDefault(planName);
-        }
-
-        /// <summary>
-        /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
-        /// </summary>
-        /// <param name="voterName">The name of the voter or plan being requested.</param>
-        /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-        public List<VoteLineBlock> GetVotesBy(string voterName)
-        {
-            return VoteBlockSupporters
-                .SelectMany(a => a.Value)
-                .Where(a => Agnostic.StringComparer.Equals(a.Key, voterName))
-                .Select(a => a.Value)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets a count of the known voters.
-        /// </summary>
-        /// <returns>Returns a count of the registered reference voters.</returns>
-        public int GetTotalVoterCount()
-        {
-            return ReferenceVoterNames.Count;
-        }
-
-        /// <summary>
-        /// Get a collection of all the votes that currently have supporters.
-        /// </summary>
-        /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
-        public IEnumerable<VoteLineBlock> GetSupportedVotesList()
-        {
-            foreach (var (vote, supporters) in VoteBlockSupporters)
+            if (ReferenceOrigins.TryGetValue(test, out Origin actual))
             {
-                vote.Category = GetCategoryOf(supporters);
-                yield return vote;
+                return actual;
             }
 
-            // Private function to calculate the category for each set of supporters.
-            static MarkerType GetCategoryOf(Dictionary<string, VoteLineBlock> supporters)
-            {
-                int total = supporters.Count;
-
-                if (total == 0)
-                    return MarkerType.None;
-
-                double threshold = 0.83;
-
-                var supporterMarkers = supporters.GroupBy(s => s.Value.MarkerType);
-
-                foreach (var supporterMarker in supporterMarkers)
-                {
-                    if (((double)supporterMarker.Count() / total) > threshold)
-                    {
-                        return supporterMarker.Key;
-                    }
-                }
-
-                return MarkerType.Vote;
-            }
+            return null;
         }
 
-        /// <summary>
-        /// Get a list of all known voters.
-        /// </summary>
-        /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
-        public IEnumerable<string> GetFullVotersList()
-        {
-            // TODO: Possibly filter out plans?
-            var voters = VoteBlockSupporters.SelectMany(a => a.Value.Keys).Distinct().OrderBy(a => a);
-            return voters;
-        }
-
-        /// <summary>
-        /// Gets all voters that are supporting the specified vote.
-        /// </summary>
-        /// <param name="vote">The vote to check on.</param>
-        /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-        public IEnumerable<string> GetVotersFor(VoteLineBlock vote)
-        {
-            if (VoteBlockSupporters.TryGetValue(vote, out var supporters))
-            {
-                return supporters.Select(a => a.Key);
-            }
-
-            return Enumerable.Empty<string>();
-        }
-
-
-        #endregion
-
-        #region Query if counter Has ...
         /// <summary>
         /// Determine if the requested plan name exists in the current list of plans.
         /// Applies the plan name marker character to the provided plan name, if it
@@ -392,10 +239,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns whether the provided plan name exists in the current PlanNames hash set.</returns>
         public bool HasPlan(string? planName)
         {
-            if (string.IsNullOrEmpty(planName))
-                return false;
-
-            return ReferencePlanNames.Contains(planName, Agnostic.StringComparer);
+            return GetPlanOriginByName(planName) != null;
         }
 
         /// <summary>
@@ -405,12 +249,94 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if the voter has voted in the current tally.</returns>
         public bool HasVoter(string? voterName)
         {
-            if (voterName is null)
-                return false;
-
-            return ReferenceVoterNames.Contains(voterName, Agnostic.StringComparer);
+            return GetVoterOriginByName(voterName) != null;
         }
 
+        #endregion
+
+        #region Get Reference Data
+        /// <summary>
+        /// Get the ID of the post by the specified author at the time of the request.
+        /// This may change over the course of a tally.
+        /// </summary>
+        /// <param name="voterName">The name of the voter to check for.</param>
+        /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
+        public PostId? GetLatestVoterPostId(Origin voter)
+        {
+            if (ReferenceOrigins.TryGetValue(voter, out Origin actual))
+            {
+                return actual.ID;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the last post made by a given author.
+        /// Possibly restrict the search range to no more than the specified post ID.
+        /// </summary>
+        /// <param name="voterName">The voter being queried.</param>
+        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
+        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
+        public Post? GetLastPostByAuthor(Origin author, PostId maxPostId)
+        {
+            if (ReferenceOrigins.TryGetValue(author, out Origin actual))
+            {
+                return postsList.Where(p => author == p.Origin &&
+                                            (maxPostId == 0 || p.Origin.ID < maxPostId))
+                                .MaxObject(p => p.Origin.ID);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the reference plan corresponding to the provided plan name.
+        /// </summary>
+        /// <param name="planName">The name of the plan to get.</param>
+        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
+        public VoteLineBlock? GetReferencePlan(Origin planOrigin)
+        {
+            return ReferencePlans.GetValueOrDefault(planOrigin);
+        }
+
+        /// <summary>
+        /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
+        /// </summary>
+        /// <param name="voterName">The name of the voter or plan being requested.</param>
+        /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
+        public List<VoteLineBlock> GetVotesBy(Origin voter) => VoteStorage.GetVotesBy(voter);
+
+        /// <summary>
+        /// Gets a count of the known voters.
+        /// </summary>
+        /// <returns>Returns a count of the registered reference voters.</returns>
+        public int GetTotalVoterCount()
+        {
+            return ReferenceOrigins.Count(o => o.AuthorType == IdentityType.User);
+        }
+
+        /// <summary>
+        /// Get a collection of all the votes that currently have supporters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
+        public IEnumerable<VoteLineBlock> GetAllVotes() => VoteStorage.GetAllVotes();
+
+        /// <summary>
+        /// Get a list of all known voters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
+        public IEnumerable<Origin> GetAllVoters() => VoteStorage.GetAllVoters();
+
+        /// <summary>
+        /// Gets all voters that are supporting the specified vote.
+        /// </summary>
+        /// <param name="vote">The vote to check on.</param>
+        /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
+        public IEnumerable<Origin> GetVotersFor(VoteLineBlock vote) => VoteStorage.GetVotersFor(vote);
+        #endregion
+
+        #region Query if counter Has ...
         /// <summary>
         /// Determines whether the author of the provided post has made a newer vote submission.
         /// </summary>
@@ -424,9 +350,7 @@ namespace NetTally.VoteCounting
             if (!HasVoter(post.Origin.Author))
                 return false;
 
-            var processedPosts = Posts.Where(p => p.Processed && p.Origin.Author == post.Origin.Author && p.Origin.ID > post.Origin.ID);
-
-            return (processedPosts.Any());
+            return Posts.Any(p => p.Processed && p.Origin.Author == post.Origin.Author && p.Origin.ID > post.Origin.ID);
         }
         #endregion
 
@@ -439,93 +363,28 @@ namespace NetTally.VoteCounting
         /// <param name="voter">The voter for this vote.</param>
         /// <param name="postID">The post ID for this vote.</param>
         /// <param name="voteType">The type of vote being added.</param>
-        public void AddVotes(IEnumerable<VoteLineBlock> votePartitions, string voter, PostId postID)
+        public void AddVotes(IEnumerable<VoteLineBlock> votePartitions, Origin voter)
         {
             if (!votePartitions.Any())
                 return;
 
-            // Store/update the post ID of the voter
-            VoterMessageId[voter] = postID;
-
             // Remove the voter from any existing votes
-            if (RemoveSupport(voter))
+            if (VoteStorage.RemoveVoterFromVotes(voter))
                 OnPropertyChanged("Voters");
 
             // Add/update all segments of the provided vote
             foreach (var partition in votePartitions)
             {
-                AddVote(partition, voter);
+                VoteStorage.AddSupporterToVote(partition, voter);
+                AddPotentialVoteTask(partition.Task);
             }
 
             // Cleanup any votes that no longer have any support
-            if (CleanupEmptyVotes())
-                OnPropertyChanged("Votes");
-
-            ///////////////////////////////////////////////////////////
-            // Private functions:
-
-            /// <summary>
-            /// Remove the voter's support for any existing votes.
-            /// </summary>
-            /// <param name="voter">The voter name to check for.</param>
-            /// <returns>Returns true if any instances were removed.</returns>
-            bool RemoveSupport(string voter)
-            {
-                bool removedAny = false;
-
-                foreach (var vote in VoteBlockSupporters)
-                {
-                    if (vote.Value.Remove(voter))
-                        removedAny = true;
-                }
-
-                return removedAny;
-            }
-
-            /// <summary>
-            /// Removes any votes that no longer have any voter support.
-            /// </summary>
-            /// <returns>Returns true if any votes were removed.</returns>
-            bool CleanupEmptyVotes()
-            {
-                bool removedAny = false;
-
-                // Any votes that no longer have any support can be removed
-                var empty = VoteBlockSupporters.Where(v => v.Value.Count == 0).ToList();
-
-                foreach (var vote in empty)
-                {
-                    if (VoteBlockSupporters.Remove(vote.Key))
-                        removedAny = true;
-                }
-
-                return removedAny;
-            }
-        }
-
-        /// <summary>
-        /// Adds an individual vote.
-        /// </summary>
-        /// <param name="vote">The vote that is being added to.</param>
-        /// <param name="voter">The voter that is supporting the vote.</param>
-        /// <param name="voteType">Type of the vote.</param>
-        /// <exception cref="System.ArgumentNullException">vote and voter must not be null or empty.</exception>
-        private void AddVote(VoteLineBlock vote, string voter)
-        {
-            if (!VoteBlockSupporters.TryGetValue(vote, out var supporters))
-            {
-                var referenceVote = vote.WithMarker("", MarkerType.None, 0, allLines: true);
-                supporters = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
-
-                VoteBlockSupporters.Add(referenceVote, supporters);
-            }
-
-            supporters.Add(voter, vote);
-
-            AddPotentialVoteTask(vote.Task);
+            CleanupEmptyVotes();
 
             OnPropertyChanged("Votes");
         }
+
 
         /// <summary>
         /// Merge the vote supporters from one vote into another.
@@ -535,7 +394,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if successfully completed.</returns>
         public bool Merge(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
-            UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteBlockSupporters));
+            UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
 
             bool merged = MergeImplWrapper(fromVote, toVote);
 
@@ -563,7 +422,7 @@ namespace NetTally.VoteCounting
         {
             bool merged = false;
 
-            UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteBlockSupporters));
+            UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
 
             foreach (var toVote in toVotes)
             {
@@ -591,11 +450,11 @@ namespace NetTally.VoteCounting
         /// <param name="voters">The voters that will support the new voter.</param>
         /// <param name="voterToJoin">The voter to join.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        public bool Join(List<string> voters, string voterToJoin)
+        public bool Join(List<Origin> voters, Origin voterToJoin)
         {
             bool joined = false;
 
-            UndoBuffer.Push(new UndoAction(UndoActionType.Join, VoteBlockSupporters));
+            UndoBuffer.Push(new UndoAction(UndoActionType.Join, VoteStorage));
 
             foreach (var voter in voters)
             {
@@ -621,37 +480,32 @@ namespace NetTally.VoteCounting
             /// <param name="joiningVoter">The voter being moved to a new voting support set.</param>
             /// <param name="voterToJoin">The voter being joined.</param>
             /// <returns>Returns true if the join was completed.</returns>
-            bool JoinImpl(string joiningVoter, string voterToJoin)
+            bool JoinImpl(Origin joiningVoter, Origin voterToJoin)
             {
-                var sourceVoterVotes = VoteBlockSupporters.Where(v => v.Value.Keys.Contains(joiningVoter)).ToList();
+                var source = GetVotesBy(joiningVoter);
+                var dest = GetVotesBy(voterToJoin);
 
-                var targetVoterVotes = VoteBlockSupporters.Where(v => v.Value.Keys.Contains(voterToJoin)).Select(v => v.Value).ToList();
-
-                if (!sourceVoterVotes.Any() || !targetVoterVotes.Any())
+                if (!source.Any() || !dest.Any())
                     return false;
 
                 bool joined = false;
 
-                foreach (var (vote, support) in sourceVoterVotes)
+                // Remove support from any votes where the target voter isn't also present.
+                foreach (var vote in source)
                 {
-                    // Don't remove support if you're already supporting the same ticket.
-                    if (!support.ContainsKey(voterToJoin))
+                    if (!VoteStorage.DoesVoterSupportVote(voterToJoin, vote))
                     {
-                        support.Remove(joiningVoter);
-                        if (!support.Any())
-                        {
-                            VoteBlockSupporters.Remove(vote);
-                            joined = true;
-                        }
+                        VoteStorage.RemoveSupporterFromVote(vote, joiningVoter);
                     }
                 }
 
-                foreach (var voteBlock in targetVoterVotes)
+                CleanupEmptyVotes();
+
+                foreach (var vote in dest)
                 {
-                    // Don't add if voter is already present
-                    if (!voteBlock.ContainsKey(joiningVoter))
+                    if (!VoteStorage.DoesVoterSupportVote(joiningVoter, vote))
                     {
-                        voteBlock.Add(joiningVoter, voteBlock[voterToJoin]);
+                        VoteStorage.AddSupporterToVote(vote, joiningVoter);
                         joined = true;
                     }
                 }
@@ -669,11 +523,11 @@ namespace NetTally.VoteCounting
         {
             bool removed = false;
 
-            if (VoteBlockSupporters.ContainsKey(vote))
+            if (VoteStorage.ContainsKey(vote))
             {
-                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, VoteBlockSupporters));
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, VoteStorage));
 
-                removed = VoteBlockSupporters.Remove(vote);
+                removed = VoteStorage.Remove(vote);
             }
 
             if (removed)
@@ -702,12 +556,12 @@ namespace NetTally.VoteCounting
             if (fromVote == toVote)
                 return false;
 
-            if (!VoteBlockSupporters.TryGetValue(fromVote, out var fromSupport))
+            if (!VoteStorage.TryGetValue(fromVote, out var fromSupport))
             {
                 return false;
             }
 
-            if (!VoteBlockSupporters.TryGetValue(toVote, out var toSupport))
+            if (!VoteStorage.TryGetValue(toVote, out var toSupport))
             {
                 return false;
             }
@@ -717,7 +571,7 @@ namespace NetTally.VoteCounting
             MergeImpl(fromVote, toVote, fromSupport, toSupport);
 
             // But we still want to remove the from vote.
-            return VoteBlockSupporters.Remove(fromVote);
+            return VoteStorage.Remove(fromVote);
         }
 
         /// <summary>
@@ -729,7 +583,7 @@ namespace NetTally.VoteCounting
         /// <param name="toSupport">The support block for the to vote.</param>
         /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
         private bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
-            Dictionary<string, VoteLineBlock> fromSupport, Dictionary<string, VoteLineBlock> toSupport)
+            VoterStorage fromSupport, VoterStorage toSupport)
         {
             bool merged = false;
 
@@ -770,6 +624,12 @@ namespace NetTally.VoteCounting
 
             return false;
         }
+
+        /// <summary>
+        /// Removes any votes that no longer have any voter support.
+        /// </summary>
+        /// <returns>Returns true if any votes were removed.</returns>
+        bool CleanupEmptyVotes() => VoteStorage.RemoveUnsupportedVotes();
 
         #endregion
 
@@ -886,19 +746,19 @@ namespace NetTally.VoteCounting
                 return false;
             }
 
-            if (VoteBlockSupporters.TryGetValue(vote, out var supporters))
+            if (VoteStorage.TryGetValue(vote, out var supporters))
             {
-                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteBlockSupporters, vote));
+                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage, vote));
 
-                VoteBlockSupporters.Remove(vote);
+                VoteStorage.Remove(vote);
 
                 string originalTask = vote.Task;
                 vote.Task = task;
 
                 // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
-                if (VoteBlockSupporters.ContainsKey(vote))
+                if (VoteStorage.ContainsKey(vote))
                 {
-                    if (VoteBlockSupporters.TryGetValue(vote, out var toSupport))
+                    if (VoteStorage.TryGetValue(vote, out var toSupport))
                     {
                         foreach (var (supporterName, supporterVote) in supporters)
                         {
@@ -914,7 +774,7 @@ namespace NetTally.VoteCounting
                         // Undo the attempt if we couldn't get the conflicting vote data
                         vote.Task = originalTask;
 
-                        VoteBlockSupporters.Add(vote, supporters);
+                        VoteStorage.Add(vote, supporters);
 
                         UndoBuffer.Pop();
 
@@ -929,7 +789,7 @@ namespace NetTally.VoteCounting
                         supporterVote.Task = task;
                     }
 
-                    VoteBlockSupporters.Add(vote, supporters);
+                    VoteStorage.Add(vote, supporters);
                 }
 
                 OnPropertyChanged("Votes");

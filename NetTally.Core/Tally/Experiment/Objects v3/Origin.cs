@@ -18,7 +18,9 @@ namespace NetTally.Experiment3
 
         public static Origin Empty = new Origin("", "0", 0, new Uri("http://www.example.com/"), "http://www.example.com/");
 
+        private readonly Uri exampleUri = new Uri("http://www.example.com/");
         private readonly int hash;
+        private readonly bool limitedToName;
 
         public Origin(string author, string postID, int postNumber, Uri thread, string permalink)
         {
@@ -42,6 +44,20 @@ namespace NetTally.Experiment3
             hash = ComputeHash();
         }
 
+        public Origin(string author, IdentityType identityType)
+        {
+            Author = author;
+            AuthorType = identityType;
+            limitedToName = true;
+
+            ID = PostId.Zero;
+            ThreadPostNumber = 0;
+            Thread = exampleUri;
+            Permalink = "";
+
+            hash = ComputeHash();
+        }
+
         public Origin GetPlanOrigin(string planName)
         {
             return new Origin(planName, IdentityType.Plan, ID, ThreadPostNumber, Thread, Permalink);
@@ -49,9 +65,15 @@ namespace NetTally.Experiment3
         #endregion
 
         #region Comparisons and Equality
-        private int ComputeHash() => Agnostic.InsensitiveComparer.GetHashCode(Author) ^ Thread.GetHashCode();
+        private int ComputeHash() => Agnostic.InsensitiveComparer.GetHashCode(Author);
         public override int GetHashCode() => hash;
-        public override string ToString() => Author;
+        public override string ToString()
+        {
+            if (AuthorType == IdentityType.Plan)
+                return $"{Strings.PlanNameMarker}Author";
+            else
+                return Author;
+        }
 
 
         public static int Compare(Origin? first, Origin? second)
@@ -63,21 +85,16 @@ namespace NetTally.Experiment3
             if (second is null)
                 return 1;
 
-            int result = first.Thread.AbsoluteUri.CompareTo(second.Thread.AbsoluteUri);
+            int result = first.AuthorType.CompareTo(second.AuthorType);
+
+            if (result == 0 && !first.limitedToName && !second.limitedToName)
+            {
+                result = first.Thread.AbsoluteUri.CompareTo(second.Thread.AbsoluteUri);
+            }
 
             if (result == 0)
             {
-                result = first.AuthorType.CompareTo(second.AuthorType);
-
-                if (result == 0)
-                {
-                    result = first.ID.CompareTo(second.ID);
-
-                    if (result == 0)
-                    {
-                        result = Agnostic.StringComparer.Compare(first.Author, second.Author);
-                    }
-                }
+                result = Agnostic.StringComparer.Compare(first.Author, second.Author);
             }
 
             return result;
@@ -87,12 +104,12 @@ namespace NetTally.Experiment3
         public bool Equals(Origin other) => Compare(this, other) == 0;
         public int CompareTo(object obj) => Compare(this, obj as Origin);
         public int CompareTo(Origin other) => Compare(this, other);
-        public static bool operator >(Origin first, Origin second) => Compare(first, second) == 1;
-        public static bool operator <(Origin first, Origin second) => Compare(first, second) == -1;
-        public static bool operator >=(Origin first, Origin second) => Compare(first, second) >= 0;
-        public static bool operator <=(Origin first, Origin second) => Compare(first, second) <= 0;
-        public static bool operator ==(Origin first, Origin second) => Compare(first, second) == 0;
-        public static bool operator !=(Origin first, Origin second) => Compare(first, second) != 0;
+        public static bool operator >(Origin? first, Origin? second) => Compare(first, second) == 1;
+        public static bool operator <(Origin? first, Origin? second) => Compare(first, second) == -1;
+        public static bool operator >=(Origin? first, Origin? second) => Compare(first, second) >= 0;
+        public static bool operator <=(Origin? first, Origin? second) => Compare(first, second) <= 0;
+        public static bool operator ==(Origin? first, Origin? second) => Compare(first, second) == 0;
+        public static bool operator !=(Origin? first, Origin? second) => Compare(first, second) != 0;
 
         #endregion
     }

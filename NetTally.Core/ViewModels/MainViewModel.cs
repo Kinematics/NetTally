@@ -579,7 +579,7 @@ namespace NetTally.ViewModels
         public IVoteCounter VoteCounter => voteCounter;
 
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
-        public ObservableCollectionExt<string> AllVotersCollection { get; } = new ObservableCollectionExt<string>();
+        public ObservableCollectionExt<Origin> AllVotersCollection { get; } = new ObservableCollectionExt<Origin>();
         public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
 
         /// <summary>
@@ -612,7 +612,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotesCollection()
         {
-            AllVotesCollection.Replace(VoteCounter.GetSupportedVotesList());
+            AllVotesCollection.Replace(VoteCounter.GetAllVotes());
 
             OnPropertyChanged(nameof(AllVotesCollection));
         }
@@ -622,7 +622,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotersCollection()
         {
-            AllVotersCollection.Replace(VoteCounter.GetFullVotersList());
+            AllVotersCollection.Replace(VoteCounter.GetAllVoters());
 
             OnPropertyChanged(nameof(AllVotersCollection));
         }
@@ -678,7 +678,7 @@ namespace NetTally.ViewModels
 
         public bool MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote) => VoteCounter.Merge(fromVote, toVote);
 
-        public bool JoinVoters(List<string> voters, string voterToJoin) => VoteCounter.Join(voters, voterToJoin);
+        public bool JoinVoters(List<Origin> voters, Origin voterToJoin) => VoteCounter.Join(voters, voterToJoin);
 
         public bool DeleteVote(VoteLineBlock vote) => VoteCounter.Delete(vote);
 
@@ -688,7 +688,7 @@ namespace NetTally.ViewModels
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 
-        public IEnumerable<string> GetVoterListForVote(VoteLineBlock vote) => VoteCounter.GetVotersFor(vote);
+        public IEnumerable<Origin> GetVoterListForVote(VoteLineBlock vote) => VoteCounter.GetVotersFor(vote);
 
         #endregion
 

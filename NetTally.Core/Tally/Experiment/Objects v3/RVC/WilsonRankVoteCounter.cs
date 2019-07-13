@@ -9,8 +9,8 @@ namespace NetTally.Experiment3
 {
     public class WilsonRankVoteCounter : IRankVoteCounter2
     {
-        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>
-            CountVotesForTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> taskVotes)
+        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+            CountVotesForTask(VoteStorage taskVotes)
         {
             var results = from vote in taskVotes
                           let wilsonScore = RankScoring.LowerWilsonScore(vote)
@@ -21,8 +21,8 @@ namespace NetTally.Experiment3
 
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)> resultList 
-                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>();
+            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> resultList 
+                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>();
 
             foreach (var res in orderedResults)
             {

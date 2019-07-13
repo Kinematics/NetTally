@@ -18,18 +18,18 @@ namespace NetTally.Experiment3
     public class UndoAction
     {
         public UndoActionType ActionType { get; }
-        readonly Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> storage;
+        readonly VoteStorage storage;
 
         // Don't let Undo be called more than once.
         bool undone = false;
 
-        public UndoAction(UndoActionType actionType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> currentState,
+        public UndoAction(UndoActionType actionType, VoteStorage currentState,
             VoteLineBlock? storageVote = null)
         {
             ActionType = actionType;
 
             // Clone the current vote repository.
-            storage = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(currentState);
+            storage = new VoteStorage(currentState);
 
             // Utilize a cloned storage vote if we need to track a changed VoteLineBlock 
             // that had internal properties changed.  Otherwise those will be propogated
@@ -48,7 +48,7 @@ namespace NetTally.Experiment3
             if (undone)
                 return false;
 
-            var currentVotes = voteCounter.VoteBlockSupporters;
+            var currentVotes = voteCounter.VoteStorage;
 
             // Remove pass - Remove all current votes or supporters that are not
             // in the archived version of the vote repository.
@@ -63,7 +63,7 @@ namespace NetTally.Experiment3
                 }
                 else
                 {
-                    HashSet<string> voterRemovals = new HashSet<string>();
+                    HashSet<Origin> voterRemovals = new HashSet<Origin>();
 
                     foreach (var(currentSupporter, _) in currentSupporters)
                     {

@@ -133,8 +133,10 @@ namespace NetTally.Experiment3
                 List<VoteLine> voteLines = new List<VoteLine>() { firstLine };
                 voteLines.AddRange(keyContents.Skip(1).Select(v => v.WithMarker("", MarkerType.None, 0)));
 
-                planName = $"{Strings.PlanNameMarker}{planName}";
-                return (planName, new VoteLineBlock(voteLines));
+                var returnPlanA = new VoteLineBlock(voteLines);
+                var returnPlanB = returnPlanA.WithMarker(Strings.PlanNameMarker, MarkerType.Plan, 0);
+
+                return (planName, returnPlanB);
             }
 
             // If it's not a plan, how did we get here?
@@ -291,13 +293,12 @@ namespace NetTally.Experiment3
 
                 if (isProposedPlan)
                 {
-                    PostId? originalPostIdForPlan = voteCounter.GetPlanReferencePostId(proposedPlanName);
+                    Origin? planOrigin = voteCounter.GetPlanOriginByName(proposedPlanName);
 
-                    if (originalPostIdForPlan is null)
+                    if (planOrigin == null)
                         return false;
 
-                    if (originalPostIdForPlan == post.Origin.ID)
-                        return true;
+                    return planOrigin.ID == post.Origin.ID;
                 }
 
                 return false;
@@ -315,7 +316,7 @@ namespace NetTally.Experiment3
         /// <param name="voteLine">The vote line to examine.</param>
         /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
-        private (bool isReference, bool isPlan, bool isPinnedUser, string refName) GetReference(VoteLine voteLine, IQuest quest)
+        private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, IQuest quest)
         {
             // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
             if (voteLine.CleanContent.Length > 100)
@@ -329,7 +330,7 @@ namespace NetTally.Experiment3
 
                 if (label == "^" || label == "↑")
                 {
-                    string? refUser = voteCounter.GetProperVoterName(refName);
+                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
@@ -337,20 +338,20 @@ namespace NetTally.Experiment3
                 }
                 else if (label.StartsWith("base") || label.StartsWith("proposed"))
                 {
-                    string? refPlan = voteCounter.GetProperPlanName(refName);
+                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
                 }
                 else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
                 {
-                    string? refPlan = voteCounter.GetProperPlanName(refName);
+                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                     // Check user names second
-                    string? refUser = voteCounter.GetProperVoterName(refName);
+                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     // Force pinning if requested.
@@ -360,13 +361,13 @@ namespace NetTally.Experiment3
                 else // Any unlabeled lines
                 {
                     // Check user names first
-                    string? refUser = voteCounter.GetProperVoterName(refName);
+                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: false || quest.ForcePinnedProxyVotes, refName: refUser);
 
-                    string? refPlan = voteCounter.GetProperPlanName(refName);
+                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
                     // Check to make sure the quest doesn't forbid non-labeled plan references.
                     if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
@@ -375,7 +376,7 @@ namespace NetTally.Experiment3
             }
 
             noReference:
-            return (isReference: false, isPlan: false, isPinnedUser: false, refName: "");
+            return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.Empty);
         }
         #endregion
 

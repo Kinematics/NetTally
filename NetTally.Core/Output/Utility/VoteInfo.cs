@@ -38,46 +38,15 @@ namespace NetTally.Output
         public string DoubleLineBreak => "<==========================================================>";
 
         /// <summary>
-        /// Get a permalink for the vote post by the specified voter.
-        /// </summary>
-        /// <param name="voter">The voter that we need a permalink for.</param>
-        /// <returns>Returns the permalink string, and whether the voter was a plan name.</returns>
-        public (string permalink, bool plan) GetVoterPostPermalink(string voter)
-        {
-            string permalink = string.Empty;
-            bool plan = false;
-
-            PostId? postID = voteCounter.GetVoterReferencePostId(voter);
-
-            if (postID is null)
-            {
-                postID = voteCounter.GetPlanReferencePostId(voter);
-
-                if (postID is null)
-                    plan = true;
-            }
-
-            if (!(postID is null))
-            {
-                permalink = forumAdapter.GetPermalinkForId(postID.Text) ?? string.Empty;
-            }
-
-            return (permalink, plan);
-        }
-
-
-
-
-        /// <summary>
         /// Gets an ordered version of the provided voters.
         /// The first voter was the first voter to support the given plan, and
         /// the rest of the voters are alphabatized.
         /// </summary>
         /// <param name="voters">The voters being ordered.</param>
         /// <returns>Returns an ordered list of the voters.</returns>
-        public List<KeyValuePair<string, VoteLineBlock>> GetOrderedStandardVoterList(Dictionary<string, VoteLineBlock> voters)
+        public List<KeyValuePair<Origin, VoteLineBlock>> GetOrderedStandardVoterList(VoterStorage voters)
         {
-            var voterList = new List<KeyValuePair<string, VoteLineBlock>>();
+            var voterList = new List<KeyValuePair<Origin, VoteLineBlock>>();
 
             if (voters == null || voters.Count == 0)
             {
@@ -92,10 +61,10 @@ namespace NetTally.Output
 
             voterList.AddRange(voters.OrderBy(v => v.Key));
 
-            var firstVoter = GetFirstVoter(voters);
-
-            voterList.Remove(firstVoter);
-            voterList.Insert(0, firstVoter);
+            var firstVoter = GetFirstVoter(voterList.Select(v => v.Key));
+            var firstVoterEntry = voterList.First(v => v.Key == firstVoter);
+            voterList.Remove(firstVoterEntry);
+            voterList.Insert(0, firstVoterEntry);
 
             return voterList;
         }
@@ -105,22 +74,42 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="voters"></param>
         /// <returns></returns>
-        private KeyValuePair<string, VoteLineBlock> GetFirstVoter(Dictionary<string, VoteLineBlock> voters)
+        private Origin GetFirstVoter(IEnumerable<Origin> voters)
         {
-            var planVoters = voters.Where(v => voteCounter.HasPlan(v.Key));
+            if (!voters.Any())
+                throw new InvalidOperationException("No voters to process");
 
-            if (planVoters.Any())
+            Origin firstVoter = voters.First();
+
+            foreach (var voter in voters)
             {
-                return planVoters.Select(p => new { vote = p, id = voteCounter.GetPlanReferencePostId(p.Key) }).MinObject(a => a.id).vote;
+                // Plans have priority in determining first voter.
+                if (voter.AuthorType == IdentityType.Plan)
+                {
+                    if (firstVoter.AuthorType != IdentityType.Plan)
+                    {
+                        firstVoter = voter;
+                    }
+                    else if (voter.ID < firstVoter.ID)
+                    {
+                        firstVoter = voter;
+                    }
+                }
+                // If the firstVoter is already a plan, don't overwrite with a user.
+                // Otherwise update if the new vote is earlier than the existing one.
+                else if (firstVoter.AuthorType != IdentityType.Plan && voter.ID < firstVoter.ID)
+                {
+                    firstVoter = voter;
+                }
             }
 
-            return voters.Select(p => new { vote = p, id = voteCounter.GetVoterReferencePostId(p.Key) }).MinObject(a => a.id).vote;
+            return firstVoter;
         }
 
 
-        public List<KeyValuePair<string, VoteLineBlock>> GetOrderedRankedVoterList(Dictionary<string, VoteLineBlock> voters)
+        public List<KeyValuePair<Origin, VoteLineBlock>> GetOrderedRankedVoterList(VoterStorage voters)
         {
-            var result = new List<KeyValuePair<string, VoteLineBlock>>();
+            var result = new List<KeyValuePair<Origin, VoteLineBlock>>();
 
             var ranksOnly = voters.Where(v => v.Value.MarkerType == MarkerType.Rank).OrderBy(v => v.Value.MarkerValue).ThenBy(v => v.Key);
             var others = voters.Where(v => v.Value.MarkerType != MarkerType.Rank).OrderBy(v => v.Key);
@@ -144,15 +133,15 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="vote">A vote and its associated supporters.</param>
         /// <returns>Returns a count</returns>
-        public int GetVoteVoterCount(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        public int GetVoteVoterCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
         {
-            var nonPlanVoters = vote.Value.Where(v => !IsPlan(v.Key));
-            var groupByMarker = nonPlanVoters.GroupBy(v => v.Value.MarkerType);
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
 
             int count = 0;
 
             // Approval and Score votes contribute if their value is greater than 50.
-            foreach (var group in groupByMarker)
+            foreach (var group in usersByMarker)
             {
                 count += group.Key switch
                 {
@@ -166,10 +155,10 @@ namespace NetTally.Output
             return count;
         }
 
-        public (int simpleScore, double limitScore) GetVoteScoreResult(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        public (int simpleScore, double limitScore) GetVoteScoreResult(KeyValuePair<VoteLineBlock, VoterStorage> vote)
         {
-            var nonPlanVoters = vote.Value.Where(v => !IsPlan(v.Key));
-            var groupByMarker = nonPlanVoters.GroupBy(v => v.Value.MarkerType);
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
 
             int count = 0;
             int accum = 0;
@@ -177,7 +166,7 @@ namespace NetTally.Output
             // TODO: Do a statistical margin of error calculation here.
 
             // Approval and Score votes contribute if their value is greater than 50.
-            foreach (var group in groupByMarker)
+            foreach (var group in usersByMarker)
             {
                 accum += group.Key switch
                 {
@@ -186,10 +175,7 @@ namespace NetTally.Output
                     MarkerType.Score => group.Sum(s => s.Value.MarkerValue),
                     _ => 0
                 };
-            }
 
-            foreach (var group in groupByMarker)
-            {
                 count += group.Key switch
                 {
                     MarkerType.Vote => group.Count(),
@@ -210,15 +196,15 @@ namespace NetTally.Output
 
 
 
-        public (int positive, int negative) GetVoteApprovalResult(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        public (int positive, int negative) GetVoteApprovalResult(KeyValuePair<VoteLineBlock, VoterStorage> vote)
         {
-            var nonPlanVoters = vote.Value.Where(v => !IsPlan(v.Key));
-            var groupByMarker = nonPlanVoters.GroupBy(v => v.Value.MarkerType);
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
 
             int positive = 0;
             int negative = 0;
 
-            foreach (var group in groupByMarker)
+            foreach (var group in usersByMarker)
             {
                 var marker = group.Key;
 
@@ -243,17 +229,17 @@ namespace NetTally.Output
 
 
 
-        public int GetStandardVotersCount(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        public int GetStandardVotersCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
         {
-            var nonPlanVoters = vote.Value.Where(v => !IsPlan(v.Key) &&
+            var nonPlanVoters = vote.Value.Where(v => v.Key.AuthorType == IdentityType.User &&
                     (v.Value.MarkerType == MarkerType.Vote || v.Value.MarkerType == MarkerType.Score || v.Value.MarkerType == MarkerType.Approval));
 
             return nonPlanVoters.Count();
         }
 
-        public int GetAllVotersCount(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)
+        public int GetAllVotersCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
         {
-            var nonPlanVoters = vote.Value.Where(v => !IsPlan(v.Key));
+            var nonPlanVoters = vote.Value.Where(v => v.Key.AuthorType == IdentityType.User);
 
             return nonPlanVoters.Count();
         }

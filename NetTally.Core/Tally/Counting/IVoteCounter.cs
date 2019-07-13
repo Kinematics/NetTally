@@ -29,7 +29,10 @@ namespace NetTally.VoteCounting
         /// A collection structure to store votes and the voters who voted for them.
         /// Also stores the specific variant that each voter used.
         /// </summary>
-        public Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
+        //Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
+
+        VoteStorage VoteStorage { get; }
+
         /// <summary>
         /// Record any posts that make references to future posts, and thus can't be processed
         /// in the original post order.
@@ -78,7 +81,7 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The post ID the plan was defined in.</param>
         /// <param name="planBlock">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        bool AddReferencePlan(string planName, PostId postID, VoteLineBlock planBlock);
+        bool AddReferencePlan(Origin planOrigin, VoteLineBlock plan);
         /// <summary>
         /// Store a voter and their post ID.
         /// This is expecting to be called for every vote by the user,
@@ -87,7 +90,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The proper name of the voter.</param>
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-        bool AddReferenceVoter(string voterName, PostId postID);
+        bool AddReferenceVoter(Origin voter);
         /// <summary>
         /// Add a post to a store of future references made.
         /// </summary>
@@ -100,75 +103,13 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="planName">The name of the plan being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-        string? GetProperPlanName(string planName);
+        Origin? GetPlanOriginByName(string? planName);
         /// <summary>
         /// Get canonical version of the provided voter name.
         /// </summary>
         /// <param name="voterName">The name of the voter being checked for.</param>
         /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-        string? GetProperVoterName(string voterName);
-        /// <summary>
-        /// Get the post ID stored for the specified plan, which is the post that it was defined in.
-        /// </summary>
-        /// <param name="planName">The name of the plan to check on.</param>
-        /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
-        PostId? GetPlanReferencePostId(string planName);
-        /// <summary>
-        /// Get the post ID stored for the specified voter.  This will always be the last one entered.
-        /// </summary>
-        /// <param name="voterName">The name of the voter to check on.</param>
-        /// <returns>Returns the post ID for the voter, or null if not found.</returns>
-        PostId? GetVoterReferencePostId(string voterName);
-        /// <summary>
-        /// Get the ID of the post by the specified author at the time of the request.
-        /// This may change over the course of a tally.
-        /// </summary>
-        /// <param name="voterName">The name of the voter to check for.</param>
-        /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-        PostId? GetLatestVoterPostId(string voterName);
-        /// <summary>
-        /// Get the last post made by a given author.
-        /// Possibly restrict the search range to no more than the specified post ID.
-        /// </summary>
-        /// <param name="voterName">The voter being queried.</param>
-        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
-        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-        Post? GetLastPostByAuthor(string voterName, PostId maxPostId);
-        /// <summary>
-        /// Get the reference plan corresponding to the provided plan name.
-        /// </summary>
-        /// <param name="planName">The name of the plan to get.</param>
-        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-        VoteLineBlock? GetReferencePlan(string planName);
-        /// <summary>
-        /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
-        /// </summary>
-        /// <param name="voterName">The name of the voter or plan being requested.</param>
-        /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-        List<VoteLineBlock> GetVotesBy(string voterName);
-        /// <summary>
-        /// Get a collection of all the votes that currently have supporters.
-        /// </summary>
-        /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
-        IEnumerable<VoteLineBlock> GetSupportedVotesList();
-        /// <summary>
-        /// Get a list of all known voters.
-        /// </summary>
-        /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
-        IEnumerable<string> GetFullVotersList();
-        /// <summary>
-        /// Gets all voters that are supporting the specified vote.
-        /// </summary>
-        /// <param name="vote">The vote to check on.</param>
-        /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-        IEnumerable<string> GetVotersFor(VoteLineBlock vote);
-        /// <summary>
-        /// Gets a count of the known voters.
-        /// </summary>
-        /// <returns>Returns a count of the registered reference voters.</returns>
-        int GetTotalVoterCount();
-
-
+        Origin? GetVoterOriginByName(string? voterName);
         /// <summary>
         /// Determine if the requested plan name exists in the current list of plans.
         /// </summary>
@@ -181,6 +122,50 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The name of the voter to check for.</param>
         /// <returns>Returns true if the voter has voted in the tally.</returns>
         bool HasVoter(string? voterName);
+
+        /// <summary>
+        /// Get the last post made by a given author.
+        /// Possibly restrict the search range to no more than the specified post ID.
+        /// </summary>
+        /// <param name="voterName">The voter being queried.</param>
+        /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
+        /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
+        Post? GetLastPostByAuthor(Origin author, PostId maxPostId);
+        /// <summary>
+        /// Get the reference plan corresponding to the provided plan name.
+        /// </summary>
+        /// <param name="planName">The name of the plan to get.</param>
+        /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
+        VoteLineBlock? GetReferencePlan(Origin planOrigin);
+        /// <summary>
+        /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
+        /// </summary>
+        /// <param name="voterName">The name of the voter or plan being requested.</param>
+        /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
+        List<VoteLineBlock> GetVotesBy(Origin voter);
+        /// <summary>
+        /// Get a collection of all the votes that currently have supporters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
+        IEnumerable<VoteLineBlock> GetAllVotes();
+        /// <summary>
+        /// Get a list of all known voters.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
+        IEnumerable<Origin> GetAllVoters();
+        /// <summary>
+        /// Gets all voters that are supporting the specified vote.
+        /// </summary>
+        /// <param name="vote">The vote to check on.</param>
+        /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
+        IEnumerable<Origin> GetVotersFor(VoteLineBlock vote);
+        /// <summary>
+        /// Gets a count of the known voters.
+        /// </summary>
+        /// <returns>Returns a count of the registered reference voters.</returns>
+        int GetTotalVoterCount();
+
+
         /// <summary>
         /// Determines if there is a more recent vote made by the author of the provided post.
         /// </summary>
@@ -196,7 +181,7 @@ namespace NetTally.VoteCounting
         /// <param name="voter">The voter.</param>
         /// <param name="postID">The ID of the vote post.</param>
         /// <param name="voteType">The type of vote.</param>
-        void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, PostId postID);
+        void AddVotes(IEnumerable<VoteLineBlock> voteParts, Origin voter);
         /// <summary>
         /// Merge the vote supporters from one vote into another.
         /// </summary>
@@ -218,7 +203,7 @@ namespace NetTally.VoteCounting
         /// <param name="voters">The voters that will support the new voter.</param>
         /// <param name="voterToJoin">The voter to join.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        bool Join(List<string> voters, string voterToJoin);
+        bool Join(List<Origin> voters, Origin voterToJoin);
         /// <summary>
         /// Delete an entire vote and all associated supporters.
         /// </summary>

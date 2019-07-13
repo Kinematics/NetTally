@@ -19,15 +19,15 @@ namespace NetTally.Experiment3
     /// </summary>
     public class RIRVRankVoteCounter : IRankVoteCounter2
     {
-        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>
-            CountVotesForTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> taskVotes)
+        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+            CountVotesForTask(VoteStorage taskVotes)
         {
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)> resultList
-                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>();
+            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> resultList
+                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>();
 
-            var workingVotes = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(taskVotes);
+            var workingVotes = new VoteStorage(taskVotes);
 
             while (workingVotes.Count > 0)
             {
@@ -47,8 +47,8 @@ namespace NetTally.Experiment3
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="rankedVotes">The votes, ranked.</param>
         /// <returns></returns>
-        private (KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, double score)
-            GetWinningVote(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        private (KeyValuePair<VoteLineBlock, VoterStorage> vote, double score)
+            GetWinningVote(VoteStorage votes)
         {
             var options = GetTopTwoRatedOptions(votes);
 
@@ -57,7 +57,7 @@ namespace NetTally.Experiment3
                 return options[0];
             }
 
-            KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> winner =
+            KeyValuePair<VoteLineBlock, VoterStorage> winner =
                 GetOptionWithHigherPrefCount(options[0].option, options[1].option);
 
             return (winner, winner.Key == options[0].option.Key ? options[0].score : options[1].score);
@@ -69,8 +69,8 @@ namespace NetTally.Experiment3
         /// <param name="rankedVotes">The group votes.</param>
         /// <param name="option1">The top rated option. Null if there aren't any options available.</param>
         /// <param name="option2">The second rated option.  Null if there is only one option available.</param>
-        private List<(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> option, double score)>
-            GetTopTwoRatedOptions(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        private List<(KeyValuePair<VoteLineBlock, VoterStorage> option, double score)>
+            GetTopTwoRatedOptions(VoteStorage votes)
         {
             var scoredVotes = from vote in votes
                               select new { vote, score = RankScoring.LowerWilsonScore(vote) };
@@ -91,9 +91,9 @@ namespace NetTally.Experiment3
         /// <param name="option1">The first option up for consideration.</param>
         /// <param name="option2">The second option up for consideration.</param>
         /// <returns>Returns the winning option.</returns>
-        private KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> GetOptionWithHigherPrefCount(
-            KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> option1,
-            KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> option2)
+        private KeyValuePair<VoteLineBlock, VoterStorage> GetOptionWithHigherPrefCount(
+            KeyValuePair<VoteLineBlock, VoterStorage> option1,
+            KeyValuePair<VoteLineBlock, VoterStorage> option2)
         {
             var voters1 = option1.Value;
             var voters2 = option2.Value;

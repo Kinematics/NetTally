@@ -97,8 +97,11 @@ namespace NetTally
             VoterView1 = new ListCollectionView(this.mainViewModel.AllVotersCollection);
             VoterView2 = new ListCollectionView(this.mainViewModel.AllVotersCollection);
 
-            VoterView1.Filter = (a) => FilterVoters(VoteView1, a as string);
-            VoterView2.Filter = (a) => FilterVoters(VoteView2, a as string);
+            VoterView1.CustomSort = Comparer.Default;
+            VoterView2.CustomSort = Comparer.Default;
+
+            VoterView1.Filter = (a) => FilterVoters(VoteView1, a as Origin);
+            VoterView2.Filter = (a) => FilterVoters(VoteView2, a as Origin);
 
             // Update the voters to match the votes.
             VoterView1.Refresh();
@@ -219,7 +222,7 @@ namespace NetTally
 
             var voters = mainViewModel.GetVoterListForVote(vote);
 
-            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter, filterString, CompareOptions.IgnoreCase) >= 0);
+            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter.Author, filterString, CompareOptions.IgnoreCase) >= 0);
         }
 
         /// <summary>
@@ -227,12 +230,12 @@ namespace NetTally
         /// be displayed in the voter list box, for each vote that is selected.
         /// </summary>
         /// <param name="voteView">The view of the main vote box.</param>
-        /// <param name="voterName">The name of the voter being checked.</param>
+        /// <param name="voter">The name of the voter being checked.</param>
         /// <returns>Returns true if that voter supports the currently selected
         /// vote in the vote view.</returns>
-        private bool FilterVoters(ICollectionView voteView, string? voterName)
+        private bool FilterVoters(ICollectionView voteView, Origin? voter)
         {
-            if (voterName == null)
+            if (voter == null)
                 return false;
 
             if (voteView.IsEmpty)
@@ -241,7 +244,7 @@ namespace NetTally
             if (voteView.CurrentItem is VoteLineBlock currentVote)
             {
                 var voters = mainViewModel.GetVoterListForVote(currentVote);
-                return voters.Contains(voterName);
+                return voters.Contains(voter);
             }
 
             return false;
@@ -300,8 +303,11 @@ namespace NetTally
             if (VoterView2.CurrentItem == null)
                 return;
 
-            List<string> fromVoters = votersFromListBox.Items.SourceCollection.OfType<string>().ToList();
-            string joinVoter = VoterView2.CurrentItem.ToString();
+            List<Origin> fromVoters = votersFromListBox.Items.SourceCollection.OfType<Origin>().ToList();
+            Origin? joinVoter = VoterView2.CurrentItem as Origin;
+
+            if (joinVoter == null)
+                return;
 
             try
             {

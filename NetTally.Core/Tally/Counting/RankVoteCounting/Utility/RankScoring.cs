@@ -163,7 +163,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         /// </summary>
         /// <param name="votes">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static (double score, int count) LowerWilsonScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        public static (double score, int count) LowerWilsonScore(KeyValuePair<VoteLineBlock, VoterStorage> votes)
         {
             int n = votes.Value.Count(v => v.Value.MarkerType == MarkerType.Rank);
 

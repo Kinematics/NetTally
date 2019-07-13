@@ -119,22 +119,22 @@ namespace NetTally.Experiment3
         /// that type.  Vote types are gathered when any votes are of that type.
         /// </summary>
         /// <returns>Returns the grouped collection.</returns>
-        private Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>> GetVoteGroupings()
+        private Dictionary<MarkerType, VoteStorage> GetVoteGroupings()
         {
-            Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>> group =
-                new Dictionary<MarkerType, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>>
+            Dictionary<MarkerType, VoteStorage> group =
+                new Dictionary<MarkerType, VoteStorage>
                 {
-                    [MarkerType.Rank] = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(),
-                    [MarkerType.Score] = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(),
-                    [MarkerType.Approval] = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>(),
-                    [MarkerType.Vote] = new Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>>()
+                    [MarkerType.Rank] = new VoteStorage(),
+                    [MarkerType.Score] = new VoteStorage(),
+                    [MarkerType.Approval] = new VoteStorage(),
+                    [MarkerType.Vote] = new VoteStorage()
                 };
 
             MarkerType[] markers = { MarkerType.Rank, MarkerType.Score, MarkerType.Approval };
 
             foreach (var marker in markers)
             {
-                foreach (var block in voteCounter.VoteBlockSupporters)
+                foreach (var block in voteCounter.VoteStorage)
                 {
                     // Using the default threshold for 'Most'.  Change if necessary.
                     if (block.Value.Most(v => v.Value.MarkerType == marker))
@@ -144,7 +144,7 @@ namespace NetTally.Experiment3
                 }
             }
 
-            foreach (var block in voteCounter.VoteBlockSupporters)
+            foreach (var block in voteCounter.VoteStorage)
             {
                 if (block.Value.Any(v => v.Value.MarkerType == MarkerType.Vote))
                 {
@@ -245,7 +245,7 @@ namespace NetTally.Experiment3
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructOutput(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes, MarkerType marker, CancellationToken token)
+        private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
         {
             if (votes.Count == 0)
             {
@@ -274,16 +274,16 @@ namespace NetTally.Experiment3
                     switch (marker)
                     {
                         case MarkerType.Vote:
-                            ConstructNormalOutput(task, token);
+                            ConstructNormalOutput(task);
                             break;
                         case MarkerType.Score:
-                            ConstructScoredOutput(task, token);
+                            ConstructScoredOutput(task);
                             break;
                         case MarkerType.Approval:
-                            ConstructApprovedOutput(task, token);
+                            ConstructApprovedOutput(task);
                             break;
                         case MarkerType.Rank:
-                            ConstructRankedOutput(task, token);
+                            ConstructRankedOutput(task);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
@@ -298,8 +298,8 @@ namespace NetTally.Experiment3
             /// </summary>
             /// <param name="votes">The original vote set.</param>
             /// <returns>Returns the votes grouped by task.</returns>
-            IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>>>
-                GetVotesGroupedByTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+            IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>>
+                GetVotesGroupedByTask(VoteStorage votes)
             {
                 var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
 
@@ -312,13 +312,13 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Construct vote output per task for standard votes.
         /// </summary>
-        /// <param name="task">The group of votes falling under a task.</param>
+        /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructNormalOutput(IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>> task, CancellationToken token)
+        private void ConstructNormalOutput(IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>> votesInTask)
         {
-            bool multiline = task.Any(a => a.Key.Lines.Count > 1);
+            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
-            var voteResults = task.Select(v => new { vote = v, supportCount = voteInfo.GetVoteVoterCount(v) });
+            var voteResults = votesInTask.Select(v => new { vote = v, supportCount = voteInfo.GetVoteVoterCount(v) });
 
             var orderedResults = voteResults.OrderByDescending(a => a.supportCount).ThenBy(a => a.vote.Key.First().CleanContent);
 
@@ -338,13 +338,13 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Construct vote output per task for scored votes.
         /// </summary>
-        /// <param name="task">The group of votes falling under a task.</param>
+        /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructScoredOutput(IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>> task, CancellationToken token)
+        private void ConstructScoredOutput(IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>> votesInTask)
         {
-            bool multiline = task.Any(a => a.Key.Lines.Count > 1);
+            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
-            var voteResults = task.Select(v => new { vote = v, score = voteInfo.GetVoteScoreResult(v) });
+            var voteResults = votesInTask.Select(v => new { vote = v, score = voteInfo.GetVoteScoreResult(v) });
 
             var orderedResults = voteResults.OrderByDescending(a => a.score.limitScore).ThenBy(a => a.vote.Key.First().CleanContent);
 
@@ -363,13 +363,13 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Construct vote output per task for approval votes.
         /// </summary>
-        /// <param name="task">The group of votes falling under a task.</param>
+        /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructApprovedOutput(IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>> task, CancellationToken token)
+        private void ConstructApprovedOutput(IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>> votesInTask)
         {
-            bool multiline = task.Any(a => a.Key.Lines.Count > 1);
+            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
-            var voteResults = task.Select(v => new { vote = v, support = voteInfo.GetVoteApprovalResult(v) });
+            var voteResults = votesInTask.Select(v => new { vote = v, support = voteInfo.GetVoteApprovalResult(v) });
 
             var orderedResults = voteResults.OrderByDescending(a => a.support).ThenBy(a => a.vote.Key.First().CleanContent);
 
@@ -388,11 +388,11 @@ namespace NetTally.Experiment3
         /// <summary>
         /// Construct vote output per task for ranked votes.
         /// </summary>
-        /// <param name="task">The group of votes falling under a task.</param>
+        /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructRankedOutput(IGrouping<string, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>>> task, CancellationToken token)
+        private void ConstructRankedOutput(IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>> votesInTask)
         {
-            var taskVotes = task.ToDictionary(a => a.Key, b => b.Value);
+            var taskVotes = new VoteStorage(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
 
             bool multiline = results.Any(a => a.vote.Key.Lines.Count> 1);
@@ -497,7 +497,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="vote">The vote to display.</param>
         /// <param name="supportCount">The support the vote has.</param>
-        private void AddStandardVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, int supportCount)
+        private void AddStandardVoteDisplay(KeyValuePair<VoteLineBlock, VoterStorage> vote, int supportCount)
         {
             // TODO: Make sure to properly handle BBCode conversion
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
@@ -512,7 +512,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="vote">The vote to display.</param>
         /// <param name="approval">The approval the vote has.</param>
-        private void AddApprovalVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int positive, int negative) approval)
+        private void AddApprovalVoteDisplay(KeyValuePair<VoteLineBlock, VoterStorage> vote, (int positive, int negative) approval)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine(vote.Key.ToOutputString($"+{approval.positive}/-{approval.negative}"));
@@ -526,7 +526,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="vote">The vote to display.</param>
         /// <param name="approval">The score the vote has.</param>
-        private void AddScoreVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int simpleScore, double limitScore) score)
+        private void AddScoreVoteDisplay(KeyValuePair<VoteLineBlock, VoterStorage> vote, (int simpleScore, double limitScore) score)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine(vote.Key.ToOutputString($"{score.simpleScore}%"));
@@ -540,7 +540,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="vote">The vote to display.</param>
         /// <param name="approval">The rank the vote has.</param>
-        private void AddRankVoteDisplay(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote, (int rank, double rankScore) ranking)
+        private void AddRankVoteDisplay(KeyValuePair<VoteLineBlock, VoterStorage> vote, (int rank, double rankScore) ranking)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine(vote.Key.ToOutputString($"#{ranking.rank}"));
@@ -553,7 +553,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="voters">The voters to add.</param>
         /// <param name="spoilerLabel">An optional spoiler label to use.</param>
-        private void AddStandardVoters(Dictionary<string, VoteLineBlock> voters, string spoilerLabel = "Voters")
+        private void AddStandardVoters(VoterStorage voters, string spoilerLabel = "Voters")
         {
             // LATER: Is spoilerLabel ever used?
             if (displayMode == DisplayMode.NormalNoVoters || displayMode == DisplayMode.CompactNoVoters)
@@ -576,7 +576,7 @@ namespace NetTally.Experiment3
         /// </summary>
         /// <param name="voters">List of voters.</param>
         /// <param name="spoilerLabel">Optional spoiler label.</param>
-        private void AddRankedVoters(Dictionary<string, VoteLineBlock> voters, string spoilerLabel = "Voters")
+        private void AddRankedVoters(VoterStorage voters, string spoilerLabel = "Voters")
         {
             if (displayMode == DisplayMode.NormalNoVoters || displayMode == DisplayMode.CompactNoVoters)
                 return;
@@ -596,16 +596,12 @@ namespace NetTally.Experiment3
         /// Add an individual voter line, with permalink.
         /// </summary>
         /// <param name="voter">The voter to add.</param>
-        private void AddVoter(KeyValuePair<string, VoteLineBlock> voter, MarkerType marker = MarkerType.None)
+        private void AddVoter(KeyValuePair<Origin, VoteLineBlock> voter, MarkerType marker = MarkerType.None)
         {
-            var (permalink, plan) = voteInfo.GetVoterPostPermalink(voter.Key);
-            string name = voter.Key;
-            if (name[0] == Strings.PlanNameMarkerChar) name = name.Substring(1);
-
-            if (plan) sb.Append("[b]");
+            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("[b]");
 
             string markerToDisplay;
-            if (plan)
+            if (voter.Key.AuthorType == IdentityType.Plan)
                 markerToDisplay = Strings.PlanNameMarker;
             else if (marker == MarkerType.Rank && voter.Value.MarkerType != MarkerType.Rank)
                 markerToDisplay = Strings.NoRankMarker;
@@ -616,15 +612,15 @@ namespace NetTally.Experiment3
             sb.Append(markerToDisplay);
             sb.Append("] ");
 
-            if (plan) sb.Append("Plan: ");
+            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("Plan: ");
 
             sb.Append("[url=\"");
-            sb.Append(permalink);
+            sb.Append(voter.Key.Permalink);
             sb.Append("\"]");
-            sb.Append(name);
+            sb.Append(voter.Key.Author);
             sb.Append("[/url]");
 
-            if (plan) sb.Append("[/b]");
+            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("[/b]");
 
             sb.AppendLine();
         }

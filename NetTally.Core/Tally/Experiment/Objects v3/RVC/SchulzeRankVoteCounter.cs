@@ -9,8 +9,8 @@ namespace NetTally.Experiment3
 {
     public class SchulzeRankVoteCounter : IRankVoteCounter2
     {
-        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>
-            CountVotesForTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> taskVotes)
+        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+            CountVotesForTask(VoteStorage taskVotes)
         {
             int[,] pairwisePreferences = GetPairwisePreferences(taskVotes);
 
@@ -18,13 +18,13 @@ namespace NetTally.Experiment3
 
             int[,] winningPaths = GetWinningPaths(strongestPaths, taskVotes.Count);
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)> winningChoices = 
+            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> winningChoices = 
                 GetResultsInOrder(winningPaths, taskVotes);
 
             return winningChoices;
         }
 
-        private int[,] GetPairwisePreferences(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> taskVotes)
+        private int[,] GetPairwisePreferences(VoteStorage taskVotes)
         {
             int[,] pairwisePreferences = new int[taskVotes.Count, taskVotes.Count];
 
@@ -149,8 +149,8 @@ namespace NetTally.Experiment3
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>
-            GetResultsInOrder(int[,] winningPaths, Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> listOfChoices)
+        private List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+            GetResultsInOrder(int[,] winningPaths, Dictionary<VoteLineBlock, VoterStorage> listOfChoices)
         {
             int count = listOfChoices.Count;
 
@@ -170,8 +170,8 @@ namespace NetTally.Experiment3
 
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)> resultList
-                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>();
+            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> resultList
+                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>();
 
             foreach (var res in orderPaths)
             {

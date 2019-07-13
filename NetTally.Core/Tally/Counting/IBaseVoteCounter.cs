@@ -14,7 +14,7 @@ namespace NetTally.VoteCounting
 
     public interface IRankVoteCounter2
     {
-        List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> vote)>
-            CountVotesForTask(Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> taskVotes);
+        List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+            CountVotesForTask(VoteStorage taskVotes);
     }
 }

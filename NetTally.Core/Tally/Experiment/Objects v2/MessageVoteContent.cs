@@ -292,8 +292,6 @@ namespace NetTally.Votes.Experiment2
                         else
                             markerValue = -1;
                     }
-                    else if (m.Groups["continuation"].Success)
-                        markerType = MarkerType.Continuation;
 
                     if (m.Groups["value"].Success)
                     {

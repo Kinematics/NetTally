@@ -120,11 +120,11 @@ namespace NetTally
         public enum MarkerType
         {
             None,
+            Plan,
             Vote,
             Rank,
             Score,
             Approval,
-            Continuation // Obsolete; delete when experimental stuff is removed.
         }
 
         /// <summary>
