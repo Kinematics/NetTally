@@ -38,9 +38,7 @@ namespace NetTally.Tests.Experiment3
         #region Sample Posts
         Post GetPost1()
         {
-            string author = "Kinematics";
-            string postId = "123456";
-            int postNumber = 10;
+            Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"Tentative vote idea:
 [x][Action] Go to the warehouse~
@@ -48,7 +46,7 @@ namespace NetTally.Tests.Experiment3
 But might include something else...
 [x] Loot the boxes";
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
             voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
@@ -56,15 +54,13 @@ But might include something else...
 
         Post GetPost2()
         {
-            string author = "Karma1";
-            string postId = "123457";
-            int postNumber = 11;
+            Origin origin = new Origin("Karma1", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I agree.
 [x][Action] Go to the warehouse~
 [x] Loot the boxes";
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
             voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
@@ -72,16 +68,14 @@ But might include something else...
 
         Post GetPost3()
         {
-            string author = "Quincy";
-            string postId = "123458";
-            int postNumber = 12;
+            Origin origin = new Origin("Quincy", "123458", 12, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I have a better idea.
 [x][Action] Go to the docks
 -[x] With the motorcycle
 [x] And catch them in the act.";
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
             voteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;

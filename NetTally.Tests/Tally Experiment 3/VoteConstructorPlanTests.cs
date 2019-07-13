@@ -13,6 +13,7 @@ namespace NetTally.Tests.Experiment3
         static IServiceProvider serviceProvider;
         static VoteConstructor voteConstructor;
         static IQuest sampleQuest;
+        static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -30,14 +31,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText = 
 @"[x] Line 1
 [x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -52,14 +50,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -74,14 +69,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Base Plan Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -97,14 +89,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Proposed plan: Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -120,13 +109,10 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Base Plan Cyclops";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -141,15 +127,12 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Proposed plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -166,16 +149,13 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Before
 [x] Proposed plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(4, post.VoteLines.Count);
@@ -194,14 +174,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Line 1
 [x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -216,14 +193,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -239,14 +213,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Base Plan Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -262,13 +233,10 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -283,15 +251,12 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -308,16 +273,13 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Before
 [x] Plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(4, post.VoteLines.Count);
@@ -336,14 +298,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Line 1
 [x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -358,14 +317,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops
 -[x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -380,14 +336,11 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops
 [x] Line 2";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -403,13 +356,10 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan Cyclops";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -424,15 +374,12 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -447,15 +394,12 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Plan: Cyclops
 [x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -472,16 +416,13 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string author = "Kinematics";
-            string postId = "123456";
             string postText =
 @"[x] Before
 [x] Plan: Cyclops
 -[x] Line 2
 [x] Extra";
-            int postNumber = 10;
 
-            Post post = new Post(author, postId, postText, postNumber);
+            Post post = new Post(origin, postText);
 
             Assert.IsTrue(post.IsVote);
             Assert.AreEqual(4, post.VoteLines.Count);

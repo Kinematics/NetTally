@@ -52,7 +52,7 @@ namespace NetTally.Experiment3
 
                 if (isPlan && 
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                    IsValidPlanName(planName, post.Author) && 
+                    IsValidPlanName(planName, post.Origin.Author) && 
                     IsTaskAllowed(block, quest))
                 {
                     plans[planName] = block;
@@ -236,7 +236,7 @@ namespace NetTally.Experiment3
                     // Users
                     else
                     {
-                        int postSearchLimit = isPinnedUser ? post.IDValue : 0;
+                        PostId postSearchLimit = isPinnedUser ? post.Origin.ID : PostId.Zero;
 
                         Post? refUserPost = voteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
@@ -291,11 +291,13 @@ namespace NetTally.Experiment3
 
                 if (isProposedPlan)
                 {
-                    int originalPostIdForPlan = voteCounter.GetPlanReferencePostId(proposedPlanName);
-                    if (originalPostIdForPlan == post.IDValue)
-                    {
+                    PostId? originalPostIdForPlan = voteCounter.GetPlanReferencePostId(proposedPlanName);
+
+                    if (originalPostIdForPlan is null)
+                        return false;
+
+                    if (originalPostIdForPlan == post.Origin.ID)
                         return true;
-                    }
                 }
 
                 return false;

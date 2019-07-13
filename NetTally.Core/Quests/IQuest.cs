@@ -109,7 +109,7 @@ namespace NetTally
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
-        HashSet<int> PostsToFilter { get; }
+        HashSet<long> PostsToFilter { get; }
 
         // Formatting options for handling votes:
 

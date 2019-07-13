@@ -35,9 +35,9 @@ namespace NetTally.VoteCounting
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
         HashSet<string> ReferencePlanNames { get; set; } = new HashSet<string>(Agnostic.StringComparer);
         HashSet<string> ReferenceVoterNames { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, int> PlanMessageId { get; set; } = new Dictionary<string, int>(Agnostic.StringComparer);
-        Dictionary<string, int> VoterReferenceMessageId { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, int> VoterMessageId { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, PostId> PlanMessageId { get; set; } = new Dictionary<string, PostId>(Agnostic.StringComparer);
+        Dictionary<string, PostId> VoterReferenceMessageId { get; } = new Dictionary<string, PostId>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, PostId> VoterMessageId { get; } = new Dictionary<string, PostId>(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, VoteLineBlock> ReferencePlans { get; set; } = new Dictionary<string, VoteLineBlock>(Agnostic.InsensitiveComparer);
         #endregion
 
@@ -110,7 +110,7 @@ namespace NetTally.VoteCounting
                 ReferencePlanNames = new HashSet<string>(Agnostic.StringComparer);
 
             if (PlanMessageId.Comparer != Agnostic.StringComparer)
-                PlanMessageId = new Dictionary<string, int>(Agnostic.StringComparer);
+                PlanMessageId = new Dictionary<string, PostId>(Agnostic.StringComparer);
 
             OnPropertyChanged("VoteCounter");
             OnPropertyChanged("Tasks");
@@ -171,7 +171,7 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The post ID the plan was defined in.</param>
         /// <param name="planBlock">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        public bool AddReferencePlan(string planName, int postID, VoteLineBlock planBlock)
+        public bool AddReferencePlan(string planName, PostId postID, VoteLineBlock planBlock)
         {
             if (!ReferencePlanNames.Contains(planName, Agnostic.StringComparer))
             {
@@ -193,7 +193,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The proper name of the voter.</param>
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-        public bool AddReferenceVoter(string voterName, int postID)
+        public bool AddReferenceVoter(string voterName, PostId postID)
         {
             bool added = ReferenceVoterNames.Add(voterName);
             VoterReferenceMessageId[voterName] = postID;
@@ -238,7 +238,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="planName">The name of the plan to check on.</param>
         /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
-        public int GetPlanReferencePostId(string planName)
+        public PostId? GetPlanReferencePostId(string planName)
         {
             return PlanMessageId.GetValueOrDefault(planName);
         }
@@ -248,7 +248,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterName">The name of the voter to check on.</param>
         /// <returns>Returns the post ID for the voter, or null if not found.</returns>
-        public int GetVoterReferencePostId(string voterName)
+        public PostId? GetVoterReferencePostId(string voterName)
         {
             return VoterReferenceMessageId.GetValueOrDefault(voterName);
         }
@@ -259,7 +259,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="voterName">The name of the voter to check for.</param>
         /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-        public int GetLatestVoterPostId(string voterName)
+        public PostId? GetLatestVoterPostId(string voterName)
         {
             return VoterMessageId.GetValueOrDefault(voterName);
         }
@@ -271,15 +271,15 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The voter being queried.</param>
         /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
         /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-        public Post? GetLastPostByAuthor(string author, int maxPostId = 0)
+        public Post? GetLastPostByAuthor(string author, PostId maxPostId)
         {
             if (!HasVoter(author))
                 return null;
 
             var lastAuthorPost = postsList.Where(p =>
-                                                Agnostic.StringComparer.Equals(author, p.Author)
-                                                && (maxPostId == 0 || p.IDValue < maxPostId))
-                                          .MaxObject(p => p.IDValue);
+                                                Agnostic.StringComparer.Equals(author, p.Origin.Author)
+                                                && (maxPostId == 0 || p.Origin.ID < maxPostId))
+                                          .MaxObject(p => p.Origin.ID);
 
             return lastAuthorPost;
         }
@@ -421,10 +421,10 @@ namespace NetTally.VoteCounting
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
 
-            if (!HasVoter(post.Author))
+            if (!HasVoter(post.Origin.Author))
                 return false;
 
-            var processedPosts = Posts.Where(p => p.Processed && p.Author == post.Author && p.IDValue > post.IDValue);
+            var processedPosts = Posts.Where(p => p.Processed && p.Origin.Author == post.Origin.Author && p.Origin.ID > post.Origin.ID);
 
             return (processedPosts.Any());
         }
@@ -439,7 +439,7 @@ namespace NetTally.VoteCounting
         /// <param name="voter">The voter for this vote.</param>
         /// <param name="postID">The post ID for this vote.</param>
         /// <param name="voteType">The type of vote being added.</param>
-        public void AddVotes(IEnumerable<VoteLineBlock> votePartitions, string voter, int postID)
+        public void AddVotes(IEnumerable<VoteLineBlock> votePartitions, string voter, PostId postID)
         {
             if (!votePartitions.Any())
                 return;

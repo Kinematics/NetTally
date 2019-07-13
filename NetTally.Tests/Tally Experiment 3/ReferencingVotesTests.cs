@@ -39,7 +39,7 @@ namespace NetTally.Tests.Experiment3
         #endregion
 
         #region Define post text
-
+        /*
         readonly static string oneLine = @"[X] Run Lola Run!";
         readonly static string oneLineTask = @"[X][Movie] Run Lola Run!";
         readonly static string twoLine = @"[X] Run Lola Run!
@@ -61,28 +61,36 @@ namespace NetTally.Tests.Experiment3
         readonly static string refKinematicsApprove = @"[+] Kinematics";
         readonly static string refAtreyaApprove = @"[+] Atreya";
         readonly static string refKimberlyApprove = @"[-] Kimberly";
-
+        */
         #endregion
 
         #region Generate user posts
         Post GetPostFromUser1(string postText)
         {
-            return new Post("Kinematics", "123456", postText, 100);
+            Origin origin = new Origin("Kinematics", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+
+            return new Post(origin, postText);
         }
 
         Post GetPostFromUser2(string postText)
         {
-            return new Post("Atreya", "123457", postText, 101);
+            Origin origin = new Origin("Atreya", "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+
+            return new Post(origin, postText);
         }
 
         Post GetPostFromUser3(string postText)
         {
-            return new Post("Kimberly", "123458", postText, 102);
+            Origin origin = new Origin("Kimberly", "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
+
+            return new Post(origin, postText);
         }
 
         Post GetPostFromUser4(string postText)
         {
-            return new Post("Kinematics", "123459", postText, 103);
+            Origin origin = new Origin("Kinematics", "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
+
+            return new Post(origin, postText);
         }
         #endregion
 

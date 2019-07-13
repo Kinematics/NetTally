@@ -126,5 +126,27 @@ namespace NetTally.Tests.Experiment3
             Assert.IsFalse(id1 == id2);
         }
 
+        [TestMethod]
+        public void Compare_String_Equal()
+        {
+            PostId id1 = new PostId("2701897");
+            PostId id2 = new PostId("2701897");
+            Assert.AreEqual(id1, id2);
+            Assert.IsTrue(id1.CompareTo(id2.Text) == 0);
+            Assert.IsTrue(id1.Equals("2701897"));
+        }
+
+        [TestMethod]
+        public void Compare_String_Diff()
+        {
+            PostId id1 = new PostId("2701897");
+            PostId id2 = new PostId("2701911");
+            Assert.AreNotEqual(id1, id2);
+            Assert.IsTrue(id1.CompareTo("2701911") == -1);
+            Assert.IsFalse(id1.Equals("2701911"));
+            Assert.IsTrue(id1 < "2701911");
+            Assert.IsFalse(id1 == "2701911");
+        }
+
     }
 }

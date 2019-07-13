@@ -537,13 +537,11 @@ namespace NetTally.Forums.Adapters
             number = int.Parse(postNumberText);
 
             Experiment3.Post? post;
-            NetTally.Experiment3.Post? post1;
-
+            
             try
             {
-                post = new Experiment3.Post(author, id, text, number, quest);
-
-                post1 = new Experiment3.Post(author, id, text, number);
+                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Experiment3.Post(origin, text);
             }
             catch (Exception e)
             {

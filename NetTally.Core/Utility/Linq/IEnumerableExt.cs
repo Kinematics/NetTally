@@ -11,6 +11,7 @@ namespace NetTally.Extensions
     /// </summary>
     static class IEnumerableExt
     {
+#nullable disable
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.
         /// </summary>
@@ -124,7 +125,6 @@ namespace NetTally.Extensions
 
             return max;
         }
-
 
         /// <summary>
         /// Returns a collection of items from the provided enumerable that match the
@@ -344,6 +344,7 @@ namespace NetTally.Extensions
 
             return ((double)pass / (pass + fail) >= threshold);
         }
+#nullable enable
 
 
         public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)

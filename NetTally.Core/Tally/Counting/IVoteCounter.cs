@@ -78,7 +78,7 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The post ID the plan was defined in.</param>
         /// <param name="planBlock">The the vote line block that defines the plan.</param>
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
-        bool AddReferencePlan(string planName, int postID, VoteLineBlock planBlock);
+        bool AddReferencePlan(string planName, PostId postID, VoteLineBlock planBlock);
         /// <summary>
         /// Store a voter and their post ID.
         /// This is expecting to be called for every vote by the user,
@@ -87,7 +87,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The proper name of the voter.</param>
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-        bool AddReferenceVoter(string voterName, int postID);
+        bool AddReferenceVoter(string voterName, PostId postID);
         /// <summary>
         /// Add a post to a store of future references made.
         /// </summary>
@@ -112,20 +112,20 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="planName">The name of the plan to check on.</param>
         /// <returns>Returns the post ID for where the plan was defined, or null if not found.</returns>
-        int GetPlanReferencePostId(string planName);
+        PostId? GetPlanReferencePostId(string planName);
         /// <summary>
         /// Get the post ID stored for the specified voter.  This will always be the last one entered.
         /// </summary>
         /// <param name="voterName">The name of the voter to check on.</param>
         /// <returns>Returns the post ID for the voter, or null if not found.</returns>
-        int GetVoterReferencePostId(string voterName);
+        PostId? GetVoterReferencePostId(string voterName);
         /// <summary>
         /// Get the ID of the post by the specified author at the time of the request.
         /// This may change over the course of a tally.
         /// </summary>
         /// <param name="voterName">The name of the voter to check for.</param>
         /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-        int GetLatestVoterPostId(string voterName);
+        PostId? GetLatestVoterPostId(string voterName);
         /// <summary>
         /// Get the last post made by a given author.
         /// Possibly restrict the search range to no more than the specified post ID.
@@ -133,7 +133,7 @@ namespace NetTally.VoteCounting
         /// <param name="voterName">The voter being queried.</param>
         /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
         /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-        Post? GetLastPostByAuthor(string voterName, int maxPostId = 0);
+        Post? GetLastPostByAuthor(string voterName, PostId maxPostId);
         /// <summary>
         /// Get the reference plan corresponding to the provided plan name.
         /// </summary>
@@ -196,7 +196,7 @@ namespace NetTally.VoteCounting
         /// <param name="voter">The voter.</param>
         /// <param name="postID">The ID of the vote post.</param>
         /// <param name="voteType">The type of vote.</param>
-        void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, int postID);
+        void AddVotes(IEnumerable<VoteLineBlock> voteParts, string voter, PostId postID);
         /// <summary>
         /// Merge the vote supporters from one vote into another.
         /// </summary>

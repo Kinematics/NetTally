@@ -3,10 +3,12 @@ using System.Globalization;
 
 namespace NetTally.Experiment3
 {
-    public class PostId : IComparable, IComparable<PostId>, IComparable<long>, IEquatable<PostId>, IEquatable<long>
+    public class PostId : IComparable, IComparable<PostId?>, IComparable<long>, IComparable<string>, IEquatable<PostId?>, IEquatable<long>, IEquatable<string>
     {
         public string Text { get; }
         public long Value { get; }
+
+        public static PostId Zero = new PostId("0");
 
         public PostId(string input)
         {
@@ -60,6 +62,7 @@ namespace NetTally.Experiment3
                 null => 1,
                 PostId other => Compare(this, other),
                 long otherValue => Compare(this, otherValue),
+                string stringValue => this.CompareTo(stringValue),
                 _ => -1
             };
         }
@@ -71,14 +74,17 @@ namespace NetTally.Experiment3
                 null => false,
                 PostId other => Equals(other),
                 long longValue => Equals(longValue),
+                string stringValue => Equals(stringValue),
                 _ => false
             };
         }
 
         public bool Equals(long other) => Compare(this, other) == 0;
-        public bool Equals(PostId other) => Compare(this, other) == 0;
+        public bool Equals(PostId? other) => Compare(this, other) == 0;
         public int CompareTo(long other) => Compare(this, other);
-        public int CompareTo(PostId other) => Compare(this, other);
+        public int CompareTo(PostId? other) => Compare(this, other);
+        public int CompareTo(string other) => string.Compare(this.Text, other);
+        public bool Equals(string other) => this.Text == other;
 
         public static bool operator >(PostId first, PostId second) => Compare(first, second) == 1;
         public static bool operator <(PostId first, PostId second) => Compare(first, second) == -1;
@@ -92,6 +98,12 @@ namespace NetTally.Experiment3
         public static bool operator <=(PostId first, long second) => Compare(first, second) <= 0;
         public static bool operator ==(PostId first, long second) => Compare(first, second) == 0;
         public static bool operator !=(PostId first, long second) => Compare(first, second) != 0;
+        public static bool operator >(PostId first, string second) => first.CompareTo(second) == 1;
+        public static bool operator <(PostId first, string second) => first.CompareTo(second) == -1;
+        public static bool operator >=(PostId first, string second) => first.CompareTo(second) >= 0;
+        public static bool operator <=(PostId first, string second) => first.CompareTo(second) <= 0;
+        public static bool operator ==(PostId first, string second) => first.CompareTo(second) == 0;
+        public static bool operator !=(PostId first, string second) => first.CompareTo(second) != 0;
         #endregion
     }
 }

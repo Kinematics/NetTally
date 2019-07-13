@@ -47,19 +47,19 @@ namespace NetTally.Output
             string permalink = string.Empty;
             bool plan = false;
 
-            int postID = voteCounter.GetVoterReferencePostId(voter);
+            PostId? postID = voteCounter.GetVoterReferencePostId(voter);
 
-            if (postID == 0)
+            if (postID is null)
             {
                 postID = voteCounter.GetPlanReferencePostId(voter);
 
-                if (postID != 0)
+                if (postID is null)
                     plan = true;
             }
 
-            if (postID != 0)
+            if (!(postID is null))
             {
-                permalink = forumAdapter.GetPermalinkForId(postID.ToString()) ?? string.Empty;
+                permalink = forumAdapter.GetPermalinkForId(postID.Text) ?? string.Empty;
             }
 
             return (permalink, plan);
@@ -304,7 +304,7 @@ namespace NetTally.Output
                 return planVoters.MinObject(v => votersCollection[v]);
             }
 
-            var nonFutureVoters = voters.Except(voteCounter.FutureReferences.Select(p => p.Author));
+            var nonFutureVoters = voters.Except(voteCounter.FutureReferences.Select(p => p.Origin.Author));
 
             if (nonFutureVoters.Any())
             {

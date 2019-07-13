@@ -267,7 +267,8 @@ namespace NetTally.Forums.Adapters
             Experiment3.Post? post;
             try
             {
-                post = new Experiment3.Post(author, id, text, number);
+                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Experiment3.Post(origin, text);
             }
             catch
             {

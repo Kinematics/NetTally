@@ -255,10 +255,12 @@ namespace NetTally.Forums
             var filtered = from post in postsList
                            where post.IsVote
                                 && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
-                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Author)) ||
-                                    (!quest.UseCustomUsernameFilters && post.Author != threadInfo.Author))
-                                && (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(post.Number) || quest.PostsToFilter.Contains(post.IDValue)))
-                           group post by post.Number into postNumGroup
+                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
+                                    || (!quest.UseCustomUsernameFilters && post.Origin.Author != threadInfo.Author))
+                                && (!quest.UseCustomPostFilters 
+                                    || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber) 
+                                    || quest.PostsToFilter.Contains(post.Origin.ID.Value)))
+                           group post by post.Origin.ThreadPostNumber into postNumGroup // Group to deal with sticky posts that should only be processed once.
                            orderby postNumGroup.Key
                            select postNumGroup.First();
 
@@ -267,12 +269,12 @@ namespace NetTally.Forums
 
         private bool PostIsAfterStart(Experiment3.Post post, ThreadRangeInfo rangeInfo)
         {
-            return (rangeInfo.ByNumber && post.Number >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.IDValue > rangeInfo.ID);
+            return (rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID);
         }
 
         private bool PostIsBeforeEnd(Experiment3.Post post, IQuest quest, ThreadRangeInfo rangeInfo)
         {
-            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost);
+            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost);
         }
         #endregion
     }

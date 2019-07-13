@@ -13,21 +13,9 @@ namespace NetTally.Experiment3
     {
         #region Properties and Construction
         /// <summary>
-        /// The author of the post.
+        /// The post's origin (author, post ID, site, etc)
         /// </summary>
-        public string Author { get; }
-        /// <summary>
-        /// The thread post number of the post.
-        /// </summary>
-        public int Number { get; }
-        /// <summary>
-        /// The unique ID of the post.
-        /// </summary>
-        public string ID { get; }
-        /// <summary>
-        /// The unique ID of the post as an integer.
-        /// </summary>
-        public int IDValue { get; }
+        public Origin Origin { get; }
         /// <summary>
         /// The text of the post.
         /// </summary>
@@ -69,18 +57,10 @@ namespace NetTally.Experiment3
         /// <param name="postId">The ID of the post.</param>
         /// <param name="text">The text of the post.</param>
         /// <param name="number">The thread post number.</param>
-        public Post(string author, string postId, string text, int number = 0, IQuest? quest = null)
+        public Post(Origin origin, string text)
         {
-            Author = author ?? throw new ArgumentNullException(nameof(author));
-            ID = postId ?? throw new ArgumentNullException(nameof(postId));
+            Origin = origin ?? throw new ArgumentNullException(nameof(origin));
             Text = text ?? throw new ArgumentNullException(nameof(text));
-            Number = number;
-
-            int.TryParse(postId, out int idnum);
-            if (idnum < 0)
-                throw new ArgumentOutOfRangeException($"Post ID is negative ({postId})");
-            IDValue = idnum;
-
             VoteLines = GetPostAnalysisResults(Text);
         }
         #endregion
@@ -188,10 +168,7 @@ namespace NetTally.Experiment3
             if (right is null)
                 return 1;
 
-            if (left.IDValue == 0 || right.IDValue == 0)
-                return string.Compare(left.ID, right.ID, StringComparison.Ordinal);
-
-            return left.IDValue.CompareTo(right.IDValue);
+            return left.Origin.ID.CompareTo(right.Origin.ID);
         }
 
         public int CompareTo(Post other)
@@ -216,7 +193,7 @@ namespace NetTally.Experiment3
 
         public override int GetHashCode()
         {
-            return ID.GetHashCode();
+            return Origin.GetHashCode();
         }
 
         public static bool operator >(Post first, Post second) => Compare(first, second) == 1;

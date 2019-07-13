@@ -9,12 +9,14 @@ namespace NetTally.Experiment3
     public class Origin : IComparable, IComparable<Origin>, IEquatable<Origin>
     {
         #region Construction and Properties
-        public string Author { get; private set; }
-        public IdentityType AuthorType { get; private set; }
-        public PostId ID { get; private set; }
-        public int ThreadPostNumber { get; private set; }
-        public Uri Thread { get; private set; }
-        public string Permalink { get; private set; }
+        public string Author { get; }
+        public IdentityType AuthorType { get; }
+        public PostId ID { get; }
+        public int ThreadPostNumber { get; }
+        public Uri Thread { get; }
+        public string Permalink { get; }
+
+        public static Origin Empty = new Origin("", "0", 0, new Uri("http://www.example.com/"), "http://www.example.com/");
 
         private readonly int hash;
 

@@ -17,6 +17,7 @@ namespace NetTally.Tests.Experiment3
         static VoteConstructor voteConstructor;
         static Tally tally;
         static IQuest quest;
+        static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -60,7 +61,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = oneLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.None;
 
@@ -76,7 +77,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = oneLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLine;
 
@@ -92,7 +93,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = oneLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByBlock;
 
@@ -108,7 +109,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = oneLineTask;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLineTask;
 
@@ -124,7 +125,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.None;
 
@@ -140,7 +141,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLine;
 
@@ -157,7 +158,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByBlock;
 
@@ -174,7 +175,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoLineTask;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLineTask;
 
@@ -191,7 +192,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = childLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.None;
 
@@ -207,7 +208,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = childLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLine;
 
@@ -224,7 +225,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = childLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByBlock;
 
@@ -240,7 +241,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = childLine;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLineTask;
 
@@ -257,7 +258,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoChunk;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.None;
 
@@ -273,7 +274,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoChunk;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLine;
 
@@ -291,7 +292,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoChunk;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByBlock;
 
@@ -308,7 +309,7 @@ namespace NetTally.Tests.Experiment3
         {
             string postText = twoChunk;
 
-            Post post = new Post("Kinematics", "123456", postText, 66);
+            Post post = new Post(origin, postText);
             voteCounter.Quest = quest;
             quest.PartitionMode = PartitionMode.ByLineTask;
 

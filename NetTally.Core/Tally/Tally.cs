@@ -442,7 +442,7 @@ namespace NetTally.VoteCounting
                 post.ForceProcess = false;
                 post.WorkingVoteComplete = false;
                 post.WorkingVote.Clear();
-                voteCounter.AddReferenceVoter(post.Author, post.IDValue);
+                voteCounter.AddReferenceVoter(post.Origin.Author, post.Origin.ID);
             }
 
             await Task.FromResult(0);
@@ -478,14 +478,14 @@ namespace NetTally.VoteCounting
                         // Set to an undefined marker.
                         (string normalPlanName, VoteLineBlock normalPlanContents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
 
-                        bool added = voteCounter.AddReferencePlan(normalPlanName, post.IDValue, normalPlanContents);
+                        bool added = voteCounter.AddReferencePlan(normalPlanName, post.Origin.ID, normalPlanContents);
 
                         if (added)
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
                             var planPartitions = voteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
-                            voteCounter.AddVotes(planPartitions, normalPlanName, post.IDValue);
+                            voteCounter.AddVotes(planPartitions, normalPlanName, post.Origin.ID);
 
                             allPlans.Add(normalPlanName, normalPlanContents);
                         }
@@ -526,7 +526,7 @@ namespace NetTally.VoteCounting
                     if (filteredResults != null)
                     {
                         // Add those to the vote counter.
-                        voteCounter.AddVotes(filteredResults, post.Author, post.IDValue);
+                        voteCounter.AddVotes(filteredResults, post.Origin.Author, post.Origin.ID);
                     }
                 }
 

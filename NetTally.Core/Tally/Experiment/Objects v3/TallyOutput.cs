@@ -207,10 +207,10 @@ namespace NetTally.Experiment3
 
                 foreach (var post in voteCounter.Posts)
                 {
-                    if (first == 0 || post.Number < first)
-                        first = post.Number;
-                    if (post.Number > last)
-                        last = post.Number;
+                    if (first == 0 || post.Origin.ThreadPostNumber < first)
+                        first = post.Origin.ThreadPostNumber;
+                    if (post.Origin.ThreadPostNumber > last)
+                        last = post.Origin.ThreadPostNumber;
                 }
 
                 return (first, last);
