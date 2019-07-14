@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using NetTally.Votes;
 using NetTally.Experiment3;
+using NetTally.Forums;
 
 namespace NetTally.VoteCounting
 {

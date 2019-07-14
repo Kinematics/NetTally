@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NetTally.Utility;
 using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Forums
 {
     public class Origin : IComparable, IComparable<Origin>, IEquatable<Origin>
     {

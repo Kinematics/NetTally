@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NetTally.Experiment3;
 using NetTally.Utility;
 using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Forums
 {
     /// <summary>
     /// Class to hold relevent post information when read from the forum.

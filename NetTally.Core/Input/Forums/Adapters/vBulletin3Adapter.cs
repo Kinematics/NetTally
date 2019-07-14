@@ -165,12 +165,12 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var postList = page?.GetElementbyId("posts");
 
             if (postList == null)
-                return new List<Experiment3.Post>();
+                return new List<Post>();
 
             var posts = from p in postList.Elements("div")
                         let post = GetPost(p, quest)
@@ -206,7 +206,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="postDiv">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private Experiment3.Post? GetPost(HtmlNode postDiv, IQuest quest)
+        private Post? GetPost(HtmlNode postDiv, IQuest quest)
         {
             string author = "";
             string id;
@@ -256,12 +256,12 @@ namespace NetTally.Forums.Adapters
             text = ForumPostTextConverter.ExtractPostText(postContents, exclusion, Host);
 
 
-            Experiment3.Post? post = null;
+            Post? post = null;
 
             try
             {
-                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
-                post = new Experiment3.Post(origin, text);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch
             {

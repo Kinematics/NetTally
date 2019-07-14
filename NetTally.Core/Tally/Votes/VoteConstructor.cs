@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;

@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Extensions;
+using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility;
 using NetTally.VoteCounting;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
 using NetTally.Votes;
 
 namespace NetTally.Experiment3
@@ -396,7 +396,7 @@ namespace NetTally.Experiment3
             var taskVotes = new VoteStorage(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
 
-            bool multiline = results.Any(a => a.vote.Key.Lines.Count> 1);
+            bool multiline = results.Any(a => a.vote.Key.Lines.Count > 1);
 
             foreach (var (ranking, vote) in results)
             {
