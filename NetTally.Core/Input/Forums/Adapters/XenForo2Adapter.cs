@@ -291,23 +291,51 @@ namespace NetTally.Forums.Adapters
                     XName titleName = XName.Get("title", "");
                     XName pubDate = XName.Get("pubDate", "");
 
-                    var filteredItems = from item in items
-                                        let title = item.Element(titleName).Value
-                                        where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
-                                                (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
-                                        let pub = item.Element(pubDate).Value
-                                        where string.IsNullOrEmpty(pub) == false
-                                        let pubStamp = DateTime.Parse(pub)
-                                        orderby pubStamp
-                                        select item;
+                    List<(XElement item, DateTime timestamp)> filterList = new List<(XElement, DateTime)>();
 
-                    var lastItem = filteredItems.LastOrDefault();
-
-                    if (lastItem != null)
+                    foreach (var item in items)
                     {
+                        var title = item.Element(titleName).Value;
+
+                        if (title.StartsWith("Threadmark: "))
+                        {
+                            title = title.Substring(12);
+                        }
+                        else if (title.StartsWith("Threadmark:"))
+                        {
+                            title = title.Substring(11);
+                        }
+
+                        if (quest.UseCustomThreadmarkFilters)
+                        {
+                            if (quest.ThreadmarkFilter.Match(title))
+                                continue;
+                        }
+                        else
+                        {
+                            if (DefaultThreadmarkFilter.Match(title))
+                                continue;
+                        }
+
+                        var pub = item.Element(pubDate).Value;
+
+                        if (string.IsNullOrEmpty(pub))
+                            continue;
+
+                        var pubStamp = DateTime.Parse(pub);
+
+                        filterList.Add((item, pubStamp));
+                    }
+
+                    if (filterList.Any())
+                    {
+                        var orderedList = filterList.OrderBy(a => a.timestamp);
+
+                        var pick = orderedList.Last().item;
+
                         XName linkName = XName.Get("link", "");
 
-                        var link = lastItem.Element(linkName);
+                        var link = pick.Element(linkName);
 
                         string href = link.Value;
 
@@ -335,6 +363,7 @@ namespace NetTally.Forums.Adapters
                             // Otherwise, take the provided values.
                             return new ThreadRangeInfo(false, 0, page, post);
                         }
+
                     }
                 }
             }

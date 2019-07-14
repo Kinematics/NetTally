@@ -366,7 +366,12 @@ namespace NetTally
                 e.Handled = true;
             }
         }
+        #endregion
 
+        #region Binding Properties
+        /// <summary>
+        /// Binding for the Undo button on the window.
+        /// </summary>
         public bool HasUndoActions => mainViewModel.HasUndoActions;
         #endregion
 

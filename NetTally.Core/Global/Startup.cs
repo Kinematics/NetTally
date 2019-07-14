@@ -25,22 +25,23 @@ namespace NetTally
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<ViewModelService>();
-
-            services.AddTransient<IPageProvider, WebPageProvider>();
-            services.AddTransient<HttpClientHandler, HttpClientHandler>();
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();
-            services.AddTransient<ForumReader>();
-            services.AddSingleton<IVoteCounter, VoteCounter>();
-            services.AddSingleton<Tally>();
             services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<CheckForNewRelease>();
+
+            services.AddTransient<HttpClientHandler, HttpClientHandler>();
+
+            services.AddSingleton<Tally>();
             services.AddSingleton<ForumAdapterFactory>();
+            services.AddSingleton<IVoteCounter, VoteCounter>();
+            services.AddTransient<IPageProvider, WebPageProvider>();
+            services.AddTransient<ForumReader>();
             services.AddTransient<VoteInfo>();
 
             services.AddSingleton<Experiment3.VoteConstructor>();
-            services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();
             services.AddSingleton<Experiment3.RankVoteCounterFactory>();
+            services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace NetTally.Experiment3
 
         public static Origin Empty = new Origin("", "0", 0, new Uri("http://www.example.com/"), "http://www.example.com/");
 
-        private readonly Uri exampleUri = new Uri("http://www.example.com/");
+        private static readonly Uri exampleUri = new Uri("http://www.example.com/");
         private readonly int hash;
         private readonly bool limitedToName;
 
