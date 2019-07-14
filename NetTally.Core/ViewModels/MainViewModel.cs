@@ -688,6 +688,8 @@ namespace NetTally.ViewModels
 
         public bool UndoVoteModification() => VoteCounter.Undo();
 
+        public bool HasUndoActions => VoteCounter.HasUndoActions;
+
         public IEnumerable<Origin> GetVoterListForVote(VoteLineBlock vote) => VoteCounter.GetVotersFor(vote);
 
         #endregion

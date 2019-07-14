@@ -366,6 +366,8 @@ namespace NetTally
                 e.Handled = true;
             }
         }
+
+        public bool HasUndoActions => mainViewModel.HasUndoActions;
         #endregion
 
         #region Context Menu events
