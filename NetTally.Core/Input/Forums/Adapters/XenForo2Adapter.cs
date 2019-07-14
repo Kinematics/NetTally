@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
+using NetTally.Input.Utility;
 using NetTally.Options;
 using NetTally.Utility;
 using NetTally.Web;

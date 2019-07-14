@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
-using NetTally.ViewModels;
 using NetTally.Web;
 
-namespace NetTally.Utility
+namespace NetTally
 {
     public class CheckForNewRelease : INotifyPropertyChanged
     {

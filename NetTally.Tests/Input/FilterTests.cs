@@ -1,8 +1,7 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
-using NetTally.Utility;
+using NetTally.Input.Utility;
 
 namespace NTTests.Utility
 {
