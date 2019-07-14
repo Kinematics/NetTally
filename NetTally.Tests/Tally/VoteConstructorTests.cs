@@ -12,6 +12,7 @@ using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
+using NetTally.Votes.Original;
 
 namespace NTTests.Voting
 {

@@ -15,7 +15,9 @@ namespace NetTally.Utility
         /// <summary>
         /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
         /// </summary>
-        public const char PlanNameMarker = '◈';
+        public const string PlanNameMarker = "◈";
+        public const char PlanNameMarkerChar = '◈';
+        public const string NoRankMarker = "⊘";
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
@@ -43,7 +45,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(name))
                 return false;
 
-            return (name[0] == PlanNameMarker);
+            return (name[0] == PlanNameMarkerChar);
         }
         #endregion
 

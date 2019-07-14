@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using NetTally.Experiment3;
 
 namespace NetTally.Converters
 {
@@ -28,9 +29,32 @@ namespace NetTally.Converters
             if (values.Any(v => v == null))
                 return false;
 
+            if (parameter.ToString() == "VoteLineBlock")
+            {
+                return CompareVoteLineBlockValues(values, inverted: false);
+            }
+            else if (parameter.ToString() == "InvertVoteLineBlock")
+            {
+                return CompareVoteLineBlockValues(values, inverted: true);
+            }
+            else
+            {
+                return CompareStringValues(values);
+            }
+        }
+
+        private object CompareStringValues(object[] values)
+        {
             string first = values[0].ToString();
 
             return values.All(v => v is string vv && vv == first);
+        }
+        private object CompareVoteLineBlockValues(object[] values, bool inverted)
+        {
+            if (!values.All(v => v is VoteLineBlock))
+                return false;
+
+            return inverted ^ (values[0] is VoteLineBlock first && values.All(v => v is VoteLineBlock value && value == first));
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

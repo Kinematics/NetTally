@@ -92,11 +92,11 @@ namespace NetTally
                         counter[regionName]++;
                         accumulator[regionName] = accumulator[regionName] + stopwatch.Elapsed.TotalMilliseconds;
 
-                        writeFunction($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds} ms). Average: {accumulator[regionName] / counter[regionName]} ms.");
+                        writeFunction($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds:F6} ms). Average: {accumulator[regionName] / counter[regionName]} ms.");
                     }
                     else
                     {
-                        writeFunction($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds} ms");
+                        writeFunction($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds:F6} ms");
                     }
                 }
             }

@@ -22,35 +22,36 @@ namespace NetTally.Utility
         #endregion
 
         #region Fields and properties
-        private static IEqualityComparer<string> currentComparer;
+        private static CustomStringComparer currentComparer;
 
-        private static IEqualityComparer<string> StringComparerNoCaseSymbol { get; set; }
+        private static CustomStringComparer StringComparerNoCaseSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerNoCaseNoSymbol { get; set; }
+        private static CustomStringComparer StringComparerNoCaseNoSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerCaseSymbol { get; set; }
+        private static CustomStringComparer StringComparerCaseSymbol { get; set; }
 
-        private static IEqualityComparer<string> StringComparerCaseNoSymbol { get; set; }
+        private static CustomStringComparer StringComparerCaseNoSymbol { get; set; }
 
         /// <summary>
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static IEqualityComparer<string> StringComparer => currentComparer;
+        public static CustomStringComparer StringComparer => currentComparer;
+
 
         /// <summary>
         /// Gets a string comparer object that ignores case and symbols.
         /// </summary>
-        public static IEqualityComparer<string> InsensitiveComparer => StringComparerNoCaseNoSymbol;
+        public static CustomStringComparer InsensitiveComparer => StringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
         /// </value>
-        public static IEqualityComparer<string> QuestSensitiveStringComparer
+        public static CustomStringComparer QuestSensitiveStringComparer
         {
             get
             {
-                if (ViewModelService.MainViewModel?.SelectedQuest is IQuest quest)
+                if (ViewModelService.MainViewModel.SelectedQuest is IQuest quest)
                 {
                     if (quest.WhitespaceAndPunctuationIsSignificant)
                     {
@@ -79,6 +80,8 @@ namespace NetTally.Utility
                 return currentComparer;
             }
         }
+
+        public static Func<string, CompareInfo, CompareOptions, int> HashFunction { get; private set; }
         #endregion
 
         /// <summary>
@@ -89,6 +92,8 @@ namespace NetTally.Utility
         /// <param name="hashFunction">The hash function to use for the various forms of string comparer.</param>
         public static void HashStringsUsing(Func<string, CompareInfo, CompareOptions, int> hashFunction)
         {
+            HashFunction = hashFunction;
+
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
             StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
@@ -116,19 +121,19 @@ namespace NetTally.Utility
             {
                 if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
                 {
-                    if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel?.SelectedQuest?.CaseIsSignificant == false)
+                    if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
                     {
                         currentComparer = StringComparerNoCaseSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel?.SelectedQuest?.CaseIsSignificant == false)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
                     {
                         currentComparer = StringComparerNoCaseNoSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel?.SelectedQuest?.CaseIsSignificant == true)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
                     {
                         currentComparer = StringComparerCaseSymbol;
                     }
-                    else if (mainViewModel?.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel?.SelectedQuest?.CaseIsSignificant == true)
+                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
                     {
                         currentComparer = StringComparerCaseNoSymbol;
                     }
@@ -143,21 +148,18 @@ namespace NetTally.Utility
         /// <param name="first">First string.</param>
         /// <param name="second">Second string.</param>
         /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
-        public static int FirstDifferenceInStrings(string input1, string input2)
+        public static int FirstDifferenceInStrings(ReadOnlySpan<char> input1, ReadOnlySpan<char> input2)
         {
-            ReadOnlySpan<char> first = input1.AsSpan();
-            ReadOnlySpan<char> second = input2.AsSpan();
-
-            int length = first.Length < second.Length ? first.Length : second.Length;
+            int length = input1.Length < input2.Length ? input1.Length : input2.Length;
 
             for (int i = 0; i < length; i++)
             {
-                if (first[i] != second[i])
+                if (input1[i] != input2[i])
                     return i;
             }
 
-            if (first.Length != second.Length)
-                return Math.Min(first.Length, second.Length);
+            if (input1.Length != input2.Length)
+                return Math.Min(input1.Length, input2.Length);
 
             return -1;
         }

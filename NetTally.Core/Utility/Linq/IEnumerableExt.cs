@@ -11,6 +11,7 @@ namespace NetTally.Extensions
     /// </summary>
     static class IEnumerableExt
     {
+#nullable disable
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.
         /// </summary>
@@ -124,7 +125,6 @@ namespace NetTally.Extensions
 
             return max;
         }
-
 
         /// <summary>
         /// Returns a collection of items from the provided enumerable that match the
@@ -290,7 +290,7 @@ namespace NetTally.Extensions
         /// <exception cref="System.ArgumentNullException">Throw if <paramref name="childSelector"/> or <paramref name="nodeSelector"/>
         /// is null.</exception>
         public static IEnumerable<U> TraverseList<T, U>(this IEnumerable<T> items,
-            Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Predicate<U> filter)
+            Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Func<U, bool> filter)
         {
             if (childSelector == null)
                 throw new ArgumentNullException(nameof(childSelector));
@@ -315,5 +315,66 @@ namespace NetTally.Extensions
                 }
             }
         }
+
+        /// <summary>
+        /// Determine if most (as determined by the provided threshold) of the elements of
+        /// an enumerated sequence pass a given check.
+        /// Aside: "Most" would largely fall between 68% and 95%, centering around 82%.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumerable.</typeparam>
+        /// <param name="items">The list of items to check.</param>
+        /// <param name="predicate">The predicate test to use on each item. Has a default value of 83% (5/6 success rate would pass).</param>
+        /// <param name="threshold">What percentage of the checks must pass for the function to return true.</param>
+        /// <returns>Returns true if most of the items in the sequence pass the predicate check.</returns>
+        public static bool Most<T>(this IEnumerable<T> items, Func<T, bool> predicate, double threshold = 0.83)
+        {
+            int pass = 0;
+            int fail = 0;
+
+            foreach (var item in items)
+            {
+                if (predicate(item))
+                    pass++;
+                else
+                    fail++;
+            }
+
+            if ((pass + fail) == 0)
+                return false;
+
+            return ((double)pass / (pass + fail) >= threshold);
+        }
+#nullable enable
+
+
+        public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)
+        {
+            if (!list1.Any() && !list2.Any())
+                return true;
+
+            if (!list1.Any() || !list2.Any())
+                return false;
+
+            var e1 = list1.GetEnumerator();
+            var e2 = list2.GetEnumerator();
+
+            while (true)
+            {
+                bool move1 = e1.MoveNext();
+                bool move2 = e2.MoveNext();
+
+                if (move1 ^ move2)
+                    return false;
+
+                if (!move1)
+                    break;
+
+                if (!(comparer.Compare(selector(e1.Current), selector(e2.Current)) == 0))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

@@ -22,7 +22,7 @@ namespace NetTally.Votes
         // Single line version of the vote line regex.
         static readonly Regex voteLineRegexSingleLine = new Regex(@"^(?<prefix>[-\s]*)\[\s*(?<marker>[xX✓✔1-9])\s*\]\s*(\[\s*(?![bui]\]|color=|url=)(?<task>[^]]*?)\])?\s*(?<content>.*)", RegexOptions.Singleline);
         // Potential reference to another user's plan.
-        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|pin\b)(?=\s*\w)|(?:(?:base\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+        static readonly Regex referenceNameRegex = new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
         // Potential reference to another user's plan.
         static readonly Regex linkedReferenceRegex = new Regex(@"\[url=[^]]+\](.+)\[/url\]", RegexOptions.IgnoreCase);
         // Regex for extracting parts of the simplified condensed rank votes.
@@ -51,6 +51,9 @@ namespace NetTally.Votes
         // Regex for any closing BBCode tag.
         static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
 
+        static readonly Regex urlBBCodeRegex = new Regex(@"(?<pre>.*?)(『url=[^』]+』)(?<content>.*?)(『/url』)(?<post>.*)", RegexOptions.IgnoreCase);
+        static readonly Regex urlBBCodeRegexAt = new Regex(@"(?<pre>.*?)(『url=[^』]+』)@?(?<content>.*?)(『/url』)(?<post>.*)", RegexOptions.IgnoreCase);
+
         static readonly Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
         #endregion
 
@@ -66,29 +69,43 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="text">The text to clean up.</param>
         /// <returns>Returns the text without any BBCode markup.</returns>
-        public static string RemoveBBCode(string text) => markupRegex.Replace(text, "").Trim();
+        public static string RemoveBBCode(this string text) => markupRegex.Replace(text, "").Trim();
 
         /// <summary>
         /// Remove URL BBCode from a vote line's content.
         /// </summary>
         /// <param name="contents">The contents of a vote line.</param>
         /// <returns>Returns the contents without any URL markup.</returns>
-        public static string DeUrlContent(string contents)
+        public static string DeUrlContent(this string contents)
         {
             string result = contents;
 
-            Match m = linkedReferenceRegex.Match(contents);
+            Match m = urlBBCodeRegexAt.Match(result);
             while (m.Success)
             {
-                // (1: before)(2: [url=stuff] @?(3: inside) [/url])(4: after)
-                string pattern = @"(.*?)(\[url=[^]]+\]@?(.+?)\[/url\])(.*)";
-                string replacement = "$1$3$4";
-                result = Regex.Replace(result, pattern, replacement);
+                // Reformat the content without the 『url』.  It will only find the first instance each loop.
+                result = $"{m.Groups["pre"].Value}{m.Groups["content"].Value}{m.Groups["post"].Value}";
 
-                m = linkedReferenceRegex.Match(result);
+                m = urlBBCodeRegexAt.Match(result);
             }
 
-            return result;
+            return result.Trim();
+        }
+
+        public static string DeUrlBBCodeContent(this string contents)
+        {
+            string result = contents;
+
+            Match m = urlBBCodeRegex.Match(result);
+            while (m.Success)
+            {
+                // Reformat the content without the 『url』.  It will only find the first instance each loop.
+                result = $"{m.Groups["pre"].Value}{m.Groups["content"].Value}{m.Groups["post"].Value}";
+
+                m = urlBBCodeRegex.Match(result);
+            }
+
+            return result.Trim();
         }
 
         /// <summary>
@@ -211,7 +228,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="line">The vote line to modify.</param>
         /// <returns>Returns a normalized version of the vote line, with proper matching BBCode tags.</returns>
-        private static string NormalizeContentBBCode(string line)
+        public static string NormalizeContentBBCode(string line)
         {
             var lineSplit = allBBCodeRegex.Split(line);
 
@@ -622,7 +639,7 @@ namespace NetTally.Votes
         /// <returns>Returns possible plan names from the vote line.</returns>
         public static Dictionary<ReferenceType, List<string>> GetVoteReferenceNames(string voteLine)
         {
-            string contents = GetVoteContent(voteLine);
+            string contents = GetVoteContent(voteLine).RemoveBBCode().DeUrlBBCodeContent();
 
             return GetVoteReferenceNamesFromContent(contents);
         }
@@ -640,9 +657,6 @@ namespace NetTally.Votes
             if (string.IsNullOrEmpty(contents))
                 return results;
 
-            contents = RemoveBBCode(contents);
-            contents = DeUrlContent(contents);
-
             Match m = referenceNameRegex.Match(contents);
             if (m.Success)
             {
@@ -657,24 +671,11 @@ namespace NetTally.Votes
                     results[ReferenceType.Label].Add(label);
 
                     // ^ can only be used for user proxies.
-                    if (label == "^")
+                    if (label == "^" || label == "↑")
                     {
                         // [x] ^Kinematics => Kinematics
                         results[ReferenceType.Any].Add(name);
                         results[ReferenceType.Voter].Add(name);
-                    }
-                    // "Pin" can be used for user proxies, but also need to allow the
-                    // entire contents to be stored as a plan name.
-                    else if (label == "pin")
-                    {
-                        // [x] pin Kinematics => Kinematics
-                        results[ReferenceType.Any].Add(name);
-                        results[ReferenceType.Voter].Add(name);
-
-                        // [x] Pin the tail on the donkey => ◈Pin the tail on the donkey
-                        string pContent = contents.MakePlanName();
-                        results[ReferenceType.Any].Add(pContent);
-                        results[ReferenceType.Plan].Add(pContent);
                     }
                     else
                     {

@@ -240,7 +240,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                             //where p.HasClass("stickyFirstContainer") == false
@@ -291,23 +291,51 @@ namespace NetTally.Forums.Adapters
                     XName titleName = XName.Get("title", "");
                     XName pubDate = XName.Get("pubDate", "");
 
-                    var filteredItems = from item in items
-                                        let title = item.Element(titleName).Value
-                                        where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
-                                                (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
-                                        let pub = item.Element(pubDate).Value
-                                        where string.IsNullOrEmpty(pub) == false
-                                        let pubStamp = DateTime.Parse(pub)
-                                        orderby pubStamp
-                                        select item;
+                    List<(XElement item, DateTime timestamp)> filterList = new List<(XElement, DateTime)>();
 
-                    var lastItem = filteredItems.LastOrDefault();
-
-                    if (lastItem != null)
+                    foreach (var item in items)
                     {
+                        var title = item.Element(titleName).Value;
+
+                        if (title.StartsWith("Threadmark: "))
+                        {
+                            title = title.Substring(12);
+                        }
+                        else if (title.StartsWith("Threadmark:"))
+                        {
+                            title = title.Substring(11);
+                        }
+
+                        if (quest.UseCustomThreadmarkFilters)
+                        {
+                            if (quest.ThreadmarkFilter.Match(title))
+                                continue;
+                        }
+                        else
+                        {
+                            if (DefaultThreadmarkFilter.Match(title))
+                                continue;
+                        }
+
+                        var pub = item.Element(pubDate).Value;
+
+                        if (string.IsNullOrEmpty(pub))
+                            continue;
+
+                        var pubStamp = DateTime.Parse(pub);
+
+                        filterList.Add((item, pubStamp));
+                    }
+
+                    if (filterList.Any())
+                    {
+                        var orderedList = filterList.OrderBy(a => a.timestamp);
+
+                        var pick = orderedList.Last().item;
+
                         XName linkName = XName.Get("link", "");
 
-                        var link = lastItem.Element(linkName);
+                        var link = pick.Element(linkName);
 
                         string href = link.Value;
 
@@ -335,6 +363,7 @@ namespace NetTally.Forums.Adapters
                             // Otherwise, take the provided values.
                             return new ThreadRangeInfo(false, 0, page, post);
                         }
+
                     }
                 }
             }
@@ -499,7 +528,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="article">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode article, IQuest quest)
+        private Experiment3.Post? GetPost(HtmlNode article, IQuest quest)
         {
             if (article == null)
                 throw new ArgumentNullException(nameof(article));
@@ -554,10 +583,11 @@ namespace NetTally.Forums.Adapters
             text = PostText.ExtractPostText(articleBody, exclusions, Host);
 
 
-            PostComponents? post;
+            Experiment3.Post? post;
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Experiment3.Post(origin, text);
             }
             catch (Exception e)
             {

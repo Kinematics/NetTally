@@ -57,6 +57,20 @@
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
             </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
         </ListBox>
 
 
@@ -87,6 +101,20 @@
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
             </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
         </ListBox>
 
         <!-- Grid 0,1 : From Voters -->
@@ -94,19 +122,27 @@
         <Label Grid.Column="0" Grid.Row="1" x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
         <ListBox Grid.Column="0" Grid.Row="1" x:Name="votersFromListBox" Margin="10,31,10,10"
-                 ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True" />
+                 ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True">
+        </ListBox>
 
         <!-- Grid 2,1 : To Voters -->
 
         <Label Grid.Column="2" Grid.Row="1" x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
         <ListBox Grid.Column="2" Grid.Row="1" x:Name="votersToListBox" Margin="10,31,10,10"
-                 ItemsSource="{Binding VoterView2}" />
+                 ItemsSource="{Binding VoterView2}">
+        </ListBox>
 
         <!-- Grid 1,0 : Vote Controls -->
 
-        <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="⟹" Height="35" Margin="10,47,10,0" VerticalAlignment="Top"
-                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="merge_Click" IsEnabled="False" ToolTipService.ShowOnDisabled="True">
+        <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="Merge ⇒" Click="merge_Click" Margin="10,47,10,0" Height="35" 
+                VerticalAlignment="Top" FontSize="13.333" ToolTipService.ShowOnDisabled="True">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="InvertVoteLineBlock">
+                    <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -116,33 +152,10 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <RadioButton Grid.Column="1" Grid.Row="0" x:Name="votesRadio" Content="Votes" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top"
-                     IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Normal, Converter={StaticResource BoolConverter}}">
-            <RadioButton.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Votes</TextBlock>
-                        <TextBlock>Handle merging of normal votes.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </RadioButton.ToolTip>
-        </RadioButton>
-        <RadioButton Grid.Column="1" Grid.Row="0" x:Name="rankingRadio" Content="Rankings" HorizontalAlignment="Left" Margin="10,142,0,0" VerticalAlignment="Top"
-                     IsEnabled="{Binding Path=HasRankedVotes, Mode=OneWay}"
-                     IsChecked="{Binding Path=DisplayStandardVotes, ConverterParameter=Invert, Converter={StaticResource BoolConverter}, Mode=OneWay}">
-            <RadioButton.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Rankings</TextBlock>
-                        <TextBlock>Handle merging of runoff rankings.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </RadioButton.ToolTip>
-        </RadioButton>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⦔Delete⦓" Margin="10,196,10,0" VerticalAlignment="Top" Height="35" RenderTransformOrigin="0.507,0.1"
-                ToolTipService.ShowOnDisabled="True" Click="delete_Click">
+        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⊘ Delete" Click="delete_Click" Margin="10,196,10,0" Height="35"
+                 VerticalAlignment="Top" FontSize="13.333" RenderTransformOrigin="0.507,0.1" ToolTipService.ShowOnDisabled="True" >
             <Button.IsEnabled>
-                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay">
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="VoteLineBlock">
                     <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
                     <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
                 </MultiBinding>
@@ -173,8 +186,8 @@
 
         <!-- Grid 1,1 : Voter Controls -->
 
-        <Button Grid.Column="1" Grid.Row="1" x:Name="joinVoters" Content="⟹" Height="35" Margin="10,35,10,0" VerticalAlignment="Top"
-                FontSize="26.667" FontWeight="Bold" Padding="1,-5,1,1" Click="join_Click" ToolTipService.ShowOnDisabled="True"
+        <Button Grid.Column="1" Grid.Row="1" x:Name="joinVoters" Content="Join ⇒" Height="35" Margin="10,35,10,0" VerticalAlignment="Top"
+                FontSize="13.333" Click="join_Click" ToolTipService.ShowOnDisabled="True"
                 IsEnabled="{Binding ElementName=votersFromListBox, Path=HasItems}">
             <Button.ToolTip>
                 <ToolTip>
@@ -188,7 +201,8 @@
 
         <!-- Grid 2,2 : Close Window -->
 
-        <Button Grid.Column="2" Grid.Row="2" x:Name="closeButton" Content="Close" Margin="0,0,10,10" IsCancel="True" HorizontalAlignment="Right" Width="117" Height="30" VerticalAlignment="Bottom"/>
+        <Button Grid.Column="2" Grid.Row="2" x:Name="closeButton" Content="Close" Margin="0,0,10,10"
+                IsCancel="True" HorizontalAlignment="Right" Width="117" Height="30" VerticalAlignment="Bottom"/>
 
 
         <!-- Textbox input for Tasks -->

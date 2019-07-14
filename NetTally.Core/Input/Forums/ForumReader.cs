@@ -58,7 +58,7 @@ namespace NetTally.Forums
         /// <param name="quest">The quest to read.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of posts extracted from the quest.</returns>
-        public async Task<(string threadTitle, List<PostComponents> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
+        public async Task<(string threadTitle, List<Experiment3.Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
 
@@ -204,11 +204,11 @@ namespace NetTally.Forums
         /// <param name="rangeInfo">The thread range info for the tally.</param>
         /// <param name="pages">The pages that are being loaded.</param>
         /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a list of PostComponents comprising the posts from the threads that fall within the specified range.</returns>
-        private async Task<(string threadTitle, List<PostComponents> posts)> GetPostsFromPagesAsync(
+        /// <returns>Returns a list of Experiment3.Post comprising the posts from the threads that fall within the specified range.</returns>
+        private async Task<(string threadTitle, List<Experiment3.Post> posts)> GetPostsFromPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
         {
-            List<PostComponents> postsList = new List<PostComponents>();
+            List<Experiment3.Post> postsList = new List<Experiment3.Post>();
 
             if (pages.Count == 0)
                 return (string.Empty, postsList);
@@ -236,42 +236,46 @@ namespace NetTally.Forums
                     throw e;
                 }
 
-                var posts = from post in adapter.GetPosts(page, quest)
-                            where post.IsVote && PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo)
-                            select post;
-
-                postsList.AddRange(posts);
+                postsList.AddRange(adapter.GetPosts(page, quest));
             }
 
             var firstPage = firstPageTask.Result;
-
             ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
-            postsList = FilteredPosts(postsList, quest, threadInfo);
+
+            postsList = FilteredPosts(postsList, quest, threadInfo, rangeInfo);
 
             return (threadInfo.Title, postsList);
         }
 
-        private bool PostIsAfterStart(PostComponents post, ThreadRangeInfo rangeInfo)
+        private List<Experiment3.Post> FilteredPosts(List<Experiment3.Post> postsList,
+            IQuest quest, ThreadInfo threadInfo, ThreadRangeInfo rangeInfo)
         {
-            return (rangeInfo.ByNumber && post.Number >= rangeInfo.Number) || post.IDValue > rangeInfo.ID;
+            // Remove any posts that are not votes, that aren't in the valid post range, or that
+            // hit any filters the quest has set up.  Then do a grouping to get distinct results.
+            var filtered = from post in postsList
+                           where post.IsVote
+                                && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
+                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
+                                    || (!quest.UseCustomUsernameFilters && post.Origin.Author != threadInfo.Author))
+                                && (!quest.UseCustomPostFilters 
+                                    || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber) 
+                                    || quest.PostsToFilter.Contains(post.Origin.ID.Value)))
+                           group post by post.Origin.ThreadPostNumber into postNumGroup // Group to deal with sticky posts that should only be processed once.
+                           orderby postNumGroup.Key
+                           select postNumGroup.First();
+
+            return filtered.ToList();
         }
 
-        private bool PostIsBeforeEnd(PostComponents post, IQuest quest, ThreadRangeInfo rangeInfo)
+        private bool PostIsAfterStart(Experiment3.Post post, ThreadRangeInfo rangeInfo)
         {
-            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Number <= quest.EndPost);
+            return (rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID);
         }
 
-        private List<PostComponents> FilteredPosts(List<PostComponents> postsList, IQuest quest, ThreadInfo threadInfo)
+        private bool PostIsBeforeEnd(Experiment3.Post post, IQuest quest, ThreadRangeInfo rangeInfo)
         {
-            // Get all posts that are not filtered out, either explicitly, or (for the thread author) implicity.
-            return postsList
-                .Where(p =>
-                        ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(p.Author)) || (!quest.UseCustomUsernameFilters && p.Author != threadInfo.Author))
-                     && (!quest.UseCustomPostFilters || !(quest.PostsToFilter.Contains(p.Number) || quest.PostsToFilter.Contains(p.IDValue)))
-                      )
-                .Distinct().OrderBy(p => p.Number).ToList();
+            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost);
         }
-
         #endregion
     }
 }

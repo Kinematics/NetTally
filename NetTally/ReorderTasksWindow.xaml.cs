@@ -13,34 +13,23 @@ namespace NetTally
     public partial class ReorderTasksWindow : Window
     {
         #region Constructor and variables
-        public ListCollectionView TaskView { get; } = new ListCollectionView(new string[] { });
+        readonly MainViewModel mainViewModel;
+        public ListCollectionView TaskView { get; }
 
-        MainViewModel? MainViewModel { get; }
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public ReorderTasksWindow()
-        {
-            InitializeComponent();
-        }
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program</param>
         public ReorderTasksWindow(MainViewModel mainViewModel)
         {
+            this.mainViewModel = mainViewModel;
+
             InitializeComponent();
 
-            MainViewModel = mainViewModel;
-
-            MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
             // Create filtered, sortable views into the collection for display in the window.
-            if (MainViewModel.TaskList != null)
-            {
-                TaskView = new ListCollectionView(MainViewModel.TaskList);
-            }
+            TaskView = new ListCollectionView(this.mainViewModel.TaskList);
 
             // Initialize starting selected positions
             TaskView.MoveCurrentToPosition(-1);
@@ -53,7 +42,7 @@ namespace NetTally
 
         protected override void OnClosed(EventArgs e)
         {
-            MainViewModel!.PropertyChanged -= MainViewModel_PropertyChanged;
+            mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
 
             base.OnClosed(e);
         }
@@ -67,7 +56,7 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks")
+            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
                 TaskView.Refresh();
             }
@@ -75,22 +64,22 @@ namespace NetTally
 
         private void up_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel!.DecreaseTaskPosition(TaskView.CurrentPosition);
+            mainViewModel.DecreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void down_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel!.IncreaseTaskPosition(TaskView.CurrentPosition);
+            mainViewModel.IncreaseTaskPosition(TaskView.CurrentPosition);
         }
 
         private void alpha_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel!.ResetTasksOrder(TasksOrdering.Alphabetical);
+            mainViewModel.ResetTasksOrder(TasksOrdering.Alphabetical);
         }
 
         private void default_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel!.ResetTasksOrder(TasksOrdering.AsTallied);
+            mainViewModel.ResetTasksOrder(TasksOrdering.AsTallied);
         }
         #endregion
     }

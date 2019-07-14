@@ -274,7 +274,7 @@ namespace NetTally
 
         bool useCustomPostFilters = false;
         string customPostFilters = string.Empty;
-        readonly HashSet<int> postsToFilter = new HashSet<int>();
+        readonly HashSet<long> postsToFilter = new HashSet<long>();
         static readonly Regex postFilterRegex = new Regex(@"(?<range>(?<r1>\d+)\s*-\s*(?<r2>\d+))|(?<num>\d+)");
 
         /// <summary>
@@ -409,13 +409,7 @@ namespace NetTally
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
-        public HashSet<int> PostsToFilter
-        {
-            get
-            {
-                return postsToFilter;
-            }
-        }
+        public HashSet<long> PostsToFilter => postsToFilter;
 
         /// <summary>
         /// Function to convert the CustomPostFilters string to a hashset of post

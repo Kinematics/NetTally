@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Experiment3;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
-using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
 namespace NetTally.Output
 {
+    /// <summary>
+    /// Class to handle calculating and extracting vote information.
+    /// </summary>
     public class VoteInfo
     {
         readonly IVoteCounter voteCounter;
@@ -23,6 +26,237 @@ namespace NetTally.Output
             forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri!);
         }
 
+
+        /// <summary>
+        /// Gets the line break text from the quest's forum adapter, since some
+        /// can show hard rules, and some need to just use manual text.
+        /// </summary>
+        public string LineBreak => forumAdapter.LineBreak;
+        /// <summary>
+        /// Get the double line break.  There are no alternate versions right now.
+        /// </summary>
+        public string DoubleLineBreak => "<==========================================================>";
+
+        /// <summary>
+        /// Gets an ordered version of the provided voters.
+        /// The first voter was the first voter to support the given plan, and
+        /// the rest of the voters are alphabatized.
+        /// </summary>
+        /// <param name="voters">The voters being ordered.</param>
+        /// <returns>Returns an ordered list of the voters.</returns>
+        public List<KeyValuePair<Origin, VoteLineBlock>> GetOrderedStandardVoterList(VoterStorage voters)
+        {
+            var voterList = new List<KeyValuePair<Origin, VoteLineBlock>>();
+
+            if (voters == null || voters.Count == 0)
+            {
+                return voterList;
+            }
+
+            if (voters.Count == 1)
+            {
+                voterList.AddRange(voters);
+                return voterList;
+            }
+
+            voterList.AddRange(voters.OrderBy(v => v.Key));
+
+            var firstVoter = GetFirstVoter(voterList.Select(v => v.Key));
+            var firstVoterEntry = voterList.First(v => v.Key == firstVoter);
+            voterList.Remove(firstVoterEntry);
+            voterList.Insert(0, firstVoterEntry);
+
+            return voterList;
+        }
+
+        /// <summary>
+        /// Get the first voter from the provided list of voters.
+        /// </summary>
+        /// <param name="voters"></param>
+        /// <returns></returns>
+        private Origin GetFirstVoter(IEnumerable<Origin> voters)
+        {
+            if (!voters.Any())
+                throw new InvalidOperationException("No voters to process");
+
+            Origin firstVoter = voters.First();
+
+            foreach (var voter in voters)
+            {
+                // Plans have priority in determining first voter.
+                if (voter.AuthorType == IdentityType.Plan)
+                {
+                    if (firstVoter.AuthorType != IdentityType.Plan)
+                    {
+                        firstVoter = voter;
+                    }
+                    else if (voter.ID < firstVoter.ID)
+                    {
+                        firstVoter = voter;
+                    }
+                }
+                // If the firstVoter is already a plan, don't overwrite with a user.
+                // Otherwise update if the new vote is earlier than the existing one.
+                else if (firstVoter.AuthorType != IdentityType.Plan && voter.ID < firstVoter.ID)
+                {
+                    firstVoter = voter;
+                }
+            }
+
+            return firstVoter;
+        }
+
+
+        public List<KeyValuePair<Origin, VoteLineBlock>> GetOrderedRankedVoterList(VoterStorage voters)
+        {
+            var result = new List<KeyValuePair<Origin, VoteLineBlock>>();
+
+            var ranksOnly = voters.Where(v => v.Value.MarkerType == MarkerType.Rank).OrderBy(v => v.Value.MarkerValue).ThenBy(v => v.Key);
+            var others = voters.Where(v => v.Value.MarkerType != MarkerType.Rank).OrderBy(v => v.Key);
+
+            result.AddRange(ranksOnly);
+            result.AddRange(others);
+
+            return result;
+        }
+
+
+
+        private bool IsPlan(string name)
+        {
+            return name[0] == Strings.PlanNameMarkerChar;
+        }
+
+        /// <summary>
+        /// Get the full supporting count for the given vote among the voters in the support section.
+        /// This is calculated for the votes of <seealso cref="MarkerType.Vote"/>.
+        /// </summary>
+        /// <param name="vote">A vote and its associated supporters.</param>
+        /// <returns>Returns a count</returns>
+        public int GetVoteVoterCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
+        {
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
+
+            int count = 0;
+
+            // Approval and Score votes contribute if their value is greater than 50.
+            foreach (var group in usersByMarker)
+            {
+                count += group.Key switch
+                {
+                    MarkerType.Vote => group.Count(),
+                    MarkerType.Approval => group.Count(v => v.Value.MarkerValue > 50),
+                    MarkerType.Score => group.Count(v => v.Value.MarkerValue > 50),
+                    _ => 0
+                };
+            }
+
+            return count;
+        }
+
+        public (int simpleScore, double limitScore) GetVoteScoreResult(KeyValuePair<VoteLineBlock, VoterStorage> vote)
+        {
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
+
+            int count = 0;
+            int accum = 0;
+
+            // TODO: Do a statistical margin of error calculation here.
+
+            // Approval and Score votes contribute if their value is greater than 50.
+            foreach (var group in usersByMarker)
+            {
+                accum += group.Key switch
+                {
+                    MarkerType.Vote => group.Sum(s => s.Value.MarkerValue),
+                    MarkerType.Approval => group.Sum(s => s.Value.MarkerValue),
+                    MarkerType.Score => group.Sum(s => s.Value.MarkerValue),
+                    _ => 0
+                };
+
+                count += group.Key switch
+                {
+                    MarkerType.Vote => group.Count(),
+                    MarkerType.Approval => group.Count(),
+                    MarkerType.Score => group.Count(),
+                    _ => 0
+                };
+            }
+
+            if (count == 0)
+                return (0, 0);
+
+            double limitScore = (double)accum / count;
+            int simpleScore = (int)limitScore;
+
+            return (simpleScore, limitScore);
+        }
+
+
+
+        public (int positive, int negative) GetVoteApprovalResult(KeyValuePair<VoteLineBlock, VoterStorage> vote)
+        {
+            var users = vote.Value.Where(a => a.Key.AuthorType == IdentityType.User);
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
+
+            int positive = 0;
+            int negative = 0;
+
+            foreach (var group in usersByMarker)
+            {
+                var marker = group.Key;
+
+                if (marker == MarkerType.Approval)
+                {
+                    positive += group.Count(v => v.Value.MarkerValue > 50);
+                    negative += group.Count(v => v.Value.MarkerValue <= 50);
+                }
+                else if (marker == MarkerType.Score)
+                {
+                    positive += group.Count(v => v.Value.MarkerValue > 50);
+                    negative += group.Count(v => v.Value.MarkerValue <= 50);
+                }
+                else if (marker == MarkerType.Vote)
+                {
+                    positive += group.Count(v => v.Value.MarkerValue > 50);
+                }
+            }
+
+            return (positive, negative);
+        }
+
+
+
+        public int GetStandardVotersCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
+        {
+            var nonPlanVoters = vote.Value.Where(v => v.Key.AuthorType == IdentityType.User &&
+                    (v.Value.MarkerType == MarkerType.Vote || v.Value.MarkerType == MarkerType.Score || v.Value.MarkerType == MarkerType.Approval));
+
+            return nonPlanVoters.Count();
+        }
+
+        public int GetAllVotersCount(KeyValuePair<VoteLineBlock, VoterStorage> vote)
+        {
+            var nonPlanVoters = vote.Value.Where(v => v.Key.AuthorType == IdentityType.User);
+
+            return nonPlanVoters.Count();
+        }
+
+
+
+
+
+
+
+
+
+
+
+        #region deprecated
+
+
         /// <summary>
         /// Get the URL for the post made by the specified voter.
         /// </summary>
@@ -31,54 +265,12 @@ namespace NetTally.Output
         /// <returns>Returns the permalink URL for the voter.  Returns an empty string if not found.</returns>
         public string GetVoterUrl(string voter, VoteType voteType)
         {
-            Dictionary<string, string> voters = voteCounter.GetVotersCollection(voteType);
+            Dictionary<string, string> voters = new Dictionary<string, string>(); // voteCounter.GetVotersCollection(voteType);
 
             if (voters.TryGetValue(voter, out string voteID))
                 return forumAdapter.GetPermalinkForId(voteID) ?? string.Empty;
 
             return string.Empty;
-        }
-
-        public string LineBreak => forumAdapter.LineBreak;
-        
-        /// <summary>
-        /// Property to get the total number of ranked voters in the tally.
-        /// </summary>
-        public int RankedVoterCount => voteCounter.GetVotersCollection(VoteType.Rank).Count;
-
-        /// <summary>
-        /// Property to get the total number of normal voters in the tally.
-        /// </summary>
-        public int NormalVoterCount => voteCounter.GetVotersCollection(VoteType.Vote).Count(voter => !voter.Key.IsPlanName());
-
-        /// <summary>
-        /// Calculate the number of non-plan voters in the provided vote object.
-        /// </summary>
-        /// <param name="vote">The vote containing a list of voters.</param>
-        /// <returns>Returns how many of the voters in this vote were users (rather than plans).</returns>
-        public int CountVote(KeyValuePair<string, HashSet<string>> vote) =>
-            vote.Value?.Count(vc => voteCounter.PlanNames.Contains(vc) == false) ?? 0;
-
-        /// <summary>
-        /// Get a list of voters, ordered alphabetically, except the first voter,
-        /// who is the 'earliest' of the provided voters (ie: the first person to
-        /// vote for this vote or plan).
-        /// </summary>
-        /// <param name="voters">A set of voters.</param>
-        /// <returns>Returns an organized, sorted list.</returns>
-        public IEnumerable<string> GetOrderedVoterList(HashSet<string> voters)
-        {
-            if (voters == null || voters.Count == 0)
-                return new List<string>();
-
-            var firstVoter = GetFirstVoter(voters);
-            var voterList = new List<string>();
-            if (firstVoter != null)
-                voterList.Add(firstVoter);
-            var otherVoters = voters.Except(voterList);
-
-            var orderedVoters = voterList.Concat(otherVoters.OrderBy(v => v));
-            return orderedVoters;
         }
 
         /// <summary>
@@ -90,15 +282,15 @@ namespace NetTally.Output
         /// <returns>Returns which one of them is considered the first real poster.</returns>
         public string? GetFirstVoter(HashSet<string> voters)
         {
-            var planVoters = voters.Where(v => voteCounter.PlanNames.Contains(v));
-            var votersCollection = voteCounter.GetVotersCollection(VoteType.Vote);
+            var planVoters = voters.Where(v => voteCounter.HasPlan(v));
+            Dictionary<string, string> votersCollection = new Dictionary<string, string>(); // voteCounter.GetVotersCollection(voteType);
 
             if (planVoters.Any())
             {
                 return planVoters.MinObject(v => votersCollection[v]);
             }
 
-            var nonFutureVoters = voters.Except(voteCounter.FutureReferences.Select(p => p.Author));
+            var nonFutureVoters = voters.Except(voteCounter.FutureReferences.Select(p => p.Origin.Author));
 
             if (nonFutureVoters.Any())
             {
@@ -111,23 +303,6 @@ namespace NetTally.Output
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Group votes by task.
-        /// </summary>
-        /// <param name="allVotes">A list of all votes.</param>
-        /// <returns>Returns all the votes, grouped by task (case-insensitive).</returns>
-        public IOrderedEnumerable<IGrouping<string, KeyValuePair<string, HashSet<string>>>> GroupVotesByTask(Dictionary<string, HashSet<string>> allVotes)
-        {
-            var grouped = allVotes.GroupBy(v => VoteString.GetVoteTask(v.Key.GetFirstLine()), StringComparer.OrdinalIgnoreCase).OrderBy(v => v.Key);
-
-            if (voteCounter.OrderedTaskList != null)
-            {
-                grouped = grouped.OrderBy(v => voteCounter.OrderedTaskList.IndexOf(v.Key));
-            }
-            
-            return grouped;
         }
 
         /// <summary>
@@ -197,32 +372,10 @@ namespace NetTally.Output
                 }
             }
 
-            return nodeList.OrderByDescending(v => v.VoterCount).ThenBy(v => LastVoteID(v.Voters));
+            return nodeList.OrderByDescending(v => v.VoterCount);
         }
 
-        /// <summary>
-        /// Gets the ID number of the last vote made among the provided voters.
-        /// Returns 0 if there are no voters passed in, or no valid post ID values.
-        /// </summary>
-        /// <param name="voters">The voters for a given vote.</param>
-        /// <returns>Returns the last vote ID made for this vote.</returns>
-        public int LastVoteID(HashSet<string> voters)
-        {
-            if (voters.Count == 0)
-                return 0;
 
-            var votersCollection = voteCounter.GetVotersCollection(VoteType.Vote);
-
-            Dictionary<string, int> voteCollInt = new Dictionary<string, int>();
-
-            var ids = from voter in voters
-                    where votersCollection.ContainsKey(voter)
-                    select int.Parse(votersCollection[voter]);
-
-            if (!ids.Any())
-                return 0;
-
-            return ids.Max();
-        }
+        #endregion
     }
 }

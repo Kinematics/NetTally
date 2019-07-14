@@ -31,13 +31,7 @@ namespace NetTally
     public partial class App : Application
     {
         private IServiceProvider? _serviceProvider;
-        public IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return _serviceProvider ?? throw new InvalidOperationException("No service provider set.");
-            }
-        }
+        public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException("No service provider set.");
 
         protected override void OnStartup(StartupEventArgs e)
         {

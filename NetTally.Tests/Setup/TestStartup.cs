@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.SystemInfo;
+using NetTally.ViewModels;
 
 namespace NetTally.Tests
 {
@@ -19,7 +20,10 @@ namespace NetTally.Tests
             //services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<IClock, StaticClock>();
 
-            return services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
+            serviceProvider.GetRequiredService<ViewModelService>();
+
+            return serviceProvider;
         }
     }
 }

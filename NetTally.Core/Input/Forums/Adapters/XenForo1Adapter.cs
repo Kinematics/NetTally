@@ -38,7 +38,7 @@ namespace NetTally.Forums.Adapters
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
 
         // The default threadmark filter.
-        static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
+        static readonly Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
         #endregion
 
         #region Site properties
@@ -230,7 +230,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                         //where p.HasClass("stickyFirstContainer") == false
@@ -481,7 +481,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode li, IQuest quest)
+        private Experiment3.Post? GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -536,10 +536,12 @@ namespace NetTally.Forums.Adapters
 
             number = int.Parse(postNumberText);
 
-            PostComponents? post;
+            Experiment3.Post? post;
+            
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Experiment3.Post(origin, text);
             }
             catch (Exception e)
             {
@@ -599,7 +601,7 @@ namespace NetTally.Forums.Adapters
 
                 if (listOfThreadmarks != null)
                 {
-                    Predicate<HtmlNode> filterLambda = (n) => n != null &&
+                    Func<HtmlNode, bool> filterLambda = (n) => n != null &&
                         ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
                         (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
 
