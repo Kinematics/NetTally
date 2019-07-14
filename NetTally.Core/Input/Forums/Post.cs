@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using NetTally.Experiment3;
 using NetTally.Utility;
 using NetTally.Votes;
 
@@ -36,7 +35,7 @@ namespace NetTally.Forums
         /// The <see cref="WorkingVote"/> is a sequence of one or the other.
         /// </summary>
         public List<(VoteLine? line, VoteLineBlock? block)> WorkingVote { get; } = new List<(VoteLine? line, VoteLineBlock? block)>();
- 
+
         /// <summary>
         /// Flag whether the WorkingVote has been completely filled in.
         /// </summary>

@@ -8,7 +8,6 @@ using System.Windows.Input;
 using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
-using NetTally.Experiment3;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Options;

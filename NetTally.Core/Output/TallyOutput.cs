@@ -11,9 +11,10 @@ using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility;
 using NetTally.VoteCounting;
+using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Output
 {
     public class TallyOutput : ITextResultsProvider
     {

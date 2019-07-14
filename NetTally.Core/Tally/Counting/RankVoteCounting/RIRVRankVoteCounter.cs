@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.VoteCounting.RankVotes
 {
     /// <summary>
     /// Rated Instant Runoff voting scores all vote options, taking the top two,

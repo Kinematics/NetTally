@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NetTally.Utility;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>, IComparable<VoteLineBlock>, IComparable
     {

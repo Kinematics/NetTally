@@ -11,7 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using NetTally.Comparers;
-using NetTally.Experiment3;
 using NetTally.Forums;
 using NetTally.Navigation;
 using NetTally.Utility;

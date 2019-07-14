@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NetTally.VoteCounting;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.VoteCounting.RankVotes
 {
     public class SchulzeRankVoteCounter : IRankVoteCounter2
     {
@@ -18,7 +16,7 @@ namespace NetTally.Experiment3
 
             int[,] winningPaths = GetWinningPaths(strongestPaths, taskVotes.Count);
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> winningChoices = 
+            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> winningChoices =
                 GetResultsInOrder(winningPaths, taskVotes);
 
             return winningChoices;

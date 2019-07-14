@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NetTally.VoteCounting;
-using NetTally.VoteCounting.RankVoteCounting;
 
-namespace NetTally.Experiment3
+namespace NetTally.VoteCounting.RankVotes
 {
     public class RankVoteCounterFactory
     {

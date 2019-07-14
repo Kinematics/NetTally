@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NetTally.Experiment3;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;

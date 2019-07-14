@@ -204,7 +204,7 @@ namespace NetTally.Forums
         /// <param name="rangeInfo">The thread range info for the tally.</param>
         /// <param name="pages">The pages that are being loaded.</param>
         /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a list of Experiment3.Post comprising the posts from the threads that fall within the specified range.</returns>
+        /// <returns>Returns a list of Post comprising the posts from the threads that fall within the specified range.</returns>
         private async Task<(string threadTitle, List<Post> posts)> GetPostsFromPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
         {

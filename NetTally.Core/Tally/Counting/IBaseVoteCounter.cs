@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using NetTally.Experiment3;
 using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {

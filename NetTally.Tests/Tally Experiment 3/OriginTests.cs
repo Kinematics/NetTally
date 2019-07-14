@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 
-namespace NetTally.Tests.Experiment3
+namespace NetTally.Tests.Forums
 {
     [TestClass]
     public class OriginTests

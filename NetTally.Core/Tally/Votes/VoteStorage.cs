@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NetTally.Forums;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     public class VoteStorage : Dictionary<VoteLineBlock, VoterStorage>
     {

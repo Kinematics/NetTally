@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using NetTally.Forums;
-using NetTally.VoteCounting;
+using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.VoteCounting
 {
     public enum UndoActionType
     {

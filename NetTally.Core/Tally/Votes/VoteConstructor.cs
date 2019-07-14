@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Forums;
-using NetTally.Options;
 using NetTally.Utility;
 using NetTally.VoteCounting;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     /// <summary>
     /// Class that can handle constructing votes from the parsed text of a post.
@@ -51,9 +48,9 @@ namespace NetTally.Experiment3
             {
                 var (isPlan, isImplicit, planName) = isPlanFunction(block);
 
-                if (isPlan && 
+                if (isPlan &&
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                    IsValidPlanName(planName, post.Origin.Author) && 
+                    IsValidPlanName(planName, post.Origin.Author) &&
                     DoesTaskFilterPass(block, quest))
                 {
                     plans[planName] = block;
@@ -124,7 +121,7 @@ namespace NetTally.Experiment3
                 string content = $"Plan: {planName}";
                 firstLine = firstLine.WithContent(content);
             }
-            
+
             // All vote lines in a plan should have MarkerType of None.
             // This allows them to be part of any comparison, and easily mesh with various output.
             if (planType != VoteBlocks.LineStatus.None)
@@ -214,7 +211,7 @@ namespace NetTally.Experiment3
                         {
                             i += refPlan.Lines.Count - 1; // compensate for the i++ increment
                         }
-                        else if ((i+1) < validVoteLines.Count && validVoteLines[i+1].Depth > 0)
+                        else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Depth > 0)
                         {
                             // If a block references a plan, but does not match the original plan in full (eg: missing lines),
                             // don't treat the initial line as a plan reference and then leave junk lines, but just add the
@@ -324,7 +321,7 @@ namespace NetTally.Experiment3
 
 
         // A regex to extract potential references from a vote line.
-        static readonly Regex referenceNameRegex = 
+        static readonly Regex referenceNameRegex =
             new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
 
         /// <summary>
@@ -393,7 +390,7 @@ namespace NetTally.Experiment3
                 }
             }
 
-            noReference:
+        noReference:
             return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.Empty);
         }
         #endregion

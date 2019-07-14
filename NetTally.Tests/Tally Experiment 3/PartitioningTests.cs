@@ -1,12 +1,11 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Experiment3;
 using NetTally.Forums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
-namespace NetTally.Tests.Experiment3
+namespace NetTally.Tests.Votes
 {
     [TestClass]
     public class PartitioningTests

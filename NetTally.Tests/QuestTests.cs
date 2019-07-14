@@ -467,7 +467,7 @@ namespace NTTests.QuestTests
             Assert.AreEqual(ForumType.XenForo2, forumType);
             quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
             forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
-            Assert.AreEqual(ForumType.XenForo2, forumType);
+            Assert.AreEqual(ForumType.XenForo1, forumType);
         }
         #endregion
 

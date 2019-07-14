@@ -27,7 +27,7 @@ namespace NetTally.Comparers
 
                 return result;
             }
-            else if (x is Experiment3.VoteLineBlock xv && y is Experiment3.VoteLineBlock yv)
+            else if (x is VoteLineBlock xv && y is VoteLineBlock yv)
             {
                 int result = xv.Category.CompareTo(yv.Category);
 

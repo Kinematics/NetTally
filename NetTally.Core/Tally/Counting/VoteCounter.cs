@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using NetTally.Experiment3;
 using NetTally.Extensions;
 using NetTally.Forums;
-using NetTally.Utility;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting

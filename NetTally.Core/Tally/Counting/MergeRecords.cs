@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NetTally.Experiment3;
+﻿using System.Collections.Generic;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting
@@ -35,7 +32,7 @@ namespace NetTally.VoteCounting
     /// </summary>
     public class MergeRecords
     {
-        readonly Dictionary<PartitionMode, List<MergeData>> MergeLookup 
+        readonly Dictionary<PartitionMode, List<MergeData>> MergeLookup
             = new Dictionary<PartitionMode, List<MergeData>>();
 
         /// <summary>

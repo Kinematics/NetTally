@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     /// <summary>
     /// Immutable class storing data on a vote line.
@@ -19,7 +18,7 @@ namespace NetTally.Experiment3
         public MarkerType MarkerType { get; }
         public int MarkerValue { get; }
 
-        private int _hash;
+        private readonly int _hash;
 
         /// <summary>
         /// How many steps deep the prefix indicator places this line at.
