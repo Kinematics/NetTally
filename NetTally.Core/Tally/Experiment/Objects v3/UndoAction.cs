@@ -13,6 +13,7 @@ namespace NetTally.Experiment3
         Split,
         Join,
         Delete,
+        Other
     }
 
     public class UndoAction

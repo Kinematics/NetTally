@@ -551,6 +551,8 @@ namespace NetTally.VoteCounting
 
             voteCounter.AddUserDefinedTasksToTaskList();
 
+            voteCounter.RunMergeActions();
+
             await Task.FromResult(0);
         }
         #endregion

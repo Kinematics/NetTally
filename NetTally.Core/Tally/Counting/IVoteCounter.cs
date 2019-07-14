@@ -219,6 +219,10 @@ namespace NetTally.VoteCounting
         /// Check whether there are any stored undo actions.
         /// </summary>
         bool HasUndoActions { get; }
+        /// <summary>
+        /// Run any stored merges on the current data.
+        /// </summary>
+        void RunMergeActions();
 
 
         /// <summary>

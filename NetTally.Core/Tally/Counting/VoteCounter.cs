@@ -30,12 +30,12 @@ namespace NetTally.VoteCounting
 
         // Private
 
-        readonly MergeRecords userMerges = new MergeRecords();
         readonly List<Post> postsList = new List<Post>();
         readonly List<string> taskList = new List<string>();
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
+        MergeRecords UserMerges { get; } = new MergeRecords();
 
         VoterStorage ReferencePlans { get; } = new VoterStorage();
         HashSet<Origin> ReferenceOrigins { get; } = new HashSet<Origin>();
@@ -119,7 +119,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void ResetUserMerges()
         {
-            userMerges.Reset();
+            UserMerges.Reset();
         }
 
         #endregion
@@ -380,7 +380,7 @@ namespace NetTally.VoteCounting
             }
 
             // Cleanup any votes that no longer have any support
-            CleanupEmptyVotes();
+            VoteStorage.RemoveUnsupportedVotes();
 
             OnPropertyChanged("Votes");
         }
@@ -395,6 +395,7 @@ namespace NetTally.VoteCounting
         public bool Merge(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
             UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
+            UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest!.PartitionMode);
 
             bool merged = MergeImplWrapper(fromVote, toVote);
 
@@ -410,138 +411,6 @@ namespace NetTally.VoteCounting
             }
 
             return merged;
-        }
-
-        /// <summary>
-        /// Merge the vote supporters from one vote into several other votes.
-        /// </summary>
-        /// <param name="fromVote">The originating vote.</param>
-        /// <param name="toVotes">The destination votes.</param>
-        /// <returns>Returns true if successfully completed.</returns>
-        public bool Split(VoteLineBlock fromVote, List<VoteLineBlock> toVotes)
-        {
-            bool merged = false;
-
-            UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
-
-            foreach (var toVote in toVotes)
-            {
-                merged = MergeImplWrapper(fromVote, toVote) || merged;
-            }
-
-            if (merged)
-            {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
-                OnPropertyChanged(nameof(HasUndoActions));
-            }
-            else
-            {
-                UndoBuffer.Pop();
-            }
-
-            return merged;
-        }
-
-        /// <summary>
-        /// Shift support by various voters from their original vote to any votes
-        /// supported by a specified target voter.
-        /// </summary>
-        /// <param name="voters">The voters that will support the new voter.</param>
-        /// <param name="voterToJoin">The voter to join.</param>
-        /// <returns>Returns true if successfully completed.</returns>
-        public bool Join(List<Origin> voters, Origin voterToJoin)
-        {
-            bool joined = false;
-
-            UndoBuffer.Push(new UndoAction(UndoActionType.Join, VoteStorage));
-
-            foreach (var voter in voters)
-            {
-                joined = JoinImpl(voter, voterToJoin) || joined;
-            }
-
-            if (joined)
-            {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
-                OnPropertyChanged(nameof(HasUndoActions));
-            }
-            else
-            {
-                UndoBuffer.Pop();
-            }
-
-            return joined;
-
-            /// <summary>
-            /// Implement joining logic per voter.
-            /// </summary>
-            /// <param name="joiningVoter">The voter being moved to a new voting support set.</param>
-            /// <param name="voterToJoin">The voter being joined.</param>
-            /// <returns>Returns true if the join was completed.</returns>
-            bool JoinImpl(Origin joiningVoter, Origin voterToJoin)
-            {
-                var source = GetVotesBy(joiningVoter);
-                var dest = GetVotesBy(voterToJoin);
-
-                if (!source.Any() || !dest.Any())
-                    return false;
-
-                bool joined = false;
-
-                // Remove support from any votes where the target voter isn't also present.
-                foreach (var vote in source)
-                {
-                    if (!VoteStorage.DoesVoterSupportVote(voterToJoin, vote))
-                    {
-                        VoteStorage.RemoveSupporterFromVote(vote, joiningVoter);
-                    }
-                }
-
-                CleanupEmptyVotes();
-
-                foreach (var vote in dest)
-                {
-                    if (!VoteStorage.DoesVoterSupportVote(joiningVoter, vote))
-                    {
-                        VoteStorage.AddSupporterToVote(vote, joiningVoter);
-                        joined = true;
-                    }
-                }
-
-                return joined;
-            }
-        }
-
-        /// <summary>
-        /// Delete an entire vote and all associated supporters.
-        /// </summary>
-        /// <param name="vote">The vote to delete.</param>
-        /// <returns>Returns true if successfully completed.</returns>
-        public bool Delete(VoteLineBlock vote)
-        {
-            bool removed = false;
-
-            if (VoteStorage.ContainsKey(vote))
-            {
-                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, VoteStorage));
-
-                removed = VoteStorage.Remove(vote);
-            }
-
-            if (removed)
-            {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
-                OnPropertyChanged(nameof(HasUndoActions));
-            }
-            else
-            {
-                UndoBuffer.Pop();
-            }
-
-            return removed;
         }
 
         /// <summary>
@@ -600,6 +469,156 @@ namespace NetTally.VoteCounting
             return merged;
         }
 
+
+        /// <summary>
+        /// Merge the vote supporters from one vote into several other votes.
+        /// </summary>
+        /// <param name="fromVote">The originating vote.</param>
+        /// <param name="toVotes">The destination votes.</param>
+        /// <returns>Returns true if successfully completed.</returns>
+        public bool Split(VoteLineBlock fromVote, List<VoteLineBlock> toVotes)
+        {
+            UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
+            UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest!.PartitionMode);
+
+            bool merged = SplitImplWrapper(fromVote, toVotes);
+
+            if (merged)
+            {
+                OnPropertyChanged("Votes");
+                OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
+            }
+
+            return merged;
+        }
+
+        private bool SplitImplWrapper(VoteLineBlock fromVote, List<VoteLineBlock> toVotes)
+        {
+            if (!VoteStorage.TryGetValue(fromVote, out var fromSupport))
+            {
+                return false;
+            }
+
+            foreach (var toVote in toVotes)
+            {
+                if (!VoteStorage.TryGetValue(toVote, out var toSupport))
+                {
+                    return false;
+                }
+
+                MergeImpl(fromVote, toVote, fromSupport, toSupport);
+            }
+
+            // But we still want to remove the from vote.
+            return VoteStorage.Remove(fromVote);
+        }
+
+        /// <summary>
+        /// Shift support by various voters from their original vote to any votes
+        /// supported by a specified target voter.
+        /// </summary>
+        /// <param name="voters">The voters that will support the new voter.</param>
+        /// <param name="voterToJoin">The voter to join.</param>
+        /// <returns>Returns true if successfully completed.</returns>
+        public bool Join(List<Origin> voters, Origin voterToJoin)
+        {
+            bool joined = false;
+
+            UndoBuffer.Push(new UndoAction(UndoActionType.Join, VoteStorage));
+
+            foreach (var voter in voters)
+            {
+                joined = JoinImpl(voter, voterToJoin) || joined;
+            }
+
+            if (joined)
+            {
+                OnPropertyChanged("Votes");
+                OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
+            }
+
+            return joined;
+
+            /// <summary>
+            /// Implement joining logic per voter.
+            /// </summary>
+            /// <param name="joiningVoter">The voter being moved to a new voting support set.</param>
+            /// <param name="voterToJoin">The voter being joined.</param>
+            /// <returns>Returns true if the join was completed.</returns>
+            bool JoinImpl(Origin joiningVoter, Origin voterToJoin)
+            {
+                var source = GetVotesBy(joiningVoter);
+                var dest = GetVotesBy(voterToJoin);
+
+                if (!source.Any() || !dest.Any())
+                    return false;
+
+                bool joined = false;
+
+                // Remove support from any votes where the target voter isn't also present.
+                foreach (var vote in source)
+                {
+                    if (!VoteStorage.DoesVoterSupportVote(voterToJoin, vote))
+                    {
+                        VoteStorage.RemoveSupporterFromVote(vote, joiningVoter);
+                    }
+                }
+
+                VoteStorage.RemoveUnsupportedVotes();
+
+                foreach (var vote in dest)
+                {
+                    if (!VoteStorage.DoesVoterSupportVote(joiningVoter, vote))
+                    {
+                        VoteStorage.AddSupporterToVote(vote, joiningVoter);
+                        joined = true;
+                    }
+                }
+
+                return joined;
+            }
+        }
+
+        /// <summary>
+        /// Delete an entire vote and all associated supporters.
+        /// </summary>
+        /// <param name="vote">The vote to delete.</param>
+        /// <returns>Returns true if successfully completed.</returns>
+        public bool Delete(VoteLineBlock vote)
+        {
+            bool removed = false;
+
+            if (VoteStorage.ContainsKey(vote))
+            {
+                UndoBuffer.Push(new UndoAction(UndoActionType.Delete, VoteStorage));
+
+                removed = VoteStorage.Remove(vote);
+            }
+
+            if (removed)
+            {
+                OnPropertyChanged("Votes");
+                OnPropertyChanged("Voters");
+                OnPropertyChanged(nameof(HasUndoActions));
+            }
+            else
+            {
+                UndoBuffer.Pop();
+            }
+
+            return removed;
+        }
+
         /// <summary>
         /// Undoes the most recently performed modification to the vote count.
         /// </summary>
@@ -614,6 +633,8 @@ namespace NetTally.VoteCounting
 
             var undo = UndoBuffer.Pop();
 
+            UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undo.ActionType);
+
             if (undo.Undo(this))
             {
                 OnPropertyChanged("Votes");
@@ -626,10 +647,29 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// Removes any votes that no longer have any voter support.
+        /// Run any stored merges on the current data.
         /// </summary>
-        /// <returns>Returns true if any votes were removed.</returns>
-        bool CleanupEmptyVotes() => VoteStorage.RemoveUnsupportedVotes();
+        public void RunMergeActions()
+        {
+            if (Quest != null)
+            {
+                var recordedMerges = UserMerges.GetMergeRecordList(Quest.PartitionMode);
+
+                foreach (var mergeData in recordedMerges)
+                {
+                    UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage));
+
+                    if (mergeData.UndoActionType == UndoActionType.Split && mergeData.ToVotes.Count > 0)
+                    {
+                        SplitImplWrapper(mergeData.FromVote, mergeData.ToVotes);
+                    }
+                    else
+                    {
+                        MergeImplWrapper(mergeData.FromVote, mergeData.ToVote);
+                    }
+                }
+            }
+        }
 
         #endregion
 
@@ -752,6 +792,7 @@ namespace NetTally.VoteCounting
 
                 VoteStorage.Remove(vote);
 
+                VoteLineBlock originalVote = vote.Clone();
                 string originalTask = vote.Task;
                 vote.Task = task;
 
@@ -791,6 +832,8 @@ namespace NetTally.VoteCounting
 
                     VoteStorage.Add(vote, supporters);
                 }
+
+                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.Other, Quest!.PartitionMode);
 
                 OnPropertyChanged("Votes");
                 OnPropertyChanged(nameof(HasUndoActions));
