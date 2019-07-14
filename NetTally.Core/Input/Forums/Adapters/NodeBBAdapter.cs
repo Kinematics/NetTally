@@ -133,7 +133,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // Find the number of pages
             var main = page.GetElementbyId("content");
@@ -218,7 +218,7 @@ namespace NetTally.Forums.Adapters
             var content = li.GetChildWithClass("div", "content");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(content, n => false, Host);
+            text = ForumPostTextConverter.ExtractPostText(content, n => false, Host);
 
 
             Experiment3.Post? post;

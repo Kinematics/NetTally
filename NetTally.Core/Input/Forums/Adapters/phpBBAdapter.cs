@@ -142,7 +142,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // Find the number of pages
             var pagebody = page.GetElementbyId("page-body");
@@ -251,7 +251,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode? authorStrong = authorNode?.Descendants("strong").FirstOrDefault();
             HtmlNode? authorAnchor = authorStrong?.Element("a");
 
-            author = PostText.CleanupWebString(authorAnchor?.InnerText);
+            author = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
 
             // No way to get the post number??
 
@@ -261,7 +261,7 @@ namespace NetTally.Forums.Adapters
             if (content == null)
                 content = postbody?.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
 
-            text = PostText.ExtractPostText(content, n => false, Host);
+            text = ForumPostTextConverter.ExtractPostText(content, n => false, Host);
 
 
             Experiment3.Post? post;

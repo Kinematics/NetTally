@@ -133,7 +133,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // If there's no pagenav div, that means there's no navigation to alternate pages,
             // which means there's only one page in the thread.
@@ -250,10 +250,10 @@ namespace NetTally.Forums.Adapters
             var postContents = postTable.OwnerDocument.GetElementbyId(postMessageId);
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postContents, exclusion, Host);
+            text = ForumPostTextConverter.ExtractPostText(postContents, exclusion, Host);
 
 
             Experiment3.Post? post = null;

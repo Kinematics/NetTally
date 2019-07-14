@@ -134,7 +134,7 @@ namespace NetTally.Forums.Adapters
 
             // Find the page title
             title = doc.Element("html").Element("head").Element("title")?.InnerText ?? "";
-            title = PostText.CleanupWebString(title);
+            title = ForumPostTextConverter.CleanupWebString(title);
 
             // Get the number of pages from the navigation elements
             var paginationTop = page.GetElementbyId("pagination_top");
@@ -238,7 +238,7 @@ namespace NetTally.Forums.Adapters
                 // Author
                 HtmlNode? userinfo = postDetails.GetChildWithClass("div", "userinfo");
                 HtmlNode? username = userinfo?.GetChildWithClass("a", "username");
-                author = PostText.CleanupWebString(username?.InnerText);
+                author = ForumPostTextConverter.CleanupWebString(username?.InnerText);
 
                 // Text
                 string postMessageId = "post_message_" + id;
@@ -246,10 +246,10 @@ namespace NetTally.Forums.Adapters
                 var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
 
                 // Predicate filtering out elements that we don't want to include
-                var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+                var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
                 // Get the full post text.
-                text = PostText.ExtractPostText(message, exclusion, Host);
+                text = ForumPostTextConverter.ExtractPostText(message, exclusion, Host);
             }
 
             Experiment3.Post? post;

@@ -134,7 +134,7 @@ namespace NetTally.Forums.Adapters
 
             // Find the page title
             title = doc.Element("head").Element("title")?.InnerText ?? "";
-            title = PostText.CleanupWebString(title);
+            title = ForumPostTextConverter.CleanupWebString(title);
 
             var threadViewTab = page.GetElementbyId("thread-view-tab");
 
@@ -218,7 +218,7 @@ namespace NetTally.Forums.Adapters
             var authorNode = postAuthorNode?.GetDescendantWithClass("div", "author");
 
             if (authorNode != null)
-                author = PostText.CleanupWebString(authorNode.InnerText);
+                author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
             HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
@@ -238,10 +238,10 @@ namespace NetTally.Forums.Adapters
             var postTextNode = contentArea?.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postTextNode, exclusion, Host);
+            text = ForumPostTextConverter.ExtractPostText(postTextNode, exclusion, Host);
 
 
             Experiment3.Post? post;

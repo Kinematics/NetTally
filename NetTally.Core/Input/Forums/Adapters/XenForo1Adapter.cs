@@ -184,7 +184,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode;
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
 
             // Find a common parent for other data
             HtmlNode pageContent = GetPageContent(page, PageType.Thread);
@@ -203,7 +203,7 @@ namespace NetTally.Forums.Adapters
 
             HtmlNode? authorNode = pageDesc?.GetChildWithClass("username");
 
-            author = PostText.CleanupWebString(authorNode?.InnerText ?? "");
+            author = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText ?? "");
 
             // Find the number of pages in the thread
             var pageNavLinkGroup = pageContent.GetDescendantWithClass("div", "pageNavLinkGroup");
@@ -492,7 +492,7 @@ namespace NetTally.Forums.Adapters
             int number;
 
             // Author and ID are in the basic list item attributes
-            author = PostText.CleanupWebString(li.GetAttributeValue("data-author", ""));
+            author = ForumPostTextConverter.CleanupWebString(li.GetAttributeValue("data-author", ""));
             id = li.Id.Substring("post-".Length);
 
             if (AdvancedOptions.Instance.DebugMode)
@@ -511,10 +511,10 @@ namespace NetTally.Forums.Adapters
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
-            var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
+            var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postBlock, exclusions, Host);
+            text = ForumPostTextConverter.ExtractPostText(postBlock, exclusions, Host);
 
             // On another branch of the primary content, we can get the post number.
             HtmlNode? messageMeta = primaryContent?.GetChildWithClass("messageMeta");
