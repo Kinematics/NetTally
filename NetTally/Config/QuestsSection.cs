@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
+using NetTally.Options;
 using NetTally.Output;
 using NetTally.Votes;
 

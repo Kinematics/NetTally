@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using NetTally.Output;
 using NetTally.VoteCounting;
-using NetTally.Options;
 
-namespace NetTally
+namespace NetTally.Options
 {
     public class AdvancedOptions : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
     {

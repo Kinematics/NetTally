@@ -10,6 +10,7 @@ using NetTally;
 using NetTally.Web;
 using NetTally.SystemInfo;
 using NetTally.Cache;
+using NetTally.Options;
 
 namespace NTTests.QuestTests
 {
