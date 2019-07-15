@@ -62,13 +62,6 @@ namespace NetTally
             // Then add services known by the current assembly,
             // or override services provided by the core library.
 
-            // Logging system.
-            LogLevel defaultLoggingLevel = LogLevel.Debug;
-
-            services.AddLogging(builder => builder.AddDebug());
-            services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
-
-
             // Add IoCNavigationService for the application.
             services.AddSingleton<IoCNavigationService>();
 

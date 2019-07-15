@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Options;
@@ -20,6 +21,12 @@ namespace NetTally
     {
         public static void ConfigureServices(IServiceCollection services)
         {
+            // Logging system.
+            LogLevel defaultLoggingLevel = LogLevel.Debug;
+
+            services.AddLogging(builder => builder.AddDebug());
+            services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
+
             services.AddSingleton<IGlobalOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralOutputOptions>(AdvancedOptions.Instance);

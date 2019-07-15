@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Options;
@@ -31,6 +32,7 @@ namespace NetTally.VoteCounting
         readonly IServiceProvider serviceProvider;
         readonly VoteConstructor voteConstructor;
         readonly IGeneralOutputOptions outputOptions;
+        readonly ILogger<Tally> logger;
 
         public VoteConstructor VoteConstructor => voteConstructor;
 
@@ -38,12 +40,14 @@ namespace NetTally.VoteCounting
         readonly List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
 
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
-            IVoteCounter counter, IGeneralOutputOptions options)
+            IVoteCounter counter, IGeneralOutputOptions options,
+            ILoggerFactory loggerFactory)
         {
             this.serviceProvider = serviceProvider;
             voteConstructor = constructor;
             voteCounter = counter;
             outputOptions = options;
+            logger = loggerFactory.CreateLogger<Tally>();
 
             // Hook up to event notifications
             outputOptions.PropertyChanged += Options_PropertyChanged;
