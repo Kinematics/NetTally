@@ -7,6 +7,7 @@
     <ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
+    <PublishTrimmed>true</PublishTrimmed>
 
     <Authors>David Smith</Authors>
     <Company>Wayward Gamers</Company>
