@@ -143,8 +143,14 @@ namespace NetTally.ViewModels
         /// <returns>Returns true if the value was updated, or false if no change was made.</returns>
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
         {
-            if (Object.Equals(storage, value))
+            if (storage is IComparable<T> comparableStorage && comparableStorage.CompareTo(value) == 0)
+            {
                 return false;
+            }
+            else if (Object.Equals(storage, value))
+            {
+                return false;
+            }
 
             storage = value;
             OnPropertyChanged(propertyName);
