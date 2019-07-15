@@ -10,6 +10,7 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
+using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
 using NetTally.Web;
 
@@ -39,9 +40,9 @@ namespace NetTally
             services.AddTransient<ForumReader>();
             services.AddTransient<VoteInfo>();
 
-            services.AddSingleton<Experiment3.VoteConstructor>();
-            services.AddSingleton<Experiment3.RankVoteCounterFactory>();
-            services.AddTransient<ITextResultsProvider, Experiment3.TallyOutput>();
+            services.AddSingleton<VoteConstructor>();
+            services.AddSingleton<RankVoteCounterFactory>();
+            services.AddTransient<ITextResultsProvider, TallyOutput>();
         }
     }
 }

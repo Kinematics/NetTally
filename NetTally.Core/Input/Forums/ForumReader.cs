@@ -58,7 +58,7 @@ namespace NetTally.Forums
         /// <param name="quest">The quest to read.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of posts extracted from the quest.</returns>
-        public async Task<(string threadTitle, List<Experiment3.Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
+        public async Task<(string threadTitle, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
 
@@ -204,11 +204,11 @@ namespace NetTally.Forums
         /// <param name="rangeInfo">The thread range info for the tally.</param>
         /// <param name="pages">The pages that are being loaded.</param>
         /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a list of Experiment3.Post comprising the posts from the threads that fall within the specified range.</returns>
-        private async Task<(string threadTitle, List<Experiment3.Post> posts)> GetPostsFromPagesAsync(
+        /// <returns>Returns a list of Post comprising the posts from the threads that fall within the specified range.</returns>
+        private async Task<(string threadTitle, List<Post> posts)> GetPostsFromPagesAsync(
             IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
         {
-            List<Experiment3.Post> postsList = new List<Experiment3.Post>();
+            List<Post> postsList = new List<Post>();
 
             if (pages.Count == 0)
                 return (string.Empty, postsList);
@@ -247,7 +247,7 @@ namespace NetTally.Forums
             return (threadInfo.Title, postsList);
         }
 
-        private List<Experiment3.Post> FilteredPosts(List<Experiment3.Post> postsList,
+        private List<Post> FilteredPosts(List<Post> postsList,
             IQuest quest, ThreadInfo threadInfo, ThreadRangeInfo rangeInfo)
         {
             // Remove any posts that are not votes, that aren't in the valid post range, or that
@@ -267,12 +267,12 @@ namespace NetTally.Forums
             return filtered.ToList();
         }
 
-        private bool PostIsAfterStart(Experiment3.Post post, ThreadRangeInfo rangeInfo)
+        private bool PostIsAfterStart(Post post, ThreadRangeInfo rangeInfo)
         {
             return (rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID);
         }
 
-        private bool PostIsBeforeEnd(Experiment3.Post post, IQuest quest, ThreadRangeInfo rangeInfo)
+        private bool PostIsBeforeEnd(Post post, IQuest quest, ThreadRangeInfo rangeInfo)
         {
             return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost);
         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
-namespace NetTally.Utility
+namespace NetTally.Input.Utility
 {
     /// <summary>
     /// Class to handle user-defined filters, to be used against text input.

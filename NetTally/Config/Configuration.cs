@@ -2,6 +2,7 @@
 using System.Configuration;
 using NetTally.Collections;
 using NetTally.Config;
+using NetTally.Options;
 
 namespace NetTally
 {

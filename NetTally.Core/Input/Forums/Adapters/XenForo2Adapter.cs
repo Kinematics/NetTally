@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
-using NetTally.Utility;
+using NetTally.Input.Utility;
+using NetTally.Options;
 using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
@@ -202,11 +203,11 @@ namespace NetTally.Forums.Adapters
 
             {
                 var titleNode = headerNode.GetChildWithClass("div", "p-title");
-                title = PostText.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
+                title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
 
                 var descripNode = headerNode.GetChildWithClass("div", "p-description");
                 var authorNode = descripNode?.GetDescendantWithClass("a", "username");
-                author = PostText.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
+                author = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
             }
 
             var mainNode = bodyNode.GetChildWithClass("div", "p-body-main") ??
@@ -220,7 +221,7 @@ namespace NetTally.Forums.Adapters
 
                 if (navItems != null && navItems.Any())
                 {
-                    var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
+                    var lastItem = ForumPostTextConverter.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
 
                     _ = int.TryParse(lastItem, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out pages);
                 }
@@ -240,7 +241,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                             //where p.HasClass("stickyFirstContainer") == false
@@ -528,7 +529,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="article">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private Experiment3.Post? GetPost(HtmlNode article, IQuest quest)
+        private Post? GetPost(HtmlNode article, IQuest quest)
         {
             if (article == null)
                 throw new ArgumentNullException(nameof(article));
@@ -539,8 +540,8 @@ namespace NetTally.Forums.Adapters
             int number;
 
             // Author and ID are in the basic list item attributes
-            author = PostText.CleanupWebString(article.GetAttributeValue("data-author", ""));
-            id = PostText.CleanupWebString(article.GetAttributeValue("data-content", "post-").Substring("post-".Length));
+            author = ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-author", ""));
+            id = ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-content", "post-").Substring("post-".Length));
 
             if (AdvancedOptions.Instance.DebugMode)
                 author = $"{author}_{id}";
@@ -576,18 +577,18 @@ namespace NetTally.Forums.Adapters
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
-            var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
+            var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
             var articleBody = article.GetDescendantWithClass("article", "message-body")?.GetChildWithClass("div", "bbWrapper");
 
-            text = PostText.ExtractPostText(articleBody, exclusions, Host);
+            text = ForumPostTextConverter.ExtractPostText(articleBody, exclusions, Host);
 
 
-            Experiment3.Post? post;
+            Post? post;
             try
             {
-                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
-                post = new Experiment3.Post(origin, text);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch (Exception e)
             {

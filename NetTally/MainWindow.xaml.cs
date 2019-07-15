@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Navigation;
+using NetTally.Options;
 using NetTally.Platform;
 using NetTally.SystemInfo;
 using NetTally.Utility;

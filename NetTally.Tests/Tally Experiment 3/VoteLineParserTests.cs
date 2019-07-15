@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Experiment3;
 using NetTally.Votes;
 
-namespace NetTally.Tests.Experiment3
+namespace NetTally.Tests.Votes
 {
     [TestClass]
     public class VoteLineParserTests

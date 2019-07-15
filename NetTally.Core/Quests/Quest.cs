@@ -4,6 +4,7 @@ using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 using System.Collections.Generic;
+using NetTally.Input.Utility;
 
 namespace NetTally
 {

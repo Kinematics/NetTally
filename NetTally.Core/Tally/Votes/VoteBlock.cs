@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
 using NetTally.Utility;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     public static class VoteBlocks
     {

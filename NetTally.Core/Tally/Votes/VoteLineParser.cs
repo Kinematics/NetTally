@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Votes
 {
     public static class VoteLineParser
     {
@@ -319,7 +318,7 @@ namespace NetTally.Experiment3
                         markerType = MarkerType.Approval;
                     else
                         markerType = MarkerType.None;
-                    
+
                     if (markerType == MarkerType.Vote)
                     {
                         markerValue = 100;

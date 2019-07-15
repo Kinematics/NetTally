@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using NetTally.Utility;
 using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.Forums
 {
     /// <summary>
     /// Class to hold relevent post information when read from the forum.
@@ -35,7 +35,7 @@ namespace NetTally.Experiment3
         /// The <see cref="WorkingVote"/> is a sequence of one or the other.
         /// </summary>
         public List<(VoteLine? line, VoteLineBlock? block)> WorkingVote { get; } = new List<(VoteLine? line, VoteLineBlock? block)>();
- 
+
         /// <summary>
         /// Flag whether the WorkingVote has been completely filled in.
         /// </summary>

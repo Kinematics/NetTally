@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Experiment3;
+using NetTally.Forums;
 
-namespace NetTally.Tests.Experiment3
+namespace NetTally.Tests.Forums
 {
     [TestClass]
     public class PostTests

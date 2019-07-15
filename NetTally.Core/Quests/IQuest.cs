@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using NetTally.Forums;
-using NetTally.Utility;
+using NetTally.Input.Utility;
 using NetTally.Votes;
 
 namespace NetTally

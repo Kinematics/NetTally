@@ -134,7 +134,7 @@ namespace NetTally.Forums.Adapters
 
             // Find the page title
             title = doc.Element("html").Element("head").Element("title")?.InnerText ?? "";
-            title = PostText.CleanupWebString(title);
+            title = ForumPostTextConverter.CleanupWebString(title);
 
             // Get the number of pages from the navigation elements
             var paginationTop = page.GetElementbyId("pagination_top");
@@ -169,12 +169,12 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Experiment3.Post> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var postlist = page?.GetElementbyId("posts");
 
             if (postlist == null)
-                return new List<Experiment3.Post>();
+                return new List<Post>();
 
             var posts = from p in postlist.Elements("li")
                         where p.Id.StartsWith("post_", StringComparison.Ordinal)
@@ -211,7 +211,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private Experiment3.Post? GetPost(HtmlNode li, IQuest quest)
+        private Post? GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -238,7 +238,7 @@ namespace NetTally.Forums.Adapters
                 // Author
                 HtmlNode? userinfo = postDetails.GetChildWithClass("div", "userinfo");
                 HtmlNode? username = userinfo?.GetChildWithClass("a", "username");
-                author = PostText.CleanupWebString(username?.InnerText);
+                author = ForumPostTextConverter.CleanupWebString(username?.InnerText);
 
                 // Text
                 string postMessageId = "post_message_" + id;
@@ -246,17 +246,17 @@ namespace NetTally.Forums.Adapters
                 var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
 
                 // Predicate filtering out elements that we don't want to include
-                var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+                var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
                 // Get the full post text.
-                text = PostText.ExtractPostText(message, exclusion, Host);
+                text = ForumPostTextConverter.ExtractPostText(message, exclusion, Host);
             }
 
-            Experiment3.Post? post;
+            Post? post;
             try
             {
-                Experiment3.Origin origin = new Experiment3.Origin(author, id, number, Site, GetPermalinkForId(id));
-                post = new Experiment3.Post(origin, text);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch
             {

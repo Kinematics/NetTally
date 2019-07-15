@@ -2,10 +2,10 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Experiment3;
+using NetTally.Forums;
 using NetTally.Votes;
 
-namespace NetTally.Tests.Experiment3
+namespace NetTally.Tests.Votes
 {
     [TestClass]
     public class VoteConstructorPlanTests
@@ -31,7 +31,7 @@ namespace NetTally.Tests.Experiment3
         {
             sampleQuest.PartitionMode = PartitionMode.None;
 
-            string postText = 
+            string postText =
 @"[x] Line 1
 [x] Line 2";
 

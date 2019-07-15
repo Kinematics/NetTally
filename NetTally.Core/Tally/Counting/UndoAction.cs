@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NetTally.VoteCounting;
+﻿using System.Collections.Generic;
+using NetTally.Forums;
 using NetTally.Votes;
 
-namespace NetTally.Experiment3
+namespace NetTally.VoteCounting
 {
     public enum UndoActionType
     {
@@ -66,7 +63,7 @@ namespace NetTally.Experiment3
                 {
                     HashSet<Origin> voterRemovals = new HashSet<Origin>();
 
-                    foreach (var(currentSupporter, _) in currentSupporters)
+                    foreach (var (currentSupporter, _) in currentSupporters)
                     {
                         if (!storageSupporters.ContainsKey(currentSupporter))
                         {
