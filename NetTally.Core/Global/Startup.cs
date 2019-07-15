@@ -23,7 +23,6 @@ namespace NetTally
         {
             // Logging system.
             LogLevel defaultLoggingLevel = LogLevel.Debug;
-
             services.AddLogging(builder => builder.AddDebug());
             services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
 

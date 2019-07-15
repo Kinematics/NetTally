@@ -51,6 +51,8 @@ namespace NetTally
             this._syncContext = SynchronizationContext.Current;
             this.logger = loggerFactory.CreateLogger<MainWindow>();
 
+            
+
             try
             {
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
@@ -178,6 +180,8 @@ namespace NetTally
                 string selectedQuest = mainViewModel.SelectedQuest?.ThreadName ?? "";
 
                 NetTallyConfig.Save(mainViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
+
+                logger.LogDebug("Configuration saved.");
             }
             catch (Exception ex)
             {
@@ -296,6 +300,8 @@ namespace NetTally
                     return;
                 }
 
+                logger.LogInformation("Configuration reload requested by another instance of NetTally. Updating configuration.");
+
                 NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, null);
 
                 var removedQuests = mainViewModel.QuestList.Where(q => !quests.Any(qq => qq.ThreadName == q.ThreadName)).ToList();
@@ -338,6 +344,11 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (e == null || e.PropertyName == null)
+                return;
+
+            logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+
             if (e.PropertyName == "AddQuest")
             {
                 StartEdit(true);
@@ -350,7 +361,7 @@ namespace NetTally
                 SaveConfig();
                 BroadcastUpdateNotification();
             }
-            else if ((e.PropertyName.StartsWith("SelectedQuest.")) &&
+            else if ((e.PropertyName.StartsWith("SelectedQuest.") == true) &&
                     (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant")))
             {
                 Agnostic.ComparisonPropertyChanged(mainViewModel, e);
