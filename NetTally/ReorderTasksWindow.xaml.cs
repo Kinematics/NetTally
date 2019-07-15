@@ -4,25 +4,30 @@ using System.Windows;
 using System.Windows.Data;
 using NetTally.VoteCounting;
 using NetTally.ViewModels;
+using Microsoft.Extensions.Logging;
+using NetTally.Navigation;
+using System.Threading.Tasks;
 
 namespace NetTally
 {
     /// <summary>
     /// Interaction logic for ReorderTasks.xaml
     /// </summary>
-    public partial class ReorderTasksWindow : Window
+    public partial class ReorderTasksWindow : Window, IActivable
     {
         #region Constructor and variables
         readonly MainViewModel mainViewModel;
+        readonly ILogger<ReorderTasksWindow> logger;
         public ListCollectionView TaskView { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program</param>
-        public ReorderTasksWindow(MainViewModel mainViewModel)
+        public ReorderTasksWindow(MainViewModel mainViewModel, ILoggerFactory loggerFactory)
         {
             this.mainViewModel = mainViewModel;
+            this.logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
 
             InitializeComponent();
 
@@ -38,6 +43,16 @@ namespace NetTally
             DataContext = this;
 
             TaskView.Refresh();
+        }
+
+        public Task ActivateAsync(object? parameter)
+        {
+            if (parameter is Window owner)
+            {
+                this.Owner = owner;
+            }
+
+            return Task.CompletedTask;
         }
 
         protected override void OnClosed(EventArgs e)
@@ -58,6 +73,7 @@ namespace NetTally
         {
             if (e.PropertyName == "Votes" || e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
+                logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
                 TaskView.Refresh();
             }
         }

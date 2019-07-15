@@ -20,6 +20,7 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.ViewModels;
 
@@ -30,8 +31,8 @@ namespace NetTally
     /// </summary>
     public partial class App : Application
     {
-        private IServiceProvider? _serviceProvider;
-        public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException("No service provider set.");
+        private IServiceProvider? serviceProvider;
+        public IServiceProvider ServiceProvider => serviceProvider ?? throw new InvalidOperationException("No service provider set.");
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -40,7 +41,11 @@ namespace NetTally
             ConfigureServices(serviceCollection);
 
             // Build the IServiceProvider and set our reference to it
-            _serviceProvider = serviceCollection.BuildServiceProvider();
+            serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var loggerFactory = ServiceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger<App>();
+            logger.LogDebug("Services defined, starting application!");
 
             ServiceProvider.GetRequiredService<ViewModelService>();
 
@@ -56,6 +61,13 @@ namespace NetTally
 
             // Then add services known by the current assembly,
             // or override services provided by the core library.
+
+            // Logging system.
+            LogLevel defaultLoggingLevel = LogLevel.Debug;
+
+            services.AddLogging(builder => builder.AddDebug());
+            services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
+
 
             // Add IoCNavigationService for the application.
             services.AddSingleton<IoCNavigationService>();

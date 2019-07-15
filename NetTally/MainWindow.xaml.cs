@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Navigation;
+using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Navigation;
@@ -34,6 +35,7 @@ namespace NetTally
         private readonly MainViewModel mainViewModel;
         private readonly IoCNavigationService navigationService;
         private readonly SynchronizationContext _syncContext;
+        private readonly ILogger<MainWindow> logger;
         #endregion
 
         #region Startup/shutdown events
@@ -41,12 +43,13 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(MainViewModel model, IoCNavigationService navigationService, IHash hash)
+        public MainWindow(MainViewModel model, IoCNavigationService navigationService, IHash hash, ILoggerFactory loggerFactory)
         {
             // Initialize the readonly fields.
             this.mainViewModel = model;
             this.navigationService = navigationService;
             this._syncContext = SynchronizationContext.Current;
+            this.logger = loggerFactory.CreateLogger<MainWindow>();
 
             try
             {
@@ -71,7 +74,9 @@ namespace NetTally
 
                 try
                 {
+                    logger.LogDebug("Loading configuration.");
                     NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
+                    logger.LogDebug("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
                 {
@@ -422,7 +427,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<ManageVotesWindow>(Application.Current.MainWindow);
+            await navigationService.ShowDialogAsync<ManageVotesWindow>(this);
 
             mainViewModel.UpdateOutput();
         }
@@ -434,8 +439,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(
-                (owner: Application.Current.MainWindow, model: mainViewModel));
+            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(this);
         }
 
         /// <summary>
@@ -445,8 +449,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<QuestOptionsWindow>(
-                (owner: Application.Current.MainWindow, model: mainViewModel));
+            await navigationService.ShowDialogAsync<QuestOptionsWindow>(this);
         }
 
         /// <summary>
