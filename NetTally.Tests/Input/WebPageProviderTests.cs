@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tests;
 using NetTally.Web;
 
-namespace NTTests.Input
+namespace NetTally.Tests.Input
 {
     [TestClass]
     public class WebPageProviderTests
