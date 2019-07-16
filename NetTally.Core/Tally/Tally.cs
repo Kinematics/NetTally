@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Options;
@@ -31,6 +33,7 @@ namespace NetTally.VoteCounting
         readonly IServiceProvider serviceProvider;
         readonly VoteConstructor voteConstructor;
         readonly IGeneralOutputOptions outputOptions;
+        readonly ILogger<Tally> logger;
 
         public VoteConstructor VoteConstructor => voteConstructor;
 
@@ -38,12 +41,13 @@ namespace NetTally.VoteCounting
         readonly List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
 
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
-            IVoteCounter counter, IGeneralOutputOptions options)
+            IVoteCounter counter, IGeneralOutputOptions options, ILoggerFactory loggerFactory)
         {
             this.serviceProvider = serviceProvider;
             voteConstructor = constructor;
             voteCounter = counter;
             outputOptions = options;
+            logger = loggerFactory.CreateLogger<Tally>();
 
             // Hook up to event notifications
             outputOptions.PropertyChanged += Options_PropertyChanged;
@@ -78,21 +82,6 @@ namespace NetTally.VoteCounting
 
         #region Event monitoring
         /// <summary>
-        /// Keep watch for any status messasges from the forum reader, and add them
-        /// to the TallyResults string so that they can be displayed in the UI.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">Contains the text to be added to the output.</param>
-        private void ForumReader_StatusChanged(object sender, MessageEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Message))
-            {
-                OnPropertyDataChanged(e.Message, "TallyResultsStatusChanged");
-                TallyResults += e.Message;
-            }
-        }
-
-        /// <summary>
         /// Listener for if any global options change.
         /// If the display mode changes, update the output results.
         /// </summary>
@@ -104,7 +93,25 @@ namespace NetTally.VoteCounting
                 || e.PropertyName == "RankVoteCounterMethod"
                 || e.PropertyName == "DebugMode")
             {
-                await RunWithTallyFlagAsync(UpdateResults);
+                if (!TallyIsRunning)
+                {
+                    await RunWithTallyIsRunningFlagAsync(UpdateResults);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Keep watch for any status messasges from the forum reader, and add them
+        /// to the TallyResults string so that they can be displayed in the UI.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Contains the text to be added to the output.</param>
+        private void ForumReader_StatusChanged(object sender, MessageEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                OnPropertyDataChanged(e.Message, "TallyResultsStatusChanged");
+                TallyResults += e.Message;
             }
         }
 
@@ -122,8 +129,8 @@ namespace NetTally.VoteCounting
                 {
                     try
                     {
-                        await RunWithTallyFlagAsync(UpdateTally)
-                            .ContinueWith(updatedTally => RunWithTallyFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
+                        await RunWithTallyIsRunningFlagAsync(UpdateTally)
+                            .ContinueWith(updatedTally => RunWithTallyIsRunningFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
                             .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled);
                     }
                     catch (OperationCanceledException)
@@ -143,8 +150,11 @@ namespace NetTally.VoteCounting
             get { return tallyIsRunning; }
             set
             {
-                tallyIsRunning = value;
-                OnPropertyChanged();
+                if (value != tallyIsRunning)
+                {
+                    tallyIsRunning = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -202,7 +212,11 @@ namespace NetTally.VoteCounting
 
                         voteCounter.Title = threadTitle;
 
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
                         await TallyPosts(posts, quest, token).ConfigureAwait(false);
+                        stopwatch.Stop();
+                        logger.LogDebug($"Time to process posts: {stopwatch.ElapsedMilliseconds} ms.");
                     }
                     finally
                     {
@@ -241,7 +255,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public async Task UpdateResults()
         {
-            await RunWithTallyFlagAsync(UpdateResults);
+            await RunWithTallyIsRunningFlagAsync(UpdateResults);
         }
         #endregion
 
@@ -274,7 +288,7 @@ namespace NetTally.VoteCounting
         /// Provide a cancellation token to the specified function.
         /// </summary>
         /// <param name="action">A cancellable function.</param>
-        private void RunWithTallyFlag(Action<CancellationToken> action)
+        private void RunWithTallyIsRunningFlag(Action<CancellationToken> action)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
@@ -313,7 +327,7 @@ namespace NetTally.VoteCounting
         /// Provide a cancellation token to the specified function.
         /// </summary>
         /// <param name="action">A cancellable async function.</param>
-        private async Task RunWithTallyFlagAsync(Func<CancellationToken, Task> action)
+        private async Task RunWithTallyIsRunningFlagAsync(Func<CancellationToken, Task> action)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));

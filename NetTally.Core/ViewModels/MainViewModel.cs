@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.Logging;
 using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
@@ -23,10 +24,12 @@ namespace NetTally.ViewModels
         readonly IVoteCounter voteCounter;
         readonly CheckForNewRelease checkForNewRelease;
         readonly IGlobalOptions globalOptions;
+        readonly ILogger<MainViewModel> logger;
         public ICache<string> PageCache { get; }
 
         public MainViewModel(Tally tally, IVoteCounter voteCounter,
-            ICache<string> cache, CheckForNewRelease newRelease, IGlobalOptions globalOptions)
+            ICache<string> cache, CheckForNewRelease newRelease,
+            IGlobalOptions globalOptions, ILoggerFactory loggerFactory)
         {
             // Save our dependencies in readonly fields.
             this.tally = tally;
@@ -34,10 +37,12 @@ namespace NetTally.ViewModels
             this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
+            logger = loggerFactory.CreateLogger<MainViewModel>();
 
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
 
+            // Set up binding commands.
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
 
@@ -700,6 +705,11 @@ namespace NetTally.ViewModels
         private void SetupWatches()
         {
             NonCommandPropertyChangedValues.Add("NewRelease");
+        }
+
+        public void ExternalPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e);
         }
         #endregion
 

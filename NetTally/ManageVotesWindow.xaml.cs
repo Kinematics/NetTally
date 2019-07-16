@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTally.Comparers;
 using NetTally.Forums;
 using NetTally.Navigation;
@@ -45,6 +47,9 @@ namespace NetTally
         string filter1String = "";
         string filter2String = "";
 
+        private readonly ILogger<ManageVotesWindow> logger;
+        private readonly IoCNavigationService navigationService;
+
         public Task ActivateAsync(object? parameter)
         {
             if (parameter is Window owner)
@@ -59,9 +64,11 @@ namespace NetTally
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotesWindow(MainViewModel mainViewModel)
+        public ManageVotesWindow(MainViewModel mainViewModel, IoCNavigationService navigationService, ILoggerFactory loggerFactory)
         {
             this.mainViewModel = mainViewModel;
+            this.navigationService = navigationService;
+            this.logger = loggerFactory.CreateLogger<ManageVotesWindow>();
 
             InitializeComponent();
 
@@ -472,14 +479,9 @@ namespace NetTally
             }
         }
 
-        private void reorderTasks_Click(object sender, RoutedEventArgs e)
+        private async void reorderTasks_ClickAsync(object sender, RoutedEventArgs e)
         {
-            ReorderTasksWindow reorderWindow = new ReorderTasksWindow(mainViewModel)
-            {
-                Owner = this
-            };
-
-            reorderWindow.ShowDialog();
+            await navigationService.ShowDialogAsync<ReorderTasksWindow>(this);
 
             mainViewModel.UpdateOutput();
         }
@@ -569,6 +571,8 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+
             if (e.PropertyName == nameof(mainViewModel.AllVotesCollection))
             {
                 UpdateVoteCollections();
@@ -671,7 +675,7 @@ namespace NetTally
 
             MenuItem reorderTasks = new MenuItem();
             reorderTasks.Header = "Re-Order Tasks";
-            reorderTasks.Click += reorderTasks_Click;
+            reorderTasks.Click += reorderTasks_ClickAsync;
             reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
 
             MenuItem partitionChildren = new MenuItem();

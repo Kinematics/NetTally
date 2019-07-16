@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Votes;
@@ -11,6 +12,13 @@ namespace NetTally.VoteCounting
 {
     public class VoteCounter : IVoteCounter
     {
+        readonly ILogger<VoteCounter> logger;
+
+        public VoteCounter(ILoggerFactory loggerFactory)
+        {
+            logger = loggerFactory.CreateLogger<VoteCounter>();
+        }
+
         #region Data Collections
         // Public
 
@@ -130,6 +138,8 @@ namespace NetTally.VoteCounting
         /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
         public void AddPosts(IEnumerable<Post> posts)
         {
+            logger.LogDebug($"Adding {posts.Count()} posts to the VoteCounter.");
+
             postsList.Clear();
             if (posts != null)
                 postsList.AddRange(posts);
@@ -140,6 +150,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void ClearPosts()
         {
+            logger.LogDebug($"Clearing posts from the VoteCounter.");
             postsList.Clear();
         }
         #endregion

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using NetTally.Output;
 using NetTally.VoteCounting;
 
@@ -24,13 +27,27 @@ namespace NetTally.Options
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        readonly Stack<bool> dirty = new Stack<bool>();
+        readonly Stack<string> propertyNames = new Stack<string>();
+
         /// <summary>
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        protected async void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            dirty.Push(true);
+            propertyNames.Push(propertyName);
+
+            await Task.Delay(25);
+
+            if (dirty.Pop() && dirty.Count == 0)
+            {
+                foreach (var name in propertyNames)
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+                propertyNames.Clear();
+            }
         }
         #endregion
 
@@ -75,6 +92,7 @@ namespace NetTally.Options
         public const string _disableWebProxy = "disableWebProxy";
         #endregion
 
+
         #region General Options
         /// <summary>
         /// Whether or not to parse ranked votes in a tally.
@@ -82,11 +100,7 @@ namespace NetTally.Options
         public bool AllowRankedVotes
         {
             get { return allowRankedVotes; }
-            set
-            {
-                allowRankedVotes = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref allowRankedVotes, value); }
         }
 
         /// <summary>
@@ -98,11 +112,7 @@ namespace NetTally.Options
         public RankVoteCounterMethod RankVoteCounterMethod
         {
             get { return rankVoteCounterMethod; }
-            set
-            {
-                rankVoteCounterMethod = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref rankVoteCounterMethod, value); }
         }
         #endregion
 
@@ -114,11 +124,7 @@ namespace NetTally.Options
         public bool AllowVoteLabelPlanNames
         {
             get { return allowVoteLabelPlanNames; }
-            set
-            {
-                allowVoteLabelPlanNames = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref allowVoteLabelPlanNames, value); }
         }
 
         /// <summary>
@@ -128,11 +134,7 @@ namespace NetTally.Options
         public bool ForbidVoteLabelPlanNames
         {
             get { return forbidVoteLabelPlanNames; }
-            set
-            {
-                forbidVoteLabelPlanNames = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref forbidVoteLabelPlanNames, value); }
         }
 
         /// <summary>
@@ -143,11 +145,7 @@ namespace NetTally.Options
         public bool IgnoreSymbols
         {
             get { return ignoreSymbols; }
-            set
-            {
-                ignoreSymbols = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref ignoreSymbols, value); }
         }
 
         /// <summary>
@@ -158,11 +156,7 @@ namespace NetTally.Options
         public bool WhitespaceAndPunctuationIsSignificant
         {
             get { return whitespaceAndPunctuationIsSignificant; }
-            set
-            {
-                whitespaceAndPunctuationIsSignificant = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref whitespaceAndPunctuationIsSignificant, value); }
         }
 
         /// <summary>
@@ -172,11 +166,7 @@ namespace NetTally.Options
         public bool DisableProxyVotes
         {
             get { return disableProxyVotes; }
-            set
-            {
-                disableProxyVotes = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref disableProxyVotes, value); }
         }
 
         /// <summary>
@@ -186,11 +176,7 @@ namespace NetTally.Options
         public bool ForcePinnedProxyVotes
         {
             get { return forcePinnedProxyVotes; }
-            set
-            {
-                forcePinnedProxyVotes = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref forcePinnedProxyVotes, value); }
         }
 
         /// <summary>
@@ -200,11 +186,7 @@ namespace NetTally.Options
         public bool IgnoreSpoilers
         {
             get { return ignoreSpoilers; }
-            set
-            {
-                ignoreSpoilers = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref ignoreSpoilers, value); }
         }
 
         /// <summary>
@@ -214,11 +196,7 @@ namespace NetTally.Options
         public bool TrimExtendedText
         {
             get { return trimExtendedText; }
-            set
-            {
-                trimExtendedText = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref trimExtendedText, value); }
         }
         #endregion
 
@@ -230,11 +208,7 @@ namespace NetTally.Options
         public DisplayMode DisplayMode
         {
             get { return displayMode; }
-            set
-            {
-                displayMode = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref displayMode, value); }
         }
 
         /// <summary>
@@ -243,11 +217,7 @@ namespace NetTally.Options
         public bool GlobalSpoilers
         {
             get { return globalSpoilers; }
-            set
-            {
-                globalSpoilers = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref globalSpoilers, value); }
         }
 
         /// <summary>
@@ -256,11 +226,7 @@ namespace NetTally.Options
         public bool DisplayPlansWithNoVotes
         {
             get { return displayPlansWithNoVotes; }
-            set
-            {
-                displayPlansWithNoVotes = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref displayPlansWithNoVotes, value); }
         }
         #endregion
 
@@ -273,8 +239,11 @@ namespace NetTally.Options
             get { return debugMode; }
             set
             {
-                debugMode = value;
-                OnPropertyChanged();
+                if (debugMode != value)
+                {
+                    debugMode = value;
+                    OnPropertyChanged();
+                }
 
 #if DEBUG
                 if (debugMode)
@@ -294,13 +263,37 @@ namespace NetTally.Options
         public bool DisableWebProxy
         {
             get { return disableWebProxy; }
-            set
-            {
-                disableWebProxy = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref disableWebProxy, value); }
         }
 
         #endregion
+
+        #region Generic Property Setting
+        /// <summary>
+        /// Generic handling to set property values and raise the property changed event.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="storage">A reference to the backing property being set.</param>
+        /// <param name="value">The value to be stored.</param>
+        /// <param name="propertyName">Name of the property being set.</param>
+        /// <returns>Returns true if the value was updated, or false if no change was made.</returns>
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (storage is IComparable<T> comparableStorage && comparableStorage.CompareTo(value) == 0)
+            {
+                return false;
+            }
+            else if (Object.Equals(storage, value))
+            {
+                return false;
+            }
+
+            storage = value;
+            OnPropertyChanged(propertyName);
+
+            return true;
+        }
+        #endregion
+
     }
 }
