@@ -347,7 +347,7 @@ namespace NetTally
             if (e == null || e.PropertyName == null)
                 return;
 
-            logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+            logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
 
             if (e.PropertyName == "AddQuest")
             {
