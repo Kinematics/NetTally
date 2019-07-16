@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using NetTally.CustomEventArgs;
 
 namespace NetTally.ViewModels
 {
@@ -79,6 +80,12 @@ namespace NetTally.ViewModels
             if (ViewModel.NonCommandPropertyChangedValues.Contains(e.PropertyName))
                 return;
 
+            if (e.GetType().IsGenericType)
+            {
+                OnCanExecuteChanged(e);
+                return;
+            }
+
             OnCanExecuteChanged();
         }
 
@@ -90,7 +97,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Called when [can execute] changed.
         /// </summary>
-        protected void OnCanExecuteChanged() => CanExecuteChanged?.Invoke(this, new EventArgs());
+        protected void OnCanExecuteChanged(EventArgs? e = null) => CanExecuteChanged?.Invoke(this, e ?? new EventArgs());
         #endregion
     }
 }

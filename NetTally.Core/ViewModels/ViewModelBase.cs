@@ -55,6 +55,25 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Function to raise events when a property has been changed.
         /// Make sure we're in the proper synchronization context before sending.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
+        protected void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (SynchronizationContext.Current == originalSynchronizationContext)
+            {
+                // Execute the PropertyChanged event on the current thread
+                RaisePropertyChanged(e);
+            }
+            else
+            {
+                // Raises the PropertyChanged event on the creator thread
+                originalSynchronizationContext.Send(RaisePropertyChanged, e);
+            }
+        }
+
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// Make sure we're in the proper synchronization context before sending.
         /// Allow sending property data with the event.
         /// </summary>
         /// <param name="propertyData">The data to pass along with the property name.</param>

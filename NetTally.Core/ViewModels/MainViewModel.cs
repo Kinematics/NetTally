@@ -42,6 +42,7 @@ namespace NetTally.ViewModels
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
 
+            // Set up binding commands.
             AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
             RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
 
@@ -704,6 +705,11 @@ namespace NetTally.ViewModels
         private void SetupWatches()
         {
             NonCommandPropertyChangedValues.Add("NewRelease");
+        }
+
+        public void ExternalPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e);
         }
         #endregion
 
