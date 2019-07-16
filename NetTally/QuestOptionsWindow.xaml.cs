@@ -9,10 +9,11 @@ using NetTally.ViewModels;
 namespace NetTally
 {
     /// <summary>
-    /// Interaction logic for QuestOptionsWindow.xaml
+    /// Interaction logic for quest options window.
     /// </summary>
     public partial class QuestOptionsWindow : Window, IActivable
     {
+        #region Setup and construction
         readonly ILogger<QuestOptionsWindow> logger;
 
         public QuestOptionsWindow(MainViewModel model, ILoggerFactory loggerFactory)
@@ -33,7 +34,9 @@ namespace NetTally
 
             return Task.CompletedTask;
         }
+        #endregion
 
+        #region Window element event handlers
         private void resetFiltersButton_Click(object sender, RoutedEventArgs e)
         {
             customPostFilters.Clear();
@@ -78,5 +81,6 @@ namespace NetTally
         {
             Close();
         }
+        #endregion
     }
 }

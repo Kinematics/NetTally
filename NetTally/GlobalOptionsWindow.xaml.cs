@@ -11,6 +11,7 @@ namespace NetTally
     /// </summary>
     public partial class GlobalOptionsWindow : Window, IActivable
     {
+        #region Setup and construction
         readonly ILogger<GlobalOptionsWindow> logger;
 
         public GlobalOptionsWindow(MainViewModel model, ILoggerFactory loggerFactory)
@@ -31,7 +32,9 @@ namespace NetTally
 
             return Task.CompletedTask;
         }
+        #endregion
 
+        #region Window element event handlers
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -46,5 +49,6 @@ namespace NetTally
 
             logger.LogDebug("Global options have been reset.");
         }
+        #endregion
     }
 }
