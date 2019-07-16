@@ -7,42 +7,44 @@ using NetTally.ViewModels;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using System.Threading.Tasks;
+using NetTally.CustomEventArgs;
 
 namespace NetTally
 {
     /// <summary>
-    /// Interaction logic for ReorderTasks.xaml
+    /// Interaction logic for reorder tasks window.
     /// </summary>
     public partial class ReorderTasksWindow : Window, IActivable
     {
-        #region Constructor and variables
+        #region Setup and construction
         readonly MainViewModel mainViewModel;
         readonly ILogger<ReorderTasksWindow> logger;
-        public ListCollectionView TaskView { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="mainViewModel">The primary view model of the program</param>
-        public ReorderTasksWindow(MainViewModel mainViewModel, ILoggerFactory loggerFactory)
+        /// <param name="viewModel">The primary view model of the program</param>
+        public ReorderTasksWindow(MainViewModel viewModel, ILoggerFactory loggerFactory)
         {
-            this.mainViewModel = mainViewModel;
-            this.logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
+            // Save dependencies
+            mainViewModel = viewModel;
+            logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
 
-            InitializeComponent();
-
-            this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-
-            // Create filtered, sortable views into the collection for display in the window.
-            TaskView = new ListCollectionView(this.mainViewModel.TaskList);
-
-            // Initialize starting selected positions
+            // Create view of the task collection for display in the window.
+            TaskView = new ListCollectionView(mainViewModel.TaskList);
             TaskView.MoveCurrentToPosition(-1);
 
-            // Set the data context for binding.
+            // Set the data context for the XAML frontend.
             DataContext = this;
 
-            TaskView.Refresh();
+            // Initialize the window components
+            InitializeComponent();
+
+            // Add event watchers
+            mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            TaskView.CurrentChanged += TaskView_CurrentChanged;
+
+            TaskView.MoveCurrentToFirst();
         }
 
         public Task ActivateAsync(object? parameter)
@@ -54,16 +56,27 @@ namespace NetTally
 
             return Task.CompletedTask;
         }
+        #endregion
 
+        #region Window overrides
         protected override void OnClosed(EventArgs e)
         {
-            mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
-
             base.OnClosed(e);
+
+            // Make sure PropertyChanged delegate isn't left dangling.
+            mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+            TaskView.CurrentChanged -= TaskView_CurrentChanged;
         }
         #endregion
 
-        #region Watched Events        
+        #region Window binding properties for the XAML code
+        /// <summary>
+        /// The ListCollectionView that the ListBox uses to display information from.
+        /// </summary>
+        public ListCollectionView TaskView { get; }
+        #endregion
+
+        #region Watching for notifications from monitored classes
         /// <summary>
         /// Watch for notifications from the main view model about changes in the vote backend.
         /// </summary>
@@ -74,10 +87,42 @@ namespace NetTally
             if (e.PropertyName == "Votes" || e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
                 logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+
                 TaskView.Refresh();
             }
         }
 
+        /// <summary>
+        /// Watch for notifications from the TaskView about changing the current selection.
+        /// Update the up and down buttons accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskView_CurrentChanged(object sender, EventArgs e)
+        {
+            if (TaskView.Count < 2)
+            {
+                up.IsEnabled = false;
+                down.IsEnabled = false;
+            }
+            else
+            {
+                up.IsEnabled = true;
+                down.IsEnabled = true;
+
+                if (TaskView.CurrentPosition == 0)
+                {
+                    up.IsEnabled = false;
+                }
+                else if (TaskView.CurrentPosition == TaskView.Count - 1)
+                {
+                    down.IsEnabled = false;
+                }
+            }
+        }
+        #endregion
+
+        #region Window element event handlers
         private void up_Click(object sender, RoutedEventArgs e)
         {
             mainViewModel.DecreaseTaskPosition(TaskView.CurrentPosition);
