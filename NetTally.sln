@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28705.295
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTally", "NetTally\NetTally.csproj", "{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetTally", "NetTally\NetTally.csproj", "{5F9B045C-3D5B-4111-82F8-99BFE8B3D7F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetTally.Core", "NetTally.Core\NetTally.Core.csproj", "{037E6032-88E9-4861-AB1F-42EC39859ECB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetTally.Console", "NetTally.Console\NetTally.Console.csproj", "{4B3E4098-7D56-4D51-B2F0-8EE02B1E7BB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetTally.Tests", "NetTally.Tests\NetTally.Tests.csproj", "{FCE669D2-600F-401B-8C17-C7FA5F40860D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTally.Avalonia", "NetTally.Avalonia\NetTally.Avalonia.csproj", "{A20EBD4B-D156-4543-A3FF-BD7532CF866E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,18 @@ Global
 		{FCE669D2-600F-401B-8C17-C7FA5F40860D}.Release|x64.Build.0 = Release|Any CPU
 		{FCE669D2-600F-401B-8C17-C7FA5F40860D}.Release|x86.ActiveCfg = Release|Any CPU
 		{FCE669D2-600F-401B-8C17-C7FA5F40860D}.Release|x86.Build.0 = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|x64.Build.0 = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Debug|x86.Build.0 = Debug|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|x64.ActiveCfg = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|x64.Build.0 = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|x86.ActiveCfg = Release|Any CPU
+		{A20EBD4B-D156-4543-A3FF-BD7532CF866E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

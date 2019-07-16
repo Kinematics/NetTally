@@ -1,0 +1,14 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="300"
+             x:Class="NetTally.Avalonia.Views.UserControl1">
+  <DockPanel>
+    <Button DockPanel.Dock="Bottom">Add an item</Button>
+    <StackPanel>
+      <CheckBox Margin="4">Walk the dog</CheckBox>
+      <CheckBox Margin="4">Buy some milk</CheckBox>
+    </StackPanel>
+  </DockPanel>
+</UserControl>
