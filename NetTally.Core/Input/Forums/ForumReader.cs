@@ -253,7 +253,7 @@ namespace NetTally.Forums
             // Remove any posts that are not votes, that aren't in the valid post range, or that
             // hit any filters the quest has set up.  Then do a grouping to get distinct results.
             var filtered = from post in postsList
-                           where post.IsVote
+                           where post.HasVote
                                 && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
                                 && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
                                     || (!quest.UseCustomUsernameFilters && post.Origin.Author != threadInfo.Author))

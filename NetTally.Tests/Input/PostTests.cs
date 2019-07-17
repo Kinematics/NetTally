@@ -65,7 +65,7 @@ what we might consider doing.";
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
-            Assert.IsFalse(post.IsVote);
+            Assert.IsFalse(post.HasVote);
         }
 
         [TestMethod]
@@ -79,11 +79,25 @@ what we might consider doing.";
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
-            Assert.IsFalse(post.IsVote);
+            Assert.IsFalse(post.HasVote);
         }
 
         [TestMethod]
         public void VoteLines_Count_Tally_Invisitext()
+        {
+            string postText =
+@"Someone posted a tally:
+『color=Transparent』#『b』####『/b』 NetTally『/color』
+[X] A count of votes";
+
+            Post post = new Post(origin, postText);
+
+            Assert.AreEqual(0, post.VoteLines.Count);
+            Assert.IsFalse(post.HasVote);
+        }
+
+        [TestMethod]
+        public void VoteLines_Count_Tally_Invisitext_Bold()
         {
             string postText =
 @"Someone posted a tally:
@@ -93,7 +107,7 @@ what we might consider doing.";
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
-            Assert.IsFalse(post.IsVote);
+            Assert.IsFalse(post.HasVote);
         }
 
         [TestMethod]
@@ -141,7 +155,7 @@ what we might consider doing.";
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
         }
 
@@ -158,7 +172,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
         }
 
@@ -174,7 +188,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
-            Assert.IsFalse(post.IsVote);
+            Assert.IsFalse(post.HasVote);
         }
 
         [TestMethod]
@@ -188,7 +202,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Kinematics", post.VoteLines[0].ToComparableString());
         }
 
@@ -205,7 +219,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(5, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Line 1", post.VoteLines[0].ToComparableString());
         }
 
@@ -220,7 +234,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
             Assert.AreEqual("-[] At the top", post.VoteLines[1].ToComparableString());
             Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
@@ -238,7 +252,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
             Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
             Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
@@ -256,7 +270,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
             Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
             Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
@@ -274,7 +288,7 @@ But might include something else...
             Post post = new Post(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
             Assert.AreEqual("[] Teacups", post.VoteLines[1].ToComparableString());
             Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());

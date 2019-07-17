@@ -11,20 +11,12 @@ namespace NetTally.Tests.Input
         static IPageProvider pageProvider;
         static IServiceProvider serviceProvider;
 
-#if !NETCOREAPP
-        static PrivateObject privateWeb;
-#endif
-
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
 
             pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
-
-#if !NETCOREAPP
-            privateWeb = new PrivateObject(pageProvider);
-#endif
         }
 
 

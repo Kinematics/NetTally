@@ -38,7 +38,6 @@ namespace NetTally.Tests.Votes
         #endregion
 
         #region Define post text
-        /*
         readonly static string oneLine = @"[X] Run Lola Run!";
         readonly static string oneLineTask = @"[X][Movie] Run Lola Run!";
         readonly static string twoLine = @"[X] Run Lola Run!
@@ -60,7 +59,6 @@ namespace NetTally.Tests.Votes
         readonly static string refKinematicsApprove = @"[+] Kinematics";
         readonly static string refAtreyaApprove = @"[+] Atreya";
         readonly static string refKimberlyApprove = @"[-] Kimberly";
-        */
         #endregion
 
         #region Generate user posts
@@ -92,6 +90,38 @@ namespace NetTally.Tests.Votes
             return new Post(origin, postText);
         }
         #endregion
+
+        [TestMethod]
+        public void Simple_Reference()
+        {
+            string voteText1 = oneLine;
+            string voteText2 = refKinematics;
+            Post post1 = GetPostFromUser1(voteText1);
+            Post post2 = GetPostFromUser2(voteText2);
+
+            quest.PartitionMode = PartitionMode.ByLine;
+            quest.DisableProxyVotes = false;
+
+            voteCounter.AddReferenceVoter(post1.Origin);
+            voteCounter.AddReferenceVoter(post2.Origin);
+
+            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+
+            if (results1 != null)
+                voteCounter.AddVotes(results1, post1.Origin);
+
+            var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+
+            if (results2 != null)
+            {
+                Assert.IsTrue(results2[0].Lines.Count == 1);
+                Assert.AreEqual(voteText1, results2[0].Lines[0].ToString());
+
+                voteCounter.AddVotes(results2, post2.Origin);
+            }
+
+            Assert.IsFalse(results2 == null);
+        }
 
 
     }

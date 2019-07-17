@@ -37,7 +37,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -56,7 +56,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -75,7 +75,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -95,7 +95,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -114,7 +114,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -134,7 +134,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -157,7 +157,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
@@ -180,7 +180,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -199,7 +199,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -219,7 +219,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -238,7 +238,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -258,7 +258,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -281,7 +281,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
@@ -304,7 +304,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -323,7 +323,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -342,7 +342,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -361,7 +361,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -381,7 +381,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -401,7 +401,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
@@ -424,7 +424,7 @@ namespace NetTally.Tests.Votes
 
             Post post = new Post(origin, postText);
 
-            Assert.IsTrue(post.IsVote);
+            Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
             var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);

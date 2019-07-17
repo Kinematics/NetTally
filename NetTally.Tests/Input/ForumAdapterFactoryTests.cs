@@ -35,7 +35,7 @@ namespace NetTally.Tests.Forums
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/vote-tally-program.199/";
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo2Adapter));
         }
 
         [TestMethod]
