@@ -257,15 +257,6 @@ namespace NetTally.Votes
                             {
                                 workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                             }
-
-
-                            //List<(VoteLine? line, VoteLineBlock? block)> refWorkingVote1 = new List<(VoteLine? line, VoteLineBlock? block)>();
-
-                            //var refWorkingVote2 = refUserPost.WorkingVote.Select(wv =>
-                            //    (wv.line?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true),
-                            //     wv.block?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true)));
-
-                            //workingVote.AddRange(refWorkingVote2);
                         }
                     }
                 }

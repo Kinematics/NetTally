@@ -309,6 +309,14 @@ namespace NetTally.Votes
 
         #region IComparable and IEquatable interface implementations.
 #nullable disable
+        /// <summary>
+        /// Compare two VoteLines with each other.  
+        /// Task and Content are compared agnostically. Prefix depth matters.  Marker does not matter.
+        /// We only care that the vote itself is the same, not whether the vote types or user preference levels are the same.
+        /// </summary>
+        /// <param name="left">A VoteLine to compare.</param>
+        /// <param name="right">A VoteLine to compare.</param>
+        /// <returns>Returns how the two vote lines compare to each other.</returns>
         public static int Compare(VoteLine left, VoteLine right)
         {
             if (ReferenceEquals(left, right))
