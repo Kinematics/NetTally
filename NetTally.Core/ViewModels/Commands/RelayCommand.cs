@@ -33,7 +33,7 @@ namespace NetTally.ViewModels.Commands
             this.execute = execute;
             this.canExecute = canExecute;
 
-            commandFilter = viewModel as ICommandFilter ?? new DefaultCommandFilter();
+            commandFilter = viewModel as ICommandFilter ?? CommandFilter.Default;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }

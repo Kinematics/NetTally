@@ -42,7 +42,7 @@ namespace NetTally.ViewModels.Commands
             this.executeAsync = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));
             this.canExecute = canExecute ?? throw new ArgumentNullException(nameof(canExecute));
 
-            commandFilter = viewModel as ICommandFilter ?? new DefaultCommandFilter();
+            commandFilter = viewModel as ICommandFilter ?? CommandFilter.Default;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
