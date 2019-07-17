@@ -64,6 +64,16 @@ namespace NetTally.Votes
             return null;
         }
 
+        public int GetSupportCountFor(VoteLineBlock vote)
+        {
+            if (TryGetValue(vote, out var supporters))
+            {
+                return supporters.Count(s => s.Key.AuthorType == IdentityType.User);
+            }
+
+            return 0;
+        }
+
         public IEnumerable<Origin> GetVotersFor(VoteLineBlock vote)
         {
             if (TryGetValue(vote, out var supporters))
