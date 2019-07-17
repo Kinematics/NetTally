@@ -585,25 +585,13 @@ namespace NetTally.ViewModels
 
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
         public ObservableCollectionExt<Origin> AllVotersCollection { get; } = new ObservableCollectionExt<Origin>();
-        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
+        public ObservableCollectionExt<string> TaskList => VoteCounter.TaskList;
 
         /// <summary>
         /// Adds a new user-defined task to the known collection of tasks.
         /// </summary>
         /// <param name="task">The task to add.</param>
         public void AddUserDefinedTask(string task) => VoteCounter.AddUserDefinedTask(task);
-
-        /// <summary>
-        /// Increases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void IncreaseTaskPosition(int currentPosition) => VoteCounter.IncreaseTaskPosition(currentPosition);
-
-        /// <summary>
-        /// Decreases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void DecreaseTaskPosition(int currentPosition) => VoteCounter.DecreaseTaskPosition(currentPosition);
 
         /// <summary>
         /// Resets the tasks order.
@@ -632,16 +620,6 @@ namespace NetTally.ViewModels
             OnPropertyChanged(nameof(AllVotersCollection));
         }
 
-        /// <summary>
-        /// Update the observable collection of voters.
-        /// </summary>
-        private void UpdateTaskCollection()
-        {
-            TaskList.Replace(VoteCounter.TaskList);
-
-            OnPropertyChanged(nameof(TaskList));
-        }
-
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!VoteCounter.VoteCounterIsTallying)
@@ -652,14 +630,12 @@ namespace NetTally.ViewModels
                     // Update observable collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
-                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "VoteCounter")
                 {
                     // Update all vote counter collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
-                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "Votes")
                 {
@@ -668,10 +644,6 @@ namespace NetTally.ViewModels
                 else if (e.PropertyName == "Voters")
                 {
                     UpdateVotersCollection();
-                }
-                else if (e.PropertyName == "Tasks")
-                {
-                    UpdateTaskCollection();
                 }
                 else
                 {

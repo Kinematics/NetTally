@@ -37,6 +37,9 @@ namespace NetTally.ViewModels.Commands
         public HashSet<string> PropertyFilterList { get; }
     }
 
+    /// <summary>
+    /// Default implementation of an ICommandFilter.
+    /// </summary>
     public class DefaultCommandFilter : ICommandFilter
     {
         public PropertyFilterListOption PropertyFilterListMode => PropertyFilterListOption.Ignore;
