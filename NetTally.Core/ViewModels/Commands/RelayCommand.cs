@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace NetTally.ViewModels
+namespace NetTally.ViewModels.Commands
 {
     /// <summary>
     /// An abstract container for an <seealso cref="ICommand"/> that allows you to
@@ -33,11 +33,15 @@ namespace NetTally.ViewModels
             this.execute = execute;
             this.canExecute = canExecute;
 
+            commandFilter = viewModel as ICommandFilter ?? new DefaultCommandFilter();
+
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
         #endregion
 
         #region Can Execute Changed Events
+        readonly ICommandFilter commandFilter;
+
         /// <summary>
         /// Handles the PropertyChanged event of the ViewModel control.
         /// Any time the view model sends a property changed notification,
@@ -47,6 +51,14 @@ namespace NetTally.ViewModels
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if ((commandFilter.PropertyFilterListMode == PropertyFilterListOption.Exclude
+                    && commandFilter.PropertyFilterList.Contains(e.PropertyName))
+                || (commandFilter.PropertyFilterListMode == PropertyFilterListOption.IncludeOnly
+                    && !commandFilter.PropertyFilterList.Contains(e.PropertyName)))
+            {
+                return;
+            }
+
             OnCanExecuteChanged();
         }
 

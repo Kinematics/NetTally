@@ -13,6 +13,7 @@ using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
+using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
