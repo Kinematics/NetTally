@@ -98,11 +98,6 @@ namespace NetTally.Votes
         }
         #endregion
 
-        public HashSet<string> GetAllTasks()
-        {
-            return Lines.Where(l => !string.IsNullOrEmpty(l.Task)).Select(l => l.Task).ToHashSet<string>(StringComparer.OrdinalIgnoreCase);
-        }
-
         #region ToString variations
         public override string ToString()
         {
@@ -228,11 +223,11 @@ namespace NetTally.Votes
 
                     // Lines do not compare markers for equality, but blocks do.
                     // MarkerType of None or Plan matches any other marker.
-                    if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None)
-                        && (left.MarkerType != MarkerType.Plan && right.MarkerType != MarkerType.Plan))
-                    {
-                        result = left.MarkerType.CompareTo(right.MarkerType);
-                    }
+                    //if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None)
+                    //    && (left.MarkerType != MarkerType.Plan && right.MarkerType != MarkerType.Plan))
+                    //{
+                    //    result = left.MarkerType.CompareTo(right.MarkerType);
+                    //}
                 }
             }
 
