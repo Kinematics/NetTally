@@ -17,14 +17,14 @@ namespace NetTally
     public partial class ReorderTasksWindow : Window, IActivable
     {
         #region Setup and construction
-        readonly MainViewModel mainViewModel;
+        readonly ViewModel mainViewModel;
         readonly ILogger<ReorderTasksWindow> logger;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="viewModel">The primary view model of the program</param>
-        public ReorderTasksWindow(MainViewModel viewModel, ILoggerFactory loggerFactory)
+        public ReorderTasksWindow(ViewModel viewModel, ILoggerFactory loggerFactory)
         {
             // Save dependencies
             mainViewModel = viewModel;

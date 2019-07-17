@@ -11,9 +11,9 @@ namespace NetTally.ViewModels
 {
     public class ViewModelService
     {
-        public static MainViewModel MainViewModel;
+        public static ViewModel MainViewModel;
 
-        public ViewModelService(MainViewModel model)
+        public ViewModelService(ViewModel model)
         {
             MainViewModel = model;
         }

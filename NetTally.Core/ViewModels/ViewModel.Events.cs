@@ -8,14 +8,14 @@ using NetTally.CustomEventArgs;
 namespace NetTally.ViewModels
 {
     /// <summary>
-    /// Base class for view models in order to contain various syncronization methods for
-    /// when properties are changed or events are raised.
+    /// Partial implementation of the ViewModel class.
+    /// Handles raising events, including marshalling across threads.
     /// </summary>
-    public class ViewModelBase : INotifyPropertyChanged
+    public partial class ViewModel : INotifyPropertyChanged
     {
         /// <summary>
         /// The thread context that this class was originally created in, so that we
-        /// can send notifications back on that same thread.
+        /// can send notifications back on that same (UI) thread.
         /// </summary>
         readonly SynchronizationContext originalSynchronizationContext = SynchronizationContext.Current;
 
@@ -97,13 +97,14 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Function to actually invoke the delegate, after synchronization is checked.
         /// </summary>
-        /// <param name="param">The parameter.</param>
+        /// <param name="param">The EventArgs parameter. If called across synchronization
+        /// contexts, will be passed as an object.</param>
         private void RaisePropertyChanged(object param)
         {
-            if (param is PropertyChangedEventArgs paramArgs)
+            if (param is PropertyChangedEventArgs e)
             {
                 // We are in the creator thread, call the base implementation directly.
-                PropertyChanged?.Invoke(this, paramArgs);
+                PropertyChanged?.Invoke(this, e);
             }
         }
         #endregion

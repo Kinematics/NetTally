@@ -30,7 +30,7 @@ namespace NetTally
             services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralOutputOptions>(AdvancedOptions.Instance);
 
-            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<ViewModel>();
             services.AddSingleton<ViewModelService>();
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();

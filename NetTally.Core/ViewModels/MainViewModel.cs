@@ -18,16 +18,16 @@ using NetTally.Votes;
 
 namespace NetTally.ViewModels
 {
-    public class MainViewModel : ViewModelBase, IDisposable
+    public partial class ViewModel : IDisposable
     {
         readonly Tally tally;
         readonly IVoteCounter voteCounter;
         readonly CheckForNewRelease checkForNewRelease;
         readonly IGlobalOptions globalOptions;
-        readonly ILogger<MainViewModel> logger;
+        readonly ILogger<ViewModel> logger;
         public ICache<string> PageCache { get; }
 
-        public MainViewModel(Tally tally, IVoteCounter voteCounter,
+        public ViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease,
             IGlobalOptions globalOptions, ILoggerFactory loggerFactory)
         {
@@ -37,7 +37,7 @@ namespace NetTally.ViewModels
             this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
-            logger = loggerFactory.CreateLogger<MainViewModel>();
+            logger = loggerFactory.CreateLogger<ViewModel>();
 
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
@@ -56,7 +56,7 @@ namespace NetTally.ViewModels
         #region IDisposable
         bool _disposed;
 
-        ~MainViewModel()
+        ~ViewModel()
         {
             Dispose(false);
         }
@@ -322,14 +322,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanAddQuest(object parameter) => !TallyIsRunning;
+        private bool CanAddQuest(object? parameter) => !TallyIsRunning;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoAddQuest(object parameter)
+        private void DoAddQuest(object? parameter)
         {
             if (parameter is IQuest quest)
             {
@@ -362,7 +362,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">The parameter to signal which quest is being removed.</param>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanRemoveQuest(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+        private bool CanRemoveQuest(object? parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
 
         /// <summary>
         /// Removes either the currently selected quest, or the quest specified
@@ -371,7 +371,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">Either an IQuest object or a string specifying
         /// the quest's DisplayName.  If null, will instead use the current
         /// SelectedQuest.</param>
-        private void DoRemoveQuest(object parameter)
+        private void DoRemoveQuest(object? parameter)
         {
             int index = -1;
             IQuest? questToRemove = GetThisQuest(parameter);
@@ -467,14 +467,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanRunTally(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+        private bool CanRunTally(object? parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private async Task DoRunTallyAsync(object parameter)
+        private async Task DoRunTallyAsync(object? parameter)
         {
             try
             {
@@ -532,14 +532,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanCancelTally(object parameter) => TallyIsRunning;
+        private bool CanCancelTally(object? parameter) => TallyIsRunning;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoCancelTally(object parameter)
+        private void DoCancelTally(object? parameter)
         {
             Tally.Cancel();
 
@@ -564,13 +564,13 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanClearTallyCache(object parameter) => !TallyIsRunning;
+        private bool CanClearTallyCache(object? parameter) => !TallyIsRunning;
 
         /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoClearTallyCache(object parameter)
+        private void DoClearTallyCache(object? parameter)
         {
             PageCache.Clear();
             VoteCounter.ResetUserMerges();
@@ -722,7 +722,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">Indicator of what quest is being requested.</param>
         /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
-        private IQuest? GetThisQuest(object parameter)
+        private IQuest? GetThisQuest(object? parameter)
         {
             if (parameter is IQuest quest)
             {
