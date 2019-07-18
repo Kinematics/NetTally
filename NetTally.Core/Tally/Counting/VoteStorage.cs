@@ -45,8 +45,6 @@ namespace NetTally.Votes
             // If the vote isn't already in storage, create a new instance.
             if (!TryGetValue(vote, out var localVoters))
             {
-                // TODO: Do you need allLines anymore?
-                //var referenceVote = vote.WithMarker("", MarkerType.None, 0, allLines: true);
                 var referenceVote = vote.WithMarker("", MarkerType.None, 0);
 
                 localVoters = new VoterStorage();

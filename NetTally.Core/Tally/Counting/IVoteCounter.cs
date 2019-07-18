@@ -30,8 +30,6 @@ namespace NetTally.VoteCounting
         /// A collection structure to store votes and the voters who voted for them.
         /// Also stores the specific variant that each voter used.
         /// </summary>
-        //Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
-
         VoteStorage VoteStorage { get; }
 
         /// <summary>
