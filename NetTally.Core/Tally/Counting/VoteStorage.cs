@@ -7,6 +7,7 @@ namespace NetTally.Votes
     public class VoteStorage : Dictionary<VoteLineBlock, VoterStorage>
     {
         const double categoryThreshold = 0.83;
+        bool dirty = false;
 
         #region Constructors
         /// <summary>
@@ -54,6 +55,7 @@ namespace NetTally.Votes
             }
 
             localVoters[supporter] = vote;
+            dirty = true;
         }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace NetTally.Votes
         {
             if (TryGetValue(vote, out var localVoters))
             {
+                dirty = true;
                 return localVoters.Remove(supporter);
             }
 
@@ -85,7 +88,10 @@ namespace NetTally.Votes
             foreach (var vote in this)
             {
                 if (vote.Value.Remove(voter))
+                {
+                    dirty = true;
                     removedAny = true;
+                }
             }
 
             return removedAny;
@@ -105,7 +111,10 @@ namespace NetTally.Votes
             foreach (var vote in unsupported)
             {
                 if (Remove(vote.Key))
+                {
+                    dirty = true;
                     removedAny = true;
+                }
             }
 
             return removedAny;
@@ -122,9 +131,15 @@ namespace NetTally.Votes
         {
             foreach (var (vote, supporters) in this)
             {
-                vote.Category = GetCategoryOf(supporters);
+                if (dirty)
+                {
+                    vote.Category = GetCategoryOf(supporters);
+                }
+
                 yield return vote;
             }
+
+            dirty = false;
 
             // Private function to calculate the category for each set of supporters.
             static MarkerType GetCategoryOf(VoterStorage supporters)

@@ -112,7 +112,6 @@ namespace NetTally.Output
             }
         }
 
-
         /// <summary>
         /// Collect all recorded votes from the VoteCounter into groups based on what
         /// type of vote each one was represented by (via MarkerType).
@@ -133,24 +132,23 @@ namespace NetTally.Output
 
             MarkerType[] markers = { MarkerType.Rank, MarkerType.Score, MarkerType.Approval };
 
-            foreach (var marker in markers)
-            {
-                foreach (var block in voteCounter.VoteStorage)
-                {
-                    // Using the default threshold for 'Most'.  Change if necessary.
-                    if (block.Value.Most(v => v.Value.MarkerType == marker))
-                    {
-                        group[marker].Add(block.Key, block.Value);
-                    }
-                }
-            }
+            var allVotes = voteCounter.VoteStorage.GetAllVotes();
 
-            foreach (var block in voteCounter.VoteStorage)
+            foreach (var vote in allVotes)
             {
-                if (block.Value.Any(v => v.Value.MarkerType == MarkerType.Vote) ||
-                    (outputOptions.DisplayPlansWithNoVotes && block.Value.Any(v => v.Value.MarkerType == MarkerType.Plan)))
+                // If the vote category is Rank/Score/Approval, it already has most
+                // votes in that category.  Add it to our group.
+                if (markers.Contains(vote.Category))
                 {
-                    group[MarkerType.Vote].Add(block.Key, block.Value);
+                    group[vote.Category].Add(vote, voteCounter.VoteStorage[vote]);
+                }
+
+                // If the vote category if Vote, or if there are any voters who used
+                // standard voting, put it in our Vote group.
+                if (vote.Category == MarkerType.Vote || 
+                    voteCounter.VoteStorage[vote].Any(v => v.Value.Category == MarkerType.Vote))
+                {
+                    group[MarkerType.Vote].Add(vote, voteCounter.VoteStorage[vote]);
                 }
             }
 
