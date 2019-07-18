@@ -115,7 +115,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="mainViewModel">The view model that allows us to check the current quest's options.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        public static void ComparisonPropertyChanged(MainViewModel mainViewModel, PropertyChangedEventArgs e)
+        public static void ComparisonPropertyChanged(ViewModel mainViewModel, PropertyChangedEventArgs e)
         {
             if (e.PropertyName.StartsWith("SelectedQuest."))
             {

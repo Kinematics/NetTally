@@ -16,7 +16,7 @@ namespace NetTally
         #region Setup and construction
         readonly ILogger<QuestOptionsWindow> logger;
 
-        public QuestOptionsWindow(MainViewModel model, ILoggerFactory loggerFactory)
+        public QuestOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
         {
             logger = loggerFactory.CreateLogger<QuestOptionsWindow>();
 

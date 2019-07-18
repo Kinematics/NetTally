@@ -81,6 +81,44 @@ But might include something else...
             return post;
         }
 
+        Post GetPost4()
+        {
+            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            string postText = 
+@"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            Post post = new Post(origin, postText);
+            voteConstructor.ConfigureWorkingVote(post, quest);
+
+            return post;
+        }
+
+        Post GetPost5()
+        {
+            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            string postText =
+@"『b』Vote Tally『/b』
+『color=transparent』##### NetTally 1.0『/color』
+[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
+[x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
+[x] Head over to Oriko's.
+-[x] 20 minutes roof hopping practice. Then fly the rest of the way.
+-[x] Cleansing.
+-[x] Take both of them food shopping (or whoever wants to go.)
+-[x] Light conversation. No need for serious precog questions right now.";
+
+            Post post = new Post(origin, postText);
+            voteConstructor.ConfigureWorkingVote(post, quest);
+
+            return post;
+        }
+
         (string name, VoteLineBlock block) GetBasePlan1()
         {
             VoteLine line1 = new VoteLine("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
@@ -124,7 +162,7 @@ But might include something else...
         }
         #endregion
 
-
+        #region Test Sample Posts
         [TestMethod]
         public void Process_Post1_NoPartitioning()
         {
@@ -251,7 +289,6 @@ But might include something else...
             Assert.AreEqual(1, results!.First().Lines.Count);
         }
 
-
         [TestMethod]
         public void Process_Post3_LinePartitioning_TaskFilter()
         {
@@ -322,6 +359,54 @@ But might include something else...
             Assert.AreEqual(4, results.Lines.Count);
             Assert.AreEqual("Plan Sound of Music", results.Lines.First().CleanContent);
         }
+        #endregion
 
+        #region Test More Posts
+        [TestMethod]
+        public void Process_Post4_ByLine()
+        {
+            quest.PartitionMode = PartitionMode.ByLine;
+            Post post = GetPost4();
+
+            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+
+            Assert.AreNotEqual(null, results);
+            Assert.AreEqual(7, results!.Count);
+            Assert.AreEqual("", results[0].Task);
+            Assert.AreEqual(1, results[0].Lines.Count);
+        }
+
+        [TestMethod]
+        public void Process_Post4_ByBlock()
+        {
+            quest.PartitionMode = PartitionMode.ByBlock;
+            Post post = GetPost4();
+
+            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+
+            Assert.AreNotEqual(null, results);
+            Assert.AreEqual(3, results!.Count);
+            Assert.AreEqual("", results.First().Task);
+            Assert.AreEqual(1, results[0].Lines.Count);
+            Assert.AreEqual(1, results[1].Lines.Count);
+            Assert.AreEqual(5, results[2].Lines.Count);
+        }
+
+        [TestMethod]
+        public void Process_Post5_ByBlock()
+        {
+            quest.PartitionMode = PartitionMode.ByBlock;
+            Post post = GetPost5();
+
+            Assert.IsFalse(post.HasVote);
+
+            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+
+            if (results != null)
+                Assert.AreEqual(0, results.Count);
+
+            Assert.AreNotEqual(null, results);
+        }
+        #endregion
     }
 }

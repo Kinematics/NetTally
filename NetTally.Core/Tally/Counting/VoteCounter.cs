@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using NetTally.Collections;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Votes;
@@ -38,7 +39,6 @@ namespace NetTally.VoteCounting
         // Private
 
         readonly List<Post> postsList = new List<Post>();
-        readonly List<string> taskList = new List<string>();
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
@@ -70,6 +70,8 @@ namespace NetTally.VoteCounting
                 if (voteCounterIsTallying != value)
                 {
                     voteCounterIsTallying = value;
+                    OnPropertyChanged("Votes");
+                    OnPropertyChanged("Voters");
                     OnPropertyChanged();
                 }
             }
@@ -100,7 +102,7 @@ namespace NetTally.VoteCounting
 
             VoteDefinedTasks.Clear();
             OrderedVoteTaskList.Clear();
-            taskList.Clear();
+            TaskList.Clear();
 
             OnPropertyChanged("VoteCounter");
             OnPropertyChanged("Tasks");
@@ -379,8 +381,7 @@ namespace NetTally.VoteCounting
                 return;
 
             // Remove the voter from any existing votes
-            if (VoteStorage.RemoveVoterFromVotes(voter))
-                OnPropertyChanged("Voters");
+            VoteStorage.RemoveVoterFromVotes(voter);
 
             // Add/update all segments of the provided vote
             foreach (var partition in votePartitions)
@@ -391,8 +392,6 @@ namespace NetTally.VoteCounting
 
             // Cleanup any votes that no longer have any support
             VoteStorage.RemoveUnsupportedVotes();
-
-            OnPropertyChanged("Votes");
         }
 
 
@@ -688,7 +687,8 @@ namespace NetTally.VoteCounting
         HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         List<string> OrderedVoteTaskList { get; } = new List<string>();
         List<string> OrderedUserTaskList { get; } = new List<string>();
-        public IReadOnlyList<string> TaskList => taskList;
+        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
+
 
         /// <summary>
         /// Add tasks as we add votes.  If we register a new vote-defined task, add it
@@ -705,7 +705,7 @@ namespace NetTally.VoteCounting
                 if (VoteDefinedTasks.Add(task))
                 {
                     OrderedVoteTaskList.Add(task);
-                    taskList.Add(task);
+                    TaskList.Add(task);
                     OnPropertyChanged("Tasks");
                 }
             }
@@ -724,7 +724,7 @@ namespace NetTally.VoteCounting
             if (UserDefinedTasks.Add(task))
             {
                 OrderedUserTaskList.Add(task);
-                taskList.Add(task);
+                TaskList.Add(task);
                 OnPropertyChanged("Tasks");
                 return true;
             }
@@ -738,28 +738,8 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void AddUserDefinedTasksToTaskList()
         {
-            taskList.AddRange(OrderedUserTaskList);
-        }
+            TaskList.AddRange(OrderedUserTaskList);
 
-        /// <summary>
-        /// Increases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void IncreaseTaskPosition(int currentPosition)
-        {
-            // The Swap extension function handles bounds checking.
-            taskList.Swap(currentPosition, currentPosition + 1);
-            OnPropertyChanged("Tasks");
-        }
-
-        /// <summary>
-        /// Decreases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void DecreaseTaskPosition(int currentPosition)
-        {
-            // The Swap extension function handles bounds checking.
-            taskList.Swap(currentPosition, currentPosition - 1);
             OnPropertyChanged("Tasks");
         }
 
@@ -771,13 +751,12 @@ namespace NetTally.VoteCounting
         {
             if (order == TasksOrdering.Alphabetical)
             {
-                taskList.Sort();
+                TaskList.Sort();
             }
             else if (order == TasksOrdering.AsTallied)
             {
-                taskList.Clear();
-                taskList.AddRange(OrderedVoteTaskList);
-                taskList.AddRange(OrderedUserTaskList);
+                TaskList.Clear();
+                TaskList.AddRange(OrderedVoteTaskList.Concat(OrderedUserTaskList));
             }
 
             OnPropertyChanged("Tasks");

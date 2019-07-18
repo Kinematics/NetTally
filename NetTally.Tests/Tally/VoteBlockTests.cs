@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NetTally.Tests.Votes
 {
     [TestClass]
-    public class VoteLineBlockTests
+    public class VoteBlockTests
     {
         static IServiceProvider serviceProvider;
 

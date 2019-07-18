@@ -32,7 +32,7 @@ namespace NetTally
         #region Fields and Properties
         bool _disposed = false;
         private bool updateFlag;
-        private readonly MainViewModel mainViewModel;
+        private readonly ViewModel mainViewModel;
         private readonly IoCNavigationService navigationService;
         private readonly SynchronizationContext _syncContext;
         private readonly ILogger<MainWindow> logger;
@@ -43,7 +43,7 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(MainViewModel model, IoCNavigationService navigationService, IHash hash, ILoggerFactory loggerFactory)
+        public MainWindow(ViewModel model, IoCNavigationService navigationService, IHash hash, ILoggerFactory loggerFactory)
         {
             // Initialize the readonly fields.
             this.mainViewModel = model;

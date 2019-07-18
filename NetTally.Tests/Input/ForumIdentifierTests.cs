@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 
-namespace NTTests.Input
+namespace NetTally.Tests.Forums
 {
     [TestClass]
     public class ForumIdentifierTests

@@ -106,6 +106,15 @@ namespace NetTally.Tests.Votes
             Assert.AreEqual(null, voteLine);
         }
 
+        [TestMethod]
+        public void NonVote_11()
+        {
+            string line = "--*[2] Invalid prefix";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            Assert.AreEqual(null, voteLine);
+        }
+
         #endregion
 
         #region Prefixes
@@ -537,9 +546,49 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
+        public void Task_Empty()
+        {
+            string line = "[X][] A normal vote line";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
         public void Task_Complex()
         {
             string line = "[X][Do you~~Go!] A normal vote line";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("Do you~~Go!", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Task_Complex_Spacing()
+        {
+            string line = "[X]  [Do you~~Go!] A normal vote line";
             VoteLine? voteLine = VoteLineParser.ParseLine(line);
 
             if (voteLine != null)
@@ -663,7 +712,7 @@ namespace NetTally.Tests.Votes
         public void General_Bold_Task()
         {
             string line = @"[X]『i』『b』[Shopping]『/b』『/i』 Shopping 1";
-            // Poor matching may result in the Content == 『i』『b』『/b』『/i』 Shopping 1
+            // Poor matching may result in the Content ==> 『i』『b』『/b』『/i』 Shopping 1
             VoteLine? voteLine = VoteLineParser.ParseLine(line);
 
             if (voteLine != null)

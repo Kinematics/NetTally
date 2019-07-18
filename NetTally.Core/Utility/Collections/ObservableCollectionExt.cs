@@ -85,20 +85,26 @@ namespace NetTally.Collections
 
             if (Items != null)
             {
-                var itemsWithoutPredicate = Items.Where(a => !predicate(a)).ToList();
+                //var removedItems = Items.Where(i => predicate(i)).ToList();
+
+                var itemsBeingKept = Items.Where(a => !predicate(a)).ToList();
+
                 Items.Clear();
+
                 if (Items is List<T> itemsList)
                 {
-                    itemsList.AddRange(itemsWithoutPredicate);
+                    itemsList.AddRange(itemsBeingKept);
                 }
-                else if (Items != null)
+                else
                 {
-                    foreach (var item in itemsWithoutPredicate)
+                    foreach (var item in itemsBeingKept)
                         Items.Add(item);
                 }
 
                 OnPropertyChanged(new PropertyChangedEventArgs("Count"));
                 OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+                //NotifyCollectionChangedEventArgs does not support multiple removed items.
+                //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems));
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
@@ -114,6 +120,8 @@ namespace NetTally.Collections
 
             CheckReentrancy();
 
+            //var addedItems = list.ToList();
+
             foreach (T item in list)
             {
                 Items.Add(item);
@@ -121,6 +129,8 @@ namespace NetTally.Collections
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            //NotifyCollectionChangedEventArgs does not support multiple added items.
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, addedItems));
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -135,6 +145,8 @@ namespace NetTally.Collections
 
             CheckReentrancy();
 
+            var originalItems = Items.ToList();
+
             Items.Clear();
 
             foreach (T item in list)
@@ -144,6 +156,41 @@ namespace NetTally.Collections
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+            //    Items.ToList(), originalItems));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        /// <summary>
+        /// Sorts the current collection.
+        /// </summary>
+        public void Sort()
+        {
+            CheckReentrancy();
+
+            var originalItems = Items.ToList();
+
+            if (Items is List<T> itemsList)
+            {
+                itemsList.Sort();
+            }
+            else if (Items != null)
+            {
+                List<T> list = new List<T>(Items);
+                list.Sort();
+
+                Items.Clear();
+                foreach (T item in list)
+                {
+                    Items.Add(item);
+                }
+            }
+
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+            //    Items.ToList(), originalItems));
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
         #endregion

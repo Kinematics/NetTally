@@ -7,7 +7,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Tally\VoteConstructorTests.cs" />
     <Compile Remove="Tally\VoteCounterTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -46,7 +45,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Tally\VoteConstructorTests.cs" />
     <None Include="Tally\VoteCounterTests.cs" />
   </ItemGroup>
   <ItemGroup>

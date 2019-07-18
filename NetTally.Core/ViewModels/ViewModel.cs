@@ -13,21 +13,22 @@ using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
+using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
 namespace NetTally.ViewModels
 {
-    public class MainViewModel : ViewModelBase, IDisposable
+    public partial class ViewModel : IDisposable
     {
         readonly Tally tally;
         readonly IVoteCounter voteCounter;
         readonly CheckForNewRelease checkForNewRelease;
         readonly IGlobalOptions globalOptions;
-        readonly ILogger<MainViewModel> logger;
+        readonly ILogger<ViewModel> logger;
         public ICache<string> PageCache { get; }
 
-        public MainViewModel(Tally tally, IVoteCounter voteCounter,
+        public ViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease,
             IGlobalOptions globalOptions, ILoggerFactory loggerFactory)
         {
@@ -37,7 +38,7 @@ namespace NetTally.ViewModels
             this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
-            logger = loggerFactory.CreateLogger<MainViewModel>();
+            logger = loggerFactory.CreateLogger<ViewModel>();
 
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
@@ -56,7 +57,7 @@ namespace NetTally.ViewModels
         #region IDisposable
         bool _disposed;
 
-        ~MainViewModel()
+        ~ViewModel()
         {
             Dispose(false);
         }
@@ -322,14 +323,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanAddQuest(object parameter) => !TallyIsRunning;
+        private bool CanAddQuest(object? parameter) => !TallyIsRunning;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoAddQuest(object parameter)
+        private void DoAddQuest(object? parameter)
         {
             if (parameter is IQuest quest)
             {
@@ -362,7 +363,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">The parameter to signal which quest is being removed.</param>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanRemoveQuest(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+        private bool CanRemoveQuest(object? parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
 
         /// <summary>
         /// Removes either the currently selected quest, or the quest specified
@@ -371,7 +372,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">Either an IQuest object or a string specifying
         /// the quest's DisplayName.  If null, will instead use the current
         /// SelectedQuest.</param>
-        private void DoRemoveQuest(object parameter)
+        private void DoRemoveQuest(object? parameter)
         {
             int index = -1;
             IQuest? questToRemove = GetThisQuest(parameter);
@@ -467,14 +468,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanRunTally(object parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
+        private bool CanRunTally(object? parameter) => !TallyIsRunning && GetThisQuest(parameter) != null;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private async Task DoRunTallyAsync(object parameter)
+        private async Task DoRunTallyAsync(object? parameter)
         {
             try
             {
@@ -532,14 +533,14 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanCancelTally(object parameter) => TallyIsRunning;
+        private bool CanCancelTally(object? parameter) => TallyIsRunning;
 
         /// <summary>
         /// Adds a new quest to the quest list, selects it, and notifies any
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoCancelTally(object parameter)
+        private void DoCancelTally(object? parameter)
         {
             Tally.Cancel();
 
@@ -564,13 +565,13 @@ namespace NetTally.ViewModels
         /// Determines whether it's valid to add a new quest right now.
         /// </summary>
         /// <returns>Returns true if it's valid to execute the command.</returns>
-        private bool CanClearTallyCache(object parameter) => !TallyIsRunning;
+        private bool CanClearTallyCache(object? parameter) => !TallyIsRunning;
 
         /// <summary>
         /// Allow manual clearing of the page cache.
         /// </summary>
         /// <param name="parameter"></param>
-        private void DoClearTallyCache(object parameter)
+        private void DoClearTallyCache(object? parameter)
         {
             PageCache.Clear();
             VoteCounter.ResetUserMerges();
@@ -584,25 +585,13 @@ namespace NetTally.ViewModels
 
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
         public ObservableCollectionExt<Origin> AllVotersCollection { get; } = new ObservableCollectionExt<Origin>();
-        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
+        public ObservableCollectionExt<string> TaskList => VoteCounter.TaskList;
 
         /// <summary>
         /// Adds a new user-defined task to the known collection of tasks.
         /// </summary>
         /// <param name="task">The task to add.</param>
         public void AddUserDefinedTask(string task) => VoteCounter.AddUserDefinedTask(task);
-
-        /// <summary>
-        /// Increases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void IncreaseTaskPosition(int currentPosition) => VoteCounter.IncreaseTaskPosition(currentPosition);
-
-        /// <summary>
-        /// Decreases the task position in the task list.
-        /// </summary>
-        /// <param name="currentPosition">The task position to modify.</param>
-        public void DecreaseTaskPosition(int currentPosition) => VoteCounter.DecreaseTaskPosition(currentPosition);
 
         /// <summary>
         /// Resets the tasks order.
@@ -631,16 +620,6 @@ namespace NetTally.ViewModels
             OnPropertyChanged(nameof(AllVotersCollection));
         }
 
-        /// <summary>
-        /// Update the observable collection of voters.
-        /// </summary>
-        private void UpdateTaskCollection()
-        {
-            TaskList.Replace(VoteCounter.TaskList);
-
-            OnPropertyChanged(nameof(TaskList));
-        }
-
         private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!VoteCounter.VoteCounterIsTallying)
@@ -651,14 +630,12 @@ namespace NetTally.ViewModels
                     // Update observable collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
-                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "VoteCounter")
                 {
                     // Update all vote counter collections.
                     UpdateVotesCollection();
                     UpdateVotersCollection();
-                    UpdateTaskCollection();
                 }
                 else if (e.PropertyName == "Votes")
                 {
@@ -667,10 +644,6 @@ namespace NetTally.ViewModels
                 else if (e.PropertyName == "Voters")
                 {
                     UpdateVotersCollection();
-                }
-                else if (e.PropertyName == "Tasks")
-                {
-                    UpdateTaskCollection();
                 }
                 else
                 {
@@ -722,7 +695,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">Indicator of what quest is being requested.</param>
         /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
-        private IQuest? GetThisQuest(object parameter)
+        private IQuest? GetThisQuest(object? parameter)
         {
             if (parameter is IQuest quest)
             {

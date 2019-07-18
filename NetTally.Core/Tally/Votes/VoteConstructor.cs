@@ -129,12 +129,11 @@ namespace NetTally.Votes
                 firstLine = firstLine.WithMarker("", MarkerType.None, 0);
 
                 List<VoteLine> voteLines = new List<VoteLine>() { firstLine };
-                voteLines.AddRange(keyContents.Skip(1).Select(v => v.WithMarker("", MarkerType.None, 0)));
+                voteLines.AddRange(keyContents.Skip(1));
 
-                var returnPlanA = new VoteLineBlock(voteLines);
-                var returnPlanB = returnPlanA.WithMarker(Strings.PlanNameMarker, MarkerType.Plan, 0);
+                var returnPlan = new VoteLineBlock(voteLines).WithMarker(Strings.PlanNameMarker, MarkerType.Plan, 0);
 
-                return (planName, returnPlanB);
+                return (planName, returnPlan);
             }
 
             // If it's not a plan, how did we get here?
@@ -257,15 +256,6 @@ namespace NetTally.Votes
                             {
                                 workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                             }
-
-
-                            //List<(VoteLine? line, VoteLineBlock? block)> refWorkingVote1 = new List<(VoteLine? line, VoteLineBlock? block)>();
-
-                            //var refWorkingVote2 = refUserPost.WorkingVote.Select(wv =>
-                            //    (wv.line?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true),
-                            //     wv.block?.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue, ifSameType: true)));
-
-                            //workingVote.AddRange(refWorkingVote2);
                         }
                     }
                 }

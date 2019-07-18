@@ -24,7 +24,7 @@ namespace NetTally.Forums
         /// <summary>
         /// Flag whether or not this post contains vote information.
         /// </summary>
-        public bool IsVote => VoteLines.Count > 0;
+        public bool HasVote => VoteLines.Count > 0;
         /// <summary>
         /// Any vote lines found in the post's text.
         /// </summary>

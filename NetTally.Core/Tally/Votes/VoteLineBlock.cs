@@ -10,9 +10,9 @@ namespace NetTally.Votes
     {
         #region Construction and public properties
         public string Task { get; set; }
-        public string Marker { get; }
-        public MarkerType MarkerType { get; }
-        public int MarkerValue { get; }
+        public string Marker { get; private set; }
+        public MarkerType MarkerType { get; private set; }
+        public int MarkerValue { get; private set; }
         public IReadOnlyList<VoteLine> Lines { get; }
         public MarkerType Category { get; set; } = MarkerType.None;
 
@@ -61,53 +61,67 @@ namespace NetTally.Votes
         #region Creation of new VoteLineBlock instances based on the current one
         public VoteLineBlock Clone()
         {
-            var copy = new VoteLineBlock(Lines.ToList());
+            var copy = new VoteLineBlock(Lines);
             copy.Task = Task;
+            copy.Marker = Marker;
+            copy.MarkerType = MarkerType;
+            copy.MarkerValue = MarkerValue;
 
             return copy;
         }
 
         public VoteLineBlock WithTask(string task)
         {
-            var firstLine = Lines.First().WithTask(task);
+            VoteLineBlock partition = new VoteLineBlock(Lines);
+            partition.Task = task;
 
-            var lines = new List<VoteLine>() { firstLine };
-            lines.AddRange(Lines.Skip(1));
-
-            return new VoteLineBlock(lines);
+            return partition;
         }
 
-        public VoteLineBlock WithMarker(string marker, MarkerType markerType, int markerValue, bool ifSameType = false, bool allLines = false)
+        /// <summary>
+        /// Create a new instance of this vote block using a different marker.
+        /// </summary>
+        /// <param name="marker">Marker text.</param>
+        /// <param name="markerType">Marker type.</param>
+        /// <param name="markerValue">Marker value.</param>
+        /// <returns>Returns a copy of the current VoteLineBlock with the markers changed.</returns>
+        public VoteLineBlock WithMarker(string marker, MarkerType markerType, int markerValue)
         {
-            var firstLine = Lines.First().WithMarker(marker, markerType, markerValue, ifSameType);
+            /*
+             * Scenarios:
+             * 
+             * 1) Merge votes. The voter's new vote needs to keep the same vote marker as the old vote.
+             * -- Can change at the VoteLineBlock level with no issue. No options needed.
+             * 
+             * 2) When a vote is put into storage, the key vote is stripped of marker info
+             * -- Can change at the VoteLineBlock level with no issue. No options needed.
+             * 
+             * 3) When normalizing a plan, the first line's content may be changed (eg: proposed plan ⇒ plan).
+             *    The remaining lines are copied over.
+             * -- The remaining lines do not need to be changed. The VoteLineBlock as a whole is set to MarkerType.None.
+             * -- Can change at the VoteLineBlock level with no issue. No options needed.
+             * 
+             * 4) When extracting a reference plan to insert into a vote, it needs to use the
+             *    user's marker information.
+             * -- Can change at the VoteLineBlock level with no issue. No options needed.
+             * 
+             */
 
-            var lines = new List<VoteLine>() { firstLine };
+            VoteLineBlock partition = new VoteLineBlock(Lines);
 
-            var remaining = Lines.Skip(1);
+            partition.Marker = marker;
+            partition.MarkerType = markerType;
+            partition.MarkerValue = markerValue;
 
-            if (allLines)
-            {
-                lines.AddRange(remaining.Select(a => a.WithMarker(marker, markerType, markerValue)));
-            }
-            else
-            {
-                lines.AddRange(remaining);
-            }
-
-            return new VoteLineBlock(lines);
+            return partition;
         }
         #endregion
-
-        public HashSet<string> GetAllTasks()
-        {
-            return Lines.Where(l => !string.IsNullOrEmpty(l.Task)).Select(l => l.Task).ToHashSet<string>(StringComparer.OrdinalIgnoreCase);
-        }
 
         #region ToString variations
         public override string ToString()
         {
             var first = Lines.First();
-            string firstString = first.ToOverrideString(displayTask: Task);
+            string firstString = first.ToOverrideString(displayMarker: Marker, displayTask: Task);
 
             var aggregate = Lines.Select(s => s == first ? firstString : s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -228,11 +242,11 @@ namespace NetTally.Votes
 
                     // Lines do not compare markers for equality, but blocks do.
                     // MarkerType of None or Plan matches any other marker.
-                    if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None)
-                        && (left.MarkerType != MarkerType.Plan && right.MarkerType != MarkerType.Plan))
-                    {
-                        result = left.MarkerType.CompareTo(right.MarkerType);
-                    }
+                    //if (result == 0 && (left.MarkerType != MarkerType.None && right.MarkerType != MarkerType.None)
+                    //    && (left.MarkerType != MarkerType.Plan && right.MarkerType != MarkerType.Plan))
+                    //{
+                    //    result = left.MarkerType.CompareTo(right.MarkerType);
+                    //}
                 }
             }
 

@@ -4,13 +4,11 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
 using NetTally.Forums;
 using NetTally.Forums.Adapters;
-using NetTally.Tests;
 using NetTally.Web;
 
-namespace NTTests.Input
+namespace NetTally.Tests.Forums
 {
     [TestClass]
     [Ignore]
@@ -37,7 +35,7 @@ namespace NTTests.Input
             quest.ThreadName = "http://forums.sufficientvelocity.com/threads/vote-tally-program.199/";
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo2Adapter));
         }
 
         [TestMethod]

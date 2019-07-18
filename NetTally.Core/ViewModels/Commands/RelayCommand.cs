@@ -1,21 +1,23 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using NetTally.CustomEventArgs;
 
-namespace NetTally.ViewModels
+namespace NetTally.ViewModels.Commands
 {
+    /// <summary>
+    /// An abstract container for an <seealso cref="ICommand"/> that allows you to
+    /// use commands in an existing class for the Execute and
+    /// CanExecute functions rather than create a new class for
+    /// each <seealso cref="ICommand"/> you register.
+    /// </summary>
     public class RelayCommand : ICommand
     {
-        ViewModelBase ViewModel { get; }
-
         #region Constructors        
         /// <summary>
         /// Default constructor with no canExecute check.
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
-        public RelayCommand(ViewModelBase viewModel, Action<object> execute)
+        public RelayCommand(INotifyPropertyChanged viewModel, Action<object?> execute)
             : this(viewModel, execute, (arg) => true)
         {
         }
@@ -26,48 +28,20 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
-        public RelayCommand(ViewModelBase viewModel, Action<object> execute, Func<object, bool> canExecute)
+        public RelayCommand(INotifyPropertyChanged viewModel, Action<object?> execute, Func<object?, bool> canExecute)
         {
-            ViewModel = viewModel;
-
             this.execute = execute;
-
             this.canExecute = canExecute;
+
+            commandFilter = viewModel as ICommandFilter ?? CommandFilter.Default;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
         #endregion
 
-        #region Execution        
-        /// <summary>
-        /// The action to execute.
-        /// </summary>
-        private readonly Action<object> execute;
-
-        /// <summary>
-        /// Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        public void Execute(object parameter) => execute(parameter);
-        #endregion
-
-        #region Can Execute        
-        /// <summary>
-        /// Function to check whether it's valid to execute the action.
-        /// </summary>
-        private readonly Func<object, bool> canExecute;
-
-        /// <summary>
-        /// Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        /// <returns>
-        /// true if this command can be executed; otherwise, false.
-        /// </returns>
-        public bool CanExecute(object parameter) => canExecute(parameter);
-        #endregion
-
         #region Can Execute Changed Events
+        readonly ICommandFilter commandFilter;
+
         /// <summary>
         /// Handles the PropertyChanged event of the ViewModel control.
         /// Any time the view model sends a property changed notification,
@@ -77,12 +51,11 @@ namespace NetTally.ViewModels
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (ViewModel.NonCommandPropertyChangedValues.Contains(e.PropertyName))
-                return;
-
-            if (e.GetType().IsGenericType)
+            if ((commandFilter.PropertyFilterListMode == PropertyFilterListOption.Exclude
+                    && commandFilter.PropertyFilterList.Contains(e.PropertyName))
+                || (commandFilter.PropertyFilterListMode == PropertyFilterListOption.IncludeOnly
+                    && !commandFilter.PropertyFilterList.Contains(e.PropertyName)))
             {
-                OnCanExecuteChanged(e);
                 return;
             }
 
@@ -97,7 +70,41 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Called when [can execute] changed.
         /// </summary>
-        protected void OnCanExecuteChanged(EventArgs? e = null) => CanExecuteChanged?.Invoke(this, e ?? new EventArgs());
+        protected void OnCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, new EventArgs());
+        }
+        #endregion
+
+        #region Can Execute        
+        /// <summary>
+        /// Function to check whether it's valid to execute the action.
+        /// </summary>
+        private readonly Func<object?, bool> canExecute;
+
+        /// <summary>
+        /// Defines the method that determines whether the command can execute in its current state.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.
+        /// If the command does not require data to be passed, this object can be set to null.</param>
+        /// <returns>
+        /// true if this command can be executed; otherwise, false.
+        /// </returns>
+        public bool CanExecute(object? parameter) => canExecute(parameter);
+        #endregion
+
+        #region Execution        
+        /// <summary>
+        /// The action to execute.
+        /// </summary>
+        private readonly Action<object?> execute;
+
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.
+        /// If the command does not require data to be passed, this object can be set to null.</param>
+        public void Execute(object? parameter) => execute(parameter);
         #endregion
     }
 }

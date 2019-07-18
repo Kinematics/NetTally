@@ -40,7 +40,7 @@ namespace NetTally
         readonly List<MenuItem> ContextMenuCommands = new List<MenuItem>();
         readonly List<MenuItem> ContextMenuTasks = new List<MenuItem>();
 
-        readonly MainViewModel mainViewModel;
+        readonly ViewModel mainViewModel;
 
         ListBox? newTaskBox = null;
 
@@ -64,7 +64,7 @@ namespace NetTally
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotesWindow(MainViewModel mainViewModel, IoCNavigationService navigationService, ILoggerFactory loggerFactory)
+        public ManageVotesWindow(ViewModel mainViewModel, IoCNavigationService navigationService, ILoggerFactory loggerFactory)
         {
             this.mainViewModel = mainViewModel;
             this.navigationService = navigationService;

@@ -111,6 +111,7 @@ namespace NetTally.Votes
 
         /// <summary>
         /// Creates a copy of this vote line, but with the specified marker information.
+        /// TODO: Obsolete comments
         /// If the <paramref name="ifSameType"/> value is specified, but the markers are
         /// different, keep the original value.
         /// If this uses a MarkerType of None, then it will always update
@@ -119,18 +120,10 @@ namespace NetTally.Votes
         /// <param name="marker">The marker to substitute.</param>
         /// <param name="markerType">The marker type to substitute.</param>
         /// <param name="markerValue">The marker value to substitute.</param>
-        /// <param name="ifSameType">Flag whether it will modify the markers only when they are the same type.</param>
         /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
-        public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue, bool ifSameType = false)
+        public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue)
         {
-            if (!ifSameType || MarkerType == markerType || MarkerType == MarkerType.None)
-            {
-                return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
-            }
-            else
-            {
-                return new VoteLine(Prefix, Marker, Task, Content, MarkerType, MarkerValue);
-            }
+            return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
         }
         #endregion
 
@@ -309,6 +302,14 @@ namespace NetTally.Votes
 
         #region IComparable and IEquatable interface implementations.
 #nullable disable
+        /// <summary>
+        /// Compare two VoteLines with each other.  
+        /// Task and Content are compared agnostically. Prefix depth matters.  Marker does not matter.
+        /// We only care that the vote itself is the same, not whether the vote types or user preference levels are the same.
+        /// </summary>
+        /// <param name="left">A VoteLine to compare.</param>
+        /// <param name="right">A VoteLine to compare.</param>
+        /// <returns>Returns how the two vote lines compare to each other.</returns>
         public static int Compare(VoteLine left, VoteLine right)
         {
             if (ReferenceEquals(left, right))

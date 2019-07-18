@@ -1,9 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
 using NetTally.Input.Utility;
 
-namespace NTTests.Utility
+namespace NetTally.Tests.Utility
 {
     [TestClass]
     public class FilterTests

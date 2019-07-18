@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using NetTally.Collections;
 using NetTally.Forums;
 using NetTally.Votes;
 
@@ -29,8 +30,6 @@ namespace NetTally.VoteCounting
         /// A collection structure to store votes and the voters who voted for them.
         /// Also stores the specific variant that each voter used.
         /// </summary>
-        //Dictionary<VoteLineBlock, Dictionary<string, VoteLineBlock>> VoteBlockSupporters { get; }
-
         VoteStorage VoteStorage { get; }
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace NetTally.VoteCounting
         /// The list of tasks that have been recorded for the tally, whether drawn from
         /// votes as they are tallied, or manually entered by the user.
         /// </summary>
-        IReadOnlyList<string> TaskList { get; }
+        ObservableCollectionExt<string> TaskList { get; }
 
 
         /// <summary>
@@ -236,16 +235,6 @@ namespace NetTally.VoteCounting
         /// Run because the task list is cleared before each running of the tally.
         /// </summary>
         void AddUserDefinedTasksToTaskList();
-        /// <summary>
-        /// Increase a task item in the positional order of the task list.
-        /// </summary>
-        /// <param name="currentPosition">The position of the task item being moved.</param>
-        void IncreaseTaskPosition(int currentPosition);
-        /// <summary>
-        /// Decrease a task item in the positional order of the task list.
-        /// </summary>
-        /// <param name="currentPosition">The position of the task item being moved.</param>
-        void DecreaseTaskPosition(int currentPosition);
         /// <summary>
         /// Reset the tasks list order based on the ordering type provided.
         /// </summary>

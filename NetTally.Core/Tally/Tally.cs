@@ -431,7 +431,7 @@ namespace NetTally.VoteCounting
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        private async Task PreprocessPosts(CancellationToken token)
+        public async Task PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
                 return;
