@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -668,5 +669,60 @@ namespace NetTally.Tests.Votes
 
             Assert.IsFalse(results1 == null);
         }
+
+
+        [TestMethod]
+        public async Task Cross_Marker_Reference_PlanAsync()
+        {
+            quest.PartitionMode = PartitionMode.ByBlock;
+            quest.DisableProxyVotes = false;
+            voteCounter.Quest = quest;
+
+            string voteText1 =
+@"[X] Proposed plan: Mountain biking
+-[x] Camelback Mountain
+-[x] Grand Canyon";
+
+            string voteText2 = @"[75%] Plan Mountain Biking";
+
+            Post post1 = GetPostFromKinematics1(voteText1);
+            Post post2 = GetPostFromKinematics2(voteText2);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            voteCounter.AddPosts(posts);
+
+            await tally.PreprocessPosts(default);
+
+            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+
+            Assert.IsFalse(results1 == null);
+
+            if (results1 == null)
+                return;
+
+            Assert.AreEqual(0, results1.Count);
+
+            var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+
+            if (results2 != null)
+            {
+                Assert.AreEqual(1, results2.Count);
+
+                voteCounter.AddVotes(results2, post2.Origin);
+                Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results2[0]));
+                Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportersFor(results2[0])?.Count ?? 0);
+                Assert.AreEqual(1, voteCounter.VoteStorage.GetVotesBy(post2.Origin).Count);
+
+                var allVotes = voteCounter.GetAllVotes();
+                Assert.AreEqual(1, allVotes.Count());
+
+                Assert.AreEqual(MarkerType.Score, allVotes.First().Category);
+            }
+
+            Assert.IsFalse(results2 == null);
+        }
+
+
     }
 }
