@@ -70,6 +70,8 @@ namespace NetTally.VoteCounting
                 if (voteCounterIsTallying != value)
                 {
                     voteCounterIsTallying = value;
+                    OnPropertyChanged("Votes");
+                    OnPropertyChanged("Voters");
                     OnPropertyChanged();
                 }
             }
@@ -379,8 +381,7 @@ namespace NetTally.VoteCounting
                 return;
 
             // Remove the voter from any existing votes
-            if (VoteStorage.RemoveVoterFromVotes(voter))
-                OnPropertyChanged("Voters");
+            VoteStorage.RemoveVoterFromVotes(voter);
 
             // Add/update all segments of the provided vote
             foreach (var partition in votePartitions)
@@ -391,8 +392,6 @@ namespace NetTally.VoteCounting
 
             // Cleanup any votes that no longer have any support
             VoteStorage.RemoveUnsupportedVotes();
-
-            OnPropertyChanged("Votes");
         }
 
 
