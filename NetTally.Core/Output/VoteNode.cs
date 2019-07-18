@@ -153,7 +153,7 @@ namespace NetTally.Output
             // Child nodes in compact mode will be put in spoilers.  Remove BBCode.
             if (HasParent && displayMode == DisplayMode.Compact)
             {
-                results = VoteString.RemoveBBCode(results);
+                results = VoteLineParser.StripBBCode(results);
             }
 
             return results;

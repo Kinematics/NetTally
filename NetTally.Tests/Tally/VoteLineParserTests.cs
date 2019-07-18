@@ -7,6 +7,7 @@ namespace NetTally.Tests.Votes
     [TestClass]
     public class VoteLineParserTests
     {
+        #region Setup
         static IServiceProvider serviceProvider;
 
         [ClassInitialize]
@@ -14,6 +15,7 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
         }
+        #endregion Setup
 
         #region Non-votes
         [TestMethod]
@@ -727,6 +729,38 @@ namespace NetTally.Tests.Votes
             }
 
             Assert.AreNotEqual(null, voteLine);
+        }
+
+        #endregion
+
+        #region Strip BBCode
+        [TestMethod]
+        public void Strip_BBCode_None()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+
+            string result = VoteLineParser.StripBBCode(cleanExample);
+            Assert.AreEqual(cleanExample, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_Basic()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+            string mediumExample = @"Text Nagisa's uncle about her 『i』visiting『/i』 today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+
+            string result = VoteLineParser.StripBBCode(mediumExample);
+            Assert.AreEqual(cleanExample, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_More()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+            string largeExample = @"Text Nagisa's uncle about her 『i』visiting『/i』 today. Establish a 『b』specific time『/b』. 『color=orange』(Keep in mind Sayaka's hospital visit.)『/color』";
+
+            string result = VoteLineParser.StripBBCode(largeExample);
+            Assert.AreEqual(cleanExample, result);
         }
 
         #endregion
