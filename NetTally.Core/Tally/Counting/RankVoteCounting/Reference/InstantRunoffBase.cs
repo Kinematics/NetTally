@@ -16,9 +16,14 @@ namespace NetTally.VoteCounting.RankVotes.Reference
     /// </summary>
     public class InstantRunoffBase : IRankVoteCounter2
     {
-        protected bool invertVotesToCheckPreferred = false;
+        protected virtual bool leastPreferredChecksFullVotes { get; } = false;
 
-
+        /// <summary>
+        /// Rank the votes provided, returning a list of each vote's
+        /// rank and score.
+        /// </summary>
+        /// <param name="taskVotes">The votes for a given task.</param>
+        /// <returns>Returns a list of each vote's ranking.</returns>
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
         {
@@ -40,7 +45,6 @@ namespace NetTally.VoteCounting.RankVotes.Reference
 
             return resultList;
         }
-
 
         /// <summary>
         /// Gets the winning vote.
@@ -76,13 +80,13 @@ namespace NetTally.VoteCounting.RankVotes.Reference
                 VoteLineBlock leastPreferredChoice;
 
                 // If not, eliminate the least preferred option and try again.
-                if (invertVotesToCheckPreferred)
+                if (leastPreferredChecksFullVotes)
                 {
-                    leastPreferredChoice = GetLeastPreferredChoice(voterPreferences);
+                    leastPreferredChoice = GetLeastPreferredChoice(workingVotes);
                 }
                 else
                 {
-                    leastPreferredChoice = GetLeastPreferredChoice(workingVotes);
+                    leastPreferredChoice = GetLeastPreferredChoice(voterPreferences);
                 }
 
                 workingVotes.Remove(leastPreferredChoice);
