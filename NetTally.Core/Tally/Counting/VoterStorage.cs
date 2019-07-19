@@ -377,4 +377,77 @@ namespace NetTally.Votes
         }
         #endregion Support functions
     }
+
+    public static class VoterStorageExtensions
+    {
+        /// <summary>
+        /// Gets an ordered version of the provided voters.
+        /// The first voter was the first voter to support the vote, and
+        /// the rest of the voters are alphabatized.
+        /// </summary>
+        /// <param name="voters">The voters being ordered.</param>
+        /// <returns>Returns an ordered list of the voters.</returns>
+        public static OrderedVoterStorage GetOrderedVoterListEx(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            var voterList = new OrderedVoterStorage();
+
+            if (!storageValues.Any())
+            {
+                return voterList;
+            }
+
+            var (firstVoter, firstVote) = storageValues.GetFirstVoter();
+
+            var orderRemaining = storageValues.Where(v => v.Key != firstVoter).OrderBy(v => v.Key);
+
+            voterList.Add(new VoterStorageEntry(firstVoter, firstVote));
+            voterList.AddRange(orderRemaining);
+
+            return voterList;
+        }
+
+        #region Support functions
+        /// <summary>
+        /// Get the first voter from the provided list of VoterStorage entries.
+        /// Plans always have priority over users.
+        /// </summary>
+        /// <param name="voters">The VoterStorage collection of voters.</param>
+        /// <returns>Returns the earliest VoterStorageEntry found.</returns>
+        private static (Origin voter, VoteLineBlock vote) GetFirstVoter(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            if (!storageValues.Any())
+                throw new InvalidOperationException("No voters to process");
+
+            var (firstVoter, firstVote) = storageValues.First();
+
+            foreach (var (voterOrigin, voterVote) in storageValues)
+            {
+                // Plans have priority in determining first voter.
+                if (voterOrigin.AuthorType == IdentityType.Plan)
+                {
+                    if (firstVoter.AuthorType != IdentityType.Plan)
+                    {
+                        firstVoter = voterOrigin;
+                        firstVote = voterVote;
+                    }
+                    else if (voterOrigin.ID < firstVoter.ID)
+                    {
+                        firstVoter = voterOrigin;
+                        firstVote = voterVote;
+                    }
+                }
+                // If the firstVoter is already a plan, don't overwrite with a user.
+                // Otherwise update if the new vote is earlier than the existing one.
+                else if (firstVoter.AuthorType != IdentityType.Plan && voterOrigin.ID < firstVoter.ID)
+                {
+                    firstVoter = voterOrigin;
+                    firstVote = voterVote;
+                }
+            }
+
+            return (firstVoter, firstVote);
+        }
+        #endregion Support functions
+
+    }
 }
