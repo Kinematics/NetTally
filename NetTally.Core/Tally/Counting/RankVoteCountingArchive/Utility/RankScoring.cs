@@ -5,6 +5,8 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVoteCounting.Utility
 {
+    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
+
     static class RankScoring
     {
         #region Calculations made on old RankedVoters collections
@@ -118,7 +120,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         /// </summary>
         /// <param name="votes">Votes with rank information included.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static double BordaScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        public static double BordaScore(VoteStorageEntry votes)
         {
             double voteValue = 0;
 
@@ -139,7 +141,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         /// </summary>
         /// <param name="votes">Votes with rank information included.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static double InverseBordaScore(KeyValuePair<VoteLineBlock, Dictionary<string, VoteLineBlock>> votes)
+        public static double InverseBordaScore(VoteStorageEntry votes)
         {
             double voteValue = 0;
 
@@ -162,7 +164,7 @@ namespace NetTally.VoteCounting.RankVoteCounting.Utility
         /// </summary>
         /// <param name="votes">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static (double score, int count) LowerWilsonScore(KeyValuePair<VoteLineBlock, VoterStorage> votes)
+        public static (double score, int count) LowerWilsonRankingScore(VoteStorageEntry votes)
         {
             int n = votes.Value.Count(v => v.Value.MarkerType == MarkerType.Rank);
 

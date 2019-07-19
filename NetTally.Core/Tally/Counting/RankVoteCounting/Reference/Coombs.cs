@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NetTally.Extensions;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Forums;
 using NetTally.Votes;
 
-namespace NetTally.VoteCounting.RankVotes
+namespace NetTally.VoteCounting.RankVotes.Reference
 {
     using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
 
     /// <summary>
-    /// Implement ranking votes using the Baldwin method.
-    /// It's an instant runoff that uses Wilson scoring to determine
-    /// which vote to remove each round.
+    /// Implement ranking votes using the Coombs method.
+    /// This is an instant runoff that removes the most disliked
+    /// option each round, instead of the least liked.
     /// </summary>
-    public class BaldwinRankVoteCounter : IRankVoteCounter2
+    public class Coombs : IRankVoteCounter2
     {
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
@@ -38,6 +37,7 @@ namespace NetTally.VoteCounting.RankVotes
             return resultList;
         }
 
+
         /// <summary>
         /// Gets the winning vote.
         /// Excludes any already chosen votes from the process.
@@ -45,10 +45,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="chosenChoices">The already chosen choices.</param>
         /// <returns>Returns the winning vote.</returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// </exception>
-        private (VoteStorageEntry vote, double score)
-            GetWinningVote(VoteStorage votes)
+        private (VoteStorageEntry vote, double score) GetWinningVote(VoteStorage votes)
         {
             var workingVotes = new VoteStorage(votes);
 
@@ -57,8 +54,14 @@ namespace NetTally.VoteCounting.RankVotes
 
             while (workingVotes.Count > 1)
             {
+                // Invert the votes so that we can look at preferences per user.
+                var voterPreferences = workingVotes
+                    .SelectMany(v => v.Value)
+                    .GroupBy(u => u.Key)
+                    .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.MarkerValue).ToList());
+
                 // Check to see if we have a winner.
-                var (vote, count) = GetMostPreferredVote(workingVotes);
+                var (vote, count) = GetMostPreferredVote(voterPreferences);
 
                 if (count >= winCount)
                 {
@@ -67,7 +70,7 @@ namespace NetTally.VoteCounting.RankVotes
                 }
 
                 // If not, eliminate the least preferred option and try again.
-                var leastPreferredChoice = GetLeastPreferredChoice(workingVotes);
+                var leastPreferredChoice = GetLeastPreferredChoice(voterPreferences);
 
                 workingVotes.Remove(leastPreferredChoice);
             }
@@ -82,12 +85,8 @@ namespace NetTally.VoteCounting.RankVotes
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private (VoteLineBlock vote, int count)
-            GetMostPreferredVote(VoteStorage votes)
+        private (VoteLineBlock vote, int count) GetMostPreferredVote(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
         {
-            // Invert the votes so that we can look at preferences per user.
-            var voterPreferences = votes.SelectMany(v => v.Value).GroupBy(u => u.Key).ToDictionary(t => t.Key, s => s.Select(q => q.Value).ToHashSet());
-
             List<VoteLineBlock> bests = new List<VoteLineBlock>();
 
             foreach (var voter in voterPreferences)
@@ -103,21 +102,18 @@ namespace NetTally.VoteCounting.RankVotes
 
         /// <summary>
         /// Gets the least preferred choice.
-        /// With the Baldwin method, this is the vote with the lowest Wilson Score.
+        /// Using Coombs Method, this is the option that has the greatest
+        /// number of bottom-ranked votes.
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
-        private VoteLineBlock GetLeastPreferredChoice(VoteStorage votes)
+        private VoteLineBlock GetLeastPreferredChoice(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
         {
-            var rankedVotes = from vote in votes
-                              select new { rating = (vote, RankScoring.LowerWilsonRankingScore(vote)) };
+            var lowestRankings = voterPreferences.GroupBy(v => v.Value.Last());
 
-            var worstVote = rankedVotes.MinObject(a => a.rating.Item2);
+            var leastPreferred = lowestRankings.MaxObject(r => r.Count()).Key;
 
-            Debug.Write($"({worstVote.rating.Item2:f5})");
-
-            return worstVote.rating.vote.Key;
+            return leastPreferred;
         }
     }
 }
-

@@ -5,9 +5,15 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes
 {
+    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
+
+    /// <summary>
+    /// Implementation to generate the ranking list for the provided set
+    /// of votes for a specific task, based on the Schulze algorithm.
+    /// </summary>
     public class SchulzeRankVoteCounter : IRankVoteCounter2
     {
-        public List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+        public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
         {
             int[,] pairwisePreferences = GetPairwisePreferences(taskVotes);
@@ -16,7 +22,7 @@ namespace NetTally.VoteCounting.RankVotes
 
             int[,] winningPaths = GetWinningPaths(strongestPaths, taskVotes.Count);
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> winningChoices =
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> winningChoices =
                 GetResultsInOrder(winningPaths, taskVotes);
 
             return winningChoices;
@@ -147,7 +153,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+        private List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             GetResultsInOrder(int[,] winningPaths, Dictionary<VoteLineBlock, VoterStorage> listOfChoices)
         {
             int count = listOfChoices.Count;
@@ -168,8 +174,8 @@ namespace NetTally.VoteCounting.RankVotes
 
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)> resultList
-                = new List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
+                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
 
             foreach (var res in orderPaths)
             {

@@ -4,6 +4,8 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
+    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
+
     /// <summary>
     /// Vote counter interface for ranked votes.
     /// </summary>
@@ -14,7 +16,8 @@ namespace NetTally.VoteCounting
 
     public interface IRankVoteCounter2
     {
-        List<((int rank, double rankScore) ranking, KeyValuePair<VoteLineBlock, VoterStorage> vote)>
+        // TODO: is rank needed in the tuple, considering a List<> is explicitly ordered?
+        List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes);
     }
 }
