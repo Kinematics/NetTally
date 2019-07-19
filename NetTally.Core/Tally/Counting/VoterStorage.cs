@@ -378,8 +378,121 @@ namespace NetTally.Votes
         #endregion Support functions
     }
 
+    /// <summary>
+    /// Extension methods that allow use of the VoterStorage methods on arbitrary
+    /// IEnumerables of VoterStorageEntries.
+    /// </summary>
     public static class VoterStorageExtensions
     {
+        #region Queries - Counts
+        /// <summary>
+        /// Get the total number of vote supporters.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetTotalCount(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            if (storageValues is List<VoterStorageEntry> storageValuesList)
+                return storageValuesList.Count;
+
+            return storageValues.Count();
+        }
+
+        /// <summary>
+        /// Get the total number of users who are vote supporters.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetUserCount(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            return storageValues.Count(s => s.Key.AuthorType == IdentityType.User);
+        }
+
+        /// <summary>
+        /// Get the total number of users supporting the vote who
+        /// used standard, score, or approval votes.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetNonRankUserCount(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            return storageValues.GetNonRankUsers().Count();
+        }
+
+        /// <summary>
+        /// Get the total number of positively supporting users in this vote.
+        /// Approval +'s and Scores above 50 count for support.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetSupportCount(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            return storageValues.Count(s =>
+                s.Value.MarkerType switch
+                {
+                    MarkerType.Vote => true,
+                    MarkerType.Score => s.Value.MarkerValue > 50,
+                    MarkerType.Approval => s.Value.MarkerValue > 50,
+                    _ => false
+                }
+            );
+        }
+
+        /// <summary>
+        /// Gets the overall score for this vote.
+        /// </summary>
+        /// <returns>Returns a triplet of the score (int rounded version of the average),
+        /// the average, and the lower 95% statistical margin.</returns>
+        public static (int score, double average, double lowerMargin) GetScore(
+            this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            var users = storageValues.GetNonRankUsers();
+            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
+
+            int count = 0;
+            int accum = 0;
+
+            // TODO: Do a statistical margin of error calculation here.
+
+            foreach (var (userOrigin, userVote) in users)
+            {
+                count++;
+                accum += userVote.MarkerValue;
+            }
+
+            if (count == 0)
+                return (0, 0, 0);
+
+            double average = (double)accum / count;
+            int simpleScore = (int)Math.Round(average, 0, MidpointRounding.AwayFromZero);
+
+            return (simpleScore, average, 0);
+        }
+
+        /// <summary>
+        /// Get the overall approval for this vote.
+        /// </summary>
+        /// <returns>Returns the positive and negative results of how
+        /// users voted for this vote.  A value above 50 is positive,
+        /// while 50 and lower is negative.</returns>
+        public static (int positive, int negative) GetApproval(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            var users = storageValues.GetNonRankUsers();
+
+            int positive = 0;
+            int negative = 0;
+
+            // Standard votes have a value of 100, Approval+ have a value of 80, and Scores are variable.
+            // Sum up the positive and negative results.
+            foreach (var (userOrigin, userVote) in users)
+            {
+                if (userVote.MarkerValue > 50)
+                    positive++;
+                else
+                    negative++;
+            }
+
+            return (positive, negative);
+        }
+        #endregion Queries - Counts
+
+        #region Queries - Ordered Results
         /// <summary>
         /// Gets an ordered version of the provided voters.
         /// The first voter was the first voter to support the vote, and
@@ -406,6 +519,48 @@ namespace NetTally.Votes
             return voterList;
         }
 
+        /// <summary>
+        /// Gets an ordered version of the provided voters.
+        /// The list is ordered by the rank value each voter used, then alphabetically.
+        /// Any non-rank votes are added at the end.
+        /// </summary>
+        /// <param name="voters">The voters being ordered.</param>
+        /// <returns>Returns an ordered list of the voters.</returns>
+        public static OrderedVoterStorage GetOrderedRankedVoterList(
+            this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            var result = new OrderedVoterStorage();
+
+            var ranksOnly = storageValues
+                .Where(v => v.Value.MarkerType == MarkerType.Rank)
+                .OrderBy(v => v.Value.MarkerValue)
+                .ThenBy(v => v.Key);
+            var others = storageValues
+                .Where(v => v.Value.MarkerType != MarkerType.Rank)
+                .OrderBy(v => v.Key);
+
+            result.AddRange(ranksOnly);
+            result.AddRange(others);
+
+            return result;
+        }
+        #endregion Queries - Ordered Results
+
+        #region Queries - General
+        /// <summary>
+        /// Get users from storage that used non-rank voting.
+        /// </summary>
+        /// <returns></returns>
+        public static FilteredVoterStorage GetNonRankUsers(this IEnumerable<VoterStorageEntry> storageValues)
+        {
+            return storageValues.Where(s => (s.Key.AuthorType == IdentityType.User) &&
+                                            ((s.Value.MarkerType == MarkerType.Vote) ||
+                                             (s.Value.MarkerType == MarkerType.Score) ||
+                                             (s.Value.MarkerType == MarkerType.Approval))
+                                      );
+        }
+        #endregion
+
         #region Support functions
         /// <summary>
         /// Get the first voter from the provided list of VoterStorage entries.
@@ -413,7 +568,8 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="voters">The VoterStorage collection of voters.</param>
         /// <returns>Returns the earliest VoterStorageEntry found.</returns>
-        private static (Origin voter, VoteLineBlock vote) GetFirstVoter(this IEnumerable<VoterStorageEntry> storageValues)
+        private static (Origin voter, VoteLineBlock vote) GetFirstVoter(
+            this IEnumerable<VoterStorageEntry> storageValues)
         {
             if (!storageValues.Any())
                 throw new InvalidOperationException("No voters to process");
