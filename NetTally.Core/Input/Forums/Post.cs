@@ -118,9 +118,22 @@ namespace NetTally.Forums
             /// <returns>Returns an enumerable of all the vote lines found in the post text.</returns>
             static IEnumerable<VoteLine> GetVoteLines(List<string> postTextLines)
             {
+                bool foundFirst = false;
+
                 foreach (var line in postTextLines)
                 {
                     var voteLine = VoteLineParser.ParseLine(line);
+
+                    if (!foundFirst && voteLine != null)
+                    {
+                        // Ensure the first vote line of the post is always depth 0.
+                        if (voteLine.Depth > 0)
+                        {
+                            voteLine = voteLine.WithPrefixDepth(0);
+                        }
+
+                        foundFirst = true;
+                    }
 
                     if (voteLine != null)
                         yield return voteLine;

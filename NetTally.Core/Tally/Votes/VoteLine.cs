@@ -79,6 +79,41 @@ namespace NetTally.Votes
         }
 
         /// <summary>
+        /// Creates a copy of this vote line, but with the specified prefix depth.
+        /// </summary>
+        /// <param name="prefixDepth">The prefix depth we want this vote line at.</param>
+        /// <returns>Returns a new vote line if the prefix changed, or this vote line if it stayed the same.</returns>
+        public VoteLine WithPrefixDepth(int prefixDepth)
+        {
+            if (prefixDepth < 0)
+                prefixDepth = 0;
+
+            if (prefixDepth == Depth)
+                return this;
+
+            string adjPrefix = new string('-', prefixDepth);
+
+            return new VoteLine(adjPrefix, Marker, Task, Content, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
+        /// Creates a copy of this vote line, but with the specified marker information.
+        /// TODO: Obsolete comments
+        /// If the <paramref name="ifSameType"/> value is specified, but the markers are
+        /// different, keep the original value.
+        /// If this uses a MarkerType of None, then it will always update
+        /// with the new values.
+        /// </summary>
+        /// <param name="marker">The marker to substitute.</param>
+        /// <param name="markerType">The marker type to substitute.</param>
+        /// <param name="markerValue">The marker value to substitute.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
+        public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue)
+        {
+            return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
+        }
+
+        /// <summary>
         /// Creates a copy of this vote line, but with the specified task value.
         /// </summary>
         /// <param name="task">The new task for the vote line.</param>
@@ -107,23 +142,6 @@ namespace NetTally.Votes
         {
             string trimmedContent = GetTrimmedContent();
             return new VoteLine(Prefix, Marker, Task, trimmedContent, MarkerType, MarkerValue);
-        }
-
-        /// <summary>
-        /// Creates a copy of this vote line, but with the specified marker information.
-        /// TODO: Obsolete comments
-        /// If the <paramref name="ifSameType"/> value is specified, but the markers are
-        /// different, keep the original value.
-        /// If this uses a MarkerType of None, then it will always update
-        /// with the new values.
-        /// </summary>
-        /// <param name="marker">The marker to substitute.</param>
-        /// <param name="markerType">The marker type to substitute.</param>
-        /// <param name="markerValue">The marker value to substitute.</param>
-        /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
-        public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue)
-        {
-            return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
         }
         #endregion
 
