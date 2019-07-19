@@ -295,5 +295,41 @@ But might include something else...
             Assert.AreEqual("[x] 『color=#ff00AA』Teacups『/color』", post.VoteLines[1].ToString());
         }
 
+        [TestMethod]
+        public void Intro_Line_Flush_1()
+        {
+            string postText =
+@"What do you think they'll be doing now?
+[x] Ferris wheel
+-[x] At the top";
+
+            Post post = new Post(origin, postText);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.HasVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("-[] At the top", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("-[x] At the top", post.VoteLines[1].ToString());
+        }
+
+        [TestMethod]
+        public void Intro_Line_Flush_2()
+        {
+            string postText =
+@"What do you think they'll be doing now?
+-[x] Ferris wheel
+-[x] At the top";
+
+            Post post = new Post(origin, postText);
+
+            Assert.AreEqual(2, post.VoteLines.Count);
+            Assert.IsTrue(post.HasVote);
+            Assert.AreEqual("[] Ferris wheel", post.VoteLines[0].ToComparableString());
+            Assert.AreEqual("-[] At the top", post.VoteLines[1].ToComparableString());
+            Assert.AreEqual("[x] Ferris wheel", post.VoteLines[0].ToString());
+            Assert.AreEqual("-[x] At the top", post.VoteLines[1].ToString());
+        }
+
     }
 }
