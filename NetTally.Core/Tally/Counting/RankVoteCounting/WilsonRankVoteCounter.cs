@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes
@@ -22,7 +22,7 @@ namespace NetTally.VoteCounting.RankVotes
             CountVotesForTask(VoteStorage taskVotes)
         {
             var results = from vote in taskVotes
-                          let wilsonScore = RankScoring.LowerWilsonRankingScore(vote)
+                          let wilsonScore = RankingCalculations.LowerWilsonRankingScore(vote)
                           select new { vote, score = wilsonScore };
 
             var orderedResults = results.OrderByDescending(a => a.score.score)

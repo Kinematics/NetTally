@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using NetTally.Extensions;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
 using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
 
@@ -25,7 +24,7 @@ namespace NetTally.VoteCounting.RankVotes
         protected override VoteLineBlock GetLeastPreferredChoice(VoteStorage votes)
         {
             var rankedVotes = from vote in votes
-                              select new { rating = (vote, RankScoring.LowerWilsonRankingScore(vote)) };
+                              select new { rating = (vote, RankingCalculations.LowerWilsonRankingScore(vote)) };
 
             var worstVote = rankedVotes.MinObject(a => a.rating.Item2);
 
