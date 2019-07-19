@@ -10,11 +10,11 @@ namespace NetTally.VoteCounting.RankVotes
         {
             IRankVoteCounter2 rankVoteCounter = rankVoteCounterMethod switch
             {
-                RankVoteCounterMethod.RIRV => (IRankVoteCounter2)new RIRVRankVoteCounter(),
-                RankVoteCounterMethod.Baldwin => new BaldwinRankVoteCounter(),
-                RankVoteCounterMethod.Schulze => new SchulzeRankVoteCounter(),
-                RankVoteCounterMethod.Wilson => new WilsonRankVoteCounter(),
-                RankVoteCounterMethod.Default => new RIRVRankVoteCounter(),
+                RankVoteCounterMethod.RIRV => (IRankVoteCounter2)new RatedInstantRunoff(),
+                RankVoteCounterMethod.Baldwin => new Baldwin(),
+                RankVoteCounterMethod.Schulze => new Schulze(),
+                RankVoteCounterMethod.Wilson => new Wilson(),
+                RankVoteCounterMethod.Default => new RatedInstantRunoff(),
                 _ => throw new ArgumentOutOfRangeException($"Unknown rank vote counter type: {rankVoteCounterMethod}", nameof(rankVoteCounterMethod))
             };
 

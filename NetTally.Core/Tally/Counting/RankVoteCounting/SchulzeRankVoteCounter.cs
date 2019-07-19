@@ -11,7 +11,7 @@ namespace NetTally.VoteCounting.RankVotes
     /// Implementation to generate the ranking list for the provided set
     /// of votes for a specific task, based on the Schulze algorithm.
     /// </summary>
-    public class SchulzeRankVoteCounter : IRankVoteCounter2
+    public class Schulze : IRankVoteCounter2
     {
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)

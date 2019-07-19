@@ -11,7 +11,7 @@ namespace NetTally.VoteCounting.RankVotes
     /// It's an instant runoff that uses Wilson scoring to determine
     /// which vote to remove each round.
     /// </summary>
-    public class BaldwinRankVoteCounter : InstantRunoffBase
+    public class Baldwin : InstantRunoffBase
     {
         protected override bool leastPreferredChecksFullVotes { get; } = true;
 

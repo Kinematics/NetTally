@@ -17,7 +17,7 @@ namespace NetTally.VoteCounting.RankVotes
     /// This avoids the flaws of standard instant runoff voting by incorporating
     /// score ratings into the evaluation.
     /// </summary>
-    public class RIRVRankVoteCounter : IRankVoteCounter2
+    public class RatedInstantRunoff : IRankVoteCounter2
     {
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)

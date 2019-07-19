@@ -16,7 +16,7 @@ namespace NetTally.VoteCounting.RankVotes
     /// This improves on the Borda scoring, which has no means of compensating for
     /// votes that are ranked by less than 100% of the voter base.
     /// </summary>
-    public class WilsonRankVoteCounter : IRankVoteCounter2
+    public class Wilson : IRankVoteCounter2
     {
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
