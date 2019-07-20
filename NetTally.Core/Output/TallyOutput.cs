@@ -363,7 +363,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
@@ -419,7 +420,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
@@ -478,7 +480,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
