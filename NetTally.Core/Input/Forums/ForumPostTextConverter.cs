@@ -56,7 +56,7 @@ namespace NetTally.Forums
                 exclude = (n) => false;
 
             // Recurse into the child nodes of the main post node.
-            string postText = ExtractPostTextString(node, exclude, host).ToString().Trim();
+            string postText = ExtractPostTextString(node, exclude, host);
 
             // Cleanup the results of the extraction.
             return CleanupWebString(postText);
@@ -101,7 +101,7 @@ namespace NetTally.Forums
         /// <param name="node">The starting HTML node.</param>
         /// <param name="exclude">A predicate to exclude processing of further nodes.</param>
         /// <returns>Returns the text contents of the post.</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
+        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
             ExtractPostTextString(node, exclude, new StringBuilder(), host);
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.</param>
         /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
+        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
         {
             System.Diagnostics.Debug.Assert(node != null);
             System.Diagnostics.Debug.Assert(exclude != null);
@@ -221,7 +221,7 @@ namespace NetTally.Forums
                 }
             }
 
-            return sb;
+            return StripDuplicateNewlines(sb.ToString());
         }
 
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
