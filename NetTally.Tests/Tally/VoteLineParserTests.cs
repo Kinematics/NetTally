@@ -7,6 +7,7 @@ namespace NetTally.Tests.Votes
     [TestClass]
     public class VoteLineParserTests
     {
+        #region Setup
         static IServiceProvider serviceProvider;
 
         [ClassInitialize]
@@ -14,6 +15,7 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
         }
+        #endregion Setup
 
         #region Non-votes
         [TestMethod]
@@ -662,6 +664,7 @@ namespace NetTally.Tests.Votes
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
                 Assert.AreEqual("Tasky", voteLine.Task);
             }
 
@@ -682,6 +685,7 @@ namespace NetTally.Tests.Votes
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
                 Assert.AreEqual("Tasky", voteLine.Task);
             }
 
@@ -702,6 +706,7 @@ namespace NetTally.Tests.Votes
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
                 Assert.AreEqual("A 『b』normal『/b』 vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
                 Assert.AreEqual("Tasky", voteLine.Task);
             }
 
@@ -723,10 +728,223 @@ namespace NetTally.Tests.Votes
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
                 Assert.AreEqual("Shopping 1", voteLine.Content);
+                Assert.AreEqual("Shopping 1", voteLine.CleanContent);
                 Assert.AreEqual("Shopping", voteLine.Task);
             }
 
             Assert.AreNotEqual(null, voteLine);
+        }
+
+        #endregion
+
+        #region BBCode
+        [TestMethod]
+        public void Unbalanced_Start()
+        {
+            string line = "『b』[X][Tasky] A normal vote line";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_Early_Content()
+        {
+            string line = "[X][Tasky] A normal 『b』vote line";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_End()
+        {
+            string line = "[X][Tasky] A normal vote line『/b』";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("A normal vote line", voteLine.Content);
+                Assert.AreEqual("A normal vote line", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_Multiple()
+        {
+            string line = "[X][Tasky] 『b』『i』Vote『/i』 for stuff『/b』";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("『b』『i』Vote『/i』 for stuff『/b』", voteLine.Content);
+                Assert.AreEqual("Vote for stuff", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_Multiple_Missing_End()
+        {
+            string line = "[X][Tasky] 『b』『i』Vote『/i』 for stuff";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("『i』Vote『/i』 for stuff", voteLine.Content);
+                Assert.AreEqual("Vote for stuff", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_Multiple_Missing_Middle()
+        {
+            string line = "[X][Tasky] 『b』『i』Vote for stuff『/b』";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("『b』Vote for stuff『/b』", voteLine.Content);
+                Assert.AreEqual("Vote for stuff", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        [TestMethod]
+        public void Unbalanced_Multiple_Long_Colors()
+        {
+            string line = "[X][Tasky] Brutalize them. You haven’t had a chance to properly fight in 『/color』『i』『color=#ebebeb』years『/color』『/i』『color=#ebebeb』, and spars can only do so much. How thoughtful of the Herans to volunteer!";
+            VoteLine? voteLine = VoteLineParser.ParseLine(line);
+
+            if (voteLine != null)
+            {
+                Assert.AreEqual("", voteLine.Prefix);
+                Assert.AreEqual(0, voteLine.Depth);
+                Assert.AreEqual("X", voteLine.Marker);
+                Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
+                Assert.AreEqual(100, voteLine.MarkerValue);
+                Assert.AreEqual("Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.Content);
+                Assert.AreEqual("Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.CleanContent);
+                Assert.AreEqual("Tasky", voteLine.Task);
+            }
+
+            Assert.AreNotEqual(null, voteLine);
+        }
+
+        #endregion
+
+        #region Strip BBCode
+        [TestMethod]
+        public void Strip_BBCode_None()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+
+            string result = VoteLineParser.StripBBCode(cleanExample);
+            Assert.AreEqual(cleanExample, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_Basic()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+            string mediumExample = @"Text Nagisa's uncle about her 『i』visiting『/i』 today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+
+            string result = VoteLineParser.StripBBCode(mediumExample);
+            Assert.AreEqual(cleanExample, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_More()
+        {
+            string cleanExample = @"Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)";
+            string largeExample = @"Text Nagisa's uncle about her 『i』visiting『/i』 today. Establish a 『b』specific time『/b』. 『color=orange』(Keep in mind Sayaka's hospital visit.)『/color』";
+
+            string result = VoteLineParser.StripBBCode(largeExample);
+            Assert.AreEqual(cleanExample, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_Image_Url()
+        {
+            string clean = "Fancy <Image>";
+            string imageExample = @"Fancy 『url='http://google.com/image/1.jpg'』<Image>『/url』";
+
+            string result = VoteLineParser.StripBBCode(imageExample);
+            Assert.AreEqual(clean, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_UserRef_Url()
+        {
+            string clean = "@Xryuran";
+            string urlExample = @"『url=""https://forum.questionablequesting.com/members/2392/""』@Xryuran『/url』";
+
+            string result = VoteLineParser.StripBBCode(urlExample);
+            Assert.AreEqual(clean, result);
+        }
+
+        [TestMethod]
+        public void Strip_BBCode_Url()
+        {
+            string clean = "Vote for me!";
+            string urlExample = @"Vote for 『url=""http://google.com/myhome.html""』me『/url』!";
+
+            string result = VoteLineParser.StripBBCode(urlExample);
+            Assert.AreEqual(clean, result);
         }
 
         #endregion

@@ -8,8 +8,29 @@ using NetTally.Votes;
 
 namespace NetTally.Tests.Benchmark
 {
+    /*
+     * Results:
+     * 
+     * Debug Trace:
+        Start profiling in region [Warm up]
+        End profiling in region [Warm up]: 1.323400 ms
+        Start profiling in region [Baseline with empty vote lines]
+        End profiling in region [Baseline with empty vote lines]: 3.654700 ms
+        Start profiling in region [Time constructing vote lines]
+        End profiling in region [Time constructing vote lines]: 45.935100 ms
+        Start profiling in region [Time parsing lines]
+        End profiling in region [Time parsing lines]: 93.013500 ms
+        Start profiling in region [Time parsing strings]
+        End profiling in region [Time parsing strings]: 577.407500 ms
+        Start profiling in region [Comparing parsed lines]
+        End profiling in region [Comparing parsed lines]: 3.119000 ms
+        Start profiling in region [Comparing parsed lines]
+        End profiling in region [Comparing parsed lines]: 16.523400 ms
+     *
+     */
+
+
     [TestClass]
-    [Ignore]
     public class Benchmarks
     {
         static IServiceProvider serviceProvider;

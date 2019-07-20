@@ -247,6 +247,8 @@ namespace NetTally.Votes
                 return "";
 
             contentSB.Clear();
+            bool bufferOn = true;
+            int startBuffer = 0;
 
             // Use a stripped down version of the parsing state machine.
             Stack<TokenState> state = new Stack<TokenState>();
@@ -261,23 +263,31 @@ namespace NetTally.Votes
                     case TokenState.None:
                         if (ch == openBBCode)
                         {
+                            if (bufferOn)
+                            {
+                                contentSB.Append(input.Slice(startBuffer, c - startBuffer));
+                                bufferOn = false;
+                            }
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
-                        }
-                        else
-                        {
-                            contentSB.Append(ch);
                         }
                         break;
                     case TokenState.BBCode:
                         if (ch == closeBBCode)
                         {
                             currentState = state.Pop();
+                            startBuffer = c + 1;
+                            bufferOn = true;
                         }
                         break;
                     default:
                         throw new InvalidOperationException($"Unknown token state value: {currentState}.");
                 }
+            }
+
+            if (bufferOn)
+            {
+                contentSB.Append(input.Slice(startBuffer));
             }
 
             return contentSB.ToString();

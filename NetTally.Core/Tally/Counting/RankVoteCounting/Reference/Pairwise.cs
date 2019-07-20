@@ -1,44 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
+using System.Text;
+using NetTally.Forums;
+using NetTally.Votes;
 
-namespace NetTally.VoteCounting.RankVoteCounting
+namespace NetTally.VoteCounting.RankVotes.Reference
 {
-    // Task (string group), collection of votes (string vote, hashset of voters)
-    using GroupedVotesByTask = IGrouping<string, KeyValuePair<string, HashSet<string>>>;
+    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
 
-    class PairwiseRankVoteCounter : BaseRankVoteCounter
+    public class Pairwise : IRankVoteCounter2
     {
-        /// <summary>
-        /// Implementation to generate the ranking list for the provided set
-        /// of votes for a specific task, based on the Schulze algorithm.
-        /// </summary>
-        /// <param name="task">The task that the votes are grouped under.</param>
-        /// <returns>Returns a ranking list of winning votes.</returns>
-        protected override RankResults RankTask(GroupedVotesByTask task)
+        public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+            CountVotesForTask(VoteStorage taskVotes)
         {
-            if (task == null)
-                throw new ArgumentNullException(nameof(task));
+            var listOfChoices = taskVotes.Select(v => v.Key).ToList();
 
+            // Invert the votes so that we can look at preferences per user.
+            var voterPreferences = taskVotes
+                .SelectMany(v => v.Value)
+                .GroupBy(u => u.Key)
+                .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.MarkerValue).ToList());
 
-            Debug.WriteLine(">>Pairwise Ranking<<");
-
-            List<string> listOfChoices = GroupRankVotes.GetAllChoices(task);
-
-            var voterRankings = GroupRankVotes.GroupByVoterAndRank(task);
-
-            int[,] pairwisePreferences = GetPairwisePreferences(voterRankings, listOfChoices);
+            int[,] pairwisePreferences = GetPairwisePreferences(voterPreferences, listOfChoices);
 
             int[,] pairwiseWinners = GetPairwiseWinners(pairwisePreferences, listOfChoices.Count);
 
-            RankResults winningChoices = GetResultsInOrder(pairwiseWinners, listOfChoices);
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> winningChoices =
+                GetResultsInOrder(pairwiseWinners, listOfChoices, taskVotes);
 
             return winningChoices;
         }
 
-        #region Schulze Algorithm
+        #region Math
         /// <summary>
         /// Fills the pairwise preferences.
         /// This goes through each voter's ranking options and updates an array indicating
@@ -48,32 +42,32 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a filled-in preferences array.</returns>
-        private int[,] GetPairwisePreferences(IEnumerable<VoterRankings> voterRankings, List<string> listOfChoices)
+        private int[,] GetPairwisePreferences(Dictionary<Origin, List<VoteLineBlock>> voterRankings, List<VoteLineBlock> listOfChoices)
         {
             int[,] pairwisePreferences = new int[listOfChoices.Count, listOfChoices.Count];
 
-            var choiceIndexes = GroupRankVotes.GetChoicesIndexes(listOfChoices);
+            Dictionary<VoteLineBlock, int> choiceIndexes = GetChoicesIndexes(listOfChoices);
 
             foreach (var voter in voterRankings)
             {
-                var rankedChoices = voter.RankedVotes.Select(v => v.Vote);
-                var unrankedChoices = listOfChoices.Except(rankedChoices);
+                IEnumerable<VoteLineBlock> rankedChoices = voter.Value.Where(v => v.MarkerType == MarkerType.Rank);
+                IEnumerable<VoteLineBlock> unrankedChoices = listOfChoices.Except(rankedChoices);
 
-                foreach (var choice in voter.RankedVotes)
+                foreach (var choice in rankedChoices)
                 {
                     // Each choice matching or beating the ranks of other ranked choices is marked.
-                    foreach (var otherChoice in voter.RankedVotes)
+                    foreach (var otherChoice in rankedChoices)
                     {
-                        if ((choice.Vote != otherChoice.Vote) && (choice.Rank <= otherChoice.Rank))
+                        if ((choice != otherChoice) && (choice.MarkerValue <= otherChoice.MarkerValue))
                         {
-                            pairwisePreferences[choiceIndexes[choice.Vote], choiceIndexes[otherChoice.Vote]]++;
+                            pairwisePreferences[choiceIndexes[choice], choiceIndexes[otherChoice]]++;
                         }
                     }
 
                     // Each choice is ranked higher than all unranked choices
                     foreach (var nonChoice in unrankedChoices)
                     {
-                        pairwisePreferences[choiceIndexes[choice.Vote], choiceIndexes[nonChoice]]++;
+                        pairwisePreferences[choiceIndexes[choice], choiceIndexes[nonChoice]]++;
                     }
                 }
             }
@@ -118,33 +112,58 @@ namespace NetTally.VoteCounting.RankVoteCounting
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private RankResults GetResultsInOrder(int[,] winningPaths, List<string> listOfChoices)
+        private List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+            GetResultsInOrder(int[,] winningPaths, List<VoteLineBlock> listOfChoices, VoteStorage taskVotes)
         {
-            int count = listOfChoices.Count;
-
-            var availableIndexes = Enumerable.Range(0, count);
+            var availableIndexes = Enumerable.Range(0, listOfChoices.Count);
 
             var pathCounts = from index in availableIndexes
                              select new
                              {
                                  Index = index,
                                  Choice = listOfChoices[index],
-                                 Count = GetPositivePathCount(winningPaths, index, count),
-                                 Sum = GetPathSum(winningPaths, index, count)
+                                 Count = GetPositivePathCount(winningPaths, index, listOfChoices.Count),
+                                 Sum = GetPathSum(winningPaths, index, listOfChoices.Count)
                              };
 
-            var orderPaths = pathCounts.OrderByDescending(p => p.Count).ThenByDescending(p => p.Sum).ThenBy(p => p.Choice);
+            var orderPaths = pathCounts.OrderByDescending(p => p.Count)
+                                       .ThenByDescending(p => p.Sum)
+                                       .ThenBy(p => p.Choice)
+                                       .ToList();
 
-            RankResults results = new RankResults();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> results
+                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
 
-            results.AddRange(orderPaths.Select(path =>
-                new RankResult(listOfChoices[path.Index], $"Pairwise: [{path.Count}/{path.Sum}]")));
+            for (int i = 0; i < orderPaths.Count; i++)
+            {
+                var entry = ((i + 1, (double)orderPaths[i].Count / orderPaths[i].Sum),
+                    new VoteStorageEntry(orderPaths[i].Choice, taskVotes[orderPaths[i].Choice]));
+                results.Add(entry);
+            }
 
             return results;
         }
         #endregion
 
-        #region Small Utility        
+        #region Small Utility
+        /// <summary>
+        /// Convert a list to a lookup of values to index.
+        /// Assumes that all the entries in the incoming list are unique.
+        /// </summary>
+        /// <param name="list">The list to convert.</param>
+        /// <returns>Returns a dictionary pairing each list entry with its index.</returns>
+        private Dictionary<T, int> GetChoicesIndexes<T>(List<T> list)
+        {
+            Dictionary<T, int> indexes = new Dictionary<T, int>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                indexes.Add(list[i], i);
+            }
+
+            return indexes;
+        }
+
         /// <summary>
         /// Gets the number of paths in the table with a value greater than 0.
         /// </summary>
@@ -184,6 +203,7 @@ namespace NetTally.VoteCounting.RankVoteCounting
             return pathSum;
         }
         #endregion
+
 
     }
 }
