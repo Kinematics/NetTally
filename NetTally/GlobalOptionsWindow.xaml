@@ -23,10 +23,8 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
 
-        <Label x:Name="labelGeneral" Content="General" HorizontalAlignment="Left" Margin="10,2,0,0" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
-        <CheckBox Grid.Column="0" Grid.Row="1" x:Name="allowRankedVotes" Content="Allow Ranked Votes" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top"
-                  IsChecked="{Binding Path=Options.AllowRankedVotes}" />
-        <ComboBox x:Name="rankedVoteAlgorithm" Margin="33,49,0,0" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
+        <Label x:Name="labelGeneral" Content="Ranked Votes" HorizontalAlignment="Left" Margin="10,2,0,0" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
+        <ComboBox x:Name="rankedVoteAlgorithm" Margin="33,35,0,0" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
                   ItemsSource="{Binding Path=RankVoteCountingModes}" SelectedIndex="{Binding Path=Options.RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}"
                   VerticalContentAlignment="Center" IsEnabled="{Binding ElementName=allowRankedVotes, Path=IsChecked}">
             <ComboBox.ItemContainerStyle>
@@ -37,24 +35,19 @@
             </ComboBox.ItemContainerStyle>
         </ComboBox>
 
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,97,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,128,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,87,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,114,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.GlobalSpoilers}"/>
-        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,149,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,135,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
 
         <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,179,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,210,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,208,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisableWebProxy}" />
-        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,231,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,230,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowRankedVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Ranked Votes"/>
-            <TextBlock TextWrapping="Wrap" Text="When set, this allows ranked votes to be tallied.  If ranked votes are interfering with your tally, you can turn it off here."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to true."/>
-        </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=rankedVoteAlgorithm, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ranked Vote Algorithm"/>
             <TextBlock TextWrapping="Wrap" Text="Specify the algorithm to use when tallying ranked votes.  This may be temporarily changed from the default.  Changing this value updates the current tally immediately."/>
