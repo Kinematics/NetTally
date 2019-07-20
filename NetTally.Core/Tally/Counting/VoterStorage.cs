@@ -219,12 +219,11 @@ namespace NetTally.Votes
         public (int score, double average, double lowerMargin) GetScore()
         {
             var users = GetNonRankUsers();
-            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
 
             int count = 0;
             int accum = 0;
 
-            // TODO: Do a statistical margin of error calculation here.
+            var (rating, lowerBound) = VoteCounting.RankVotes.Reference.RankingCalculations.GetLowerWilsonScore(users, a => a.Value.MarkerValue);
 
             foreach (var (userOrigin, userVote) in users)
             {
@@ -238,7 +237,7 @@ namespace NetTally.Votes
             double average = (double)accum / count;
             int simpleScore = (int) Math.Round(average, 0, MidpointRounding.AwayFromZero);
 
-            return (simpleScore, average, 0);
+            return (simpleScore, average, lowerBound);
         }
 
         /// <summary>
@@ -443,12 +442,11 @@ namespace NetTally.Votes
             this IEnumerable<VoterStorageEntry> storageValues)
         {
             var users = storageValues.GetNonRankUsers();
-            var usersByMarker = users.GroupBy(v => v.Value.MarkerType);
 
             int count = 0;
             int accum = 0;
 
-            // TODO: Do a statistical margin of error calculation here.
+            var (rating, lowerBound) = VoteCounting.RankVotes.Reference.RankingCalculations.GetLowerWilsonScore(users, a => a.Value.MarkerValue);
 
             foreach (var (userOrigin, userVote) in users)
             {
@@ -462,7 +460,7 @@ namespace NetTally.Votes
             double average = (double)accum / count;
             int simpleScore = (int)Math.Round(average, 0, MidpointRounding.AwayFromZero);
 
-            return (simpleScore, average, 0);
+            return (simpleScore, average, lowerBound);
         }
 
         /// <summary>

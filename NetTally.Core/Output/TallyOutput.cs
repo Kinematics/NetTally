@@ -392,7 +392,7 @@ namespace NetTally.Output
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             {
                 var orderedResults = compactVotesInTask
-                    .OrderByDescending(a => a.Voters.GetScore().average)
+                    .OrderByDescending(a => a.Voters.GetScore().lowerMargin)
                     .ThenBy(a => a.CurrentLine.CleanContent);
 
                 foreach (var result in orderedResults)
@@ -417,7 +417,10 @@ namespace NetTally.Output
             {
                 var voteResults = votesInTask.Select(v => new { vote = v, score = v.Value.GetScore() });
 
-                var orderedResults = voteResults.OrderByDescending(a => a.score.average).ThenBy(a => a.vote.Key.First().CleanContent);
+                var orderedResults = voteResults
+                    .OrderByDescending(a => a.score.lowerMargin)
+                    .ThenByDescending(a => a.score.average)
+                    .ThenBy(a => a.vote.Key.First().CleanContent);
 
                 foreach (var result in orderedResults)
                 {
@@ -586,7 +589,7 @@ namespace NetTally.Output
             sb.Append($"{score.score}%");
             if (outputOptions.DebugMode)
             {
-                sb.Append($" ({score.average:F4})");
+                sb.Append($" ({score.lowerMargin:F4})");
             }
             sb.AppendLine("[/b]");
         }
