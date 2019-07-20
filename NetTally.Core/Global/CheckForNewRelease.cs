@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -14,8 +16,8 @@ namespace NetTally
     public class CheckForNewRelease : INotifyPropertyChanged
     {
         bool newRelease = false;
-        static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
         readonly IPageProvider pageProvider;
+        static readonly string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
 
         public CheckForNewRelease(IPageProvider provider)
         {
@@ -85,7 +87,7 @@ namespace NetTally
         private async Task DoVersionCheckAsync()
         {
             Version currentVersion = ProductInfo.FileVersion;
-            Version latestVersion = await GetLatestVersionAsync().ConfigureAwait(false);
+            Version latestVersion = await GetLatestVersionAsync2(currentVersion.Major).ConfigureAwait(false);
 
             if (currentVersion == null)
                 return;
@@ -97,77 +99,90 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get the current program version information, to compare with the latest version info.
+        /// Get the latest version we can find that matches the provided
+        /// current major version number.
+        /// Version 2 and version 3 have different runtime requirements, so
+        /// don't suggest upgrades across major versions.
         /// </summary>
-        /// <returns>Returns the current version string.</returns>
-        private async Task<Version> GetLatestVersionAsync()
+        /// <param name="currentMajorVersion">The current major version number.</param>
+        /// <returns>Returns the latest version we can find.</returns>
+        private async Task<Version> GetLatestVersionAsync2(int currentMajorVersion)
         {
-            Version latestVersion = new Version();
+            var versions = await GetReleaseVersions();
 
-            string latestVersionString = await GetLatestVersionStringAsync().ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(latestVersionString))
-                latestVersion = new Version(latestVersionString);
+            Version latestVersion = versions.Where(v => v.Major == currentMajorVersion)
+                                            .OrderByDescending(v => v)
+                                            .FirstOrDefault() ?? new Version();
 
             return latestVersion;
         }
 
         /// <summary>
-        /// Examine the releases web page for the latest release, to get 
-        /// the version number of the latest release.
+        /// Get all the release versions we can find on the Github page.
+        /// Ignore prerelease versions.
         /// </summary>
-        /// <returns>Returns the latest version string.</returns>
-        private async Task<string> GetLatestVersionStringAsync()
+        /// <returns>Returns a list of all non-prerelease versions found.</returns>
+        private async Task<List<Version>> GetReleaseVersions()
         {
-            HtmlDocument? htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
+            var releasePage = await GetReleasesPageAsync();
 
-            if (htmldoc != null)
+            if (releasePage == null)
+                return new List<Version>();
+
+            var body = releasePage.DocumentNode.Element("html").Element("body");
+
+            var appMain = body.GetChildWithClass("application-main");
+            var repoContent = appMain?.GetDescendantWithClass("repository-content");
+            var releaseEntries = repoContent?.GetDescendantsWithClass("release-entry");
+
+            if (releaseEntries == null)
+                return new List<Version>();
+
+            List<Version> versions = new List<Version>();
+
+            foreach (var entry in releaseEntries)
             {
-                var latest = htmldoc.DocumentNode.GetDescendantWithClass("div", "label-latest");
+                var (prerelease, version) = GetReleaseInfo(entry);
 
-                if (latest != null)
+                if (!prerelease && Version.TryParse(version, out Version result))
                 {
-                    var h1ReleaseTitle = htmldoc.DocumentNode.GetDescendantWithClass("h1", "release-title");
-
-                    if (h1ReleaseTitle != null)
-                    {
-                        return GetVersionString(h1ReleaseTitle.InnerText);
-                    }
+                    versions.Add(result);
                 }
             }
 
-            return string.Empty;
+            return versions;
         }
 
         /// <summary>
-        /// Get the Github page that contains the latest release.
+        /// Get the Github page that contains the latest releases.
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument?> GetLatestReleasePageAsync()
+        private async Task<HtmlDocument?> GetReleasesPageAsync()
         {
-            string url = "https://github.com/Kinematics/NetTally/releases/latest";
-
-            HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
+                "Github Releases", CachingMode.BypassCache, ShouldCache.No,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;
         }
 
         /// <summary>
-        /// Extract a version string from the provided string (text from web page).
+        /// Given a release-entry node from the Github page, extract the 
+        /// prerelease status and version string.
         /// </summary>
-        /// <param name="potentialVersion">Web page text that's expected to hold a version number.</param>
-        /// <returns>Returns the version as a string, if available.</returns>
-        private static string GetVersionString(string potentialVersion)
+        /// <param name="entry">A div containing release information.</param>
+        /// <returns>Returns whether the entry contains a prerelease version,
+        /// and what the version is.</returns>
+        private (bool prerelease, string version) GetReleaseInfo(HtmlNode entry)
         {
-            Match m = potentialVersionRegex.Match(potentialVersion);
-            if (m.Success)
-            {
-                return m.Groups["version"].Value;
-            }
+            var prerelease = entry.GetDescendantWithClass("Label--prerelease");
 
-            return "";
+            var ul = entry.Descendants("ul").FirstOrDefault();
+            var titled = ul?.Element("li")?.Element("a");
+            var title = titled?.GetAttributeValue("title", "") ?? "";
+
+            return (prerelease != null, title);
         }
         #endregion
     }
