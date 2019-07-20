@@ -38,7 +38,7 @@ namespace NetTally.Output
         StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
-        static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+        //static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
 
         public TallyOutput(IVoteCounter counter, RankVoteCounterFactory factory,
             ForumAdapterFactory forumAdapterFactory, IGeneralOutputOptions options)
@@ -509,7 +509,7 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> compactVotesInTask)
+        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> _)
         {
             var taskVotes = new VoteStorage(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
