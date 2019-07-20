@@ -110,6 +110,9 @@ namespace NetTally.Votes
         /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
         public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue)
         {
+            if (Marker == marker && MarkerType == markerType && MarkerValue == markerValue)
+                return this;
+
             return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
         }
 
@@ -120,6 +123,9 @@ namespace NetTally.Votes
         /// <returns>Returns a new <see cref="VoteLine"/> with the task changed.</returns>
         public VoteLine WithTask(string task)
         {
+            if (Task == task)
+                return this;
+
             return new VoteLine(Prefix, Marker, task, Content, MarkerType, MarkerValue);
         }
 
