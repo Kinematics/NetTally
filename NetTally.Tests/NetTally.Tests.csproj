@@ -15,6 +15,34 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Resources\RenascenceSV.html</TargetPath>
     </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\NodeBB.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\NodeBB.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\phpBB.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\phpBB.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\vBulletin3.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\vBulletin3.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\vBulletin4.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\vBulletin4.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\vBulletin5.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\vBulletin5.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\Xenforo1.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\Xenforo1.html</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="..\NetTally.Test\Resources\Xenforo2.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Resources\Xenforo2.html</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   
   <ItemGroup>
