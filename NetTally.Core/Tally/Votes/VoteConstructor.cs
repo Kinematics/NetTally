@@ -556,9 +556,9 @@ namespace NetTally.Votes
                 case PartitionMode.ByLineTask:
                     return PartitionPostByLineTask(post);
                 case PartitionMode.ByBlock:
-                    return PartitionPostByBlock(post, partitionMode);
+                    return PartitionPostByBlock(post);
                 case PartitionMode.ByBlockAll:
-                    return PartitionPostByBlock(post, partitionMode);
+                    return PartitionPostByBlock(post);
                 default:
                     throw new InvalidOperationException($"Unknown partition mode: {partitionMode}");
             }
@@ -657,7 +657,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the vote to be partitioned.</param>
         /// <returns>Returns a list of vote blocks.</returns>
-        private List<VoteLineBlock> PartitionPostByBlock(Post post, PartitionMode partitionMode)
+        private List<VoteLineBlock> PartitionPostByBlock(Post post)
         {
             List<VoteLineBlock> working = new List<VoteLineBlock>();
             List<VoteLine> tempList = new List<VoteLine>();
@@ -684,14 +684,9 @@ namespace NetTally.Votes
                         tempList.Clear();
                     }
 
-                    if (partitionMode == PartitionMode.ByBlockAll)
-                    {
-                        working.AddRange(Partition(block, partitionMode));
-                    }
-                    else
-                    {
-                        working.Add(block);
-                    }
+                    // If partition mode is BlockAll, the plan has already been
+                    // partitioned, so we don't need to re-do the work.
+                    working.Add(block);
                 }
             }
 
