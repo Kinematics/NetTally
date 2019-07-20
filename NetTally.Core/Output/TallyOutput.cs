@@ -47,7 +47,7 @@ namespace NetTally.Output
 
             rankVoteCounter = factory.CreateRankVoteCounter(options.RankVoteCounterMethod);
 
-            IQuest? quest = voteCounter.Quest;
+            quest = voteCounter.Quest ?? new Quest();
 
             if (quest != null)
             {
