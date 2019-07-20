@@ -339,12 +339,19 @@ namespace NetTally.Votes
 
         public IEnumerator<VoteLine> GetEnumerator()
         {
+            bool first = true;
+
             foreach (var line in Lines)
             {
-                if (line.MarkerType == MarkerType)
-                    yield return line;
+                if (first)
+                {
+                    first = false;
+                    yield return line.WithMarkerAndTask(Marker, MarkerType, MarkerValue, Task);
+                }
                 else
-                    yield return line.WithMarker(Marker, MarkerType, MarkerValue);
+                {
+                    yield return line;
+                }
             }
         }
 
