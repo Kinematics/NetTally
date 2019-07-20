@@ -110,6 +110,9 @@ namespace NetTally.Votes
         /// <returns>Returns a new <see cref="VoteLine"/> with the marker parameters changed.</returns>
         public VoteLine WithMarker(string marker, MarkerType markerType, int markerValue)
         {
+            if (Marker == marker && MarkerType == markerType && MarkerValue == markerValue)
+                return this;
+
             return new VoteLine(Prefix, marker, Task, Content, markerType, markerValue);
         }
 
@@ -120,7 +123,23 @@ namespace NetTally.Votes
         /// <returns>Returns a new <see cref="VoteLine"/> with the task changed.</returns>
         public VoteLine WithTask(string task)
         {
+            if (Task == task)
+                return this;
+
             return new VoteLine(Prefix, Marker, task, Content, MarkerType, MarkerValue);
+        }
+
+        /// <summary>
+        /// Creates a copy of this vote line, but with the specified marker and task values.
+        /// </summary>
+        /// <param name="task">The new task for the vote line.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the task changed.</returns>
+        public VoteLine WithMarkerAndTask(string marker, MarkerType markerType, int markerValue, string task)
+        {
+            if (Marker == marker && MarkerType == markerType && MarkerValue == markerValue && Task == task)
+                return this;
+
+            return new VoteLine(Prefix, marker, task, Content, markerType, markerValue);
         }
 
         /// <summary>
@@ -158,19 +177,22 @@ namespace NetTally.Votes
 
         /// <summary>
         /// Creates a string that displays the cleaned content, and without any particular marker.
+        /// May display a provided task instead of the innate one.
         /// </summary>
         /// <returns>Returns a string representing the current object.</returns>
-        public string ToComparableString()
+        public string ToComparableString(string? displayTask = null)
         {
-            string task = Task.Length > 0 ? $"[{Task}]" : "";
-            return $"{Prefix}[]{task} {CleanContent}";
+            displayTask ??= Task;
+            displayTask = displayTask.Length > 0 ? $"[{displayTask}]" : "";
+            return $"{Prefix}[]{displayTask} {CleanContent}";
         }
 
         /// <summary>
         /// Creates a string that displays the full vote line content, using the specified marker
-        /// instead of the intrinsic vote line's.
+        /// and task instead of the intrinsic ones.
         /// </summary>
         /// <param name="displayMarker">The marker to use in the generated output.</param>
+        /// <param name="displayTask">The task to use in the generated output.</param>
         /// <returns>Returns a string representing the current object.</returns>
         public string ToOverrideString(string? displayMarker = null, string? displayTask = null)
         {

@@ -37,7 +37,7 @@ namespace NetTally.Output
         StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
-        static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
+        //static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
 
         public TallyOutput(IVoteCounter counter, RankVoteCounterFactory factory,
             ForumAdapterFactory forumAdapterFactory, IGeneralOutputOptions options)
@@ -47,7 +47,7 @@ namespace NetTally.Output
 
             rankVoteCounter = factory.CreateRankVoteCounter(options.RankVoteCounterMethod);
 
-            IQuest? quest = voteCounter.Quest;
+            quest = voteCounter.Quest ?? new Quest();
 
             if (quest != null)
             {
@@ -362,7 +362,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
@@ -378,9 +379,13 @@ namespace NetTally.Output
 
                     var (entryVote, entryStorage) = resultVote;
 
-                    AddStandardVoteSupport(resultSupport);
+                    int voterCount = entryStorage.GetNonRankUserCount();
+                    if (voterCount != resultSupport)
+                    {
+                        AddStandardVoteSupport(resultSupport);
+                    }
                     AddStandardVoteDisplay(resultVote, resultSupport);
-                    AddVoterCount(entryStorage.GetNonRankUserCount());
+                    AddVoterCount(voterCount);
                     AddNonRankVoters(entryStorage);
 
                     sb.AppendLine();
@@ -418,7 +423,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
@@ -477,7 +483,8 @@ namespace NetTally.Output
                         }
                     }
 
-                    sb.AppendLine();
+                    if (!(quest.PartitionMode == PartitionMode.ByLine || quest.PartitionMode == PartitionMode.ByLineTask))
+                        sb.AppendLine();
                 }
             }
             else
@@ -508,7 +515,7 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> compactVotesInTask)
+        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> _)
         {
             var taskVotes = new VoteStorage(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
