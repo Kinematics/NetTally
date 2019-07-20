@@ -56,7 +56,7 @@ namespace NetTally.Forums
                 exclude = (n) => false;
 
             // Recurse into the child nodes of the main post node.
-            string postText = ExtractPostTextString(node, exclude, host).ToString().Trim();
+            string postText = ExtractPostTextString(node, exclude, host);
 
             // Cleanup the results of the extraction.
             return CleanupWebString(postText);
@@ -101,7 +101,7 @@ namespace NetTally.Forums
         /// <param name="node">The starting HTML node.</param>
         /// <param name="exclude">A predicate to exclude processing of further nodes.</param>
         /// <returns>Returns the text contents of the post.</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
+        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
             ExtractPostTextString(node, exclude, new StringBuilder(), host);
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.</param>
         /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
-        private static StringBuilder ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
+        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
         {
             System.Diagnostics.Debug.Assert(node != null);
             System.Diagnostics.Debug.Assert(exclude != null);
@@ -155,7 +155,9 @@ namespace NetTally.Forums
                         // Struck-through text is entirely skipped.
                         if (spanStrikeRegex.Match(spanStyle).Success)
                         {
-                            continue;
+                            sb.Append("❰");
+                            ExtractPostTextString(child, exclude, sb, host);
+                            sb.Append("❱");
                         }
                         else if (spanSpoilerRegex.Match(spanClass).Success)
                         {
@@ -221,8 +223,65 @@ namespace NetTally.Forums
                 }
             }
 
-            return sb;
+            return StripDuplicateNewlines(sb.ToString());
         }
+
+        static readonly char[] newlineChars = new char[] { '\r', '\n' };
+        const char openStrike = '❰';
+        const char closeStrike = '❱';
+        const char strikeNewline = '⦂';
+        const string normalNewline = "\r\n";
+
+        private static string StripDuplicateNewlines(ReadOnlySpan<char> input)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            bool newlineState = false;
+            bool strikeState = false;
+            int bufferStart = 0;
+
+            for (int c = 0; c < input.Length; c++)
+            {
+                char ch = input[c];
+
+                if (newlineChars.Contains(ch))
+                {
+                    if (!newlineState)
+                    {
+                        sb.Append(input.Slice(bufferStart, c - bufferStart));
+
+                        if (strikeState)
+                            sb.Append(strikeNewline);
+                        else
+                            sb.Append(normalNewline);
+
+                        newlineState = true;
+                    }
+                }
+                else if (newlineState)
+                {
+                    bufferStart = c;
+                    newlineState = false;
+                }
+
+                if (ch == openStrike)
+                {
+                    strikeState = true;
+                }
+                else if (ch == closeStrike)
+                {
+                    strikeState = false;
+                }
+            }
+
+            if (!newlineState)
+            {
+                sb.Append(input.Slice(bufferStart));
+            }
+
+            return sb.ToString().Trim();
+        }
+
         #endregion
     }
 }
