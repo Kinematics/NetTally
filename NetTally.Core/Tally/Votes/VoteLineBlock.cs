@@ -340,7 +340,12 @@ namespace NetTally.Votes
         public IEnumerator<VoteLine> GetEnumerator()
         {
             foreach (var line in Lines)
-                yield return line;
+            {
+                if (line.MarkerType == MarkerType)
+                    yield return line;
+                else
+                    yield return line.WithMarker(Marker, MarkerType, MarkerValue);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<VoteLine>)this).GetEnumerator();
