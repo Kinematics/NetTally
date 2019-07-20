@@ -54,6 +54,8 @@ namespace NetTally.Forums
                     return new phpBBAdapter(uri);
                 case ForumType.NodeBB:
                     return new NodeBBAdapter(uri);
+                case ForumType.Unknown:
+                    return new UnknownForumAdapter();
                 default:
                     throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
             }

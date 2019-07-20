@@ -47,8 +47,16 @@ namespace NetTally.Output
 
             rankVoteCounter = factory.CreateRankVoteCounter(options.RankVoteCounterMethod);
 
-            IQuest quest = voteCounter.Quest ?? throw new InvalidOperationException("Vote counter's quest is null.");
-            forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri!);
+            IQuest? quest = voteCounter.Quest;
+
+            if (quest != null)
+            {
+                forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri!);
+            }
+            else
+            {
+                forumAdapter = forumAdapterFactory.CreateForumAdapter(ForumType.Unknown, new Uri("http://www.example.com/"));
+            }
         }
         #endregion
 
