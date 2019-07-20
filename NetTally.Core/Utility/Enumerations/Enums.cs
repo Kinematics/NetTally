@@ -120,11 +120,11 @@ namespace NetTally
         public enum MarkerType
         {
             None,
+            Plan,
             Vote,
             Rank,
             Score,
             Approval,
-            Continuation
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace NetTally
 
         public enum IdentityType
         {
+            Plan,
             User,
-            Plan
         }
     }
 

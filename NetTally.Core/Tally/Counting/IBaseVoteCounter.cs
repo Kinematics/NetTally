@@ -1,22 +1,17 @@
 ﻿using System.Collections.Generic;
-using NetTally.VoteCounting.RankVoteCounting.Utility;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    /// <summary>
-    /// Base vote counter interface, that all other vote counter interfaces derive from.
-    /// </summary>
-    interface IBaseVoteCounter
-    {
-
-    }
+    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
 
     /// <summary>
     /// Vote counter interface for ranked votes.
     /// </summary>
-    /// <seealso cref="NetTally.VoteCounting.IBaseVoteCounter" />
-    interface IRankVoteCounter : IBaseVoteCounter
+    public interface IRankVoteCounter2
     {
-        RankResultsByTask CountVotes(Dictionary<string, HashSet<string>> votes);
+        // TODO: is rank needed in the tuple, considering a List<> is explicitly ordered?
+        List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+            CountVotesForTask(VoteStorage taskVotes);
     }
 }

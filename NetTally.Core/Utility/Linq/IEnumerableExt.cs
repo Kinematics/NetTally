@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable disable
-
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -68,6 +66,59 @@ namespace NetTally.Extensions
             return min;
         }
 
+
+        public static U MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold) where U : IComparable<U> =>
+            MinAboveThreshold(self, transform, threshold, null);
+
+        /// <summary>
+        /// Extension method to get the minimum result that surpasses a specified threshold.
+        /// </summary>
+        /// <typeparam name="T">The type of object the list contains.</typeparam>
+        /// <param name="self">The list.</param>
+        /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
+        /// <param name="comparer">Optional comparer object that can determine if one object is less than another.</param>
+        /// <returns>Returns the object that has the lowest 'value'.</returns>
+        public static U MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold, IComparer<U> comparer) where U : IComparable<U>
+        {
+            if (self == null)
+                throw new ArgumentNullException(nameof(self));
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
+            if (!self.Any())
+                throw new ArgumentException("Empty list");
+
+            U _min = default;
+            bool first = true;
+            int compareResult;
+            int thresholdResult;
+
+            foreach (T item in self)
+            {
+                U _item = transform(item);
+
+                if (first)
+                {
+                    _min = _item;
+                    first = false;
+                    continue;
+                }
+
+                compareResult = (comparer != null) ? comparer.Compare(_item, _min) : _item.CompareTo(_min);
+
+                if (compareResult < 0)
+                {
+                    thresholdResult = (comparer != null) ? comparer.Compare(_item, threshold) : _item.CompareTo(threshold);
+
+                    if (thresholdResult > 0)
+                    {
+                        _min = _item;
+                    }
+                }
+            }
+
+            return _min;
+        }
+
         /// <summary>
         /// Extension method to get the object with the maximum value from an enumerable list.
         /// </summary>
@@ -124,7 +175,6 @@ namespace NetTally.Extensions
 
             return max;
         }
-
 
         /// <summary>
         /// Returns a collection of items from the provided enumerable that match the
@@ -290,7 +340,7 @@ namespace NetTally.Extensions
         /// <exception cref="System.ArgumentNullException">Throw if <paramref name="childSelector"/> or <paramref name="nodeSelector"/>
         /// is null.</exception>
         public static IEnumerable<U> TraverseList<T, U>(this IEnumerable<T> items,
-            Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Predicate<U> filter)
+            Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Func<U, bool> filter)
         {
             if (childSelector == null)
                 throw new ArgumentNullException(nameof(childSelector));
@@ -315,5 +365,65 @@ namespace NetTally.Extensions
                 }
             }
         }
+
+        /// <summary>
+        /// Determine if most (as determined by the provided threshold) of the elements of
+        /// an enumerated sequence pass a given check.
+        /// Aside: "Most" would largely fall between 68% and 95%, centering around 82%.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumerable.</typeparam>
+        /// <param name="items">The list of items to check.</param>
+        /// <param name="predicate">The predicate test to use on each item. Has a default value of 83% (5/6 success rate would pass).</param>
+        /// <param name="threshold">What percentage of the checks must pass for the function to return true.</param>
+        /// <returns>Returns true if most of the items in the sequence pass the predicate check.</returns>
+        public static bool Most<T>(this IEnumerable<T> items, Func<T, bool> predicate, double threshold = 0.83)
+        {
+            int pass = 0;
+            int fail = 0;
+
+            foreach (var item in items)
+            {
+                if (predicate(item))
+                    pass++;
+                else
+                    fail++;
+            }
+
+            if ((pass + fail) == 0)
+                return false;
+
+            return ((double)pass / (pass + fail) >= threshold);
+        }
+
+
+        public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)
+        {
+            if (!list1.Any() && !list2.Any())
+                return true;
+
+            if (!list1.Any() || !list2.Any())
+                return false;
+
+            var e1 = list1.GetEnumerator();
+            var e2 = list2.GetEnumerator();
+
+            while (true)
+            {
+                bool move1 = e1.MoveNext();
+                bool move2 = e2.MoveNext();
+
+                if (move1 ^ move2)
+                    return false;
+
+                if (!move1)
+                    break;
+
+                if (!(comparer.Compare(selector(e1.Current), selector(e2.Current)) == 0))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

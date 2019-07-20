@@ -21,16 +21,17 @@ namespace NetTally.Web
         #region Properties
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
-        protected PageCache Cache { get; } = PageCache.Instance;
+        protected ICache<string> Cache { get; }
 
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion
 
         #region Constructors
-        protected PageProviderBase(HttpClientHandler? handler, IClock? clock)
+        protected PageProviderBase(HttpClientHandler handler, ICache<string> pageCache, IClock clock)
         {
-            ClientHandler = handler ?? new HttpClientHandler();
-            Clock = clock ?? new SystemClock();
+            ClientHandler = handler;
+            Cache = pageCache;
+            Clock = clock;
 
             Cache.SetClock(Clock);
         }
@@ -59,30 +60,14 @@ namespace NetTally.Web
             {
                 ClientHandler?.Dispose();
                 ss.Dispose();
+                Cache.InvalidateCache();
             }
 
             _disposed = true;
         }
         #endregion
 
-        #region IPageProvider
-        /// <summary>
-        /// Allow manual clearing of the page cache.
-        /// </summary>
-        public void ClearPageCache()
-        {
-            Cache.Clear();
-        }
-
-        /// <summary>
-        /// If we're notified that a given attempt to load pages is done, we can
-        /// tell the web page cache to expire old data.
-        /// </summary>
-        public void DoneLoading()
-        {
-            Cache.InvalidateCache();
-        }
-
+        #region Event handling
         /// <summary>
         /// Event handler hook for status messages.
         /// </summary>
@@ -99,36 +84,29 @@ namespace NetTally.Web
 
             StatusChanged?.Invoke(this, new MessageEventArgs(message));
         }
-        #endregion
 
-        #region Notification functions
-
-        protected void NotifyStatusChange(PageRequestStatusType status, string url, string? shortDescrip, Exception? e, SuppressNotifications suppressNotifications)
+        protected void NotifyStatusChange(PageRequestStatusType status, string url, string shortDescrip,
+            Exception e, SuppressNotifications suppressNotifications)
         {
             if (suppressNotifications == SuppressNotifications.Yes)
                 return;
 
-            if (status == PageRequestStatusType.Requested)
+            switch (status)
             {
-                NotifyRequest(url);
-                return;
+                case PageRequestStatusType.Requested:
+                    NotifyRequest(url);
+                    break;
+                case PageRequestStatusType.Cancelled:
+                    NotifyCancel();
+                    break;
+                case PageRequestStatusType.Error:
+                    NotifyError(shortDescrip, e);
+                    break;
+                default:
+                    NotifyResult(status, shortDescrip);
+                    break;
             }
-
-            if (status == PageRequestStatusType.Cancelled)
-            {
-                NotifyCancel();
-                return;
-            }
-
-            if (status == PageRequestStatusType.Error)
-            {
-                NotifyError(shortDescrip, e);
-                return;
-            }
-
-            NotifyResult(status, shortDescrip);
         }
-
 
         /// <summary>
         /// Send status update when requesting a page URL.
@@ -156,7 +134,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="e">The e.</param>
-        private void NotifyError(string? shortDescrip, Exception? e)
+        private void NotifyError(string shortDescrip, Exception e)
         {
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
@@ -170,7 +148,7 @@ namespace NetTally.Web
         /// <param name="status">The status.</param>
         /// <param name="shortDescrip">The short descrip.</param>
         /// <param name="suppress">if set to <c>true</c> [suppress].</param>
-        private void NotifyResult(PageRequestStatusType status, string? shortDescrip)
+        private void NotifyResult(PageRequestStatusType status, string shortDescrip)
         {
             if (string.IsNullOrEmpty(shortDescrip))
                 return;

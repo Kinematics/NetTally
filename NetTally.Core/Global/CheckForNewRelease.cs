@@ -7,15 +7,20 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
-using NetTally.ViewModels;
 using NetTally.Web;
 
-namespace NetTally.Utility
+namespace NetTally
 {
     public class CheckForNewRelease : INotifyPropertyChanged
     {
         bool newRelease = false;
         static readonly Regex potentialVersionRegex = new Regex(@"[^.](?<version>\d+(\.\d+){0,3})");
+        readonly IPageProvider pageProvider;
+
+        public CheckForNewRelease(IPageProvider provider)
+        {
+            pageProvider = provider;
+        }
 
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
@@ -27,7 +32,7 @@ namespace NetTally.Utility
         /// Function to raise events when a property has been changed.
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -114,7 +119,7 @@ namespace NetTally.Utility
         /// <returns>Returns the latest version string.</returns>
         private async Task<string> GetLatestVersionStringAsync()
         {
-            HtmlDocument? htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
+            HtmlDocument htmldoc = await GetLatestReleasePageAsync().ConfigureAwait(false);
 
             if (htmldoc != null)
             {
@@ -139,11 +144,11 @@ namespace NetTally.Utility
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument?> GetLatestReleasePageAsync()
+        private async Task<HtmlDocument> GetLatestReleasePageAsync()
         {
             string url = "https://github.com/Kinematics/NetTally/releases/latest";
 
-            HtmlDocument? doc = await ViewModelService.MainViewModel.PageProvider.GetPageAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
+            HtmlDocument doc = await pageProvider.GetHtmlDocumentAsync(url, "Github Releases", CachingMode.BypassCache, ShouldCache.Yes,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
             return doc;

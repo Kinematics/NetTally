@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
-using NetTally.Utility;
+using NetTally.Input.Utility;
+using NetTally.Options;
 using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
@@ -38,7 +39,7 @@ namespace NetTally.Forums.Adapters
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
 
         // The default threadmark filter.
-        static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
+        static readonly Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
         #endregion
 
         #region Site properties
@@ -184,7 +185,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode;
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("html").Element("head")?.Element("title")?.InnerText);
 
             // Find a common parent for other data
             HtmlNode pageContent = GetPageContent(page, PageType.Thread);
@@ -193,17 +194,17 @@ namespace NetTally.Forums.Adapters
                 throw new InvalidOperationException("Cannot find content on page.");
 
             // Find the thread author
-            HtmlNode? titleBar = pageContent.GetDescendantWithClass("titleBar");
+            HtmlNode titleBar = pageContent.GetDescendantWithClass("titleBar");
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
             if (titleBar == null)
                 throw new InvalidOperationException("Not a valid forum thread.");
 
-            HtmlNode? pageDesc = page.GetElementbyId("pageDescription");
+            HtmlNode pageDesc = page.GetElementbyId("pageDescription");
 
-            HtmlNode? authorNode = pageDesc?.GetChildWithClass("username");
+            HtmlNode authorNode = pageDesc?.GetChildWithClass("username");
 
-            author = PostText.CleanupWebString(authorNode?.InnerText ?? "");
+            author = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText ?? "");
 
             // Find the number of pages in the thread
             var pageNavLinkGroup = pageContent.GetDescendantWithClass("div", "pageNavLinkGroup");
@@ -230,7 +231,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                         //where p.HasClass("stickyFirstContainer") == false
@@ -265,7 +266,7 @@ namespace NetTally.Forums.Adapters
             if (quest.UseRSSThreadmarks == BoolEx.True)
             {
                 // try for RSS stream
-                XDocument? rss = await pageProvider.GetXmlPageAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
+                XDocument rss = await pageProvider.GetXmlDocumentAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
                 if (rss != null && rss.Root.Name == "rss")
@@ -331,7 +332,7 @@ namespace NetTally.Forums.Adapters
 
 
             // Load the threadmarks so that we can find the starting post page or number.
-            HtmlDocument? threadmarkPage = await pageProvider.GetPageAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
+            HtmlDocument threadmarkPage = await pageProvider.GetHtmlDocumentAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
                 ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
@@ -473,7 +474,7 @@ namespace NetTally.Forums.Adapters
             var messageList = page?.GetElementbyId("messageList");
 
             // Return all found list items in the message list, or an empty list.
-            return messageList?.Elements("li") ?? Enumerable.Empty<HtmlNode>();
+            return messageList?.Elements("li") ?? new List<HtmlNode>();
         }
 
         /// <summary>
@@ -481,7 +482,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode li, IQuest quest)
+        private Post GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -492,18 +493,18 @@ namespace NetTally.Forums.Adapters
             int number;
 
             // Author and ID are in the basic list item attributes
-            author = PostText.CleanupWebString(li.GetAttributeValue("data-author", ""));
+            author = ForumPostTextConverter.CleanupWebString(li.GetAttributeValue("data-author", ""));
             id = li.Id.Substring("post-".Length);
 
             if (AdvancedOptions.Instance.DebugMode)
                 author = $"{author}_{id}";
 
             // Get the primary content of the list item
-            HtmlNode? primaryContent = li.GetChildWithClass("primaryContent");
+            HtmlNode primaryContent = li.GetChildWithClass("primaryContent");
 
             // On one branch, we can get the post text
-            HtmlNode? messageContent = primaryContent?.GetChildWithClass("messageContent");
-            HtmlNode? postBlock = messageContent?.Element("article")?.Element("blockquote");
+            HtmlNode messageContent = primaryContent?.GetChildWithClass("messageContent");
+            HtmlNode postBlock = messageContent?.Element("article")?.Element("blockquote");
 
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
@@ -511,20 +512,20 @@ namespace NetTally.Forums.Adapters
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
-            var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
+            var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postBlock, exclusions, Host);
+            text = ForumPostTextConverter.ExtractPostText(postBlock, exclusions, Host);
 
             // On another branch of the primary content, we can get the post number.
-            HtmlNode? messageMeta = primaryContent?.GetChildWithClass("messageMeta");
+            HtmlNode messageMeta = primaryContent?.GetChildWithClass("messageMeta");
             // HTML parsing of the post was corrupted somehow.
             if (messageMeta == null)
             {
                 return null;
             }
-            HtmlNode? publicControls = messageMeta.GetChildWithClass("publicControls");
-            HtmlNode? postNumber = publicControls?.GetChildWithClass("postNumber");
+            HtmlNode publicControls = messageMeta.GetChildWithClass("publicControls");
+            HtmlNode postNumber = publicControls?.GetChildWithClass("postNumber");
 
             if (postNumber == null)
                 return null;
@@ -536,10 +537,12 @@ namespace NetTally.Forums.Adapters
 
             number = int.Parse(postNumberText);
 
-            PostComponents? post;
+            Post post;
+            
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch (Exception e)
             {
@@ -566,11 +569,11 @@ namespace NetTally.Forums.Adapters
             {
                 HtmlNode content = GetPageContent(page, PageType.Threadmarks);
 
-                HtmlNode? threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
+                HtmlNode threadmarksDiv = content.GetDescendantWithClass("div", "threadmarks");
 
-                HtmlNode? listOfThreadmarks = null;
+                HtmlNode listOfThreadmarks = null;
 
-                HtmlNode? threadmarkList = threadmarksDiv?.GetDescendantWithClass("threadmarkList");
+                HtmlNode threadmarkList = threadmarksDiv?.GetDescendantWithClass("threadmarkList");
 
                 if (threadmarkList != null)
                 {
@@ -599,7 +602,7 @@ namespace NetTally.Forums.Adapters
 
                 if (listOfThreadmarks != null)
                 {
-                    Predicate<HtmlNode> filterLambda = (n) => n != null &&
+                    Func<HtmlNode, bool> filterLambda = (n) => n != null &&
                         ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
                         (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(n.InnerText)));
 

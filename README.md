@@ -7,31 +7,9 @@ In order to resolve which plan to actually follow in the next update post, a met
 
 Full documentation on the use of this program (including vote-formatting guidelines) is available in the wiki: https://github.com/Kinematics/NetTally/wiki
 
-
-### Requirements
-
-#### Current active branch: VS2017 / dev
-
-System requirements: .NET 4.6.
-
-This will not run on Windows XP, since the highest version of .NET available is 4.0.
-
-The core library targets .NET Standard 1.3 (equivalent to .NET 4.6).  The Windows UI targets .NET 4.6.  The console app targets .NET Core 1.1.
-
-If you wish to edit the code, it requires Visual Studio 2017, and uses C#7.
-
-#### Retired branch: VS2015
-
-System requirements: .NET 4.5.
-
-This will not run on Windows XP, since the highest version of .NET available is 4.0.
-
-If you wish to edit the code, it requires Visual Studio 2015, and uses C#6.
-
-
 ### Quickstart overview
 
-Add a new quest by pasting in the URL of the thread that's being followed.
+Add a new quest by pasting in the URL of the thread that's being followed into the text box that's shown when you hit the Add button.
 
 Votes in the quest are marked with [x] or [X] in a user's post.  Nesting a line under another can be done by prefixing that with a hyphen (-).
 
@@ -48,12 +26,51 @@ Example:
 [x] Username1
 ```
 
-Partitioning votes breaks individual votes into single lines or blocks.  Partitioning by line treats every single line of each vote independently, while partitioning by block treats subvotes as part of each main vote entry.
+Partitioning votes breaks individual votes into single lines or blocks.  Partitioning by line treats every single line of each vote independently, while partitioning by block treats subvotes as part of each parent vote entry.
 
-BBCode formatting is preserved, including italics, bold, underlines, colors, and URLs, as long as it's part of the vote content (but not if it covers the entire line, or part of the marker area or whatever).  Quoted votes are ignored.
+BBCode formatting is preserved, including italics, bold, underlines, colors, and URLs, as long as it's part of the vote content (but not if it covers the entire line, or part of the marker area or whatever).  Votes that are inside a forum quote block are ignored.
 
-The program is currently capable of understanding XenForo and vBulletin forum systems.  Other forums have the framework code in place, but the forum software often has limitations that prevent NetTally from being able to properly operate on them. (EG: Lack of post numbers, lack of page numbers, etc.)
+The program currently works on XenForo (versions 1 and 2) and vBulletin (versions 3, 4, and 5) forums.  Other forums have the framework code in place, but the forum software often has limitations that prevent NetTally from being able to properly operate on them. (EG: Lack of post numbers, lack of page numbers, etc.)
 
 This is built on the basis of quests run on SpaceBattles and SufficientVelocity, and is an adaptation of a program originally written by Firnagzen.
+
+
+### Development Requirements
+
+If you wish to work on the code to help develop NetTally further, the following gives the current basic requirements of various version branches.
+
+#### Development branch: dev, Core3
+
+System Requirements:  .NET Core 3 Preview 6+
+
+C# 8.0
+
+Dev Environment: Visual Studio 2019
+
+#### Stable branch: Core2
+
+System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
+
+C# 8.0 (Should actually be 7.3)
+
+Dev Environment: Visual Studio 2019
+
+#### Prior branch: VS2017
+
+System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
+
+C# 7.3
+
+Dev Environment: Visual Studio 2017
+
+Notes: Includes a few updates past the 2.0 release because of corruption of the repository.  Should be usable with .NET Framework 4.6.1.
+
+#### Retired branch: VS2015
+
+System Requirements:  .NET Framework 4.5.2
+
+C# 6
+
+Dev Environment: Visual Studio 2015
 
 

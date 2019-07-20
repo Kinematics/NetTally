@@ -15,7 +15,9 @@ namespace NetTally.Utility
         /// <summary>
         /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
         /// </summary>
-        public const char PlanNameMarker = '◈';
+        public const string PlanNameMarker = "◈";
+        public const char PlanNameMarkerChar = '◈';
+        public const string NoRankMarker = "⊘";
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
@@ -43,7 +45,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(name))
                 return false;
 
-            return (name[0] == PlanNameMarker);
+            return (name[0] == PlanNameMarkerChar);
         }
         #endregion
 
@@ -74,7 +76,7 @@ namespace NetTally.Utility
         /// <summary>
         /// Static array for use in GetStringLines.
         /// </summary>
-        static char[] newLines = new[] { '\r', '\n' };
+        static readonly char[] newLines = new[] { '\r', '\n' };
 
         /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
@@ -112,6 +114,46 @@ namespace NetTally.Utility
 
         #endregion
 
+        #region Agnostic string comparison utilities
+        /// <summary>
+        /// Returns the first match within the enumerable list that agnostically
+        /// equals the provided value.
+        /// Extends the enumerable.
+        /// </summary>
+        /// <param name="self">The list to search.</param>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string AgnosticMatch(this IEnumerable<string> self, string value)
+        {
+            foreach (string item in self)
+            {
+                if (Agnostic.StringComparer.Equals(item, value))
+                    return item;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the first match within the enumerable list that agnostically
+        /// equals the provided value.
+        /// Extends a string.
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <param name="list">The list to search.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string AgnosticMatch(this string value, IEnumerable<string> list)
+        {
+            foreach (string item in list)
+            {
+                if (Agnostic.StringComparer.Equals(item, value))
+                    return item;
+            }
+
+            return null;
+        }
+        #endregion
+
         #region Diacritical cleanup
         /// <summary>
         /// Return the simplified latin form of a string, after removing diacriticals.
@@ -140,7 +182,7 @@ namespace NetTally.Utility
         /// Lookup table for non-latin characters that doesn't require string.Normalize (which isn't available
         /// in .NET Standard below 2.0).
         /// </summary>
-        static Dictionary<string, string> nonlatin_characters = new Dictionary<string, string>
+        static readonly Dictionary<string, string> nonlatin_characters = new Dictionary<string, string>
         {
             { "äæǽ", "ae" },
             { "ÆǼ", "AE" },
@@ -239,7 +281,7 @@ namespace NetTally.Utility
         /// a string every time.
         /// Speeds worst-case comparisons up by a factor of about 10.
         /// </summary>
-        static Dictionary<char, string> translate_characters = new Dictionary<char, string>();
+        static readonly Dictionary<char, string> translate_characters = new Dictionary<char, string>();
 
         /// <summary>
         /// Function to copy the nonlatin_characters table to the translate_characters table.

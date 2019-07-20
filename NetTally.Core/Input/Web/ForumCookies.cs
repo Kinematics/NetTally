@@ -11,7 +11,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        public static Cookie? GetCookie(Uri uri) => GetCookie(uri, new SystemClock());
+        public static Cookie GetCookie(Uri uri) => GetCookie(uri, new SystemClock());
 
         /// <summary>
         /// Gets the cookie associated with the given URI, if available.
@@ -20,7 +20,7 @@ namespace NetTally.Web
         /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
         /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
         /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
-        public static Cookie? GetCookie(Uri uri, IClock clock)
+        public static Cookie GetCookie(Uri uri, IClock clock)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -28,7 +28,7 @@ namespace NetTally.Web
             if (clock == null)
                 throw new ArgumentNullException(nameof(clock));
 
-            Cookie? cookie = null;
+            Cookie cookie = null;
 
             switch (uri.Host)
             {

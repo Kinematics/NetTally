@@ -59,12 +59,9 @@ namespace NetTally.Comparers
             if (ReferenceEquals(x, y))
                 return 0;
 
-            string? xs = x as string;
-            string? ys = y as string;
-
-            if (xs is null)
+            if (!(x is string xs))
                 return -1;
-            if (ys is null)
+            if (!(y is string ys))
                 return 1;
             
             return Compare(xs, ys);

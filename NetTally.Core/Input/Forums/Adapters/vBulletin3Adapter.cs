@@ -133,7 +133,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // If there's no pagenav div, that means there's no navigation to alternate pages,
             // which means there's only one page in the thread.
@@ -165,12 +165,12 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var postList = page?.GetElementbyId("posts");
 
             if (postList == null)
-                return Enumerable.Empty<PostComponents>();
+                return new List<Post>();
 
             var posts = from p in postList.Elements("div")
                         let post = GetPost(p, quest)
@@ -206,7 +206,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="postDiv">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode postDiv, IQuest quest)
+        private Post GetPost(HtmlNode postDiv, IQuest quest)
         {
             string author = "";
             string id;
@@ -250,17 +250,18 @@ namespace NetTally.Forums.Adapters
             var postContents = postTable.OwnerDocument.GetElementbyId(postMessageId);
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postContents, exclusion, Host);
+            text = ForumPostTextConverter.ExtractPostText(postContents, exclusion, Host);
 
 
-            PostComponents? post = null;
+            Post post = null;
 
             try
             {
-                post = new PostComponents(author, id, text, number);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch
             {

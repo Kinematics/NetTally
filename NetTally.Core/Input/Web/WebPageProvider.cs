@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -7,28 +6,38 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Cache;
 using NetTally.Extensions;
+using NetTally.Options;
 using NetTally.SystemInfo;
-using NetTally.ViewModels;
 
 namespace NetTally.Web
 {
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        HttpClient client;
+        readonly HttpClient httpClient;
+        readonly ILogger<WebPageProvider> logger;
+
         const int retryLimit = 3;
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
+
+        readonly IGeneralInputOptions inputOptions;
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler? handler, IClock? clock)
-            : base(handler, clock)
+        public WebPageProvider(HttpClientHandler handler,
+            ICache<string> pageCache, IClock clock,
+            IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
+            : base(handler, pageCache, clock)
         {
+            this.inputOptions = inputOptions;
+            logger = loggerFactory.CreateLogger<WebPageProvider>();
+
             SetupHandler();
-            client = SetupClient();
+            httpClient = SetupClient();
         }
 
         protected override void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
@@ -38,8 +47,8 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                if (client != null)
-                    client.Dispose();
+                if (httpClient != null)
+                    httpClient.Dispose();
             }
 
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
@@ -60,28 +69,27 @@ namespace NetTally.Web
         private HttpClient SetupClient()
         {
             // In the event of slow response probably caused by
-            // proxy lookup failures, can turn it off here.
+            // proxy lookup failures, we can turn it off here.
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
-            //ClientHandler.UseProxy = false;
-            ClientHandler.UseProxy = !AdvancedOptions.Instance.DisableWebProxy;
+            ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
-            HttpClient clt = new HttpClient(ClientHandler);
+            HttpClient client = new HttpClient(ClientHandler);
 
-            clt.Timeout = timeout;
-            clt.DefaultRequestHeaders.Add("Accept", "text/html");
-            clt.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            clt.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+            client.Timeout = timeout;
+            client.DefaultRequestHeaders.Add("Accept", "text/html");
+            client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+            client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
 
             // Native client handler breaks if we set the accept-encoding.
             // It handles auto-compression on its own.
             var handlerInfo = ClientHandler.GetType().GetTypeInfo();
             if (handlerInfo.FullName != "ModernHttpClient.NativeMessageHandler")
-                clt.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
 
             // Have to set the BaseAddress for mobile client code to work properly.
-            clt.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
+            client.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
 
-            return clt;
+            return client;
         }
         #endregion
 
@@ -98,18 +106,21 @@ namespace NetTally.Web
         /// <returns>
         /// Returns an HTML document, if it can be loaded.
         /// </returns>
-        public async Task<HtmlDocument?> GetPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<HtmlDocument> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            HtmlDocument? htmldoc = null;
+            logger.LogInformation($"Requested HTML document \"{shortDescrip}\"");
+            HtmlDocument htmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
+                logger.LogInformation($"\"{shortDescrip}\" successfully loaded from web.");
                 htmldoc = new HtmlDocument();
 
                 await Task.Run(() => htmldoc.LoadHtml(content), token).ConfigureAwait(false);
+                logger.LogDebug($"\"{shortDescrip}\" successfully parsed into HtmlDocument.");
             }
 
             return htmldoc;
@@ -125,16 +136,19 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument?> GetXmlPageAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<XDocument> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            XDocument? xmldoc = null;
+            logger.LogInformation($"Requested XML document \"{shortDescrip}\"");
+            XDocument xmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
+                logger.LogInformation($"\"{shortDescrip}\" successfully loaded.");
                 xmldoc = XDocument.Parse(content);
+                logger.LogDebug($"\"{shortDescrip}\" successfully parsed into XDocument.");
             }
 
             return xmldoc;
@@ -155,12 +169,20 @@ namespace NetTally.Web
         /// </returns>
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
+        public async Task<string> GetRedirectUrlAsync(string url, string shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
+            logger.LogInformation($"Requested URL redirect for \"{shortDescrip}\"");
+            Uri responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
 
-            return responseUri?.AbsoluteUri ?? string.Empty;
+            string result = responseUri?.AbsoluteUri ?? string.Empty;
+
+            if (string.IsNullOrEmpty(result))
+                logger.LogDebug("Redirect request failed for \"{shortDescrip}\".");
+            else
+                logger.LogDebug($"Redirect request succeeded. Using {result}");
+
+            return result;
         }
         #endregion
 
@@ -243,10 +265,10 @@ namespace NetTally.Web
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
-        private async Task<string?> GetUrlContent(Uri uri, string url, string shortDescrip,
+        private async Task<string> GetUrlContent(Uri uri, string url, string shortDescrip,
             ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            string? result = null;
+            string result = null;
             int tries = 0;
             DateTime expires = CacheInfo.DefaultExpiration;
 
@@ -257,20 +279,20 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
                 }
 
-                string? authorization = ForumAuthentications.GetAuthorization(uri);
-                if (authorization != null)
+                string authorization = ForumAuthentications.GetAuthorization(uri);
+                if (authorization != null && !httpClient.DefaultRequestHeaders.Contains("Authorization"))
                 {
-                    client.DefaultRequestHeaders.Add("Authorization", authorization);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
                 HttpResponseMessage response;
-                Task<HttpResponseMessage>? getResponseTask = null;
+                Task<HttpResponseMessage> getResponseTask = null;
 
                 do
                 {
@@ -281,7 +303,7 @@ namespace NetTally.Web
                         // Delay any additional attempts after the first.
                         await Task.Delay(retryDelay, token).ConfigureAwait(false);
 
-                        // Notify the user if we're re-trying to load the page.
+                        // Notify the user if we're making another attempt to load the page.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
                     }
 
@@ -289,8 +311,8 @@ namespace NetTally.Web
 
                     try
                     {
-                        getResponseTask = client.GetAsync(uri, token).TimeoutAfter(timeout, token);
-                        Debug.WriteLine($"Get URI {uri} task ID: {getResponseTask.Id}");
+                        getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
+                        logger.LogDebug($"Get URI {uri} task ID: {getResponseTask.Id}");
 
                         using (response = await getResponseTask.ConfigureAwait(false))
                         {
@@ -327,12 +349,12 @@ namespace NetTally.Web
                         else
                         {
                             // timeout via cancellation
-                            Debug.WriteLine($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
+                            logger.LogDebug($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
                         }
                     }
                     catch (TimeoutException)
                     {
-                        Debug.WriteLine($"Attempt to load {shortDescrip} timed out. Tries={tries}");
+                        logger.LogDebug($"Attempt to load {shortDescrip} timed out. Tries={tries}");
                     }
                     catch (HttpRequestException e)
                     {
@@ -342,10 +364,10 @@ namespace NetTally.Web
 
                 } while (tries < retryLimit);
 
-                Debug.WriteLine($"Finished getting URI {uri} task ID: {getResponseTask?.Id ?? 0}");
+                logger.LogDebug($"Finished getting URI {uri} task ID: {getResponseTask?.Id ?? 0}");
 
                 if (result == null && tries >= retryLimit)
-                    client.CancelPendingRequests();
+                    httpClient.CancelPendingRequests();
             }
             catch (OperationCanceledException)
             {
@@ -359,8 +381,6 @@ namespace NetTally.Web
             }
             finally
             {
-                client.DefaultRequestHeaders.Remove("Authorization");
-
                 ss.Release();
             }
 
@@ -388,7 +408,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Whether to suppress notifications.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
-        private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string? shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
+        private async Task<Uri> GetRedirectedHeaderRequestUri(string url, string shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             var (uri, url2) = GetVerifiedUrl(url);
 
@@ -399,16 +419,16 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie cookie = ForumCookies.GetCookie(uri);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
                 }
 
-                string? authorization = ForumAuthentications.GetAuthorization(uri);
+                string authorization = ForumAuthentications.GetAuthorization(uri);
                 if (authorization != null)
                 {
-                    client.DefaultRequestHeaders.Add("Authorization", authorization);
+                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
                 int tries = 0;
@@ -434,7 +454,7 @@ namespace NetTally.Web
                     {
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
-                        using (response = await client.SendAsync(request, token).ConfigureAwait(false))
+                        using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -457,19 +477,19 @@ namespace NetTally.Web
                         else
                         {
                             // timeout via cancellation
-                            Debug.WriteLine($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
+                            logger.LogDebug($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
                         }
                     }
                     catch (TimeoutException)
                     {
-                        Debug.WriteLine($"Attempt to load {shortDescrip} timed out. Tries={tries}");
+                        logger.LogDebug($"Attempt to load {shortDescrip} timed out. Tries={tries}");
                     }
 
                 } while (tries < retryLimit);
             }
             finally
             {
-                client.DefaultRequestHeaders.Remove("Authorization");
+                httpClient.DefaultRequestHeaders.Remove("Authorization");
 
                 ss.Release();
             }
@@ -499,7 +519,7 @@ namespace NetTally.Web
             return (response.StatusCode == HttpStatusCode.Moved ||
                     response.StatusCode == HttpStatusCode.MovedPermanently ||
                     response.StatusCode == HttpStatusCode.Redirect ||
-                    response.StatusCode == HttpStatusCode.TemporaryRedirect) ;
+                    response.StatusCode == HttpStatusCode.TemporaryRedirect);
         }
 
         /// <summary>
@@ -511,12 +531,12 @@ namespace NetTally.Web
         /// <returns></returns>
         private string GetFailureMessage(HttpResponseMessage response, string shortDescrip, string url)
         {
-            string failureDescrip = "";
+            string failureDescrip;
 
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
-                if (ViewModelService.MainViewModel.Options.DebugMode)
+                if (inputOptions.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
             else
@@ -524,7 +544,7 @@ namespace NetTally.Web
                 // Fail all 400/500 level responses
                 // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
-                if (ViewModelService.MainViewModel.Options.DebugMode)
+                if (inputOptions.DebugMode)
                     failureDescrip += $"\nURL: {url}";
             }
 

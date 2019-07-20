@@ -1,31 +1,24 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Web;
 
-namespace NTTests.Input
+namespace NetTally.Tests.Input
 {
     [TestClass]
     public class WebPageProviderTests
     {
         static IPageProvider pageProvider;
-#if !NETCOREAPP
-        static PrivateObject privateWeb;
-#endif
+        static IServiceProvider serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            pageProvider = PageProviderBuilder.Instance.Build();
-#if !NETCOREAPP
-            privateWeb = new PrivateObject(pageProvider);
-#endif
+            serviceProvider = TestStartup.ConfigureServices();
+
+            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
         }
 
-
-        [TestMethod]
-        public void ClearPageCacheTest()
-        {
-            pageProvider.ClearPageCache();
-        }
 
         [TestMethod]
         public void LoadPagesTest()

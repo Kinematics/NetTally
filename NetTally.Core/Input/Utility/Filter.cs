@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Utility;
 
-namespace NetTally.Utility
+namespace NetTally.Input.Utility
 {
     /// <summary>
     /// Class to handle user-defined filters, to be used against text input.
@@ -36,7 +37,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="regex">An explicit regex to use for filtering.
         /// If null is passed, use the alwaysFalse regex.</param>
-        public Filter(Regex? regex)
+        public Filter(Regex regex)
         {
             filterRegex = regex ?? alwaysFalse;
         }
@@ -46,7 +47,7 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="filterString">The user-defined filter string.</param>
         /// <param name="injectString">An extra (program-provided) string to inject into the filter string.</param>
-        public Filter(string? filterString, string? injectString)
+        public Filter(string filterString, string injectString)
         {
             filterString = filterString ?? string.Empty;
             filterRegex = CreateRegex(filterString, injectString);
@@ -61,7 +62,7 @@ namespace NetTally.Utility
         /// <param name="injectString">Default filter string for the filter.</param>
         /// <returns>Returns a <see cref="Regex"/> based on the properties of the provided
         /// strings.</returns>
-        private Regex CreateRegex(string filterString, string? injectString)
+        private Regex CreateRegex(string filterString, string injectString)
         {
             string userString = filterString.RemoveUnsafeCharacters().Trim();
 
@@ -72,9 +73,9 @@ namespace NetTally.Utility
                 userString = userString.Substring(1).Trim();
             }
 
-            if (IsJSRegex(userString, out string? jsRegexString))
+            if (IsJSRegex(userString, out string jsRegexString))
             {
-                return CreateDefinedRegex(jsRegexString!, injectString);
+                return CreateDefinedRegex(jsRegexString, injectString);
             }
             else
             {
@@ -91,7 +92,7 @@ namespace NetTally.Utility
         /// <param name="jsRegexString">The regex portion of the string, if found.</param>
         /// <returns>Returns true (and sets jsRegexString to the regex contents) if it determined
         /// that the provided string was formatted as a javascript regex. Otherwise false and null.</returns>
-        private bool IsJSRegex(string filterString, out string? jsRegexString)
+        private bool IsJSRegex(string filterString, out string jsRegexString)
         {
             jsRegexString = null;
 
@@ -114,7 +115,7 @@ namespace NetTally.Utility
         /// <param name="injectString">An optional additonal value to insert into the regex.</param>
         /// <returns>Returns a regex that combines the user-provided string with the injected string.</returns>
         /// <exception cref="ArgumentNullException"/>
-        private Regex CreateDefinedRegex(string jsRegexString, string? injectString)
+        private Regex CreateDefinedRegex(string jsRegexString, string injectString)
         {
             if (string.IsNullOrEmpty(jsRegexString))
                 throw new ArgumentNullException(nameof(jsRegexString));
@@ -137,7 +138,7 @@ namespace NetTally.Utility
         /// <param name="simpleString">The user-defined filter string.</param>
         /// <param name="injectString">The default, program-provided string to filter on.</param>
         /// <returns>Returns a regex constructed from the strings.</returns>
-        private Regex CreateSimpleRegex(string simpleString, string? injectString)
+        private Regex CreateSimpleRegex(string simpleString, string injectString)
         {
             if (string.IsNullOrEmpty(simpleString) && string.IsNullOrEmpty(injectString))
             {
@@ -200,33 +201,18 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="input">The string to check against the filter.</param>
         /// <returns>Returns true (or false, if inverted) if the the input string is matched against the filter.</returns>
-        public bool Match(string input)
-        {
-            return filterRegex.Match(input).Success ^ IsInverted;
-        }
+        public bool Match(string input) => filterRegex.Match(input).Success ^ IsInverted;
 
         /// <summary>
         /// Gets a value indicating whether this instance is uses the empty string regex.
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return filterRegex == EmptyRegex;
-            }
-        }
+        public bool IsEmpty => filterRegex == EmptyRegex;
 
         /// <summary>
         /// Gets a value indicating whether this instance is uses a null regex.
         /// A null regex will always return false on Match tests.
         /// </summary>
-        public bool IsAlwaysFalse
-        {
-            get
-            {
-                return filterRegex == alwaysFalse;
-            }
-        }
+        public bool IsAlwaysFalse => filterRegex == alwaysFalse;
 
         /// <summary>
         /// Gets whether this instance inverts the results of a Match.

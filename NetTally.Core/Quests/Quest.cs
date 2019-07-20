@@ -4,6 +4,7 @@ using NetTally.Forums;
 using NetTally.Utility;
 using NetTally.Votes;
 using System.Collections.Generic;
+using NetTally.Input.Utility;
 
 namespace NetTally
 {
@@ -43,13 +44,14 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        public Uri? ThreadUri { get; private set; }
+        public Uri ThreadUri { get; private set; }
 
         /// <summary>
-        /// Get the forum adapter being used by this quest.
-        /// Gets set when the ForumType is determined.
+        /// Gets the type of forum used by this quest.
+        /// Resets to unknown if the URL changes.
+        /// Is set when a forum adapter is created/identified.
         /// </summary>
-        internal IForumAdapter? ForumAdapter { get; set; }
+        public ForumType ForumType { get; set; } = ForumType.Unknown;
 
         /// <summary>
         /// The URL of the quest.
@@ -73,7 +75,7 @@ namespace NetTally
 
                 if (ThreadUri == null || ThreadUri.Host != newUri.Host)
                 {
-                    ForumAdapter = null;
+                    ForumType = ForumType.Unknown;
                 }
 
                 string oldThreadName = threadName;
@@ -117,7 +119,7 @@ namespace NetTally
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    displayName = value;
+                    displayName = "";
                 else
                     displayName = value.RemoveUnsafeCharacters();
 
@@ -259,18 +261,6 @@ namespace NetTally
                 OnPropertyChanged();
             }
         }
-
-
-        /// <summary>
-        /// The contents of the line break allowed for the site.
-        /// </summary>
-        public string LineBreak { get; set; } = "";
-
-        /// <summary>
-        /// A function that can transform a post ID into a permalink.
-        /// This function is set per identification of the forum adapter.
-        /// </summary>
-        public Func<string, string> PermalinkForId { get; set; } = (s) => s;
         #endregion
 
         #region Quest configuration properties: Filtering
@@ -285,7 +275,7 @@ namespace NetTally
 
         bool useCustomPostFilters = false;
         string customPostFilters = string.Empty;
-        readonly HashSet<int> postsToFilter = new HashSet<int>();
+        readonly HashSet<long> postsToFilter = new HashSet<long>();
         static readonly Regex postFilterRegex = new Regex(@"(?<range>(?<r1>\d+)\s*-\s*(?<r2>\d+))|(?<num>\d+)");
 
         /// <summary>
@@ -420,13 +410,7 @@ namespace NetTally
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
-        public HashSet<int> PostsToFilter
-        {
-            get
-            {
-                return postsToFilter;
-            }
-        }
+        public HashSet<long> PostsToFilter => postsToFilter;
 
         /// <summary>
         /// Function to convert the CustomPostFilters string to a hashset of post

@@ -26,7 +26,7 @@ namespace NetTally.Forums.Adapters
         Uri site;
         // Example: https://www.phpbb.com/community/viewtopic.php?f=466&t=2347241&start=15#p14278841
         // https://www.phpbb.com/community/viewtopic.php?t=2347241&p14278841
-        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)viewtopic.php?(f=\d+&)?(t=(?<thread>\d+(?=\?|#|$)))");
+        static readonly Regex siteRegex = new Regex(@"^(?<base>https?://[^/]+/([^/]+/)*)viewtopic.php\?(f=\d+&)?(t=(?<thread>\d+(?=\?|#|$)))");
 
         /// <summary>
         /// Property for the site this adapter is handling.
@@ -142,7 +142,7 @@ namespace NetTally.Forums.Adapters
             HtmlNode doc = page.DocumentNode.Element("html");
 
             // Find the page title
-            title = PostText.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
+            title = ForumPostTextConverter.CleanupWebString(doc.Element("head")?.Element("title")?.InnerText);
 
             // Find the number of pages
             var pagebody = page.GetElementbyId("page-body");
@@ -154,8 +154,8 @@ namespace NetTally.Forums.Adapters
                 var topicactions = pagebody.GetChildWithClass("topic-actions");
                 if (topicactions != null)
                 {
-                    HtmlNode? pagination = topicactions.GetChildWithClass("pagination");
-                    string? paginationText = pagination?.InnerText;
+                    HtmlNode pagination = topicactions.GetChildWithClass("pagination");
+                    string paginationText = pagination?.InnerText;
                     if (paginationText != null)
                     {
                         Regex pageOf = new Regex(@"Page\s*\d+\s*of\s*(?<pages>\d+)");
@@ -189,12 +189,12 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var pagebody = page?.GetElementbyId("page-body");
 
             if (pagebody == null)
-                return Enumerable.Empty<PostComponents>();
+                return new List<Post>();
 
             var posts = from p in pagebody.Elements("div")
                         where p.GetAttributeValue("class", "").Split(' ').Contains("post")
@@ -231,7 +231,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="div">Div node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode div, IQuest quest)
+        private Post GetPost(HtmlNode div, IQuest quest)
         {
             if (div == null)
                 throw new ArgumentNullException(nameof(div));
@@ -245,13 +245,13 @@ namespace NetTally.Forums.Adapters
             id = div.Id.Substring(1);
 
 
-            HtmlNode? inner = div.GetChildWithClass("div", "inner");
-            HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
-            HtmlNode? authorNode = postbody?.GetChildWithClass("p", "author");
-            HtmlNode? authorStrong = authorNode?.Descendants("strong").FirstOrDefault();
-            HtmlNode? authorAnchor = authorStrong?.Element("a");
+            HtmlNode inner = div.GetChildWithClass("div", "inner");
+            HtmlNode postbody = inner?.GetChildWithClass("div", "postbody");
+            HtmlNode authorNode = postbody?.GetChildWithClass("p", "author");
+            HtmlNode authorStrong = authorNode?.Descendants("strong").FirstOrDefault();
+            HtmlNode authorAnchor = authorStrong?.Element("a");
 
-            author = PostText.CleanupWebString(authorAnchor?.InnerText);
+            author = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
 
             // No way to get the post number??
 
@@ -261,13 +261,14 @@ namespace NetTally.Forums.Adapters
             if (content == null)
                 content = postbody?.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
 
-            text = PostText.ExtractPostText(content, n => false, Host);
+            text = ForumPostTextConverter.ExtractPostText(content, n => false, Host);
 
 
-            PostComponents? post;
+            Post post;
             try
             {
-                post = new PostComponents(author, id, text, number);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch
             {

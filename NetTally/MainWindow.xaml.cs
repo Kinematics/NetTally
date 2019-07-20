@@ -11,10 +11,15 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Navigation;
+using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.CustomEventArgs;
+using NetTally.Navigation;
+using NetTally.Options;
 using NetTally.Platform;
 using NetTally.SystemInfo;
+using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 
 namespace NetTally
@@ -26,9 +31,11 @@ namespace NetTally
     {
         #region Fields and Properties
         bool _disposed = false;
-        MainViewModel mainViewModel;
         private bool updateFlag;
-        readonly SynchronizationContext _syncContext;
+        private readonly ViewModel mainViewModel;
+        private readonly IoCNavigationService navigationService;
+        private readonly SynchronizationContext _syncContext;
+        private readonly ILogger<MainWindow> logger;
         #endregion
 
         #region Startup/shutdown events
@@ -36,18 +43,26 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow()
+        public MainWindow(ViewModel model, IoCNavigationService navigationService, IHash hash, ILoggerFactory loggerFactory)
         {
+            // Initialize the readonly fields.
+            this.mainViewModel = model;
+            this.navigationService = navigationService;
+            this._syncContext = SynchronizationContext.Current;
+            this.logger = loggerFactory.CreateLogger<MainWindow>();
+
+            
+
             try
             {
-                _syncContext = SynchronizationContext.Current;
-
                 // Set up an event handler for any otherwise unhandled exceptions in the code.
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
                 // Set up the logger to use the Windows error log.
                 Logger.LogUsing(new WindowsErrorLog());
+
+                Agnostic.HashStringsUsing(hash.HashFunction);
 
                 // Initialize the window.
                 InitializeComponent();
@@ -61,7 +76,9 @@ namespace NetTally
 
                 try
                 {
+                    logger.LogDebug("Loading configuration.");
                     NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
+                    logger.LogDebug("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
                 {
@@ -91,16 +108,13 @@ namespace NetTally
                 System.Net.ServicePointManager.Expect100Continue = true;
                 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
-                mainViewModel = ViewModelService.Instance
-                    .Configure(quests, currentQuest)
-                    .HashAgnosticStringsUsing(UnicodeHashFunction.HashFunction)
-                    .Build();
+                mainViewModel.InitializeQuests(quests, currentQuest);
 
                 DataContext = mainViewModel;
                 mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
                 mainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
 
-                ViewModelService.MainViewModel.CheckForNewRelease();
+                mainViewModel.CheckForNewRelease();
             }
             catch (InvalidOperationException e)
             {
@@ -149,6 +163,8 @@ namespace NetTally
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             SaveConfig();
+            this.Dispose();
+            Application.Current.Shutdown();
         }
 
         /// <summary>
@@ -164,6 +180,8 @@ namespace NetTally
                 string selectedQuest = mainViewModel.SelectedQuest?.ThreadName ?? "";
 
                 NetTallyConfig.Save(mainViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
+
+                logger.LogDebug("Configuration saved.");
             }
             catch (Exception ex)
             {
@@ -222,7 +240,7 @@ namespace NetTally
                 mainViewModel?.Dispose();
 
                 HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
-                source.RemoveHook(WndProc);
+                source?.RemoveHook(WndProc);
             }
 
             _disposed = true;
@@ -239,7 +257,7 @@ namespace NetTally
         {
             base.OnSourceInitialized(e);
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
-            source.AddHook(WndProc);
+            source?.AddHook(WndProc);
         }
 
         /// <summary>
@@ -281,6 +299,8 @@ namespace NetTally
                     await Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith(t => Reload());
                     return;
                 }
+
+                logger.LogInformation("Configuration reload requested by another instance of NetTally. Updating configuration.");
 
                 NetTallyConfig.Load(out QuestCollection quests, out string currentQuest, null);
 
@@ -324,6 +344,11 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (e == null || e.PropertyName == null)
+                return;
+
+            logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+
             if (e.PropertyName == "AddQuest")
             {
                 StartEdit(true);
@@ -335,6 +360,11 @@ namespace NetTally
                 // the addition of a new fake quest.
                 SaveConfig();
                 BroadcastUpdateNotification();
+            }
+            else if ((e.PropertyName.StartsWith("SelectedQuest.") == true) &&
+                    (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant")))
+            {
+                Agnostic.ComparisonPropertyChanged(mainViewModel, e);
             }
         }
 
@@ -358,7 +388,7 @@ namespace NetTally
             }
             MessageBox.Show(exmsg, "Error");
             if (!(ex.Data.Contains("Application")))
-                Logger.Error("Exception bubbled up from the view model.", ex);
+                Logger.Error("Exception bubbled up from the view model.\n", ex);
 
             e.Handled = true;
         }
@@ -406,14 +436,9 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
+        private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            ManageVotesWindow manageWindow = new ManageVotesWindow(mainViewModel)
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            manageWindow.ShowDialog();
+            await navigationService.ShowDialogAsync<ManageVotesWindow>(this);
 
             mainViewModel.UpdateOutput();
         }
@@ -423,15 +448,9 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void globalOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            GlobalOptionsWindow options = new GlobalOptionsWindow
-            {
-                Owner = Application.Current.MainWindow,
-                DataContext = mainViewModel
-            };
-
-            options.ShowDialog();
+            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(this);
         }
 
         /// <summary>
@@ -439,15 +458,9 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void questOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            QuestOptionsWindow options = new QuestOptionsWindow
-            {
-                Owner = Application.Current.MainWindow,
-                DataContext = mainViewModel
-            };
-
-            options.ShowDialog();
+            await navigationService.ShowDialogAsync<QuestOptionsWindow>(this);
         }
 
         /// <summary>

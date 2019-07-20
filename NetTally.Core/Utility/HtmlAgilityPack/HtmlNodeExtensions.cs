@@ -45,7 +45,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetChildWithClass(this HtmlNode node, string? element, string @class)
+        public static HtmlNode GetChildWithClass(this HtmlNode node, string element, string @class)
         {
             IEnumerable<HtmlNode> children;
             if (string.IsNullOrEmpty(element))
@@ -74,7 +74,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for. If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetChildWithClass(this HtmlNode node, string @class) => node.GetChildWithClass(null, @class);
+        public static HtmlNode GetChildWithClass(this HtmlNode node, string @class) => node.GetChildWithClass(null, @class);
 
         /// <summary>
         /// Gets all HTML child nodes matching an optional element type and specified class.
@@ -85,7 +85,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns a list with all found elements.</returns>
-        public static IEnumerable<HtmlNode> GetChildrenWithClass(this HtmlNode node, string? element, string @class)
+        public static IEnumerable<HtmlNode> GetChildrenWithClass(this HtmlNode node, string element, string @class)
         {
             IEnumerable<HtmlNode> children;
             if (string.IsNullOrEmpty(element))
@@ -126,7 +126,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetDescendantWithClass(this HtmlNode node, string? element, string @class)
+        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string element, string @class)
         {
             IEnumerable<HtmlNode> children;
             if (string.IsNullOrEmpty(element))
@@ -155,7 +155,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetDescendantWithClass(this HtmlNode node, string @class) => node.GetDescendantWithClass(null, @class);
+        public static HtmlNode GetDescendantWithClass(this HtmlNode node, string @class) => node.GetDescendantWithClass(null, @class);
 
         /// <summary>
         /// Gets all descendent nodes matching an optional element type and specified class.
@@ -166,7 +166,7 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  Must be provided.</param>
         /// <returns>Returns a list with all found elements.</returns>
         /// <exception cref="ArgumentNullException">If @class is null or empty.</exception>
-        public static IEnumerable<HtmlNode> GetDescendantsWithClass(this HtmlNode node, string? element, string @class)
+        public static IEnumerable<HtmlNode> GetDescendantsWithClass(this HtmlNode node, string element, string @class)
         {
             IEnumerable<HtmlNode> children;
             if (string.IsNullOrEmpty(element))

@@ -12,7 +12,7 @@ namespace NetTally.Web
         /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
         /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
         /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
-        public static string? GetAuthorization(Uri uri)
+        public static string GetAuthorization(Uri uri)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));

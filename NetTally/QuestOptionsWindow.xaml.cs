@@ -1,19 +1,42 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Microsoft.Extensions.Logging;
+using NetTally.Navigation;
+using NetTally.ViewModels;
 
 namespace NetTally
 {
     /// <summary>
-    /// Interaction logic for QuestOptionsWindow.xaml
+    /// Interaction logic for quest options window.
     /// </summary>
-    public partial class QuestOptionsWindow : Window
+    public partial class QuestOptionsWindow : Window, IActivable
     {
-        public QuestOptionsWindow()
+        #region Setup and construction
+        readonly ILogger<QuestOptionsWindow> logger;
+
+        public QuestOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
         {
+            logger = loggerFactory.CreateLogger<QuestOptionsWindow>();
+
             InitializeComponent();
+
+            DataContext = model;
         }
 
+        public Task ActivateAsync(object parameter)
+        {
+            if (parameter is Window owner)
+            {
+                this.Owner = owner;
+            }
+
+            return Task.CompletedTask;
+        }
+        #endregion
+
+        #region Window element event handlers
         private void resetFiltersButton_Click(object sender, RoutedEventArgs e)
         {
             customPostFilters.Clear();
@@ -37,6 +60,8 @@ namespace NetTally
             useCustomTaskFilters.IsChecked = false;
             useCustomThreadmarkFilters.IsChecked = false;
             useCustomUsernameFilters.IsChecked = false;
+
+            logger.LogDebug("Quest filters have been reset.");
         }
 
         private void resetOptionsButton_Click(object sender, RoutedEventArgs e)
@@ -48,11 +73,14 @@ namespace NetTally
             forcePinnedProxyVotes.IsChecked = false;
             ignoreSpoilers.IsChecked = false;
             trimExtendedText.IsChecked = false;
+
+            logger.LogDebug("Quest options have been reset.");
         }
 
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
+        #endregion
     }
 }

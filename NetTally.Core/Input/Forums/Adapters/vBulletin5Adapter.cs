@@ -134,7 +134,7 @@ namespace NetTally.Forums.Adapters
 
             // Find the page title
             title = doc.Element("head").Element("title")?.InnerText ?? "";
-            title = PostText.CleanupWebString(title);
+            title = ForumPostTextConverter.CleanupWebString(title);
 
             var threadViewTab = page.GetElementbyId("thread-view-tab");
 
@@ -155,12 +155,12 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var postList = page?.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
             if (postList == null)
-                return Enumerable.Empty<PostComponents>();
+                return new List<Post>();
 
             var posts = from p in postList.Elements("li")
                         where !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", ""))
@@ -197,7 +197,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="li">List item that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode li, IQuest quest)
+        private Post GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 throw new ArgumentNullException(nameof(li));
@@ -218,12 +218,12 @@ namespace NetTally.Forums.Adapters
             var authorNode = postAuthorNode?.GetDescendantWithClass("div", "author");
 
             if (authorNode != null)
-                author = PostText.CleanupWebString(authorNode.InnerText);
+                author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
-            HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
+            HtmlNode contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
             // Number
-            HtmlNode? postCountAnchor = contentArea?.GetDescendantWithClass("a", "b-post__count");
+            HtmlNode postCountAnchor = contentArea?.GetDescendantWithClass("a", "b-post__count");
 
             if (postCountAnchor != null)
             {
@@ -238,16 +238,17 @@ namespace NetTally.Forums.Adapters
             var postTextNode = contentArea?.Descendants("div").FirstOrDefault(a => a.GetAttributeValue("itemprop", "") == "text");
 
             // Predicate filtering out elements that we don't want to include
-            var exclusion = PostText.GetClassExclusionPredicate("bbcode_quote");
+            var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
             // Get the full post text.
-            text = PostText.ExtractPostText(postTextNode, exclusion, Host);
+            text = ForumPostTextConverter.ExtractPostText(postTextNode, exclusion, Host);
 
 
-            PostComponents? post;
+            Post post;
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch
             {

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NTTests
+namespace NetTally.Tests
 {
     public class LoadResource
     {
@@ -47,9 +45,7 @@ namespace NTTests
             FileInfo fi = new FileInfo(filename);
 
             using (var sr = fi.AppendText())
-            {
                 await sr.WriteAsync(content);
-            }
         }
     }
 }

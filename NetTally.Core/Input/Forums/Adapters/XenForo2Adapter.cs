@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.Extensions;
-using NetTally.Utility;
+using NetTally.Input.Utility;
+using NetTally.Options;
 using NetTally.Web;
 
 namespace NetTally.Forums.Adapters
@@ -39,7 +40,7 @@ namespace NetTally.Forums.Adapters
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
 
         // The default threadmark filter.
-        static Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
+        static readonly Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
         #endregion
 
         #region Site properties
@@ -194,7 +195,7 @@ namespace NetTally.Forums.Adapters
 
             if (bodyNode.Elements("div").Any(n => n.HasClass("p-body-inner")))
             {
-                bodyNode = bodyNode.GetChildWithClass("p-body-inner")!;
+                bodyNode = bodyNode.GetChildWithClass("p-body-inner");
             }
 
             var headerNode = bodyNode.GetChildWithClass("div", "p-body-header") ??
@@ -202,11 +203,11 @@ namespace NetTally.Forums.Adapters
 
             {
                 var titleNode = headerNode.GetChildWithClass("div", "p-title");
-                title = PostText.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
+                title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
 
                 var descripNode = headerNode.GetChildWithClass("div", "p-description");
                 var authorNode = descripNode?.GetDescendantWithClass("a", "username");
-                author = PostText.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
+                author = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
             }
 
             var mainNode = bodyNode.GetChildWithClass("div", "p-body-main") ??
@@ -220,7 +221,7 @@ namespace NetTally.Forums.Adapters
 
                 if (navItems != null && navItems.Any())
                 {
-                    var lastItem = PostText.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
+                    var lastItem = ForumPostTextConverter.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
 
                     _ = int.TryParse(lastItem, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out pages);
                 }
@@ -240,7 +241,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostComponents> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
             var posts = from p in GetPostsList(page)
                             //where p.HasClass("stickyFirstContainer") == false
@@ -275,7 +276,7 @@ namespace NetTally.Forums.Adapters
             if (quest.UseRSSThreadmarks == BoolEx.True)
             {
                 // try for RSS stream
-                XDocument? rss = await pageProvider.GetXmlPageAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
+                XDocument rss = await pageProvider.GetXmlDocumentAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
                 if (rss != null && rss.Root.Name == "rss")
@@ -291,23 +292,51 @@ namespace NetTally.Forums.Adapters
                     XName titleName = XName.Get("title", "");
                     XName pubDate = XName.Get("pubDate", "");
 
-                    var filteredItems = from item in items
-                                        let title = item.Element(titleName).Value
-                                        where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
-                                                (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
-                                        let pub = item.Element(pubDate).Value
-                                        where string.IsNullOrEmpty(pub) == false
-                                        let pubStamp = DateTime.Parse(pub)
-                                        orderby pubStamp
-                                        select item;
+                    List<(XElement item, DateTime timestamp)> filterList = new List<(XElement, DateTime)>();
 
-                    var lastItem = filteredItems.LastOrDefault();
-
-                    if (lastItem != null)
+                    foreach (var item in items)
                     {
+                        var title = item.Element(titleName).Value;
+
+                        if (title.StartsWith("Threadmark: "))
+                        {
+                            title = title.Substring(12);
+                        }
+                        else if (title.StartsWith("Threadmark:"))
+                        {
+                            title = title.Substring(11);
+                        }
+
+                        if (quest.UseCustomThreadmarkFilters)
+                        {
+                            if (quest.ThreadmarkFilter.Match(title))
+                                continue;
+                        }
+                        else
+                        {
+                            if (DefaultThreadmarkFilter.Match(title))
+                                continue;
+                        }
+
+                        var pub = item.Element(pubDate).Value;
+
+                        if (string.IsNullOrEmpty(pub))
+                            continue;
+
+                        var pubStamp = DateTime.Parse(pub);
+
+                        filterList.Add((item, pubStamp));
+                    }
+
+                    if (filterList.Any())
+                    {
+                        var orderedList = filterList.OrderBy(a => a.timestamp);
+
+                        var pick = orderedList.Last().item;
+
                         XName linkName = XName.Get("link", "");
 
-                        var link = lastItem.Element(linkName);
+                        var link = pick.Element(linkName);
 
                         string href = link.Value;
 
@@ -335,6 +364,7 @@ namespace NetTally.Forums.Adapters
                             // Otherwise, take the provided values.
                             return new ThreadRangeInfo(false, 0, page, post);
                         }
+
                     }
                 }
             }
@@ -342,7 +372,7 @@ namespace NetTally.Forums.Adapters
             // If RSS read was successful, then the function will have ended.  If not, we continue with the next method.
 
             // Load the threadmarks so that we can find the starting post page or number.
-            HtmlDocument? threadmarkPage = await pageProvider.GetPageAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
+            HtmlDocument threadmarkPage = await pageProvider.GetHtmlDocumentAsync(ThreadmarksUrl, "Threadmarks", CachingMode.UseCache,
                 ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarkPage == null)
@@ -489,7 +519,7 @@ namespace NetTally.Forums.Adapters
         {
             var top = page.GetElementbyId("top");
 
-            var articles = top?.GetDescendantsWithClass("article", "message") ?? Enumerable.Empty<HtmlNode>();
+            var articles = top.GetDescendantsWithClass("article", "message");
 
             return articles;
         }
@@ -499,7 +529,7 @@ namespace NetTally.Forums.Adapters
         /// </summary>
         /// <param name="article">List item node that contains the post.</param>
         /// <returns>Returns a post object with required information.</returns>
-        private PostComponents? GetPost(HtmlNode article, IQuest quest)
+        private Post GetPost(HtmlNode article, IQuest quest)
         {
             if (article == null)
                 throw new ArgumentNullException(nameof(article));
@@ -510,8 +540,8 @@ namespace NetTally.Forums.Adapters
             int number;
 
             // Author and ID are in the basic list item attributes
-            author = PostText.CleanupWebString(article.GetAttributeValue("data-author", ""));
-            id = PostText.CleanupWebString(article.GetAttributeValue("data-content", "post-").Substring("post-".Length));
+            author = ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-author", ""));
+            id = ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-content", "post-").Substring("post-".Length));
 
             if (AdvancedOptions.Instance.DebugMode)
                 author = $"{author}_{id}";
@@ -526,11 +556,20 @@ namespace NetTally.Forums.Adapters
             if (string.IsNullOrEmpty(postNum))
                 return null;
 
-            if (postNum.StartsWith("#", StringComparison.Ordinal))
-                postNum = postNum.Substring(1);
 
-            if (!int.TryParse(postNum, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out number))
+            if (postNum[0] == '#')
+            {
+                var numSpan = postNum.Substring(1);
+
+                if (!int.TryParse(numSpan, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out number))
+                {
+                    return null;
+                }
+            }
+            else
+            {
                 return null;
+            }
 
             // Predicate filtering out elements that we don't want to include
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
@@ -538,17 +577,18 @@ namespace NetTally.Forums.Adapters
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
-            var exclusions = PostText.GetClassesExclusionPredicate(excludedClasses);
+            var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
             var articleBody = article.GetDescendantWithClass("article", "message-body")?.GetChildWithClass("div", "bbWrapper");
 
-            text = PostText.ExtractPostText(articleBody, exclusions, Host);
+            text = ForumPostTextConverter.ExtractPostText(articleBody, exclusions, Host);
 
 
-            PostComponents? post;
+            Post post;
             try
             {
-                post = new PostComponents(author, id, text, number, quest);
+                Origin origin = new Origin(author, id, number, Site, GetPermalinkForId(id));
+                post = new Post(origin, text);
             }
             catch (Exception e)
             {
@@ -585,10 +625,10 @@ namespace NetTally.Forums.Adapters
                     {
                         return threadmarkDivs
                             .Select(n => n.GetDescendantWithClass("a", ""))
-                            .Where(n => !filterLambda(n))!; // Keep anything the filter returns false for. Guarantee there are no nulls.
+                            .Where(n => !filterLambda(n)); // Keep anything the filter returns false for. Guarantee there are no nulls.
 
                         // Filter returns true if the item should be removed from consideration.
-                        bool filterLambda(HtmlNode? n)
+                        bool filterLambda(HtmlNode n)
                         {
                             if (n == null)
                                 return true;

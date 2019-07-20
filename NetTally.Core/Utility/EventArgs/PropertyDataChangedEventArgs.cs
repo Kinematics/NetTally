@@ -13,7 +13,7 @@ namespace NetTally.CustomEventArgs
     {
         public T PropertyData { get; }
 
-        public PropertyDataChangedEventArgs(string? propertyName, T propertyData) : base(propertyName)
+        public PropertyDataChangedEventArgs(string propertyName, T propertyData) : base(propertyName)
         {
             PropertyData = propertyData;
         }

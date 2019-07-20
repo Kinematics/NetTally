@@ -35,7 +35,7 @@ namespace NetTally
         /// <param name="watermark">The watermark.  Anything less than this amount of time is not output.</param>
         /// <param name="accumulate">If set to <c>true</c>, tracks an accumulated value for the given profiler name across runs.</param>
         /// <param name="writeFunction">An optional override for writing the output.  Use Trace in test functions so that output goes to the display window.</param>
-        public RegionProfiler(string name, TimeSpan? watermark = null, bool accumulate = false, Action<string>? writeFunction = null)
+        public RegionProfiler(string name, TimeSpan? watermark = null, bool accumulate = false, Action<string> writeFunction = null)
         {
             this.watermark = watermark ?? TimeSpan.Zero;
             this.accumulate = accumulate;
@@ -43,7 +43,7 @@ namespace NetTally
             if (writeFunction is null)
                 this.writeFunction = s => Debug.WriteLine(s);
             else
-                this.writeFunction = s => writeFunction!(s);
+                this.writeFunction = s => writeFunction(s);
 
             regionName = name;
             if (regionName != null && !accumulate)
@@ -92,11 +92,11 @@ namespace NetTally
                         counter[regionName]++;
                         accumulator[regionName] = accumulator[regionName] + stopwatch.Elapsed.TotalMilliseconds;
 
-                        writeFunction($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds} ms). Average: {accumulator[regionName] / counter[regionName]} ms.");
+                        writeFunction($"Region [{regionName}]: Hit {counter[regionName]} times for {accumulator[regionName]} total ms (+{stopwatch.Elapsed.TotalMilliseconds:F6} ms). Average: {accumulator[regionName] / counter[regionName]} ms.");
                     }
                     else
                     {
-                        writeFunction($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds} ms");
+                        writeFunction($"End profiling in region [{regionName}]: {stopwatch.Elapsed.TotalMilliseconds:F6} ms");
                     }
                 }
             }

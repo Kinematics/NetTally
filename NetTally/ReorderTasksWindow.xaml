@@ -19,7 +19,7 @@
             <RowDefinition Height="10" />
         </Grid.RowDefinitions>
 
-        <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskList" Margin="10,10,2,10"
+        <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskCollectionView" Margin="10,10,2,10"
                  ItemsSource="{Binding TaskView}" IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -29,8 +29,9 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" Click="up_Click" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30">
+        <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30"
+                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveUpCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -40,8 +41,9 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" Click="down_Click" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="10,162,0,0" Width="30" Height="30" FontSize="24" Padding="0,-4,0,0">
+        <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,162,0,0" Width="30" Height="30" FontSize="24" Padding="0,-4,0,0"
+                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveDownCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -51,8 +53,9 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Click="alpha_Click" Margin="18,0,0,2"
-                Width="75" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Margin="18,0,0,2"
+                Width="75" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                Command="{Binding Path=SortAlphaCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -62,8 +65,9 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="As Tallied" Click="default_Click" Margin="0,0,18,2"
-                Width="75" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+        <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="As Tallied" Margin="0,0,18,2"
+                Width="75" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Command="{Binding Path=SortOriginalCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

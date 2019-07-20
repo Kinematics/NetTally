@@ -22,7 +22,7 @@ namespace NetTally.Cache
         #endregion
 
         #region Constructor
-        public PageCache(IClock? clock = null)
+        public PageCache(IClock clock = null)
         {
             if (clock != null)
                 SetClock(clock);
@@ -96,7 +96,7 @@ namespace NetTally.Cache
         /// Set the clock that will be used by the cache to determine when an etry expires.
         /// </summary>
         /// <param name="clock">The clock interface that will be used to determine timestamps.</param>
-        public void SetClock(IClock? clock)
+        public void SetClock(IClock clock)
         {
             using (cacheLock.ReaderLock())
             {

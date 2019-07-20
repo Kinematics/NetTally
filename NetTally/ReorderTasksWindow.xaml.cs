@@ -1,65 +1,201 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using NetTally.VoteCounting;
+using System.Windows.Input;
+using Microsoft.Extensions.Logging;
+using NetTally.Collections;
+using NetTally.Navigation;
 using NetTally.ViewModels;
+using NetTally.ViewModels.Commands;
+using NetTally.VoteCounting;
 
 namespace NetTally
 {
     /// <summary>
-    /// Interaction logic for ReorderTasks.xaml
+    /// Interaction logic for reorder tasks window.
     /// </summary>
-    public partial class ReorderTasksWindow : Window
+    public partial class ReorderTasksWindow : Window, IActivable, INotifyPropertyChanged, ICommandFilter
     {
-        #region Constructor and variables
+        #region Setup and construction
+        readonly ViewModel mainViewModel;
+        readonly ObservableCollectionExt<string> taskCollection;
+        readonly ILogger<ReorderTasksWindow> logger;
+
+        /// <summary>
+        /// The ListCollectionView that the ListBox uses to display information from.
+        /// Necessary for XAML binding.
+        /// </summary>
         public ListCollectionView TaskView { get; }
 
-        MainViewModel MainViewModel { get; }
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public ReorderTasksWindow()
+        public Task ActivateAsync(object parameter)
         {
-            InitializeComponent();
-        }
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="mainViewModel">The primary view model of the program</param>
-        public ReorderTasksWindow(MainViewModel mainViewModel)
-        {
-            InitializeComponent();
-
-            MainViewModel = mainViewModel;
-
-            MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-
-            // Create filtered, sortable views into the collection for display in the window.
-            if (MainViewModel.TaskList != null)
+            if (parameter is Window owner)
             {
-                TaskView = new ListCollectionView(MainViewModel.TaskList);
+                this.Owner = owner;
             }
 
-            // Initialize starting selected positions
-            TaskView.MoveCurrentToPosition(-1);
-
-            // Set the data context for binding.
-            DataContext = this;
-
-            TaskView.Refresh();
+            return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called when creating the window.
+        /// </summary>
+        /// <param name="viewModel">The primary view model of the program</param>
+        /// <param name="loggerFactory">DI for the local logger.</param>
+        public ReorderTasksWindow(ViewModel viewModel, ILoggerFactory loggerFactory)
+        {
+            // Save dependencies
+            mainViewModel = viewModel;
+            taskCollection = viewModel.TaskList;
+            logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
+
+            // Set up commands
+            MoveUpCommand = new RelayCommand(this, MoveTaskUp, CanMoveTaskUp);
+            MoveDownCommand = new RelayCommand(this, MoveTaskDown, CanMoveTaskDown);
+            SortAlphaCommand = new RelayCommand(this, SortTasksAlpha, CanSortTasks);
+            SortOriginalCommand = new RelayCommand(this, SortTasksOriginal, CanSortTasks);
+
+            // Create view of the task collection for display in the window.
+            TaskView = new ListCollectionView(taskCollection);
+
+            // Set the data context for the XAML frontend.
+            DataContext = this;
+
+            // Initialize the window components
+            InitializeComponent();
+
+            // Add event watchers
+            viewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            taskCollection.CollectionChanged += TaskList_CollectionChanged;
+            TaskView.CurrentChanged += TaskView_CurrentChanged;
+        }
+
+        /// <summary>
+        /// Called when the window closes.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
-
             base.OnClosed(e);
+
+            // Make sure PropertyChanged delegate isn't left dangling.
+            mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+            taskCollection.CollectionChanged -= TaskList_CollectionChanged;
+            TaskView.CurrentChanged -= TaskView_CurrentChanged;
         }
         #endregion
 
-        #region Watched Events        
+        #region Commands
+        public ICommand MoveUpCommand { get; }
+        public ICommand MoveDownCommand { get; }
+        public ICommand SortAlphaCommand { get; }
+        public ICommand SortOriginalCommand { get; }
+
+        #region Command Filters
+
+        public PropertyFilterListOption PropertyFilterListMode => PropertyFilterListOption.Exclude;
+
+        /// <summary>
+        /// Exclude TaskView from the normal CanExecuteChanged event updates
+        /// so that it can propogate to the XAML UI and update the current
+        /// position before the commands are checked on.
+        /// </summary>
+        public HashSet<string> PropertyFilterList => new HashSet<string>() { "TaskView" };
+
+        #endregion
+
+        #region Can Execute functions
+        private bool CanMoveTaskUp(object parameter)
+        {
+            if (taskCollection.Count < 2)
+                return false;
+
+            if (parameter is int position)
+            {
+                return position > 0;
+            }
+
+            return false;
+        }
+
+        private bool CanMoveTaskDown(object parameter)
+        {
+            if (taskCollection.Count < 2)
+                return false;
+
+            if (parameter is int position)
+            {
+                return position >= 0 && position < taskCollection.Count - 1;
+            }
+
+            return false;
+        }
+
+        private bool CanSortTasks(object parameter)
+        {
+            return taskCollection.Count > 1;
+        }
+        #endregion
+
+        #region Execute functions
+        private void MoveTaskUp(object parameter)
+        {
+            if (parameter is int position)
+            {
+                if (position >= 0 && position < taskCollection.Count)
+                {
+                    taskCollection.Move(position, position - 1);
+                }
+            }
+        }
+
+        private void MoveTaskDown(object parameter)
+        {
+            if (parameter is int position)
+            {
+                if (position >= 0 && position < taskCollection.Count)
+                {
+                    taskCollection.Move(position, position + 1);
+                }
+            }
+        }
+
+        private void SortTasksAlpha(object parameter)
+        {
+            taskCollection.Sort();
+        }
+
+        private void SortTasksOriginal(object parameter)
+        {
+            var currentSelection = TaskView.CurrentItem;
+
+            mainViewModel.ResetTasksOrder(TasksOrdering.AsTallied);
+
+            if (currentSelection != null)
+                TaskView.MoveCurrentTo(currentSelection);
+        }
+        #endregion
+        #endregion
+
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Function to raise events when a property has been changed.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that was modified.</param>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region Watching for notifications from monitored classes
         /// <summary>
         /// Watch for notifications from the main view model about changes in the vote backend.
         /// </summary>
@@ -67,31 +203,40 @@ namespace NetTally
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Votes" || e.PropertyName == "Tasks")
+            if (e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
+                logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+
                 TaskView.Refresh();
             }
         }
 
-        private void up_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Watch for events from the task list collection, and pass that on
+        /// to any classes watching for changes, such as the CanExecute checks.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            MainViewModel.DecreaseTaskPosition(TaskView.CurrentPosition);
+            OnPropertyChanged("TaskList");
         }
 
-        private void down_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Watch for notifications from the TaskView about changing the current selection.
+        /// Update the up and down buttons accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskView_CurrentChanged(object sender, EventArgs e)
         {
-            MainViewModel.IncreaseTaskPosition(TaskView.CurrentPosition);
-        }
-
-        private void alpha_Click(object sender, RoutedEventArgs e)
-        {
-            MainViewModel.ResetTasksOrder(TasksOrdering.Alphabetical);
-        }
-
-        private void default_Click(object sender, RoutedEventArgs e)
-        {
-            MainViewModel.ResetTasksOrder(TasksOrdering.AsTallied);
+            // Call once to notifiy the XAML view, which must be done before the commands update,
+            // so that the XAML can update to the TaskView's current position.
+            OnPropertyChanged("TaskView");
+            // And a separate call to get the commands to update themselves.
+            OnPropertyChanged("Command");
         }
         #endregion
+
     }
 }

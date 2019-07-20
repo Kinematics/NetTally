@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
+using NetTally.Options;
 using NetTally.Output;
 using NetTally.Votes;
 
@@ -22,7 +23,7 @@ namespace NetTally
         /// <summary>
         /// A list of all deprecated attributes.
         /// </summary>
-        string[] deprecatedAttributes = new string[] { "IgnoreSymbols", "AllowVoteLabelPlanNames" };
+        readonly string[] deprecatedAttributes = new string[] { "IgnoreSymbols", "AllowVoteLabelPlanNames" };
 
         /// <summary>
         /// Gets a value indicating whether an unknown attribute is encountered during deserialization.

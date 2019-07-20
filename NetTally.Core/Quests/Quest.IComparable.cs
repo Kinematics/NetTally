@@ -21,7 +21,7 @@ namespace NetTally
 
         public int CompareTo(IQuest other) => Compare(this, other);
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is IQuest other)
             {
@@ -50,7 +50,7 @@ namespace NetTally
         /// <param name="right">The second object being compared.</param>
         /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
         /// a positive value if left is 'after' right.</returns>
-        public static int Compare(IQuest? left, IQuest? right)
+        public static int Compare(IQuest left, IQuest right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -62,7 +62,7 @@ namespace NetTally
             return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
         }
 
-        public static bool operator ==(Quest? left, Quest? right)
+        public static bool operator ==(Quest left, Quest right)
         {
             if (left is null)
             {
@@ -71,7 +71,7 @@ namespace NetTally
             return left.Equals(right);
         }
 
-        public static bool operator !=(Quest? left, Quest? right) => !(left == right);
+        public static bool operator !=(Quest left, Quest right) => !(left == right);
 
         public static bool operator <(Quest left, Quest right) => (Compare(left, right) < 0);
 

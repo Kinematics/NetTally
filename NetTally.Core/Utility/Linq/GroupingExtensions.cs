@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable disable
-
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -88,7 +86,7 @@ namespace NetTally.Extensions
         /// <param name="defaultKey">The default key if no prior key exists.</param>
         /// <param name="keySelector">The function that generates a key from a source element.</param>
         /// <returns>Returns an enumeration of grouped collections.</returns>
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupAdjacentToPreviousKey<TSource, TKey>(
+        public static IEnumerable<GroupOfAdjacent<TSource, TKey>> GroupAdjacentToPreviousKey<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, bool> hasKey,
             Func<TSource, TKey> defaultKey,
