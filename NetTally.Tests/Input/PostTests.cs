@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 
@@ -331,5 +332,44 @@ But might include something else...
             Assert.AreEqual("-[x] At the top", post.VoteLines[1].ToString());
         }
 
+        [TestMethod]
+        public void Strike_Through_Plan_1()
+        {
+            string postText =
+@"Considering:
+❰[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
+            Post post = new Post(origin, postText);
+
+            Assert.IsFalse(post.HasVote);
+        }
+
+        [TestMethod]
+        public void Strike_Through_Plan_2()
+        {
+            string postText =
+@"Considering:
+❰⦂[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
+            Post post = new Post(origin, postText);
+
+            Assert.IsFalse(post.HasVote);
+
+        }
+
+        [TestMethod]
+        public void Strike_Through_Content()
+        {
+            string postText =
+@"Considering:
+[X] Plan Air, ❰Earth, Water,❱ Fire
+-[X] Aeromancy (40%)
+-[X] Pyromancy (25%)
+-[X] Pyromantic Divination (35%)";
+            Post post = new Post(origin, postText);
+
+            Assert.IsTrue(post.HasVote);
+            Assert.AreEqual(4, post.VoteLines.Count);
+            Assert.AreEqual("[X] Plan Air, 『s』Earth, Water,『/s』 Fire", post.VoteLines[0].ToString());
+
+        }
     }
 }
