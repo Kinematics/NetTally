@@ -223,6 +223,44 @@ namespace NetTally.Forums
 
             return sb;
         }
+
+        static readonly char[] newlineChars = new char[] { '\r', '\n' };
+
+        private static string StripDuplicateNewlines(ReadOnlySpan<char> input)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            bool newlineState = false;
+            int bufferStart = 0;
+
+            for (int c = 0; c < input.Length; c++)
+            {
+                char ch = input[c];
+
+                if (newlineChars.Contains(ch))
+                {
+                    if (!newlineState)
+                    {
+                        sb.Append(input.Slice(bufferStart, c - bufferStart));
+                        sb.Append("\r\n");
+                        newlineState = true;
+                    }
+                }
+                else if (newlineState)
+                {
+                    bufferStart = c;
+                    newlineState = false;
+                }
+            }
+
+            if (!newlineState)
+            {
+                sb.Append(input.Slice(bufferStart));
+            }
+
+            return sb.ToString().Trim();
+        }
+
         #endregion
     }
 }
