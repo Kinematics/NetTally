@@ -99,8 +99,8 @@ namespace NetTally.Options
         /// </summary>
         public bool AllowRankedVotes
         {
-            get { return allowRankedVotes; }
-            set { SetProperty(ref allowRankedVotes, value); }
+            get { return true; }
+            set { }
         }
 
         /// <summary>
