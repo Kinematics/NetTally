@@ -341,8 +341,10 @@ namespace NetTally.Votes
                     first = false;
                     yield return line.WithMarkerAndTask(Marker, MarkerType, MarkerValue, Task);
                 }
-
-                yield return line;
+                else
+                {
+                    yield return line;
+                }
             }
         }
 
