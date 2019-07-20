@@ -113,5 +113,35 @@ namespace NetTally.VoteCounting.RankVotes.Reference
 
             return 1.0 - (decrement * 0.125);
         }
+
+        public static (double rating, double lowerBound) GetLowerWilsonScore<T>(
+            IEnumerable<T> source, Func<T, double> transform, double scaling = 100.0)
+        {
+            if (!source.Any())
+                return (0, 0);
+
+            double positiveScore = 0.0;
+            double negativeScore = 0.0;
+            int n = 0;
+
+            foreach (var item in source)
+            {
+                double itemScore = transform(item) / scaling;
+
+                positiveScore += itemScore;
+                negativeScore += (1.0 - itemScore);
+                n++;
+            }
+
+            double p̂ = positiveScore / (positiveScore + negativeScore);
+            double z = 1.96;
+            double sqTerm = (p̂ * (1 - p̂) + z * z / (4 * n)) / n;
+
+            double lowerWilson = (p̂ + (z * z / (2 * n)) - z * Math.Sqrt(sqTerm)) / (1 + z * z / n);
+
+            return (p̂ * scaling, lowerWilson * scaling);
+        }
+
+
     }
 }
