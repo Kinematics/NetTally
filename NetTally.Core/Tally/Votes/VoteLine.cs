@@ -124,6 +124,19 @@ namespace NetTally.Votes
         }
 
         /// <summary>
+        /// Creates a copy of this vote line, but with the specified marker and task values.
+        /// </summary>
+        /// <param name="task">The new task for the vote line.</param>
+        /// <returns>Returns a new <see cref="VoteLine"/> with the task changed.</returns>
+        public VoteLine WithMarkerAndTask(string marker, MarkerType markerType, int markerValue, string task)
+        {
+            if (Marker == marker && MarkerType == markerType && MarkerValue == markerValue && Task == task)
+                return this;
+
+            return new VoteLine(Prefix, marker, task, Content, markerType, markerValue);
+        }
+
+        /// <summary>
         /// Creates a copy of this vote line, but with the specified content.
         /// </summary>
         /// <param name="content">The new content for the vote line.</param>

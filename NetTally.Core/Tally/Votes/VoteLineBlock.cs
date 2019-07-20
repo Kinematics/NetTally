@@ -332,12 +332,17 @@ namespace NetTally.Votes
 
         public IEnumerator<VoteLine> GetEnumerator()
         {
+            bool first = true;
+
             foreach (var line in Lines)
             {
-                if (line.MarkerType == MarkerType)
-                    yield return line;
-                else
-                    yield return line.WithMarker(Marker, MarkerType, MarkerValue);
+                if (first)
+                {
+                    first = false;
+                    yield return line.WithMarkerAndTask(Marker, MarkerType, MarkerValue, Task);
+                }
+
+                yield return line;
             }
         }
 
