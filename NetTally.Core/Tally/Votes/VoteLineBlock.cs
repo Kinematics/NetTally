@@ -131,7 +131,7 @@ namespace NetTally.Votes
         public string ToComparableString()
         {
             var first = Lines.First();
-            string firstString = first.ToOverrideString(displayMarker: "", displayTask: Task);
+            string firstString = first.ToComparableString(displayTask: Task);
 
             string aggregate = Lines.Select(s => s == first ? firstString : s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
 
