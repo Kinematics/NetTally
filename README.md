@@ -51,11 +51,11 @@ Dev Environment: Visual Studio 2019
 
 System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
 
-C# 8.0 (Should actually be 7.3)
+C# 7.3
 
 Dev Environment: Visual Studio 2019
 
-#### Prior branch: VS2017
+#### Retired branch: VS2017
 
 System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
 
