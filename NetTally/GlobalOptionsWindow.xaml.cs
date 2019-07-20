@@ -43,7 +43,6 @@ namespace NetTally
         private void resetAllButton_Click(object sender, RoutedEventArgs e)
         {
             rankedVoteAlgorithm.SelectedIndex = 0;
-            allowRankedVotes.IsChecked = true;
             globalSpoilers.IsChecked = false;
             debugMode.IsChecked = false;
 
