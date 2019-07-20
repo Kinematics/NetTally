@@ -18,6 +18,7 @@ namespace NetTally.Votes
             PostMarker,
             Task,
             Content,
+            Strike,
         }
 
         const char openBBCode = '『';
@@ -27,6 +28,9 @@ namespace NetTally.Votes
         const char whitespace = ' ';
         const char xBox = '☒';
         const char checkBox = '☑';
+        const char openStrike = '❰';
+        const char closeStrike = '❱';
+        const char strikeNewline = '⦂';
 
         // Prefix chars: dash, en-dash, em-dash
         static readonly char[] prefixChars = new char[] { '-', '–', '—' };
@@ -81,8 +85,8 @@ namespace NetTally.Votes
                         }
                         else if (prefixChars.Contains(ch))
                         {
-                            currentState = TokenState.Prefix;
                             prefixSB.Append(ch);
+                            currentState = TokenState.Prefix;
                         }
                         else if (ch == openBracket)
                         {
@@ -185,6 +189,7 @@ namespace NetTally.Votes
                         else
                         {
                             contentSB.Append(tempContent.ToString());
+                            tempContent.Clear();
                             contentSB.Append(ch);
                             currentState = TokenState.Content;
                         }
@@ -200,16 +205,34 @@ namespace NetTally.Votes
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
                         }
+                        else if (ch == openStrike)
+                        {
+                            state.Push(currentState);
+                            currentState = TokenState.Strike;
+                        }
                         else
                         {
                             taskSB.Append(ch);
                         }
                         break;
                     case TokenState.Content:
+                        if (tempContent.Length > 0)
                         {
-                            contentSB.Append(line[c..]);
-                            goto doneExamining;
+                            contentSB.Append(tempContent.ToString());
+                            tempContent.Clear();
                         }
+
+                        if (ch == openStrike)
+                        {
+                            tempContent.Append("『s』");
+                            state.Push(currentState);
+                            currentState = TokenState.Strike;
+                        }
+                        else
+                        {
+                            contentSB.Append(ch);
+                        }
+                        break;
                     case TokenState.BBCode:
                         if (state.Peek() == TokenState.PostMarker)
                         {
@@ -218,6 +241,25 @@ namespace NetTally.Votes
                         if (ch == closeBBCode)
                         {
                             currentState = state.Pop();
+                        }
+                        break;
+                    case TokenState.Strike:
+                        if (ch == closeStrike)
+                        {
+                            tempContent.Append("『/s』");
+                            currentState = state.Pop();
+                        }
+                        else if (ch == strikeNewline)
+                        {
+                            // If we hit embedded newlines, bail out entirely.
+                            // Take whatever's been done up to that point.
+                            tempContent.Clear();
+                            currentState = state.Pop();
+                            goto doneExamining;
+                        }
+                        else
+                        {
+                            tempContent.Append(ch);
                         }
                         break;
                     default:
