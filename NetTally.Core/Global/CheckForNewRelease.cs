@@ -158,9 +158,9 @@ namespace NetTally
         /// </summary>
         /// <returns>Returns the HTML document for the requested page,
         /// or null if it fails to load.</returns>
-        private async Task<HtmlDocument?> GetReleasesPageAsync()
+        private async Task<HtmlDocument> GetReleasesPageAsync()
         {
-            HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
+            HtmlDocument doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
                 "Github Releases", CachingMode.BypassCache, ShouldCache.No,
                 SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
