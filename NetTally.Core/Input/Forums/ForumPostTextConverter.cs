@@ -155,7 +155,9 @@ namespace NetTally.Forums
                         // Struck-through text is entirely skipped.
                         if (spanStrikeRegex.Match(spanStyle).Success)
                         {
-                            continue;
+                            sb.Append("❰");
+                            ExtractPostTextString(child, exclude, sb, host);
+                            sb.Append("❱");
                         }
                         else if (spanSpoilerRegex.Match(spanClass).Success)
                         {
@@ -225,12 +227,17 @@ namespace NetTally.Forums
         }
 
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
+        const char openStrike = '❰';
+        const char closeStrike = '❱';
+        const char strikeNewline = '⦂';
+        const string normalNewline = "\r\n";
 
         private static string StripDuplicateNewlines(ReadOnlySpan<char> input)
         {
             StringBuilder sb = new StringBuilder();
 
             bool newlineState = false;
+            bool strikeState = false;
             int bufferStart = 0;
 
             for (int c = 0; c < input.Length; c++)
@@ -241,8 +248,13 @@ namespace NetTally.Forums
                 {
                     if (!newlineState)
                     {
-                        sb.Append(input.Slice(bufferStart, c - bufferStart));
-                        sb.Append("\r\n");
+                        sb.Append(input.Slice(bufferStart, c - bufferStart).ToString());
+
+                        if (strikeState)
+                            sb.Append(strikeNewline);
+                        else
+                            sb.Append(normalNewline);
+
                         newlineState = true;
                     }
                 }
@@ -251,11 +263,20 @@ namespace NetTally.Forums
                     bufferStart = c;
                     newlineState = false;
                 }
+
+                if (ch == openStrike)
+                {
+                    strikeState = true;
+                }
+                else if (ch == closeStrike)
+                {
+                    strikeState = false;
+                }
             }
 
             if (!newlineState)
             {
-                sb.Append(input.Slice(bufferStart));
+                sb.Append(input.Slice(bufferStart).ToString());
             }
 
             return sb.ToString().Trim();
