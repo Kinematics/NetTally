@@ -514,7 +514,21 @@ namespace NetTally.Votes
 
                     return partitions;
                 }
-                else if (partitionMode == PartitionMode.ByBlock || partitionMode == PartitionMode.ByBlockAll)
+                // Normal By Block does not partition implicit plans
+                else if (partitionMode == PartitionMode.ByBlock)
+                {
+                    if (asPlan && !VoteBlocks.IsBlockAnImplicitPlan(block).isImplicit)
+                    {
+                        return VoteBlocks.GetBlocks(block.Skip(asPlan ? 1 : 0)).ToList();
+                    }
+                    else
+                    {
+                        partitions.Add(block);
+                        return partitions;
+                    }
+                }
+                // By block (all) partitions even implicit plans.
+                else if (partitionMode == PartitionMode.ByBlockAll)
                 {
                     return VoteBlocks.GetBlocks(block.Skip(asPlan ? 1 : 0)).ToList();
                 }
