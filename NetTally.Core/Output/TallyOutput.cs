@@ -380,9 +380,13 @@ namespace NetTally.Output
 
                     var (entryVote, entryStorage) = resultVote;
 
-                    AddStandardVoteSupport(resultSupport);
+                    int voterCount = entryStorage.GetNonRankUserCount();
+                    if (voterCount != resultSupport)
+                    {
+                        AddStandardVoteSupport(resultSupport);
+                    }
                     AddStandardVoteDisplay(resultVote, resultSupport);
-                    AddVoterCount(entryStorage.GetNonRankUserCount());
+                    AddVoterCount(voterCount);
                     AddNonRankVoters(entryStorage);
 
                     sb.AppendLine();
