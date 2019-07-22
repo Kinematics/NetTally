@@ -26,7 +26,6 @@ namespace NetTally.Tests.Forums
 
 
         #region General failures
-#nullable disable
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_Fail_NullText()
@@ -40,7 +39,6 @@ namespace NetTally.Tests.Forums
         {
             _ = new Post(null, "Some text");
         }
-#nullable enable
         #endregion
 
         [TestMethod]
