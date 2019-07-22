@@ -297,5 +297,70 @@ Font test";
             Assert.IsTrue(node != null);
         }
 
+        [TestMethod]
+        public void Check_Embedded_Callout()
+        {
+            string html =
+@"The referenced post did not have the problem described, but another post did.  Basically, <br />
+[x] <a href=""https://forums.sufficientvelocity.com/members/4076/"" class=""username"" data-xf-init=""member-tooltip"" data-user-id=""4076"" data-username=""@Kinematics"">@Kinematics</a> <br />
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).<br />
+<br />";
+
+            string expectedText =
+@"The referenced post did not have the problem described, but another post did.  Basically, 
+[x] 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            var node = GetHtmlFromString(html);
+
+            if (node != null)
+            {
+                string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
+
+                Assert.AreEqual(expectedText, results);
+
+                Origin origin = new Origin("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new Post(origin, results);
+
+                Assert.IsTrue(post.HasVote);
+                Assert.AreEqual(1, post.VoteLines.Count);
+            }
+
+            Assert.IsTrue(node != null);
+        }
+
+
+        [TestMethod]
+        public void Check_Embedded_Callout_Plan()
+        {
+            string html =
+@"The referenced post did not have the problem described, but another post did.  Basically, <br />
+[x] Plan <a href=""https://forums.sufficientvelocity.com/members/4076/"" class=""username"" data-xf-init=""member-tooltip"" data-user-id=""4076"" data-username=""@Kinematics"">@Kinematics</a> <br />
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).<br />
+<br />";
+
+            string expectedText =
+@"The referenced post did not have the problem described, but another post did.  Basically, 
+[x] Plan 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            var node = GetHtmlFromString(html);
+
+            if (node != null)
+            {
+                string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
+
+                Assert.AreEqual(expectedText, results);
+
+                Origin origin = new Origin("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new Post(origin, results);
+
+                Assert.IsTrue(post.HasVote);
+                Assert.AreEqual(1, post.VoteLines.Count);
+            }
+
+            Assert.IsTrue(node != null);
+        }
+
     }
 }
