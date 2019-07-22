@@ -252,6 +252,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Input\ForumAdapterFactoryTests.cs" />
+    <Compile Include="Input\PostTextTests.cs" />
     <Compile Include="QuestTests.cs" />
     <Compile Include="General\LoggerTest.cs" />
     <Compile Include="Input\ForumIdentifierTests.cs" />
