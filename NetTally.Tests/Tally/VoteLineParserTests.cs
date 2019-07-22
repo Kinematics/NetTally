@@ -877,8 +877,9 @@ namespace NetTally.Tests.Votes
                 Assert.AreEqual("X", voteLine.Marker);
                 Assert.AreEqual(MarkerType.Vote, voteLine.MarkerType);
                 Assert.AreEqual(100, voteLine.MarkerValue);
-                Assert.AreEqual("Brutalize them. You haven’t had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.Content);
-                Assert.AreEqual("Brutalize them. You haven’t had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.CleanContent);
+                // Convert ’ to '
+                Assert.AreEqual("Brutalize them. You haven't had a chance to properly fight in 『i』『color=#ebebeb』years『/color』『/i』, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.Content);
+                Assert.AreEqual("Brutalize them. You haven't had a chance to properly fight in years, and spars can only do so much. How thoughtful of the Herans to volunteer!", voteLine.CleanContent);
                 Assert.AreEqual("Tasky", voteLine.Task);
             }
 

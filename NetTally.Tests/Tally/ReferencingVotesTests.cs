@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
+using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -28,6 +29,9 @@ namespace NetTally.Tests.Votes
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
+
+            IQuest quest = new Quest();
+            Agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestInitialize]
