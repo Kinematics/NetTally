@@ -263,5 +263,39 @@ We seem to have a real talent for divination considering that we managed to affe
             Assert.IsTrue(node != null);
         }
 
+        [TestMethod]
+        public void Fonts_Test()
+        {
+            string html =
+@"<span style=""font-family: 'times new roman'"">[x][Wine] Red<br />
+-[x] Pinot Noir</span><br />
+<br />
+Font test";
+
+            string expectedText =
+@"[x][Wine] Red
+-[x] Pinot Noir
+Font test";
+
+            var node = GetHtmlFromString(html);
+
+            if (node != null)
+            {
+                string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
+
+                Assert.AreEqual(expectedText, results);
+
+                Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new Post(origin, results);
+
+                Assert.IsTrue(post.HasVote);
+                Assert.AreEqual(2, post.VoteLines.Count);
+                Assert.AreEqual("[x][Wine] Red", post.VoteLines[0].ToString());
+                Assert.AreEqual("-[x] Pinot Noir", post.VoteLines[1].ToString());
+            }
+
+            Assert.IsTrue(node != null);
+        }
+
     }
 }
