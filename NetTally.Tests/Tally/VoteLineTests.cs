@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Utility;
 using NetTally.Votes;
 
 namespace NetTally.Tests.Votes
@@ -13,6 +14,9 @@ namespace NetTally.Tests.Votes
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
+
+            IQuest quest = new Quest();
+            Agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestMethod]

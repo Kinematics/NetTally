@@ -115,29 +115,25 @@ namespace NetTally.Utility
         /// </summary>
         /// <param name="mainViewModel">The view model that allows us to check the current quest's options.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        public static void ComparisonPropertyChanged(ViewModel mainViewModel, PropertyChangedEventArgs e)
+        public static void ComparisonPropertyChanged(IQuest quest, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName.StartsWith("SelectedQuest."))
+            if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
             {
-                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
+                if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == false)
                 {
-                    if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
-                    {
-                        currentComparer = StringComparerNoCaseSymbol;
-                    }
-                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == false)
-                    {
-                        currentComparer = StringComparerNoCaseNoSymbol;
-                    }
-                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == true && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
-                    {
-                        currentComparer = StringComparerCaseSymbol;
-                    }
-                    else if (mainViewModel.SelectedQuest?.WhitespaceAndPunctuationIsSignificant == false && mainViewModel.SelectedQuest?.CaseIsSignificant == true)
-                    {
-                        currentComparer = StringComparerCaseNoSymbol;
-                    }
-                    else { System.Diagnostics.Debug.WriteLine($"Invalid Compare/Whitespace options set."); }
+                    currentComparer = StringComparerNoCaseSymbol;
+                }
+                else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == false)
+                {
+                    currentComparer = StringComparerNoCaseNoSymbol;
+                }
+                else if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == true)
+                {
+                    currentComparer = StringComparerCaseSymbol;
+                }
+                else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == true)
+                {
+                    currentComparer = StringComparerCaseNoSymbol;
                 }
             }
         }

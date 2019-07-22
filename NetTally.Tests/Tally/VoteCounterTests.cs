@@ -1,27 +1,33 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally;
+using NetTally.Forums;
 using NetTally.Tests;
 using NetTally.Utility;
-using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using NetTally;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace NTTests.Voting
+namespace NetTally.Tests.Tallying
 {
     [TestClass]
     public class VoteCounterTests
     {
         #region Setup
-        static IVoteCounter voteCounter;
-        static IQuest sampleQuest;
         static IServiceProvider serviceProvider;
+        static IVoteCounter voteCounter;
+        static VoteConstructor voteConstructor;
         static Tally tally;
+        static IQuest quest;
+        static readonly Origin origin1 = new Origin("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin1a = new Origin("Brogatar", "123476", 102, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin2 = new Origin("Madfish", "123466", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -30,428 +36,493 @@ namespace NTTests.Voting
 
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
-
-            sampleQuest = new Quest();
+            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
 
         [TestInitialize]
         public void Initialize()
         {
+            quest = new Quest();
+
             voteCounter.Reset();
             voteCounter.ClearPosts();
-            voteCounter.Quest = sampleQuest;
         }
         #endregion
 
         [TestMethod]
-        public void ResetTest()
+        public async Task Check_Tally_Adds_Normal()
         {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"[X] Save it for another day.
+[X] This is fine by you.
+-[X] At least for today.";
+
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(3, allVotes[1].Lines.Count);
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+        }
+
+
+        [TestMethod]
+        public async Task Check_Reset()
+        {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"[X] Save it for another day.
+[X] This is fine by you.
+-[X] At least for today.";
+
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(3, allVotes[1].Lines.Count);
+
             voteCounter.Reset();
 
-            Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Vote).Count);
-            Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Vote).Count);
-            Assert.AreEqual(0, voteCounter.GetVotersCollection(VoteType.Rank).Count);
-            Assert.AreEqual(0, voteCounter.GetVotesCollection(VoteType.Rank).Count);
+            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
 
-            Assert.AreEqual(0, voteCounter.FutureReferences.Count);
-
-            Assert.AreEqual("", voteCounter.Title);
+            Assert.AreEqual(0, allVotes.Count);
         }
 
-
-        #region Add Votes
-        [TestMethod]
-        public void AddVoteTypeVoteTest()
+        public async Task Check_Tally_Adds_Plan()
         {
-            string voteLine = "[x] First test";
-            string voter = "me";
-            string postId = "1";
-            List<string> vote = new List<string> { voteLine };
-            VoteType voteType = VoteType.Vote;
+            string postText1 =
+@"[X] Plan Experiment
+-[X] This is fine by you.
+--[X] At least for today.";
+            string postText2 =
+@"[X] Save it for another day.
+[X] This is fine by you.
+-[X] At least for today.";
 
-            voteCounter.AddVotes(vote, voter, postId, voteType);
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
 
-            var votes = voteCounter.GetVotesCollection(voteType);
-            var voters = voteCounter.GetVotersCollection(voteType);
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
 
-            Assert.IsTrue(votes.Keys.Contains(voteLine));
-            Assert.IsTrue(votes[voteLine].Contains(voter));
+            List<Post> posts = new List<Post>() { post1, post2 };
 
-            Assert.IsTrue(voters.ContainsKey(voter));
-            Assert.AreEqual(postId, voters[voter]);
-        }
+            quest.PartitionMode = PartitionMode.None;
 
-        [TestMethod]
-        public void AddPlanTypeVoteTest()
-        {
-            string voteLine = "[x] First test";
-            string voter = "me";
-            string planname = "◈PlanPlan";
-            string postId = "1";
-            List<string> vote = new List<string> { voteLine };
-            VoteType voteType = VoteType.Plan;
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            voteCounter.AddVotes(vote, planname, postId, voteType);
-            voteCounter.AddVotes(vote, voter, postId, VoteType.Vote);
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
 
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(planname));
+            Assert.AreEqual(2, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter));
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(planname));
-            Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[voter]);
-            Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[planname]);
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
 
-            Assert.IsTrue(voteCounter.HasPlan("PlanPlan"));
+            var vote1 = voteCounter.VoteStorage.GetVotesBy(origin1);
+
+            Assert.AreEqual(1, vote1.Count);
+
+            var voters1 = voteCounter.GetVotersFor(vote1[0]);
+
+            Assert.AreEqual(2, voters1.Count());
         }
 
         [TestMethod]
-        public void AddRankTypeVoteTest()
+        public async Task Reprocess_Doesnt_Stack_Lines()
         {
-            string voteLine = "[1] First test";
-            string voter = "me";
-            string postId = "1";
-            List<string> vote = new List<string> { voteLine };
-            VoteType voteType = VoteType.Rank;
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"[X] Save it for another day.
+[X] This is fine by you.
+-[X] At least for today.";
 
-            voteCounter.AddVotes(vote, voter, postId, voteType);
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
 
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter));
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
 
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter));
-            Assert.AreEqual(postId, voteCounter.GetVotersCollection(voteType)[voter]);
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(3, allVotes[1].Lines.Count);
+
+            quest.PartitionMode = PartitionMode.ByLine;
+
+            await tally.TallyPosts(CancellationToken.None);
+
+            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(4, allVotes.Count);
+            Assert.AreEqual(1, allVotes[0].Lines.Count);
+            Assert.AreEqual(1, allVotes[1].Lines.Count);
+            Assert.AreEqual(1, allVotes[2].Lines.Count);
+            Assert.AreEqual(1, allVotes[3].Lines.Count);
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(CancellationToken.None);
+
+            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(3, allVotes[1].Lines.Count);
         }
 
         [TestMethod]
-        public void AddVoteMultiTest1()
+        public async Task Check_Tally_Adds_Reference()
         {
-            string voteLine = "[x] First test";
-            string voter1 = "me";
-            string postId1 = "1";
-            string voter2 = "you";
-            string postId2 = "2";
-            List<string> vote = new List<string> { voteLine };
-            VoteType voteType = VoteType.Vote;
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"[X] Brogatar";
 
-            voteCounter.AddVotes(vote, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote, voter2, postId2, voteType);
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
 
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine].Contains(voter2));
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
 
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
-            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
-            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
         }
-
-        [TestMethod]
-        public void AddVoteMultiTest2()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] 『b』First『/b』 test";
-            string voter1 = "me";
-            string postId1 = "1";
-            string voter2 = "you";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { voteLine1 };
-            List<string> vote2 = new List<string> { voteLine2 };
-            VoteType voteType = VoteType.Vote;
-
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
-            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
-            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine1].Contains(voter2));
-
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
-            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
-            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
-        }
-
-        [TestMethod]
-        public void AddVoteReplacementTest1()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] Second test";
-            string voter1 = "me";
-            string postId1 = "1";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { voteLine1 };
-            List<string> vote2 = new List<string> { voteLine2 };
-            VoteType voteType = VoteType.Vote;
-
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter1, postId2, voteType);
-
-            Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(voteLine2));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[voteLine2].Contains(voter1));
-
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
-            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter1]);
-        }
-
-        #endregion
-
-        #region Matches
-        private static void TestMatch(string line1, string line2)
-        {
-            string voter1 = "me";
-            string postId1 = "1";
-            string voter2 = "you";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { line1 };
-            List<string> vote2 = new List<string> { line2 };
-            VoteType voteType = VoteType.Vote;
-
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(line1));
-            //Assert.IsFalse(voteCounter.GetVotesCollection(voteType).Keys.Contains(line2));
-            Assert.AreEqual(1, voteCounter.GetVotesCollection(voteType).Count);
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[line1].Contains(voter1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[line1].Contains(voter2));
-
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
-            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
-            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
-        }
-
-        private static void TestMismatch(string line1, string line2)
-        {
-            string voter1 = "me";
-            string postId1 = "1";
-            string voter2 = "you";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { line1 };
-            List<string> vote2 = new List<string> { line2 };
-            VoteType voteType = VoteType.Vote;
-
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(line1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType).Keys.Contains(line2));
-            Assert.AreEqual(2, voteCounter.GetVotesCollection(voteType).Count);
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[line1].Contains(voter1));
-            Assert.IsTrue(voteCounter.GetVotesCollection(voteType)[line2].Contains(voter2));
-
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter1));
-            Assert.IsTrue(voteCounter.GetVotersCollection(voteType).ContainsKey(voter2));
-            Assert.AreEqual(postId1, voteCounter.GetVotersCollection(voteType)[voter1]);
-            Assert.AreEqual(postId2, voteCounter.GetVotersCollection(voteType)[voter2]);
-        }
-
-        [TestMethod]
-        public void TestMatches1()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] First test";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches2()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] 『b』First『/b』 test";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches3()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] first TEST";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches4()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] First  test";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches5()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "-[x] First test";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches6()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "『b』[x] First test『/b』";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches7()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] First test.";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches8()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] First t'est.";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches9()
-        {
-            string voteLine1 = "[x] “First Test”";
-            string voteLine2 = "[x] \"First Test\"";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches10()
-        {
-            string voteLine1 = "[x] Don't go";
-            string voteLine2 = "[x] Donʼt go";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches11()
-        {
-            string voteLine1 = "[x] Don't go";
-            string voteLine2 = "[x] Don’t go";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches12()
-        {
-            string voteLine1 = "[x] Don't go";
-            string voteLine2 = "[x] Don`t go";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
-        [TestMethod]
-        public void TestMatches13()
-        {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] First &test";
-
-            TestMatch(voteLine1, voteLine2);
-        }
-
 
 
         [TestMethod]
-        public void TestMismatches1()
+        public async Task Check_Tally_Replacement_Vote()
         {
-            string voteLine1 = "[x] First test";
-            string voteLine2 = "[x] Second test";
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"[X] Save it for another day.
+[X] This is fine by you.
+-[X] At least for today.";
 
-            TestMismatch(voteLine1, voteLine2);
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+            Post post3 = new Post(origin1a, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+            Assert.IsTrue(post3.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2, post3 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
         }
 
 
-        #endregion
+        #region Test general vote matching
+        public async Task Test_Votes_Match(string text1, string text2)
+        {
+            Assert.IsFalse(string.IsNullOrEmpty(text1));
+            Assert.IsFalse(string.IsNullOrEmpty(text2));
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+
+            Post post1 = new Post(origin1, text1);
+            Post post2 = new Post(origin2, text2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+
+            var vote1 = allVotes[0];
+            var voters = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+
+            Assert.AreEqual(2, voters.Count);
+            Assert.IsTrue(voters.Contains(origin1));
+            Assert.IsTrue(voters.Contains(origin2));
+        }
+
+        public async Task Test_Votes_Dont_Match(string text1, string text2)
+        {
+            Assert.IsFalse(string.IsNullOrEmpty(text1));
+            Assert.IsFalse(string.IsNullOrEmpty(text2));
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+
+            Post post1 = new Post(origin1, text1);
+            Post post2 = new Post(origin2, text2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+
+            var vote1 = allVotes[0];
+            var voters1 = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+            var vote2 = allVotes[1];
+            var voters2 = voteCounter.VoteStorage.GetVotersFor(vote2).ToList();
+
+            Assert.AreEqual(1, voters1.Count);
+            Assert.AreEqual(1, voters2.Count);
+        }
 
         [TestMethod]
-        public void FindVotesForVoterTest1()
+        public async Task Check_Match_Same()
         {
-            string voteLine1 = "[x] Vote for stuff 1";
-            string voteLine2 = "[x] Vote for stuff 2";
-            string voter1 = "me";
-            string voter2 = "you";
-            string postId1 = "1";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { voteLine1 };
-            List<string> vote2 = new List<string> { voteLine2 };
-            VoteType voteType = VoteType.Vote;
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic test";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            voteCounter.AddReferenceVoter(voter1, postId1);
-            voteCounter.AddReferenceVoter(voter2, postId2);
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-
-            var votes = voteCounter.GetVotesFromReference("[x] me", "Him");
-            Assert.AreEqual(1, votes.Count);
-            Assert.IsTrue(votes.Contains(voteLine1));
+            await Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public void FindVotesForVoterTest2()
+        public async Task Check_Match_BBCode()
         {
-            string voteLine1 = "[x] Vote for stuff 1";
-            string voteLine2 = "[x] Vote for stuff 2";
-            string voter1 = "me";
-            string voter2 = "you";
-            string postId1 = "1";
-            string postId2 = "2";
-            List<string> vote1 = new List<string> { voteLine1 };
-            List<string> vote2 = new List<string> { voteLine1, voteLine2 };
-            VoteType voteType = VoteType.Vote;
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 『b』test『/b』";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            voteCounter.AddReferenceVoter(voter1, postId1);
-            voteCounter.AddReferenceVoter(voter2, postId2);
-            voteCounter.AddVotes(vote1, voter1, postId1, voteType);
-            voteCounter.AddVotes(vote2, voter2, postId2, voteType);
-
-            var votes = voteCounter.GetVotesFromReference("[x] you", "Him");
-            Assert.AreEqual(2, votes.Count);
-            Assert.IsTrue(votes.Contains(voteLine1));
-            Assert.IsTrue(votes.Contains(voteLine2));
+            await Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public void TallyVotesTest()
+        public async Task Check_Match_No_Case()
         {
-            //TODO
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic TEST";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        [Ignore]
-        public async Task NameReferenceTest()
+        public async Task Check_Match_Yes_Case()
         {
-            // Check for non-case sensitivity in referencing other voters.
-            PostComponents p1 = new PostComponents("Beyogi", "12345", "[x] Vote for something");
-            PostComponents p2 = new PostComponents("Mini", "12345", "[x] beyogi");
-            List<PostComponents> posts = new List<PostComponents> { p1, p2 };
-            //Task t = tally.TallyPosts(posts, sampleQuest, CancellationToken.None);
-            //await t;
-            await Task.FromResult(0);
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic TEST";
+            quest.CaseIsSignificant = true;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            Assert.AreEqual(2, voteCounter.GetVotersCollection(VoteType.Vote).Count);
-            Assert.AreEqual(1, voteCounter.GetVotesCollection(VoteType.Vote).Count);
-            Assert.IsTrue(voteCounter.HasVote("[x] Vote for something\r\n", VoteType.Vote));
+            await Test_Votes_Dont_Match(text1, text2);
         }
 
+
+        [TestMethod]
+        public async Task Check_Match_No_Punc()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 'test'";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Yes_Punc()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 'test'";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Dont_Match(text1, text2);
+        }
+
+
+        [TestMethod]
+        public async Task Check_Match_No_Space()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 'Test'";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Yes_Space()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic  Test";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Dont_Match(text1, text2);
+        }
+
+
+        [TestMethod]
+        public async Task Check_Match_No_Space_And_Case()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 'Test'";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Yes_Space_And_Case()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic 'test'";
+            quest.CaseIsSignificant = true;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Dont_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Yes_Space_And_Case_2()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic Test";
+            quest.CaseIsSignificant = true;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Dont_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Apostrophe()
+        {
+            string text1 = "[x] Basic don't";
+            string text2 = "[x] Basic don’t";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Quote()
+        {
+            string text1 = "[x] Basic test";
+            string text2 = "[x] Basic “test”";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+
+        [TestMethod]
+        public async Task Check_Match_Apostrophe_2()
+        {
+            string text1 = "[x] Basic don't";
+            string text2 = "[x] Basic don’t";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Match(text1, text2);
+        }
+
+        [TestMethod]
+        public async Task Check_Match_Quote_2()
+        {
+            string text1 = @"[x] Basic ""test""";
+            string text2 = "[x] Basic “test”";
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = true;
+
+            await Test_Votes_Match(text1, text2);
+        }
+        #endregion Test general vote matching
     }
 }
