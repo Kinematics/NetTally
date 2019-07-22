@@ -419,6 +419,42 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
         }
 
+        [TestMethod]
+        public async Task Check_User_Proxy_Only_Proposed_Plan()
+        {
+            string postText1 =
+@"[X] Proposed Plan: Experiment
+-[X] Add this to your list of experiments for today.
+-[X] This is fine by you.
+--[X] At least for today.";
+            string postText2 =
+@"[X] Brogatar";
+
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+
+            Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+        }
+
+
         #region Test general vote matching
         public async Task Test_Votes_Match(string text1, string text2)
         {
