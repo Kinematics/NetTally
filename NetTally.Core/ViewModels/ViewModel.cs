@@ -13,6 +13,7 @@ using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
+using NetTally.Utility;
 using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
 using NetTally.Votes;
@@ -223,8 +224,8 @@ namespace NetTally.ViewModels
                 quest.PropertyChanged += SelectedQuest_PropertyChanged;
 
                 // Some quest properties need to raise events on quest binding.
-                OnPropertyChanged($"SelectedQuest.{nameof(IQuest.CaseIsSignificant)}");
-                OnPropertyChanged($"SelectedQuest.{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}");
+                Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.CaseIsSignificant)}"));
+                Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}"));
             }
         }
 
@@ -243,8 +244,18 @@ namespace NetTally.ViewModels
                 QuestList.Sort();
                 OnPropertyChanged("RenameQuest");
             }
-
-            OnPropertyChanged($"SelectedQuest.{e.PropertyName}");
+            else if (e.PropertyName == $"{nameof(IQuest.CaseIsSignificant)}")
+            {
+                Agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+            }
+            else if (e.PropertyName == $"{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}")
+            {
+                Agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+            }
+            else
+            {
+                OnPropertyChanged($"SelectedQuest.{e.PropertyName}");
+            }
         }
         #endregion
 
