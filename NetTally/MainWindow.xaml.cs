@@ -361,11 +361,6 @@ namespace NetTally
                 SaveConfig();
                 BroadcastUpdateNotification();
             }
-            else if ((e.PropertyName.StartsWith("SelectedQuest.") == true) &&
-                    (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant")))
-            {
-                Agnostic.ComparisonPropertyChanged(mainViewModel, e);
-            }
         }
 
         /// <summary>
