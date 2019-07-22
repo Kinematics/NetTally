@@ -32,6 +32,9 @@ namespace NetTally.Votes
         const char closeStrike = '❱';
         const char strikeNewline = '⦂';
 
+        static readonly char[] apostraphes = new char[] { '‘', '’' };
+        static readonly char[] quotations = new char[] { '“', '〃', '”' };
+
         // Prefix chars: dash, en-dash, em-dash
         static readonly char[] prefixChars = new char[] { '-', '–', '—' };
         // Marker chars: X, check, numeric rank, rank marker, score marker, approval/disapproval
@@ -228,6 +231,14 @@ namespace NetTally.Votes
                             state.Push(currentState);
                             currentState = TokenState.Strike;
                         }
+                        else if (apostraphes.Contains(ch))
+                        {
+                            contentSB.Append('\'');
+                        }
+                        else if (quotations.Contains(ch))
+                        {
+                            contentSB.Append('"');
+                        }
                         else
                         {
                             contentSB.Append(ch);
@@ -244,6 +255,7 @@ namespace NetTally.Votes
                         }
                         break;
                     case TokenState.Strike:
+                        // Strike-through text is only preserved in the content area
                         if (ch == closeStrike)
                         {
                             tempContent.Append("『/s』");
