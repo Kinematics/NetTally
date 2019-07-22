@@ -269,6 +269,7 @@
     <Compile Include="Tally\VoteBlockTests.cs" />
     <Compile Include="Tally\VoteConstructorPlanTests.cs" />
     <Compile Include="Tally\VoteConstructorVoteTests.cs" />
+    <Compile Include="Tally\VoteCounterTests.cs" />
     <Compile Include="Tally\VoteLineBlockTests.cs" />
     <Compile Include="Tally\VoteLineParserTests.cs" />
     <Compile Include="Tally\VoteLineTests.cs" />
