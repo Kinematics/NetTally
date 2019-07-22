@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Votes;
 
-namespace NetTally.Tests.Votes
+namespace NetTally.Tests.Tallying
 {
     [TestClass]
     public class VoteConstructorPlanTests

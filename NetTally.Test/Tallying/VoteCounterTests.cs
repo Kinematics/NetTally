@@ -25,6 +25,7 @@ namespace NetTally.Tests.Tallying
         static readonly Origin origin1 = new Origin("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new Origin("Brogatar", "123476", 102, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin2 = new Origin("Madfish", "123466", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin3 = new Origin("Kinematics", "123426", 98, new Uri("http://www.example.com/"), "http://www.example.com");
 
 
         [ClassInitialize]
@@ -282,6 +283,141 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
         }
 
+        [TestMethod]
+        public async Task Check_Callout_Links_With_At_As_Plan()
+        {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"The referenced post did not have the problem described, but another post did.  Basically,
+[x] Plan 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            Post post1 = new Post(origin3, postText1);
+            Post post2 = new Post(origin1, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+        }
+
+        [TestMethod]
+        public async Task Check_Callout_Links_Without_At_As_Plan()
+        {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"The referenced post did not have the problem described, but another post did.  Basically,
+[x] Plan 『url=""https://forums.sufficientvelocity.com/members/4076/""』Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            Post post1 = new Post(origin3, postText1);
+            Post post2 = new Post(origin1, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+        }
+
+        [TestMethod]
+        public async Task Check_Callout_Links_With_At()
+        {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"The referenced post did not have the problem described, but another post did.  Basically, 
+[x] 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            Post post1 = new Post(origin3, postText1);
+            Post post2 = new Post(origin1, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+        }
+
+        [TestMethod]
+        public async Task Check_Callout_Links_Without_At()
+        {
+            string postText1 =
+@"[X] Add this to your list of experiments for today.
+[X] This is fine by you.
+-[X] At least for today.";
+            string postText2 =
+@"The referenced post did not have the problem described, but another post did.  Basically, 
+[x] 『url=""https://forums.sufficientvelocity.com/members/4076/""』Kinematics『/url』 
+Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
+
+            Post post1 = new Post(origin3, postText1);
+            Post post2 = new Post(origin1, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(1, allVotes.Count);
+            Assert.AreEqual(3, allVotes[0].Lines.Count);
+            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+        }
 
         #region Test general vote matching
         public async Task Test_Votes_Match(string text1, string text2)
