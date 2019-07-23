@@ -38,6 +38,8 @@ namespace NetTally.Forums.Adapters
         static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
         // The short HREF version gives the post ID
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
+        // RSS permalink does not include the page number.
+        static readonly Regex permalinkFragment = new Regex(@"threads/[^/]+/(post-(?<post>\d+))?$");
 
         // The default threadmark filter.
         static readonly Filter DefaultThreadmarkFilter = new Filter(Quest.OmakeFilter, null);
@@ -340,31 +342,47 @@ namespace NetTally.Forums.Adapters
 
                         string href = link.Value;
 
+                        // If we have a permalink fragment, we have no page number, but we can
+                        // request a redirect to get the actual href.
+                        Match mr = permalinkFragment.Match(href);
+                        if (mr.Success)
+                        {
+                            string redirect = await pageProvider.GetRedirectUrlAsync(
+                                href, "RSS Link", CachingMode.BypassCache, ShouldCache.Yes,
+                                SuppressNotifications.No, token).ConfigureAwait(false);
+
+                            if (!string.IsNullOrEmpty(redirect) && redirect != href)
+                            {
+                                href = redirect;
+                            }
+                        }
+
                         // If we have the long URL, we can extract the page number and post number from the URL itself.
-                        Match mr = longFragment.Match(href);
+                        mr = longFragment.Match(href);
                         if (mr.Success)
                         {
                             int page = 0;
-                            int post = 0;
+                            int postID = 0;
 
                             if (mr.Groups["page"].Success)
                                 page = int.Parse(mr.Groups["page"].Value);
                             if (mr.Groups["post"].Success)
-                                post = int.Parse(mr.Groups["post"].Value);
+                                postID = int.Parse(mr.Groups["post"].Value);
 
                             // If neither matched, it's post 1/page 1
                             // Store 0 in the post ID slot, since we don't know what it is.
-                            if (page == 0 && post == 0)
+                            if (page == 0 && postID == 0)
                                 return new ThreadRangeInfo(true, 1, 1, 0);
 
                             // If no page number was found, it's page 1
                             if (page == 0)
-                                return new ThreadRangeInfo(false, 0, 1, post);
+                            {
+                                return new ThreadRangeInfo(false, 0, 1, postID);
+                            }
 
                             // Otherwise, take the provided values.
-                            return new ThreadRangeInfo(false, 0, page, post);
+                            return new ThreadRangeInfo(false, 0, page, postID);
                         }
-
                     }
                 }
             }
