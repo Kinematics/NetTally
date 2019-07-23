@@ -142,6 +142,7 @@ namespace NetTally.CLI
                 CaseIsSignificant = options.Case,
                 ForcePlanReferencesToBeLabeled = options.MustLabelPlanReferences,
                 ForbidVoteLabelPlanNames = options.ForbidPlanLabels,
+                AllowUsersToUpdatePlans = options.AllowUsersToUpdatePlans,
                 DisableProxyVotes = options.NoUserProxy,
                 ForcePinnedProxyVotes = options.ForcePinProxy,
                 IgnoreSpoilers = options.IgnoreSpoilers,

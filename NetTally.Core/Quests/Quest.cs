@@ -458,6 +458,7 @@ namespace NetTally
         bool caseIsSignificant = false;
         bool forcePlanReferencesToBeLabeled = false;
         bool forbidVoteLabelPlanNames = false;
+        bool allowUsersToUpdatePlans = false;
         bool disableProxyVotes = false;
         bool forcePinnedProxyVotes = false;
         bool ignoreSpoilers = false;
@@ -528,6 +529,19 @@ namespace NetTally
             set
             {
                 forbidVoteLabelPlanNames = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Indicate whether users are allowed to update plans that they wrote in later posts.
+        /// </summary>
+        public bool AllowUsersToUpdatePlans
+        {
+            get { return allowUsersToUpdatePlans; }
+            set
+            {
+                allowUsersToUpdatePlans = value;
                 OnPropertyChanged();
             }
         }

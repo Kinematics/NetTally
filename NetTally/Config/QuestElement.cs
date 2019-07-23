@@ -136,9 +136,7 @@ namespace NetTally
             get { return (string)this["CustomPostFilters"]; }
             set { this["CustomPostFilters"] = value; }
         }
-        #endregion
 
-        #region Global tally options moved to per-quest.
         [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
         public bool WhitespaceAndPunctuationIsSignificant
         {
@@ -165,6 +163,13 @@ namespace NetTally
         {
             get { return (bool)this["ForbidVoteLabelPlanNames"]; }
             set { this["ForbidVoteLabelPlanNames"] = value; }
+        }
+
+        [ConfigurationProperty("AllowUsersToUpdatePlans", DefaultValue = false)]
+        public bool AllowUsersToUpdatePlans
+        {
+            get { return (bool)this["AllowUsersToUpdatePlans"]; }
+            set { this["AllowUsersToUpdatePlans"] = value; }
         }
 
         [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]

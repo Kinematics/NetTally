@@ -132,6 +132,10 @@ namespace NetTally
         /// </summary>
         bool ForbidVoteLabelPlanNames { get; set; }
         /// <summary>
+        /// Indicate whether users are allowed to update plans that they wrote in later posts.
+        /// </summary>
+        bool AllowUsersToUpdatePlans { get; set; }
+        /// <summary>
         /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
         /// </summary>
         bool DisableProxyVotes { get; set; }
