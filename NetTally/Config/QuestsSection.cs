@@ -73,6 +73,64 @@ namespace NetTally
             set { this["AllowRankedVotes"] = value; }
         }
 
+        [ConfigurationProperty("GlobalSpoilers", DefaultValue = false)]
+        public bool GlobalSpoilers
+        {
+            get { return (bool)this["GlobalSpoilers"]; }
+            set { this["GlobalSpoilers"] = value; }
+        }
+
+        [ConfigurationProperty("DisplayPlansWithNoVotes", DefaultValue = false)]
+        public bool DisplayPlansWithNoVotes
+        {
+            get { return (bool)this["DisplayPlansWithNoVotes"]; }
+            set { this["DisplayPlansWithNoVotes"] = value; }
+        }
+
+        [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
+        public DisplayMode DisplayMode
+        {
+            get
+            {
+                try
+                {
+                    return (DisplayMode)this["DisplayMode"];
+                }
+                catch (ConfigurationException)
+                {
+                    return DisplayMode.Normal;
+                }
+            }
+            set { this["DisplayMode"] = value; }
+        }
+
+        [ConfigurationProperty("DisableWebProxy", DefaultValue = false)]
+        public bool DisableWebProxy
+        {
+            get { return (bool)this["DisableWebProxy"]; }
+            set { this["DisableWebProxy"] = value; }
+        }
+
+        [ConfigurationProperty("AllowUsersToUpdatePlans", DefaultValue = BoolEx.Unknown)]
+        public BoolEx AllowUsersToUpdatePlans
+        {
+            get
+            {
+                try
+                {
+                    return (BoolEx)this["AllowUsersToUpdatePlans"];
+                }
+                catch (ConfigurationException)
+                {
+                    return BoolEx.Unknown;
+                }
+            }
+            set { this["AllowUsersToUpdatePlans"] = value; }
+        }
+
+        #endregion
+
+        #region Obsolete Properties
         [Obsolete("Moved to QuestElement")]
         [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
         public bool WhitespaceAndPunctuationIsSignificant
@@ -120,46 +178,7 @@ namespace NetTally
             get { return (bool)this["IgnoreSpoilers"]; }
             set { this["IgnoreSpoilers"] = value; }
         }
-
-        [ConfigurationProperty("GlobalSpoilers", DefaultValue = false)]
-        public bool GlobalSpoilers
-        {
-            get { return (bool)this["GlobalSpoilers"]; }
-            set { this["GlobalSpoilers"] = value; }
-        }
-
-        [ConfigurationProperty("DisplayPlansWithNoVotes", DefaultValue = false)]
-        public bool DisplayPlansWithNoVotes
-        {
-            get { return (bool)this["DisplayPlansWithNoVotes"]; }
-            set { this["DisplayPlansWithNoVotes"] = value; }
-        }
-
-        [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
-        public DisplayMode DisplayMode
-        {
-            get
-            {
-                try
-                {
-                    return (DisplayMode)this["DisplayMode"];
-                }
-                catch (ConfigurationException)
-                {
-                    return DisplayMode.Normal;
-                }
-            }
-            set { this["DisplayMode"] = value; }
-        }
-
-        [ConfigurationProperty("DisableWebProxy", DefaultValue = false)]
-        public bool DisableWebProxy
-        {
-            get { return (bool)this["DisableWebProxy"]; }
-            set { this["DisableWebProxy"] = value; }
-        }
-
-        #endregion
+        #endregion Obsolete Properties
 
         #region Loading and saving        
         /// <summary>
@@ -197,6 +216,7 @@ namespace NetTally
                         CaseIsSignificant = questElement.CaseIsSignificant,
                         ForcePlanReferencesToBeLabeled = questElement.ForcePlanReferencesToBeLabeled,
                         ForbidVoteLabelPlanNames = questElement.ForbidVoteLabelPlanNames,
+                        AllowUsersToUpdatePlans = questElement.AllowUsersToUpdatePlans,
                         DisableProxyVotes = questElement.DisableProxyVotes,
                         ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
                         IgnoreSpoilers = questElement.IgnoreSpoilers,
@@ -215,7 +235,7 @@ namespace NetTally
             if (options != null)
             {
                 options.DisplayMode = DisplayMode;
-                options.AllowRankedVotes = AllowRankedVotes;
+                options.AllowUsersToUpdatePlans = AllowUsersToUpdatePlans;
                 options.GlobalSpoilers = GlobalSpoilers;
                 options.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
                 options.DisableWebProxy = DisableWebProxy;
@@ -243,7 +263,7 @@ namespace NetTally
             if (options != null)
             {
                 DisplayMode = options.DisplayMode;
-                AllowRankedVotes = options.AllowRankedVotes;
+                AllowUsersToUpdatePlans = options.AllowUsersToUpdatePlans;
                 GlobalSpoilers = options.GlobalSpoilers;
                 DisplayPlansWithNoVotes = options.DisplayPlansWithNoVotes;
                 DisableWebProxy = options.DisableWebProxy;

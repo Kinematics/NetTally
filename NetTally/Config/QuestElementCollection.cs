@@ -64,6 +64,7 @@ namespace NetTally
                 CaseIsSignificant = quest.CaseIsSignificant,
                 ForcePlanReferencesToBeLabeled = quest.ForcePlanReferencesToBeLabeled,
                 ForbidVoteLabelPlanNames = quest.ForbidVoteLabelPlanNames,
+                AllowUsersToUpdatePlans = quest.AllowUsersToUpdatePlans,
                 DisableProxyVotes = quest.DisableProxyVotes,
                 ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes,
                 IgnoreSpoilers = quest.IgnoreSpoilers,

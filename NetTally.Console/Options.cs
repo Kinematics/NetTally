@@ -59,6 +59,9 @@ namespace NetTally.CLI
         [Option("nolabelplans", Default = false, HelpText = "Forbid vote label plan names.")]
         public bool ForbidPlanLabels { get; set; }
 
+        [Option("canupdateplans", Default = false, HelpText = "Allow users to update plans they wrote in later posts.")]
+        public bool AllowUsersToUpdatePlans { get; set; }
+
         [Option("mustlabelplans", Default = false, HelpText = "Plan references must be labeled as such.")]
         public bool MustLabelPlanReferences { get; set; }
 
