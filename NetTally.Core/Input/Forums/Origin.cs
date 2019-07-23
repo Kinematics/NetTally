@@ -13,6 +13,7 @@ namespace NetTally.Forums
         public int ThreadPostNumber { get; }
         public Uri Thread { get; }
         public string Permalink { get; }
+        public Origin Source { get; }
 
         public static Origin Empty = new Origin("", "0", 0, new Uri("http://www.example.com/"), "http://www.example.com/");
 
@@ -28,10 +29,11 @@ namespace NetTally.Forums
             ThreadPostNumber = postNumber;
             Thread = thread;
             Permalink = permalink;
+            Source = Empty;
             hash = ComputeHash();
         }
 
-        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, Uri thread, string permalink)
+        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, Uri thread, string permalink, Origin source)
         {
             Author = author;
             AuthorType = identityType;
@@ -39,6 +41,7 @@ namespace NetTally.Forums
             ThreadPostNumber = postNumber;
             Thread = thread;
             Permalink = permalink;
+            Source = source;
             hash = ComputeHash();
         }
 
@@ -52,13 +55,14 @@ namespace NetTally.Forums
             ThreadPostNumber = 0;
             Thread = exampleUri;
             Permalink = "";
+            Source = Empty;
 
             hash = ComputeHash();
         }
 
         public Origin GetPlanOrigin(string planName)
         {
-            return new Origin(planName, IdentityType.Plan, ID, ThreadPostNumber, Thread, Permalink);
+            return new Origin(planName, IdentityType.Plan, ID, ThreadPostNumber, Thread, Permalink, this);
         }
         #endregion
 
