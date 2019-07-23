@@ -49,6 +49,7 @@ namespace NetTally.Tests.Tallying
         }
         #endregion
 
+        #region Basics
         [TestMethod]
         public async Task Check_Tally_Adds_Normal()
         {
@@ -162,7 +163,9 @@ namespace NetTally.Tests.Tallying
 
             Assert.AreEqual(2, voters1.Count());
         }
+        #endregion Basics
 
+        #region Replacements
         [TestMethod]
         public async Task Reprocess_Doesnt_Stack_Lines()
         {
@@ -284,6 +287,91 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
         }
 
+        [TestMethod]
+        public async Task Check_User_Proxy_Only_Proposed_Plan()
+        {
+            string postText1 =
+@"[X] Proposed Plan: Experiment
+-[X] Add this to your list of experiments for today.
+-[X] This is fine by you.
+--[X] At least for today.";
+            string postText2 =
+@"[X] Brogatar";
+
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+
+            Assert.IsTrue(post1.HasVote);
+            Assert.IsTrue(post2.HasVote);
+
+            List<Post> posts = new List<Post>() { post1, post2 };
+
+            quest.PartitionMode = PartitionMode.None;
+
+            await tally.TallyPosts(posts, quest, CancellationToken.None);
+
+            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+
+            Assert.AreEqual(2, allVotes.Count);
+
+            Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+        }
+
+        [TestMethod]
+        public async Task Check_Original_User_Can_Replace_Plan()
+        {
+            string postText1 =
+@"[X] Plan: Experiment
+-[X] Add this to your list of experiments for today.
+-[X] This is fine by you.
+--[X] At least for today.";
+            string postText2 =
+@"[X] Plan: Experiment
+-[X] Alchemy structure
+-[X] Pea soup
+--[X] At least for today.";
+
+            quest.PartitionMode = PartitionMode.None;
+            quest.AllowUsersToUpdatePlans = true;
+            voteCounter.Quest = quest;
+            List<Post> posts;
+
+            Post post1 = new Post(origin1, postText1);
+            Post post2 = new Post(origin2, postText2);
+            Post post3 = new Post(origin3, postText2);
+            Post post4 = new Post(origin1a, postText2);
+
+            posts = new List<Post>() { post1, post2 };
+            voteCounter.AddPosts(posts);
+            var plans = await tally.PreprocessPosts(default);
+
+            Assert.AreEqual(1, plans.Count);
+            Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
+
+            voteCounter.Reset();
+            posts = new List<Post>() { post1, post2, post3 };
+            voteCounter.AddPosts(posts);
+            plans = await tally.PreprocessPosts(default);
+
+            Assert.AreEqual(1, plans.Count);
+            Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
+
+            voteCounter.Reset();
+            posts = new List<Post>() { post1, post2, post3, post4 };
+            voteCounter.AddPosts(posts);
+            plans = await tally.PreprocessPosts(default);
+
+            Assert.AreEqual(1, plans.Count);
+            Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);
+        }
+        #endregion Replacements
+
+        #region Callouts as proxies
         [TestMethod]
         public async Task Check_Callout_Links_With_At_As_Plan()
         {
@@ -419,42 +507,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
             Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
         }
+        #endregion Callouts as proxies
 
-        [TestMethod]
-        public async Task Check_User_Proxy_Only_Proposed_Plan()
-        {
-            string postText1 =
-@"[X] Proposed Plan: Experiment
--[X] Add this to your list of experiments for today.
--[X] This is fine by you.
---[X] At least for today.";
-            string postText2 =
-@"[X] Brogatar";
-
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
-
-            Assert.IsTrue(post1.HasVote);
-            Assert.IsTrue(post2.HasVote);
-
-            List<Post> posts = new List<Post>() { post1, post2 };
-
-            quest.PartitionMode = PartitionMode.None;
-
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
-
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
-
-            Assert.AreEqual(2, allVotes.Count);
-
-            Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
-
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
-            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
-        }
-
+        #region Future references
         [TestMethod]
         public async Task Check_Future_Reference_Handling_Normal()
         {
@@ -531,6 +586,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
             Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
         }
+        #endregion Future references
 
         #region Test general vote matching
         public async Task Test_Votes_Match(string text1, string text2)
