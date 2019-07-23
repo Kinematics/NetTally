@@ -291,7 +291,6 @@ namespace NetTally.Web
                     httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
                 }
 
-                HttpResponseMessage response;
                 Task<HttpResponseMessage>? getResponseTask = null;
 
                 do
@@ -314,7 +313,7 @@ namespace NetTally.Web
                         getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
                         logger.LogDebug($"Get URI {uri} task ID: {getResponseTask.Id}");
 
-                        using (response = await getResponseTask.ConfigureAwait(false))
+                        using (var response = await getResponseTask.ConfigureAwait(false))
                         {
                             if (response.IsSuccessStatusCode)
                             {
@@ -456,10 +455,7 @@ namespace NetTally.Web
                         // the server thinks the URL should be.
                         using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
-                            if (response.IsSuccessStatusCode)
-                            {
-                                return response.RequestMessage.RequestUri;
-                            }
+                            return response.RequestMessage.RequestUri;
                         }
                     }
                     catch (HttpRequestException e)

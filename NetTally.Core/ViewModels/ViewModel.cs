@@ -486,7 +486,7 @@ namespace NetTally.ViewModels
         /// listeners that it happened.
         /// </summary>
         /// <param name="parameter"></param>
-        private async Task DoRunTallyAsync(object? parameter)
+        public async Task DoRunTallyAsync(object? parameter)
         {
             try
             {

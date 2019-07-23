@@ -491,15 +491,15 @@ namespace NetTally.VoteCounting
                         // Set to an undefined marker.
                         (string normalPlanName, VoteLineBlock normalPlanContents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
 
-                        bool added = voteCounter.AddReferencePlan(post.Origin.GetPlanOrigin(normalPlanName), normalPlanContents);
+                        var planOrigin = post.Origin.GetPlanOrigin(normalPlanName);
+
+                        bool added = voteCounter.AddReferencePlan(planOrigin, normalPlanContents);
 
                         if (added)
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
                             var planPartitions = voteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
-
-                            var planOrigin = post.Origin.GetPlanOrigin(normalPlanName);
 
                             voteCounter.AddVotes(planPartitions, planOrigin);
 

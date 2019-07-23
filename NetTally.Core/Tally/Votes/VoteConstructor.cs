@@ -252,9 +252,19 @@ namespace NetTally.Votes
                         {
                             var voteBlocks = voteCounter.GetVotesBy(refName);
 
-                            foreach (var voteBlock in voteBlocks)
+                            if (voteBlocks.Count > 0)
                             {
-                                workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                                foreach (var voteBlock in voteBlocks)
+                                {
+                                    workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                                }
+                            }
+                            else
+                            {
+                                // If the user being referenced doesn't actually have any vote,
+                                // just add the line directly.  This is most likely due to the
+                                // referenced user just proposing a plan, but not making a vote.
+                                workingVote.Add((currentLine, null));
                             }
                         }
                     }
@@ -582,9 +592,16 @@ namespace NetTally.Votes
                 }
             }
 
-            VoteLineBlock workingBlock = new VoteLineBlock(working);
+            List<VoteLineBlock> results = new List<VoteLineBlock>();
 
-            return new List<VoteLineBlock>() { workingBlock };
+            if (working.Count > 0)
+            {
+                VoteLineBlock workingBlock = new VoteLineBlock(working);
+
+                results.Add(workingBlock);
+            }
+
+            return results;
         }
 
         /// <summary>
@@ -696,7 +713,9 @@ namespace NetTally.Votes
             return working;
         }
 
-        private VoteLineBlock CascadeLineTask(VoteLine line, ref (int depth, string task) currentTask, ref Stack<(int depth, string task)> taskStack)
+        private VoteLineBlock CascadeLineTask(VoteLine line,
+            ref (int depth, string task) currentTask,
+            ref Stack<(int depth, string task)> taskStack)
         {
             // If we have no task, and the line has no task, do nothing.
             if (line.Task.Length == 0 && currentTask.task.Length == 0)
