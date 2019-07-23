@@ -431,10 +431,10 @@ namespace NetTally.VoteCounting
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        public async Task PreprocessPosts(CancellationToken token)
+        public async Task<Dictionary<string, VoteLineBlock>> PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
-                return;
+                return new Dictionary<string, VoteLineBlock>();
 
             foreach (var post in voteCounter.Posts)
             {
@@ -459,6 +459,8 @@ namespace NetTally.VoteCounting
             var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
 
             await Task.FromResult(0);
+
+            return allPlans;
         }
 
 
