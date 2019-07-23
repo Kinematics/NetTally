@@ -54,7 +54,8 @@ namespace NetTally.Options
         #region Properties and associated fields
         DisplayMode displayMode = DisplayMode.Normal;
 
-        bool allowRankedVotes = true;
+        [Obsolete("No longer used")]
+        readonly bool allowRankedVotes = true;
         RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
 
         [Obsolete("Invert usage")]
