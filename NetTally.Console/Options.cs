@@ -32,6 +32,9 @@ namespace NetTally.CLI
         [Option("display", Default = DisplayMode.SpoilerVoters, HelpText = "The display mode to use for output. Case sensitive.  Values: SpoilerAll (default), Normal, Compact, NormalNoVoters, CompactNoVoters")]
         public DisplayMode DisplayMode { get; set; }
 
+        [Option("spoilerall", Default = false, HelpText = "Wrap spoilers around the entire displayed output.")]
+        public bool SpoilerAll { get; set; }
+
         [Option("threadmarkfilters", HelpText = "Filters used on threadmark titles.")]
         public string ThreadmarkFilters { get; set; } = "";
 
@@ -50,26 +53,32 @@ namespace NetTally.CLI
         [Option("whitespace", Default = false, HelpText = "Treat whitespace and punctuation as significant.")]
         public bool Whitespace { get; set; }
 
-        [Option("case", Default = false, HelpText = "Treat case as significant (this includes the x in votes).")]
+        [Option("case", Default = false, HelpText = "Treat case as significant.")]
         public bool Case { get; set; }
 
-        [Option("noplanlabels", Default = false, HelpText = "Forbid vote label plan names.")]
+        [Option("nolabelplans", Default = false, HelpText = "Forbid vote label plan names.")]
         public bool ForbidPlanLabels { get; set; }
 
-        [Option("noproxy", Default = false, HelpText = "Disable user proxy votes.")]
-        public bool NoProxy { get; set; }
+        [Option("mustlabelplans", Default = false, HelpText = "Plan references must be labeled as such.")]
+        public bool MustLabelPlanReferences { get; set; }
 
-        [Option("pinproxy", Default = false, HelpText = "Treat all user proxy votes as pinned.")]
-        public bool PinProxy { get; set; }
+        [Option("nouserproxy", Default = false, HelpText = "Disable user proxy votes.")]
+        public bool NoUserProxy { get; set; }
 
-        [Option("nospoilers", Default = false, HelpText = "Ignore spoilers when reading posts.")]
-        public bool NoSpoilers { get; set; }
+        [Option("forcepinproxy", Default = false, HelpText = "Treat all user proxy votes as pinned.")]
+        public bool ForcePinProxy { get; set; }
+
+        [Option("ignorespoilers", Default = false, HelpText = "Ignore spoilers when reading posts.")]
+        public bool IgnoreSpoilers { get; set; }
 
         [Option("trim", Default = false, HelpText = "Trim extended vote lines.")]
         public bool Trim { get; set; }
 
-        [Option("noranks", Default = false, HelpText = "Do not allow ranked voting.")]
-        public bool NoRanks { get; set; }
+        [Option("display0votes", Default = false, HelpText = "Display plans that do not have any user votes.")]
+        public bool Display0Votes { get; set; }
+
+        [Option("disablewebproxy", Default = false, HelpText = "Disable use of internal web proxy when loading web pages.")]
+        public bool DisableWebProxy { get; set; }
 
         [Option("debug", Default = false, Hidden = true, HelpText = "Enable debug mode.")]
         public bool Debug { get; set; }
