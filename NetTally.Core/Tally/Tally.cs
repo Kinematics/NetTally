@@ -505,7 +505,7 @@ namespace NetTally.VoteCounting
 
                             voteCounter.AddVotes(planPartitions, planOrigin);
 
-                            allPlans.Add(normalPlanName, normalPlanContents);
+                            allPlans[normalPlanName] = normalPlanContents;
                         }
                     }
                 }
