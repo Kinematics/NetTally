@@ -179,7 +179,7 @@ namespace NetTally.VoteCounting
             }
             else if (
                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.True ||
-                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest!.AllowUsersToUpdatePlans)) &&
+                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans)) &&
                       ReferenceOrigins.TryGetValue(planOrigin, out Origin currentOrigin)
                     )
             {
