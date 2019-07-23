@@ -349,7 +349,7 @@ namespace NetTally.Forums.Adapters
                         {
                             string redirect = await pageProvider.GetRedirectUrlAsync(
                                 href, "RSS Link", CachingMode.BypassCache, ShouldCache.Yes,
-                                SuppressNotifications.No, token).ConfigureAwait(false);
+                                SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                             if (!string.IsNullOrEmpty(redirect) && redirect != href)
                             {

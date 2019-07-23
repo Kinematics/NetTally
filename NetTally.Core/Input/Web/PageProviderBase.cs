@@ -22,7 +22,6 @@ namespace NetTally.Web
         protected HttpClientHandler ClientHandler { get; }
         protected IClock Clock { get; }
         protected ICache<string> Cache { get; }
-
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
         #endregion
 
