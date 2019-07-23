@@ -10,6 +10,7 @@
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
         <converters:RankCountingModeConverter x:Key="RankCountingModeConverter"></converters:RankCountingModeConverter>
+        <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"></converters:ThreeStateBoolConverter>
     </Window.Resources>
 
     <Grid>
@@ -23,7 +24,7 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
 
-        <Label x:Name="labelGeneral" Content="Ranked Votes" HorizontalAlignment="Left" Margin="10,2,0,0" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
+        <Label x:Name="labelGeneral" Content="Vote Processing" HorizontalAlignment="Left" Margin="10,2,0,0" Grid.Row="1" Height="26" VerticalAlignment="Top"/>
         <ComboBox x:Name="rankedVoteAlgorithm" Margin="33,35,0,0" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
                   ItemsSource="{Binding Path=RankVoteCountingModes}" SelectedIndex="{Binding Path=Options.RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}"
                   VerticalContentAlignment="Center" IsEnabled="{Binding ElementName=allowRankedVotes, Path=IsChecked}">
@@ -34,17 +35,21 @@
                 </Style>
             </ComboBox.ItemContainerStyle>
         </ComboBox>
+        <CheckBox Grid.Column="0" x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0" Grid.Row="1"
+                              IsChecked="{Binding Path=Options.AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
 
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,87,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,114,0,0" Grid.Row="1" VerticalAlignment="Top"
+
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,97,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,125,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.GlobalSpoilers}"/>
-        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,135,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,145,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,179,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,180,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,208,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisableWebProxy}" />
-        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,230,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,228,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -56,6 +61,13 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowUsersToUpdatePlans, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Users to Update Plans"/>
+            <TextBlock TextWrapping="Wrap" Text="When set to true, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+            <TextBlock TextWrapping="Wrap" Text="When set to false, users are not allowed to make such changes."/>
+            <TextBlock TextWrapping="Wrap" Text="When set to indeterminate, the quest-specific setting is used instead."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to indeterminate."/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">

@@ -54,7 +54,8 @@ namespace NetTally.Options
         #region Properties and associated fields
         DisplayMode displayMode = DisplayMode.Normal;
 
-        bool allowRankedVotes = true;
+        [Obsolete("No longer used")]
+        readonly bool allowRankedVotes = true;
         RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
 
         [Obsolete("Invert usage")]
@@ -70,6 +71,7 @@ namespace NetTally.Options
 
         bool globalSpoilers = false;
         bool displayPlansWithNoVotes = false;
+        BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
 
         bool disableWebProxy = false;
         bool debugMode = false;
@@ -95,15 +97,6 @@ namespace NetTally.Options
 
         #region General Options
         /// <summary>
-        /// Whether or not to parse ranked votes in a tally.
-        /// </summary>
-        public bool AllowRankedVotes
-        {
-            get { return true; }
-            set { }
-        }
-
-        /// <summary>
         /// Gets or sets the rank vote counter method.
         /// </summary>
         /// <value>
@@ -114,89 +107,14 @@ namespace NetTally.Options
             get { return rankVoteCounterMethod; }
             set { SetProperty(ref rankVoteCounterMethod, value); }
         }
-        #endregion
-
-        #region Formatting Options
-        /// <summary>
-        /// Flag whether to allow label lines on votes to be plan names.
-        /// </summary>
-        [Obsolete("Invert usage")]
-        public bool AllowVoteLabelPlanNames
-        {
-            get { return allowVoteLabelPlanNames; }
-            set { SetProperty(ref allowVoteLabelPlanNames, value); }
-        }
 
         /// <summary>
-        /// Flag whether to allow label lines on votes to be plan names.
+        /// Flag whether to always put spoiler tags around all forms of display output.
         /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool ForbidVoteLabelPlanNames
+        public BoolEx AllowUsersToUpdatePlans
         {
-            get { return forbidVoteLabelPlanNames; }
-            set { SetProperty(ref forbidVoteLabelPlanNames, value); }
-        }
-
-        /// <summary>
-        /// Whether or not to ignore whitespace and symbols when
-        /// doing vote and voter comparisons.
-        /// </summary>
-        [Obsolete("Invert usage")]
-        public bool IgnoreSymbols
-        {
-            get { return ignoreSymbols; }
-            set { SetProperty(ref ignoreSymbols, value); }
-        }
-
-        /// <summary>
-        /// Whether or not whitespace and punctuation is considered significant when
-        /// doing vote and voter comparisons.
-        /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool WhitespaceAndPunctuationIsSignificant
-        {
-            get { return whitespaceAndPunctuationIsSignificant; }
-            set { SetProperty(ref whitespaceAndPunctuationIsSignificant, value); }
-        }
-
-        /// <summary>
-        /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
-        /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool DisableProxyVotes
-        {
-            get { return disableProxyVotes; }
-            set { SetProperty(ref disableProxyVotes, value); }
-        }
-
-        /// <summary>
-        /// Flag whether to force all user proxy votes to be pinned.
-        /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool ForcePinnedProxyVotes
-        {
-            get { return forcePinnedProxyVotes; }
-            set { SetProperty(ref forcePinnedProxyVotes, value); }
-        }
-
-        /// <summary>
-        /// Whether or not to ignore spoiler blocks when parsing.
-        /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool IgnoreSpoilers
-        {
-            get { return ignoreSpoilers; }
-            set { SetProperty(ref ignoreSpoilers, value); }
-        }
-
-        /// <summary>
-        /// Whether or not to trim extended text from vote lines.
-        /// </summary>
-        [Obsolete("Moved to Quest")]
-        public bool TrimExtendedText
-        {
-            get { return trimExtendedText; }
-            set { SetProperty(ref trimExtendedText, value); }
+            get { return allowUsersToUpdatePlans; }
+            set { SetProperty(ref allowUsersToUpdatePlans, value); }
         }
         #endregion
 
@@ -294,6 +212,100 @@ namespace NetTally.Options
             return true;
         }
         #endregion
+
+        #region Obsolete Options
+        /// <summary>
+        /// Whether or not to parse ranked votes in a tally.
+        /// </summary>
+        [Obsolete("No longer used")]
+        public bool AllowRankedVotes
+        {
+            get { return true; }
+            set { }
+        }
+
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        [Obsolete("Invert usage")]
+        public bool AllowVoteLabelPlanNames
+        {
+            get { return allowVoteLabelPlanNames; }
+            set { SetProperty(ref allowVoteLabelPlanNames, value); }
+        }
+
+        /// <summary>
+        /// Flag whether to allow label lines on votes to be plan names.
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool ForbidVoteLabelPlanNames
+        {
+            get { return forbidVoteLabelPlanNames; }
+            set { SetProperty(ref forbidVoteLabelPlanNames, value); }
+        }
+
+        /// <summary>
+        /// Whether or not to ignore whitespace and symbols when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        [Obsolete("Invert usage")]
+        public bool IgnoreSymbols
+        {
+            get { return ignoreSymbols; }
+            set { SetProperty(ref ignoreSymbols, value); }
+        }
+
+        /// <summary>
+        /// Whether or not whitespace and punctuation is considered significant when
+        /// doing vote and voter comparisons.
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool WhitespaceAndPunctuationIsSignificant
+        {
+            get { return whitespaceAndPunctuationIsSignificant; }
+            set { SetProperty(ref whitespaceAndPunctuationIsSignificant, value); }
+        }
+
+        /// <summary>
+        /// Flag whether to disable proxy votes (voting for another user to import their vote to your own).
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool DisableProxyVotes
+        {
+            get { return disableProxyVotes; }
+            set { SetProperty(ref disableProxyVotes, value); }
+        }
+
+        /// <summary>
+        /// Flag whether to force all user proxy votes to be pinned.
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool ForcePinnedProxyVotes
+        {
+            get { return forcePinnedProxyVotes; }
+            set { SetProperty(ref forcePinnedProxyVotes, value); }
+        }
+
+        /// <summary>
+        /// Whether or not to ignore spoiler blocks when parsing.
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool IgnoreSpoilers
+        {
+            get { return ignoreSpoilers; }
+            set { SetProperty(ref ignoreSpoilers, value); }
+        }
+
+        /// <summary>
+        /// Whether or not to trim extended text from vote lines.
+        /// </summary>
+        [Obsolete("Moved to Quest")]
+        public bool TrimExtendedText
+        {
+            get { return trimExtendedText; }
+            set { SetProperty(ref trimExtendedText, value); }
+        }
+        #endregion Obsolete Options
 
     }
 }

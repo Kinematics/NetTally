@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Extensions;
 using NetTally.Forums;
+using NetTally.Options;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting
@@ -14,10 +15,12 @@ namespace NetTally.VoteCounting
     public class VoteCounter : IVoteCounter
     {
         readonly ILogger<VoteCounter> logger;
+        readonly IGlobalOptions globalOptions;
 
-        public VoteCounter(ILoggerFactory loggerFactory)
+        public VoteCounter(ILoggerFactory loggerFactory, IGlobalOptions globalOptions)
         {
             logger = loggerFactory.CreateLogger<VoteCounter>();
+            this.globalOptions = globalOptions;
         }
 
         #region Data Collections
@@ -168,10 +171,37 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if it was added, or false if it already exists.</returns>
         public bool AddReferencePlan(Origin planOrigin, VoteLineBlock plan)
         {
+            // If it doesn't exist, we can just add it.
             if (ReferenceOrigins.Add(planOrigin))
             {
                 ReferencePlans.Add(planOrigin, plan);
                 return true;
+            }
+            else if (
+                      (globalOptions.AllowUsersToUpdatePlans == BoolEx.True ||
+                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest!.AllowUsersToUpdatePlans)) &&
+                      ReferenceOrigins.TryGetValue(planOrigin, out Origin currentOrigin)
+                    )
+            {
+                // Author can replace existing version of a plan he wrote on conditions:
+                // - Options allow plan replacement
+                // - Plan written by same author
+                // - Plan has the same name (surrounding if check, which includes identity type)
+                // - New plan is in a later post than the previous
+                // - New plan is more than one line (ie: not simply re-voting for the existing version)
+                // - Content of the plan is different
+
+                if (planOrigin.Source != Origin.Empty && planOrigin.Source == currentOrigin.Source &&
+                    planOrigin.ID > currentOrigin.ID &&
+                    plan.Lines.Count > 1 && 
+                    ReferencePlans.TryGetValue(currentOrigin, out VoteLineBlock currentPlan) &&
+                    plan != currentPlan)
+                {
+                    ReferenceOrigins.Remove(currentOrigin);
+                    ReferenceOrigins.Add(planOrigin);
+                    ReferencePlans[planOrigin] = plan;
+                    return true;
+                }
             }
 
             return false;

@@ -11,8 +11,11 @@ namespace NetTally.Options
     {
         bool DisableWebProxy { get; set; }
 
+        [Obsolete("No longer used")]
         bool AllowRankedVotes { get; set; }
         RankVoteCounterMethod RankVoteCounterMethod { get; set; }
+
+        BoolEx AllowUsersToUpdatePlans { get; set; }
 
         DisplayMode DisplayMode { get; set; }
         bool GlobalSpoilers { get; set; }
