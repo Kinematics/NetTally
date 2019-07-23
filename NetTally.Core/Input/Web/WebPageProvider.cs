@@ -456,10 +456,6 @@ namespace NetTally.Web
                         using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
                             return response.RequestMessage.RequestUri;
-
-                            if (response.IsSuccessStatusCode)
-                            {
-                            }
                         }
                     }
                     catch (HttpRequestException e)
