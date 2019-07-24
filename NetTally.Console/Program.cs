@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
-using System.Threading.Tasks;
-using NetTally.CustomEventArgs;
-using NetTally.ViewModels;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTally.CustomEventArgs;
+using NetTally.ViewModels;
 
 namespace NetTally.CLI
 {
@@ -17,7 +15,7 @@ namespace NetTally.CLI
         static bool verbose;
 
         static IServiceProvider serviceProvider;
-        static Microsoft.Extensions.Logging.ILogger logger;
+        static ILogger<Program> logger;
         #endregion
 
         #region Main entry point
