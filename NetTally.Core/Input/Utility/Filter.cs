@@ -11,11 +11,6 @@ namespace NetTally.Input.Utility
     /// </summary>
     public class Filter
     {
-        #region Public Static
-        const string OmakeFilter = @"\bomake\b";
-        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, null);
-        #endregion
-
         #region Class Fields
         readonly Regex filterRegex;
 
@@ -34,6 +29,11 @@ namespace NetTally.Input.Utility
         /// require a negative lookahead for a value that is followed by that value.
         /// </summary>
         static readonly Regex alwaysFalse = new Regex(@"^(?!x)x");
+        #endregion
+
+        #region Public Static
+        const string OmakeFilter = @"\bomake\b";
+        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, null);
         #endregion
 
         #region Constructors
