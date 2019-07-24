@@ -673,7 +673,7 @@ namespace NetTally.Forums.Adapters
                 Logger.Error("Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?", e);
             }
 
-            return new List<HtmlNode>();
+            return Enumerable.Empty<HtmlNode>();
         }
         #endregion
 
