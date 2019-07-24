@@ -44,16 +44,16 @@ namespace NetTally.Forums
                     return new XenForo1Adapter2();
                 case ForumType.XenForo2:
                     return new XenForo2Adapter2();
-                //case ForumType.vBulletin3:
-                //    return new vBulletin3Adapter(uri);
-                //case ForumType.vBulletin4:
-                //    return new vBulletin4Adapter(uri);
-                //case ForumType.vBulletin5:
-                //    return new vBulletin5Adapter(uri);
+                case ForumType.vBulletin3:
+                    return new VBulletin3Adapter2();
+                case ForumType.vBulletin4:
+                    return new VBulletin4Adapter2();
+                case ForumType.vBulletin5:
+                    return new VBulletin5Adapter2();
                 //case ForumType.phpBB:
-                //    return new phpBBAdapter(uri);
+                //    return new PhpBBAdapter2();
                 //case ForumType.NodeBB:
-                //    return new NodeBBAdapter(uri);
+                //    return new NodeBBAdapter2();
                 case ForumType.Unknown:
                     return new UnknownForumAdapter2();
                 default:

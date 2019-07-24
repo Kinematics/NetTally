@@ -108,7 +108,7 @@ namespace NetTally.Forums
         /// <returns>Returns the quest's thread range info.</returns>
         private async Task<ThreadRangeInfo> GetStartInfoAsync(IQuest quest, IForumAdapter2 adapter, CancellationToken token)
         {
-            ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfo(quest, pageProvider, token).ConfigureAwait(false);
+            ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfoAsync(quest, pageProvider, token).ConfigureAwait(false);
 
             return rangeInfo;
         }

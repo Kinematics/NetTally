@@ -15,7 +15,7 @@ namespace NetTally.Forums.Adapters2
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx GetHasRssThreadmarksFeed(Uri uri) => BoolEx.False;
         public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest) => Enumerable.Empty<Post>();
-        public Task<ThreadRangeInfo> GetQuestRangeInfo(IQuest quest, IPageProvider pageProvider, CancellationToken token) 
+        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token) 
             => Task.FromResult(new ThreadRangeInfo(false, 0));
         public ThreadInfo GetThreadInfo(HtmlDocument page) => new ThreadInfo("Unknown", "Unknown", 1);
         public string GetUrlForPage(Uri uri, int page) => "";

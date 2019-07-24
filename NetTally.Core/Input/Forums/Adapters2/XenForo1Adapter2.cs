@@ -115,7 +115,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public async Task<ThreadRangeInfo> GetQuestRangeInfo(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
