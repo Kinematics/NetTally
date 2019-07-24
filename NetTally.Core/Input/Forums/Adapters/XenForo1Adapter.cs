@@ -584,7 +584,7 @@ namespace NetTally.Forums.Adapters
                         if (threadmarkList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
                         {
                             if (!threadmarkList.HasClass("ThreadmarkCategory_1"))
-                                return new List<HtmlNode>();
+                                return Enumerable.Empty<HtmlNode>();
                         }
 
                         listOfThreadmarks = threadmarkList;
@@ -620,7 +620,7 @@ namespace NetTally.Forums.Adapters
                 Logger.Error("Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?", e);
             }
 
-            return new List<HtmlNode>();
+            return Enumerable.Empty<HtmlNode>();
         }
         #endregion
 
