@@ -11,6 +11,11 @@ namespace NetTally.Input.Utility
     /// </summary>
     public class Filter
     {
+        #region Public Static
+        const string OmakeFilter = @"\bomake\b";
+        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, null);
+        #endregion
+
         #region Class Fields
         readonly Regex filterRegex;
 
