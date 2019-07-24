@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Forums.Adapters;
+using NetTally.Forums.Adapters2;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -18,7 +18,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
         /// <param name="token">A cancellation token for if we need to make a web request.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async Task<IForumAdapter> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<IForumAdapter2> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest.ThreadUri == null)
                 throw new InvalidOperationException("Quest has no valid web host.");
@@ -36,26 +36,26 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="forumType">The type of forum being requested.</param>
         /// <returns>Returns a forum adapter matching the requested forum type.</returns>
-        public IForumAdapter CreateForumAdapter(ForumType forumType, Uri uri)
+        public IForumAdapter2 CreateForumAdapter(ForumType forumType, Uri uri)
         {
             switch (forumType)
             {
                 case ForumType.XenForo1:
-                    return new XenForo1Adapter(uri);
+                    return new XenForo1Adapter2();
                 case ForumType.XenForo2:
-                    return new XenForo2Adapter(uri);
-                case ForumType.vBulletin3:
-                    return new vBulletin3Adapter(uri);
-                case ForumType.vBulletin4:
-                    return new vBulletin4Adapter(uri);
-                case ForumType.vBulletin5:
-                    return new vBulletin5Adapter(uri);
-                case ForumType.phpBB:
-                    return new phpBBAdapter(uri);
-                case ForumType.NodeBB:
-                    return new NodeBBAdapter(uri);
+                    return new XenForo2Adapter2();
+                //case ForumType.vBulletin3:
+                //    return new vBulletin3Adapter(uri);
+                //case ForumType.vBulletin4:
+                //    return new vBulletin4Adapter(uri);
+                //case ForumType.vBulletin5:
+                //    return new vBulletin5Adapter(uri);
+                //case ForumType.phpBB:
+                //    return new phpBBAdapter(uri);
+                //case ForumType.NodeBB:
+                //    return new NodeBBAdapter(uri);
                 case ForumType.Unknown:
-                    return new UnknownForumAdapter();
+                    return new UnknownForumAdapter2();
                 default:
                     throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
             }

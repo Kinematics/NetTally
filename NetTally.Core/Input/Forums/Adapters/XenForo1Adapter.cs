@@ -16,7 +16,7 @@ namespace NetTally.Forums.Adapters
     /// <summary>
     /// Class for extracting data from XenForo forum threads.
     /// </summary>
-    class XenForo1Adapter : IForumAdapter
+    class XenForo1Adapter : IForumAdapter1
     {
         #region Constructor
         /// <summary>

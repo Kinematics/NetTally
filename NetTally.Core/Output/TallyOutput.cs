@@ -29,7 +29,7 @@ namespace NetTally.Output
         readonly IVoteCounter voteCounter;
         readonly IGeneralOutputOptions outputOptions;
         readonly IRankVoteCounter2 rankVoteCounter;
-        readonly IForumAdapter forumAdapter;
+        readonly IForumAdapter2 forumAdapter;
 
         DisplayMode displayMode;
         IQuest quest = new Quest();
@@ -540,7 +540,7 @@ namespace NetTally.Output
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
         /// </summary>
-        public string LineBreak => forumAdapter.LineBreak;
+        public string LineBreak => forumAdapter.GetDefaultLineBreak(quest.ThreadUri!);
 
         /// <summary>
         /// Get the double line break.  There are no alternate versions right now.

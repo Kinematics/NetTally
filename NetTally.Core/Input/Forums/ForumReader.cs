@@ -60,7 +60,7 @@ namespace NetTally.Forums
         /// <returns>Returns a list of posts extracted from the quest.</returns>
         public async Task<(string threadTitle, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
-            IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
+            IForumAdapter2 adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
 
             SyncQuestWithForumAdapter(quest, adapter);
 
@@ -89,12 +89,12 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="quest">The quest to sync up.</param>
         /// <param name="adapter">The forum adapter created for the quest.</param>
-        private void SyncQuestWithForumAdapter(IQuest quest, IForumAdapter adapter)
+        private void SyncQuestWithForumAdapter(IQuest quest, IForumAdapter2 adapter)
         {
             if (quest.PostsPerPage == 0)
-                quest.PostsPerPage = adapter.DefaultPostsPerPage;
+                quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri!);
 
-            if (adapter.HasRSSThreadmarks == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
+            if (adapter.GetHasRssThreadmarksFeed(quest.ThreadUri!) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
         }
 
@@ -106,9 +106,9 @@ namespace NetTally.Forums
         /// <param name="adapter">The quest's forum adapter.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the quest's thread range info.</returns>
-        private async Task<ThreadRangeInfo> GetStartInfoAsync(IQuest quest, IForumAdapter adapter, CancellationToken token)
+        private async Task<ThreadRangeInfo> GetStartInfoAsync(IQuest quest, IForumAdapter2 adapter, CancellationToken token)
         {
-            ThreadRangeInfo rangeInfo = await adapter.GetStartingPostNumberAsync(quest, pageProvider, token).ConfigureAwait(false);
+            ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfo(quest, pageProvider, token).ConfigureAwait(false);
 
             return rangeInfo;
         }
@@ -122,7 +122,7 @@ namespace NetTally.Forums
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of tasks that are handling the async loading of the requested pages.</returns>
         private async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(
-            IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
+            IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
             var (firstPageNumber, lastPageNumber, pagesToScan) = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
 
@@ -134,7 +134,7 @@ namespace NetTally.Forums
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
-                              let pageUrl = adapter.GetUrlForPage(pageNum, quest.PostsPerPage)
+                              let pageUrl = adapter.GetUrlForPage(quest.ThreadUri!, pageNum)
                               let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
                               select pageProvider.GetHtmlDocumentAsync(
                                   pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
@@ -155,7 +155,7 @@ namespace NetTally.Forums
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a tuple of the page number info that was determined.</returns>
         private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
-            IQuest quest, IForumAdapter adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
+            IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
             int lastPageNumber = 0;
@@ -172,7 +172,7 @@ namespace NetTally.Forums
                 // then we need to load the first page to find out how many pages there are in the thread.
                 // Make sure to bypass the cache, since it may have changed since the last load.
 
-                string firstPageUrl = adapter.GetUrlForPage(firstPageNumber, quest.PostsPerPage);
+                string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri!, firstPageNumber);
 
                 HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}",
                     CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
@@ -206,7 +206,7 @@ namespace NetTally.Forums
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a list of Post comprising the posts from the threads that fall within the specified range.</returns>
         private async Task<(string threadTitle, List<Post> posts)> GetPostsFromPagesAsync(
-            IQuest quest, IForumAdapter adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
+            IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
         {
             List<Post> postsList = new List<Post>();
 
