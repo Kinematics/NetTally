@@ -14,6 +14,8 @@ namespace NetTally.Forums
         public int ID { get; }
         public int Pages { get; }
 
+        public static ThreadRangeInfo Empty = new ThreadRangeInfo(false, 0, 0, 0, 0);
+
         /// <summary>
         /// Constructor for thread range info.
         /// Only specifies whether the range is specified by post number, and what that post number is.
