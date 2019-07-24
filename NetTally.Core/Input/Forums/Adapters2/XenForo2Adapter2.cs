@@ -152,7 +152,7 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
-            if (quest == null || quest.ThreadUri == null)
+            if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
 
             var posts = from p in GetPostList(page)
@@ -495,7 +495,7 @@ namespace NetTally.Forums.Adapters2
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri!, GetPermalinkForId(quest.ThreadUri!, id));
+                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)

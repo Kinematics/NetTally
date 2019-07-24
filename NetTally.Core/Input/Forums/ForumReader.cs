@@ -31,7 +31,6 @@ namespace NetTally.Forums
             if (pageProvider != null)
             {
                 pageProvider.StatusChanged -= PageProvider_StatusChanged;
-                pageProvider.Dispose();
             }
         }
         #endregion
@@ -92,9 +91,9 @@ namespace NetTally.Forums
         private void SyncQuestWithForumAdapter(IQuest quest, IForumAdapter2 adapter)
         {
             if (quest.PostsPerPage == 0)
-                quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri!);
+                quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri);
 
-            if (adapter.GetHasRssThreadmarksFeed(quest.ThreadUri!) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
+            if (adapter.GetHasRssThreadmarksFeed(quest.ThreadUri) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
         }
 
@@ -134,7 +133,7 @@ namespace NetTally.Forums
             {
                 // Initiate tasks for all pages other than the first page (which we already loaded)
                 var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
-                              let pageUrl = adapter.GetUrlForPage(quest.ThreadUri!, pageNum)
+                              let pageUrl = adapter.GetUrlForPage(quest.ThreadUri, pageNum)
                               let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
                               select pageProvider.GetHtmlDocumentAsync(
                                   pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
@@ -172,7 +171,7 @@ namespace NetTally.Forums
                 // then we need to load the first page to find out how many pages there are in the thread.
                 // Make sure to bypass the cache, since it may have changed since the last load.
 
-                string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri!, firstPageNumber);
+                string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri, firstPageNumber);
 
                 HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}",
                     CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)

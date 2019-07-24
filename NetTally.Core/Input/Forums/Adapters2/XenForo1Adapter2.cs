@@ -148,7 +148,7 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a list of constructed posts from this page.</returns>
         public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
         {
-            if (quest == null || quest.ThreadUri == null)
+            if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
 
             var posts = from p in GetPostList(page)
@@ -215,7 +215,7 @@ namespace NetTally.Forums.Adapters2
         private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetThreadmarksRange(
             IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest == null || quest.ThreadUri == null)
+            if (quest == null)
                 return (false, ThreadRangeInfo.Empty);
 
             // Load the threadmarks so that we can find the starting post page or number.
@@ -459,7 +459,7 @@ namespace NetTally.Forums.Adapters2
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri!, GetPermalinkForId(quest.ThreadUri!, id));
+                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)
@@ -497,7 +497,7 @@ namespace NetTally.Forums.Adapters2
             // Predicate for filtering out elements that we don't want to include
             var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
-            Uri host = new Uri(quest.ThreadUri!.GetLeftPart(UriPartial.Authority) + "/"); ;
+            Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
             // Get the full post text.
             return ForumPostTextConverter.ExtractPostText(postBlock, exclusions, host);

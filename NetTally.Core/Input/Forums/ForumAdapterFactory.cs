@@ -20,8 +20,8 @@ namespace NetTally.Forums
         /// <returns>Returns a forum adapter for the quest.</returns>
         public async Task<IForumAdapter2> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest.ThreadUri == null)
-                throw new InvalidOperationException("Quest has no valid web host.");
+            if (quest.ThreadUri == Quest.InvalidThreadUri)
+                throw new InvalidOperationException("Quest has no valid thread specified.");
 
             if (quest.ForumType == ForumType.Unknown)
             {
