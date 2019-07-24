@@ -92,5 +92,14 @@ namespace NetTally.Forums
         /// If both of those are 0, this is not a threadmark search result.
         /// </summary>
         public bool IsThreadmarkSearchResult => !(Page == 0 && ID == 0);
+
+        /// <summary>
+        /// String representation of ThreadRangeInfo.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{ByNumber}:{Number}, {Page}/{Pages}, {ID}";
+        }
     }
 }
