@@ -228,7 +228,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TaskView_CurrentChanged(object sender, EventArgs e)
+        private void TaskView_CurrentChanged(object? sender, EventArgs e)
         {
             // Call once to notifiy the XAML view, which must be done before the commands update,
             // so that the XAML can update to the TaskView's current position.
