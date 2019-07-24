@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Web;
 
@@ -17,11 +19,13 @@ namespace NetTally.Forums
         #region Constructor
         readonly IPageProvider pageProvider;
         readonly ForumAdapterFactory forumAdapterFactory;
+        private readonly ILogger<ForumReader> logger;
 
-        public ForumReader(IPageProvider provider, ForumAdapterFactory factory)
+        public ForumReader(IPageProvider provider, ForumAdapterFactory factory, ILoggerFactory loggerFactory)
         {
             pageProvider = provider;
             forumAdapterFactory = factory;
+            logger = loggerFactory.CreateLogger<ForumReader>();
 
             pageProvider.StatusChanged += PageProvider_StatusChanged;
         }
@@ -59,27 +63,36 @@ namespace NetTally.Forums
         /// <returns>Returns a list of posts extracted from the quest.</returns>
         public async Task<(string threadTitle, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
+            logger.LogDebug("Reading quest with ForumReader.");
+
             IForumAdapter2 adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
+
+            logger.LogDebug("Forum adapter created.");
 
             SyncQuestWithForumAdapter(quest, adapter);
 
+            logger.LogDebug("Quest synced with forum adapter.");
+
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, token).ConfigureAwait(false);
 
-            if (rangeInfo == null)
-                throw new InvalidOperationException("Unable to determine post range for the quest.");
+            logger.LogDebug($"Range info acquired. ({rangeInfo.ToString()})");
 
-            List<Task<HtmlDocument>> loadedPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, token).ConfigureAwait(false);
+            List<Task<HtmlDocument?>> loadingPages = await LoadQuestPagesAsync2(quest, adapter, rangeInfo, token).ConfigureAwait(false);
 
-            if (loadedPages == null)
-                throw new InvalidOperationException("Unable to load pages for the quest.");
+            logger.LogDebug($"Got {loadingPages.Count} pages loading. (v2)");
 
-            var (title, posts) = await GetPostsFromPagesAsync(quest, adapter, rangeInfo, loadedPages, token).ConfigureAwait(false);
+            var (threadInfo, posts2) = await GetPostsFromPagesAsync2(loadingPages, quest, adapter).ConfigureAwait(false);
 
-            if (posts == null)
-                throw new InvalidOperationException("Unable to extract posts from quest pages.");
+            logger.LogDebug($"Got {posts2.Count} posts for quest {threadInfo.Title}. (v2)");
 
-            return (title, posts);
+            List<Post> filteredPosts = FilterPosts(posts2, quest, threadInfo, rangeInfo);
+
+            logger.LogDebug($"Filtered to {filteredPosts.Count} posts for quest {threadInfo.Title}. (v2)");
+
+            return (threadInfo.Title, filteredPosts);
         }
+
+
         #endregion
 
         #region Helper functions
@@ -113,140 +126,173 @@ namespace NetTally.Forums
         }
 
         /// <summary>
-        /// Loads the HTML pages that are relevant to a quest's tally.
+        /// Acquire a list of page loading tasks for the pages that are intended
+        /// to be tallied.
         /// </summary>
-        /// <param name="quest">The quest being loaded.</param>
-        /// <param name="adapter">The quest's forum adapter, used to forum the URLs to load.</param>
-        /// <param name="threadRangeInfo">The range info that determines which pages to load.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a list of tasks that are handling the async loading of the requested pages.</returns>
-        private async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(
-            IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
-        {
-            var (firstPageNumber, lastPageNumber, pagesToScan) = await GetPagesToScanAsync(quest, adapter, threadRangeInfo, token).ConfigureAwait(false);
-
-            // We will store the loaded pages in a new List.
-            List<Task<HtmlDocument>> pages = new List<Task<HtmlDocument>>();
-
-            // Initiate the async tasks to load the pages
-            if (pagesToScan > 0)
-            {
-                // Initiate tasks for all pages other than the first page (which we already loaded)
-                var results = from pageNum in Enumerable.Range(firstPageNumber, pagesToScan)
-                              let pageUrl = adapter.GetUrlForPage(quest.ThreadUri, pageNum)
-                              let shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes
-                              select pageProvider.GetHtmlDocumentAsync(
-                                  pageUrl, $"Page {pageNum}", CachingMode.UseCache, shouldCache, SuppressNotifications.No, token);
-
-                pages.AddRange(results.ToList());
-            }
-
-            return pages;
-        }
-
-        /// <summary>
-        /// Determines the page number range that will be loaded for the quest.
-        /// Returns a tuple of first page number, last page number, and pages to scan.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="adapter">The forum adapter for the quest.</param>
-        /// <param name="threadRangeInfo">The thread range info, as provided by the adapter.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a tuple of the page number info that was determined.</returns>
-        private async Task<(int firstPageNumber, int lastPageNumber, int pagesToScan)> GetPagesToScanAsync(
+        /// <param name="quest">The quest for which the tally is being run.</param>
+        /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
+        /// <param name="threadRangeInfo">The range of posts that are wanted in the tally.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns a list of page loading tasks.</returns>
+        private async Task<List<Task<HtmlDocument?>>> LoadQuestPagesAsync2(
             IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, CancellationToken token)
         {
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
-            int lastPageNumber = 0;
-            int pagesToScan = 0;
 
+            // Get the first page in order to find out how many pages are in the thread
+            // Keep it as a task.
+            Task<HtmlDocument?> firstPage = GetFirstPage(firstPageNumber, quest, adapter, token);
+
+            // Get the last page number.
+            int lastPageNumber = await GetLastPageNumber(quest, adapter, threadRangeInfo, firstPage).ConfigureAwait(false);
+
+            // Initiate tasks for any remaining pages
+            IEnumerable<Task<HtmlDocument?>> remainingPages =
+                GetRemainingPages(firstPageNumber, lastPageNumber, quest, adapter, token);
+
+            // Collect all the page load tasks (including the finished first page) to return to caller.
+            List<Task<HtmlDocument?>> pagesToLoad = new List<Task<HtmlDocument?>>() { firstPage };
+            pagesToLoad.AddRange(remainingPages);
+
+            return pagesToLoad;
+        }
+
+        /// <summary>
+        /// Gets the first page of the desired tally.
+        /// </summary>
+        /// <param name="firstPageNumber">The page number of the first page.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>Returns the thread page that starts the tally.</returns>
+        private async Task<HtmlDocument?> GetFirstPage(
+            int firstPageNumber, IQuest quest, IForumAdapter2 adapter, CancellationToken token)
+        {
+            string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri, firstPageNumber);
+
+            // Make sure to bypass the cache, since it may have changed since the last load.
+            HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
+                firstPageUrl, $"Page {firstPageNumber}",
+                CachingMode.BypassCache, ShouldCache.Yes, 
+                SuppressNotifications.No, token)
+                .ConfigureAwait(false);
+
+            return page;
+        }
+
+        /// <summary>
+        /// Get the last page number of the tally. This may be determined solely
+        /// from the thread range info, or might require information from the
+        /// provided first page, where we can extract how many pages are in the thread.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
+        /// <param name="threadRangeInfo">The range of posts that are wanted in the tally.</param>
+        /// <param name="firstPage">The first page of the tally, from which we can get the page range of the thread.</param>
+        /// <returns>Returns the last page number of the tally.</returns>
+        private async Task<int> GetLastPageNumber(IQuest quest, IForumAdapter2 adapter,
+            ThreadRangeInfo threadRangeInfo, Task<HtmlDocument?> firstPage)
+        {
+            // Check for quick results first.
             if (threadRangeInfo.Pages > 0)
             {
-                // If the startInfo obtained the thread pages info, just use that.
-                lastPageNumber = threadRangeInfo.Pages;
+                // If the page range has already been determined, use that.
+                return threadRangeInfo.Pages;
             }
-            else if (quest.ReadToEndOfThread || threadRangeInfo.IsThreadmarkSearchResult)
-            {
-                // If we're reading to the end of the thread (end post 0, or based on a threadmark),
-                // then we need to load the first page to find out how many pages there are in the thread.
-                // Make sure to bypass the cache, since it may have changed since the last load.
-
-                string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri, firstPageNumber);
-
-                HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(firstPageUrl, $"Page {firstPageNumber}",
-                    CachingMode.BypassCache, ShouldCache.Yes, SuppressNotifications.No, token)
-                    .ConfigureAwait(false);
-
-                if (page == null)
-                    throw new InvalidOperationException($"Unable to load web page: {firstPageUrl}");
-
-                lastPageNumber = adapter.GetThreadInfo(page).Pages;
-            }
-            else
+            else if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
             {
                 // If we're not reading to the end of the thread, just calculate
                 // what the last page number will be.  Pages to scan will be the
                 // difference in pages +1.
-                lastPageNumber = ThreadInfo.GetPageNumberOfPost(quest.EndPost, quest);
+                return ThreadInfo.GetPageNumberOfPost(quest.EndPost, quest);
             }
 
-            pagesToScan = lastPageNumber - firstPageNumber + 1;
+            // If we're reading to the end of the thread (end post 0, or based on a threadmark),
+            // then we need to load the first page to find out how many pages there are in the thread.
+            var page = await firstPage.ConfigureAwait(false);
 
-            return (firstPageNumber, lastPageNumber, pagesToScan);
+            if (page == null)
+                throw new InvalidOperationException($"Unable to load first page of {quest.ThreadName}");
+
+            return adapter.GetThreadInfo(page).Pages;
         }
 
         /// <summary>
-        /// Gets a list of posts from the provided pages from a quest.
+        /// Gets a collection of all pages that need to be loaded for the tally,
+        /// other than the first page (which was already loaded).
         /// </summary>
+        /// <param name="firstPageNumber">The first page number of the tally.</param>
+        /// <param name="lastPageNumber">The last page number of the tally.</param>
         /// <param name="quest">The quest being tallied.</param>
-        /// <param name="adapter">The quest's forum adapter.</param>
-        /// <param name="rangeInfo">The thread range info for the tally.</param>
-        /// <param name="pages">The pages that are being loaded.</param>
+        /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
         /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns a list of Post comprising the posts from the threads that fall within the specified range.</returns>
-        private async Task<(string threadTitle, List<Post> posts)> GetPostsFromPagesAsync(
-            IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo rangeInfo, List<Task<HtmlDocument>> pages, CancellationToken token)
+        /// <returns>Returns a collection of pages being loaded.</returns>
+        private IEnumerable<Task<HtmlDocument?>> GetRemainingPages(
+            int firstPageNumber, int lastPageNumber,
+            IQuest quest, IForumAdapter2 adapter,
+            CancellationToken token)
         {
+            if (lastPageNumber <= firstPageNumber)
+                yield break;
+
+            for (int pageNum = firstPageNumber + 1; pageNum <= lastPageNumber; pageNum++)
+            {
+                var pageUrl = adapter.GetUrlForPage(quest.ThreadUri, pageNum);
+                var shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes;
+
+                yield return pageProvider.GetHtmlDocumentAsync(
+                                  pageUrl, $"Page {pageNum}",
+                                  CachingMode.UseCache, shouldCache,
+                                  SuppressNotifications.No, token);
+            }
+        }
+
+        /// <summary>
+        /// Gets all posts from the provided pages list.
+        /// </summary>
+        /// <param name="loadingPages">The pages that are being loaded for the tally.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
+        /// <returns>Returns all posts extracted from all pages provided,
+        /// and the thread title.</returns>
+        private async Task<(ThreadInfo threadInfo, List<Post> posts)> GetPostsFromPagesAsync2(
+            List<Task<HtmlDocument?>> loadingPages,
+            IQuest quest, IForumAdapter2 adapter)
+        {
+            ThreadInfo? threadInfo = null;
             List<Post> postsList = new List<Post>();
 
-            if (pages.Count == 0)
-                return (string.Empty, postsList);
-
-            var firstPageTask = pages.First();
-
-            while (pages.Any())
+            foreach (var loadingPage in loadingPages)
             {
-                var finishedPage = await Task.WhenAny(pages).ConfigureAwait(false);
-                pages.Remove(finishedPage);
-
-                if (finishedPage.IsCanceled)
-                {
-                    throw new OperationCanceledException();
-                }
-
-                // This will throw any pending exceptions that occurred while trying to load the page.
-                // This removes the need to check for finishedPage.IsFaulted.
-                var page = await finishedPage.ConfigureAwait(false);
+                var page = await loadingPage.ConfigureAwait(false);
 
                 if (page == null)
+                    continue;
+
+                if (threadInfo == null)
                 {
-                    Exception e = new Exception("Not all pages loaded.  Rerun tally.");
-                    e.Data["Notify"] = true;
-                    throw e;
+                    threadInfo = adapter.GetThreadInfo(page);
                 }
 
                 postsList.AddRange(adapter.GetPosts(page, quest));
             }
 
-            var firstPage = firstPageTask.Result;
-            ThreadInfo threadInfo = adapter.GetThreadInfo(firstPage);
+            if (threadInfo == null)
+                threadInfo = new ThreadInfo("Unknown", "Unknown", 0);
 
-            postsList = FilteredPosts(postsList, quest, threadInfo, rangeInfo);
-
-            return (threadInfo.Title, postsList);
+            return (threadInfo, postsList);
         }
 
-        private List<Post> FilteredPosts(List<Post> postsList,
+        /// <summary>
+        /// Run the provided post list through the various filters, as set
+        /// by quest options and post numbers, etc.
+        /// </summary>
+        /// <param name="postsList">The list of posts to filter.</param>
+        /// <param name="quest">The quest with relevant options.</param>
+        /// <param name="threadInfo">Thread info provides the thread author.</param>
+        /// <param name="rangeInfo">Range info provides information on the range of valid posts.</param>
+        /// <returns>Returns a list of posts that satisfy the filtering criteria.</returns>
+        private List<Post> FilterPosts(List<Post> postsList,
             IQuest quest, ThreadInfo threadInfo, ThreadRangeInfo rangeInfo)
         {
             // Remove any posts that are not votes, that aren't in the valid post range, or that
@@ -266,11 +312,24 @@ namespace NetTally.Forums
             return filtered.ToList();
         }
 
+        /// <summary>
+        /// Check whether the given post is after the startpoint of the tally.
+        /// </summary>
+        /// <param name="post">The post to check.</param>
+        /// <param name="rangeInfo">The range which shows where the tally starts.</param>
+        /// <returns>Returns true if the post comes after the start of the tally.</returns>
         private bool PostIsAfterStart(Post post, ThreadRangeInfo rangeInfo)
         {
             return (rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID);
         }
 
+        /// <summary>
+        /// Check whether the given post is before the endpoint of the tally.
+        /// </summary>
+        /// <param name="post">The post to check.</param>
+        /// <param name="quest">Quest options.</param>
+        /// <param name="rangeInfo">Specific range information.</param>
+        /// <returns>Returns true if the post comes before the end of the tally.</returns>
         private bool PostIsBeforeEnd(Post post, IQuest quest, ThreadRangeInfo rangeInfo)
         {
             return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost);
