@@ -14,6 +14,8 @@ namespace NetTally.Forums
         public int ID { get; }
         public int Pages { get; }
 
+        public static ThreadRangeInfo Empty = new ThreadRangeInfo(false, 0, 0, 0, 0);
+
         /// <summary>
         /// Constructor for thread range info.
         /// Only specifies whether the range is specified by post number, and what that post number is.
@@ -90,5 +92,14 @@ namespace NetTally.Forums
         /// If both of those are 0, this is not a threadmark search result.
         /// </summary>
         public bool IsThreadmarkSearchResult => !(Page == 0 && ID == 0);
+
+        /// <summary>
+        /// String representation of ThreadRangeInfo.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{ByNumber}:{Number}, {Page}/{Pages}, {ID}";
+        }
     }
 }

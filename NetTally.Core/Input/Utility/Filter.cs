@@ -31,6 +31,11 @@ namespace NetTally.Input.Utility
         static readonly Regex alwaysFalse = new Regex(@"^(?!x)x");
         #endregion
 
+        #region Public Static
+        const string OmakeFilter = @"\bomake\b";
+        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, null);
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Create a filter using an explicit regex.
