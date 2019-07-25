@@ -50,8 +50,8 @@ namespace NetTally.Forums
                     return new VBulletin4Adapter2();
                 case ForumType.vBulletin5:
                     return new VBulletin5Adapter2();
-                //case ForumType.phpBB:
-                //    return new PhpBBAdapter2();
+                case ForumType.phpBB:
+                    return new PhpBBAdapter2();
                 //case ForumType.NodeBB:
                 //    return new NodeBBAdapter2();
                 case ForumType.Unknown:
