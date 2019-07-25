@@ -20,7 +20,7 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        Uri? ThreadUri { get; }
+        Uri ThreadUri { get; }
         /// <summary>
         /// The type of forum this quest is hosted on.
         /// </summary>
