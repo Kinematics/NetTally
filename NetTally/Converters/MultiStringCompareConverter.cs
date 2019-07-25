@@ -45,7 +45,7 @@ namespace NetTally.Converters
 
         private object CompareStringValues(object[] values)
         {
-            string first = values[0].ToString();
+            string first = values[0].ToString() ?? "";
 
             return values.All(v => v is string vv && vv == first);
         }

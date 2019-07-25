@@ -195,6 +195,9 @@ namespace NetTally
 
             foreach (QuestElement questElement in Quests)
             {
+                if (questElement == null)
+                    continue;
+
                 try
                 {
                     Quest q = new Quest
