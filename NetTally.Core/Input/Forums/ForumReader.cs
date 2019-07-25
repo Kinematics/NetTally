@@ -168,7 +168,7 @@ namespace NetTally.Forums
         private async Task<HtmlDocument?> GetFirstPage(
             int firstPageNumber, IQuest quest, IForumAdapter2 adapter, CancellationToken token)
         {
-            string firstPageUrl = adapter.GetUrlForPage(quest.ThreadUri, firstPageNumber);
+            string firstPageUrl = adapter.GetUrlForPage(quest, firstPageNumber);
 
             // Make sure to bypass the cache, since it may have changed since the last load.
             HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
@@ -237,7 +237,7 @@ namespace NetTally.Forums
 
             for (int pageNum = firstPageNumber + 1; pageNum <= lastPageNumber; pageNum++)
             {
-                var pageUrl = adapter.GetUrlForPage(quest.ThreadUri, pageNum);
+                var pageUrl = adapter.GetUrlForPage(quest, pageNum);
                 var shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes;
 
                 yield return pageProvider.GetHtmlDocumentAsync(

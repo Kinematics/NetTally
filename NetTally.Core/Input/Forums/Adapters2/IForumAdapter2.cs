@@ -37,7 +37,7 @@ namespace NetTally.Forums
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        string GetUrlForPage(Uri uri, int page);
+        string GetUrlForPage(IQuest quest, int page);
 
         /// <summary>
         /// Get thread info from the provided page.

@@ -54,7 +54,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        public string GetUrlForPage(Uri uri, int page)
+        public string GetUrlForPage(IQuest quest, int page)
         {
             if (page < 1)
                 throw new ArgumentException($"Invalid page number: {page}", nameof(page));
@@ -64,7 +64,7 @@ namespace NetTally.Forums.Adapters2
 
             string append = page > 1 ? $"/page{page}" : "";
 
-            return $"{GetBaseThreadUrl(uri)}{append}";
+            return $"{GetBaseThreadUrl(quest.ThreadUri)}{append}";
         }
 
         /// <summary>

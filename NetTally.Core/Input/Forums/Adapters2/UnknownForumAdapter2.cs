@@ -18,6 +18,6 @@ namespace NetTally.Forums.Adapters2
         public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token) 
             => Task.FromResult(new ThreadRangeInfo(false, 0));
         public ThreadInfo GetThreadInfo(HtmlDocument page) => new ThreadInfo("Unknown", "Unknown", 1);
-        public string GetUrlForPage(Uri uri, int page) => "";
+        public string GetUrlForPage(IQuest quest, int page) => "";
     }
 }
