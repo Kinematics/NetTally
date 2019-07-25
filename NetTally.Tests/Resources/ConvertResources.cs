@@ -28,33 +28,8 @@ namespace NTTests.Resources
             forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
         }
 
-        [TestMethod]
-        [Ignore]
-        public async Task ConvertResourcePosts()
+        public void ConvertResourcePosts()
         {
-            var resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(resourceContent);
-            var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
-            var adapter = forumAdapterFactory.CreateForumAdapter(forumType, new Uri("http://example.com"));
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
-
-            Quest quest = new Quest
-            {
-                DisplayName = "Convert Quest"
-            };
-
-            var posts = adapter.GetPosts(doc, quest);
-
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var post in posts)
-            {
-                sb.AppendLine(post.Text);
-                sb.AppendLine("~!~");
-            }
-
-            await LoadResource.Write("Resources/RenascenceSV.txt", sb.ToString());
         }
     }
 }
