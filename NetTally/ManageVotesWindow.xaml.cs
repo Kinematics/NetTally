@@ -91,8 +91,8 @@ namespace NetTally
 
             if (VoteView1.CanFilter && VoteView2.CanFilter)
             {
-                VoteView1.Filter = (a) => FilterVotes(VoteView1, Filter1String, a as VoteLineBlock);
-                VoteView2.Filter = (a) => FilterVotes(VoteView2, Filter2String, a as VoteLineBlock);
+                VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
+                VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
             }
 
             // Initialize starting selected positions
@@ -216,7 +216,7 @@ namespace NetTally
         /// <param name="filterString">The filter string being used.</param>
         /// <param name="vote">The vote being checked by the filter delegate.</param>
         /// <returns>Returns true if the vote should be displayed, or false if it should be hidden.</returns>
-        bool FilterVotes(ICollectionView voteView, string filterString, VoteLineBlock vote)
+        bool FilterVotes(string filterString, VoteLineBlock vote)
         {
             if (vote == null)
                 return false;
