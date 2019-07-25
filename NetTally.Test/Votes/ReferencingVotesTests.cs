@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace NetTally.Tests.Votes
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
 
             IQuest quest = new Quest();
-            Agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestInitialize]
@@ -41,6 +42,14 @@ namespace NetTally.Tests.Votes
 
             voteCounter.Reset();
             voteCounter.ClearPosts();
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 
