@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Utility;
 using NetTally.Votes;
@@ -16,7 +17,16 @@ namespace NetTally.Tests.Votes
             serviceProvider = TestStartup.ConfigureServices();
 
             IQuest quest = new Quest();
-            Agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            IQuest quest = new Quest();
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestMethod]
