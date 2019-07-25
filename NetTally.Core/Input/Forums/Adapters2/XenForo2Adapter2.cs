@@ -526,7 +526,7 @@ namespace NetTally.Forums.Adapters2
 
             var articleBody = article.GetDescendantWithClass("article", "message-body")?.GetChildWithClass("div", "bbWrapper");
 
-            Uri host = new Uri(quest.ThreadUri!.GetLeftPart(UriPartial.Authority) + "/"); ;
+            Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
             return ForumPostTextConverter.ExtractPostText(articleBody, exclusions, host);
         }
