@@ -110,14 +110,14 @@ namespace NetTally.Forums.Adapters2
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
 
             var posts = from p in GetPostList(page)
                         where p != null
-                        let post = GetPost(page, p, quest)
+                        let post = GetPost(p, quest)
                         where post != null
                         select post;
 
@@ -162,15 +162,15 @@ namespace NetTally.Forums.Adapters2
             return postList.Elements("li").Where(p => !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", "")));
         }
 
-        private Post? GetPost(HtmlDocument page, HtmlNode li, IQuest quest)
+        private Post? GetPost(HtmlNode li, IQuest quest)
         {
             if (li == null)
                 return null;
 
             string id = GetPostId(li);
             string author = GetPostAuthor(li);
-            int number = GetPostNumber(li, id);
-            string text = GetPostText(li, id, quest);
+            int number = GetPostNumber(li);
+            string text = GetPostText(li, quest);
 
             if (AdvancedOptions.Instance.DebugMode)
                 author = $"{author}_{id}";
@@ -206,7 +206,7 @@ namespace NetTally.Forums.Adapters2
             return author;
         }
 
-        private int GetPostNumber(HtmlNode li, string id)
+        private int GetPostNumber(HtmlNode li)
         {
             HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
@@ -225,7 +225,7 @@ namespace NetTally.Forums.Adapters2
             return 0;
         }
 
-        private string GetPostText(HtmlNode li, string id, IQuest quest)
+        private string GetPostText(HtmlNode li, IQuest quest)
         {
             HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 

@@ -81,7 +81,7 @@ namespace NetTally.Forums
 
             logger.LogDebug($"Got {loadingPages.Count} pages loading. (v2)");
 
-            var (threadInfo, posts2) = await GetPostsFromPagesAsync2(loadingPages, quest, adapter).ConfigureAwait(false);
+            var (threadInfo, posts2) = await GetPostsFromPagesAsync2(loadingPages, quest, adapter, rangeInfo).ConfigureAwait(false);
 
             logger.LogDebug($"Got {posts2.Count} posts for quest {threadInfo.Title}. (v2)");
 
@@ -257,14 +257,19 @@ namespace NetTally.Forums
         /// and the thread title.</returns>
         private async Task<(ThreadInfo threadInfo, List<Post> posts)> GetPostsFromPagesAsync2(
             List<Task<HtmlDocument?>> loadingPages,
-            IQuest quest, IForumAdapter2 adapter)
+            IQuest quest, IForumAdapter2 adapter,
+            ThreadRangeInfo threadRangeInfo)
         {
             ThreadInfo? threadInfo = null;
             List<Post> postsList = new List<Post>();
+            int pageNumber = threadRangeInfo.GetStartPage(quest) - 1;
+
 
             foreach (var loadingPage in loadingPages)
             {
                 var page = await loadingPage.ConfigureAwait(false);
+
+                pageNumber++;
 
                 if (page == null)
                     continue;
@@ -274,7 +279,7 @@ namespace NetTally.Forums
                     threadInfo = adapter.GetThreadInfo(page);
                 }
 
-                postsList.AddRange(adapter.GetPosts(page, quest));
+                postsList.AddRange(adapter.GetPosts(page, quest, pageNumber));
             }
 
             if (threadInfo == null)

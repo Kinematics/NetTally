@@ -62,6 +62,6 @@ namespace NetTally.Forums
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest);
+        IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber);
     }
 }
