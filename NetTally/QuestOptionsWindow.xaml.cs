@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -15,14 +18,27 @@ namespace NetTally
     {
         #region Setup and construction
         readonly ILogger<QuestOptionsWindow> logger;
+        readonly ViewModel viewModel;
 
         public QuestOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
         {
+            viewModel = model;
             logger = loggerFactory.CreateLogger<QuestOptionsWindow>();
+
+            DataContext = model;
 
             InitializeComponent();
 
-            DataContext = model;
+            linkedQuests.SelectionChanged += LinkedQuests_SelectionChanged;
+            availableQuests.SelectionChanged += AvailableQuests_SelectionChanged;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            linkedQuests.SelectionChanged -= LinkedQuests_SelectionChanged;
+            availableQuests.SelectionChanged -= AvailableQuests_SelectionChanged;
         }
 
         public Task ActivateAsync(object parameter)
@@ -33,6 +49,28 @@ namespace NetTally
             }
 
             return Task.CompletedTask;
+        }
+        #endregion
+
+        #region Event Handlers
+        /// <summary>
+        /// Notify the view model when the available quests' selection changes,
+        /// so that it can initiate a CanExecute call on commands.
+        /// </summary>
+        private void AvailableQuests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            PropertyChangedEventArgs args = new PropertyChangedEventArgs(nameof(availableQuests));
+            viewModel.ExternalPropertyChanged(this, args);
+        }
+
+        /// <summary>
+        /// Notify the view model when the list of linked quests' selection changes,
+        /// so that it can initiate a CanExecute call on commands.
+        /// </summary>
+        private void LinkedQuests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            PropertyChangedEventArgs args = new PropertyChangedEventArgs(nameof(linkedQuests));
+            viewModel.ExternalPropertyChanged(this, args);
         }
         #endregion
 

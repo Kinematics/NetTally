@@ -55,10 +55,10 @@ namespace NetTally
             logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
 
             // Set up commands
-            MoveUpCommand = new RelayCommand(this, MoveTaskUp, CanMoveTaskUp);
-            MoveDownCommand = new RelayCommand(this, MoveTaskDown, CanMoveTaskDown);
-            SortAlphaCommand = new RelayCommand(this, SortTasksAlpha, CanSortTasks);
-            SortOriginalCommand = new RelayCommand(this, SortTasksOriginal, CanSortTasks);
+            MoveUpCommand = new RelayCommand(this, nameof(MoveUpCommand), MoveTaskUp, CanMoveTaskUp);
+            MoveDownCommand = new RelayCommand(this, nameof(MoveDownCommand), MoveTaskDown, CanMoveTaskDown);
+            SortAlphaCommand = new RelayCommand(this, nameof(SortAlphaCommand), SortTasksAlpha, CanSortTasks);
+            SortOriginalCommand = new RelayCommand(this, nameof(SortOriginalCommand), SortTasksOriginal, CanSortTasks);
 
             // Create view of the task collection for display in the window.
             TaskView = new ListCollectionView(taskCollection);

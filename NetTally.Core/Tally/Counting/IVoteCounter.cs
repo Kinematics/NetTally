@@ -13,9 +13,14 @@ namespace NetTally.VoteCounting
         /// </summary>
         IQuest Quest { get; set; }
         /// <summary>
-        /// The title of the quest thread when tallied.
+        /// The titles of the quest threads that have been tallied.
         /// </summary>
-        string Title { get; set; }
+        List<string> Titles { get; }
+        /// <summary>
+        /// Set the quest thread titles.
+        /// </summary>
+        /// <param name="titles">A list of titles to use.</param>
+        void SetThreadTitles(IEnumerable<string> titles);
 
         /// <summary>
         /// Track whether the vote counter is currently being used for a tally operation.

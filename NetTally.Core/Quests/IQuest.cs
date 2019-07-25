@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using NetTally.Collections;
 using NetTally.Forums;
 using NetTally.Input.Utility;
 using NetTally.Votes;
@@ -151,5 +153,34 @@ namespace NetTally
         /// Whether or not to trim extended text from vote lines.
         /// </summary>
         bool TrimExtendedText { get; set; }
+
+
+        /// <summary>
+        /// A collection of linked quests that should be tallied alongside this one.
+        /// </summary>
+        QuestCollection LinkedQuests { get; }
+        /// <summary>
+        /// Check if the given quest is one of the linked quests.
+        /// </summary>
+        /// <param name="quest">The quest to check on.</param>
+        /// <returns>Returns true if this quest has the given quest in its links.</returns>
+        bool HasLinkedQuest(IQuest quest);
+        /// <summary>
+        /// Check if the quest with the given name is one of the linked quests.
+        /// </summary>
+        /// <param name="questName">The name of the quest to check on.</param>
+        /// <returns>Returns true if this quest has the given quest in its links.</returns>
+        bool HasLinkedQuest(string questName);
+        /// <summary>
+        /// Add the provided quest to the list of links this quest has.
+        /// </summary>
+        /// <param name="quest">The quest to add.</param>
+        void AddLinkedQuest(IQuest quest);
+        /// <summary>
+        /// Remove the provided quest from the list of quests this quest is linked to.
+        /// </summary>
+        /// <param name="quest">The quest to remove.</param>
+        /// <returns>Returns true if the quest was found and removed.</returns>
+        bool RemoveLinkedQuest(IQuest quest);
     }
 }

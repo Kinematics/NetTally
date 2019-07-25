@@ -38,8 +38,6 @@ namespace NetTally.Output
         StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
-        //static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
-
         public TallyOutput(IVoteCounter counter,
             RankVoteCounterFactory rankVoteFactory,
             ForumAdapterFactory forumAdapterFactory,
@@ -193,13 +191,11 @@ namespace NetTally.Output
             if (outputOptions.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
-            sb.Append(voteCounter.Title);
 
-            (int first, int last) = GetPostRange();
-            if (last > 0)
-                sb.Append($" [Posts: {first}-{last}]");
-
-            sb.AppendLine();
+            foreach (var title in voteCounter.Titles)
+            {
+                sb.AppendLine(title);
+            }
 
             sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
 
