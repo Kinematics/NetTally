@@ -30,33 +30,35 @@ namespace NetTally.Output
         readonly IVoteCounter voteCounter;
         readonly IGeneralOutputOptions outputOptions;
         readonly IRankVoteCounter2 rankVoteCounter;
-        readonly IForumAdapter forumAdapter;
+        readonly IForumAdapter2 forumAdapter;
 
         DisplayMode displayMode;
-        IQuest quest = new Quest();
+        IQuest quest;
 
         StringBuilder sb = new StringBuilder();
         const string cancelled = "Cancelled!";
 
         //static readonly string[] rankWinnerLabels = { "Winner", "First Runner Up", "Second Runner Up", "Third Runner Up", "Honorable Mention" };
 
-        public TallyOutput(IVoteCounter counter, RankVoteCounterFactory factory,
-            ForumAdapterFactory forumAdapterFactory, IGeneralOutputOptions options)
+        public TallyOutput(IVoteCounter counter,
+            RankVoteCounterFactory rankVoteFactory,
+            ForumAdapterFactory forumAdapterFactory,
+            IGeneralOutputOptions options)
         {
             voteCounter = counter;
             outputOptions = options;
 
-            rankVoteCounter = factory.CreateRankVoteCounter(options.RankVoteCounterMethod);
+            rankVoteCounter = rankVoteFactory.CreateRankVoteCounter(options.RankVoteCounterMethod);
 
-            quest = voteCounter.Quest ?? new Quest();
-
-            if (quest != null)
+            if (voteCounter.Quest != null)
             {
+                quest = voteCounter.Quest;
                 forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
             }
             else
             {
-                forumAdapter = forumAdapterFactory.CreateForumAdapter(ForumType.Unknown, new Uri("http://www.example.com/"));
+                quest = new Quest();
+                forumAdapter = forumAdapterFactory.CreateForumAdapter(ForumType.Unknown, Quest.InvalidThreadUri);
             }
         }
         #endregion
@@ -541,7 +543,7 @@ namespace NetTally.Output
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
         /// </summary>
-        public string LineBreak => forumAdapter.LineBreak;
+        public string LineBreak => forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
 
         /// <summary>
         /// Get the double line break.  There are no alternate versions right now.
