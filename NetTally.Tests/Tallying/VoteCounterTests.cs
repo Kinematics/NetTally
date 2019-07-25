@@ -47,6 +47,14 @@ namespace NetTally.Tests.Tallying
             voteCounter.Reset();
             voteCounter.ClearPosts();
         }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            quest.CaseIsSignificant = false;
+            quest.WhitespaceAndPunctuationIsSignificant = false;
+            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+        }
         #endregion
 
         #region Basics
