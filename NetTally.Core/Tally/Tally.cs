@@ -208,9 +208,9 @@ namespace NetTally.VoteCounting
                     {
                         forumReader.StatusChanged += ForumReader_StatusChanged;
 
-                        var (threadTitle, posts) = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
+                        var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
 
-                        voteCounter.Title = threadTitle;
+                        voteCounter.SetThreadTitles(threadTitles);
 
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();

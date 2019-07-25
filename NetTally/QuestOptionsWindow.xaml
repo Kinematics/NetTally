@@ -286,6 +286,20 @@
                     <Button x:Name="closeButton2" Content="Close" HorizontalAlignment="Left" Margin="539,371,0,0" VerticalAlignment="Top" Width="75" IsCancel="True" IsDefault="True" Click="closeButton_Click"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="Linked Quests" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="93" Margin="0">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="linkedQuests" HorizontalAlignment="Left" Height="158" VerticalAlignment="Top" Width="524" Margin="10,10,0,0"
+                             ItemsSource="{Binding SelectedQuest.LinkedQuests}"/>
+                    <Button x:Name="removeLinkedQuest" Content="Remove"
+                            HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="539,10,0,0"
+                            CommandParameter="{Binding ElementName=linkedQuests, Path=SelectedItem}" Command="{Binding Path=RemoveLinkedQuestCommand}"/>
+                    <ComboBox x:Name="availableQuests" HorizontalAlignment="Left" VerticalAlignment="Top" Width="524" Margin="10,173,0,0"
+                              ItemsSource="{Binding QuestList}"/>
+                    <Button x:Name="addLinkedQuest" Content="Add"
+                            HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="539,173,0,0"
+                            CommandParameter="{Binding ElementName=availableQuests, Path=SelectedValue}" Command="{Binding Path=AddLinkedQuestCommand}" />
+                </Grid>
+            </TabItem>
         </TabControl>
 
     </Grid>
