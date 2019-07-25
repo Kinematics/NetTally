@@ -369,5 +369,19 @@ But might include something else...
             Assert.AreEqual("[X] Plan Air, 『s』Earth, Water,『/s』 Fire", post.VoteLines[0].ToString());
 
         }
+
+        [TestMethod]
+        public void Strike_Through_Post_Marker()
+        {
+            string postText =
+@"Considering:
+[X] ❰Earth, Water,❱ Fire";
+            Post post = new Post(origin, postText);
+
+            Assert.IsTrue(post.HasVote);
+            Assert.AreEqual(1, post.VoteLines.Count);
+            Assert.AreEqual("[X] 『s』Earth, Water,『/s』 Fire", post.VoteLines[0].ToString());
+
+        }
     }
 }

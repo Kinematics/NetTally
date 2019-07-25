@@ -176,6 +176,9 @@ namespace NetTally.Votes
                     case TokenState.PostMarker:
                         if (ch == whitespace)
                         {
+                            if (tempContent.Length > 0)
+                                tempContent.Append(ch);
+
                             continue;
                         }
                         else if (ch == openBracket && taskSB.Length == 0)
@@ -188,6 +191,12 @@ namespace NetTally.Votes
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
                             tempContent.Append(ch);
+                        }
+                        else if (ch == openStrike)
+                        {
+                            tempContent.Append("『s』");
+                            state.Push(currentState);
+                            currentState = TokenState.Strike;
                         }
                         else
                         {
