@@ -7,7 +7,7 @@ using NetTally.Web;
 
 namespace NetTally.Forums
 {
-    public interface IForumAdapter
+    public interface IForumAdapter1
     {
         // General meta-info
 

@@ -23,7 +23,7 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public async static Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
+        public static async Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
         {
             if (uri == null)
                 return ForumType.Unknown;

@@ -12,7 +12,7 @@ namespace NetTally.Forums.Adapters
     /// <summary>
     /// A dummy forum adapter if the forum type is unknown.
     /// </summary>
-    public class UnknownForumAdapter : IForumAdapter
+    public class UnknownForumAdapter : IForumAdapter1
     {
         private static readonly Uri exampleUri = new Uri("http://www.example.com/");
 

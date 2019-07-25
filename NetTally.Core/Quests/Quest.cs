@@ -39,12 +39,13 @@ namespace NetTally
         string displayName = string.Empty;
         static readonly Regex pageNumberRegex = new Regex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(#[^/]*)?(unread)?$");
         static readonly Regex displayNameRegex = new Regex(@"(?<displayName>[^/]+)(/|#[^/]*)?$");
-        public const string NewThreadEntry = "https://forums.sufficientvelocity.com/threads/fake-thread.00000";
+        public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
+        public static readonly Uri InvalidThreadUri = new Uri(NewThreadEntry);
 
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        public Uri? ThreadUri { get; private set; }
+        public Uri ThreadUri { get; private set; } = InvalidThreadUri;
 
         /// <summary>
         /// Gets the type of forum used by this quest.
@@ -73,7 +74,7 @@ namespace NetTally
 
                 Uri newUri = new Uri(cleanValue);
 
-                if (ThreadUri == null || ThreadUri.Host != newUri.Host)
+                if (ThreadUri == InvalidThreadUri || ThreadUri.Host != newUri.Host)
                 {
                     ForumType = ForumType.Unknown;
                 }

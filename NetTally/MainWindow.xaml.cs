@@ -48,7 +48,7 @@ namespace NetTally
             // Initialize the readonly fields.
             this.mainViewModel = model;
             this.navigationService = navigationService;
-            this._syncContext = SynchronizationContext.Current;
+            this._syncContext = SynchronizationContext.Current!;
             this.logger = loggerFactory.CreateLogger<MainWindow>();
 
             
@@ -128,7 +128,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
-        private void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        private void CurrentDomain_FirstChanceException(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
             if (AdvancedOptions.Instance.DebugMode)
             {
@@ -370,7 +370,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_ExceptionRaised(object sender, ExceptionEventArgs e)
+        private void MainViewModel_ExceptionRaised(object? sender, ExceptionEventArgs e)
         {
             Exception ex = e.Exception;
 

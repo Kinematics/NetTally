@@ -78,17 +78,14 @@ namespace NetTally.Forums.Adapters2
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        public string GetUrlForPage(Uri uri, int page)
+        public string GetUrlForPage(IQuest quest, int page)
         {
             if (page < 1)
                 throw new ArgumentException($"Invalid page number: {page}", nameof(page));
 
-            string baseUrl = GetBaseThreadUrl(uri);
+            string append = page > 1 ? $"page-{page}" : "";
 
-            if (page > 1)
-                return $"{baseUrl}page-{page}";
-
-            return baseUrl;
+            return $"{GetBaseThreadUrl(quest.ThreadUri)}{append}";
         }
 
         /// <summary>
@@ -119,7 +116,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public async Task<ThreadRangeInfo> GetQuestRangeInfo(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -150,9 +147,9 @@ namespace NetTally.Forums.Adapters2
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber)
         {
-            if (quest == null || quest.ThreadUri == null)
+            if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
 
             var posts = from p in GetPostList(page)
@@ -495,7 +492,7 @@ namespace NetTally.Forums.Adapters2
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri!, GetPermalinkForId(quest.ThreadUri!, id));
+                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)

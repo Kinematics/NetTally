@@ -193,8 +193,11 @@ namespace NetTally
             currentQuest = CurrentQuest;
             quests = new QuestCollection();
 
-            foreach (QuestElement questElement in Quests)
+            foreach (QuestElement? questElement in Quests)
             {
+                if (questElement == null)
+                    continue;
+
                 try
                 {
                     Quest q = new Quest

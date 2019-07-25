@@ -17,7 +17,7 @@ using NetTally.Web;
 
 namespace NetTally
 {
-    public static class Startup
+    public static class Startup 
     {
         public static void ConfigureServices(IServiceCollection services, LogLevel defaultLoggingLevel = LogLevel.Debug)
         {
