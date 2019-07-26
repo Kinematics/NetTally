@@ -23,12 +23,14 @@ namespace NetTally.ViewModels.Commands
     public class AsyncRelayCommand : IAsyncCommand, ICommand
     {
         #region Constructors
+        readonly string name;
+
         /// <summary>
         /// Default constructor with no canExecute check.
         /// </summary>
         /// <param name="executeAsync">The action to execute when requested.</param>
-        public AsyncRelayCommand(INotifyPropertyChanged viewModel, Func<object, Task> executeAsync)
-            : this(viewModel, executeAsync, (arg) => true)
+        public AsyncRelayCommand(INotifyPropertyChanged viewModel, string name, Func<object, Task> executeAsync)
+            : this(viewModel, name, executeAsync, (arg) => true)
         {
         }
 
@@ -37,8 +39,9 @@ namespace NetTally.ViewModels.Commands
         /// </summary>
         /// <param name="executeAsync">The action to execute when requested.</param>
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
-        public AsyncRelayCommand(INotifyPropertyChanged viewModel, Func<object, Task> executeAsync, Func<object, bool> canExecute)
+        public AsyncRelayCommand(INotifyPropertyChanged viewModel, string name, Func<object, Task> executeAsync, Func<object, bool> canExecute)
         {
+            this.name = name;
             this.executeAsync = executeAsync ?? throw new ArgumentNullException(nameof(executeAsync));
             this.canExecute = canExecute ?? throw new ArgumentNullException(nameof(canExecute));
 

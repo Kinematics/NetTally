@@ -58,9 +58,9 @@ namespace NetTally.VoteCounting
         public IQuest Quest { get; set; } = null;
 
         /// <summary>
-        /// The title of the quest thread when tallied.
+        /// The titles of the quest threads that have been tallied.
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        public List<string> Titles { get; } = new List<string>();
 
         /// <summary>
         /// Flag whether the tally is currently running.
@@ -134,6 +134,15 @@ namespace NetTally.VoteCounting
             UserMerges.Reset();
         }
 
+        /// <summary>
+        /// Set the quest thread titles.
+        /// </summary>
+        /// <param name="titles">A list of titles to use.</param>
+        public void SetThreadTitles(IEnumerable<string> titles)
+        {
+            Titles.Clear();
+            Titles.AddRange(titles);
+        }
         #endregion
 
         #region Handling Posts
