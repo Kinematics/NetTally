@@ -477,9 +477,16 @@ namespace NetTally.ViewModels
         /// SelectedQuest.</param>
         private void DoRemoveQuest(object parameter)
         {
+<<<<<<< local
+            IQuest questToRemove = GetThisQuest(parameter);
+
+            if (questToRemove == null)
+                return;
+=======
             if (GetThisQuest(parameter) is IQuest questToRemove)
             {
                 int index = QuestList.IndexOf(questToRemove);
+>>>>>>> graft
 
                 if (index < 0)
                     return;
