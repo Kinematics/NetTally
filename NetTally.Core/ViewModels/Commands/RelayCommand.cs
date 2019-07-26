@@ -19,7 +19,7 @@ namespace NetTally.ViewModels.Commands
         /// Default constructor with no canExecute check.
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
-        public RelayCommand(INotifyPropertyChanged viewModel, string name, Action<object> execute)
+        public RelayCommand(INotifyPropertyChanged viewModel, string name, Action<object?> execute)
             : this(viewModel, name, execute, (arg) => true)
         {
         }
@@ -30,7 +30,7 @@ namespace NetTally.ViewModels.Commands
         /// </summary>
         /// <param name="execute">The action to execute when requested.</param>
         /// <param name="canExecute">Function to check whether it's valid to execute the action.</param>
-        public RelayCommand(INotifyPropertyChanged viewModel, string name, Action<object> execute, Func<object, bool> canExecute)
+        public RelayCommand(INotifyPropertyChanged viewModel, string name, Action<object?> execute, Func<object?, bool> canExecute)
         {
             this.name = name;
             this.execute = execute;

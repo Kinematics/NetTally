@@ -339,7 +339,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">Should provide an IQuest parameter for the quest
         /// potentially being linked to the current selected quest.</param>
         /// <returns>Returns true if it's OK to link the specified quest to the current quest.</returns>
-        private bool CanAddLinkedQuest(object parameter)
+        private bool CanAddLinkedQuest(object? parameter)
         {
             if (TallyIsRunning)
                 return false;
@@ -365,11 +365,11 @@ namespace NetTally.ViewModels
         /// Add a linked quest to the current quest.
         /// </summary>
         /// <param name="parameter">An IQuest that should be linked to the current quest.</param>
-        private void AddLinkedQuest(object parameter)
+        private void AddLinkedQuest(object? parameter)
         {
             if (parameter is IQuest questToAdd)
             {
-                SelectedQuest.AddLinkedQuest(questToAdd);
+                SelectedQuest?.AddLinkedQuest(questToAdd);
             }
         }
 
@@ -384,7 +384,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">Should provide an IQuest parameter for the quest
         /// potentially being removed from the current selected quest.</param>
         /// <returns>Returns true if it's OK to remove the link to specified quest from the current quest.</returns>
-        private bool CanRemoveLinkedQuest(object parameter)
+        private bool CanRemoveLinkedQuest(object? parameter)
         {
             if (TallyIsRunning)
                 return false;
@@ -407,11 +407,11 @@ namespace NetTally.ViewModels
         /// Remove a linked quest from the current quest.
         /// </summary>
         /// <param name="parameter">An IQuest that should be removed from the current quest.</param>
-        private void RemoveLinkedQuest(object parameter)
+        private void RemoveLinkedQuest(object? parameter)
         {
             if (parameter is IQuest questToRemove)
             {
-                SelectedQuest.RemoveLinkedQuest(questToRemove);
+                SelectedQuest?.RemoveLinkedQuest(questToRemove);
             }
         }
         #endregion Linked Quests

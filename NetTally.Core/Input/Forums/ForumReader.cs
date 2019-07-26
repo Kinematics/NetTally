@@ -141,7 +141,7 @@ namespace NetTally.Forums
 
             logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo.ToString()})");
 
-            List<Task<HtmlDocument>> loadingPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, pageProvider, token).ConfigureAwait(false);
+            List<Task<HtmlDocument?>> loadingPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, pageProvider, token).ConfigureAwait(false);
 
             logger.LogDebug($"Got {loadingPages.Count} pages loading {quest.DisplayName}.");
 
@@ -196,14 +196,14 @@ namespace NetTally.Forums
         /// <param name="threadRangeInfo">The range of posts that are wanted in the tally.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns a list of page loading tasks.</returns>
-        private async Task<List<Task<HtmlDocument>>> LoadQuestPagesAsync(
+        private async Task<List<Task<HtmlDocument?>>> LoadQuestPagesAsync(
             IQuest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
         {
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
 
             // Get the first page in order to find out how many pages are in the thread
             // Keep it as a task.
-            Task<HtmlDocument> firstPage = GetFirstPage(firstPageNumber, quest, adapter, pageProvider, token);
+            Task<HtmlDocument?> firstPage = GetFirstPage(firstPageNumber, quest, adapter, pageProvider, token);
 
             // Get the last page number.
             int lastPageNumber = await GetLastPageNumber(quest, adapter, threadRangeInfo, firstPage).ConfigureAwait(false);

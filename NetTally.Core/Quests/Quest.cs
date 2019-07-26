@@ -106,7 +106,7 @@ namespace NetTally
         /// <param name="quest">The quest to remove.</param>
         /// <param name="callerName">The name of the function that called this one.</param>
         /// <returns>Returns true if the quest was found and removed.</returns>
-        private bool RemoveLinkedQuestImpl(Quest quest, [CallerMemberName] string callerName = "")
+        private bool RemoveLinkedQuestImpl(Quest? quest, [CallerMemberName] string callerName = "")
         {
             if (quest != null)
             {
