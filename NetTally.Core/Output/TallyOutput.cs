@@ -210,28 +210,6 @@ namespace NetTally.Output
             }
 
             sb.AppendLine();
-
-            /// <summary>
-            /// Gets the post range of the votes that the VoteCounter tallied.
-            /// Returns values of 0 if no valid posts are available.
-            /// </summary>
-            /// <param name="first">The first post number.</param>
-            /// <param name="last">The last post number.</param>
-            (int first, int last) GetPostRange()
-            {
-                int p1 = 0;
-                int p2 = 0;
-
-                foreach (var post in voteCounter.Posts)
-                {
-                    if (p1 == 0 || post.Origin.ThreadPostNumber < p1)
-                        p1 = post.Origin.ThreadPostNumber;
-                    if (post.Origin.ThreadPostNumber > p2)
-                        p2 = post.Origin.ThreadPostNumber;
-                }
-
-                return (p1, p2);
-            }
         }
 
         /// <summary>
