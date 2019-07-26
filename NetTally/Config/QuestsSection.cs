@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
+using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Output;
-using NetTally.Votes;
 
 namespace NetTally
 {
@@ -192,6 +193,7 @@ namespace NetTally
         {
             currentQuest = CurrentQuest;
             quests = new QuestCollection();
+            Dictionary<IQuest, string> linkedQuestNames = new Dictionary<IQuest, string>();
 
             foreach (QuestElement questElement in Quests)
             {
@@ -227,11 +229,29 @@ namespace NetTally
                         UseRSSThreadmarks = questElement.UseRSSThreadmarks,
                     };
 
+                    if (!string.IsNullOrEmpty(questElement.LinkedQuests))
+                        linkedQuestNames[q] = questElement.LinkedQuests;
+
                     quests.Add(q);
                 }
                 catch (Exception)
                 {
                     continue;
+                }
+            }
+
+            foreach (var (quest, linkedNames) in linkedQuestNames)
+            {
+                var names = linkedNames.Split(new char[] { '⦂' });
+
+                foreach (var name in names)
+                {
+                    var linkedQuest = quests.FirstOrDefault(q => q.ThreadName == name);
+
+                    if (linkedQuest != null)
+                    {
+                        quest.LinkedQuests.Add(linkedQuest);
+                    }
                 }
             }
 
