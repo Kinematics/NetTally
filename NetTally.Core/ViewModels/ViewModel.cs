@@ -477,25 +477,29 @@ namespace NetTally.ViewModels
         /// SelectedQuest.</param>
         private void DoRemoveQuest(object? parameter)
         {
-            IQuest? questToRemove = GetThisQuest(parameter);
+            if (GetThisQuest(parameter) is IQuest questToRemove)
+            {
+                int index = QuestList.IndexOf(questToRemove);
 
-            if (questToRemove == null)
-                return;
+                if (index < 0)
+                    return;
 
-            int index = QuestList.IndexOf(questToRemove);
+                QuestList.RemoveAt(index);
 
-            if (index < 0)
-                return;
+                if (QuestList.Count <= index)
+                    SelectedQuest = QuestList.LastOrDefault();
+                else
+                    SelectedQuest = QuestList[index];
 
-            QuestList.RemoveAt(index);
+                var linkedQuestsToRemove = questToRemove.LinkedQuests.ToList();
+                foreach (var linkedQuest in linkedQuestsToRemove)
+                {
+                    questToRemove.RemoveLinkedQuest(linkedQuest);
+                }
 
-            if (QuestList.Count <= index)
-                SelectedQuest = QuestList.LastOrDefault();
-            else
-                SelectedQuest = QuestList[index];
-
-            OnPropertyChanged("RemoveQuest");
-            OnPropertyChanged(nameof(HasQuests));
+                OnPropertyChanged("RemoveQuest");
+                OnPropertyChanged(nameof(HasQuests));
+            }
         }
         #endregion
 
