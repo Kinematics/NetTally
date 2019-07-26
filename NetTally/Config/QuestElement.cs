@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using NetTally.Votes;
 
@@ -217,6 +219,12 @@ namespace NetTally
             set { this["UseRSSThreadmarks"] = value; }
         }
 
+        [ConfigurationProperty("LinkedQuests", DefaultValue = "")]
+        public string LinkedQuests
+        {
+            get { return (string)this["LinkedQuests"]; }
+            set { this["LinkedQuests"] = value; }
+        }
         #endregion
     }
 }

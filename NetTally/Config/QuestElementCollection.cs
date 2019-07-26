@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Linq;
 
 namespace NetTally
 {
@@ -70,6 +72,7 @@ namespace NetTally
                 IgnoreSpoilers = quest.IgnoreSpoilers,
                 TrimExtendedText = quest.TrimExtendedText,
                 UseRSSThreadmarks = quest.UseRSSThreadmarks,
+                LinkedQuests = quest.LinkedQuests.Select(q => q.ThreadName).DefaultIfEmpty(string.Empty).Aggregate((p, q) => $"{p}⦂{q}"),
             };
 
             BaseAdd(questElement, false);

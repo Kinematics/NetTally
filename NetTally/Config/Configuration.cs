@@ -122,7 +122,7 @@ namespace NetTally
 
                 config.Save(ConfigurationSaveMode.Minimal);
             }
-            catch (ConfigurationErrorsException)
+            catch (ConfigurationErrorsException e)
             {
                 // May not have permission to write, or the original config may have errors.
             }
