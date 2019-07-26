@@ -27,6 +27,9 @@ namespace NetTally.Votes
         /// <returns>Returns a normalized version of the vote line, with proper matching BBCode tags.</returns>
         public static string NormalizeContentBBCode(string line)
         {
+            if (string.IsNullOrEmpty(line))
+                return "";
+
             var lineSplit = allBBCodeRegex.Split(line);
 
             // If there were no BBCode tags, just return the original line.
