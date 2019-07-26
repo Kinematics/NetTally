@@ -42,12 +42,6 @@ namespace NetTally.Votes
         // Newline chars
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
 
-        static readonly StringBuilder prefixSB = new StringBuilder();
-        static readonly StringBuilder markerSB = new StringBuilder();
-        static readonly StringBuilder taskSB = new StringBuilder();
-        static readonly StringBuilder contentSB = new StringBuilder();
-        static readonly StringBuilder tempContent = new StringBuilder();
-
         /// <summary>
         /// Takes a line of text and attempts to parse it, looking for a valid vote line.
         /// If it's a valid vote line, returns a VoteLine. Otherwise returns null.
@@ -59,11 +53,11 @@ namespace NetTally.Votes
             if (line.Length == 0)
                 return null;
 
-            prefixSB.Clear();
-            markerSB.Clear();
-            taskSB.Clear();
-            contentSB.Clear();
-            tempContent.Clear();
+            StringBuilder prefixSB = new StringBuilder();
+            StringBuilder markerSB = new StringBuilder();
+            StringBuilder taskSB = new StringBuilder();
+            StringBuilder contentSB = new StringBuilder();
+            StringBuilder tempContent = new StringBuilder();
 
             MarkerType markerType = MarkerType.None;
             int markerValue = 0;
@@ -320,7 +314,7 @@ namespace NetTally.Votes
             if (input.Length == 0)
                 return "";
 
-            contentSB.Clear();
+            StringBuilder contentSB = new StringBuilder();
 
             // Use a stripped down version of the parsing state machine.
             Stack<TokenState> state = new Stack<TokenState>();
