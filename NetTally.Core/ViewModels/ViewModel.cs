@@ -45,12 +45,15 @@ namespace NetTally.ViewModels
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
 
             // Set up binding commands.
-            AddQuestCommand = new RelayCommand(this, DoAddQuest, CanAddQuest);
-            RemoveQuestCommand = new RelayCommand(this, DoRemoveQuest, CanRemoveQuest);
+            AddQuestCommand = new RelayCommand(this, nameof(AddQuestCommand), DoAddQuest, CanAddQuest);
+            RemoveQuestCommand = new RelayCommand(this, nameof(RemoveQuestCommand), DoRemoveQuest, CanRemoveQuest);
 
-            RunTallyCommand = new AsyncRelayCommand(this, DoRunTallyAsync, CanRunTally);
-            CancelTallyCommand = new RelayCommand(this, DoCancelTally, CanCancelTally);
-            ClearTallyCacheCommand = new RelayCommand(this, DoClearTallyCache, CanClearTallyCache);
+            RunTallyCommand = new AsyncRelayCommand(this, nameof(RunTallyCommand), DoRunTallyAsync, CanRunTally);
+            CancelTallyCommand = new RelayCommand(this, nameof(CancelTallyCommand), DoCancelTally, CanCancelTally);
+            ClearTallyCacheCommand = new RelayCommand(this, nameof(ClearTallyCacheCommand), DoClearTallyCache, CanClearTallyCache);
+
+            AddLinkedQuestCommand = new RelayCommand(this, nameof(AddLinkedQuestCommand), AddLinkedQuest, CanAddLinkedQuest);
+            RemoveLinkedQuestCommand = new RelayCommand(this, nameof(RemoveLinkedQuestCommand), RemoveLinkedQuest, CanRemoveLinkedQuest);
 
             SetupWatches();
         }
@@ -324,6 +327,95 @@ namespace NetTally.ViewModels
         }
         #endregion
 
+        #region Linked Quests
+        /// <summary>
+        /// Binding command for adding linked quests.
+        /// </summary>
+        public ICommand AddLinkedQuestCommand { get; private set; }
+
+        /// <summary>
+        /// Test function to see if adding a new linked quest is valid.
+        /// </summary>
+        /// <param name="parameter">Should provide an IQuest parameter for the quest
+        /// potentially being linked to the current selected quest.</param>
+        /// <returns>Returns true if it's OK to link the specified quest to the current quest.</returns>
+        private bool CanAddLinkedQuest(object? parameter)
+        {
+            if (TallyIsRunning)
+                return false;
+
+            if (SelectedQuest == null)
+                return false;
+
+            if (parameter is IQuest questToAdd)
+            {
+                if (SelectedQuest == questToAdd)
+                    return false;
+
+                if (SelectedQuest.HasLinkedQuest(questToAdd))
+                    return false;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Add a linked quest to the current quest.
+        /// </summary>
+        /// <param name="parameter">An IQuest that should be linked to the current quest.</param>
+        private void AddLinkedQuest(object? parameter)
+        {
+            if (parameter is IQuest questToAdd)
+            {
+                SelectedQuest?.AddLinkedQuest(questToAdd);
+            }
+        }
+
+        /// <summary>
+        /// Binding command for removing linked quests.
+        /// </summary>
+        public ICommand RemoveLinkedQuestCommand { get; private set; }
+
+        /// <summary>
+        /// Test function to see if removing a linked quest is valid.
+        /// </summary>
+        /// <param name="parameter">Should provide an IQuest parameter for the quest
+        /// potentially being removed from the current selected quest.</param>
+        /// <returns>Returns true if it's OK to remove the link to specified quest from the current quest.</returns>
+        private bool CanRemoveLinkedQuest(object? parameter)
+        {
+            if (TallyIsRunning)
+                return false;
+
+            if (SelectedQuest == null)
+                return false;
+
+            if (parameter is IQuest questToAdd)
+            {
+                if (SelectedQuest.HasLinkedQuest(questToAdd))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove a linked quest from the current quest.
+        /// </summary>
+        /// <param name="parameter">An IQuest that should be removed from the current quest.</param>
+        private void RemoveLinkedQuest(object? parameter)
+        {
+            if (parameter is IQuest questToRemove)
+            {
+                SelectedQuest?.RemoveLinkedQuest(questToRemove);
+            }
+        }
+        #endregion Linked Quests
+
         #region Add Quest
         /// <summary>
         /// Command property for adding a new quest to the quest list.
@@ -385,13 +477,12 @@ namespace NetTally.ViewModels
         /// SelectedQuest.</param>
         private void DoRemoveQuest(object? parameter)
         {
-            int index = -1;
             IQuest? questToRemove = GetThisQuest(parameter);
 
             if (questToRemove == null)
                 return;
 
-            index = QuestList.IndexOf(questToRemove);
+            int index = QuestList.IndexOf(questToRemove);
 
             if (index < 0)
                 return;

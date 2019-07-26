@@ -5,6 +5,9 @@ using NetTally.Utility;
 using NetTally.Votes;
 using System.Collections.Generic;
 using NetTally.Input.Utility;
+using NetTally.Collections;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace NetTally
 {
@@ -33,6 +36,96 @@ namespace NetTally
         static readonly Random indexer = new Random();
         private readonly int questHash;
         #endregion
+
+        #region Linked Quests
+        /// <summary>
+        /// A collection of linked quests that should be tallied alongside this one.
+        /// </summary>
+        public QuestCollection LinkedQuests { get; } = new QuestCollection();
+
+        /// <summary>
+        /// Check if the given quest is one of the linked quests.
+        /// </summary>
+        /// <param name="quest">The quest to check on.</param>
+        /// <returns>Returns true if this quest has the given quest in its links.</returns>
+        public bool HasLinkedQuest(IQuest quest)
+        {
+            foreach (var linkedQuest in LinkedQuests)
+            {
+                if (linkedQuest == quest)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check if the quest with the given name is one of the linked quests.
+        /// </summary>
+        /// <param name="questName">The name of the quest to check on.</param>
+        /// <returns>Returns true if this quest has the given quest in its links.</returns>
+        public bool HasLinkedQuest(string questName)
+        {
+            foreach (var quest in LinkedQuests)
+            {
+                if (quest.DisplayName == questName)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Add the provided quest to the list of links this quest has.
+        /// </summary>
+        /// <param name="quest">The quest to add.</param>
+        public void AddLinkedQuest(IQuest quest)
+        {
+            if ((quest as Quest) == this)
+                return;
+
+            LinkedQuests.Add(quest);
+            quest.LinkedQuests.Add(this);
+            OnPropertyChanged(nameof(LinkedQuests));
+        }
+
+        /// <summary>
+        /// Remove the provided quest from the list of quests this quest is linked to.
+        /// </summary>
+        /// <param name="quest">The quest to remove.</param>
+        /// <returns>Returns true if the quest was found and removed.</returns>
+        public bool RemoveLinkedQuest(IQuest quest)
+        {
+            return RemoveLinkedQuestImpl(quest as Quest);
+        }
+
+        /// <summary>
+        /// Implementation of RemoveLinkedQuest, to allow this quest to tell the
+        /// linked quest to also remove itself from the other quest.
+        /// </summary>
+        /// <param name="quest">The quest to remove.</param>
+        /// <param name="callerName">The name of the function that called this one.</param>
+        /// <returns>Returns true if the quest was found and removed.</returns>
+        private bool RemoveLinkedQuestImpl(Quest? quest, [CallerMemberName] string callerName = "")
+        {
+            if (quest != null)
+            {
+                if (LinkedQuests.Remove(quest))
+                {
+                    if (callerName != nameof(RemoveLinkedQuestImpl))
+                    {
+                        quest.RemoveLinkedQuestImpl(this);
+                        OnPropertyChanged(nameof(LinkedQuests));
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        #endregion Linked Quests
+
 
         #region URL and Display Name
         string threadName = string.Empty;
