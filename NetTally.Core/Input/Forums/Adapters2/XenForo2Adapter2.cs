@@ -184,11 +184,11 @@ namespace NetTally.Forums.Adapters2
 
         private string GetPageTitle(HtmlDocument page, HtmlNode headerNode)
         {
-            var titleNode = headerNode.GetChildWithClass("div", "p-title");
-            string title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
+            //var titleNode = headerNode.GetChildWithClass("div", "p-title");
+            //string title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
 
-            if (!string.IsNullOrEmpty(title))
-                return title;
+            //if (!string.IsNullOrEmpty(title))
+            //    return title;
 
             return ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
