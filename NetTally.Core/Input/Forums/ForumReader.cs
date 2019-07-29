@@ -326,6 +326,7 @@ namespace NetTally.Forums
             ThreadInfo threadInfo = null;
             List<Post> postsList = new List<Post>();
             int pageNumber = threadRangeInfo.GetStartPage(quest) - 1;
+            bool incomplete = false;
 
             foreach (var loadingPage in loadingPages)
             {
@@ -334,7 +335,10 @@ namespace NetTally.Forums
                 pageNumber++;
 
                 if (page == null)
+                {
+                    incomplete = true;
                     continue;
+                }
 
                 if (threadInfo == null)
                 {
@@ -342,6 +346,13 @@ namespace NetTally.Forums
                 }
 
                 postsList.AddRange(adapter.GetPosts(page, quest, pageNumber));
+            }
+
+            if (incomplete)
+            {
+                InvalidOperationException e = new InvalidOperationException("Unable to load all pages.");
+                e.Data["Application"] = true;
+                throw e;
             }
 
             if (threadInfo == null)
