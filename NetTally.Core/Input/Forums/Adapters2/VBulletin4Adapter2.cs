@@ -14,7 +14,13 @@ namespace NetTally.Forums.Adapters2
 {
     public class VBulletin4Adapter2 : IForumAdapter2
     {
-        #region Static data
+        #region Constructor
+        readonly IGeneralInputOptions inputOptions;
+
+        public VBulletin4Adapter2(IGeneralInputOptions inputOptions)
+        {
+            this.inputOptions = inputOptions;
+        }
         #endregion
 
         #region IForumAdapter2 interface
@@ -186,7 +192,7 @@ namespace NetTally.Forums.Adapters2
             int number = GetPostNumber(page, id);
             string text = GetPostText(li, id, quest);
 
-            if (AdvancedOptions.Instance.DebugMode)
+            if (inputOptions.DebugMode)
                 author = $"{author}_{id}";
 
             try
