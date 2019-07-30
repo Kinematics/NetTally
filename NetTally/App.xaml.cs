@@ -48,8 +48,6 @@ namespace NetTally
             var logger = loggerFactory.CreateLogger<App>();
             logger.LogInformation($"Services defined. Starting application. Version: {ProductInfo.Version}");
 
-            ServiceProvider.GetRequiredService<ViewModelService>();
-
             // Request the navigation service and create our main window.
             var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();
             _ = navigationService.ShowAsync<MainWindow>();
