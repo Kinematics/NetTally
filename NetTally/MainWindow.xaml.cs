@@ -163,7 +163,8 @@ namespace NetTally
         /// <param name="e">The <see cref="FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
         private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
         {
-            logger.LogWarning(e.Exception, "First chance exception warning.");
+            if (AdvancedOptions.Instance.DebugMode)
+                logger.LogWarning(e.Exception, "First chance exception warning.");
         }
 
         /// <summary>
