@@ -21,7 +21,7 @@ namespace NetTally
 {
     public static class Startup
     {
-        public static void ConfigureServices(IServiceCollection services, LogLevel defaultLoggingLevel = LogLevel.Debug)
+        public static void ConfigureServices(IServiceCollection services)
         {
             // Logging system.
             services.AddLogging(builder =>
@@ -36,7 +36,7 @@ namespace NetTally
                 .AddFilter<DebugLoggerProvider>(DebugLoggingFilter)
                 .AddFilter<FileLoggerProvider>(FileLoggingFilter)
             );
-            //services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
+            //services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
 
             services.AddSingleton<IGlobalOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
