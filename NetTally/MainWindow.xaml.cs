@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,7 +31,6 @@ namespace NetTally
     public partial class MainWindow : Window, IDisposable
     {
         #region Fields and Properties
-        bool _disposed = false;
         private bool updateFlag;
         private readonly ViewModel mainViewModel;
         private readonly IoCNavigationService navigationService;
@@ -88,8 +88,8 @@ namespace NetTally
             }
             catch (Exception e)
             {
-                Logger.Error("Failure during program startup.", e);
-                MessageBox.Show(e.Message, "Unable to start up. Closing.", MessageBoxButton.OK, MessageBoxImage.Error);
+                logger.LogError(e, "Failure during program startup.");
+                ShowWarning("Unable to start the program.", "Failure on startup");
                 this.Close();
             }
         }
@@ -116,41 +116,8 @@ namespace NetTally
             }
             catch (InvalidOperationException e)
             {
-                Logger.Error("Invalid operation during platform setup.", e);
+                logger.LogError(e, "Invalid operation during platform setup.");
             }
-        }
-
-        /// <summary>
-        /// Handles the FirstChanceException event of the Current Domain.
-        /// Logs all first chance exceptions when debug mode is on, for debug builds.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
-        private void CurrentDomain_FirstChanceException(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
-        {
-            if (AdvancedOptions.Instance.DebugMode)
-            {
-                try
-                {
-                    string msg = $"{e.Exception.GetBaseException().GetType().Name} exception event raised: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
-                    Logger.Info(msg, e.Exception);
-                }
-                catch (Exception)
-                {
-                }
-            }
-        }
-
-        /// <summary>
-        /// Unhandled exception handler.  If an unhandled exception crashes the program, save
-        /// the stack trace to a log file.
-        /// </summary>
-        /// <param name="sender">The AppDomain.</param>
-        /// <param name="e">The details of the unhandled exception.</param>
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Exception ex = (Exception)e.ExceptionObject;
-            SaveExceptionAndNotifyUser(ex);
         }
 
         /// <summary>
@@ -183,40 +150,50 @@ namespace NetTally
             }
             catch (Exception ex)
             {
-                SaveExceptionAndNotifyUser(ex);
+                logger.LogWarning(ex, "Failed to save configuration.");
+                ShowWarning("The program failed to save configuration data.", "Failed to save configuration");
             }
         }
 
         /// <summary>
-        /// Saves the exception and notifies the user.
+        /// Handles the FirstChanceException event of the Current Domain.
+        /// Logs all first chance exceptions when debug mode is on, for debug builds.
         /// </summary>
-        /// <param name="e">The exception.</param>
-        private void SaveExceptionAndNotifyUser(Exception e)
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
+        private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
         {
-            if (e == null)
-                return;
+            logger.LogWarning(e.Exception, "First chance exception warning.");
+        }
 
-            if (Logger.Error("Unhandled exception.", e))
-            {
-                string logFile = Logger.LastLogLocation;
+        /// <summary>
+        /// Unhandled exception handler.  If an unhandled exception crashes the program, save
+        /// the stack trace to a log file.
+        /// </summary>
+        /// <param name="sender">The AppDomain.</param>
+        /// <param name="e">The details of the unhandled exception.</param>
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = (Exception)e.ExceptionObject;
+            logger.LogCritical(ex, "Unhandled exception");
+            ShowWarning("The program failed to handle an exception.", "Unhandled exception");
+        }
 
-                if (logFile != Logger.UnknownLogLocation)
-                {
-                    MessageBox.Show($"Error log saved to:\n{logFile}", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    MessageBox.Show($"{e.Message}\n\nError saving message to log file.", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show($"{e.Message}\n\nUnable to save error to log file.", "Unhandled exception", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+        /// <summary>
+        /// Simplified handling of showing a warning for errors that have been logged.
+        /// </summary>
+        /// <param name="primaryMessage">The main text to show before showing where the logs have been saved.</param>
+        /// <param name="title">The text to use as the title of the message box.</param>
+        private void ShowWarning(string primaryMessage, string title)
+        {
+            MessageBox.Show($"{primaryMessage}\nLogs have been saved in: {Startup.GetLoggingDirectoryPath()}",
+                title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
         #endregion
 
         #region Disposal
+        bool _disposed = false;
+
         ~MainWindow()
         {
             Dispose(false);
@@ -235,8 +212,6 @@ namespace NetTally
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                mainViewModel?.Dispose();
-
                 HwndSource? source = PresentationSource.FromVisual(this) as HwndSource;
                 source?.RemoveHook(WndProc);
             }
@@ -374,14 +349,17 @@ namespace NetTally
 
             string exmsg = ex.Message;
             var innerEx = ex.InnerException;
+
             while (innerEx != null)
             {
                 exmsg = exmsg + "\n" + innerEx.Message;
                 innerEx = innerEx.InnerException;
             }
+
             MessageBox.Show(exmsg, "Error");
+
             if (!(ex.Data.Contains("Application")))
-                Logger.Error("Exception bubbled up from the view model.\n", ex);
+                logger.LogError(ex, "Exception bubbled up from the view model.");
 
             e.Handled = true;
         }
