@@ -11,11 +11,12 @@ namespace NetTally.Forums
         public IdentityType AuthorType { get; }
         public PostId ID { get; }
         public int ThreadPostNumber { get; }
+        public DateTime Timestamp { get; }
         public Uri Thread { get; }
         public string Permalink { get; }
         public Origin Source { get; }
 
-        public static Origin Empty = new Origin("", "0", 0, new Uri("http://www.example.com/"), "http://www.example.com/");
+        public static Origin Empty = new Origin("", "0", 0, DateTime.MinValue, new Uri("http://www.example.com/"), "http://www.example.com/");
 
         private static readonly Uri exampleUri = new Uri("http://www.example.com/");
         private readonly int hash;
@@ -27,21 +28,23 @@ namespace NetTally.Forums
             AuthorType = IdentityType.User;
             ID = new PostId(postID);
             ThreadPostNumber = postNumber;
+            Timestamp = DateTime.MinValue;
             Thread = thread;
             Permalink = permalink;
             Source = Empty;
             hash = ComputeHash();
         }
 
-        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, Uri thread, string permalink, Origin source)
+        public Origin(string author, string postID, int postNumber, DateTime timestamp, Uri thread, string permalink)
         {
             Author = author;
-            AuthorType = identityType;
-            ID = postId;
+            AuthorType = IdentityType.User;
+            ID = new PostId(postID);
             ThreadPostNumber = postNumber;
+            Timestamp = timestamp;
             Thread = thread;
             Permalink = permalink;
-            Source = source;
+            Source = Empty;
             hash = ComputeHash();
         }
 
@@ -53,6 +56,7 @@ namespace NetTally.Forums
 
             ID = PostId.Zero;
             ThreadPostNumber = 0;
+            Timestamp = DateTime.MinValue;
             Thread = exampleUri;
             Permalink = "";
             Source = Empty;
@@ -60,9 +64,23 @@ namespace NetTally.Forums
             hash = ComputeHash();
         }
 
+        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, DateTime timestamp,
+            Uri thread, string permalink, Origin source)
+        {
+            Author = author;
+            AuthorType = identityType;
+            ID = postId;
+            ThreadPostNumber = postNumber;
+            Timestamp = timestamp;
+            Thread = thread;
+            Permalink = permalink;
+            Source = source;
+            hash = ComputeHash();
+        }
+
         public Origin GetPlanOrigin(string planName)
         {
-            return new Origin(planName, IdentityType.Plan, ID, ThreadPostNumber, Thread, Permalink, this);
+            return new Origin(planName, IdentityType.Plan, ID, ThreadPostNumber, Timestamp, Thread, Permalink, this);
         }
         #endregion
 
