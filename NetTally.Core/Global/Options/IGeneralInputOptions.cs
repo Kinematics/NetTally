@@ -13,8 +13,9 @@ namespace NetTally.Options
         [Obsolete("No longer used")]
         bool AllowRankedVotes { get; }
         RankVoteCounterMethod RankVoteCounterMethod { get; }
-        BoolEx AllowUsersToUpdatePlans { get; set; }
+        BoolEx AllowUsersToUpdatePlans { get; }
 
+        bool TrackPostAuthorsUniquely { get; }
         bool DebugMode { get; }
 
     }
