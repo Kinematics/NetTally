@@ -10,14 +10,38 @@ namespace NetTally.Forums
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    public class ForumAdapterFactory
+    public class ForumAdapterFactory : IDisposable
     {
         readonly IGeneralInputOptions inputOptions;
+        readonly SemaphoreSlim ss = new SemaphoreSlim(1);
 
         public ForumAdapterFactory(IGeneralInputOptions inputOptions)
         {
             this.inputOptions = inputOptions;
         }
+
+        #region Disposal
+        bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        ~ForumAdapterFactory()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool managedDisposal)
+        {
+            if (managedDisposal && !disposed)
+            {
+                ss.Dispose();
+                disposed = true;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Create a new forum adapter appropriate to the provided quest.
@@ -29,11 +53,20 @@ namespace NetTally.Forums
         public async Task<IForumAdapter2> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest.ThreadUri == Quest.InvalidThreadUri)
-                throw new InvalidOperationException("Quest has no valid thread specified.");
+                throw new InvalidOperationException("Quest does not have a valid thread specified.");
 
             if (quest.ForumType == ForumType.Unknown)
             {
-                quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, token);
+                await ss.WaitAsync(token).ConfigureAwait(false);
+
+                try
+                {
+                    quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, token);
+                }
+                finally
+                {
+                    ss.Release();
+                }
             }
 
             return CreateForumAdapter(quest.ForumType, quest.ThreadUri);
