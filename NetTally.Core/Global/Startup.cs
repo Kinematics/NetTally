@@ -65,7 +65,7 @@ namespace NetTally
         /// Get a logging directory to initialize the FileLogger's options with.
         /// </summary>
         /// <returns>Returns a path to a directory to store log files in.</returns>
-        private static string GetLoggingDirectoryPath()
+        public static string GetLoggingDirectoryPath()
         {
             try
             {
