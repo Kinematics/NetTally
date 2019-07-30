@@ -26,6 +26,7 @@ namespace NetTally.Forums
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         ~ForumAdapterFactory()
