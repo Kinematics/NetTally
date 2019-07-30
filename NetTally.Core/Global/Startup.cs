@@ -1,30 +1,30 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 using NetTally.Cache;
+using NetTally.Debugging.FileLogger;
 using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.SystemInfo;
-using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
 using NetTally.Web;
-using NetTally.Debugging.FileLogger;
-using System.IO;
 
 namespace NetTally
 {
-    public static class Startup 
+    public static class Startup
     {
         public static void ConfigureServices(IServiceCollection services, LogLevel defaultLoggingLevel = LogLevel.Debug)
         {
             // Logging system.
-            services.AddLogging(builder => 
+            services.AddLogging(builder =>
                 builder
                 .AddDebug()
                 .AddFile(options =>
@@ -33,8 +33,10 @@ namespace NetTally
                             options.Periodicity = PeriodicityOptions.Daily;
                             options.RetainedFileCountLimit = 7;
                         })
+                .AddFilter<DebugLoggerProvider>(DebugLoggingFilter)
+                .AddFilter<FileLoggerProvider>(FileLoggingFilter)
             );
-            services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
+            //services.Configure<LoggerFilterOptions>(options => options.MinLevel = defaultLoggingLevel);
 
             services.AddSingleton<IGlobalOptions>(AdvancedOptions.Instance);
             services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
@@ -86,19 +88,20 @@ namespace NetTally
             return "Logs";
         }
 
-        public static LogLevel FileLogLevel = LogLevel.Information;
+        public static bool FileLoggingFilter(string category, LogLevel logLevel)
+        {
+            if (AdvancedOptions.Instance.DebugMode)
+                return logLevel >= LogLevel.Debug;
 
-        /// <summary>
-        /// Supplementary check for whether logging is enabled for the specified log level.
-        /// </summary>
-        /// <param name="logLevel">The log level of the message being logged.</param>
-        /// <returns>Returns true if logging the specified logLevel is valid. False if it shouldn't be logged.</returns>
-        public static bool IsFileLoggingEnabled(LogLevel logLevel)
+            return logLevel >= LogLevel.Information;
+        }
+
+        public static bool DebugLoggingFilter(string category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
                 return true;
 
-            return logLevel >= FileLogLevel;
+            return logLevel >= LogLevel.Debug;
         }
     }
 }

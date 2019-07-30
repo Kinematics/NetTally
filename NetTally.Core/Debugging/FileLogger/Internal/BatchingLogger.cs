@@ -27,10 +27,7 @@ namespace NetTally.Debugging.FileLogger.Internal
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            if (!_provider.IsEnabled)
-                return false;
-
-            return NetTally.Startup.IsFileLoggingEnabled(logLevel);
+            return _provider.IsEnabled;
         }
 
         public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state,
