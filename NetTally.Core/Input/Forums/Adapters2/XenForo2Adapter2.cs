@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Options;
@@ -28,10 +29,12 @@ namespace NetTally.Forums.Adapters2
 
         #region Constructor
         readonly IGeneralInputOptions inputOptions;
+        readonly ILogger<XenForo2Adapter2> logger;
 
-        public XenForo2Adapter2(IGeneralInputOptions inputOptions)
+        public XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
         {
             this.inputOptions = inputOptions;
+            this.logger = logger;
         }
         #endregion
 
