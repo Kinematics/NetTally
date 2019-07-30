@@ -47,12 +47,12 @@ namespace NetTally
         /// </summary>
         /// <param name="viewModel">The primary view model of the program</param>
         /// <param name="loggerFactory">DI for the local logger.</param>
-        public ReorderTasksWindow(ViewModel viewModel, ILoggerFactory loggerFactory)
+        public ReorderTasksWindow(ViewModel viewModel, ILogger<ReorderTasksWindow> logger)
         {
             // Save dependencies
             mainViewModel = viewModel;
             taskCollection = viewModel.TaskList;
-            logger = loggerFactory.CreateLogger<ReorderTasksWindow>();
+            this.logger = logger;
 
             // Set up commands
             MoveUpCommand = new RelayCommand(this, nameof(MoveUpCommand), MoveTaskUp, CanMoveTaskUp);

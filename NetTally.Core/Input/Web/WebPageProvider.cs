@@ -30,11 +30,11 @@ namespace NetTally.Web
         #region Construction, Setup, Disposal
         public WebPageProvider(HttpClientHandler handler,
             ICache<string> pageCache, IClock clock,
-            IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
+            IGeneralInputOptions inputOptions, ILogger<WebPageProvider> logger)
             : base(handler, pageCache, clock)
         {
             this.inputOptions = inputOptions;
-            logger = loggerFactory.CreateLogger<WebPageProvider>();
+            this.logger = logger;
 
             SetupHandler();
             httpClient = SetupClient();

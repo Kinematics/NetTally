@@ -23,7 +23,7 @@ namespace NetTally.Tests
 
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("TestStartup");
-            logger.LogDebug("Services defined for testing!");
+            logger.LogInformation("Services defined for testing!");
 
             serviceProvider.GetRequiredService<ViewModelService>();
 

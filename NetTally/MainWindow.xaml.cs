@@ -43,15 +43,13 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(ViewModel model, IoCNavigationService navigationService, IHash hash, ILoggerFactory loggerFactory)
+        public MainWindow(ViewModel model, IoCNavigationService navigationService, IHash hash, ILogger<MainWindow> logger)
         {
             // Initialize the readonly fields.
             this.mainViewModel = model;
             this.navigationService = navigationService;
             this._syncContext = SynchronizationContext.Current!;
-            this.logger = loggerFactory.CreateLogger<MainWindow>();
-
-            
+            this.logger = logger;
 
             try
             {
@@ -78,7 +76,7 @@ namespace NetTally
                 {
                     logger.LogDebug("Loading configuration.");
                     NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
-                    logger.LogDebug("Configuration loaded.");
+                    logger.LogInformation("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
                 {
