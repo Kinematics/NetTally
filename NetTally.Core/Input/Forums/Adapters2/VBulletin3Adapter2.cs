@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Web;
@@ -15,10 +16,12 @@ namespace NetTally.Forums.Adapters2
     {
         #region Constructor
         readonly IGeneralInputOptions inputOptions;
+        readonly ILogger<VBulletin3Adapter2> logger;
 
-        public VBulletin3Adapter2(IGeneralInputOptions inputOptions)
+        public VBulletin3Adapter2(IGeneralInputOptions inputOptions, ILogger<VBulletin3Adapter2> logger)
         {
             this.inputOptions = inputOptions;
+            this.logger = logger;
         }
         #endregion
 

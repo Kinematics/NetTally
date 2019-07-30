@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Options;
 using NetTally.Web;
 
@@ -14,10 +15,12 @@ namespace NetTally.Forums.Adapters2
     {
         #region Constructor
         readonly IGeneralInputOptions inputOptions;
+        readonly ILogger<UnknownForumAdapter2> logger;
 
-        public UnknownForumAdapter2(IGeneralInputOptions inputOptions)
+        public UnknownForumAdapter2(IGeneralInputOptions inputOptions, ILogger<UnknownForumAdapter2> logger)
         {
             this.inputOptions = inputOptions;
+            this.logger = logger;
         }
         #endregion
 
