@@ -8,7 +8,7 @@ namespace NetTally
     /// Interface that can be used to supply the static Logger class with an
     /// implementation for the platform being run.
     /// </summary>
-    public interface ILogger
+    public interface INTLogger
     {
         bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown");
         bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown");
@@ -19,8 +19,8 @@ namespace NetTally
     /// Default version of the ILogger so that failure to initialize the error logger class
     /// won't cause things to crash.
     /// </summary>
-    /// <seealso cref="NetTally.ILogger" />
-    public class NullLogger : ILogger
+    /// <seealso cref="NetTally.INTLogger" />
+    public class NullLogger : INTLogger
     {
         public bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown") => true;
         public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown") => true;
@@ -32,7 +32,7 @@ namespace NetTally
     /// </summary>
     public static class Logger
     {
-        static ILogger _logger = new NullLogger();
+        static INTLogger _logger = new NullLogger();
         public static IClock Clock { get; set; } = new SystemClock();
         public static LoggingLevel LoggingLevel { get; set; } = LoggingLevel.Error;
 
@@ -42,7 +42,7 @@ namespace NetTally
         /// Cause the static Logger class to use the specified ILogger and IClock implementations.
         /// </summary>
         /// <param name="logger">The logger implementation to use.</param>
-        public static void LogUsing(ILogger logger)
+        public static void LogUsing(INTLogger logger)
         {
             _logger = logger;
         }
