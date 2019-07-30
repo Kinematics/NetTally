@@ -178,7 +178,7 @@ namespace NetTally.Forums.Adapters2
             int number = GetPostNumber(li);
             string text = GetPostText(li, quest);
 
-            if (inputOptions.DebugMode)
+            if (inputOptions.TrackPostAuthorsUniquely)
                 author = $"{author}_{id}";
 
             try
