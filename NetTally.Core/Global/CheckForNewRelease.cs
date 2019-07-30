@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
 using NetTally.Web;
@@ -17,11 +17,13 @@ namespace NetTally
     {
         bool newRelease = false;
         readonly IPageProvider pageProvider;
+        readonly ILogger<CheckForNewRelease> logger;
         static readonly string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
 
-        public CheckForNewRelease(IPageProvider provider)
+        public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
         {
             pageProvider = provider;
+            this.logger = logger;
         }
 
         #region Property event handling.  Notify the main window when this value changes.
@@ -71,7 +73,7 @@ namespace NetTally
                 }
                 catch (Exception e)
                 {
-                    Logger.Warning("Check for new release update attempt failed.", e);
+                    logger.LogWarning(e, "Check for new release update attempt failed.");
                 }
             }
         }

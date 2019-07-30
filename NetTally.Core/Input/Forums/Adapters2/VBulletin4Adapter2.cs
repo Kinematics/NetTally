@@ -205,7 +205,7 @@ namespace NetTally.Forums.Adapters2
             }
             catch (Exception e)
             {
-                Logger.Error($"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})", e);
+                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
             }
 
             return null;
