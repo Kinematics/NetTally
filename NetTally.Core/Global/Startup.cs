@@ -43,7 +43,6 @@ namespace NetTally
             services.AddSingleton<IGeneralOutputOptions>(AdvancedOptions.Instance);
 
             services.AddSingleton<ViewModel>();
-            services.AddSingleton<ViewModelService>();
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();
             services.AddSingleton<IHash, NormalHash>();

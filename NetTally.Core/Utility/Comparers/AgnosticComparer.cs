@@ -22,8 +22,6 @@ namespace NetTally.Utility
         #endregion
 
         #region Fields and properties
-        private static CustomStringComparer currentComparer;
-
         private static CustomStringComparer StringComparerNoCaseSymbol { get; set; }
 
         private static CustomStringComparer StringComparerNoCaseNoSymbol { get; set; }
@@ -36,7 +34,7 @@ namespace NetTally.Utility
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static CustomStringComparer StringComparer => currentComparer;
+        public static CustomStringComparer StringComparer { get; private set; }
 
 
         /// <summary>
@@ -47,38 +45,36 @@ namespace NetTally.Utility
         /// <summary>
         /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
         /// </value>
-        public static CustomStringComparer QuestSensitiveStringComparer
+        public static CustomStringComparer QuestSensitiveStringComparer(IQuest quest)
         {
-            get
+            if (quest != null)
             {
-                if (ViewModelService.MainViewModel.SelectedQuest is IQuest quest)
+                if (quest.WhitespaceAndPunctuationIsSignificant)
                 {
-                    if (quest.WhitespaceAndPunctuationIsSignificant)
+                    if (quest.CaseIsSignificant)
                     {
-                        if (quest.CaseIsSignificant)
-                        {
-                            return StringComparerCaseSymbol;
-                        }
-                        else
-                        {
-                            return StringComparerNoCaseSymbol;
-                        }
+                        return StringComparerCaseSymbol;
                     }
                     else
                     {
-                        if (quest.CaseIsSignificant)
-                        {
-                            return StringComparerCaseNoSymbol;
-                        }
-                        else
-                        {
-                            return StringComparerNoCaseNoSymbol;
-                        }
+                        return StringComparerNoCaseSymbol;
+                    }
+                }
+                else
+                {
+                    if (quest.CaseIsSignificant)
+                    {
+                        return StringComparerCaseNoSymbol;
+                    }
+                    else
+                    {
+                        return StringComparerNoCaseNoSymbol;
                     }
                 }
 
-                return currentComparer;
             }
+
+            return StringComparer;
         }
 
         public static Func<string, CompareInfo, CompareOptions, int> HashFunction { get; private set; }
@@ -94,18 +90,24 @@ namespace NetTally.Utility
         {
             HashFunction = hashFunction;
 
+            // Case insensitive, whitespace/symbol sensitive
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
+            
+            // Case insensitive, whitespace/symbol insensitive
             StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols |  CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
-            // Case Sensitive, Symbols Sensitive.
+            
+            // Case sensitive, whitespace/symbol sensitive.
             StringComparerCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
-            // Case Sensitive, Symbols No Sensitive.
+            
+            // Case sensitive, whitespace/symbol insensitive.
             StringComparerCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction);
 
-            currentComparer = StringComparerNoCaseNoSymbol;
+            // Default is fully insensitive
+            StringComparer = StringComparerNoCaseNoSymbol;
         }
 
         /// <summary>
@@ -121,19 +123,19 @@ namespace NetTally.Utility
             {
                 if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == false)
                 {
-                    currentComparer = StringComparerNoCaseSymbol;
+                    StringComparer = StringComparerNoCaseSymbol;
                 }
                 else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == false)
                 {
-                    currentComparer = StringComparerNoCaseNoSymbol;
+                    StringComparer = StringComparerNoCaseNoSymbol;
                 }
                 else if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == true)
                 {
-                    currentComparer = StringComparerCaseSymbol;
+                    StringComparer = StringComparerCaseSymbol;
                 }
                 else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == true)
                 {
-                    currentComparer = StringComparerCaseNoSymbol;
+                    StringComparer = StringComparerCaseNoSymbol;
                 }
             }
         }
