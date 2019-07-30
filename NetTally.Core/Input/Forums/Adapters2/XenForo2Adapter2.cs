@@ -26,6 +26,15 @@ namespace NetTally.Forums.Adapters2
         static readonly Regex permalinkFragment = new Regex(@"threads/[^/]+/(post-(?<post>\d+))?$");
         #endregion
 
+        #region Constructor
+        readonly IGeneralInputOptions inputOptions;
+
+        public XenForo2Adapter2(IGeneralInputOptions inputOptions)
+        {
+            this.inputOptions = inputOptions;
+        }
+        #endregion
+
         #region IForumAdapter2 interface
         /// <summary>
         /// String to use for a line break between tasks.
@@ -487,7 +496,7 @@ namespace NetTally.Forums.Adapters2
             string text = GetPostText(article, quest);
             int number = GetPostNumber(article);
 
-            if (AdvancedOptions.Instance.DebugMode)
+            if (inputOptions.DebugMode)
                 author = $"{author}_{id}";
 
             try

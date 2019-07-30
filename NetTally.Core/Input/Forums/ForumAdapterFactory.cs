@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Forums.Adapters2;
+using NetTally.Options;
 using NetTally.Web;
 
 namespace NetTally.Forums
@@ -11,6 +12,13 @@ namespace NetTally.Forums
     /// </summary>
     public class ForumAdapterFactory
     {
+        readonly IGeneralInputOptions inputOptions;
+
+        public ForumAdapterFactory(IGeneralInputOptions inputOptions)
+        {
+            this.inputOptions = inputOptions;
+        }
+
         /// <summary>
         /// Create a new forum adapter appropriate to the provided quest.
         /// </summary>
@@ -41,21 +49,21 @@ namespace NetTally.Forums
             switch (forumType)
             {
                 case ForumType.XenForo1:
-                    return new XenForo1Adapter2();
+                    return new XenForo1Adapter2(inputOptions);
                 case ForumType.XenForo2:
-                    return new XenForo2Adapter2();
+                    return new XenForo2Adapter2(inputOptions);
                 case ForumType.vBulletin3:
-                    return new VBulletin3Adapter2();
+                    return new VBulletin3Adapter2(inputOptions);
                 case ForumType.vBulletin4:
-                    return new VBulletin4Adapter2();
+                    return new VBulletin4Adapter2(inputOptions);
                 case ForumType.vBulletin5:
-                    return new VBulletin5Adapter2();
+                    return new VBulletin5Adapter2(inputOptions);
                 case ForumType.phpBB:
-                    return new PhpBBAdapter2();
+                    return new PhpBBAdapter2(inputOptions);
                 //case ForumType.NodeBB:
-                //    return new NodeBBAdapter2();
+                //    return new NodeBBAdapter2(inputOptions);
                 case ForumType.Unknown:
-                    return new UnknownForumAdapter2();
+                    return new UnknownForumAdapter2(inputOptions);
                 default:
                     throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
             }

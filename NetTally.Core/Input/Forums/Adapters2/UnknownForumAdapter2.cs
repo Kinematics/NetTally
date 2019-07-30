@@ -5,12 +5,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using NetTally.Options;
 using NetTally.Web;
 
 namespace NetTally.Forums.Adapters2
 {
     class UnknownForumAdapter2 : IForumAdapter2
     {
+        #region Constructor
+        readonly IGeneralInputOptions inputOptions;
+
+        public UnknownForumAdapter2(IGeneralInputOptions inputOptions)
+        {
+            this.inputOptions = inputOptions;
+        }
+        #endregion
+
         public string GetDefaultLineBreak(Uri uri) => "";
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx GetHasRssThreadmarksFeed(Uri uri) => BoolEx.False;
