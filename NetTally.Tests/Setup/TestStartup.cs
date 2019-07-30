@@ -25,8 +25,6 @@ namespace NetTally.Tests
             var logger = loggerFactory.CreateLogger("TestStartup");
             logger.LogInformation("Services defined for testing!");
 
-            serviceProvider.GetRequiredService<ViewModelService>();
-
             return serviceProvider;
         }
     }
