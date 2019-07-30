@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
-using NetTally.ViewModels;
+using NetTally.Utility.Comparers;
 
 namespace NetTally.Tests
 {
@@ -24,6 +24,8 @@ namespace NetTally.Tests
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("TestStartup");
             logger.LogInformation("Services defined for testing!");
+
+            var agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
             return serviceProvider;
         }

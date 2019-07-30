@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.Votes;
 
 namespace NetTally.Tests.Votes
@@ -10,14 +11,16 @@ namespace NetTally.Tests.Votes
     public class VoteLineTests
     {
         static IServiceProvider serviceProvider;
+        static IAgnostic agnostic;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
+            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
             IQuest quest = new Quest();
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestCleanup]
@@ -26,7 +29,7 @@ namespace NetTally.Tests.Votes
             IQuest quest = new Quest();
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestMethod]
