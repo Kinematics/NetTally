@@ -22,6 +22,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
+using NetTally.SystemInfo;
 using NetTally.ViewModels;
 
 namespace NetTally
@@ -45,7 +46,7 @@ namespace NetTally
 
             var loggerFactory = ServiceProvider.GetService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger<App>();
-            logger.LogDebug("Services defined, starting application!");
+            logger.LogInformation($"Services defined. Starting application. Version: {ProductInfo.Version}");
 
             ServiceProvider.GetRequiredService<ViewModelService>();
 
@@ -72,6 +73,5 @@ namespace NetTally
             services.AddTransient<ManageVotesWindow>();
             services.AddTransient<ReorderTasksWindow>();
         }
-
     }
 }
