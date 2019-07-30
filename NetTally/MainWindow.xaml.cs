@@ -43,7 +43,7 @@ namespace NetTally
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(ViewModel model, IoCNavigationService navigationService, IHash hash, ILogger<MainWindow> logger)
+        public MainWindow(ViewModel model, IoCNavigationService navigationService, ILogger<MainWindow> logger)
         {
             // Initialize the readonly fields.
             this.mainViewModel = model;
@@ -59,8 +59,6 @@ namespace NetTally
 
                 // Set up the logger to use the Windows error log.
                 Logger.LogUsing(new WindowsErrorLog());
-
-                Agnostic.HashStringsUsing(hash.HashFunction);
 
                 // Initialize the window.
                 InitializeComponent();
