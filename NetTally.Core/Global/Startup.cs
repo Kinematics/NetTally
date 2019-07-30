@@ -93,7 +93,7 @@ namespace NetTally
             if (AdvancedOptions.Instance.DebugMode)
                 return logLevel >= LogLevel.Debug;
 
-            return logLevel >= LogLevel.Information;
+            return logLevel >= LogLevel.Warning;
         }
 
         public static bool DebugLoggingFilter(string category, LogLevel logLevel)
