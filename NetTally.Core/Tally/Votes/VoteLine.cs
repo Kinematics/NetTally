@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using NetTally.Utility;
+using NetTally.Utility.Comparers;
 
 namespace NetTally.Votes
 {

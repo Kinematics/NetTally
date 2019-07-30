@@ -118,10 +118,17 @@ namespace NetTally.Utility
         /// <summary>
         /// Find the first character difference between two strings.
         /// </summary>
+<<<<<<< local
+        /// <param name="self">The list to search.</param>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string AgnosticMatch(this IEnumerable<string> self, string value)
+=======
         /// <param name="first">First string.</param>
         /// <param name="second">Second string.</param>
         /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
         public static int FirstDifferenceInStrings(ReadOnlySpan<char> input1, ReadOnlySpan<char> input2)
+>>>>>>> graft
         {
             int length = input1.Length < input2.Length ? input1.Length : input2.Length;
 
@@ -134,7 +141,27 @@ namespace NetTally.Utility
             if (input1.Length != input2.Length)
                 return Math.Min(input1.Length, input2.Length);
 
+<<<<<<< local
+        /// <summary>
+        /// Returns the first match within the enumerable list that agnostically
+        /// equals the provided value.
+        /// Extends a string.
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <param name="list">The list to search.</param>
+        /// <returns>Returns the item in the list that matches the value, or null.</returns>
+        public static string AgnosticMatch(this string value, IEnumerable<string> list)
+        {
+            foreach (string item in list)
+            {
+                if (Agnostic.StringComparer.Equals(item, value))
+                    return item;
+            }
+
+            return null;
+=======
             return -1;
+>>>>>>> graft
         }
 
         #region Diacritical cleanup

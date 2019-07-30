@@ -1,5 +1,6 @@
 ﻿using System;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.Votes;
 
 namespace NetTally.Forums

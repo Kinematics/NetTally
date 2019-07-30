@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace NetTally.Comparers
+namespace NetTally.Utility.Comparers
 {
     /// <summary>
     /// A class to allow creation of custom string comparers, by specifying

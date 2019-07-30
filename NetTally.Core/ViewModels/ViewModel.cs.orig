@@ -252,11 +252,19 @@ namespace NetTally.ViewModels
             }
             else if (e.PropertyName == $"{nameof(IQuest.CaseIsSignificant)}")
             {
+<<<<<<< local
+                Agnostic.ComparisonPropertyChanged(SelectedQuest, e);
+=======
                 agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+>>>>>>> graft
             }
             else if (e.PropertyName == $"{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}")
             {
+<<<<<<< local
+                Agnostic.ComparisonPropertyChanged(SelectedQuest, e);
+=======
                 agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+>>>>>>> graft
             }
             else
             {
