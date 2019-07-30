@@ -431,8 +431,6 @@ namespace NetTally.Web
                 }
 
                 int tries = 0;
-                HttpResponseMessage response;
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
 
                 do
                 {
@@ -451,11 +449,14 @@ namespace NetTally.Web
 
                     try
                     {
-                        // As long as we got a response (whether 200 or 404), we can extract what
-                        // the server thinks the URL should be.
-                        using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
+                        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri))
                         {
-                            return response.RequestMessage.RequestUri;
+                            // As long as we got a response (whether 200 or 404), we can extract what
+                            // the server thinks the URL should be.
+                            using (HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
+                            {
+                                return response.RequestMessage.RequestUri;
+                            }
                         }
                     }
                     catch (HttpRequestException e)
