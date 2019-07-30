@@ -29,7 +29,7 @@ namespace NetTally.CLI
             var serviceCollection = new ServiceCollection();
 
             // Get the services provided by the core library.
-            Startup.ConfigureServices(serviceCollection, LogLevel.Trace);
+            Startup.ConfigureServices(serviceCollection);
 
             // Build the IServiceProvider and set our reference to it
             serviceProvider = serviceCollection.BuildServiceProvider();
