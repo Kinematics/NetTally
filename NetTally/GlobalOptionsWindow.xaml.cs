@@ -14,9 +14,9 @@ namespace NetTally
         #region Setup and construction
         readonly ILogger<GlobalOptionsWindow> logger;
 
-        public GlobalOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
+        public GlobalOptionsWindow(ViewModel model, ILogger<GlobalOptionsWindow> logger)
         {
-            logger = loggerFactory.CreateLogger<GlobalOptionsWindow>();
+            this.logger = logger;
 
             InitializeComponent();
 
@@ -44,6 +44,7 @@ namespace NetTally
         {
             rankedVoteAlgorithm.SelectedIndex = 0;
             allowUsersToUpdatePlans.IsChecked = null;
+            trackPostAuthorsUniquely.IsChecked = false;
             globalSpoilers.IsChecked = false;
             displayPlansWithNoVotes.IsChecked = false;
             debugMode.IsChecked = false;

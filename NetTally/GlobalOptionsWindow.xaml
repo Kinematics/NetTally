@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
-        Title="Global Options" Height="355.681" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        Title="Global Options" Height="370" Width="640" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
@@ -38,18 +38,20 @@
         <CheckBox Grid.Column="0" x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
                               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0" Grid.Row="1"
                               IsChecked="{Binding Path=Options.AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
+        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely" HorizontalAlignment="Left" Margin="33,92,0,0" Grid.Row="1" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=Options.TrackPostAuthorsUniquely}"/>
 
 
-        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,97,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,125,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <Label x:Name="labelOutput" Content="Output" HorizontalAlignment="Left" Margin="10,117,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers" HorizontalAlignment="Left" Margin="33,145,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.GlobalSpoilers}"/>
-        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,145,0,0" Grid.Row="1" VerticalAlignment="Top"
+        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes" HorizontalAlignment="Left" Margin="33,165,0,0" Grid.Row="1" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,180,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,208,0,0" VerticalAlignment="Top"
+        <Label x:Name="labelMisc" Content="Misc" HorizontalAlignment="Left" Margin="10,190,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,218,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DisableWebProxy}" />
-        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,228,0,0" VerticalAlignment="Top"
+        <CheckBox x:Name="debugMode" Content="Debug Mode" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="33,238,0,0" VerticalAlignment="Top"
                   IsChecked="{Binding Path=Options.DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
@@ -68,6 +70,12 @@
             <TextBlock TextWrapping="Wrap" Text="When set to false, users are not allowed to make such changes."/>
             <TextBlock TextWrapping="Wrap" Text="When set to indeterminate, the quest-specific setting is used instead."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to indeterminate."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trackPostAuthorsUniquely, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Track Post Authors Uniquely"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, post authors are tracked by name + post ID instead of just name."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
