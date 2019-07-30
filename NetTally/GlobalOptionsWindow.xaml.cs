@@ -43,8 +43,11 @@ namespace NetTally
         private void resetAllButton_Click(object sender, RoutedEventArgs e)
         {
             rankedVoteAlgorithm.SelectedIndex = 0;
+            allowUsersToUpdatePlans.IsChecked = null;
             globalSpoilers.IsChecked = false;
+            displayPlansWithNoVotes.IsChecked = false;
             debugMode.IsChecked = false;
+            disableWebProxy.IsChecked = false;
 
             logger.LogDebug("Global options have been reset.");
         }
