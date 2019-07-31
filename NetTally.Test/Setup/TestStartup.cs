@@ -13,7 +13,7 @@ namespace NetTally.Tests
             IServiceCollection services = new ServiceCollection();
 
             // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(services);
+            Startup.ConfigureServices(services);
 
             //services.AddSingleton<IPageProvider, TestPageProvider>();
             //services.AddSingleton<IHash, NormalHash>();
@@ -22,10 +22,11 @@ namespace NetTally.Tests
             var serviceProvider = services.BuildServiceProvider();
 
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            var logger2 = serviceProvider.GetRequiredService<Logger2>();
+            var agnostic = serviceProvider.GetRequiredService<IAgnostic>();
+
             var logger = loggerFactory.CreateLogger("TestStartup");
             logger.LogInformation("Services defined for testing!");
-
-            var agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
             return serviceProvider;
         }
