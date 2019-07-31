@@ -546,7 +546,7 @@ namespace NetTally.Forums.Adapters
             }
             catch (Exception e)
             {
-                Logger.Error($"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})", e);
+                Logger2.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
                 post = null;
             }
 
@@ -617,7 +617,7 @@ namespace NetTally.Forums.Adapters
             }
             catch (ArgumentNullException e)
             {
-                Logger.Error("Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?", e);
+                Logger2.LogError(e, "Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?");
             }
 
             return Enumerable.Empty<HtmlNode>();

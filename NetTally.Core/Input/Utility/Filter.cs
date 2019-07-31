@@ -190,7 +190,7 @@ namespace NetTally.Input.Utility
             }
             catch (ArgumentException e)
             {
-                Logger.Error($"Failed to create regex using string: [{sb.ToString()}]", e);
+                Logger2.LogError(e, $"Failed to create regex using string: [{sb.ToString()}]");
             }
 
             // If the attempt to create the regex to be returned failed, bail and

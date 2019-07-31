@@ -57,9 +57,6 @@ namespace NetTally
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
-                // Set up the logger to use the Windows error log.
-                Logger.LogUsing(new WindowsErrorLog());
-
                 // Initialize the window.
                 InitializeComponent();
 
