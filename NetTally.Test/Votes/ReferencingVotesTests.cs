@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -21,6 +22,7 @@ namespace NetTally.Tests.Votes
         static VoteConstructor voteConstructor;
         static Tally tally;
         static IQuest quest;
+        static IAgnostic agnostic;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -30,9 +32,10 @@ namespace NetTally.Tests.Votes
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
+            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
             IQuest quest = new Quest();
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestInitialize]
@@ -49,7 +52,7 @@ namespace NetTally.Tests.Votes
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 

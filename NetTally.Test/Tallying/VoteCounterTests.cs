@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -22,6 +23,7 @@ namespace NetTally.Tests.Tallying
         static VoteConstructor voteConstructor;
         static Tally tally;
         static IQuest quest;
+        static IAgnostic agnostic;
         static readonly Origin origin1 = new Origin("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new Origin("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin2 = new Origin("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");
@@ -37,6 +39,7 @@ namespace NetTally.Tests.Tallying
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
+            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
 
         [TestInitialize]
@@ -53,7 +56,7 @@ namespace NetTally.Tests.Tallying
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 
@@ -601,7 +604,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new Post(origin1, text1);
             Post post2 = new Post(origin2, text2);
@@ -635,7 +638,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new Post(origin1, text1);
             Post post2 = new Post(origin2, text2);

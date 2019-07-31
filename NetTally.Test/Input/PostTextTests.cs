@@ -12,7 +12,7 @@ namespace NetTally.Tests.Forums
     {
         #region Setup
         static IServiceProvider serviceProvider;
-        static Uri exampleUri = new Uri("http://www.example.com/");
+        static readonly Uri exampleUri = new Uri("http://www.example.com/");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
