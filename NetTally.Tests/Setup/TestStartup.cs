@@ -26,6 +26,7 @@ namespace NetTally.Tests
             logger.LogInformation("Services defined for testing!");
 
             var agnostic = serviceProvider.GetRequiredService<IAgnostic>();
+            var logger2 = serviceProvider.GetRequiredService<Logger2>();
 
             return serviceProvider;
         }
