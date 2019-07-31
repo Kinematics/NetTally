@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NetTally.Utility.Comparers
 {
