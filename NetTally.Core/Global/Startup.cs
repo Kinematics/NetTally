@@ -48,6 +48,7 @@ namespace NetTally
             services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<IAgnostic, Agnostic>();
             services.AddSingleton<CheckForNewRelease>();
+            services.AddSingleton<Logger2>();
 
             services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
