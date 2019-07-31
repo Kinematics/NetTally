@@ -71,7 +71,7 @@ namespace NetTally.SystemInfo
             }
             catch (Exception e)
             {
-                Logger.Error("Attempt to define the name and version of the program failed.", e);
+                Logger2.LogError(e, "Attempt to define the name and version of the program failed.");
             }
         }
     }
