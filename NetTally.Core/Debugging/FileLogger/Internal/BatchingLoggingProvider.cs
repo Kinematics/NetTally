@@ -21,13 +21,13 @@ namespace NetTally.Debugging.FileLogger.Internal
         private readonly IDisposable _optionsChangeToken;
 
         private BlockingCollection<LogMessage> _messageQueue;
-        private Task? _outputTask;
-        private CancellationTokenSource? _cancellationTokenSource;
+        private Task _outputTask;
+        private CancellationTokenSource _cancellationTokenSource;
 
         private bool _includeScopes;
-        private IExternalScopeProvider? _scopeProvider;
+        private IExternalScopeProvider _scopeProvider;
 
-        internal IExternalScopeProvider? ScopeProvider => _includeScopes ? _scopeProvider : null;
+        internal IExternalScopeProvider ScopeProvider => _includeScopes ? _scopeProvider : null;
 
         protected BatchingLoggerProvider(IOptionsMonitor<BatchingLoggerOptions> options)
         {

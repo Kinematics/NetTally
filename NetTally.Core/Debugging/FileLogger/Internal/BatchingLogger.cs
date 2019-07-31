@@ -19,7 +19,7 @@ namespace NetTally.Debugging.FileLogger.Internal
             _category = categoryName;
         }
 
-        public IDisposable? BeginScope<TState>(TState state)
+        public IDisposable BeginScope<TState>(TState state)
         {
             // NOTE: Differs from source
             return _provider.ScopeProvider?.Push(state);
