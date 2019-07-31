@@ -20,10 +20,10 @@ namespace NetTally
         readonly ILogger<QuestOptionsWindow> logger;
         readonly ViewModel viewModel;
 
-        public QuestOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
+        public QuestOptionsWindow(ViewModel model, ILogger<QuestOptionsWindow> logger)
         {
             viewModel = model;
-            logger = loggerFactory.CreateLogger<QuestOptionsWindow>();
+            this.logger = logger;
 
             DataContext = model;
 

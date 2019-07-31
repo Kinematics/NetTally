@@ -31,7 +31,7 @@ namespace NetTally.ViewModels
 
         public ViewModel(Tally tally, IVoteCounter voteCounter,
             ICache<string> cache, CheckForNewRelease newRelease,
-            IGlobalOptions globalOptions, ILoggerFactory loggerFactory)
+            IGlobalOptions globalOptions, ILogger<ViewModel> logger)
         {
             // Save our dependencies in readonly fields.
             this.tally = tally;
@@ -39,7 +39,7 @@ namespace NetTally.ViewModels
             this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
-            logger = loggerFactory.CreateLogger<ViewModel>();
+            this.logger = logger;
 
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
