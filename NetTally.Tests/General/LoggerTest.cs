@@ -101,7 +101,7 @@ namespace NTTests.Utility
         }
     }
 
-    internal class TestLogger : ILogger
+    internal class TestLogger : INTLogger
     {
         public string LogMessage { get; set; } = "";
 

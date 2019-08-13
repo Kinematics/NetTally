@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.Web;
@@ -13,7 +14,15 @@ namespace NetTally.Forums.Adapters2
 {
     public class PhpBBAdapter2 : IForumAdapter2
     {
-        #region Static data
+        #region Constructor
+        readonly IGeneralInputOptions inputOptions;
+        readonly ILogger<PhpBBAdapter2> logger;
+
+        public PhpBBAdapter2(IGeneralInputOptions inputOptions, ILogger<PhpBBAdapter2> logger)
+        {
+            this.inputOptions = inputOptions;
+            this.logger = logger;
+        }
         #endregion
 
         #region IForumAdapter2 interface
@@ -198,7 +207,7 @@ namespace NetTally.Forums.Adapters2
             int number = postNumber;
             string text = GetPostText(div, quest);
 
-            if (AdvancedOptions.Instance.DebugMode)
+            if (inputOptions.TrackPostAuthorsUniquely)
                 author = $"{author}_{id}";
 
             try
@@ -208,7 +217,7 @@ namespace NetTally.Forums.Adapters2
             }
             catch (Exception e)
             {
-                Logger.Error($"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})", e);
+                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
             }
 
             return null;

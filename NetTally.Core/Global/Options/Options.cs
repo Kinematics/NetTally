@@ -75,6 +75,7 @@ namespace NetTally.Options
 
         bool disableWebProxy = false;
         bool debugMode = false;
+        bool trackPostAuthorsUniquely = false;
         #endregion
 
         #region Constants for string descriptions
@@ -162,17 +163,17 @@ namespace NetTally.Options
                     debugMode = value;
                     OnPropertyChanged();
                 }
-
-#if DEBUG
-                if (debugMode)
-                    Logger.LoggingLevel = LoggingLevel.Info;
-#else
-                if (debugMode)
-                    Logger.LoggingLevel = LoggingLevel.Warning;
-#endif
-                else
-                    Logger.LoggingLevel = LoggingLevel.Error;
             }
+        }
+
+        /// <summary>
+        /// Whether authors should be tracked with author + post ID.
+        /// When disabled (the default), tracks only the author names.
+        /// </summary>
+        public bool TrackPostAuthorsUniquely
+        {
+            get { return trackPostAuthorsUniquely; }
+            set { SetProperty(ref trackPostAuthorsUniquely, value); }
         }
 
         /// <summary>

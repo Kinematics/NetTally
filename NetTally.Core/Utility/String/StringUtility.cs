@@ -114,45 +114,28 @@ namespace NetTally.Utility
 
         #endregion
 
-        #region Agnostic string comparison utilities
-        /// <summary>
-        /// Returns the first match within the enumerable list that agnostically
-        /// equals the provided value.
-        /// Extends the enumerable.
-        /// </summary>
-        /// <param name="self">The list to search.</param>
-        /// <param name="value">The value to compare with.</param>
-        /// <returns>Returns the item in the list that matches the value, or null.</returns>
-        public static string? AgnosticMatch(this IEnumerable<string> self, string value)
-        {
-            foreach (string item in self)
-            {
-                if (Agnostic.StringComparer.Equals(item, value))
-                    return item;
-            }
-
-            return null;
-        }
 
         /// <summary>
-        /// Returns the first match within the enumerable list that agnostically
-        /// equals the provided value.
-        /// Extends a string.
+        /// Find the first character difference between two strings.
         /// </summary>
-        /// <param name="value">The value to compare with.</param>
-        /// <param name="list">The list to search.</param>
-        /// <returns>Returns the item in the list that matches the value, or null.</returns>
-        public static string? AgnosticMatch(this string value, IEnumerable<string> list)
+        /// <param name="first">First string.</param>
+        /// <param name="second">Second string.</param>
+        /// <returns>Returns the index of the first difference between the strings.  -1 if they're equal.</returns>
+        public static int FirstDifferenceInStrings(ReadOnlySpan<char> input1, ReadOnlySpan<char> input2)
         {
-            foreach (string item in list)
+            int length = input1.Length < input2.Length ? input1.Length : input2.Length;
+
+            for (int i = 0; i < length; i++)
             {
-                if (Agnostic.StringComparer.Equals(item, value))
-                    return item;
+                if (input1[i] != input2[i])
+                    return i;
             }
 
-            return null;
+            if (input1.Length != input2.Length)
+                return Math.Min(input1.Length, input2.Length);
+
+            return -1;
         }
-        #endregion
 
         #region Diacritical cleanup
         /// <summary>

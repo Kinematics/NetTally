@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Options;
@@ -24,6 +25,17 @@ namespace NetTally.Forums.Adapters2
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
         // RSS permalink does not include the page number.
         static readonly Regex permalinkFragment = new Regex(@"threads/[^/]+/(post-(?<post>\d+))?$");
+        #endregion
+
+        #region Constructor
+        readonly IGeneralInputOptions inputOptions;
+        readonly ILogger<XenForo2Adapter2> logger;
+
+        public XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
+        {
+            this.inputOptions = inputOptions;
+            this.logger = logger;
+        }
         #endregion
 
         #region IForumAdapter2 interface
@@ -437,7 +449,7 @@ namespace NetTally.Forums.Adapters2
             }
             catch (ArgumentNullException e)
             {
-                Logger.Error("Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?", e);
+                logger.LogError(e, "Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?");
             }
 
             return Enumerable.Empty<HtmlNode>();
@@ -487,7 +499,7 @@ namespace NetTally.Forums.Adapters2
             string text = GetPostText(article, quest);
             int number = GetPostNumber(article);
 
-            if (AdvancedOptions.Instance.DebugMode)
+            if (inputOptions.TrackPostAuthorsUniquely)
                 author = $"{author}_{id}";
 
             try
@@ -497,7 +509,7 @@ namespace NetTally.Forums.Adapters2
             }
             catch (Exception e)
             {
-                Logger.Error($"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})", e);
+                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
             }
 
             return null;
@@ -585,6 +597,9 @@ namespace NetTally.Forums.Adapters2
                 if (uri.Segments[i] == "threads/")
                     foundThreads = true;
             }
+
+            if (sb[sb.Length - 1] != '/')
+                sb.Append('/');
 
             return sb.ToString();
         }

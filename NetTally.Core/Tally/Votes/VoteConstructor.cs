@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Forums;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 
 namespace NetTally.Votes

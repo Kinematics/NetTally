@@ -17,9 +17,9 @@ namespace NetTally.VoteCounting
         readonly ILogger<VoteCounter> logger;
         readonly IGlobalOptions globalOptions;
 
-        public VoteCounter(ILoggerFactory loggerFactory, IGlobalOptions globalOptions)
+        public VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger)
         {
-            logger = loggerFactory.CreateLogger<VoteCounter>();
+            this.logger = logger;
             this.globalOptions = globalOptions;
         }
 

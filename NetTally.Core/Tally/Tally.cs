@@ -41,13 +41,13 @@ namespace NetTally.VoteCounting
         readonly List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
 
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
-            IVoteCounter counter, IGeneralOutputOptions options, ILoggerFactory loggerFactory)
+            IVoteCounter counter, IGeneralOutputOptions options, ILogger<Tally> logger)
         {
             this.serviceProvider = serviceProvider;
             voteConstructor = constructor;
             voteCounter = counter;
             outputOptions = options;
-            logger = loggerFactory.CreateLogger<Tally>();
+            this.logger = logger;
 
             // Hook up to event notifications
             outputOptions.PropertyChanged += Options_PropertyChanged;

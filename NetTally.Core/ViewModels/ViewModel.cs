@@ -14,6 +14,7 @@ using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
 using NetTally.Votes;
@@ -27,11 +28,12 @@ namespace NetTally.ViewModels
         readonly CheckForNewRelease checkForNewRelease;
         readonly IGlobalOptions globalOptions;
         readonly ILogger<ViewModel> logger;
+        readonly IAgnostic agnostic;
         public ICache<string> PageCache { get; }
 
         public ViewModel(Tally tally, IVoteCounter voteCounter,
-            ICache<string> cache, CheckForNewRelease newRelease,
-            IGlobalOptions globalOptions, ILoggerFactory loggerFactory)
+            ICache<string> cache, CheckForNewRelease newRelease, IAgnostic agnostic,
+            IGlobalOptions globalOptions, ILogger<ViewModel> logger)
         {
             // Save our dependencies in readonly fields.
             this.tally = tally;
@@ -39,7 +41,8 @@ namespace NetTally.ViewModels
             this.PageCache = cache;
             this.globalOptions = globalOptions;
             this.checkForNewRelease = newRelease;
-            logger = loggerFactory.CreateLogger<ViewModel>();
+            this.agnostic = agnostic;
+            this.logger = logger;
 
             tally.PropertyChanged += Tally_PropertyChanged;
             voteCounter.PropertyChanged += VoteCounter_PropertyChanged;
@@ -227,8 +230,8 @@ namespace NetTally.ViewModels
                 quest.PropertyChanged += SelectedQuest_PropertyChanged;
 
                 // Some quest properties need to raise events on quest binding.
-                Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.CaseIsSignificant)}"));
-                Agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}"));
+                agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.CaseIsSignificant)}"));
+                agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs($"SelectedQuest.{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}"));
             }
         }
 
@@ -249,11 +252,11 @@ namespace NetTally.ViewModels
             }
             else if (e.PropertyName == $"{nameof(IQuest.CaseIsSignificant)}")
             {
-                Agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+                agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
             }
             else if (e.PropertyName == $"{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}")
             {
-                Agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
+                agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
             }
             else
             {

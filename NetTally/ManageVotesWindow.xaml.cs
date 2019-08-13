@@ -64,11 +64,11 @@ namespace NetTally
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotesWindow(ViewModel mainViewModel, IoCNavigationService navigationService, ILoggerFactory loggerFactory)
+        public ManageVotesWindow(ViewModel mainViewModel, IoCNavigationService navigationService, ILogger<ManageVotesWindow> logger)
         {
             this.mainViewModel = mainViewModel;
             this.navigationService = navigationService;
-            this.logger = loggerFactory.CreateLogger<ManageVotesWindow>();
+            this.logger = logger;
 
             InitializeComponent();
 

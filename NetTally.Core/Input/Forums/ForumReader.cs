@@ -19,13 +19,13 @@ namespace NetTally.Forums
         #region Constructor
         readonly IServiceProvider serviceProvider;
         readonly ForumAdapterFactory forumAdapterFactory;
-        private readonly ILogger<ForumReader> logger;
+        readonly ILogger<ForumReader> logger;
 
-        public ForumReader(IServiceProvider provider, ForumAdapterFactory factory, ILoggerFactory loggerFactory)
+        public ForumReader(IServiceProvider provider, ForumAdapterFactory factory, ILogger<ForumReader> logger)
         {
             serviceProvider = provider;
             forumAdapterFactory = factory;
-            logger = loggerFactory.CreateLogger<ForumReader>();
+            this.logger = logger;
         }
 
         public void Dispose()

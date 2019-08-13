@@ -1,14 +1,121 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
 
 namespace NetTally
 {
     /// <summary>
+    /// Class for storing an ILoggerFactory that can be used to log messages
+    /// from classes that aren't built using dependency injection, and have
+    /// no ILogger with personal category.
+    /// </summary>
+    public class Logger2
+    {
+        #region Constructor
+        static ILoggerFactory loggerFactory;
+
+        /// <summary>
+        /// Constructor that stores the logger factory provided by the dependency injection root.
+        /// Should be called early in program startup.
+        /// </summary>
+        /// <param name="factory">The factory used to generate a logger for static logging.</param>
+        public Logger2(ILoggerFactory factory)
+        {
+            loggerFactory = factory;
+        }
+        #endregion
+
+        #region Public static functions
+        public static void LogTrace(string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogTrace(message);
+        }
+
+        public static void LogDebug(string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogDebug(message);
+        }
+
+        public static void LogWarning(string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogWarning(message);
+        }
+
+        public static void LogWarning(Exception e, string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogWarning(e, message);
+        }
+
+        public static void LogError(string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogError(message);
+        }
+
+        public static void LogError(Exception e, string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogError(e, message);
+        }
+
+        public static void LogCritical(string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogCritical(message);
+        }
+
+        public static void LogCritical(Exception e, string message,
+            [CallerFilePath] string callerFilePath = "Unknown", [CallerMemberName] string callerMemberName = "Unknown")
+        {
+            string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
+
+            logger.LogCritical(e, message);
+        }
+        #endregion Public static functions
+    }
+
+    #region Obsolete Logger
+    /// <summary>
     /// Interface that can be used to supply the static Logger class with an
     /// implementation for the platform being run.
     /// </summary>
-    public interface ILogger
+    public interface INTLogger
     {
         bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown");
         bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown");
@@ -19,8 +126,8 @@ namespace NetTally
     /// Default version of the ILogger so that failure to initialize the error logger class
     /// won't cause things to crash.
     /// </summary>
-    /// <seealso cref="NetTally.ILogger" />
-    public class NullLogger : ILogger
+    /// <seealso cref="NetTally.INTLogger" />
+    public class NullLogger : INTLogger
     {
         public bool Log(string message, IClock clock, [CallerMemberName] string callingMethod = "Unknown") => true;
         public bool Log(string message, Exception exception, IClock clock, [CallerMemberName] string callingMethod = "Unknown") => true;
@@ -30,9 +137,10 @@ namespace NetTally
     /// <summary>
     /// Static entry point for logging messages.
     /// </summary>
+    [Obsolete("Superceded by ILogger extensions package.")]
     public static class Logger
     {
-        static ILogger _logger = new NullLogger();
+        static INTLogger _logger = new NullLogger();
         public static IClock Clock { get; set; } = new SystemClock();
         public static LoggingLevel LoggingLevel { get; set; } = LoggingLevel.Error;
 
@@ -42,7 +150,7 @@ namespace NetTally
         /// Cause the static Logger class to use the specified ILogger and IClock implementations.
         /// </summary>
         /// <param name="logger">The logger implementation to use.</param>
-        public static void LogUsing(ILogger logger)
+        public static void LogUsing(INTLogger logger)
         {
             _logger = logger;
         }
@@ -171,4 +279,5 @@ namespace NetTally
         /// <returns>Returns the last location an error was logged to.</returns>
         public static string LastLogLocation => _logger.LastLogLocation ?? UnknownLogLocation;
     }
+    #endregion Obsolete Logger
 }

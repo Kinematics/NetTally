@@ -14,9 +14,9 @@ namespace NetTally
         #region Setup and construction
         readonly ILogger<GlobalOptionsWindow> logger;
 
-        public GlobalOptionsWindow(ViewModel model, ILoggerFactory loggerFactory)
+        public GlobalOptionsWindow(ViewModel model, ILogger<GlobalOptionsWindow> logger)
         {
-            logger = loggerFactory.CreateLogger<GlobalOptionsWindow>();
+            this.logger = logger;
 
             InitializeComponent();
 
@@ -43,8 +43,12 @@ namespace NetTally
         private void resetAllButton_Click(object sender, RoutedEventArgs e)
         {
             rankedVoteAlgorithm.SelectedIndex = 0;
+            allowUsersToUpdatePlans.IsChecked = null;
+            trackPostAuthorsUniquely.IsChecked = false;
             globalSpoilers.IsChecked = false;
+            displayPlansWithNoVotes.IsChecked = false;
             debugMode.IsChecked = false;
+            disableWebProxy.IsChecked = false;
 
             logger.LogDebug("Global options have been reset.");
         }

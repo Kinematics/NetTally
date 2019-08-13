@@ -30,11 +30,11 @@ namespace NetTally.Web
         #region Construction, Setup, Disposal
         public WebPageProvider(HttpClientHandler handler,
             ICache<string> pageCache, IClock clock,
-            IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
+            IGeneralInputOptions inputOptions, ILogger<WebPageProvider> logger)
             : base(handler, pageCache, clock)
         {
             this.inputOptions = inputOptions;
-            logger = loggerFactory.CreateLogger<WebPageProvider>();
+            this.logger = logger;
 
             SetupHandler();
             httpClient = SetupClient();
@@ -431,8 +431,6 @@ namespace NetTally.Web
                 }
 
                 int tries = 0;
-                HttpResponseMessage response;
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
 
                 do
                 {
@@ -451,9 +449,10 @@ namespace NetTally.Web
 
                     try
                     {
+                        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
-                        using (response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
+                        using (HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
                             return response.RequestMessage.RequestUri;
                         }
@@ -527,7 +526,7 @@ namespace NetTally.Web
         /// <returns></returns>
         private string GetFailureMessage(HttpResponseMessage response, string shortDescrip, string url)
         {
-            string failureDescrip = "";
+            string failureDescrip;
 
             if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
             {

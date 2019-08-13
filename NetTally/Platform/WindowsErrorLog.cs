@@ -9,8 +9,8 @@ namespace NetTally.Platform
     /// <summary>
     /// Class to implement logging on the basic Windows OS.
     /// </summary>
-    /// <seealso cref="NetTally.ILogger" />
-    public class WindowsErrorLog : ILogger
+    /// <seealso cref="NetTally.INTLogger" />
+    public class WindowsErrorLog : INTLogger
     {
         #region ILogger interface methods
         /// <summary>
