@@ -568,6 +568,9 @@ namespace NetTally.Forums.Adapters2
                     foundThreads = true;
             }
 
+            if (sb[sb.Length - 1] != '/')
+                sb.Append('/');
+
             return sb.ToString();
         }
 
