@@ -32,6 +32,7 @@ namespace NetTally.Web
 
             switch (uri.Host)
             {
+                case "questionablequesting.com":
                 case "forum.questionablequesting.com":
                     // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
                     cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host);
