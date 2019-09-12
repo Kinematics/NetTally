@@ -18,10 +18,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.12" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview8.19405.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0-preview8.19405.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0-preview8.19405.4" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.0.0-preview8.19405.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.0.0-preview9.19421.4" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.0.0" />
   </ItemGroup>
 </Project>
