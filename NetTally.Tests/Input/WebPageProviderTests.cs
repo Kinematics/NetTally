@@ -8,8 +8,8 @@ namespace NetTally.Tests.Input
     [TestClass]
     public class WebPageProviderTests
     {
-        static IPageProvider pageProvider;
-        static IServiceProvider serviceProvider;
+        static IPageProvider? pageProvider;
+        static IServiceProvider? serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

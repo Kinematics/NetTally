@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Votes;
 
+#nullable disable
+
 namespace NetTally.Tests.Tallying
 {
     [TestClass]
