@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace NetTally.Navigation
 {
@@ -12,10 +13,12 @@ namespace NetTally.Navigation
     public class IoCNavigationService
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly ILogger<IoCNavigationService> logger;
 
-        public IoCNavigationService(IServiceProvider serviceProvider)
+        public IoCNavigationService(IServiceProvider serviceProvider, ILogger<IoCNavigationService> logger)
         {
             this.serviceProvider = serviceProvider;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -26,13 +29,20 @@ namespace NetTally.Navigation
         /// <returns></returns>
         public async Task ShowAsync<T>(object parameter = null) where T : Window
         {
-            var window = serviceProvider.GetRequiredService<T>();
-            if (window is IActivable activableWindow)
+            try
             {
-                await activableWindow.ActivateAsync(parameter);
-            }
+                var window = serviceProvider.GetRequiredService<T>();
+                if (window is IActivable activableWindow)
+                {
+                    await activableWindow.ActivateAsync(parameter);
+                }
 
-            window.Show();
+                window.Show();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to create window");
+            }
         }
 
         /// <summary>
