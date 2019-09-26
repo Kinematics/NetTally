@@ -25,7 +25,7 @@ namespace NetTally.Options
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         readonly Stack<bool> dirty = new Stack<bool>();
         readonly Stack<string> propertyNames = new Stack<string>();

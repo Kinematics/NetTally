@@ -143,7 +143,7 @@ namespace NetTally
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Function to raise events when a property has been changed.
