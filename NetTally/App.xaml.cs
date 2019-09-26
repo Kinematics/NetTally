@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.SystemInfo;
+using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 
 namespace NetTally
@@ -43,6 +44,9 @@ namespace NetTally
 
             // Build the IServiceProvider and set our reference to it
             serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var hash = serviceProvider.GetRequiredService<IHash>();
+            Agnostic.Init(hash);
 
             var loggerFactory = ServiceProvider.GetService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger<App>();
