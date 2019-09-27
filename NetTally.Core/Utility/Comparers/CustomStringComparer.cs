@@ -9,7 +9,7 @@ namespace NetTally.Utility.Comparers
     /// A class to allow creation of custom string comparers, by specifying
     /// CompareInfo and CompareOptions during construction.
     /// </summary>
-    public class CustomStringComparer : IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
+    public class CustomStringComparer : StringComparer, IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
     {
         public CompareInfo Info { get; }
         public CompareOptions Options { get; }
@@ -35,7 +35,7 @@ namespace NetTally.Utility.Comparers
         /// <param name="y">The second string.</param>
         /// <returns>Returns -1 if the first string is less than the second;
         /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
-        public int Compare(string x, string y)
+        public override int Compare(string x, string y)
         {
             if (ReferenceEquals(x, y)) return 0;
 
@@ -50,9 +50,9 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <param name="str">The string to get the hash code for.</param>
         /// <returns></returns>
-        public int GetHashCode(string str) => HashFunction(str, Info, Options);
+        public override int GetHashCode(string str) => HashFunction(str, Info, Options);
 
-        public bool Equals(string x, string y) => Compare(x, y) == 0;
+        public override bool Equals(string x, string y) => Compare(x, y) == 0;
 
         int IComparer.Compare(object x, object y)
         {

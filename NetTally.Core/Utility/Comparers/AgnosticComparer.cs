@@ -1,15 +1,27 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 
 namespace NetTally.Utility.Comparers
 {
     public class Agnostic : IAgnostic
     {
+        #region Fields and properties
+        static StringComparer StringComparerNoCaseSymbol { get; set; } = StringComparer.InvariantCultureIgnoreCase;
+
+        static StringComparer StringComparerNoCaseNoSymbol { get; set; } = StringComparer.InvariantCultureIgnoreCase;
+
+        static StringComparer StringComparerCaseSymbol { get; set; } = StringComparer.InvariantCulture;
+
+        static StringComparer StringComparerCaseNoSymbol { get; set; } = StringComparer.InvariantCulture;
+
+        #endregion
+
         #region Constructor
         /// <summary>
-        /// Static constructor. Initialize on first use of the class.
+        /// Basic class initialization.
         /// </summary>
-        public Agnostic(IHash hash)
+        public static void Init(IHash hash)
         {
             // Case insensitive, whitespace/symbol sensitive
             StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
@@ -37,17 +49,17 @@ namespace NetTally.Utility.Comparers
         /// A string comparer object that allows comparison between strings that
         /// can ignore lots of annoying user-entered variances.
         /// </summary>
-        public static CustomStringComparer StringComparer { get; private set; }
+        public static StringComparer StringComparer { get; private set; } = StringComparer.InvariantCultureIgnoreCase;
 
         /// <summary>
         /// Gets a string comparer object that ignores case and symbols.
         /// </summary>
-        public static CustomStringComparer InsensitiveComparer => StringComparerNoCaseNoSymbol;
+        public static StringComparer InsensitiveComparer => StringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
         /// </value>
-        public static CustomStringComparer QuestSensitiveStringComparer(IQuest quest)
+        public static StringComparer QuestSensitiveStringComparer(IQuest quest)
         {
             if (quest != null)
             {
@@ -111,15 +123,5 @@ namespace NetTally.Utility.Comparers
 
         #endregion Public Interface
 
-        #region Fields and properties
-        private static CustomStringComparer StringComparerNoCaseSymbol { get; set; }
-
-        private static CustomStringComparer StringComparerNoCaseNoSymbol { get; set; }
-
-        private static CustomStringComparer StringComparerCaseSymbol { get; set; }
-
-        private static CustomStringComparer StringComparerCaseNoSymbol { get; set; }
-
-        #endregion
     }
 }
