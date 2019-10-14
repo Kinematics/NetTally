@@ -70,7 +70,7 @@ namespace NetTally.Web
         /// <summary>
         /// Event handler hook for status messages.
         /// </summary>
-        public event EventHandler<MessageEventArgs> StatusChanged;
+        public event EventHandler<MessageEventArgs>? StatusChanged;
 
         /// <summary>
         /// Function to raise events when page load status has been updated.

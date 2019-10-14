@@ -29,7 +29,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Event for INotifyPropertyChanged.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Function to raise events when a property has been changed.
@@ -113,7 +113,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Event for raised exceptions that need to be propagated from the view model to the view.
         /// </summary>
-        public event EventHandler<ExceptionEventArgs> ExceptionRaised;
+        public event EventHandler<ExceptionEventArgs>? ExceptionRaised;
 
         /// <summary>
         /// Function to raise events when an exception has been raised.

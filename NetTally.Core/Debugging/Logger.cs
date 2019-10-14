@@ -14,7 +14,7 @@ namespace NetTally
     public class Logger2
     {
         #region Constructor
-        static ILoggerFactory loggerFactory;
+        static ILoggerFactory? loggerFactory;
 
         /// <summary>
         /// Constructor that stores the logger factory provided by the dependency injection root.
@@ -33,9 +33,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogTrace(message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogTrace(message);
         }
 
         public static void LogDebug(string message,
@@ -43,9 +41,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogDebug(message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogDebug(message);
         }
 
         public static void LogWarning(string message,
@@ -53,9 +49,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogWarning(message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogWarning(message);
         }
 
         public static void LogWarning(Exception e, string message,
@@ -63,9 +57,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogWarning(e, message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogWarning(e, message);
         }
 
         public static void LogError(string message,
@@ -73,9 +65,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogError(message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogError(message);
         }
 
         public static void LogError(Exception e, string message,
@@ -83,9 +73,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogError(e, message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogError(e, message);
         }
 
         public static void LogCritical(string message,
@@ -93,9 +81,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogCritical(message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogCritical(message);
         }
 
         public static void LogCritical(Exception e, string message,
@@ -103,9 +89,7 @@ namespace NetTally
         {
             string callerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
 
-            var logger = loggerFactory.CreateLogger($"{callerTypeName}:{callerMemberName}");
-
-            logger.LogCritical(e, message);
+            loggerFactory?.CreateLogger($"{callerTypeName}:{callerMemberName}").LogCritical(e, message);
         }
         #endregion Public static functions
     }

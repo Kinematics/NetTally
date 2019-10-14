@@ -183,7 +183,7 @@ namespace NetTally
         #endregion
 
         #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Function to raise events when a property has been changed.

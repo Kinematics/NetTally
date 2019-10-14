@@ -45,7 +45,7 @@ namespace NetTally.Forums
         /// <summary>
         /// Event handler hook for status messages.
         /// </summary>
-        public event EventHandler<MessageEventArgs> StatusChanged;
+        public event EventHandler<MessageEventArgs>? StatusChanged;
         #endregion
 
         #region Public method

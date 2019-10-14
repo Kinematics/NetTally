@@ -77,7 +77,7 @@ namespace NetTally.ViewModels.Commands
         /// <summary>
         /// Event handler for notification of a possible change in CanExecute.
         /// </summary>
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
 
         /// <summary>
         /// Called when [can execute] changed.

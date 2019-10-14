@@ -15,9 +15,9 @@ namespace NetTally.Tests.Forums
     [Ignore]
     public class ForumAdapterFactoryTests
     {
-        static IPageProvider pageProvider;
-        static IServiceProvider serviceProvider;
-        static ForumAdapterFactory forumAdapterFactory;
+        static IPageProvider? pageProvider;
+        static IServiceProvider? serviceProvider;
+        static ForumAdapterFactory? forumAdapterFactory;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
