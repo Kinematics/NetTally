@@ -181,6 +181,7 @@ namespace NetTally.Forums.Adapters2
             var topNode = page.GetElementbyId("top");
 
             var bodyNode = topNode.GetChildWithClass("div", "p-body") ??
+                topNode.GetDescendantWithClass("div", "p-body") ??
                 throw new InvalidOperationException("Unable to find p-body.");
 
             if (bodyNode.Elements("div").Any(n => n.HasClass("p-body-inner")))
