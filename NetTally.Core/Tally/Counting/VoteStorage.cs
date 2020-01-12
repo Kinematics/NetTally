@@ -256,7 +256,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="searchVote">The vote that we're trying to get the actual key for.</param>
         /// <returns>Returns the vote matching the vote provided, or null if not found.</returns>
-        public VoteLineBlock? GetVoteMatching(VoteLineBlock searchVote)
+        public VoteLineBlock GetVoteMatching(VoteLineBlock searchVote)
         {
             return Keys.FirstOrDefault(k => k == searchVote);
         }

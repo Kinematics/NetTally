@@ -469,10 +469,13 @@ namespace NetTally
                         {
                             string newTask = mi.Header.ToString();
 
-                            if (newTask == "Clear Task")
-                                mainViewModel.ReplaceTask(selectedVote, "");
-                            else
-                                mainViewModel.ReplaceTask(selectedVote, newTask);
+                            if (!string.IsNullOrEmpty(newTask))
+                            {
+                                if (string.Equals(newTask, "Clear Task", StringComparison.Ordinal))
+                                    mainViewModel.ReplaceTask(selectedVote, "");
+                                else
+                                    mainViewModel.ReplaceTask(selectedVote, newTask);
+                            }
                         }
                     }
                 }

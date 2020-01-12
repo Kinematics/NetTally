@@ -834,7 +834,7 @@ namespace NetTally.VoteCounting
 
             if (ReplaceTaskImplWrapper(vote, task))
             {
-                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest!.PartitionMode);
+                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest.PartitionMode);
 
                 OnPropertyChanged("Votes");
                 OnPropertyChanged(nameof(HasUndoActions));

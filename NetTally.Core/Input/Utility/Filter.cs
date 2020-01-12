@@ -54,7 +54,7 @@ namespace NetTally.Input.Utility
         /// <param name="injectString">An extra (program-provided) string to inject into the filter string.</param>
         public Filter(string filterString, string injectString)
         {
-            filterString ??= string.Empty;
+            filterString = filterString ?? string.Empty;
             filterRegex = CreateRegex(filterString, injectString);
         }
         #endregion
