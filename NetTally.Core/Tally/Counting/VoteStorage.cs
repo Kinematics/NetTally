@@ -249,6 +249,17 @@ namespace NetTally.Votes
 
             return false;
         }
+
+        /// <summary>
+        /// Gets the vote that exists as a key in VoteStorage that matches
+        /// the vote provided.
+        /// </summary>
+        /// <param name="searchVote">The vote that we're trying to get the actual key for.</param>
+        /// <returns>Returns the vote matching the vote provided, or null if not found.</returns>
+        public VoteLineBlock? GetVoteMatching(VoteLineBlock searchVote)
+        {
+            return Keys.FirstOrDefault(k => k == searchVote);
+        }
         #endregion Queries
     }
 }

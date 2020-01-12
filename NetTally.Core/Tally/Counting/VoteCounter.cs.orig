@@ -832,9 +832,50 @@ namespace NetTally.VoteCounting
             UndoBuffer.Push(new UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
             VoteLineBlock originalVote = vote.Clone();
 
+<<<<<<< local
+                // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
+                if (VoteStorage.ContainsKey(vote))
+                {
+                    if (VoteStorage.TryGetValue(vote, out var toSupport))
+                    {
+                        foreach (var (supporterName, supporterVote) in supporters)
+                        {
+                            if (!toSupport.ContainsKey(supporterName))
+                            {
+                                supporterVote.Task = task;
+                                toSupport.Add(supporterName, supporterVote);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Undo the attempt if we couldn't get the conflicting vote data
+                        vote.Task = originalTask;
+
+                        VoteStorage.Add(vote, supporters);
+
+                        UndoBuffer.Pop();
+
+                        return false;
+                    }
+                }
+                // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
+                else
+                {
+                    foreach (var (_, supporterVote) in supporters)
+                    {
+                        supporterVote.Task = task;
+                    }
+
+                    VoteStorage.Add(vote, supporters);
+                }
+
+                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.Other, Quest.PartitionMode);
+=======
             if (ReplaceTaskImplWrapper(vote, task))
             {
                 UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest!.PartitionMode);
+>>>>>>> graft
 
                 OnPropertyChanged("Votes");
                 OnPropertyChanged(nameof(HasUndoActions));
