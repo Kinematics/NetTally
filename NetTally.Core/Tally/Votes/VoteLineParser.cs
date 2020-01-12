@@ -194,7 +194,7 @@ namespace NetTally.Votes
                         }
                         else
                         {
-                            contentSB.Append(tempContent.ToString());
+                            contentSB.Append(tempContent);
                             tempContent.Clear();
                             contentSB.Append(ch);
                             currentState = TokenState.Content;
@@ -224,7 +224,7 @@ namespace NetTally.Votes
                     case TokenState.Content:
                         if (tempContent.Length > 0)
                         {
-                            contentSB.Append(tempContent.ToString());
+                            contentSB.Append(tempContent);
                             tempContent.Clear();
                         }
 
@@ -392,14 +392,14 @@ namespace NetTally.Votes
                     }
                     else if (markerType == MarkerType.Approval)
                     {
-                        if (m.Groups["approval"].Value == "+")
+                        if (string.Equals(m.Groups["approval"].Value, "+", StringComparison.Ordinal))
                             markerValue = 80;
                         else
                             markerValue = 20;
                     }
                     else if (m.Groups["value"].Success)
                     {
-                        markerValue = int.Parse(m.Groups["value"].Value);
+                        markerValue = int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture);
 
                         if (markerType == MarkerType.Rank)
                         {

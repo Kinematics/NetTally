@@ -33,7 +33,7 @@ namespace NetTally.Input.Utility
 
         #region Public Static
         const string OmakeFilter = @"\bomake\b";
-        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, null);
+        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, injectString:null);
         #endregion
 
         #region Constructors
@@ -54,7 +54,7 @@ namespace NetTally.Input.Utility
         /// <param name="injectString">An extra (program-provided) string to inject into the filter string.</param>
         public Filter(string filterString, string injectString)
         {
-            filterString = filterString ?? string.Empty;
+            filterString ??= string.Empty;
             filterRegex = CreateRegex(filterString, injectString);
         }
         #endregion
@@ -127,11 +127,11 @@ namespace NetTally.Input.Utility
 
             if (string.IsNullOrEmpty(injectString))
             {
-                return new Regex(jsRegexString, RegexOptions.IgnoreCase);
+                return new Regex(jsRegexString, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
             }
             else
             {
-                return new Regex($"{jsRegexString}|{injectString}", RegexOptions.IgnoreCase);
+                return new Regex($"{jsRegexString}|{injectString}", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
             }
         }
 
@@ -175,14 +175,14 @@ namespace NetTally.Input.Utility
                     if (postWord.Match(s).Success)
                         postBound = @"\b";
 
-                    sb.Append($"{bar}{preBound}{s}{postBound}");
+                    sb.Append(bar).Append(preBound).Append(s).Append(postBound);
                     bar = "|";
                 }
             }
 
             // Add the default string value (if any) at the end.
             if (!string.IsNullOrEmpty(injectString))
-                sb.Append($"{bar}{injectString}");
+                sb.Append(bar).Append(injectString);
 
             try
             {
