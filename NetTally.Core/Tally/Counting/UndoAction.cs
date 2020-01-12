@@ -5,15 +5,6 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    public enum UndoActionType
-    {
-        Merge,
-        Split,
-        Join,
-        Delete,
-        Other
-    }
-
     public class UndoAction
     {
         public UndoActionType ActionType { get; }
