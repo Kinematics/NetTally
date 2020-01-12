@@ -6,6 +6,7 @@
         Split,
         Join,
         Delete,
+        ReplaceTask,
         Other
     }
 }
