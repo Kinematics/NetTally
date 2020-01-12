@@ -853,7 +853,7 @@ namespace NetTally.VoteCounting
                 // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
                 else
                 {
-                    foreach (var (supporter, supporterVote) in supporters)
+                    foreach (var (_, supporterVote) in supporters)
                     {
                         supporterVote.Task = task;
                     }
