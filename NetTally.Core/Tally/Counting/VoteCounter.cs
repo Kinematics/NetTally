@@ -684,11 +684,11 @@ namespace NetTally.VoteCounting
             if (Quest is null)
                 throw new InvalidOperationException("Quest is null.");
 
-            var undo = UndoBuffer.Pop();
+            UndoAction undoAction = UndoBuffer.Pop();
 
-            UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undo.ActionType);
+            UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undoAction.ActionType);
 
-            if (undo.Undo(this))
+            if (undoAction.Undo(this))
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");

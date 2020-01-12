@@ -58,7 +58,8 @@ namespace NetTally.VoteCounting
         /// <param name="fromRecord">The original vote string.</param>
         /// <param name="toRecord">The revised vote string.</param>
         /// <param name="partitionMode">The partition mode.</param>
-        public void AddMergeRecord(VoteLineBlock fromRecord, VoteLineBlock toRecord, UndoActionType actionType, PartitionMode partitionMode)
+        public void AddMergeRecord(VoteLineBlock fromRecord, VoteLineBlock toRecord,
+            UndoActionType actionType, PartitionMode partitionMode)
         {
             var merges = GetMergesFor(partitionMode);
 
@@ -73,7 +74,8 @@ namespace NetTally.VoteCounting
         /// <param name="fromRecord">The original vote string.</param>
         /// <param name="toRecord">The revised vote string.</param>
         /// <param name="partitionMode">The partition mode.</param>
-        public void AddMergeRecord(VoteLineBlock fromRecord, List<VoteLineBlock> toRecords, UndoActionType actionType, PartitionMode partitionMode)
+        public void AddMergeRecord(VoteLineBlock fromRecord, List<VoteLineBlock> toRecords,
+            UndoActionType actionType, PartitionMode partitionMode)
         {
             var merges = GetMergesFor(partitionMode);
 
