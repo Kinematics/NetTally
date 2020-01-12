@@ -25,6 +25,9 @@ namespace NetTally.Tests
             var logger = loggerFactory.CreateLogger("TestStartup");
             logger.LogInformation("Services defined for testing!");
 
+            var hash = serviceProvider.GetRequiredService<IHash>();
+            Agnostic.Init(hash);
+
             var agnostic = serviceProvider.GetRequiredService<IAgnostic>();
             var logger2 = serviceProvider.GetRequiredService<Logger2>();
 
