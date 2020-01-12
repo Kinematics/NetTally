@@ -83,7 +83,7 @@ namespace NetTally.Output
 
             try
             {
-                await Task.Run(() => BuildGlobal(token)).ConfigureAwait(false);
+                await Task.Run(() => BuildGlobal(token), token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -564,7 +564,7 @@ namespace NetTally.Output
                 return;
 
             sb.Append("[b]Support: ");
-            sb.Append($"+{support.positive}/-{support.negative}");
+            sb.Append('+').Append(support.positive).Append("/-").Append(support.negative);
             sb.AppendLine("[/b]");
         }
 
@@ -578,10 +578,12 @@ namespace NetTally.Output
                 return;
 
             sb.Append("[b]Score: ");
-            sb.Append($"{score.score}%");
+            sb.Append(score.score).Append('%');
             if (outputOptions.DebugMode)
             {
-                sb.Append($" ({score.lowerMargin:F4})");
+                sb.Append(" (")
+                  .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
+                  .Append(')');
             }
             sb.AppendLine("[/b]");
         }
@@ -596,10 +598,12 @@ namespace NetTally.Output
                 return;
 
             sb.Append("[b]Ranking: ");
-            sb.Append($"#{ranking.rank}");
+            sb.Append('#').Append(ranking.rank);
             if (outputOptions.DebugMode)
             {
-                sb.Append($" ({ranking.rankScore:F6})");
+                sb.Append(" (")
+                  .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)
+                  .Append(')');
             }
             sb.AppendLine("[/b]");
         }
@@ -689,7 +693,7 @@ namespace NetTally.Output
         /// <param name="spoilerLabel">An optional spoiler label to use.</param>
         private void AddCompactNormalVoteVoters(CompactVote vote)
         {
-            using (new Spoiler(sb, "Voters", true))
+            using (new Spoiler(sb, "Voters", display: true))
             {
                 OrderedVoterStorage orderedVoters = vote.Voters.GetOrderedVoterListEx();
 

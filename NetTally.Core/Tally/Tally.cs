@@ -57,16 +57,16 @@ namespace NetTally.VoteCounting
         #region Disposal
         ~Tally()
         {
-            Dispose(false);
+            Dispose(itIsSafeToAlsoFreeManagedObjects: false);
         }
 
         public void Dispose()
         {
-            Dispose(true); //I am calling you from Dispose, it's safe
+            Dispose(itIsSafeToAlsoFreeManagedObjects: true); //I am calling you from Dispose, it's safe
             GC.SuppressFinalize(this); //Hey, GC: don't bother calling finalize later
         }
 
-        protected virtual void Dispose(Boolean itIsSafeToAlsoFreeManagedObjects)
+        protected virtual void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
         {
             if (_disposed)
                 return;
@@ -95,7 +95,7 @@ namespace NetTally.VoteCounting
             {
                 if (!TallyIsRunning)
                 {
-                    await RunWithTallyIsRunningFlagAsync(UpdateResults);
+                    await RunWithTallyIsRunningFlagAsync(UpdateResults).ConfigureAwait(false);
                 }
             }
         }
@@ -431,7 +431,7 @@ namespace NetTally.VoteCounting
         /// The first half of tallying posts involves doing the preprocessing
         /// work on the plans in the post list.
         /// </summary>
-        public async Task<Dictionary<string, VoteLineBlock>> PreprocessPosts(CancellationToken token)
+        public async Task<IDictionary<string, VoteLineBlock>> PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
                 return new Dictionary<string, VoteLineBlock>();
