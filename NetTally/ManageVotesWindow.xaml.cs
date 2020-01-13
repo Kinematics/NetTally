@@ -27,11 +27,11 @@ namespace NetTally
     public partial class ManageVotesWindow : Window, INotifyPropertyChanged, IActivable
     {
         #region Constructor and variables
-        public ListCollectionView VoteView1 { get; } = new ListCollectionView(new string[] { });
-        public ListCollectionView VoteView2 { get; } = new ListCollectionView(new string[] { });
+        public ListCollectionView VoteView1 { get; } = new ListCollectionView(Array.Empty<string>());
+        public ListCollectionView VoteView2 { get; } = new ListCollectionView(Array.Empty<string>());
 
-        public ListCollectionView VoterView1 { get; } = new ListCollectionView(new string[] { });
-        public ListCollectionView VoterView2 { get; } = new ListCollectionView(new string[] { });
+        public ListCollectionView VoterView1 { get; } = new ListCollectionView(Array.Empty<string>());
+        public ListCollectionView VoterView2 { get; } = new ListCollectionView(Array.Empty<string>());
 
         object? lastSelected2 = null;
         int lastPosition1 = -1;
@@ -402,7 +402,7 @@ namespace NetTally
                     {
                         if (item is MenuItem mItem)
                         {
-                            if (mItem.Header.ToString() == "Partition Children")
+                            if (string.Equals(mItem.Header.ToString(), "Partition Children", StringComparison.Ordinal))
                             {
                                 mItem.IsEnabled = enabled;
                             }
@@ -471,7 +471,7 @@ namespace NetTally
 
                             if (!string.IsNullOrEmpty(newTask))
                             {
-                                if (newTask == "Clear Task")
+                                if (string.Equals(newTask, "Clear Task", StringComparison.Ordinal))
                                     mainViewModel.ReplaceTask(selectedVote, "");
                                 else
                                     mainViewModel.ReplaceTask(selectedVote, newTask);
@@ -576,11 +576,11 @@ namespace NetTally
         {
             logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
 
-            if (e.PropertyName == nameof(mainViewModel.AllVotesCollection))
+            if (string.Equals(e.PropertyName, nameof(mainViewModel.AllVotesCollection), StringComparison.Ordinal))
             {
                 UpdateVoteCollections();
             }
-            else if (e.PropertyName == nameof(mainViewModel.AllVotersCollection))
+            else if (string.Equals(e.PropertyName, nameof(mainViewModel.AllVotersCollection), StringComparison.Ordinal))
             {
                 UpdateVoterCollections();
             }
@@ -761,7 +761,7 @@ namespace NetTally
             if (string.IsNullOrEmpty(task))
                 return;
 
-            if (ContextMenuTasks.Any(t => t.Header.ToString() == task))
+            if (ContextMenuTasks.Any(t => string.Equals(t.Header.ToString(), task, StringComparison.Ordinal)))
                 return;
 
             ContextMenuTasks.Add(CreateContextMenuItem(task));

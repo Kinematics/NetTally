@@ -679,11 +679,11 @@ namespace NetTally.VoteCounting
             if (Quest is null)
                 throw new InvalidOperationException("Quest is null.");
 
-            var undo = UndoBuffer.Pop();
+            UndoAction undoAction = UndoBuffer.Pop();
 
-            UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undo.ActionType);
+            UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undoAction.ActionType);
 
-            if (undo.Undo(this))
+            if (undoAction.Undo(this))
             {
                 OnPropertyChanged("Votes");
                 OnPropertyChanged("Voters");
@@ -705,11 +705,22 @@ namespace NetTally.VoteCounting
 
                 foreach (var mergeData in recordedMerges)
                 {
-                    UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage));
+                    if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
+                    {
+                        UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage, storageVote: mergeData.FromVote));
+                    }
+                    else
+                    {
+                        UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage));
+                    }
 
                     if (mergeData.UndoActionType == UndoActionType.Split && mergeData.ToVotes.Count > 0)
                     {
                         SplitImplWrapper(mergeData.FromVote, mergeData.ToVotes);
+                    }
+                    else if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
+                    {
+                        ReplaceTaskImplWrapper(mergeData.FromVote, mergeData.ToVote.Task);
                     }
                     else
                     {
@@ -718,7 +729,6 @@ namespace NetTally.VoteCounting
                 }
             }
         }
-
         #endregion
 
         #region Task properties
@@ -814,62 +824,80 @@ namespace NetTally.VoteCounting
                 return false;
             }
 
-            if (VoteStorage.TryGetValue(vote, out var supporters))
+            UndoBuffer.Push(new UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
+            VoteLineBlock originalVote = vote.Clone();
+
+            if (ReplaceTaskImplWrapper(vote, task))
             {
-                UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage, vote));
-
-                VoteStorage.Remove(vote);
-
-                VoteLineBlock originalVote = vote.Clone();
-                string originalTask = vote.Task;
-                vote.Task = task;
-
-                // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
-                if (VoteStorage.ContainsKey(vote))
-                {
-                    if (VoteStorage.TryGetValue(vote, out var toSupport))
-                    {
-                        foreach (var (supporterName, supporterVote) in supporters)
-                        {
-                            if (!toSupport.ContainsKey(supporterName))
-                            {
-                                supporterVote.Task = task;
-                                toSupport.Add(supporterName, supporterVote);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Undo the attempt if we couldn't get the conflicting vote data
-                        vote.Task = originalTask;
-
-                        VoteStorage.Add(vote, supporters);
-
-                        UndoBuffer.Pop();
-
-                        return false;
-                    }
-                }
-                // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
-                else
-                {
-                    foreach (var (supporter, supporterVote) in supporters)
-                    {
-                        supporterVote.Task = task;
-                    }
-
-                    VoteStorage.Add(vote, supporters);
-                }
-
-                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.Other, Quest!.PartitionMode);
+                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest!.PartitionMode);
 
                 OnPropertyChanged("Votes");
                 OnPropertyChanged(nameof(HasUndoActions));
                 return true;
             }
-
-            return false;
+            else
+            {
+                UndoBuffer.Pop();
+                return false;
+            }
         }
+
+        private bool ReplaceTaskImplWrapper(VoteLineBlock vote, string task)
+        {
+            if (!VoteStorage.TryGetValue(vote, out var supporters))
+            {
+                return false;
+            }
+
+            // Incoming parameter may be an entry in storage, or a copy of a vote.
+            // Adjust so that we're always pointing at an actual vote.
+            // If the vote isn't found in VoteStorage, just use the one provided.
+            vote = VoteStorage.GetVoteMatching(vote) ?? vote;
+            
+            // Remove the version of the vote we're starting with.
+            VoteStorage.Remove(vote);
+
+            string originalTask = vote.Task;
+            vote.Task = task;
+
+            // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
+            if (VoteStorage.ContainsKey(vote))
+            {
+                if (VoteStorage.TryGetValue(vote, out var toSupport))
+                {
+                    foreach (var (supporterName, supporterVote) in supporters)
+                    {
+                        if (!toSupport.ContainsKey(supporterName))
+                        {
+                            supporterVote.Task = task;
+                            toSupport.Add(supporterName, supporterVote);
+                        }
+                    }
+                }
+                else
+                {
+                    // Undo the attempt if we couldn't get the conflicting vote data
+                    vote.Task = originalTask;
+
+                    VoteStorage.Add(vote, supporters);
+
+                    return false;
+                }
+            }
+            // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
+            else
+            {
+                foreach (var (_, supporterVote) in supporters)
+                {
+                    supporterVote.Task = task;
+                }
+
+                VoteStorage.Add(vote, supporters);
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region INotifyPropertyChanged interface
