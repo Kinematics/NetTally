@@ -28,49 +28,9 @@ Example:
 
 Partitioning votes breaks individual votes into single lines or blocks.  Partitioning by line treats every single line of each vote independently, while partitioning by block treats subvotes as part of each parent vote entry.
 
-BBCode formatting is preserved, including italics, bold, underlines, colors, and URLs, as long as it's part of the vote content (but not if it covers the entire line, or part of the marker area or whatever).  Votes that are inside a forum quote block are ignored.
+BBCode formatting is preserved, including italics, bold, underlines, strike-throughs, colors, and URLs, as long as it's part of the vote content (but not if it covers the entire line, or part of the marker area or whatever).  Votes that are inside a forum quote block are ignored.
 
 The program currently works on XenForo (versions 1 and 2) and vBulletin (versions 3, 4, and 5) forums.  Other forums have the framework code in place, but the forum software often has limitations that prevent NetTally from being able to properly operate on them. (EG: Lack of post numbers, lack of page numbers, etc.)
 
 This is built on the basis of quests run on SpaceBattles and SufficientVelocity, and is an adaptation of a program originally written by Firnagzen.
-
-
-### Development Requirements
-
-If you wish to work on the code to help develop NetTally further, the following gives the current basic requirements of various version branches.
-
-#### Development branch: dev, Core3
-
-System Requirements:  .NET Core 3 Preview 6+
-
-C# 8.0
-
-Dev Environment: Visual Studio 2019
-
-#### Stable branch: Core2
-
-System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
-
-C# 7.3
-
-Dev Environment: Visual Studio 2019
-
-#### Retired branch: VS2017
-
-System Requirements:  .NET Framework 4.7.2 (for main UI), .NET Standard 2.0 (for NetTally.Core library), .NET Core 2.1 (for NetTally.Console)
-
-C# 7.3
-
-Dev Environment: Visual Studio 2017
-
-Notes: Includes a few updates past the 2.0 release because of corruption of the repository.  Should be usable with .NET Framework 4.6.1.
-
-#### Retired branch: VS2015
-
-System Requirements:  .NET Framework 4.5.2
-
-C# 6
-
-Dev Environment: Visual Studio 2015
-
 
