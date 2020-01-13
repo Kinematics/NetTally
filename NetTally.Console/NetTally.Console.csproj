@@ -29,4 +29,100 @@
   <ItemGroup>
     <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
   </ItemGroup>
+
+<!--
+  <PropertyGroup>
+    <BuildDoneDir>$(SolutionDir)</BuildDoneDir>
+  </PropertyGroup>
+
+  <Target Name="SetPublishDoneDir" AfterTargets="Publish">
+    <PropertyGroup>
+      <BuildDoneDir>$(PublishDir)</BuildDoneDir>
+    </PropertyGroup>
+    <Message Importance="high" Text="Set publish done directory = $(BuildDoneDir)" />
+  </Target>
+  <Target Name="SetBuildDoneDir" AfterTargets="Build">
+    <PropertyGroup>
+      <BuildDoneDir>$(TargetDir)</BuildDoneDir>
+    </PropertyGroup>
+    <Message Importance="high" Text="Set build done directory = $(BuildDoneDir)" />
+  </Target>
+
+  ** Unable to call a target multiple times.  Thus, must have multiple duplicate targets that must be maintained; one for build, one for publish. **
+  <Target Name="MoveBuildDlls" AfterTargets="SetBuildDoneDir;SetPublishDoneDir">
+    <Message Importance="high" Text="Build done directory = $(BuildDoneDir)" />
+    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(BuildDoneDir)" />
+    <Move SourceFiles="$(BuildDoneDir)CommandLine.dll" DestinationFolder="$(BuildDoneDir)bin/CommandLineParser/2.7.82/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)HtmlAgilityPack.dll" DestinationFolder="$(BuildDoneDir)bin/HtmlAgilityPack/1.11.17/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Configuration.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Configuration/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Configuration.Abstractions.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Configuration.Abstractions/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Configuration.Binder.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Configuration.Binder/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.DependencyInjection/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Logging/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Logging.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Logging.Debug/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Options/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(BuildDoneDir)bin/Microsoft.Extensions.Primitives/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(BuildDoneDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(BuildDoneDir)bin/Nito.AsyncEx.Coordination/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(BuildDoneDir)bin/Nito.AsyncEx.Tasks/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Nito.Collections.Deque.dll" DestinationFolder="$(BuildDoneDir)bin/Nito.Collections.Deque/1.0.4/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)Nito.Disposables.dll" DestinationFolder="$(BuildDoneDir)bin/Nito.Disposables/2.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(BuildDoneDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(BuildDoneDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" />
+  </Target>
+-->
+
+
+  <Target Name="CreateBuildBin" AfterTargets="Build">
+    <MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
+  </Target>
+
+  <Target Name="MoveBuildDlls" AfterTargets="CreateBuildBin">
+    <Message Importance="high" Text="Build directory = $(TargetDir)" />
+    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(TargetDir)" />
+    <Move SourceFiles="$(TargetDir)CommandLine.dll" DestinationFolder="$(TargetDir)bin/CommandLineParser/2.7.82/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)HtmlAgilityPack.dll" DestinationFolder="$(TargetDir)bin/HtmlAgilityPack/1.11.17/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Configuration.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Configuration/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Configuration.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Configuration.Abstractions/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Configuration.Binder.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Configuration.Binder/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Debug/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Options/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Primitives/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Coordination/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.0.4/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" />
+  </Target>
+
+
+  <Target Name="CreatePublishBin" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)bin" Condition="!Exists('$(PublishDir)bin')" />
+  </Target>
+
+  <Target Name="MovePublishDlls" AfterTargets="CreatePublishBin">
+    <Message Importance="high" Text="Publish directory = $(PublishDir)" />
+    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
+    <Move SourceFiles="$(PublishDir)CommandLine.dll" DestinationFolder="$(PublishDir)bin/CommandLineParser/2.7.82/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)HtmlAgilityPack.dll" DestinationFolder="$(PublishDir)bin/HtmlAgilityPack/1.11.17/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Configuration.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Configuration/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Configuration.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Configuration.Abstractions/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Configuration.Binder.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Configuration.Binder/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Abstractions/3.1.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Debug/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Options/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Primitives/3.1.0/lib/netcoreapp3.1" />
+    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Coordination/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.0.4/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.0.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" />
+  </Target>
 </Project>
