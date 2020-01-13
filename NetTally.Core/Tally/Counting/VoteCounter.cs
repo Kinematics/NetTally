@@ -842,6 +842,12 @@ namespace NetTally.VoteCounting
             }
         }
 
+        /// <summary>
+        /// Wrapper for handling replace task, but without adding to merge records.
+        /// </summary>
+        /// <param name="vote">The vote being modified.</param>
+        /// <param name="task">The new task to apply to the vote.</param>
+        /// <returns>Returns true if the task replacement was successfully completed.</returns>
         private bool ReplaceTaskImplWrapper(VoteLineBlock vote, string task)
         {
             if (!VoteStorage.TryGetValue(vote, out var supporters))
