@@ -302,7 +302,7 @@ namespace NetTally.Output
             IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>>
                 GetVotesGroupedByTask(VoteStorage votes)
             {
-                var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
+                var groupByTask = votes.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
 
                 groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
 
