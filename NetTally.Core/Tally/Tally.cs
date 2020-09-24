@@ -127,7 +127,8 @@ namespace NetTally.VoteCounting
                     {
                         await RunWithTallyIsRunningFlagAsync(UpdateTally)
                             .ContinueWith(updatedTally => RunWithTallyIsRunningFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
-                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled);
+                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled)
+                            .ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
@@ -251,7 +252,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public async Task UpdateResults()
         {
-            await RunWithTallyIsRunningFlagAsync(UpdateResults);
+            await RunWithTallyIsRunningFlagAsync(UpdateResults).ConfigureAwait(false);
         }
         #endregion
 
@@ -454,7 +455,7 @@ namespace NetTally.VoteCounting
             // Run the above series of preprocessing functions to extract plans from the post list.
             var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
 
-            await Task.FromResult(0);
+            await Task.FromResult(0).ConfigureAwait(false);
 
             return allPlans;
         }
@@ -565,7 +566,7 @@ namespace NetTally.VoteCounting
 
             voteCounter.RunMergeActions();
 
-            await Task.FromResult(0);
+            await Task.FromResult(0).ConfigureAwait(false);
         }
         #endregion
     }
