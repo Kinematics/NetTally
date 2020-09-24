@@ -217,5 +217,10 @@ namespace NetTally.Forums
         public static bool operator !=(Post first, Post second) => Compare(first, second) != 0;
 #nullable enable
         #endregion
+
+        public override string ToString()
+        {
+            return $"{Origin.Author} ({Origin.ThreadPostNumber}) : {(HasVote ? VoteLines[0].Content : "<empty>")}";
+        }
     }
 }
