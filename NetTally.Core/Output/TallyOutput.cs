@@ -300,13 +300,13 @@ namespace NetTally.Output
             /// <param name="votes">The original vote set.</param>
             /// <returns>Returns the votes grouped by task.</returns>
             IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>>
-                GetVotesGroupedByTask(VoteStorage votes)
+                GetVotesGroupedByTask(VoteStorage voteStorage)
             {
-                var groupByTask = votes.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
+                var groups = voteStorage.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
 
-                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
+                groups = groups.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
 
-                return groupByTask;
+                return groups;
             }
         }
 
