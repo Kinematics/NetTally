@@ -322,7 +322,7 @@ namespace NetTally.Votes
                         {
                             if (bufferOn)
                             {
-                                contentSB.Append(input.Slice(startBuffer, c - startBuffer));
+                                contentSB.Append(input[startBuffer..c]);
                                 bufferOn = false;
                             }
                             state.Push(currentState);

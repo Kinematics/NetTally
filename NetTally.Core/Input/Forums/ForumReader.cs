@@ -139,7 +139,7 @@ namespace NetTally.Forums
 
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, pageProvider, token).ConfigureAwait(false);
 
-            logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo.ToString()})");
+            logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo})");
 
             List<Task<HtmlDocument?>> loadingPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, pageProvider, token).ConfigureAwait(false);
 
