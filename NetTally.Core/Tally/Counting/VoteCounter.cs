@@ -839,11 +839,9 @@ namespace NetTally.VoteCounting
                 OnPropertyChanged(nameof(HasUndoActions));
                 return true;
             }
-            else
-            {
-                UndoBuffer.Pop();
-                return false;
-            }
+
+            UndoBuffer.Pop();
+            return false;
         }
 
         /// <summary>

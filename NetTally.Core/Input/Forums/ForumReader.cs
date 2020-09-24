@@ -262,7 +262,8 @@ namespace NetTally.Forums
                 // If the page range has already been determined, use that.
                 return threadRangeInfo.Pages;
             }
-            else if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
+            
+            if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
             {
                 // If we're not reading to the end of the thread, just calculate
                 // what the last page number will be.  Pages to scan will be the
