@@ -197,16 +197,24 @@ namespace NetTally.Output
                 sb.AppendLine(title);
             }
 
-            sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
+            sb.Append("[color=transparent]##### ");
+            sb.Append(ProductInfo.Name);
+            sb.Append(' ');
+            sb.Append(ProductInfo.Version);
+            sb.AppendLine("[/color]");
 
             if (voteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
             {
-                sb.AppendLine($"[color=transparent]Username Filters: {quest.CustomUsernameFilters}[/color]");
+                sb.Append("[color=transparent]Username Filters: ");
+                sb.Append(quest.CustomUsernameFilters);
+                sb.AppendLine("[/color]");
             }
 
             if (voteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
             {
-                sb.AppendLine($"[color=transparent]Post Filters: {quest.CustomPostFilters}[/color]");
+                sb.Append("[color=transparent]Post Filters: ");
+                sb.Append(quest.CustomPostFilters);
+                sb.AppendLine("[/color]");
             }
 
             sb.AppendLine();
