@@ -118,7 +118,7 @@ namespace NetTally.VoteCounting
         /// <param name="forQuestName">The quest name that may have changed.</param>
         public void ResetUserDefinedTasks(string forQuestName)
         {
-            if (Quest == null || Quest.DisplayName != forQuestName)
+            if (Quest == null || !string.Equals(Quest.DisplayName, forQuestName, StringComparison.Ordinal))
             {
                 UserDefinedTasks.Clear();
                 OrderedUserTaskList.Clear();
@@ -401,7 +401,11 @@ namespace NetTally.VoteCounting
             if (!HasVoter(post.Origin.Author))
                 return false;
 
-            return Posts.Any(p => p.Processed && p.Origin.Author == post.Origin.Author && p.Origin.ID > post.Origin.ID);
+            return Posts.Any(p => 
+                               p.Processed
+                            && p.Origin.ID > post.Origin.ID
+                            && string.Equals(p.Origin.Author, post.Origin.Author, StringComparison.Ordinal)
+                            );
         }
         #endregion
 

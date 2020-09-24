@@ -344,7 +344,7 @@ namespace NetTally.Votes
                 string label = m.Groups["label"].Value;
                 string refName = m.Groups["reference"].Value;
 
-                if (label == "^" || label == "↑")
+                if (string.Equals(label, "^") || string.Equals(label, "↑"))
                 {
                     Origin? refUser = voteCounter.GetVoterOriginByName(refName);
 
