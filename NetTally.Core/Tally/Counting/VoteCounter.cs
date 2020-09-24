@@ -844,11 +844,9 @@ namespace NetTally.VoteCounting
                 OnPropertyChanged(nameof(HasUndoActions));
                 return true;
             }
-            else
-            {
-                UndoBuffer.Pop();
-                return false;
-            }
+
+            UndoBuffer.Pop();
+            return false;
         }
 
         private bool ReplaceTaskImplWrapper(VoteLineBlock vote, string task)
