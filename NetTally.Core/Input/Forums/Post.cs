@@ -77,6 +77,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="text">Text of the post.</param>
         /// <returns>Returns a readonly list of any vote lines found.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local functions")]
         private IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
         {
             List<VoteLine> results = new List<VoteLine>();

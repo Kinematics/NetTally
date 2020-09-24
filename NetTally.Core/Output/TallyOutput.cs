@@ -249,6 +249,7 @@ namespace NetTally.Output
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
         /// <param name="token">Cancellation token.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local function")]
         private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
         {
             if (votes.Count == 0)

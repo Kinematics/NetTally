@@ -49,6 +49,7 @@ namespace NetTally.Forums
         #endregion
 
         #region Public method
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
         public async Task<(List<string> threadTitles, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             // Tally the selected quests, and any linked quests.

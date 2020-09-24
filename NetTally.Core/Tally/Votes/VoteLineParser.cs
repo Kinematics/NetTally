@@ -48,6 +48,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="line">A line of text to parse.</param>
         /// <returns>Returns a VoteLine if the provided text is a valid vote.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "State machine")]
         public static VoteLine? ParseLine(ReadOnlySpan<char> line)
         {
             if (line.Length == 0)

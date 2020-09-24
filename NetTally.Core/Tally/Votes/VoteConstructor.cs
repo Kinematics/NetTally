@@ -172,6 +172,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the working vote to configure.</param>
         /// <param name="quest">The quest being tallied.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
         public void ConfigureWorkingVote(Post post, IQuest quest)
         {
             if (post.WorkingVoteComplete)
@@ -335,6 +336,7 @@ namespace NetTally.Votes
         /// <param name="voteLine">The vote line to examine.</param>
         /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
         private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, IQuest quest)
         {
             // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
@@ -451,6 +453,7 @@ namespace NetTally.Votes
         /// <param name="block">The block to partition.</param>
         /// <param name="partitionMode">The partitioning mode.</param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
         private List<VoteLineBlock> Partition(VoteLineBlock block, PartitionMode partitionMode, bool asPlan = false)
         {
             List<VoteLineBlock> partitions = new List<VoteLineBlock>();
