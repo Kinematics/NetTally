@@ -120,7 +120,8 @@ namespace NetTally.VoteCounting
         {
             if (sender is IQuest quest)
             {
-                if (quest == voteCounter.Quest && e.PropertyName == "PartitionMode")
+                if (quest == voteCounter.Quest 
+                    && string.Equals(e.PropertyName, "PartitionMode", StringComparison.Ordinal))
                 {
                     try
                     {
