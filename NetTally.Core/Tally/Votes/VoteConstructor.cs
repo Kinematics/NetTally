@@ -511,10 +511,9 @@ namespace NetTally.Votes
 
                     return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
                 }
-                else
-                {
-                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
-                }
+
+                // Failed partition mode checks.
+                throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
             }
             // A non-content block is anything else, like an implicit plan.
             else
