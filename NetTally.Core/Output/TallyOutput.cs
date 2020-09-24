@@ -339,7 +339,7 @@ namespace NetTally.Output
 
                     foreach (var vote in flattened)
                     {
-                        sb.AppendLine(vote.ToOutputString(vote.Voters.GetSupportCount().ToString()));
+                        sb.AppendLine(vote.ToOutputString(vote.Voters.GetSupportCount().ToString(CultureInfo.InvariantCulture)));
 
                         if (displayMode != DisplayMode.CompactNoVoters)
                         {
@@ -625,7 +625,7 @@ namespace NetTally.Output
         private void AddStandardVoteDisplay(VoteStorageEntry vote, int supportCount)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString()));
+                sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString(CultureInfo.InvariantCulture)));
             else
                 sb.AppendLine(vote.Key.ToOutputString("X"));
         }

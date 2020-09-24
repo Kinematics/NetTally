@@ -355,7 +355,8 @@ namespace NetTally.Votes
                     if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
                 }
-                else if (label.StartsWith("base") || label.StartsWith("proposed"))
+                else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
+                      || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
                 {
                     Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
