@@ -351,7 +351,8 @@ namespace NetTally.Votes
         }
 
 
-        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$");
+        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$",
+            RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>
         /// Examines a provided vote marker string and determines what type of marker it is.
