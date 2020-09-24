@@ -67,9 +67,9 @@ namespace NetTally.Forums
 
         #region Private analysis of post
         // A post with ##### at the start of one of the lines is a posting of tally results.
-        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline, TimeSpan.FromSeconds(1));
         // A line solely composed of a callout to a given user is used for nomination tallying.
-        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
+        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$", RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>
         /// Get the list of all found vote lines in the post's text content.

@@ -323,7 +323,10 @@ namespace NetTally.Votes
 
         // A regex to extract potential references from a vote line.
         static readonly Regex referenceNameRegex =
-            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)",
+                RegexOptions.IgnoreCase,
+                TimeSpan.FromSeconds(1));
+
 
         /// <summary>
         /// Attempt to determine if the content of the provided vote line is a reference to a user or plan.
