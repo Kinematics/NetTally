@@ -227,7 +227,7 @@ namespace NetTally.Votes
 
                         foreach (var voteBlock in voteBlocks)
                         {
-                            workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                            workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                         }
                     }
                     // Users
@@ -240,7 +240,7 @@ namespace NetTally.Votes
                         // If we can't find the reference post, just treat this as a normal line.
                         if (refUserPost == null)
                         {
-                            workingVote.Add((currentLine, null));
+                            workingVote.Add((currentLine, block: null));
                         }
                         // If the reference post hasn't been processed yet, bail out entirely,
                         // because we're in a future reference position.
@@ -257,7 +257,7 @@ namespace NetTally.Votes
                             {
                                 foreach (var voteBlock in voteBlocks)
                                 {
-                                    workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                                    workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                                 }
                             }
                             else
@@ -265,7 +265,7 @@ namespace NetTally.Votes
                                 // If the user being referenced doesn't actually have any vote,
                                 // just add the line directly.  This is most likely due to the
                                 // referenced user just proposing a plan, but not making a vote.
-                                workingVote.Add((currentLine, null));
+                                workingVote.Add((currentLine, block: null));
                             }
                         }
                     }
@@ -309,11 +309,11 @@ namespace NetTally.Votes
                 // Handle trimming extended text.
                 if (quest.TrimExtendedText)
                 {
-                    workingVote.Add((currentLine.WithTrimmedContent(), null));
+                    workingVote.Add((currentLine.WithTrimmedContent(), block: null));
                 }
                 else
                 {
-                    workingVote.Add((currentLine, null));
+                    workingVote.Add((currentLine, block: null));
                 }
             }
         }
