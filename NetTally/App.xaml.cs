@@ -24,7 +24,6 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
-using NetTally.ViewModels;
 
 namespace NetTally
 {
