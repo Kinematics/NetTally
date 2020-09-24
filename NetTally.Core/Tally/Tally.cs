@@ -55,11 +55,6 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Disposal
-        ~Tally()
-        {
-            Dispose(itIsSafeToAlsoFreeManagedObjects: false);
-        }
-
         public void Dispose()
         {
             Dispose(itIsSafeToAlsoFreeManagedObjects: true); //I am calling you from Dispose, it's safe
