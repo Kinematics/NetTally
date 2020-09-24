@@ -379,7 +379,7 @@ namespace NetTally.Forums
                            where post.HasVote
                                 && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
                                 && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
-                                    || (!quest.UseCustomUsernameFilters && post.Origin.Author != threadInfo.Author))
+                                    || (!quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author, threadInfo.Author, StringComparison.Ordinal)))
                                 && (!quest.UseCustomPostFilters
                                     || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber)
                                     || quest.PostsToFilter.Contains(post.Origin.ID.Value)))
