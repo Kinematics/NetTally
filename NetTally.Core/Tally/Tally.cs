@@ -431,7 +431,7 @@ namespace NetTally.VoteCounting
         public async Task<IDictionary<string, VoteLineBlock>> PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
-                return new Dictionary<string, VoteLineBlock>();
+                return new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
 
             foreach (var post in voteCounter.Posts)
             {
@@ -474,7 +474,7 @@ namespace NetTally.VoteCounting
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
-            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>();
+            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
 
             foreach (var (asBlocks, isPlanFunction) in planProcesses)
             {
