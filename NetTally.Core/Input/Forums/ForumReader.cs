@@ -59,7 +59,7 @@ namespace NetTally.Forums
 
             List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new List<Task<(string threadTitle, List<Post> posts)>>();
 
-            Dictionary<string, IPageProvider> pageProviders = new Dictionary<string, IPageProvider>();
+            Dictionary<string, IPageProvider> pageProviders = new Dictionary<string, IPageProvider>(StringComparer.Ordinal);
 
             try
             {
