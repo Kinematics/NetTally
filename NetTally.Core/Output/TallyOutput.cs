@@ -752,7 +752,7 @@ namespace NetTally.Output
             else
                 markerToDisplay = voter.Value.Marker;
 
-            sb.Append("[");
+            sb.Append('[');
             sb.Append(markerToDisplay);
             sb.Append("] ");
 
