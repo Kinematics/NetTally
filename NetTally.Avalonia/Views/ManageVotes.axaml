@@ -8,9 +8,6 @@
         Title="Manage Votes"
         ShowInTaskbar="False">
     <Window.Resources>
-        <converters:BoolConverter x:Key="BoolConverter" />
-        <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter" />
-        <converters:MultiBoolAndConverter x:Key="MultiBoolAndConverter" />
         <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter" />
     </Window.Resources>
 

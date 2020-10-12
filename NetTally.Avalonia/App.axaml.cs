@@ -4,8 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.SystemInfo;
-using NetTally.Utility.Comparers;
 
 namespace NetTally.Avalonia
 {
@@ -30,10 +28,10 @@ namespace NetTally.Avalonia
                 // Build the IServiceProvider and set our reference to it
                 this.InternalServiceProvider = serviceCollection.BuildServiceProvider();
 
-                Agnostic.Init(this.InternalServiceProvider.GetRequiredService<IHash>());
+                Utility.Comparers.Agnostic.Init(this.InternalServiceProvider.GetRequiredService<Utility.Comparers.IHash>());
 
                 var logger = ServiceProvider.GetService<ILoggerFactory>().CreateLogger<App>();
-                logger.LogInformation($"Services defined. Starting application. Version: {ProductInfo.Version}");
+                logger.LogInformation($"Services defined. Starting application. Version: {SystemInfo.ProductInfo.Version}");
 
                 // Request the navigation service and create our main window.
                 ServiceProvider.GetRequiredService<Navigation.AvaloniaNavigationService>().Show<Views.MainWindow>();

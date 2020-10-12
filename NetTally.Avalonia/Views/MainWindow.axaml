@@ -9,7 +9,6 @@
         Title="NetTally.Avalonia">
 
   <Window.Resources>
-    <converters:BoolConverter x:Key="BoolConverter" />
     <converters:DisplayModeConverter x:Key="DisplayModeConverter" />
     <converters:PartitionModeConverter x:Key="PartitionModeConverter" />
   </Window.Resources>

@@ -1,21 +1,21 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
-using NetTally.ViewModels;
-using NetTally.Utility;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using NetTally.Votes;
-using System;
 using System.Globalization;
-using NetTally.Forums;
 using System.Linq;
-using Avalonia.Interactivity;
+using System.Runtime.CompilerServices;
 
 namespace NetTally.Avalonia.Views
 {
+    using NetTally.Forums;
+    using NetTally.Utility;
+    using NetTally.Votes;
+
     public class ManageVotes : Window, INotifyPropertyChanged
     {
         #region Properties for binding
@@ -127,7 +127,7 @@ namespace NetTally.Avalonia.Views
 
         #endregion
 
-        private ViewModel MainViewModel { get; }
+        private ViewModels.ViewModel MainViewModel { get; }
 
         private ILogger<ManageVotes> Logger { get; set; }
 
@@ -136,7 +136,7 @@ namespace NetTally.Avalonia.Views
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotes(ViewModel mainViewModel, ILogger<ManageVotes> logger)
+        public ManageVotes(ViewModels.ViewModel mainViewModel, ILogger<ManageVotes> logger)
         {
             this.MainViewModel = mainViewModel;
             this.Logger = logger;

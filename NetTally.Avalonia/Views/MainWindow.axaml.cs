@@ -3,26 +3,18 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
-using NetTally.Avalonia.Config;
-using NetTally.Avalonia.Navigation;
-using NetTally.Collections;
-using NetTally.CustomEventArgs;
-using NetTally.Options;
-using NetTally.SystemInfo;
-using NetTally.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Runtime.ExceptionServices;
-using System.Threading;
 
 namespace NetTally.Avalonia.Views
 {
     public class MainWindow : Window
     {
         #region Fields and Properties
-        private ViewModel ViewModel { get; }
-        private AvaloniaNavigationService NavigationService { get; }
+        private ViewModels.ViewModel ViewModel { get; }
+        private Navigation.AvaloniaNavigationService NavigationService { get; }
         private ILogger<MainWindow> Logger { get; }
         #endregion
 
@@ -32,8 +24,9 @@ namespace NetTally.Avalonia.Views
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(ViewModel model, 
-            AvaloniaNavigationService navigationService, 
+        public MainWindow(
+            ViewModels.ViewModel model,
+            Navigation.AvaloniaNavigationService navigationService, 
             ILogger<MainWindow> logger)
         {
             // Initialize the readonly properties.
@@ -51,16 +44,16 @@ namespace NetTally.Avalonia.Views
                 AvaloniaXamlLoader.Load(this);
 
                 // Set the title.
-                Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
+                Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
 
                 // Load configuration data
-                QuestCollection? quests = null;
+                Collections.QuestCollection? quests = null;
                 string? currentQuest = null;
 
                 try
                 {
                     this.Logger.LogDebug("Loading configuration.");
-                    NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
+                    Config.NetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
                     this.Logger.LogInformation("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
@@ -84,7 +77,7 @@ namespace NetTally.Avalonia.Views
         /// Set up the program with various platform-specific configurations.
         /// </summary>
         /// <param name="quests">The program's config data.</param>
-        private void PlatformSetup(QuestCollection? quests, string? currentQuest)
+        private void PlatformSetup(Collections.QuestCollection? quests, string? currentQuest)
         {
             try
             {
@@ -115,7 +108,7 @@ namespace NetTally.Avalonia.Views
             {
                 string selectedQuest = ViewModel.SelectedQuest?.ThreadName ?? "";
 
-                NetTallyConfig.Save(ViewModel.QuestList, selectedQuest, AdvancedOptions.Instance);
+                Config.NetTallyConfig.Save(ViewModel.QuestList, selectedQuest, Options.AdvancedOptions.Instance);
 
                 Logger.LogDebug("Configuration saved.");
             }
@@ -134,7 +127,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="e">The <see cref="FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
         private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
         {
-            if (AdvancedOptions.Instance.DebugMode)
+            if (Options.AdvancedOptions.Instance.DebugMode)
                 Logger.LogWarning(e.Exception, "First chance exception warning.");
         }
 
@@ -187,7 +180,7 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_ExceptionRaised(object? sender, ExceptionEventArgs e)
+        private void MainViewModel_ExceptionRaised(object? sender, CustomEventArgs.ExceptionEventArgs e)
         {
             Exception ex = e.Exception;
 
@@ -224,17 +217,14 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-
         /// <summary>
         /// Event to cause the program to copy the current contents of the the tally
         /// results (ie: what's shown in the main text window) to the clipboard.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
-        {
+        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e) => 
             Application.Current.Clipboard.SetTextAsync(ViewModel.Output);
-        }
 
         /// <summary>
         /// Open the window for handling merging votes.
