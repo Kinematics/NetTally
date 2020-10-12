@@ -48,30 +48,39 @@ namespace NetTally.Avalonia.Views
         // Idealy I would like to change all of these into standard functions or commands for better
         // type safety.
 
-
         /// <summary>
         /// Checks for changes to the <see cref="TextBox"/>.Text property. If the text has changed
         /// to a well formed URL, then we set the thread to the URL, and remove the error class
         /// otherwise we do nothing, and set an error class.
         /// </summary>
+        /// <remarks>
+        /// This method functions like this because Quest.ThreadName will throw an exception if it gets a badly 
+        /// formed URL which prevents us from binding it. Idealy Quest instead would implement some validation 
+        /// logic on its property, and we could bind and reflect that, but for now we do this.
+        /// </remarks>
         /// <param name="sender">The object that sent this method. Should always be <see cref="TextBox"/>.</param>
         /// <param name="e">Arguments for this event.</param>
         public void ThreadUrl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if (e.Property == TextBox.TextProperty 
-                && e.NewValue is string newUrl
-                && sender is TextBox textBox
-                && textBox.Name == "ThreadUrl")
+            // Guard against events we don't want to handle, since this will trigger for all
+            // PropertyChanged events on this control.
+            if (e.Property != TextBox.TextProperty
+                || !(e.NewValue is string newUrl)
+                || !(sender is TextBox textBox)
+                || textBox.Name != "ThreadUrl")
             {
-                if (Uri.IsWellFormedUriString(newUrl, UriKind.Absolute)
-                    && !string.IsNullOrWhiteSpace(newUrl))
-                {
-                    this.Quest.ThreadName = newUrl;
-                    ((TextBox)sender).Classes.Remove("error");
-                } else
-                {
-                    ((TextBox)sender).Classes.Add("error");
-                }
+                return;
+            }
+
+            // check if the string would be accepted by Quest, if so set it, and remove our error class.
+            if (Uri.IsWellFormedUriString(newUrl, UriKind.Absolute)
+                && !string.IsNullOrWhiteSpace(newUrl))
+            {
+                this.Quest.ThreadName = newUrl;
+                textBox.Classes.Remove("error");
+            } else {
+                // bad string add the error class.
+                textBox.Classes.Add("error");
             }
         }
 
