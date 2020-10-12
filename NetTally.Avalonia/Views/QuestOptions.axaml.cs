@@ -45,6 +45,10 @@ namespace NetTally.Avalonia.Views
 
         #region Window element event handlers
 
+        // Idealy I would like to change all of these into standard functions or commands for better
+        // type safety.
+
+
         /// <summary>
         /// Checks for changes to the <see cref="TextBox"/>.Text property. If the text has changed
         /// to a well formed URL, then we set the thread to the URL, and remove the error class
@@ -112,22 +116,16 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        public void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close(false);
-        }
+        public void CancelButton_Click(object sender, RoutedEventArgs e) => this.Close(false);
 
-        public void OkButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close(true);
-        }
+        public void OkButton_Click(object sender, RoutedEventArgs e) => this.Close(true);
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public QuestOptions() { }
+        public QuestOptions() { throw new InvalidOperationException("The default constructor should not be called"); }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

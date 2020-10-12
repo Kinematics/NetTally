@@ -4,7 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
 using NetTally.Options;
-using NetTally.ViewModels;
+using System;
 
 namespace NetTally.Avalonia.Views
 {
@@ -12,13 +12,6 @@ namespace NetTally.Avalonia.Views
     {
         #region Setup and construction
         private ILogger<GlobalOptions> Logger { get; }
-
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        /// <summary>
-        /// A blank constructor is needed for Avalonia Windows. It should never be called.
-        /// </summary>
-        public GlobalOptions() { }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         public GlobalOptions(IGlobalOptions options, ILogger<GlobalOptions> logger)
         {
@@ -53,5 +46,12 @@ namespace NetTally.Avalonia.Views
             Logger.LogDebug("Global options have been reset.");
         }
         #endregion
+
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        /// <summary>
+        /// A blank constructor is needed for Avalonia Windows. It should never be called.
+        /// </summary>
+        public GlobalOptions() { throw new InvalidOperationException("The default constructor should not be called"); }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }
