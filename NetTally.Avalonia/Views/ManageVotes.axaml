@@ -1,0 +1,163 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
+        x:Class="NetTally.Avalonia.Views.ManageVotes"
+        Title="Manage Votes"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <converters:BoolConverter x:Key="BoolConverter" />
+        <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter" />
+        <converters:MultiBoolAndConverter x:Key="MultiBoolAndConverter" />
+        <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="4*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <!-- Grid 0,0 : From Votes -->
+
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="Votes (Merge From)" Margin="10,10,0,0" VerticalAlignment="Top" Width="116" HorizontalAlignment="Left"/>
+
+        <TextBox Grid.Column="0" Grid.Row="0" Name="VoteFromFilter" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding VoteFromFilter}"
+                 Watermark="Filter Votes">
+          <ToolTip.Tip>
+            <StackPanel>
+                <TextBlock FontWeight="Bold">Filter 'From' Votes</TextBlock>
+                <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+            </StackPanel>
+          </ToolTip.Tip>
+        </TextBox>
+
+        <ListBox Grid.Column="0" Grid.Row="0" Name="VotesFrom" Margin="10,36,10,10"
+                 Items="{Binding VotesFrom}" SelectedItem="{Binding SelectedFromVote}" SelectionMode="Single">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+
+        <!-- Grid 2,0 : To Votes -->
+
+        <TextBlock Grid.Column="2" Grid.Row="0" Text="Votes (Merge To)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+
+        <TextBox Grid.Column="2" Grid.Row="0" Name="VoteToFilter" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding VoteToFilter}"
+                 Watermark="Filter Votes">
+          <ToolTip.Tip>
+              <StackPanel>
+                  <TextBlock FontWeight="Bold">Filter 'To' Votes</TextBlock>
+                  <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+              </StackPanel>
+          </ToolTip.Tip>
+        </TextBox>
+
+        <ListBox Grid.Column="2" Grid.Row="0" Name="VotesTo" Margin="10,36,10,10"
+                 Items="{Binding VotesTo}" SelectedItem="{Binding SelectedToVote}" SelectionMode="Single">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Grid 0,1 : From Voters -->
+
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+
+        <ListBox Grid.Column="0" Grid.Row="1" Name="VotersFrom" Margin="10,31,10,10"
+                 Items="{Binding VotersFrom}">
+        </ListBox>
+
+        <!-- Grid 2,1 : To Voters -->
+
+        <TextBlock Grid.Column="2" Grid.Row="1" Text="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+
+        <ListBox Grid.Column="2" Grid.Row="1" Name="VotersTo" Margin="10,31,10,10"
+                 Items="{Binding VotersTo}">
+        </ListBox>
+
+        <!-- Grid 1,0 : Vote Controls -->
+
+        <Button Grid.Column="1" Grid.Row="0" Name="Merge" Content="Merge ⇒" Click="Merge_Click" Margin="10,47,10,0" Height="35" 
+                VerticalAlignment="Top" FontSize="13.333">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="InvertVoteLineBlock">
+                    <Binding ElementName="VotesFrom" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="VotesTo" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
+            <ToolTip.Tip>
+                <StackPanel>
+                    <TextBlock FontWeight="Bold">Merge</TextBlock>
+                    <TextBlock>Merge the voters for the selected vote on the left into the vote on the right.</TextBlock>
+                </StackPanel>
+            </ToolTip.Tip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="0" Name="Delete" Content="⊘ Delete" Click="Delete_Click" Margin="10,196,10,0" Height="35"
+                 VerticalAlignment="Top" FontSize="13.333" RenderTransformOrigin="0.507,0.1">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="VoteLineBlock">
+                    <Binding ElementName="VotesFrom" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="VotesTo" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
+            <ToolTip.Tip>
+                <StackPanel>
+                    <TextBlock FontWeight="Bold">Delete</TextBlock>
+                    <TextBlock>Delete the selected vote.  Select the same vote from both columns.</TextBlock>
+                </StackPanel>
+            </ToolTip.Tip>
+        </Button>
+
+        <Button Grid.Column="1" Grid.Row="0" Name="Undo" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
+                HotKey="Ctrl+Z"
+                Click="Undo_Click"
+                IsEnabled="{Binding HasUndoActions}">
+            <ToolTip.Tip>
+                <StackPanel>
+                    <TextBlock FontWeight="Bold">Undo</TextBlock>
+                    <TextBlock>Undo the last merge, delete, or join action.</TextBlock>
+                </StackPanel>
+            </ToolTip.Tip>
+        </Button>
+
+        <!-- Grid 1,1 : Voter Controls -->
+
+      <Button Grid.Column="1" Grid.Row="1" Name="JoinVoters" Content="Join ⇒" Height="35" Margin="10,35,10,0" VerticalAlignment="Top"
+              FontSize="13.333" Click="Join_Click">
+        <Button.IsEnabled>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!!#VotersFrom.ItemCount" />
+            <Binding Path="#VotersTo.SelectedItem" Converter="{x:Static ObjectConverters.IsNotNull}" />
+          </MultiBinding>
+        </Button.IsEnabled>
+        <ToolTip.Tip>
+          <StackPanel>
+            <TextBlock FontWeight="Bold">Join</TextBlock>
+            <TextBlock>Have all voters from the list on the left support all votes of the voter selected on the right.</TextBlock>
+          </StackPanel>
+        </ToolTip.Tip>
+      </Button>
+
+        <!-- Grid 2,2 : Close Window -->
+
+        <Button Grid.Column="2" Grid.Row="2" Name="CloseButton" Content="Close" Margin="0,0,10,10"
+                IsCancel="True" HorizontalAlignment="Right" Width="117" Height="30" VerticalAlignment="Bottom"
+                Click="Close_Click" />
+    </Grid>
+</Window>
