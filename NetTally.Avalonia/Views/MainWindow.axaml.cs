@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data.Core;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
@@ -73,7 +72,8 @@ namespace NetTally.Avalonia.Views
                 }
                 catch (ConfigurationErrorsException e)
                 {
-                    WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration", logsSaved: false);
+                    logger.LogError(e, "Failure during configuration.");
+                    WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration");
                 }
 
                 // Complete the platform setup.
@@ -175,11 +175,14 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// Handles the PropertyChanged event of the MainViewModel control.
         /// </summary>
+        /// <remarks>
+        /// This should probably move to a seperate config class?
+        /// </remarks>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private async void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+            Logger.LogInformation($"Received notification of property change from MainViewModel: {e.PropertyName}.");
             
             this.SaveConfig();
         }
@@ -217,6 +220,7 @@ namespace NetTally.Avalonia.Views
 
         public async void AddQuestButton_Click(object sender, RoutedEventArgs e)
         {
+            // should IQuest go into the IoC and we get this via that instead?
             var newQuest = new Quest();
             var result = await this.NavigationService.ShowDialogAsync<Views.QuestOptions>(this, newQuest, this.ViewModel.QuestList);
 
@@ -260,12 +264,17 @@ namespace NetTally.Avalonia.Views
             await this.NavigationService.ShowDialogAsync<GlobalOptions>(this, this.ViewModel.Options);
 
         /// <summary>
-        /// Opens the global options window.
+        /// Opens the quest options window.
         /// </summary>
+        /// <remarks>
+        /// Refactor this into a function taking a parameter instead?
+        /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await NavigationService.ShowDialogAsync<Views.QuestOptions>(this, ViewModel.SelectedQuest, this.ViewModel.QuestList);
+            await NavigationService.ShowDialogAsync<Views.QuestOptions>(this,
+                                                                        this.ViewModel.SelectedQuest ?? throw new ArgumentNullException("Selected Quest is null."),
+                                                                        this.ViewModel.QuestList);
         #endregion
     }
 }

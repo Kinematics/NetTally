@@ -19,9 +19,7 @@ namespace NetTally.Avalonia.Views
         private ILogger<QuestOptions> Logger { get; }
         private IQuest Quest { get; }
         private IEnumerable<IQuest> QuestList { get; }
-        #endregion
-
-        public QuestOptions() { }
+        #endregion        
 
         public QuestOptions(IQuest quest, ILogger<QuestOptions> logger, QuestCollection questList)
         {
@@ -124,5 +122,12 @@ namespace NetTally.Avalonia.Views
             this.Close(true);
         }
         #endregion
+
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        /// <summary>
+        /// A blank constructor is needed for Avalonia Windows. It should never be called.
+        /// </summary>
+        public QuestOptions() { }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }
