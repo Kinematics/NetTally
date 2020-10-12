@@ -20,13 +20,10 @@ namespace NetTally.Avalonia.Views
         {
             primaryMessage += (logsSaved) ? $"\nLogs have been saved in: {Startup.GetLoggingDirectoryPath()}" : "";
 
-            var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
-                new MessageBoxStandardParams
-                {
-                    ContentTitle = title,
-                    ContentMessage = primaryMessage,
-                });
-            return msgBox.Show();
+            return MessageBoxManager.GetMessageBoxStandardWindow(StandardParamGenerator(title, primaryMessage)).Show();
         }
+
+        private static MessageBoxStandardParams StandardParamGenerator(string title, string message) =>
+            new MessageBoxStandardParams { ContentTitle = title, ContentMessage = message };
     }
 }

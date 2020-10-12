@@ -28,13 +28,6 @@ namespace NetTally.Avalonia.Views
 
         #region Startup/shutdown events
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        /// <summary>
-        /// A blank constructor is needed for Avalonia Windows. It should never be called.
-        /// </summary>
-        public MainWindow() { }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-
         /// <summary>
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
@@ -66,22 +59,22 @@ namespace NetTally.Avalonia.Views
 
                 try
                 {
-                    logger.LogDebug("Loading configuration.");
+                    this.Logger.LogDebug("Loading configuration.");
                     NetTallyConfig.Load(out quests, out currentQuest, AdvancedOptions.Instance);
-                    logger.LogInformation("Configuration loaded.");
+                    this.Logger.LogInformation("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
                 {
-                    logger.LogError(e, "Failure during configuration.");
+                    this.Logger.LogError(e, "Failure during configuration.");
                     WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration");
                 }
 
                 // Complete the platform setup.
-                PlatformSetup(quests, currentQuest);
+                this.PlatformSetup(quests, currentQuest);
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failure during program startup.");
+                this.Logger.LogError(e, "Failure during program startup.");
                 WarningDialog.Show("Unable to start the program.", "Failure on startup");
                 this.Close();
             }
@@ -276,5 +269,12 @@ namespace NetTally.Avalonia.Views
                                                                         this.ViewModel.SelectedQuest ?? throw new ArgumentNullException("Selected Quest is null."),
                                                                         this.ViewModel.QuestList);
         #endregion
+
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        /// <summary>
+        /// A blank constructor is needed for Avalonia Windows. It should never be called.
+        /// </summary>
+        public MainWindow() { throw new InvalidOperationException("The default constructor should not be called"); }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

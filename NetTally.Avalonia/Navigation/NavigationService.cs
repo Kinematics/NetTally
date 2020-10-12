@@ -28,8 +28,7 @@ namespace NetTally.Avalonia.Navigation
         /// Show a non-modal window.
         /// </summary>
         /// <typeparam name="T">The type of window being requested.</typeparam>
-        /// <returns></returns>
-        public async Task ShowAsync<T>() where T : Window
+        public void Show<T>() where T : Window
         {
             Logger.LogDebug($"Showing Window {typeof(T)}");
 
