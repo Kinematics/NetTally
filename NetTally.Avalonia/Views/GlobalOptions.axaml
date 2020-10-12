@@ -1,0 +1,136 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
+        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        mc:Ignorable="d"
+        x:Class="NetTally.Avalonia.Views.GlobalOptions"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight"
+        ShowInTaskbar="False"
+        Title="Global Options">
+  <Window.Resources>
+    <converters:RankCountingModeConverter x:Key="RankCountingModeConverter" />
+    <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
+  </Window.Resources>
+
+  <StackPanel>
+    <HeaderedContentControl Header="Vote Processing" Classes="GroupBox"
+                            Margin="5" Padding="5">
+      <StackPanel>
+        <ComboBox Name="RankedVoteAlgorithm"
+                  Items="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
+                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ranked Vote Algorithm"/>
+              <TextBlock TextWrapping="Wrap" Text="Specify the algorithm to use when tallying ranked votes.  This may be temporarily changed from the default.  Changing this value updates the current tally immediately."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Options include:"/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Rated Instant Runoff (default) - A system that uses Wilson scoring to determine the top two options, and then does a runoff between those two."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </ComboBox>
+        <CheckBox Name="AllowUsersToUpdatePlans" Content="Users can update plans"
+                  IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Users to Update Plans"/>
+              <TextBlock TextWrapping="Wrap" Text="When set to true, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+              <TextBlock TextWrapping="Wrap" Text="When set to false, users are not allowed to make such changes."/>
+              <TextBlock TextWrapping="Wrap" Text="When set to indeterminate, the quest-specific setting is used instead."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to indeterminate."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="TrackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  IsChecked="{Binding TrackPostAuthorsUniquely}">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Track Post Authors Uniquely"/>
+              <TextBlock TextWrapping="Wrap" Text="When set, post authors are tracked by name + post ID instead of just name."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Header="Output" Classes="GroupBox"
+                            Margin="5" Padding="5">
+      <StackPanel>
+        <CheckBox Name="GlobalSpoilers" Content="Always Use Full Spoilers"
+                  IsChecked="{Binding GlobalSpoilers}">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Always Use Full Spoilers"/>
+              <TextBlock TextWrapping="Wrap" Text="When set, all display modes will be placed inside a full spoiler block (similar to Spoiler All).  This does not affect whether voter lists are placed in spoilers."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="DisplayPlansWithNoVotes" Content="Display Plans With No Votes"
+                  IsChecked="{Binding DisplayPlansWithNoVotes}">
+          <ToolTip.Tip>
+            <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" IsVisible="{Binding #displayPlansWithNoVotes.IsMouseOver}">
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Display Plans With No Votes"/>
+              <TextBlock TextWrapping="Wrap" Text="When set, plans that do not have any voter support will be displayed.  This does not affect the compact display mode."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Header="Misc" Classes="GroupBox"
+                            Margin="5" Padding="5">
+      <StackPanel>
+        <CheckBox Name="DisableWebProxy" Content="Disable Web Proxy"
+                  IsChecked="{Binding DisableWebProxy}">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Debug Mode"/>
+              <TextBlock TextWrapping="Wrap" Text="When set, certain additional information is displayed in the tally results, and more detailed logging is enabled."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="DebugMode" Content="Debug Mode"
+                  IsChecked="{Binding DebugMode}">
+          <ToolTip.Tip>
+            <StackPanel>
+              <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable Web Proxy"/>
+              <TextBlock TextWrapping="Wrap" Text="When set, disables usage of the proxy defined on the local system, and attempts to connect to web sites directly.  Fixes a problem with some Vista and Windows 7 systems."/>
+              <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This only takes effect after the next program restart."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <StackPanel Orientation="Horizontal" Margin="5">
+      <Button Name="ResetAllButton" Content="Reset All"
+              Click="ResetAllButton_Click">
+        <ToolTip.Tip>
+          <StackPanel>
+            <TextBlock FontWeight="Bold">Reset All Options</TextBlock>
+            <TextBlock>Reset all options to their default values.</TextBlock>
+          </StackPanel>
+        </ToolTip.Tip>
+      </Button>
+      <Button Name="CloseButton" Content="Close"
+              IsDefault="True" IsCancel="True" Click="CloseButton_Click">
+        <ToolTip.Tip>
+          <StackPanel>
+            <TextBlock FontWeight="Bold">Close Window</TextBlock>
+            <TextBlock>Close the window, accepting the currently selected options.</TextBlock>
+          </StackPanel>
+        </ToolTip.Tip>
+      </Button>
+    </StackPanel>
+  </StackPanel>
+</Window>
