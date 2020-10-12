@@ -2,12 +2,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using DynamicData;
 using Microsoft.Extensions.Logging;
-using NetTally.Collections;
-using NetTally.ViewModels;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,7 +17,7 @@ namespace NetTally.Avalonia.Views
         private IEnumerable<IQuest> QuestList { get; }
         #endregion        
 
-        public QuestOptions(IQuest quest, ILogger<QuestOptions> logger, QuestCollection questList)
+        public QuestOptions(IQuest quest, ILogger<QuestOptions> logger, Collections.QuestCollection questList)
         {
             this.Quest = quest;
             this.Logger = logger;

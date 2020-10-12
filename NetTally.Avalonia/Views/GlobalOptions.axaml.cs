@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
-using NetTally.Options;
 using System;
 
 namespace NetTally.Avalonia.Views
@@ -13,7 +12,7 @@ namespace NetTally.Avalonia.Views
         #region Setup and construction
         private ILogger<GlobalOptions> Logger { get; }
 
-        public GlobalOptions(IGlobalOptions options, ILogger<GlobalOptions> logger)
+        public GlobalOptions(Options.IGlobalOptions options, ILogger<GlobalOptions> logger)
         {
             this.Logger = logger;
 

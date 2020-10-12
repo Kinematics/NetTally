@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -45,6 +42,9 @@ namespace NetTally.Avalonia.Navigation
         /// <summary>
         /// Show a modal window.
         /// </summary>
+        /// <remarks>
+        /// Not sure if this should get rewritten to possibly catch any exceptions, or if they should bubble up.
+        /// </remarks>
         /// <typeparam name="T">The type of window being requested.</typeparam>
         /// <param name="parentWindow">The parent Window for this dialog.</param>
         /// <param name="parameters">List of paramaters to pass along to the dialog window.</param>
@@ -54,13 +54,16 @@ namespace NetTally.Avalonia.Navigation
         {
             Logger.LogDebug($"Showing Dialog Window {typeof(T)}");
 
-            if (parameters.Length > 0)
-            {
-                return await ActivatorUtilities.CreateInstance<T>(this.ServiceProvider, parameters).ShowDialog<bool?>(parentWindow);
-            } else
-            {
-                return await this.ServiceProvider.GetRequiredService<T>().ShowDialog<bool?>(parentWindow);
-            }
+            // Get the service provider to resolve our dependencies and call our window. If we got passed a
+            // parameter that isn't (or at least, shouldn't be) a dependency we can resolve, then we pass
+            // that along as well.
+
+            // ActivatorUtilities seems to call the default constructor if we call it with no extera parameters
+            // instead of resolving our dependencies. I'm not sure if this is a bug or intended behavior, but
+            // we avoid this with this.
+            return (parameters.Length > 0)
+                ? await ActivatorUtilities.CreateInstance<T>(this.ServiceProvider, parameters).ShowDialog<bool?>(parentWindow)
+                : await this.ServiceProvider.GetRequiredService<T>().ShowDialog<bool?>(parentWindow);
         }
     }
 }
