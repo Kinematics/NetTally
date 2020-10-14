@@ -1,17 +1,49 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="Window.Dialog">
+        <Setter Property="WindowStartupLocation" Value="CenterOwner" />
+        <Setter Property="SizeToContent" Value="WidthAndHeight" />
+        <Setter Property="ShowInTaskbar" Value="False" />
+        <Setter Property="Padding" Value="10 0 10 10" />
+    </Style>
+
+    <Style Selector="CheckBox.Label">
+        <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="TextBlock.Label">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="TextBlock.Description">
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBox.Error">
+        <Setter Property="Background" Value="LightCoral" />
+    </Style>
+
+    <Style Selector="StackPanel.OptionList">
+        <Setter Property="Spacing" Value="2"/>
+    </Style>
+    <Style Selector="StackPanel.GroupList">
+        <Setter Property="Spacing" Value="5"/>
+    </Style>
+
+    <Style Selector="StackPanel.CommandFooter">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Spacing" Value="5"/>
+    </Style>
     <Style Selector="HeaderedContentControl.GroupBox">
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
                     <Border>
                         <StackPanel>
                             <ContentPresenter TextBlock.FontWeight="Bold" Content="{TemplateBinding Header}" />
-                            <Border BorderBrush="{TemplateBinding Background}"
-                                    BorderThickness="2"
-                                    CornerRadius="5">
-                                <ContentPresenter Content="{TemplateBinding Content}" />
-                            </Border>
+                            <ContentPresenter Content="{TemplateBinding Content}" />
                         </StackPanel>
                     </Border>
                 </ControlTemplate>

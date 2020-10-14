@@ -75,34 +75,34 @@ namespace NetTally.Avalonia.Views
                 && !string.IsNullOrWhiteSpace(newUrl))
             {
                 this.Quest.ThreadName = newUrl;
-                textBox.Classes.Remove("error");
+                textBox.Classes.Remove("Error");
             } else {
                 // bad string add the error class.
-                textBox.Classes.Add("error");
+                textBox.Classes.Add("Error");
             }
         }
 
-        public void ResetButton_Click(object sender, RoutedEventArgs e)
+        public void Reset_Click(object sender, RoutedEventArgs e)
         {
-            this.FindControl<TextBox>("customPostFilters").Text = "";
-            this.FindControl<TextBox>("customTaskFilters").Text = "";
-            this.FindControl<TextBox>("customThreadmarkFilters").Text = "";
-            this.FindControl<TextBox>("customUsernameFilters").Text = "";
+            this.FindControl<TextBox>("CustomPostFilters").Text = "";
+            this.FindControl<TextBox>("CustomTaskFilters").Text = "";
+            this.FindControl<TextBox>("CustomThreadmarkFilters").Text = "";
+            this.FindControl<TextBox>("CustomUsernameFilters").Text = "";
 
-            this.FindControl<CheckBox>("useCustomPostFilters").IsChecked = false;
-            this.FindControl<CheckBox>("useCustomTaskFilters").IsChecked = false;
-            this.FindControl<CheckBox>("useCustomThreadmarkFilters").IsChecked = false;
-            this.FindControl<CheckBox>("useCustomUsernameFilters").IsChecked = false;
+            this.FindControl<CheckBox>("UseCustomPostFilters").IsChecked = false;
+            this.FindControl<CheckBox>("UseCustomTaskFilters").IsChecked = false;
+            this.FindControl<CheckBox>("UseCustomThreadmarkFilters").IsChecked = false;
+            this.FindControl<CheckBox>("UseCustomUsernameFilters").IsChecked = false;
 
             this.Logger.LogDebug("Quest filters have been reset.");
 
-            this.FindControl<CheckBox>("forbidVoteLabelPlanNames").IsChecked = false;
-            this.FindControl<CheckBox>("whitespaceAndPunctuationIsSignificant").IsChecked = false;
-            this.FindControl<CheckBox>("caseIsSignificant").IsChecked = false;
-            this.FindControl<CheckBox>("disableProxyVotes").IsChecked = false;
-            this.FindControl<CheckBox>("forcePinnedProxyVotes").IsChecked = false;
-            this.FindControl<CheckBox>("ignoreSpoilers").IsChecked = false;
-            this.FindControl<CheckBox>("trimExtendedText").IsChecked = false;            
+            this.FindControl<CheckBox>("ForbidVoteLabelPlanNames").IsChecked = false;
+            this.FindControl<CheckBox>("WhitespaceAndPunctuationIsSignificant").IsChecked = false;
+            this.FindControl<CheckBox>("CaseIsSignificant").IsChecked = false;
+            this.FindControl<CheckBox>("DisableProxyVotes").IsChecked = false;
+            this.FindControl<CheckBox>("ForcePinnedProxyVotes").IsChecked = false;
+            this.FindControl<CheckBox>("IgnoreSpoilers").IsChecked = false;
+            this.FindControl<CheckBox>("TrimExtendedText").IsChecked = false;            
 
             this.Logger.LogDebug("Quest options have been reset.");
         }
@@ -123,9 +123,9 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        public void CancelButton_Click(object sender, RoutedEventArgs e) => this.Close(false);
+        public void Cancel_Click(object sender, RoutedEventArgs e) => this.Close(false);
 
-        public void OkButton_Click(object sender, RoutedEventArgs e) => this.Close(true);
+        public void Ok_Click(object sender, RoutedEventArgs e) => this.Close(true);
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
