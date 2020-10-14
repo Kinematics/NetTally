@@ -8,11 +8,6 @@
         Icon="/Assets/CheckVoteWin.ico"
         Title="NetTally.Avalonia">
 
-  <Window.Resources>
-    <converters:DisplayModeConverter x:Key="DisplayModeConverter" />
-    <converters:PartitionModeConverter x:Key="PartitionModeConverter" />
-  </Window.Resources>
-
   <Grid>
     <Button Name="AddQuestButton" Content="New"
             Width="60" Height="30" Margin="10,45,0,0"
@@ -127,7 +122,7 @@
     <ComboBox Name="partitionMode" 
               Margin="318,45,0,0"
               VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
-              Items="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={StaticResource PartitionModeConverter}}">
+              Items="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
       <ComboBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />
@@ -169,7 +164,7 @@
       </ToolTip.Tip>
   </Button>
     <ComboBox Name="displayMode" Margin="468,80,0,0" VerticalAlignment="Top" Height="22"
-              Items="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={StaticResource DisplayModeConverter}}"
+              Items="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
               HorizontalAlignment="Left" Width="145" Padding="8,2,4,3">
       <ComboBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
