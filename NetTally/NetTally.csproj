@@ -68,7 +68,7 @@
     <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Coordination/5.1.0/lib/netstandard2.0" />
     <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.1.0/lib/netstandard2.0" />
     <Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.0/lib/netstandard2.1" />
     <!-- <Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
   </Target>
 
@@ -93,7 +93,7 @@
     <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Coordination/5.1.0/lib/netstandard2.0" />
     <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.1.0/lib/netstandard2.0" />
     <Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.1.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.0/lib/netstandard2.0" />
+    <Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.0/lib/netstandard2.1" />
     <!-- <Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
   </Target>
 </Project>
