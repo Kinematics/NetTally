@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
         x:Class="NetTally.Avalonia.Views.ManageVotes"
+        SizeToContent="WidthAndHeight"
         Title="Manage Votes"
         ShowInTaskbar="False">
     <Window.Resources>

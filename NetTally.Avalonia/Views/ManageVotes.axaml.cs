@@ -150,6 +150,9 @@ namespace NetTally.Avalonia.Views
             AvaloniaXamlLoader.Load(this);
 
             this.MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+
+            // not sure why the setting in XAML isn't being respected, but resetting this here appears to work.
+            this.SizeToContent = SizeToContent.WidthAndHeight;
         }
 
         /// <summary>

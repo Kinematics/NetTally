@@ -37,6 +37,8 @@ namespace NetTally.Avalonia.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
+            // not sure why the setting in XAML isn't being respected, but resetting this here appears to work.
+            this.SizeToContent = SizeToContent.WidthAndHeight;
         }
 
         #region Window element event handlers

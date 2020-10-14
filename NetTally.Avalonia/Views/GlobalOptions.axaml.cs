@@ -23,6 +23,9 @@ namespace NetTally.Avalonia.Views
             AvaloniaXamlLoader.Load(this);
 
             DataContext = options;
+
+            // not sure why the setting in XAML isn't being respected, but resetting this here appears to work.
+            this.SizeToContent = SizeToContent.WidthAndHeight;
         }
         #endregion
 
