@@ -113,8 +113,8 @@
     </HeaderedContentControl>
 
     <StackPanel Orientation="Horizontal" Margin="5">
-      <Button Name="ResetAllButton" Content="Reset All"
-              Click="ResetAllButton_Click">
+      <Button Name="ResetAll" Content="Reset All"
+              Click="ResetAll_Click">
         <ToolTip.Tip>
           <StackPanel>
             <TextBlock FontWeight="Bold">Reset All Options</TextBlock>
@@ -122,8 +122,8 @@
           </StackPanel>
         </ToolTip.Tip>
       </Button>
-      <Button Name="CloseButton" Content="Close"
-              IsDefault="True" IsCancel="True" Click="CloseButton_Click">
+      <Button Name="Close" Content="Close"
+              IsDefault="True" IsCancel="True" Click="Close_Click">
         <ToolTip.Tip>
           <StackPanel>
             <TextBlock FontWeight="Bold">Close Window</TextBlock>

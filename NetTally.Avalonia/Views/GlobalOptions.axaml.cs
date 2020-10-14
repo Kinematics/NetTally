@@ -7,11 +7,19 @@ using System;
 
 namespace NetTally.Avalonia.Views
 {
+
+    /// <summary>
+    /// Window that handles modifying global options.
+    /// </summary>
     public class GlobalOptions : Window
     {
-        #region Setup and construction
-        private ILogger<GlobalOptions> Logger { get; }
+        #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlobalOptions"/> class.
+        /// </summary>
+        /// <param name="options">The global options being modified. Acts as the datacontext for now.</param>
+        /// <param name="logger">An appropriate ILogger for this window.</param>
         public GlobalOptions(Options.IGlobalOptions options, ILogger<GlobalOptions> logger)
         {
             this.Logger = logger;
@@ -30,12 +38,23 @@ namespace NetTally.Avalonia.Views
         #endregion
 
         #region Window element event handlers
-        public void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
 
-        public void ResetAllButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Closes the Window
+        /// </summary>
+        /// <param name="sender">Control sending this command</param>
+        /// <param name="e">Event arguments</param>
+        public void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+        /// <summary>
+        /// Resets all parameters to their default values.
+        /// </summary>
+        /// <remarks>
+        /// This logic should probably move to the model.
+        /// </remarks>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ResetAll_Click(object sender, RoutedEventArgs e)
         {
             this.FindControl<ComboBox>("RankedVoteAlgorithm").SelectedIndex = 0;
             this.FindControl<CheckBox>("AllowUsersToUpdatePlans").IsChecked = null;
@@ -47,6 +66,15 @@ namespace NetTally.Avalonia.Views
 
             Logger.LogDebug("Global options have been reset.");
         }
+        #endregion
+
+        #region Private Properties
+
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
+        private ILogger<GlobalOptions> Logger { get; }
+
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
