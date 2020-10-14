@@ -311,11 +311,11 @@ namespace NetTally.Avalonia.Views
         {
             Logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
 
-            if (string.Equals(e.PropertyName, nameof(MainViewModel.AllVotesCollection), StringComparison.Ordinal))
+            if (string.Equals(e.PropertyName, nameof(this.MainViewModel.AllVotesCollection), StringComparison.Ordinal))
             {
                 this.UpdateVoteCollections();
             }
-            else if (string.Equals(e.PropertyName, nameof(MainViewModel.AllVotersCollection), StringComparison.Ordinal))
+            else if (string.Equals(e.PropertyName, nameof(this.MainViewModel.AllVotersCollection), StringComparison.Ordinal))
             {
                 this.UpdateVoterCollections();
             }
