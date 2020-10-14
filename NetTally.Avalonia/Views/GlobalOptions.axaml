@@ -9,7 +9,6 @@
         Classes="Dialog"
         Title="Global Options">
   <Window.Resources>
-    <converters:RankCountingModeConverter x:Key="RankCountingModeConverter" />
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
 
@@ -18,7 +17,7 @@
       <StackPanel Classes="OptionList">
         <ComboBox Name="RankedVoteAlgorithm"
                   Items="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
-                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
+                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={x:Static converters:EnumConverter.Instance}}">
           <ToolTip.Tip>
             <StackPanel Classes="OptionList">
               <TextBlock Text="Specify the algorithm to use when tallying ranked votes."/>
