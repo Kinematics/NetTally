@@ -36,7 +36,6 @@
         <Setter Property="Spacing" Value="5"/>
     </Style>
     <Style Selector="HeaderedContentControl.GroupBox">
-        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -49,5 +48,15 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    <Style Selector="ToolTip">
+        <Setter Property="MaxWidth" Value="300" />
+        <Setter Property="FontWeight" Value="Normal" />
+    </Style>
+    <Style Selector="ToolTip > TextBlock">
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="ToolTip > StackPanel > TextBlock">
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 </Styles>
