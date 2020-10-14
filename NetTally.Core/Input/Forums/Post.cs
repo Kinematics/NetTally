@@ -67,9 +67,9 @@ namespace NetTally.Forums
 
         #region Private analysis of post
         // A post with ##### at the start of one of the lines is a posting of tally results.
-        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline);
+        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline, TimeSpan.FromSeconds(1));
         // A line solely composed of a callout to a given user is used for nomination tallying.
-        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$");
+        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$", RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>
         /// Get the list of all found vote lines in the post's text content.
@@ -77,6 +77,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="text">Text of the post.</param>
         /// <returns>Returns a readonly list of any vote lines found.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local functions")]
         private IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
         {
             List<VoteLine> results = new List<VoteLine>();
@@ -217,5 +218,10 @@ namespace NetTally.Forums
         public static bool operator !=(Post first, Post second) => Compare(first, second) != 0;
 #nullable enable
         #endregion
+
+        public override string ToString()
+        {
+            return $"{Origin.Author} ({Origin.ThreadPostNumber}) : {(HasVote ? VoteLines[0].Content : "<empty>")}";
+        }
     }
 }

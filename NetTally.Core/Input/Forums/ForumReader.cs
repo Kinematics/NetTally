@@ -49,6 +49,7 @@ namespace NetTally.Forums
         #endregion
 
         #region Public method
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
         public async Task<(List<string> threadTitles, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             // Tally the selected quests, and any linked quests.
@@ -59,7 +60,7 @@ namespace NetTally.Forums
 
             List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new List<Task<(string threadTitle, List<Post> posts)>>();
 
-            Dictionary<string, IPageProvider> pageProviders = new Dictionary<string, IPageProvider>();
+            Dictionary<string, IPageProvider> pageProviders = new Dictionary<string, IPageProvider>(StringComparer.Ordinal);
 
             try
             {
@@ -139,7 +140,7 @@ namespace NetTally.Forums
 
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, pageProvider, token).ConfigureAwait(false);
 
-            logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo.ToString()})");
+            logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo})");
 
             List<Task<HtmlDocument?>> loadingPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, pageProvider, token).ConfigureAwait(false);
 
@@ -262,7 +263,8 @@ namespace NetTally.Forums
                 // If the page range has already been determined, use that.
                 return threadRangeInfo.Pages;
             }
-            else if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
+            
+            if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
             {
                 // If we're not reading to the end of the thread, just calculate
                 // what the last page number will be.  Pages to scan will be the
@@ -379,7 +381,7 @@ namespace NetTally.Forums
                            where post.HasVote
                                 && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
                                 && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
-                                    || (!quest.UseCustomUsernameFilters && post.Origin.Author != threadInfo.Author))
+                                    || (!quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author, threadInfo.Author, StringComparison.Ordinal)))
                                 && (!quest.UseCustomPostFilters
                                     || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber)
                                     || quest.PostsToFilter.Contains(post.Origin.ID.Value)))

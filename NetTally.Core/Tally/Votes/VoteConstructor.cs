@@ -39,7 +39,7 @@ namespace NetTally.Votes
         public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
             bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
         {
-            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>();
+            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
 
             // Either split the vote into blocks, or encapsulate the vote into an enumerable
             // so that it can be treated the same way.
@@ -172,6 +172,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the working vote to configure.</param>
         /// <param name="quest">The quest being tallied.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
         public void ConfigureWorkingVote(Post post, IQuest quest)
         {
             if (post.WorkingVoteComplete)
@@ -227,7 +228,7 @@ namespace NetTally.Votes
 
                         foreach (var voteBlock in voteBlocks)
                         {
-                            workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                            workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                         }
                     }
                     // Users
@@ -240,7 +241,7 @@ namespace NetTally.Votes
                         // If we can't find the reference post, just treat this as a normal line.
                         if (refUserPost == null)
                         {
-                            workingVote.Add((currentLine, null));
+                            workingVote.Add((currentLine, block: null));
                         }
                         // If the reference post hasn't been processed yet, bail out entirely,
                         // because we're in a future reference position.
@@ -257,7 +258,7 @@ namespace NetTally.Votes
                             {
                                 foreach (var voteBlock in voteBlocks)
                                 {
-                                    workingVote.Add((null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                                    workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
                                 }
                             }
                             else
@@ -265,7 +266,7 @@ namespace NetTally.Votes
                                 // If the user being referenced doesn't actually have any vote,
                                 // just add the line directly.  This is most likely due to the
                                 // referenced user just proposing a plan, but not making a vote.
-                                workingVote.Add((currentLine, null));
+                                workingVote.Add((currentLine, block: null));
                             }
                         }
                     }
@@ -309,11 +310,11 @@ namespace NetTally.Votes
                 // Handle trimming extended text.
                 if (quest.TrimExtendedText)
                 {
-                    workingVote.Add((currentLine.WithTrimmedContent(), null));
+                    workingVote.Add((currentLine.WithTrimmedContent(), block: null));
                 }
                 else
                 {
-                    workingVote.Add((currentLine, null));
+                    workingVote.Add((currentLine, block: null));
                 }
             }
         }
@@ -323,7 +324,10 @@ namespace NetTally.Votes
 
         // A regex to extract potential references from a vote line.
         static readonly Regex referenceNameRegex =
-            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)", RegexOptions.IgnoreCase);
+            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)",
+                RegexOptions.IgnoreCase,
+                TimeSpan.FromSeconds(1));
+
 
         /// <summary>
         /// Attempt to determine if the content of the provided vote line is a reference to a user or plan.
@@ -332,6 +336,7 @@ namespace NetTally.Votes
         /// <param name="voteLine">The vote line to examine.</param>
         /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
         private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, IQuest quest)
         {
             // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
@@ -344,7 +349,7 @@ namespace NetTally.Votes
                 string label = m.Groups["label"].Value;
                 string refName = m.Groups["reference"].Value;
 
-                if (label == "^" || label == "↑")
+                if (string.Equals(label, "^") || string.Equals(label, "↑"))
                 {
                     Origin? refUser = voteCounter.GetVoterOriginByName(refName);
 
@@ -352,7 +357,8 @@ namespace NetTally.Votes
                     if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
                 }
-                else if (label.StartsWith("base") || label.StartsWith("proposed"))
+                else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
+                      || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
                 {
                     Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
 
@@ -447,6 +453,7 @@ namespace NetTally.Votes
         /// <param name="block">The block to partition.</param>
         /// <param name="partitionMode">The partitioning mode.</param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
         private List<VoteLineBlock> Partition(VoteLineBlock block, PartitionMode partitionMode, bool asPlan = false)
         {
             List<VoteLineBlock> partitions = new List<VoteLineBlock>();
@@ -507,10 +514,9 @@ namespace NetTally.Votes
 
                     return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
                 }
-                else
-                {
-                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
-                }
+
+                // Failed partition mode checks.
+                throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
             }
             // A non-content block is anything else, like an implicit plan.
             else

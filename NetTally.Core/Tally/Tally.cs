@@ -55,11 +55,6 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Disposal
-        ~Tally()
-        {
-            Dispose(itIsSafeToAlsoFreeManagedObjects: false);
-        }
-
         public void Dispose()
         {
             Dispose(itIsSafeToAlsoFreeManagedObjects: true); //I am calling you from Dispose, it's safe
@@ -89,9 +84,9 @@ namespace NetTally.VoteCounting
         /// <param name="e">Contains info about which program option was updated.</param>
         private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "DisplayMode"
-                || e.PropertyName == "RankVoteCounterMethod"
-                || e.PropertyName == "DebugMode")
+            if (string.Equals(e.PropertyName, "DisplayMode", StringComparison.Ordinal)
+                || string.Equals(e.PropertyName, "RankVoteCounterMethod", StringComparison.Ordinal)
+                || string.Equals(e.PropertyName, "DebugMode", StringComparison.Ordinal))
             {
                 if (!TallyIsRunning)
                 {
@@ -125,13 +120,15 @@ namespace NetTally.VoteCounting
         {
             if (sender is IQuest quest)
             {
-                if (quest == voteCounter.Quest && e.PropertyName == "PartitionMode")
+                if (quest == voteCounter.Quest 
+                    && string.Equals(e.PropertyName, "PartitionMode", StringComparison.Ordinal))
                 {
                     try
                     {
                         await RunWithTallyIsRunningFlagAsync(UpdateTally)
                             .ContinueWith(updatedTally => RunWithTallyIsRunningFlagAsync(UpdateResults), TaskContinuationOptions.NotOnCanceled)
-                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled);
+                            .ContinueWith(updatedTally => TallyResults = "Canceled!", TaskContinuationOptions.OnlyOnCanceled)
+                            .ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
@@ -255,7 +252,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public async Task UpdateResults()
         {
-            await RunWithTallyIsRunningFlagAsync(UpdateResults);
+            await RunWithTallyIsRunningFlagAsync(UpdateResults).ConfigureAwait(false);
         }
         #endregion
 
@@ -434,7 +431,7 @@ namespace NetTally.VoteCounting
         public async Task<IDictionary<string, VoteLineBlock>> PreprocessPosts(CancellationToken token)
         {
             if (voteCounter.Quest is null)
-                return new Dictionary<string, VoteLineBlock>();
+                return new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
 
             foreach (var post in voteCounter.Posts)
             {
@@ -458,7 +455,7 @@ namespace NetTally.VoteCounting
             // Run the above series of preprocessing functions to extract plans from the post list.
             var allPlans = RunPlanPreprocessing(voteCounter.Posts, voteCounter.Quest, planProcesses, token);
 
-            await Task.FromResult(0);
+            await Task.FromResult(0).ConfigureAwait(false);
 
             return allPlans;
         }
@@ -477,7 +474,7 @@ namespace NetTally.VoteCounting
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
-            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>();
+            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
 
             foreach (var (asBlocks, isPlanFunction) in planProcesses)
             {
@@ -569,7 +566,7 @@ namespace NetTally.VoteCounting
 
             voteCounter.RunMergeActions();
 
-            await Task.FromResult(0);
+            await Task.FromResult(0).ConfigureAwait(false);
         }
         #endregion
     }

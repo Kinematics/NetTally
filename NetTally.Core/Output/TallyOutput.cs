@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -197,16 +198,24 @@ namespace NetTally.Output
                 sb.AppendLine(title);
             }
 
-            sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
+            sb.Append("[color=transparent]##### ");
+            sb.Append(ProductInfo.Name);
+            sb.Append(' ');
+            sb.Append(ProductInfo.Version);
+            sb.AppendLine("[/color]");
 
             if (voteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
             {
-                sb.AppendLine($"[color=transparent]Username Filters: {quest.CustomUsernameFilters}[/color]");
+                sb.Append("[color=transparent]Username Filters: ");
+                sb.Append(quest.CustomUsernameFilters);
+                sb.AppendLine("[/color]");
             }
 
             if (voteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
             {
-                sb.AppendLine($"[color=transparent]Post Filters: {quest.CustomPostFilters}[/color]");
+                sb.Append("[color=transparent]Post Filters: ");
+                sb.Append(quest.CustomPostFilters);
+                sb.AppendLine("[/color]");
             }
 
             sb.AppendLine();
@@ -240,6 +249,7 @@ namespace NetTally.Output
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
         /// <param name="token">Cancellation token.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local function")]
         private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
         {
             if (votes.Count == 0)
@@ -299,10 +309,10 @@ namespace NetTally.Output
             /// </summary>
             /// <param name="votes">The original vote set.</param>
             /// <returns>Returns the votes grouped by task.</returns>
-            IEnumerable<IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>>
+            IEnumerable<VotesGroupedByTask>
                 GetVotesGroupedByTask(VoteStorage votes)
             {
-                var groupByTask = votes.GroupBy(a => a.Key.Task).OrderBy(a => a.Key);
+                var groupByTask = votes.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
 
                 groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
 
@@ -331,7 +341,7 @@ namespace NetTally.Output
 
                     foreach (var vote in flattened)
                     {
-                        sb.AppendLine(vote.ToOutputString(vote.Voters.GetSupportCount().ToString()));
+                        sb.AppendLine(vote.ToOutputString(vote.Voters.GetSupportCount().ToString(CultureInfo.InvariantCulture)));
 
                         if (displayMode != DisplayMode.CompactNoVoters)
                         {
@@ -617,7 +627,7 @@ namespace NetTally.Output
         private void AddStandardVoteDisplay(VoteStorageEntry vote, int supportCount)
         {
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString()));
+                sb.AppendLine(vote.Key.ToOutputString(supportCount.ToString(CultureInfo.InvariantCulture)));
             else
                 sb.AppendLine(vote.Key.ToOutputString("X"));
         }
@@ -744,7 +754,7 @@ namespace NetTally.Output
             else
                 markerToDisplay = voter.Value.Marker;
 
-            sb.Append("[");
+            sb.Append('[');
             sb.Append(markerToDisplay);
             sb.Append("] ");
 

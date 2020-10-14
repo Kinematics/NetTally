@@ -38,7 +38,7 @@ namespace NetTally.Votes
         // Prefix chars: dash, en-dash, em-dash
         static readonly char[] prefixChars = new char[] { '-', '–', '—' };
         // Marker chars: X, check, numeric rank, rank marker, score marker, approval/disapproval
-        static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '✗', '✘', '☒', '☑', '+', '-' };
+        static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '✗', '✘', 'Х', '☒', '☑', '+', '-' };
         // Newline chars
         static readonly char[] newlineChars = new char[] { '\r', '\n' };
 
@@ -48,6 +48,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="line">A line of text to parse.</param>
         /// <returns>Returns a VoteLine if the provided text is a valid vote.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "State machine")]
         public static VoteLine? ParseLine(ReadOnlySpan<char> line)
         {
             if (line.Length == 0)
@@ -322,7 +323,7 @@ namespace NetTally.Votes
                         {
                             if (bufferOn)
                             {
-                                contentSB.Append(input.Slice(startBuffer, c - startBuffer));
+                                contentSB.Append(input[startBuffer..c]);
                                 bufferOn = false;
                             }
                             state.Push(currentState);
@@ -351,7 +352,8 @@ namespace NetTally.Votes
         }
 
 
-        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$");
+        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$",
+            RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>
         /// Examines a provided vote marker string and determines what type of marker it is.
