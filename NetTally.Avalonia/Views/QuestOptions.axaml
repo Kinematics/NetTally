@@ -7,70 +7,49 @@
         mc:Ignorable="d"
         x:Class="NetTally.Avalonia.Views.QuestOptions"
         Title="Quest Options"
-        WindowStartupLocation="CenterOwner"
-        SizeToContent="WidthAndHeight"
-        ShowInTaskbar="False">
+        Classes="Dialog">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
-  
-  <Window.Styles>
-    <Style Selector="TextBox.error">
-      <Setter Property="Background" Value="LightCoral" />
-    </Style>
-    <Style Selector="TextBlock.label">
-      <Setter Property="FontWeight"        Value="Bold" />
-      <Setter Property="Margin"            Value="5" />
-      <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="CheckBox.label">
-      <Setter Property="FontWeight" Value="Bold" />
-    </Style>
-    <Style Selector="TextBlock.description">
-      <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
-    <Style Selector="StackPanel.group">
-      <Setter Property="Margin" Value="5" />
-    </Style>
-  </Window.Styles>
 
   <DockPanel>
-    <Grid DockPanel.Dock="Top"
+    <Grid Name="QuestThreadNames"
+          DockPanel.Dock="Top"
           RowDefinitions="auto,auto" ColumnDefinitions="auto,*"
-          Margin="10">
-        <TextBlock Name="QuestNameLabel" Classes="label" Text="Quest Name"
-                   Grid.Row="0" Grid.Column="0"/>
+          Margin="0 5">
+        <TextBlock Classes="Label" Text="Quest Name"
+                   Grid.Row="0" Grid.Column="0" />
         <TextBox   Name="QuestName"      
                    Text="{Binding DisplayName}"
-                   Grid.Row="0" Grid.Column="1"/>
-        <TextBlock Name="ThreadUrlLabel" Classes="label" Text="Thread Url"
+                   Grid.Row="0" Grid.Column="1"
+                   Margin="0 0 0 2" />
+        <TextBlock Classes="Label" Text="Thread Url"
                    Grid.Row="1" Grid.Column="0"/>
         <TextBox   Name="ThreadUrl"
                    PropertyChanged="ThreadUrl_PropertyChanged"
                    Grid.Row="1" Grid.Column="1"/>
     </Grid>
 
-    <StackPanel Classes="group"
-                DockPanel.Dock="Bottom"
-                Orientation="Horizontal"
-                HorizontalAlignment="Right">
-      <Button Name="ResetButton" Content="Reset"
-              Click="ResetButton_Click"/>
-      <Button Name="OkButton" Content="OK"
+    <StackPanel Classes="CommandFooter" 
+                DockPanel.Dock="Bottom" 
+                Margin="0 5 0 0">
+      <Button Name="Reset" Content="Reset"
+              Click="Reset_Click"/>
+      <Button Name="Ok" Content="OK"
               IsDefault="True"
-              Click="OkButton_Click" />
-      <Button Name="CancelButton" Content="Cancel"
+              Click="Ok_Click" />
+      <Button Name="Cancel" Content="Cancel"
               IsCancel="True"
-              Click="CancelButton_Click" />
+              Click="Cancel_Click" />
     </StackPanel>
 
     <TabControl Name="tabControl">
       <TabItem Header="Filters">
-        <StackPanel Margin="10">
-          <StackPanel Classes="group">
-            <CheckBox Name="useCustomThreadmarkFilters" Classes="label"
-                  Content="Use custom threadmark filters"
-                  IsChecked="{Binding UseCustomThreadmarkFilters}">
+        <StackPanel Classes="GroupList">
+          <StackPanel>
+            <CheckBox Name="UseCustomThreadmarkFilters" Classes="Label"
+                      Content="Use custom threadmark filters"
+                      IsChecked="{Binding UseCustomThreadmarkFilters}">
               <ToolTip.Tip>
                 <StackPanel>
                   <TextBlock FontWeight="Bold">Use Custom Threadmark Filters</TextBlock>
@@ -78,11 +57,11 @@
                 </StackPanel>
               </ToolTip.Tip>
             </CheckBox>
-            <TextBlock Name="describeCustomThreadmarkFilters" Classes="description"
-                        Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. The default value that will always be skipped is the word 'omake'." />
+            <TextBlock Classes="Description"
+                       Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. &#x0d;&#x0a;The default value that will always be skipped is the word 'omake'." />
             <TextBox Name="customThreadmarkFilters" TextWrapping="Wrap"
-                      Text="{Binding CustomThreadmarkFilters}"
-                      IsEnabled="{Binding #useCustomThreadmarkFilters.IsChecked}">
+                     Text="{Binding CustomThreadmarkFilters}"
+                     IsEnabled="{Binding #UseCustomThreadmarkFilters.IsChecked}">
               <ToolTip.Tip>
                 <StackPanel>
                   <TextBlock FontWeight="Bold">Custom Threadmark Filters</TextBlock>
@@ -92,8 +71,8 @@
             </TextBox>
           </StackPanel>
 
-          <StackPanel Classes="group">
-            <CheckBox Name="useCustomTaskFilters" Classes="label"
+          <StackPanel>
+            <CheckBox Classes="Label"
                       Content="Use custom task filters"
                       IsChecked="{Binding UseCustomTaskFilters}">
               <ToolTip.Tip>
@@ -103,11 +82,11 @@
                 </StackPanel>
               </ToolTip.Tip>
             </CheckBox>
-            <TextBlock Name="describeCustomTaskFilters" Classes="description"
-                        Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
-            <TextBox Name="customTaskFilters" TextWrapping="Wrap"
-                      Text="{Binding CustomTaskFilters}" 
-                      IsEnabled="{Binding #useCustomTaskFilters.IsChecked}">
+            <TextBlock Classes="Description"
+                       Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
+            <TextBox Name="CustomTaskFilters" TextWrapping="Wrap"
+                     Text="{Binding CustomTaskFilters}" 
+                     IsEnabled="{Binding #UseCustomTaskFilters.IsChecked}">
               <ToolTip.Tip>
                 <StackPanel>
                   <TextBlock FontWeight="Bold">Custom Task Filters</TextBlock>
@@ -117,8 +96,8 @@
             </TextBox>
           </StackPanel>
 
-          <StackPanel Classes="group">
-            <CheckBox Name="useCustomUsernameFilters" Classes="label"
+          <StackPanel>
+            <CheckBox Name="UseCustomUsernameFilters" Classes="Label"
                       Content="Use custom username filters"
                       IsChecked="{Binding UseCustomUsernameFilters}">
                 <ToolTip.Tip>
@@ -128,11 +107,11 @@
                   </StackPanel>
                 </ToolTip.Tip>
             </CheckBox>
-            <TextBlock Name="describeCustomUsernameFilters" Classes="description"
-                        Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
-            <TextBox Name="customUsernameFilters" TextWrapping="Wrap"
-                      Text="{Binding CustomUsernameFilters}" 
-                      IsEnabled="{Binding #useCustomUsernameFilters.IsChecked}">
+            <TextBlock Classes="Description"
+                       Text="Do not include the specified users in the tally. &#x0d;&#x0a;If no value is set, the tally will default to ignoring the thread author."/>
+            <TextBox Name="CustomUsernameFilters" TextWrapping="Wrap"
+                     Text="{Binding CustomUsernameFilters}" 
+                     IsEnabled="{Binding #UseCustomUsernameFilters.IsChecked}">
                 <ToolTip.Tip>
                   <StackPanel>
                     <TextBlock FontWeight="Bold">Custom Username Filters</TextBlock>
@@ -142,8 +121,8 @@
             </TextBox>
           </StackPanel>
 
-          <StackPanel Classes="group">
-            <CheckBox Name="useCustomPostFilters" Classes="label"
+          <StackPanel>
+            <CheckBox Name="UseCustomPostFilters" Classes="Label"
                       Content="Use custom post filters"
                       IsChecked="{Binding UseCustomPostFilters}">
                 <ToolTip.Tip>
@@ -153,11 +132,11 @@
                   </StackPanel>
                 </ToolTip.Tip>            
             </CheckBox>
-            <TextBlock Name="describeCustomPostFilters" Classes="description"
-                        Text="Do not include votes with the specified post numbers or IDs in the tally." />
-            <TextBox Name="customPostFilters" TextWrapping="Wrap"
-                      Text="{Binding CustomPostFilters}" 
-                      IsEnabled="{Binding #useCustomPostFilters.IsChecked}">  
+            <TextBlock Classes="Description"
+                       Text="Do not include votes with the specified post numbers or IDs in the tally." />
+            <TextBox Name="CustomPostFilters" TextWrapping="Wrap"
+                     Text="{Binding CustomPostFilters}" 
+                     IsEnabled="{Binding #UseCustomPostFilters.IsChecked}">  
                 <ToolTip.Tip>
                   <StackPanel>
                     <TextBlock FontWeight="Bold">Custom Post Filters</TextBlock>
@@ -170,8 +149,8 @@
       </TabItem>
       
       <TabItem Header="Options">
-        <StackPanel Margin="10">
-          <StackPanel Orientation="Horizontal">
+        <StackPanel Classes="GroupList">
+          <StackPanel Orientation="Horizontal" Spacing="5">
             <ComboBox Name="PostsPerPage"
                       Items="{x:Static vm:ViewModelStatics.ValidPostsPerPage}" SelectedItem="{Binding PostsPerPage}">
               <ToolTip.Tip>
@@ -181,116 +160,116 @@
                 </StackPanel>
               </ToolTip.Tip>
             </ComboBox>
-            <TextBlock Name="describePostsPerPage" Classes="description"
-                       Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
+            <TextBlock Classes="Description"
+                       Text="Set the number of posts per thread page.&#x0d;&#x0a;A value of 0 will reset to the default for the forum." />
           </StackPanel>
 
-          <StackPanel>
-            <TextBlock Name="labelFormatting" Classes="label"
-                       Text="Rules for handling votes in this quest" />
+          <HeaderedContentControl Header="Quest Vote Rules" Classes="GroupBox">
+            <StackPanel Classes="OptionList">
 
-            <CheckBox Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant"
-                      IsChecked="{Binding WhitespaceAndPunctuationIsSignificant}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Whitespace &amp; Punctuation is Significant"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that whitespace and punctuation is significant when comparing votes and voters.  Enable it if votes that should be considered separate are being treated as the same."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="caseIsSignificant" Content="Case is Significant"
-                      IsChecked="{Binding CaseIsSignificant}" >
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Case is Significant"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, this makes the comparison case sensitive"/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="forcePlanReferencesToBeLabeled" Content="Force Plan References to be Labeled"
-                      IsChecked="{Binding ForcePlanReferencesToBeLabeled}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Plan References to be Labeled"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, references to plans must use the initial label of 'plan'.  Lack of such a label implies the vote line will be treated as normal text."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names"
-                      IsChecked="{Binding ForbidVoteLabelPlanNames}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Forbid Vote Labels as Plan Names"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line (which has no content) as the first line of the vote, ignore that as a means of giving the entire vote a plan name."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="allowUsersToUpdatePlans" Content="Allow users to update their own plans in later posts"
-                      IsChecked="{Binding AllowUsersToUpdatePlans}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Allow Users to Update Their Plans"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="disableProxyVotes" Content="Disable User Proxy Votes"
-                      IsChecked="{Binding DisableProxyVotes}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Disable User Proxy Votes"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes"
-                      IsChecked="{Binding ForcePinnedProxyVotes}">
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Pinned Proxy Votes"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are always considered 'pinned', rather than 'tracking'.  That is, they will always refer to a vote prior to the vote currently being processed."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="ignoreSpoilers" Content="Ignore Spoilers"
-                      IsChecked="{Binding IgnoreSpoilers}" >
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Ignore Spoilers"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within posts.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="trimExtendedText" Content="Trim Extended Vote Descriptions"
-                      IsChecked="{Binding TrimExtendedText}" >
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Trim Extended Vote Descriptions"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
-                  <TextBlock TextWrapping="Wrap" FontStyle="Italic" Text="Experimental."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Name="useRSSThreadmarks" Content="Use RSS Threadmarks"
-                      IsChecked="{Binding UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
-              <ToolTip.Tip>
-                <StackPanel>
-                  <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Use RSS Threadmarks"/>
-                  <TextBlock TextWrapping="Wrap" Text="When set, searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
-                  <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to unknown."/>
-                </StackPanel>
-              </ToolTip.Tip>
-            </CheckBox>
-          </StackPanel>
+              <CheckBox Name="WhitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant"
+                        IsChecked="{Binding WhitespaceAndPunctuationIsSignificant}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Whitespace &amp; Punctuation is Significant"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that whitespace and punctuation is significant when comparing votes and voters.  Enable it if votes that should be considered separate are being treated as the same."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="CaseIsSignificant" Content="Case is Significant"
+                        IsChecked="{Binding CaseIsSignificant}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Case is Significant"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, this makes the comparison case sensitive"/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForcePlanReferencesToBeLabeled" Content="Force Plan References to be Labeled"
+                        IsChecked="{Binding ForcePlanReferencesToBeLabeled}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Plan References to be Labeled"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, references to plans must use the initial label of 'plan'.  Lack of such a label implies the vote line will be treated as normal text."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names"
+                        IsChecked="{Binding ForbidVoteLabelPlanNames}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Forbid Vote Labels as Plan Names"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line (which has no content) as the first line of the vote, ignore that as a means of giving the entire vote a plan name."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="AllowUsersToUpdatePlans" Content="Allow users to update their own plans in later posts"
+                        IsChecked="{Binding AllowUsersToUpdatePlans}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Allow Users to Update Their Plans"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="DisableProxyVotes" Content="Disable User Proxy Votes"
+                        IsChecked="{Binding DisableProxyVotes}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Disable User Proxy Votes"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForcePinnedProxyVotes" Content="Force Pinned Proxy Votes"
+                        IsChecked="{Binding ForcePinnedProxyVotes}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Pinned Proxy Votes"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are always considered 'pinned', rather than 'tracking'.  That is, they will always refer to a vote prior to the vote currently being processed."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="IgnoreSpoilers" Content="Ignore Spoilers"
+                        IsChecked="{Binding IgnoreSpoilers}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Ignore Spoilers"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within posts.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="TrimExtendedText" Content="Trim Extended Vote Descriptions"
+                        IsChecked="{Binding TrimExtendedText}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Trim Extended Vote Descriptions"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
+                    <TextBlock TextWrapping="Wrap" FontStyle="Italic" Text="Experimental."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="UseRSSThreadmarks" Content="Use RSS Threadmarks"
+                        IsChecked="{Binding UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Use RSS Threadmarks"/>
+                    <TextBlock TextWrapping="Wrap" Text="When set, searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to unknown."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+            </StackPanel>
+          </HeaderedContentControl>
         </StackPanel>
       </TabItem>
       
