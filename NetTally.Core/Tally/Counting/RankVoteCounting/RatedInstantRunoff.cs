@@ -123,7 +123,7 @@ namespace NetTally.VoteCounting.RankVotes
                 {
                     count1++;
                 }
-                else if (support2.MarkerValue > support1.MarkerValue)
+                else if (support2.MarkerValue < support1.MarkerValue)
                 {
                     count2++;
                 }
