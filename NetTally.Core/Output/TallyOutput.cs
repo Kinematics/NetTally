@@ -477,7 +477,9 @@ namespace NetTally.Output
             {
                 var voteResults = votesInTask.Select(v => new { vote = v, support = v.Value.GetApproval() });
 
-                var orderedResults = voteResults.OrderByDescending(a => a.support).ThenBy(a => a.vote.Key.First().CleanContent);
+                var orderedResults = voteResults.OrderByDescending(a => a.support.positive)
+                                                .ThenBy(a => a.support.negative)
+                                                .ThenBy(a => a.vote.Key.First().CleanContent);
 
                 foreach (var result in orderedResults)
                 {
