@@ -201,6 +201,7 @@ namespace NetTally.Votes
         public int GetSupportCount()
         {
             return this.Count(s =>
+                s.Key.AuthorType == IdentityType.User &&
                 s.Value.MarkerType switch
                 {
                     MarkerType.Vote => true,
