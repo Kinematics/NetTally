@@ -305,7 +305,9 @@ namespace NetTally.Votes
 
             var (firstVoter, firstVote) = GetFirstVoter();
 
-            var orderRemaining = this.Where(v => v.Key != firstVoter).OrderBy(v => v.Key);
+            var orderRemaining = this.Where(v => v.Key != firstVoter)
+                .OrderByDescending(v => v.Value.MarkerValue)
+                .ThenBy(v => v.Key);
 
             voterList.Add(new VoterStorageEntry(firstVoter, firstVote));
             voterList.AddRange(orderRemaining);
