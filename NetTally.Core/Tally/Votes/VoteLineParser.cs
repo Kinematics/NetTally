@@ -407,8 +407,8 @@ namespace NetTally.Votes
                         {
                             if (markerValue < 1)
                                 markerValue = 1;
-                            if (markerValue > 9)
-                                markerValue = 9; // Allow higher?
+                            if (markerValue > 99)
+                                markerValue = 99;
                         }
                         else if (markerType == MarkerType.Score)
                         {
