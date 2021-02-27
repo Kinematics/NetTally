@@ -217,8 +217,11 @@ namespace NetTally.Votes
         public int GetSupportCount()
         {
             return this.Count(s =>
-                (s.Value.MarkerType == MarkerType.Vote || s.Value.MarkerType == MarkerType.Score || s.Value.MarkerType == MarkerType.Approval) 
-                && s.Value.MarkerValue > 50);
+                s.Key.AuthorType == IdentityType.User &&
+                (s.Value.MarkerType == MarkerType.Vote ||
+                 s.Value.MarkerType == MarkerType.Score ||
+                 s.Value.MarkerType == MarkerType.Approval) &&
+                s.Value.MarkerValue > 50);
         }
 
         /// <summary>
