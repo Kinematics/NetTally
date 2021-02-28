@@ -293,7 +293,8 @@ namespace NetTally.Output
                             ConstructApprovedOutput(task, compactTask);
                             break;
                         case MarkerType.Rank:
-                            ConstructRankedOutput(task, compactTask);
+                            var allVoters = GetAllVotersInTask(task);
+                            ConstructRankedOutput(task, compactTask, allVoters);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
@@ -317,6 +318,17 @@ namespace NetTally.Output
 
                 return groups;
             }
+        }
+
+        private static IList<Origin> GetAllVotersInTask(VotesGroupedByTask task)
+        {
+            return task
+                .SelectMany(t => t.Value)
+                .Select(u => u.Key)
+                .Distinct()
+                .Where(v => v.AuthorType == IdentityType.User)
+                .OrderBy(v => v)
+                .ToList();
         }
 
         /// <summary>
@@ -503,7 +515,8 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> _)
+        private void ConstructRankedOutput(VotesGroupedByTask votesInTask, IEnumerable<CompactVote> _,
+            IEnumerable<Origin> allVoters)
         {
             var taskVotes = new VoteStorage(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
@@ -515,7 +528,7 @@ namespace NetTally.Output
                 AddRankVoteSupport(ranking);
                 AddRankVoteDisplay(vote, ranking);
                 AddVoterCount(vote.Value.GetUserCount());
-                AddRankedVoters(vote.Value);
+                AddRankedVoters(vote.Value, allVoters);
 
                 if (displayMode != DisplayMode.CompactNoVoters || multiline)
                     sb.AppendLine();
@@ -692,7 +705,7 @@ namespace NetTally.Output
 
                 foreach (var voter in orderedVoters)
                 {
-                    AddVoter(voter);
+                    AddVoter(voter.Key, voter.Value);
                 }
             }
         }
@@ -710,7 +723,7 @@ namespace NetTally.Output
 
                 foreach (var voter in orderedVoters)
                 {
-                    AddVoter(voter);
+                    AddVoter(voter.Key, voter.Value);
                 }
             }
         }
@@ -723,7 +736,7 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="voters">List of voters.</param>
         /// <param name="spoilerLabel">Optional spoiler label.</param>
-        private void AddRankedVoters(VoterStorage voters, string spoilerLabel = "Voters")
+        private void AddRankedVoters(VoterStorage voters, IEnumerable<Origin> allVoters, string spoilerLabel = "Voters")
         {
             if (displayMode == DisplayMode.NormalNoVoters || displayMode == DisplayMode.CompactNoVoters)
                 return;
@@ -734,7 +747,14 @@ namespace NetTally.Output
 
                 foreach (var voter in orderedVoters)
                 {
-                    AddVoter(voter, MarkerType.Rank);
+                    AddVoter(voter.Key, voter.Value, MarkerType.Rank);
+                }
+
+                var didNotRankOption = allVoters.Except(orderedVoters.Select(v => v.Key));
+
+                foreach (var voter in didNotRankOption)
+                {
+                    AddVoter(voter, vote:null, MarkerType.Rank);
                 }
             }
         }
@@ -743,31 +763,35 @@ namespace NetTally.Output
         /// Add an individual voter line, with permalink.
         /// </summary>
         /// <param name="voter">The voter to add.</param>
-        private void AddVoter(VoterStorageEntry voter, MarkerType marker = MarkerType.None)
+        private void AddVoter(Origin voter, VoteLineBlock? vote, MarkerType marker = MarkerType.None)
         {
-            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("[b]");
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("[b]");
 
             string markerToDisplay;
-            if (voter.Key.AuthorType == IdentityType.Plan)
+            if (voter.AuthorType == IdentityType.Plan)
                 markerToDisplay = Strings.PlanNameMarker;
-            else if (marker == MarkerType.Rank && voter.Value.MarkerType != MarkerType.Rank)
+            else if (marker == MarkerType.Rank && !(vote is null) && vote.MarkerType != MarkerType.Rank)
                 markerToDisplay = Strings.NoRankMarker;
+            else if (marker == MarkerType.Rank && (vote is null))
+                markerToDisplay = Strings.NonVotingMarker;
+            else if (!(vote is null))
+                markerToDisplay = vote.Marker;
             else
-                markerToDisplay = voter.Value.Marker;
+                markerToDisplay = Strings.UnknownMarker;
 
             sb.Append('[');
             sb.Append(markerToDisplay);
             sb.Append("] ");
 
-            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("Plan: ");
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("Plan: ");
 
             sb.Append("[url=\"");
-            sb.Append(voter.Key.Permalink);
+            sb.Append(voter.Permalink);
             sb.Append("\"]");
-            sb.Append(voter.Key.Author);
+            sb.Append(voter.Author);
             sb.Append("[/url]");
 
-            if (voter.Key.AuthorType == IdentityType.Plan) sb.Append("[/b]");
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("[/b]");
 
             sb.AppendLine();
         }
