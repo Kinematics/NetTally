@@ -763,7 +763,7 @@ namespace NetTally.Output
         /// Add an individual voter line, with permalink.
         /// </summary>
         /// <param name="voter">The voter to add.</param>
-        private void AddVoter(Origin voter, VoteLineBlock? vote, MarkerType marker = MarkerType.None)
+        private void AddVoter(Origin voter, VoteLineBlock vote, MarkerType marker = MarkerType.None)
         {
             if (voter.AuthorType == IdentityType.Plan) sb.Append("[b]");
 
