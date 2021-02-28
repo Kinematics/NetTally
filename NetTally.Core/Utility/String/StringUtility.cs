@@ -19,6 +19,7 @@ namespace NetTally.Utility
         public const char PlanNameMarkerChar = '◈';
         public const string NoRankMarker = "⊘";
         public const string NonVotingMarker = "-";
+        public const string UnknownMarker = "?";
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
