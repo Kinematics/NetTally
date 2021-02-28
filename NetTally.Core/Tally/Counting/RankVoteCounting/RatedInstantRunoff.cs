@@ -98,7 +98,11 @@ namespace NetTally.VoteCounting.RankVotes
             var voters1 = option1.Value;
             var voters2 = option2.Value;
 
-            var allVoters = voters1.Keys.Concat(voters2.Keys).Distinct().ToList();
+            var allVoters = voters1.Keys
+                .Concat(voters2.Keys)
+                .Distinct()
+                .Where(v => v.AuthorType == IdentityType.User)
+                .ToList();
 
             int count1 = 0;
             int count2 = 0;
