@@ -426,16 +426,16 @@ namespace NetTally.Tests.Votes
         [TestMethod]
         public void Marker_HighRank()
         {
-            string line = "[#10] A normal vote line";
+            string line = "[#100] A normal vote line";
             VoteLine? voteLine = VoteLineParser.ParseLine(line);
 
             if (voteLine != null)
             {
                 Assert.AreEqual("", voteLine.Prefix);
                 Assert.AreEqual(0, voteLine.Depth);
-                Assert.AreEqual("#10", voteLine.Marker);
+                Assert.AreEqual("#100", voteLine.Marker);
                 Assert.AreEqual(MarkerType.Rank, voteLine.MarkerType);
-                Assert.AreEqual(9, voteLine.MarkerValue);
+                Assert.AreEqual(99, voteLine.MarkerValue);
                 Assert.AreEqual("A normal vote line", voteLine.Content);
                 Assert.AreEqual("", voteLine.Task);
             }
