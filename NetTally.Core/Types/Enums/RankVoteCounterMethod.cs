@@ -1,4 +1,5 @@
-﻿using NetTally.Attributes;
+﻿using System.ComponentModel;
+using NetTally.Attributes;
 
 namespace NetTally.Types.Enums
 {
@@ -7,15 +8,15 @@ namespace NetTally.Types.Enums
     /// </summary>
     public enum RankVoteCounterMethod
     {
-        [EnumDescription("Default (RIR)")]
+        [Description("Default (RIR)")]
         Default,
-        [EnumDescription("Wilson Scoring")]
+        [Description("Wilson Scoring")]
         Wilson,
-        [EnumDescription("Schulze (Condorcet)")]
+        [Description("Schulze (Condorcet)")]
         Schulze,
-        [EnumDescription("Baldwin Runoff")]
+        [Description("Baldwin Runoff")]
         Baldwin,
-        [EnumDescription("Rated Instant Runoff")]
+        [Description("Rated Instant Runoff")]
         RIRV,
     }
 }

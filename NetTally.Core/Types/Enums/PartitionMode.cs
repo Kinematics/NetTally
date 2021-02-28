@@ -1,4 +1,5 @@
-﻿using NetTally.Attributes;
+﻿using System.ComponentModel;
+using NetTally.Attributes;
 
 namespace NetTally.Types.Enums
 {
@@ -7,15 +8,15 @@ namespace NetTally.Types.Enums
     /// </summary>
     public enum PartitionMode
     {
-        [EnumDescription("No Partitioning")]
+        [Description("No Partitioning")]
         None,
-        [EnumDescription("Partition By Line")]
+        [Description("Partition By Line")]
         ByLine,
-        [EnumDescription("Partition By Line (+Task)")]
+        [Description("Partition By Line (+Task)")]
         ByLineTask, // obsolete this; partition by line should always carry in parent tasks
-        [EnumDescription("Partition By Block")]
+        [Description("Partition By Block")]
         ByBlock, // should automatically partition label plans
-        [EnumDescription("Partition (Plans) By Block")]
+        [Description("Partition (Plans) By Block")]
         ByBlockAll, // only used to partition content plans
     }
 }

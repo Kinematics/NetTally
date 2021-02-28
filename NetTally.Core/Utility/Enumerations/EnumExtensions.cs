@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using NetTally.Attributes;
@@ -24,7 +25,7 @@ namespace NetTally.Extensions
             string enumString = enumerationValue.ToString();
 
             var enumInfo = enumerationValue.GetType().GetTypeInfo();
-            var enumAttribute = enumInfo.GetDeclaredField(enumString)?.GetCustomAttribute<EnumDescriptionAttribute>();
+            var enumAttribute = enumInfo.GetDeclaredField(enumString)?.GetCustomAttribute<DescriptionAttribute>();
 
             return enumAttribute?.Description ?? enumString;
         }
@@ -41,7 +42,7 @@ namespace NetTally.Extensions
 
             foreach (var fieldInfo in typeInfo.DeclaredFields)
             {
-                EnumDescriptionAttribute fieldAttribute = fieldInfo.GetCustomAttribute<EnumDescriptionAttribute>();
+                DescriptionAttribute fieldAttribute = fieldInfo.GetCustomAttribute<DescriptionAttribute>();
 
                 if (fieldAttribute?.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
                 {

@@ -1,4 +1,5 @@
-﻿using NetTally.Attributes;
+﻿using System.ComponentModel;
+using NetTally.Attributes;
 
 namespace NetTally.Types.Enums
 {
@@ -7,17 +8,17 @@ namespace NetTally.Types.Enums
     /// </summary>
     public enum DisplayMode
     {
-        [EnumDescription("Normal")]
+        [Description("Normal")]
         Normal,
-        [EnumDescription("Spoiler Voters")]
+        [Description("Spoiler Voters")]
         SpoilerVoters,
-        [EnumDescription("Spoiler All")]
+        [Description("Spoiler All")]
         SpoilerAll,
-        [EnumDescription("Normal, No Voters")]
+        [Description("Normal, No Voters")]
         NormalNoVoters,
-        [EnumDescription("Compact")]
+        [Description("Compact")]
         Compact,
-        [EnumDescription("Compact, No Voters")]
+        [Description("Compact, No Voters")]
         CompactNoVoters
     }
 }
