@@ -314,8 +314,13 @@ namespace NetTally.Votes
         {
             var result = new OrderedVoterStorage();
 
-            var ranksOnly = this.Where(v => v.Value.MarkerType == MarkerType.Rank).OrderBy(v => v.Value.MarkerValue).ThenBy(v => v.Key);
-            var others = this.Where(v => v.Value.MarkerType != MarkerType.Rank).OrderBy(v => v.Key);
+            var ranksOnly = this
+                .Where(v => v.Value.MarkerType == MarkerType.Rank)
+                .OrderBy(v => v.Value.MarkerValue)
+                .ThenBy(v => v.Key);
+            var others = this
+                .Where(v => v.Value.MarkerType != MarkerType.Rank)
+                .OrderBy(v => v.Key);
 
             result.AddRange(ranksOnly);
             result.AddRange(others);
