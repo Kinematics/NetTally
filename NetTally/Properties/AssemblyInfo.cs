@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wayward Gamers")]
 [assembly: AssemblyProduct("NetTally")]
-[assembly: AssemblyCopyright("Copyright ©  2015-2020")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,8 +51,8 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.2.7.0")]
-[assembly: AssemblyFileVersion("2.2.7.0")]
-[assembly: AssemblyInformationalVersion("2.2.7")]
+[assembly: AssemblyVersion("2.2.8.0")]
+[assembly: AssemblyFileVersion("2.2.8.0")]
+[assembly: AssemblyInformationalVersion("2.2.8")]
 [assembly: NeutralResourcesLanguage("en")]
 
