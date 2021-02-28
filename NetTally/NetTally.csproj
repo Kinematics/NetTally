@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <PublishTrimmed>false</PublishTrimmed>
 
@@ -14,7 +14,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <AssemblyTitle>NetTally</AssemblyTitle>
     <Description>Program for tallying forum user votes.</Description>
-    <Copyright>Copyright ©  2015-2020</Copyright>
+    <Copyright>Copyright ©  2015-2021</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
   </PropertyGroup>
