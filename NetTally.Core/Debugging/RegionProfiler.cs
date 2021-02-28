@@ -46,7 +46,7 @@ namespace NetTally
                 this.writeFunction = s => writeFunction!(s);
 
             regionName = name;
-            if (regionName != null && !accumulate)
+            if (!accumulate)
                 this.writeFunction($"Start profiling in region [{regionName}]");
 
             stopwatch.Start();
