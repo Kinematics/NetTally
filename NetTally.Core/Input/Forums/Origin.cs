@@ -2,6 +2,7 @@
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums
 {

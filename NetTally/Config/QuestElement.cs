@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally
 {

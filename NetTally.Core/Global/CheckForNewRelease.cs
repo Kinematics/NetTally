@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
 using NetTally.Web;
+using NetTally.Types.Enums;
 
 namespace NetTally
 {

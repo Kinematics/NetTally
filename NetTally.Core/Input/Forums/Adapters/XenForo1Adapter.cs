@@ -10,6 +10,7 @@ using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Options;
 using NetTally.Web;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums.Adapters
 {

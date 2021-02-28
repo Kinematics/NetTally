@@ -3,6 +3,7 @@ using System.ComponentModel;
 using NetTally.Collections;
 using NetTally.Forums;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally.VoteCounting
 {

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Web;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums
 {

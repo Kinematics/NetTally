@@ -11,9 +11,9 @@ using NetTally.Web;
 using NetTally.SystemInfo;
 using NetTally.Cache;
 using NetTally.Options;
-//using NetTally.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Tests;
+using NetTally.Types.Enums;
 
 namespace NTTests.QuestTests
 {

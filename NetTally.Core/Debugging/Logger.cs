@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
+using NetTally.Types.Enums;
 
 namespace NetTally
 {

@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
+using NetTally.Types.Enums;
 
 namespace NetTally.Tests.Forums
 {

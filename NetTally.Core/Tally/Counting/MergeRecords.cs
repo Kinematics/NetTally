@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally.VoteCounting
 {

@@ -13,6 +13,7 @@ using NetTally.Navigation;
 using NetTally.ViewModels;
 using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
+using NetTally.Types.Enums;
 
 namespace NetTally
 {

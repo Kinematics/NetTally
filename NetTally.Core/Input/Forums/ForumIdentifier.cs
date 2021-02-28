@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Web;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums
 {

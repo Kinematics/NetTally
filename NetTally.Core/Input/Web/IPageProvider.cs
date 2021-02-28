@@ -4,6 +4,7 @@ using System.Threading;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.CustomEventArgs;
+using NetTally.Types.Enums;
 
 namespace NetTally.Web
 {

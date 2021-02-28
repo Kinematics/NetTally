@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NetTally.Utility;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums
 {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NetTally.Forums;
+using NetTally.Types.Enums;
 
 namespace NetTally.Votes
 {

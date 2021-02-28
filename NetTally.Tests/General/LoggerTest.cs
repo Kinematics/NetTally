@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
 using NetTally.SystemInfo;
+using NetTally.Types.Enums;
 
 namespace NTTests.Utility
 {

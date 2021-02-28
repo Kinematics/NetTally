@@ -5,6 +5,7 @@ using System.Threading;
 using NetTally.Cache;
 using NetTally.CustomEventArgs;
 using NetTally.SystemInfo;
+using NetTally.Types.Enums;
 
 namespace NetTally.Web
 {

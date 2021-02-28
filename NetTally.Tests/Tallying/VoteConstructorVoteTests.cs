@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
+using NetTally.Types.Enums;
 
 namespace NetTally.Tests.Tallying
 {

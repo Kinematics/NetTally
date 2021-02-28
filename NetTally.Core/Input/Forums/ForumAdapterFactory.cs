@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Forums.Adapters2;
 using NetTally.Options;
 using NetTally.Web;
+using NetTally.Types.Enums;
 
 namespace NetTally.Forums
 {

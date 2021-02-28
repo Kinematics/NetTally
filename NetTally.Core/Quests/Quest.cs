@@ -8,6 +8,7 @@ using NetTally.Input.Utility;
 using NetTally.Collections;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using NetTally.Types.Enums;
 
 namespace NetTally
 {

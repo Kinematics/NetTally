@@ -1,4 +1,5 @@
 ﻿using System;
+using NetTally.Types.Enums;
 
 namespace NetTally.VoteCounting.RankVotes
 {

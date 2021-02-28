@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Text;
 using NetTally.Output;
 using NetTally.VoteCounting;
+using NetTally.Types.Enums;
 
 namespace NetTally.Options
 {

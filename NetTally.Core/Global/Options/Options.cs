@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTally.Output;
 using NetTally.VoteCounting;
+using NetTally.Types.Enums;
 
 namespace NetTally.Options
 {
