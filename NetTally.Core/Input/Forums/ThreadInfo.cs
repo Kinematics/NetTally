@@ -31,25 +31,5 @@ namespace NetTally.Forums
             Author = author;
             Pages = pages;
         }
-
-        /// <summary>
-        /// Utility function to get the page number of a post in a thread,  based on
-        /// quest info available.
-        /// </summary>
-        /// <param name="postNumber">The post number being queried. Must be at least 1.</param>
-        /// <param name="quest">The quest that the post number came from.</param>
-        /// <returns>Returns the page number that the post should be on.</returns>
-        public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
-        {
-            if (postNumber < 1)
-                throw new ArgumentOutOfRangeException(nameof(postNumber), "Post number cannot be less than 1.");
-            if (postsPerPage < 1)
-                throw new ArgumentOutOfRangeException(nameof(postsPerPage), "Posts per page cannot be less than 1.");
-
-            int pageNumber = ((postNumber - 1) / postsPerPage) + 1;
-
-            return pageNumber;
-        }
-
     }
 }

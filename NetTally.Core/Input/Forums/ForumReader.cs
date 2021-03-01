@@ -271,7 +271,7 @@ namespace NetTally.Forums
                 // If we're not reading to the end of the thread, just calculate
                 // what the last page number will be.  Pages to scan will be the
                 // difference in pages +1.
-                return ThreadInfo.GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage);
+                return ThreadRangeInfo.GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage);
             }
 
             // If we're reading to the end of the thread (end post 0, or based on a threadmark),

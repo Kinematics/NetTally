@@ -35,7 +35,8 @@ namespace NetTally.Forums
         /// <param name="number">The post number that begins the range, if applicable.  0, if not.</param>
         /// <param name="page">The page the starting post is located on.  0, if not known.</param>
         /// <param name="id">The ID of the starting post.  -1 if not known.</param>
-        public ThreadRangeInfo(bool byNumber, int number, int page, int id) : this(byNumber, number, page, id, 0) { }
+        public ThreadRangeInfo(bool byNumber, int number, int page, int id)
+            : this(byNumber, number, page, id, 0) { }
 
         /// <summary>
         /// Constructor for thread range info.
@@ -80,10 +81,29 @@ namespace NetTally.Forums
         {
             if (ByNumber)
             {
-                return ThreadInfo.GetPageNumberOfPost(Number, quest.PostsPerPage);
+                return GetPageNumberOfPost(Number, quest.PostsPerPage);
             }
 
             return Page;
+        }
+
+        /// <summary>
+        /// Utility function to get the page number of a post in a thread,  based on
+        /// quest info available.
+        /// </summary>
+        /// <param name="postNumber">The post number being queried. Must be at least 1.</param>
+        /// <param name="quest">The quest that the post number came from.</param>
+        /// <returns>Returns the page number that the post should be on.</returns>
+        public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
+        {
+            if (postNumber < 1)
+                throw new ArgumentOutOfRangeException(nameof(postNumber), "Post number cannot be less than 1.");
+            if (postsPerPage < 1)
+                throw new ArgumentOutOfRangeException(nameof(postsPerPage), "Posts per page cannot be less than 1.");
+
+            int pageNumber = ((postNumber - 1) / postsPerPage) + 1;
+
+            return pageNumber;
         }
 
         /// <summary>
