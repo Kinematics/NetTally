@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace NetTally.Forums
+namespace NetTally.Types.Components
 {
     public class PostId : IComparable, IComparable<PostId?>, IComparable<long>, IComparable<string>, IEquatable<PostId?>, IEquatable<long>, IEquatable<string>
     {
