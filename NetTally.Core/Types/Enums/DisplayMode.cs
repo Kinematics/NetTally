@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using NetTally.Attributes;
 
 namespace NetTally.Types.Enums
 {
