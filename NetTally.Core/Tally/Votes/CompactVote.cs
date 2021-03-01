@@ -5,6 +5,7 @@ using System.Text;
 using NetTally.Extensions;
 using NetTally.Forums;
 using NetTally.Utility;
+using NetTally.Types.Components;
 
 namespace NetTally.Votes
 {

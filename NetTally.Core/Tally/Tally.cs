@@ -12,6 +12,7 @@ using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.Votes;
+using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {

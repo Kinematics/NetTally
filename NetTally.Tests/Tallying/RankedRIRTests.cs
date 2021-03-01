@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Votes;
 using NetTally.VoteCounting.RankVotes;
+using NetTally.Types.Components;
 
 namespace NetTally.Tests.Tallying
 {

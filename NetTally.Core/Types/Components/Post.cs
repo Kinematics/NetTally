@@ -5,7 +5,7 @@ using NetTally.Utility;
 using NetTally.Votes;
 using NetTally.Types.Enums;
 
-namespace NetTally.Forums
+namespace NetTally.Types.Components
 {
     /// <summary>
     /// Class to hold relevent post information when read from the forum.

@@ -13,6 +13,7 @@ using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.Output
 {

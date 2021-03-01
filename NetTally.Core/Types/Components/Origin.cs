@@ -3,9 +3,8 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Votes;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
-namespace NetTally.Forums
+namespace NetTally.Types.Components
 {
     public class Origin : IComparable, IComparable<Origin>, IEquatable<Origin>
     {

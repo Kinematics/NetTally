@@ -18,6 +18,7 @@ using NetTally.Navigation;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
+using NetTally.Types.Components;
 
 namespace NetTally
 {

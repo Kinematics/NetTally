@@ -11,6 +11,7 @@ using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.Tests.Tallying
 {

@@ -2,6 +2,7 @@
 using System.Linq;
 using NetTally.Forums;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.Votes
 {

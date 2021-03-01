@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
+using NetTally.Types.Components;
 
 namespace NetTally.Tests.Forums
 {

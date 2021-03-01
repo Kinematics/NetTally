@@ -19,6 +19,7 @@ using NetTally.ViewModels.Commands;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.ViewModels
 {

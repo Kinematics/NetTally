@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Web;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.Forums.Adapters
 {

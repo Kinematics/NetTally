@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Web;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.Forums
 {

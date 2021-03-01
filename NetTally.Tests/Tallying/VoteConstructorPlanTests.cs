@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 #nullable disable
 
