@@ -80,7 +80,7 @@ namespace NetTally.Forums
         {
             if (ByNumber)
             {
-                return ThreadInfo.GetPageNumberOfPost(Number, quest);
+                return ThreadInfo.GetPageNumberOfPost(Number, quest.PostsPerPage);
             }
 
             return Page;
