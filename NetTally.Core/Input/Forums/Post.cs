@@ -10,7 +10,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class to hold relevent post information when read from the forum.
     /// </summary>
-    public class Post : IComparable<Post>, IEquatable<Post>, IComparable
+    public class Post : IComparable<Post>, IEquatable<Post>
     {
         #region Properties and Construction
         /// <summary>
@@ -78,8 +78,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="text">Text of the post.</param>
         /// <returns>Returns a readonly list of any vote lines found.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local functions")]
-        private IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
+        private static IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
         {
             List<VoteLine> results = new List<VoteLine>();
 
@@ -96,37 +95,28 @@ namespace NetTally.Forums
             }
 
             return results;
+        }
 
-            ////////////////////////////////
-            // Private functions
+        private static bool IsTallyPost(string text)
+        {
+            // If the post contains the string "#####" at the start of the line for part of its text,
+            // it's a tally post.
+            string cleanText = VoteLineParser.StripBBCode(text);
+            return (tallyRegex.Matches(cleanText).Count > 0);
+        }
 
-            /// <summary>
-            /// Determine if the provided post text is someone posting the results of a tally.
-            /// </summary>
-            /// <param name="postText">The text of the post to check.</param>
-            /// <returns>Returns true if the post contains tally results.</returns>
-            static bool IsTallyPost(string text)
+
+        private static IEnumerable<VoteLine> GetVoteLines(List<string> postTextLines)
+        {
+            bool foundFirst = false;
+
+            foreach (var line in postTextLines)
             {
-                // If the post contains the string "#####" at the start of the line for part of its text,
-                // it's a tally post.
-                string cleanText = VoteLineParser.StripBBCode(text);
-                return (tallyRegex.Matches(cleanText).Count > 0);
-            }
+                var voteLine = VoteLineParser.ParseLine(line);
 
-            /// <summary>
-            /// Extracts vote lines from the text lines of the post.
-            /// </summary>
-            /// <param name="postTextLines">The lines from the post.</param>
-            /// <returns>Returns an enumerable of all the vote lines found in the post text.</returns>
-            static IEnumerable<VoteLine> GetVoteLines(List<string> postTextLines)
-            {
-                bool foundFirst = false;
-
-                foreach (var line in postTextLines)
+                if (voteLine is not null)
                 {
-                    var voteLine = VoteLineParser.ParseLine(line);
-
-                    if (!foundFirst && voteLine != null)
+                    if (!foundFirst)
                     {
                         // Ensure the first vote line of the post is always depth 0.
                         if (voteLine.Depth > 0)
@@ -137,44 +127,36 @@ namespace NetTally.Forums
                         foundFirst = true;
                     }
 
-                    if (voteLine != null)
-                        yield return voteLine;
+                    yield return voteLine;
                 }
             }
+        }
 
-            /// <summary>
-            /// Examine the post to see if it qualifies as a nomination post — a post that contains nothing but username links.
-            /// If so, return the nomination lines formatted as votes.
-            /// </summary>
-            /// <param name="postTextLines">The set of lines from the post.</param>
-            /// <returns>Returns the list of nomination votes, or an empty list.</returns>
-            static List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
+        private static List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
+        {
+            List<VoteLine> results = new List<VoteLine>();
+
+            foreach (var line in postTextLines)
             {
-                List<VoteLine> results = new List<VoteLine>();
-
-                foreach (var line in postTextLines)
+                Match m = nominationLineRegex.Match(line);
+                if (m.Success)
                 {
-                    Match m = nominationLineRegex.Match(line);
-                    if (m.Success)
-                    {
-                        VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
-                        results.Add(voteLine);
-                    }
-                    else
-                    {
-                        results.Clear();
-                        return results;
-                    }
+                    VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
+                    results.Add(voteLine);
                 }
-
-                return results;
+                else
+                {
+                    results.Clear();
+                    return results;
+                }
             }
+
+            return results;
         }
         #endregion
 
         #region IComparable/IEquatable
-#nullable disable
-        public static int Compare(Post left, Post right)
+        public static int Compare(Post? left, Post? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -186,29 +168,24 @@ namespace NetTally.Forums
             return left.Origin.ID.CompareTo(right.Origin.ID);
         }
 
-        public int CompareTo(Post other)
+        public int CompareTo(Post? other)
         {
             return Compare(this, other);
         }
 
-        public int CompareTo(object obj)
-        {
-            return Compare(this, obj as Post);
-        }
-
-        public bool Equals(Post other)
+        public bool Equals(Post? other)
         {
             return Compare(this, other) == 0;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Compare(this, obj as Post) == 0;
         }
 
         public override int GetHashCode()
         {
-            return Origin.GetHashCode();
+            return HashCode.Combine(Origin, Text);
         }
 
         public static bool operator >(Post first, Post second) => Compare(first, second) == 1;
@@ -217,7 +194,6 @@ namespace NetTally.Forums
         public static bool operator <=(Post first, Post second) => Compare(first, second) <= 0;
         public static bool operator ==(Post first, Post second) => Compare(first, second) == 0;
         public static bool operator !=(Post first, Post second) => Compare(first, second) != 0;
-#nullable enable
         #endregion
 
         public override string ToString()
