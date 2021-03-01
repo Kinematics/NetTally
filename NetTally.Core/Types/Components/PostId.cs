@@ -3,7 +3,9 @@ using System.Globalization;
 
 namespace NetTally.Types.Components
 {
-
+    /// <summary>
+    /// A record for a post ID value.
+    /// </summary>
     public record PostId : IComparable<PostId>, IComparable<long>, IComparable<string>
     {
         public static readonly PostId Zero = new PostId(0);
