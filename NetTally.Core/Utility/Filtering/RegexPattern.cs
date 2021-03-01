@@ -92,6 +92,7 @@ namespace NetTally.Utility.Filtering
                                           .Select(p => splat.Replace(p, @".*?"))
                                           .Select(p => preWord.IsMatch(p) ? @$"\b{p}" : p)
                                           .Select(p => postWord.IsMatch(p) ? @$"{p}\b" : p)
+                                          .DefaultIfEmpty("")
                                           .Aggregate((a, b) => $"{a}|{b}");
 
                 regex = new Regex(correctedPatterns,
