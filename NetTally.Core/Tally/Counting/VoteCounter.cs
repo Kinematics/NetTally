@@ -10,6 +10,7 @@ using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {

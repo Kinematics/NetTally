@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
+using NetTally.Types.Components;
 
 namespace NetTally.Tests.Forums
 {
@@ -155,7 +156,7 @@ namespace NetTally.Tests.Forums
             PostId id2 = new PostId("2701897");
             Assert.AreEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2.Text) == 0);
-            Assert.IsTrue(PostId.Compare(id1, id2.Value) == 0);
+            Assert.IsTrue(id1.CompareTo(id2.Value) == 0);
             Assert.IsTrue(id1.Equals("2701897"));
         }
 

@@ -4,6 +4,7 @@ using NetTally.Collections;
 using NetTally.Forums;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {
