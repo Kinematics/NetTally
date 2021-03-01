@@ -382,8 +382,8 @@ namespace NetTally.Forums
             var filtered = from post in postsList
                            where post.HasVote
                                 && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
-                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author))
-                                    || (!quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author, threadInfo.Author, StringComparison.Ordinal)))
+                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author.Name))
+                                    || (!quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author.Name, threadInfo.Author, StringComparison.Ordinal)))
                                 && (!quest.UseCustomPostFilters
                                     || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber)
                                     || quest.PostsToFilter.Contains(post.Origin.ID.Value)))

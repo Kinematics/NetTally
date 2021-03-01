@@ -400,13 +400,13 @@ namespace NetTally.VoteCounting
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
 
-            if (!HasVoter(post.Origin.Author))
+            if (!HasVoter(post.Origin.Author.Name))
                 return false;
 
             return Posts.Any(p => 
                                p.Processed
                             && p.Origin.ID > post.Origin.ID
-                            && string.Equals(p.Origin.Author, post.Origin.Author, StringComparison.Ordinal)
+                            && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
                             );
         }
         #endregion

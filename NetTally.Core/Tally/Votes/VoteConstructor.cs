@@ -53,7 +53,7 @@ namespace NetTally.Votes
 
                 if (isPlan &&
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                    IsValidPlanName(planName, post.Origin.Author) &&
+                    IsValidPlanName(planName, post.Origin.Author.Name) &&
                     DoesTaskFilterPass(block, quest))
                 {
                     plans[planName] = block;

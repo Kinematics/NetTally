@@ -1,7 +1,6 @@
 ﻿using System;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
-using NetTally.Votes;
 using NetTally.Types.Enums;
 
 namespace NetTally.Types.Components
@@ -9,7 +8,7 @@ namespace NetTally.Types.Components
     public class Origin : IComparable, IComparable<Origin>, IEquatable<Origin>
     {
         #region Construction and Properties
-        public string Author { get; }
+        public Author Author { get; }
         public IdentityType AuthorType { get; }
         public PostId ID { get; }
         public int ThreadPostNumber { get; }
@@ -18,7 +17,8 @@ namespace NetTally.Types.Components
         public string Permalink { get; }
         public Origin Source { get; }
 
-        public static Origin Empty = new Origin("", "0", 0, DateTime.MinValue, new Uri("http://www.example.com/"), "http://www.example.com/");
+        public static Origin Empty = new Origin("-", "0", 0,
+            DateTime.MinValue, new Uri("http://www.example.com/"), "http://www.example.com/");
 
         private static readonly Uri exampleUri = new Uri("http://www.example.com/");
         private readonly int hash;
@@ -26,7 +26,7 @@ namespace NetTally.Types.Components
 
         public Origin(string author, string postID, int postNumber, Uri thread, string permalink)
         {
-            Author = author;
+            Author = new Author(author);
             AuthorType = IdentityType.User;
             ID = new PostId(postID);
             ThreadPostNumber = postNumber;
@@ -39,7 +39,7 @@ namespace NetTally.Types.Components
 
         public Origin(string author, string postID, int postNumber, DateTime timestamp, Uri thread, string permalink)
         {
-            Author = author;
+            Author = new Author(author);
             AuthorType = IdentityType.User;
             ID = new PostId(postID);
             ThreadPostNumber = postNumber;
@@ -52,7 +52,7 @@ namespace NetTally.Types.Components
 
         public Origin(string author, IdentityType identityType)
         {
-            Author = author;
+            Author = new Author(author);
             AuthorType = identityType;
             limitedToName = true;
 
@@ -69,7 +69,7 @@ namespace NetTally.Types.Components
         private Origin(string author, IdentityType identityType, PostId postId, int postNumber, DateTime timestamp,
             Uri thread, string permalink, Origin source)
         {
-            Author = author;
+            Author = new Author(author);
             AuthorType = identityType;
             ID = postId;
             ThreadPostNumber = postNumber;
@@ -92,9 +92,9 @@ namespace NetTally.Types.Components
         public override string ToString()
         {
             if (AuthorType == IdentityType.Plan)
-                return $"{Strings.PlanNameMarker}{Author}";
+                return $"{Strings.PlanNameMarker}{Author.Name}";
             else
-                return Author;
+                return Author.Name;
         }
 
 
@@ -122,10 +122,10 @@ namespace NetTally.Types.Components
             return result;
         }
 
-        public override bool Equals(object obj) => Compare(this, obj as Origin) == 0;
-        public bool Equals(Origin other) => Compare(this, other) == 0;
-        public int CompareTo(object obj) => Compare(this, obj as Origin);
-        public int CompareTo(Origin other) => Compare(this, other);
+        public override bool Equals(object? obj) => Compare(this, obj as Origin) == 0;
+        public bool Equals(Origin? other) => Compare(this, other) == 0;
+        public int CompareTo(object? obj) => Compare(this, obj as Origin);
+        public int CompareTo(Origin? other) => Compare(this, other);
         public static bool operator >(Origin? first, Origin? second) => Compare(first, second) == 1;
         public static bool operator <(Origin? first, Origin? second) => Compare(first, second) == -1;
         public static bool operator >=(Origin? first, Origin? second) => Compare(first, second) >= 0;

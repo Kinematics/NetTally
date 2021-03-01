@@ -230,7 +230,7 @@ namespace NetTally
 
             var voters = mainViewModel.GetVoterListForVote(vote);
 
-            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter.Author, filterString, CompareOptions.IgnoreCase) >= 0);
+            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
         }
 
         /// <summary>

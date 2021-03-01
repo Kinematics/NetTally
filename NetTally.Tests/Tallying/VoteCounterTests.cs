@@ -92,8 +92,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
         }
 
 
@@ -163,8 +163,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
             Assert.IsTrue(voteCounter.HasPlan("Experiment"));
 
             var vote1 = voteCounter.VoteStorage.GetVotesBy(origin1);
@@ -258,8 +258,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
         }
 
 
@@ -295,8 +295,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
@@ -329,8 +329,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
             Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
             Assert.IsTrue(voteCounter.HasPlan("Experiment"));
         }
 
@@ -415,8 +415,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -449,8 +449,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -483,8 +483,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -517,8 +517,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
         }
         #endregion Callouts as proxies
 
@@ -554,8 +554,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
             Assert.AreEqual("[] Brogatar's Second post", allVotes[0].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
@@ -596,8 +596,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual("[] Changed my mind", allVotes[0].ToString());
             Assert.AreEqual("[] Brogatar's Second post", allVotes[1].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
         }
         #endregion Future references
 
@@ -625,8 +625,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(1, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
             var voters = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
@@ -659,8 +659,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.AreEqual(2, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author));
+            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
             var voters1 = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
