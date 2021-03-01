@@ -8,7 +8,7 @@ namespace NetTally.Types.Components
 {
     public record Author
     {
-        public string Name { get; }
+        public string Name { get; init; }
 
         /// <summary>
         /// Constructor for an author.
