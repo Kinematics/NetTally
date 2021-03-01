@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally.Forums
+namespace NetTally.Types.Components
 {
     public class ThreadInfo
     {
