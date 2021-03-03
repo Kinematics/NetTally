@@ -22,10 +22,9 @@ namespace NetTally.Utility.Filtering
         private Regex Regex { get; }
         private bool Invert { get; }
 
-        public RegexPattern(Regex regex, bool invert = false)
+        public RegexPattern(Regex regex)
         {
             Regex = regex ?? throw new ArgumentNullException(nameof(regex));
-            Invert = invert;
         }
 
         public RegexPattern(string pattern)
@@ -34,14 +33,7 @@ namespace NetTally.Utility.Filtering
             (Regex, Invert) = CreateRegexFromPattern(pattern);
         }
 
-        public bool IsMatch(string item)
-        {
-            if (item is null)
-                return false;
-
-            return Regex.IsMatch(item) ^ Invert;
-        }
-
+        #region Construction of a regex pattern
         static readonly Regex jsRegex = new Regex(@"^(?<invert>!)?/(?<regex>.+)/(?<options>[ugi]{0,3})$",
             RegexOptions.Compiled, TimeSpan.FromMilliseconds(150));
         static readonly Regex escapeChars = new Regex(@"([.?(){}^$\[\]])",
@@ -102,5 +94,21 @@ namespace NetTally.Utility.Filtering
 
             return (regex, invert);
         }
+        #endregion Construction of a regex pattern
+
+        #region Public Methods
+        /// <summary>
+        /// Tests whether a provided item string matches the regex pattern.
+        /// </summary>
+        /// <param name="item">The string to check.</param>
+        /// <returns>Returns true if the item matches, or false if not.</returns>
+        public bool IsMatch(string item)
+        {
+            if (item is null)
+                return false;
+
+            return Regex.IsMatch(item) ^ Invert;
+        }
+        #endregion Public Methods
     }
 }

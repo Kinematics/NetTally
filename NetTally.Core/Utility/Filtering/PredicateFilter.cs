@@ -9,12 +9,23 @@ namespace NetTally.Utility.Filtering
     /// <typeparam name="T"></typeparam>
     public class PredicateFilter<T> : IItemFilter<T>
     {
-        private readonly Func<T, bool> predicate;
+        protected readonly FilterType filterType;
+        protected readonly Func<T, bool> predicate;
 
-        public PredicateFilter(Func<T, bool> predicate)
+        protected PredicateFilter(Func<T, bool> predicate, FilterType filterType)
         {
             this.predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
+            this.filterType = filterType;
         }
+
+        #region Factories used to construct varying types of list filters.
+        public static PredicateFilter<T> Allow(Func<T, bool> predicate) => new(predicate, FilterType.Allow);
+        public static PredicateFilter<T> Block(Func<T, bool> predicate) => new(predicate, FilterType.Block);
+
+        public static readonly PredicateFilter<T> AllowAll = new((a) => true, FilterType.Allow);
+        public static readonly PredicateFilter<T> BlockAll = new((a) => true, FilterType.Block);
+        #endregion
+
 
         /// <summary>
         /// Determines whether the filter allows the item provided to pass through the filter.
@@ -23,19 +34,27 @@ namespace NetTally.Utility.Filtering
         /// <returns>True if the filter allows the item, or false if not.</returns>
         public bool Allows(T item)
         {
-            return predicate(item);
+            return filterType switch
+            {
+                FilterType.Allow => predicate(item),
+                FilterType.Block => !predicate(item),
+                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
+            };
         }
 
         /// <summary>
-        /// Determines whether the filter allows the item provided to pass through the filter.
+        /// Determines whether the filter blocks the item provided.
         /// </summary>
-        /// <typeparam name="U">The type of object being passed in.</typeparam>
-        /// <param name="item">The item being checked.</param>
-        /// <param name="map">A function that maps a U to a string.</param>
-        /// <returns>True if the filter allows the item, or false if not.</returns>
-        public bool Allows<U>(U item, Func<U, T> map)
+        /// <param name="item">The item to be checked.</param>
+        /// <returns>True if the filter blocks the item, or false if not.</returns>
+        public bool Blocks(T item)
         {
-            return Allows(map(item));
+            return filterType switch
+            {
+                FilterType.Allow => !predicate(item),
+                FilterType.Block => predicate(item),
+                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
+            };
         }
     }
 }

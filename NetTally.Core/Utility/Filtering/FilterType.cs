@@ -4,20 +4,20 @@ using System.Text;
 
 namespace NetTally.Utility.Filtering
 {
-    public enum ListFilterType
+    public enum FilterType
     {
         /// <summary>
-        /// Ignore the filter list, and do not filter anything.
+        /// Default value. Ignore all filtering mechanics.
         /// </summary>
-        Ignore,
+        Unset,
         /// <summary>
-        /// Exclude anything found in the filter list.
+        /// Have the filter set up to block things.
         /// </summary>
-        Exclude,
+        Block,
         /// <summary>
-        /// Only allow what is in the filter list.
+        /// Have the filter set up to allow things.
         /// </summary>
-        Include,
+        Allow,
     }
 
 }

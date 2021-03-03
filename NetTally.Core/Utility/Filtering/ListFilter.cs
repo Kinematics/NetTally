@@ -11,7 +11,7 @@ namespace NetTally.Utility.Filtering
     /// <typeparam name="T"></typeparam>
     public class ListFilter<T> : IItemFilter<T>
     {
-        protected readonly ListFilterType listFilterType;
+        protected readonly FilterType filterType;
         protected readonly HashSet<T> filterList;
 
         /// <summary>
@@ -20,18 +20,18 @@ namespace NetTally.Utility.Filtering
         /// </summary>
         /// <param name="listFilterType">The type of filter process to use.</param>
         /// <param name="list">The list of items that defines the filter.</param>
-        protected ListFilter(ListFilterType listFilterType, IEnumerable<T> list)
+        protected ListFilter(IEnumerable<T> list, FilterType listFilterType)
         {
-            this.listFilterType = listFilterType;
+            this.filterType = listFilterType;
             filterList = list.ToHashSet();
         }
 
         #region Factories used to construct varying types of list filters.
-        public static ListFilter<T> Whitelist(IEnumerable<T> list) => new ListFilter<T>(ListFilterType.Include, list);
-        public static ListFilter<T> Blacklist(IEnumerable<T> list) => new ListFilter<T>(ListFilterType.Exclude, list);
-        public static ListFilter<T> WhitelistAll() => new ListFilter<T>(ListFilterType.Exclude, Enumerable.Empty<T>());
-        public static ListFilter<T> BlacklistAll() => new ListFilter<T>(ListFilterType.Include, Enumerable.Empty<T>());
-        public static ListFilter<T> IgnoreAll() => new ListFilter<T>(ListFilterType.Ignore, Enumerable.Empty<T>());
+        public static ListFilter<T> Whitelist(IEnumerable<T> list) => new(list, FilterType.Allow);
+        public static ListFilter<T> Blacklist(IEnumerable<T> list) => new(list, FilterType.Block);
+
+        public static readonly ListFilter<T> AllowAll = new(Enumerable.Empty<T>(), FilterType.Block);
+        public static readonly ListFilter<T> BlockAll = new(Enumerable.Empty<T>(), FilterType.Allow);
         #endregion
 
 
@@ -42,25 +42,27 @@ namespace NetTally.Utility.Filtering
         /// <returns>True if the filter allows the item, or false if not.</returns>
         public bool Allows(T item)
         {
-            return listFilterType switch
+            return filterType switch
             {
-                ListFilterType.Ignore => true,
-                ListFilterType.Include => filterList.Contains(item),
-                ListFilterType.Exclude => !filterList.Contains(item),
-                _ => throw new InvalidOperationException($"Unknown filter type: {listFilterType}")
+                FilterType.Allow => filterList.Contains(item),
+                FilterType.Block => !filterList.Contains(item),
+                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }
 
         /// <summary>
-        /// Determines whether the filter allows the item provided to pass through the filter.
+        /// Determines whether the filter blocks the item provided.
         /// </summary>
-        /// <typeparam name="U">The type of object being passed in.</typeparam>
-        /// <param name="item">The item being checked.</param>
-        /// <param name="map">A function that maps a U to a string.</param>
-        /// <returns>True if the filter allows the item, or false if not.</returns>
-        public bool Allows<U>(U item, Func<U, T> map)
+        /// <param name="item">The item to be checked.</param>
+        /// <returns>True if the filter blocks the item, or false if not.</returns>
+        public bool Blocks(T item)
         {
-            return Allows(map(item));
+            return filterType switch
+            {
+                FilterType.Allow => !filterList.Contains(item),
+                FilterType.Block => filterList.Contains(item),
+                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
+            };
         }
     }
 }
