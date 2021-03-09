@@ -6,9 +6,11 @@
 *.dll
 /NetTally/bin/Debug
 /NetTally/obj/Release
+/NetTally.Console/bin
 /NetTally.Console/bin/Debug/netcoreapp1.1
 /NetTally.Console/obj/Debug/netcoreapp1.1
 /NetTally.Console/obj
+/NetTally.Core/bin/
 /NetTally.Core/bin/Debug/netstandard1.3
 /NetTally.Core/obj
 /NetTally.Test/bin/Debug
@@ -18,3 +20,10 @@
 /NetTally/obj/Debug
 /NetTally/bin/Release
 /NetTally.Core/bin/Release/netstandard1.3
+/NetTally.Avalonia/bin
+/NetTally.Avalonia/obj
+/NetTally/obj
+/NetTally.Console/bin
+*.user
+bin
+obj
