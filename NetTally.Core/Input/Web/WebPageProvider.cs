@@ -12,7 +12,6 @@ using NetTally.Extensions;
 using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.Types.Enums;
-using NetTally.Types.Enums;
 
 namespace NetTally.Web
 {
