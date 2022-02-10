@@ -116,7 +116,7 @@ namespace NetTally.Types.Components
 
             if (result == 0)
             {
-                result = Agnostic.StringComparer.Compare(first.Author, second.Author);
+                result = Agnostic.StringComparer.Compare(first.Author.Name, second.Author.Name);
             }
 
             return result;
