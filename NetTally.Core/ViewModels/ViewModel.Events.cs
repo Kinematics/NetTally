@@ -99,7 +99,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="param">The EventArgs parameter. If called across synchronization
         /// contexts, will be passed as an object.</param>
-        private void RaisePropertyChanged(object param)
+        private void RaisePropertyChanged(object? param)
         {
             if (param is PropertyChangedEventArgs e)
             {
@@ -142,7 +142,7 @@ namespace NetTally.ViewModels
         /// Function to actually invoke the delegate, after synchronization is checked.
         /// </summary>
         /// <param name="param">The parameter.</param>
-        private void RaiseExceptionRaised(object param)
+        private void RaiseExceptionRaised(object? param)
         {
             if (param is ExceptionEventArgs paramArgs)
             {

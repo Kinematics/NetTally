@@ -202,7 +202,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
@@ -218,7 +218,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TaskList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void TaskList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged("TaskList");
         }

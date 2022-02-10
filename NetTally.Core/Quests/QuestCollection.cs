@@ -15,14 +15,14 @@ namespace NetTally.Collections
         /// </summary>
         /// <param name="name">The name of the quest to look for.</param>
         /// <returns>Returns the quest if found, or null if not.</returns>
-        public IQuest this[string name] => this.FirstOrDefault(q => q.ThreadName == name);
+        public IQuest? this[string name] => this.FirstOrDefault(q => q.ThreadName == name);
 
         /// <summary>
         /// Add a new quest to the current collection.
         /// </summary>
         /// <returns>Returns the newly created quest if it was successfully added,
         /// or returns null if it was not (ie: duplicate).</returns>
-        public IQuest AddNewQuest()
+        public IQuest? AddNewQuest()
         {
             var nq = new Quest();
             Add(nq);

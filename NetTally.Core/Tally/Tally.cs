@@ -83,7 +83,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">Contains info about which program option was updated.</param>
-        private async void Options_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Options_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (string.Equals(e.PropertyName, "DisplayMode", StringComparison.Ordinal)
                 || string.Equals(e.PropertyName, "RankVoteCounterMethod", StringComparison.Ordinal)
@@ -102,7 +102,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">Contains the text to be added to the output.</param>
-        private void ForumReader_StatusChanged(object sender, MessageEventArgs e)
+        private void ForumReader_StatusChanged(object? sender, MessageEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Message))
             {
@@ -117,7 +117,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="sender">The quest that sent the notification.</param>
         /// <param name="e">Info about a property of the quest that changed.</param>
-        private async void Quest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender is IQuest quest)
             {

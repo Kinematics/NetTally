@@ -27,9 +27,12 @@ namespace NetTally.VoteCounting
             if (storageVote != null)
             {
                 var storedVote = storageVote.Clone();
-                storage.TryGetValue(storageVote, out var storedVoteSupporters);
+                storage.TryGetValue(storageVote, out VoterStorage? storedVoteSupporters);
                 storage.Remove(storageVote);
-                storage.Add(storedVote, storedVoteSupporters);
+                if (storedVoteSupporters != null)
+                {
+                    storage.Add(storedVote, storedVoteSupporters);
+                }
             }
         }
 

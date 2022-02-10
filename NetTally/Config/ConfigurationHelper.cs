@@ -121,13 +121,18 @@ namespace NetTally.Config
             // Default: Roaming\Wayward_Gamers\NetTally.exe_Url_<hash>\1.7.0.0\user.config
             // Change to: Roaming\Wayward_Gamers\NetTally\1.7.0.0\user.config
 
-            var companyDirectory = defaultFile.Directory.Parent.Parent;
+            DirectoryInfo? companyDirectory = defaultFile?.Directory?.Parent?.Parent;
 
-            string product = GetProductDirectory();
+            if (companyDirectory != null)
+            {
+                string product = GetProductDirectory();
 
-            var configFile = Path.Combine(companyDirectory.FullName, product, ProductInfo.AssemblyVersion.ToString(), "user.config");
+                var configFile = Path.Combine(companyDirectory.FullName, product, ProductInfo.AssemblyVersion.ToString(), "user.config");
+            
+                return GetMapWithUserPath(configFile);
+            }
 
-            return GetMapWithUserPath(configFile);
+            return new ExeConfigurationFileMap();
         }
 
         /// <summary>
@@ -141,12 +146,12 @@ namespace NetTally.Config
             Configuration defaultConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
             FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
 
-            var defaultDir = defaultFile.Directory;
-            var hashParent = defaultDir.Parent;
-            var noHashParent = hashParent.Parent;
+            DirectoryInfo? defaultDir = defaultFile.Directory;
+            var hashParent = defaultDir?.Parent;
+            var noHashParent = hashParent?.Parent;
 
             // If no product directory exists, NetTally has never been run before, and there's nothing to look for.
-            if (!noHashParent.Exists)
+            if (noHashParent == null || !noHashParent.Exists)
                 return null;
 
             string product = GetProductDirectory();
@@ -160,7 +165,7 @@ namespace NetTally.Config
                 dir = GetLatestVersionDirectory(productDir);
             }
 
-            if (dir == null)
+            if (dir == null && hashParent != null)
             {
                 dir = GetLatestVersionDirectory(hashParent);
             }

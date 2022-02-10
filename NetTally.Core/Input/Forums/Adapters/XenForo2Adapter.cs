@@ -284,7 +284,7 @@ namespace NetTally.Forums.Adapters
                 XDocument? rss = await pageProvider.GetXmlDocumentAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
-                if (rss != null && rss.Root.Name == "rss")
+                if (rss?.Root?.Name == "rss")
                 {
                     XName channelName = XName.Get("channel", "");
 
@@ -292,38 +292,37 @@ namespace NetTally.Forums.Adapters
 
                     XName itemName = XName.Get("item", "");
 
-                    var items = channel.Elements(itemName);
+                    var items = channel?.Elements(itemName) ?? Enumerable.Empty<XElement>();
 
                     XName titleName = XName.Get("title", "");
                     XName pubDate = XName.Get("pubDate", "");
 
-                    List<(XElement item, DateTime timestamp)> filterList = new List<(XElement, DateTime)>();
+                    List<(XElement item, DateTime timestamp)> filterList = new();
 
                     foreach (var item in items)
                     {
-                        var title = item.Element(titleName).Value;
+                        string? title = item.Element(titleName)?.Value;
 
-                        if (title.StartsWith("Threadmark: "))
+                        if (!string.IsNullOrWhiteSpace(title))
                         {
-                            title = title.Substring(12);
-                        }
-                        else if (title.StartsWith("Threadmark:"))
-                        {
-                            title = title.Substring(11);
+                            if (title.StartsWith("Threadmark:"))
+                            {
+                                title = title[11..].Trim();
+                            }
+
+                            if (quest.UseCustomThreadmarkFilters)
+                            {
+                                if (quest.ThreadmarkFilter.Match(title))
+                                    continue;
+                            }
+                            else
+                            {
+                                if (DefaultThreadmarkFilter.Match(title))
+                                    continue;
+                            }
                         }
 
-                        if (quest.UseCustomThreadmarkFilters)
-                        {
-                            if (quest.ThreadmarkFilter.Match(title))
-                                continue;
-                        }
-                        else
-                        {
-                            if (DefaultThreadmarkFilter.Match(title))
-                                continue;
-                        }
-
-                        var pub = item.Element(pubDate).Value;
+                        string? pub = item.Element(pubDate)?.Value;
 
                         if (string.IsNullOrEmpty(pub))
                             continue;
@@ -343,48 +342,51 @@ namespace NetTally.Forums.Adapters
 
                         var link = pick.Element(linkName);
 
-                        string href = link.Value;
+                        string? href = link?.Value;
 
-                        // If we have a permalink fragment, we have no page number, but we can
-                        // request a redirect to get the actual href.
-                        Match mr = permalinkFragment.Match(href);
-                        if (mr.Success)
+                        if (!string.IsNullOrEmpty(href))
                         {
-                            string redirect = await pageProvider.GetRedirectUrlAsync(
-                                href, "RSS Link", CachingMode.BypassCache, ShouldCache.Yes,
-                                SuppressNotifications.Yes, token).ConfigureAwait(false);
-
-                            if (!string.IsNullOrEmpty(redirect) && redirect != href)
+                            // If we have a permalink fragment, we have no page number, but we can
+                            // request a redirect to get the actual href.
+                            Match mr = permalinkFragment.Match(href);
+                            if (mr.Success)
                             {
-                                href = redirect;
-                            }
-                        }
+                                string redirect = await pageProvider.GetRedirectUrlAsync(
+                                    href, "RSS Link", CachingMode.BypassCache, ShouldCache.Yes,
+                                    SuppressNotifications.Yes, token).ConfigureAwait(false);
 
-                        // If we have the long URL, we can extract the page number and post number from the URL itself.
-                        mr = longFragment.Match(href);
-                        if (mr.Success)
-                        {
-                            int page = 0;
-                            int postID = 0;
-
-                            if (mr.Groups["page"].Success)
-                                page = int.Parse(mr.Groups["page"].Value);
-                            if (mr.Groups["post"].Success)
-                                postID = int.Parse(mr.Groups["post"].Value);
-
-                            // If neither matched, it's post 1/page 1
-                            // Store 0 in the post ID slot, since we don't know what it is.
-                            if (page == 0 && postID == 0)
-                                return new ThreadRangeInfo(true, 1, 1, 0);
-
-                            // If no page number was found, it's page 1
-                            if (page == 0)
-                            {
-                                return new ThreadRangeInfo(false, 0, 1, postID);
+                                if (!string.IsNullOrEmpty(redirect) && redirect != href)
+                                {
+                                    href = redirect;
+                                }
                             }
 
-                            // Otherwise, take the provided values.
-                            return new ThreadRangeInfo(false, 0, page, postID);
+                            // If we have the long URL, we can extract the page number and post number from the URL itself.
+                            mr = longFragment.Match(href);
+                            if (mr.Success)
+                            {
+                                int page = 0;
+                                int postID = 0;
+
+                                if (mr.Groups["page"].Success)
+                                    page = int.Parse(mr.Groups["page"].Value);
+                                if (mr.Groups["post"].Success)
+                                    postID = int.Parse(mr.Groups["post"].Value);
+
+                                // If neither matched, it's post 1/page 1
+                                // Store 0 in the post ID slot, since we don't know what it is.
+                                if (page == 0 && postID == 0)
+                                    return new ThreadRangeInfo(true, 1, 1, 0);
+
+                                // If no page number was found, it's page 1
+                                if (page == 0)
+                                {
+                                    return new ThreadRangeInfo(false, 0, 1, postID);
+                                }
+
+                                // Otherwise, take the provided values.
+                                return new ThreadRangeInfo(false, 0, page, postID);
+                            }
                         }
                     }
                 }

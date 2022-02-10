@@ -75,9 +75,10 @@ namespace NetTally
                 // this is a self-contained app, and it should use a local Logs directory.
                 string runtimePath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
                 string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                string appPath = Path.GetDirectoryName(appLocation);
+                string? appPath = Path.GetDirectoryName(appLocation);
 
-                if (string.Compare(Path.GetFullPath(runtimePath).TrimEnd('\\'),
+                if (appPath is not null &&
+                    string.Compare(Path.GetFullPath(runtimePath).TrimEnd('\\'),
                                    Path.GetFullPath(appPath).TrimEnd('\\'),
                                    StringComparison.InvariantCultureIgnoreCase) == 0)
                 {

@@ -19,10 +19,15 @@ namespace NetTally.Debugging.FileLogger.Internal
             _category = categoryName;
         }
 
-        public IDisposable? BeginScope<TState>(TState state)
+        public IDisposable BeginScope<TState>(TState state)
         {
             // NOTE: Differs from source
-            return _provider.ScopeProvider?.Push(state);
+            if (_provider.ScopeProvider is IExternalScopeProvider scopeProvider)
+            {
+                return scopeProvider.Push(state);
+            }
+
+            throw new InvalidOperationException("BatchingLoggerProvider is not valid.");
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -31,7 +36,7 @@ namespace NetTally.Debugging.FileLogger.Internal
         }
 
         public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state,
-            Exception exception, Func<TState, Exception, string> formatter)
+            Exception? exception, Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))
             {
@@ -60,10 +65,9 @@ namespace NetTally.Debugging.FileLogger.Internal
                 builder.Append(": ");
             }
 
-            builder.AppendLine(formatter(state, exception));
-
             if (exception != null)
             {
+                builder.AppendLine(formatter(state, exception));
                 builder.AppendLine(exception.ToString());
             }
 
@@ -71,7 +75,7 @@ namespace NetTally.Debugging.FileLogger.Internal
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-            Exception exception, Func<TState, Exception, string> formatter)
+            Exception? exception, Func<TState, Exception, string> formatter)
         {
             Log(DateTimeOffset.Now, logLevel, eventId, state, exception, formatter);
         }

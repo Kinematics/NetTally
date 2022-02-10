@@ -48,9 +48,11 @@ namespace NetTally
             Agnostic.Init(hash);
 
             var loggerFactory = ServiceProvider.GetService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger<App>();
-            var logger2 = serviceProvider.GetRequiredService<Logger2>();
-            logger.LogInformation($"Services defined. Starting application. Version: {ProductInfo.Version}");
+            if (loggerFactory != null)
+            {
+                var logger = loggerFactory.CreateLogger<App>();
+                logger.LogInformation("Services defined. Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
+            }
 
             // Request the navigation service and create our main window.
             var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();

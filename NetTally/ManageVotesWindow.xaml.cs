@@ -573,7 +573,7 @@ namespace NetTally
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             logger.LogTrace($"Received notification of property change from MainViewModel: {e.PropertyName}.");
 

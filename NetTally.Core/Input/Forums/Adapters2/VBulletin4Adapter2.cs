@@ -222,7 +222,7 @@ namespace NetTally.Forums.Adapters2
         {
             string author = "";
 
-            HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
+            HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
             if (postDetails != null)
             {
@@ -247,7 +247,7 @@ namespace NetTally.Forums.Adapters2
 
         private string GetPostText(HtmlNode li, string id, IQuest quest)
         {
-            HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
+            HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
             if (postDetails != null)
             {

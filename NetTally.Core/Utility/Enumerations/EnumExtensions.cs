@@ -41,11 +41,16 @@ namespace NetTally.Extensions
 
             foreach (var fieldInfo in typeInfo.DeclaredFields)
             {
-                DescriptionAttribute fieldAttribute = fieldInfo.GetCustomAttribute<DescriptionAttribute>();
+                DescriptionAttribute? fieldAttribute = fieldInfo.GetCustomAttribute<DescriptionAttribute>();
 
                 if (fieldAttribute?.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
                 {
-                    return (T)fieldInfo.GetValue(null);
+                    var v = fieldInfo.GetValue(null);
+                 
+                    if (v != null)
+                        return (T)v;
+
+                    return default;
                 }
             }
 

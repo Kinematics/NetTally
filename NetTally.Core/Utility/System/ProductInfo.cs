@@ -51,22 +51,27 @@ namespace NetTally.SystemInfo
                 var ver = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyInformationalVersionAttribute));
                 var fVer = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyFileVersionAttribute));
 
-                AssemblyVersion = assembly.GetName().Version;
+                var assemblyName = assembly.GetName();
 
-                if (prod != null && prod.ConstructorArguments.Count > 0)
+                if (assemblyName?.Version != null)
                 {
-                    Name = prod.ConstructorArguments[0].Value as string ?? Name;
-                }
+                    AssemblyVersion = assemblyName.Version;
 
-                if (ver != null && ver.ConstructorArguments.Count > 0)
-                {
-                    Version = ver.ConstructorArguments[0].Value as string ?? Version;
-                }
+                    if (prod != null && prod.ConstructorArguments.Count > 0)
+                    {
+                        Name = prod.ConstructorArguments[0].Value as string ?? Name;
+                    }
 
-                if (fVer != null && fVer.ConstructorArguments.Count > 0)
-                {
-                    string fileVersionString = fVer.ConstructorArguments[0].Value as string ?? "0.0.0.1";
-                    FileVersion = new Version(fileVersionString);
+                    if (ver != null && ver.ConstructorArguments.Count > 0)
+                    {
+                        Version = ver.ConstructorArguments[0].Value as string ?? Version;
+                    }
+
+                    if (fVer != null && fVer.ConstructorArguments.Count > 0)
+                    {
+                        string fileVersionString = fVer.ConstructorArguments[0].Value as string ?? "0.0.0.1";
+                        FileVersion = new Version(fileVersionString);
+                    }
                 }
             }
             catch (Exception e)

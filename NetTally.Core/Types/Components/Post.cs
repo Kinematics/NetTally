@@ -188,12 +188,12 @@ namespace NetTally.Types.Components
             return HashCode.Combine(Origin, Text);
         }
 
-        public static bool operator >(Post first, Post second) => Compare(first, second) == 1;
-        public static bool operator <(Post first, Post second) => Compare(first, second) == -1;
-        public static bool operator >=(Post first, Post second) => Compare(first, second) >= 0;
-        public static bool operator <=(Post first, Post second) => Compare(first, second) <= 0;
-        public static bool operator ==(Post first, Post second) => Compare(first, second) == 0;
-        public static bool operator !=(Post first, Post second) => Compare(first, second) != 0;
+        public static bool operator >(Post? first, Post? second) => Compare(first, second) == 1;
+        public static bool operator <(Post? first, Post? second) => Compare(first, second) == -1;
+        public static bool operator >=(Post? first, Post? second) => Compare(first, second) >= 0;
+        public static bool operator <=(Post? first, Post? second) => Compare(first, second) <= 0;
+        public static bool operator ==(Post? first, Post? second) => Compare(first, second) == 0;
+        public static bool operator !=(Post? first, Post? second) => Compare(first, second) != 0;
         #endregion
 
         public override string ToString()

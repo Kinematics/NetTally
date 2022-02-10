@@ -89,23 +89,27 @@ namespace NetTally.Utility.Comparers
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         public void ComparisonPropertyChanged(IQuest quest, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") || e.PropertyName.EndsWith("CaseIsSignificant"))
+            if (e.PropertyName is not null)
             {
-                if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == false)
+                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") ||
+                    e.PropertyName.EndsWith("CaseIsSignificant"))
                 {
-                    StringComparer = StringComparerNoCaseSymbol;
-                }
-                else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == false)
-                {
-                    StringComparer = StringComparerNoCaseNoSymbol;
-                }
-                else if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == true)
-                {
-                    StringComparer = StringComparerCaseSymbol;
-                }
-                else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == true)
-                {
-                    StringComparer = StringComparerCaseNoSymbol;
+                    if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == false)
+                    {
+                        StringComparer = StringComparerNoCaseSymbol;
+                    }
+                    else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == false)
+                    {
+                        StringComparer = StringComparerNoCaseNoSymbol;
+                    }
+                    else if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == true)
+                    {
+                        StringComparer = StringComparerCaseSymbol;
+                    }
+                    else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == true)
+                    {
+                        StringComparer = StringComparerCaseNoSymbol;
+                    }
                 }
             }
         }

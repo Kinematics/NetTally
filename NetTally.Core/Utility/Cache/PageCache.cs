@@ -137,21 +137,18 @@ namespace NetTally.Cache
         /// found, and cached document if available.</returns>
         public (bool found, string content) Get(string key)
         {
-            bool found = false;
-            CacheObject<byte[]> gzCache;
+            CacheObject<byte[]>? gzCache;
 
             using (cacheLock.ReaderLock())
             {
-                found = gzPageCache.TryGetValue(key, out gzCache);
-            }
-
-            if (found)
-            {
-                if (gzCache.Expires > Clock.Now)
+                if (gzPageCache.TryGetValue(key, out gzCache))
                 {
-                    string content = Decompress(gzCache.Store);
+                    if (gzCache.Expires > Clock.Now)
+                    {
+                        string content = Decompress(gzCache.Store);
 
-                    return (true, content);
+                        return (true, content);
+                    }
                 }
             }
 

@@ -53,7 +53,7 @@ namespace NetTally.Extensions
             else
                 children = node.Elements(element);
 
-            HtmlNode find;
+            HtmlNode? find;
 
             if (string.IsNullOrEmpty(@class))
             {
@@ -134,7 +134,7 @@ namespace NetTally.Extensions
             else
                 children = node.Descendants(element);
 
-            HtmlNode find;
+            HtmlNode? find;
 
             if (string.IsNullOrEmpty(@class))
             {

@@ -35,7 +35,7 @@ namespace NetTally.Utility.Comparers
         /// <param name="y">The second string.</param>
         /// <returns>Returns -1 if the first string is less than the second;
         /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
-        public override int Compare(string x, string y)
+        public override int Compare(string? x, string? y)
         {
             if (ReferenceEquals(x, y)) return 0;
 
@@ -52,9 +52,9 @@ namespace NetTally.Utility.Comparers
         /// <returns></returns>
         public override int GetHashCode(string str) => HashFunction(str, Info, Options);
 
-        public override bool Equals(string x, string y) => Compare(x, y) == 0;
+        public override bool Equals(string? x, string? y) => Compare(x, y) == 0;
 
-        int IComparer.Compare(object x, object y)
+        int IComparer.Compare(object? x, object? y)
         {
             if (ReferenceEquals(x, y))
                 return 0;
@@ -70,7 +70,7 @@ namespace NetTally.Utility.Comparers
             return Compare(xs, ys);
         }
 
-        bool IEqualityComparer.Equals(object x, object y)
+        bool IEqualityComparer.Equals(object? x, object? y)
         {
             if (ReferenceEquals(x, y))
                 return true;

@@ -302,7 +302,7 @@ namespace NetTally.Utility
                     return string.Empty;
 
                 // Do a lookup check against all other characters.
-                if (translate_characters.TryGetValue(c, out string normal))
+                if (translate_characters.TryGetValue(c, out string? normal))
                     return normal;
 
                 // If no conversion is done, just return the original character.

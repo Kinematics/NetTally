@@ -233,7 +233,7 @@ namespace NetTally.Forums.Adapters
                 number = int.Parse(postCount.GetAttributeValue("name", "0"));
 
 
-            HtmlNode postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
+            HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
             if (postDetails != null)
             {

@@ -10,7 +10,7 @@ namespace NetTally.Comparers
     /// </summary>
     public class CustomVoteSort : IComparer
     {
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
             if (x is VoteLineBlock xv && y is VoteLineBlock yv)
             {

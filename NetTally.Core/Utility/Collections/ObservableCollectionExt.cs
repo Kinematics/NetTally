@@ -19,7 +19,7 @@ namespace NetTally.Collections
     public class ObservableCollectionExt<T> : ObservableCollection<T>
     {
         #region Constructor
-        private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+        private SynchronizationContext? _synchronizationContext = SynchronizationContext.Current;
 
         public ObservableCollectionExt()
         {
@@ -39,17 +39,20 @@ namespace NetTally.Collections
                 // Execute the CollectionChanged event on the current thread
                 RaiseCollectionChanged(e);
             }
-            else
+            else if (_synchronizationContext is not null)
             {
                 // Raises the CollectionChanged event on the creator thread
                 _synchronizationContext.Send(RaiseCollectionChanged, e);
             }
         }
 
-        private void RaiseCollectionChanged(object param)
+        private void RaiseCollectionChanged(object? param)
         {
             // We are in the creator thread, call the base implementation directly
-            base.OnCollectionChanged((NotifyCollectionChangedEventArgs)param);
+            if (param is NotifyCollectionChangedEventArgs e)
+            {
+                base.OnCollectionChanged(e);
+            }
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -59,17 +62,20 @@ namespace NetTally.Collections
                 // Execute the PropertyChanged event on the current thread
                 RaisePropertyChanged(e);
             }
-            else
+            else if (_synchronizationContext is not null)
             {
                 // Raises the PropertyChanged event on the creator thread
                 _synchronizationContext.Send(RaisePropertyChanged, e);
             }
         }
 
-        private void RaisePropertyChanged(object param)
+        private void RaisePropertyChanged(object? param)
         {
             // We are in the creator thread, call the base implementation directly
-            base.OnPropertyChanged((PropertyChangedEventArgs)param);
+            if (param is PropertyChangedEventArgs e)
+            {
+                base.OnPropertyChanged(e);
+            }
         }
         #endregion
 

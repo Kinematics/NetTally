@@ -36,7 +36,7 @@ namespace NetTally.Forums
         #endregion
 
         #region Event passing
-        private void PageProvider_StatusChanged(object sender, MessageEventArgs e)
+        private void PageProvider_StatusChanged(object? sender, MessageEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Message))
             {
@@ -68,7 +68,7 @@ namespace NetTally.Forums
             {
                 foreach (var questToRead in quests)
                 {
-                    if (!pageProviders.TryGetValue(questToRead.ThreadUri.Host, out IPageProvider provider))
+                    if (!pageProviders.TryGetValue(questToRead.ThreadUri.Host, out IPageProvider? provider))
                     {
                         provider = serviceProvider.GetRequiredService<IPageProvider>();
                         provider.StatusChanged += PageProvider_StatusChanged;

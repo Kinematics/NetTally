@@ -327,22 +327,22 @@ namespace NetTally.Forums.Adapters2
                 return (false, ThreadRangeInfo.Empty);
             }
 
-            if (rss.Root.Name != "rss")
+            if (rss.Root?.Name != "rss")
                 return (false, ThreadRangeInfo.Empty);
 
             var channel = rss.Root.Element(XName.Get("channel", ""));
 
-            var items = channel.Elements(XName.Get("item", ""));
+            var items = channel?.Elements(XName.Get("item", "")) ?? Enumerable.Empty<XElement>(); ;
 
             XName titleName = XName.Get("title", "");
             XName pubDate = XName.Get("pubDate", "");
 
             // Use threadmark filters to filter out unwanted threadmark titles.
             var filteredItems = from item in items
-                                let title = item.Element(titleName).Value
+                                let title = item.Element(titleName)?.Value
                                 where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
                                         (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(title)))
-                                let pub = item.Element(pubDate).Value
+                                let pub = item.Element(pubDate)?.Value
                                 where string.IsNullOrEmpty(pub) == false
                                 let pubStamp = DateTime.Parse(pub)
                                 orderby pubStamp descending // Most recent is first
@@ -353,31 +353,34 @@ namespace NetTally.Forums.Adapters2
 
             if (recentItem != null)
             {
-                string href = recentItem.Element(XName.Get("link", "")).Value;
+                string? href = recentItem.Element(XName.Get("link", ""))?.Value;
 
-                // If we have the long URL, we can extract the page number and post number from the URL itself.
-                Match mr = longFragment.Match(href);
-                if (mr.Success)
+                if (!string.IsNullOrEmpty(href))
                 {
-                    int page = 0;
-                    int post = 0;
+                    // If we have the long URL, we can extract the page number and post number from the URL itself.
+                    Match mr = longFragment.Match(href);
+                    if (mr.Success)
+                    {
+                        int page = 0;
+                        int post = 0;
 
-                    if (mr.Groups["page"].Success)
-                        page = int.Parse(mr.Groups["page"].Value);
-                    if (mr.Groups["post"].Success)
-                        post = int.Parse(mr.Groups["post"].Value);
+                        if (mr.Groups["page"].Success)
+                            page = int.Parse(mr.Groups["page"].Value);
+                        if (mr.Groups["post"].Success)
+                            post = int.Parse(mr.Groups["post"].Value);
 
-                    // If neither matched, it's post 1/page 1
-                    // Store 0 in the post ID slot, since we don't know what it is.
-                    if (page == 0 && post == 0)
-                        return (true, new ThreadRangeInfo(true, 1, 1, 0));
+                        // If neither matched, it's post 1/page 1
+                        // Store 0 in the post ID slot, since we don't know what it is.
+                        if (page == 0 && post == 0)
+                            return (true, new ThreadRangeInfo(true, 1, 1, 0));
 
-                    // If no page number was found, it's page 1
-                    if (page == 0)
-                        return (true, new ThreadRangeInfo(false, 0, 1, post));
+                        // If no page number was found, it's page 1
+                        if (page == 0)
+                            return (true, new ThreadRangeInfo(false, 0, 1, post));
 
-                    // Otherwise, take the provided values.
-                    return (true, new ThreadRangeInfo(false, 0, page, post));
+                        // Otherwise, take the provided values.
+                        return (true, new ThreadRangeInfo(false, 0, page, post));
+                    }
                 }
             }
 

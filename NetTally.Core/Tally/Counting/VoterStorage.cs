@@ -6,6 +6,7 @@ using NetTally.Forums;
 using NetTally.Votes;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetTally.Votes
 {
@@ -127,10 +128,18 @@ namespace NetTally.Votes
         /// <param name="key">The lookup key.</param>
         /// <param name="value">The value associated with the key.</param>
         /// <returns>Returns true if the key was found in the collection.</returns>
-        public new bool Remove(Origin key, out VoteLineBlock value)
+        public new bool Remove(Origin key, [NotNullWhen(true)] out VoteLineBlock? value)
         {
             NameLookup.Remove(key);
-            return base.Remove(key, out value);
+
+            if (base.Remove(key, out VoteLineBlock? removed))
+            {
+                value = removed;
+                return true;
+            }
+
+            value = null;
+            return false;
         }
         #endregion Override Add/Remove functions
 

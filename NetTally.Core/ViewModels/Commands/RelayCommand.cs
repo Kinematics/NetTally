@@ -52,8 +52,11 @@ namespace NetTally.ViewModels.Commands
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (string.IsNullOrEmpty(e.PropertyName))
+                return;
+
             if ((commandFilter.PropertyFilterListMode == PropertyFilterListOption.Exclude
                     && commandFilter.PropertyFilterList.Contains(e.PropertyName))
                 || (commandFilter.PropertyFilterListMode == PropertyFilterListOption.IncludeOnly

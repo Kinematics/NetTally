@@ -173,15 +173,15 @@ namespace NetTally.Web
         public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
             CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            logger.LogInformation($"Requested URL redirect for \"{shortDescrip}\"");
+            logger.LogInformation("Requested URL redirect for \"{shortDescrip}\"", shortDescrip);
             Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
 
             string result = responseUri?.AbsoluteUri ?? string.Empty;
 
             if (string.IsNullOrEmpty(result))
-                logger.LogDebug("Redirect request failed for \"{shortDescrip}\".");
+                logger.LogDebug("Redirect request failed for \"{shortDescrip}\".", shortDescrip);
             else
-                logger.LogDebug($"Redirect request succeeded. Using {result}");
+                logger.LogDebug("Redirect request succeeded. Using {result}", result);
 
             return result;
         }
@@ -334,8 +334,11 @@ namespace NetTally.Web
                             }
                             else if (PageWasMoved(response))
                             {
-                                url = response.Content.Headers.ContentLocation.AbsoluteUri;
-                                uri = new Uri(url);
+                                if (response.Content.Headers.ContentLocation is Uri contentLocation)
+                                {
+                                    url = contentLocation.AbsoluteUri;
+                                    uri = new Uri(url);
+                                }
                             }
                         }
                     }
@@ -455,7 +458,7 @@ namespace NetTally.Web
                         // the server thinks the URL should be.
                         using (HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
                         {
-                            return response.RequestMessage.RequestUri;
+                            return response.RequestMessage?.RequestUri;
                         }
                     }
                     catch (HttpRequestException e)

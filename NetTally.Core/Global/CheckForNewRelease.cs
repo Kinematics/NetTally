@@ -147,7 +147,7 @@ namespace NetTally
             {
                 var (prerelease, version) = GetReleaseInfo(entry);
 
-                if (!prerelease && Version.TryParse(version, out Version result))
+                if (!prerelease && Version.TryParse(version, out Version? result))
                 {
                     versions.Add(result);
                 }

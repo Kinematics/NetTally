@@ -271,24 +271,24 @@ namespace NetTally.Forums.Adapters
                 XDocument? rss = await pageProvider.GetXmlDocumentAsync(ThreadmarksRSSUrl, "Threadmarks", CachingMode.UseCache,
                     ShouldCache.Yes, SuppressNotifications.No, token).ConfigureAwait(false);
 
-                if (rss != null && rss.Root.Name == "rss")
+                if (rss?.Root?.Name == "rss")
                 {
                     XName channelName = XName.Get("channel", "");
 
-                    var channel = rss.Root.Element(channelName);
+                    XElement? channel = rss.Root.Element(channelName);
 
                     XName itemName = XName.Get("item", "");
 
-                    var items = channel.Elements(itemName);
+                    IEnumerable<XElement> items = channel?.Elements(itemName) ?? Enumerable.Empty<XElement>();
 
                     XName titleName = XName.Get("title", "");
                     XName pubDate = XName.Get("pubDate", "");
 
                     var filteredItems = from item in items
-                                        let title = item.Element(titleName).Value
+                                        let title = item.Element(titleName)?.Value
                                         where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
                                                 (!quest.UseCustomThreadmarkFilters && DefaultThreadmarkFilter.Match(title)))
-                                        let pub = item.Element(pubDate).Value
+                                        let pub = item.Element(pubDate)?.Value
                                         where string.IsNullOrEmpty(pub) == false
                                         let pubStamp = DateTime.Parse(pub)
                                         orderby pubStamp
@@ -302,31 +302,34 @@ namespace NetTally.Forums.Adapters
 
                         var link = lastItem.Element(linkName);
 
-                        string href = link.Value;
+                        string? href = link?.Value;
 
-                        // If we have the long URL, we can extract the page number and post number from the URL itself.
-                        Match mr = longFragment.Match(href);
-                        if (mr.Success)
+                        if (!string.IsNullOrEmpty(href))
                         {
-                            int page = 0;
-                            int post = 0;
+                            // If we have the long URL, we can extract the page number and post number from the URL itself.
+                            Match mr = longFragment.Match(href);
+                            if (mr.Success)
+                            {
+                                int page = 0;
+                                int post = 0;
 
-                            if (mr.Groups["page"].Success)
-                                page = int.Parse(mr.Groups["page"].Value);
-                            if (mr.Groups["post"].Success)
-                                post = int.Parse(mr.Groups["post"].Value);
+                                if (mr.Groups["page"].Success)
+                                    page = int.Parse(mr.Groups["page"].Value);
+                                if (mr.Groups["post"].Success)
+                                    post = int.Parse(mr.Groups["post"].Value);
 
-                            // If neither matched, it's post 1/page 1
-                            // Store 0 in the post ID slot, since we don't know what it is.
-                            if (page == 0 && post == 0)
-                                return new ThreadRangeInfo(true, 1, 1, 0);
+                                // If neither matched, it's post 1/page 1
+                                // Store 0 in the post ID slot, since we don't know what it is.
+                                if (page == 0 && post == 0)
+                                    return new ThreadRangeInfo(true, 1, 1, 0);
 
-                            // If no page number was found, it's page 1
-                            if (page == 0)
-                                return new ThreadRangeInfo(false, 0, 1, post);
+                                // If no page number was found, it's page 1
+                                if (page == 0)
+                                    return new ThreadRangeInfo(false, 0, 1, post);
 
-                            // Otherwise, take the provided values.
-                            return new ThreadRangeInfo(false, 0, page, post);
+                                // Otherwise, take the provided values.
+                                return new ThreadRangeInfo(false, 0, page, post);
+                            }
                         }
                     }
                 }

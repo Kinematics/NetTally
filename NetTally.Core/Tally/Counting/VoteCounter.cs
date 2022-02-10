@@ -191,7 +191,7 @@ namespace NetTally.VoteCounting
             else if (
                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.True ||
                        (globalOptions.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest!.AllowUsersToUpdatePlans)) &&
-                      ReferenceOrigins.TryGetValue(planOrigin, out Origin currentOrigin)
+                      ReferenceOrigins.TryGetValue(planOrigin, out Origin? currentOrigin)
                     )
             {
                 // Author can replace existing version of a plan he wrote on conditions:
@@ -205,7 +205,7 @@ namespace NetTally.VoteCounting
                 if (planOrigin.Source != Origin.Empty && planOrigin.Source == currentOrigin.Source &&
                     planOrigin.ID > currentOrigin.ID &&
                     plan.Lines.Count > 1 && 
-                    ReferencePlans.TryGetValue(currentOrigin, out VoteLineBlock currentPlan) &&
+                    ReferencePlans.TryGetValue(currentOrigin, out VoteLineBlock? currentPlan) &&
                     plan != currentPlan)
                 {
                     ReferenceOrigins.Remove(currentOrigin);
@@ -255,7 +255,7 @@ namespace NetTally.VoteCounting
 
             Origin test = new Origin(planName, IdentityType.Plan);
 
-            if (ReferenceOrigins.TryGetValue(test, out Origin actual))
+            if (ReferenceOrigins.TryGetValue(test, out Origin? actual))
             {
                 return actual;
             }
@@ -275,7 +275,7 @@ namespace NetTally.VoteCounting
 
             Origin test = new Origin(voterName, IdentityType.User);
 
-            if (ReferenceOrigins.TryGetValue(test, out Origin actual))
+            if (ReferenceOrigins.TryGetValue(test, out Origin? actual))
             {
                 return actual;
             }
@@ -316,7 +316,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
         public PostId? GetLatestVoterPostId(Origin voter)
         {
-            if (ReferenceOrigins.TryGetValue(voter, out Origin actual))
+            if (ReferenceOrigins.TryGetValue(voter, out Origin? actual))
             {
                 return actual.ID;
             }
@@ -333,7 +333,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
         public Post? GetLastPostByAuthor(Origin author, PostId maxPostId)
         {
-            if (ReferenceOrigins.TryGetValue(author, out Origin actual))
+            if (ReferenceOrigins.TryGetValue(author, out Origin? actual))
             {
                 return postsList.Where(p => author == p.Origin &&
                                             (maxPostId == 0 || p.Origin.ID < maxPostId))
@@ -397,9 +397,6 @@ namespace NetTally.VoteCounting
         /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
         public bool HasNewerVote(Post post)
         {
-            if (post == null)
-                throw new ArgumentNullException(nameof(post));
-
             if (!HasVoter(post.Origin.Author.Name))
                 return false;
 

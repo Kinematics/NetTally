@@ -100,7 +100,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Handles the PropertyChanged event of the CheckForNewRelease control.
         /// </summary>
-        private void CheckForNewRelease_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void CheckForNewRelease_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "NewRelease")
             {
@@ -245,7 +245,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private void SelectedQuest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SelectedQuest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "DisplayName")
             {
@@ -447,7 +447,7 @@ namespace NetTally.ViewModels
             }
             else
             {
-                IQuest newEntry = QuestList.AddNewQuest();
+                IQuest? newEntry = QuestList.AddNewQuest();
 
                 if (newEntry != null)
                 {
@@ -518,7 +518,7 @@ namespace NetTally.ViewModels
         /// Handles the PropertyChanged event of the Tally control.
         /// Redirects some events to point at properties of the MainViewModel.
         /// </summary>
-        private void Tally_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Tally.TallyIsRunning))
             {
@@ -731,7 +731,7 @@ namespace NetTally.ViewModels
             OnPropertyChanged(nameof(AllVotersCollection));
         }
 
-        private void VoteCounter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void VoteCounter_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (!VoteCounter.VoteCounterIsTallying)
             {
@@ -756,7 +756,7 @@ namespace NetTally.ViewModels
                 {
                     UpdateVotersCollection();
                 }
-                else
+                else if (!string.IsNullOrEmpty(e.PropertyName))
                 {
                     OnPropertyChanged(e.PropertyName);
                 }

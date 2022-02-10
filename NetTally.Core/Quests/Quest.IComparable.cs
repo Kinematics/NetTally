@@ -17,7 +17,7 @@ namespace NetTally
         /// <returns>
         /// Returns -1 if this is before obj, 0 if it's the same, and 1 if it's after obj.
         /// </returns>
-        public int CompareTo(object obj) => Compare(this, obj as IQuest);
+        public int CompareTo(object? obj) => Compare(this, obj as IQuest);
 
         public int CompareTo(IQuest other) => Compare(this, other);
 

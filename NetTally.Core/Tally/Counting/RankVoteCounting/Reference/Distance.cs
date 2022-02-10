@@ -194,9 +194,9 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="list">The list to convert.</param>
         /// <returns>Returns a dictionary pairing each list entry with its index.</returns>
-        private Dictionary<T, int> GetChoicesIndexes<T>(List<T> list)
+        private Dictionary<T, int> GetChoicesIndexes<T>(List<T> list) where T : notnull
         {
-            Dictionary<T, int> indexes = new Dictionary<T, int>();
+            Dictionary<T, int> indexes = new();
 
             for (int i = 0; i < list.Count; i++)
             {
