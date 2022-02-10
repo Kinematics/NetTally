@@ -433,6 +433,7 @@ namespace NetTally.Votes
         public static int GetSupportCount(this IEnumerable<VoterStorageEntry> storageValues)
         {
             return storageValues.Count(s =>
+                s.Key.AuthorType == IdentityType.User &&
                 s.Value.MarkerType switch
                 {
                     MarkerType.Vote => true,
