@@ -45,8 +45,8 @@ namespace NetTally.Avalonia
             // Intialize the Comparers (this code is weird, not sure why it's done like this).
             Utility.Comparers.Agnostic.Init(this.InternalServiceProvider.GetRequiredService<Utility.Comparers.IHash>());
 
-            var logger = this.ServiceProvider.GetService<ILoggerFactory>().CreateLogger<App>();
-            logger.LogInformation($"Services defined. Starting application. Version: {SystemInfo.ProductInfo.Version}");
+            var logger = this.ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger<App>();
+            logger?.LogInformation($"Services defined. Starting application. Version: {SystemInfo.ProductInfo.Version}");
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
