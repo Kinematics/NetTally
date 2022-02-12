@@ -26,11 +26,14 @@
     <Style Selector="StackPanel.OptionList">
         <Setter Property="Spacing" Value="2"/>
     </Style>
-    <Style Selector="StackPanel.GroupList">
+	<Style Selector="StackPanel.GroupList">
         <Setter Property="Spacing" Value="5"/>
     </Style>
+	<Style Selector="HeaderedContentControl > StackPanel.OptionList">
+		<Setter Property="Margin" Value="15,5,0,5"/>
+	</Style>
 
-    <Style Selector="StackPanel.CommandFooter">
+	<Style Selector="StackPanel.CommandFooter">
         <Setter Property="Orientation" Value="Horizontal"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="Spacing" Value="5"/>
@@ -49,8 +52,8 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style Selector="ToolTip">
-        <Setter Property="MaxWidth" Value="300" />
+	<Style Selector="ToolTip">
+        <Setter Property="MaxWidth" Value="400" />
         <Setter Property="FontWeight" Value="Normal" />
     </Style>
     <Style Selector="ToolTip > TextBlock">
@@ -58,5 +61,6 @@
     </Style>
     <Style Selector="ToolTip > StackPanel > TextBlock">
         <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
+		<Setter Property="Margin" Value="0,0,0,5"/>
+	</Style>
 </Styles>
