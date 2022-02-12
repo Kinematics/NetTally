@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NetTally.Extensions;
+using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
@@ -16,8 +17,8 @@ namespace NetTally.ViewModels
 
 
         /// <summary>
-        /// Rank Vote counting modes, defined from the <see cref="VoteCounting.RankVoteCounterMethod"/> <see langword="enum"/>.
+        /// Rank Vote counting modes, defined from the <see cref="RankVoteCounterMethod"/> <see langword="enum"/>.
         /// </summary>
-        public static readonly List<string> RankVoteCountingModes = EnumExtensions.EnumDescriptionsList<VoteCounting.RankVoteCounterMethod>().ToList();
+        public static readonly List<string> RankVoteCountingModes = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
     }
 }
