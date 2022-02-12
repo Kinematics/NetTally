@@ -21,38 +21,40 @@ namespace NetTally.Avalonia.Converters
         /// <param name="parameter">Optional "Invert" to reverse the results.</param>
         /// <param name="culture"></param>
         /// <returns>Returns true if any bindings are true.</returns>
-        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (values == null)
-                return false;
-            if (values.Count == 0)
-                return false;
-            if (values.Any(v => v == null))
+            if (values == null || values.Count == 0 || values.Any(v => v is null))
                 return false;
 
-            if (parameter.ToString() == "VoteLineBlock")
-                return CompareVoteLineBlockValues(values, inverted: false);
-            else if (parameter.ToString() == "InvertVoteLineBlock")
-                return CompareVoteLineBlockValues(values, inverted: true);
-            else
-                return CompareStringValues(values);
+            return parameter?.ToString() switch
+            {
+                "VoteLineBlock" => CompareVoteLineBlockValues(values, inverted: false),
+                "InvertVoteLineBlock" => CompareVoteLineBlockValues(values, inverted: true),
+                _ => CompareStringValues(values)
+            };
         }
 
-        private object CompareStringValues(IList<object> values)
+        private bool CompareStringValues(IList<object?> values)
         {
-            string first = values[0].ToString() ?? "";
+            if (!values.Any())
+                return false;
+
+            string first = values[0]?.ToString() ?? "";
 
             return values.All(v => v is string vv && vv == first);
         }
-        private object CompareVoteLineBlockValues(IList<object> values, bool inverted)
+        private bool CompareVoteLineBlockValues(IList<object?> values, bool inverted)
         {
+            if (values.Count == 0)
+                return false;
+
             if (!values.All(v => v is VoteLineBlock))
                 return false;
 
             return inverted ^ (values[0] is VoteLineBlock first && values.All(v => v is VoteLineBlock value && value == first));
         }
 
-        public IList<object> ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        public IList<object?> ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
         {
             throw new NotSupportedException("MultiStringCompareConverter is a one-way converter.");
         }

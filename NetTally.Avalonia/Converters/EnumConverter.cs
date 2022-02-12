@@ -30,14 +30,28 @@ namespace NetTally.Avalonia.Converters
         /// Convert from source enum to target index (int).
         /// </summary>
         /// <returns>Returns the control index of the given enum, or -1 if invalid.</returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
-            value.GetType().IsEnum ? System.Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType())) : -1;
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is Enum e)
+            {
+                return System.Convert.ChangeType(e, Enum.GetUnderlyingType(e.GetType()));
+            }
+
+            return -1;
+        }
 
         /// <summary>
         /// Convert from index (int) to source enum.
         /// </summary>
         /// <returns>Returns the enum option for that index, or the default value (0) if invalid.</returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => 
-            targetType.IsEnum ? Enum.ToObject(targetType, value) : Enum.ToObject(targetType, 0);
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (targetType.IsEnum && value is not null)
+            {
+                return Enum.ToObject(targetType, value);
+            }
+
+            return Enum.ToObject(targetType, 0);
+        }
     }
 }

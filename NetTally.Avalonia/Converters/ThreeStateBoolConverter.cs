@@ -10,7 +10,7 @@ namespace NetTally.Avalonia.Converters
         /// Convert from source (property BoolEx) to target (control bool?).
         /// </summary>
         /// <returns>Returns whether the specified target control value should be on or off.</returns>
-        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             switch (value)
             {
@@ -33,7 +33,7 @@ namespace NetTally.Avalonia.Converters
         /// Convert from target (control bool?) to source (property BoolEx).
         /// </summary>
         /// <returns>Returns what the source property value should be set to based on the target value.</returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             switch (value)
             {
