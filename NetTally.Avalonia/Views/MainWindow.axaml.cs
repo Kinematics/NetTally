@@ -166,7 +166,7 @@ namespace NetTally.Avalonia.Views
         /// </remarks>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             Logger.LogInformation($"Received notification of property change from MainViewModel: {e.PropertyName}.");
             
@@ -223,8 +223,14 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e) => 
-            Application.Current.Clipboard.SetTextAsync(ViewModel.Output);
+        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current is not null &&
+                Application.Current.Clipboard is not null)
+            {
+                Application.Current.Clipboard.SetTextAsync(ViewModel.Output);
+            }
+        }
 
         /// <summary>
         /// Open the window for handling merging votes.
