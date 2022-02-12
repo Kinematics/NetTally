@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
+using NetTally.Types.Enums;
 using NetTally.Votes;
 
 namespace NetTally.Avalonia.Config

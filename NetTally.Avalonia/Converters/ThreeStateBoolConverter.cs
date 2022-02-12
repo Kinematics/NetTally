@@ -1,4 +1,5 @@
 ﻿using Avalonia.Data.Converters;
+using NetTally.Types.Enums;
 using System;
 using System.Globalization;
 
