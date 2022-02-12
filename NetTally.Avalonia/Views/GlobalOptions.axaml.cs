@@ -24,11 +24,11 @@ namespace NetTally.Avalonia.Views
         {
             this.Logger = logger;
 
+            AvaloniaXamlLoader.Load(this);
+
 #if DEBUG
             this.AttachDevTools();
 #endif
-
-            AvaloniaXamlLoader.Load(this);
 
             DataContext = options;
 
