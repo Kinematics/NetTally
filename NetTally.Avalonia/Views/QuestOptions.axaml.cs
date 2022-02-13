@@ -96,9 +96,11 @@ namespace NetTally.Avalonia.Views
 
             this.Logger.LogDebug("Quest filters have been reset.");
 
-            this.FindControl<CheckBox>("ForbidVoteLabelPlanNames").IsChecked = false;
             this.FindControl<CheckBox>("WhitespaceAndPunctuationIsSignificant").IsChecked = false;
             this.FindControl<CheckBox>("CaseIsSignificant").IsChecked = false;
+            this.FindControl<CheckBox>("ForcePlanReferencesToBeLabeled").IsChecked = false;
+            this.FindControl<CheckBox>("ForbidVoteLabelPlanNames").IsChecked = false;
+            this.FindControl<CheckBox>("AllowUsersToUpdatePlans").IsChecked = false;
             this.FindControl<CheckBox>("DisableProxyVotes").IsChecked = false;
             this.FindControl<CheckBox>("ForcePinnedProxyVotes").IsChecked = false;
             this.FindControl<CheckBox>("IgnoreSpoilers").IsChecked = false;

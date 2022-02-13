@@ -54,7 +54,7 @@
                       ToolTip.Tip="Use these threadmark filters defined in the textbox below to filter votes." />
             <TextBlock Classes="SubCheck Description"
                        Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. &#x0d;&#x0a;The default value that will always be skipped is the word 'omake'." />
-			<TextBox Classes="SubCheck" Name="customThreadmarkFilters"
+			<TextBox Name="CustomThreadmarkFilters" Classes="SubCheck"
                      Text="{Binding CustomThreadmarkFilters}"
                      IsEnabled="{Binding #UseCustomThreadmarkFilters.IsChecked}"
                      ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
