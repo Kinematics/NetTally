@@ -703,5 +703,86 @@ namespace NetTally
             return DisplayName;
         }
         #endregion
+
+        #region Shadow Copy
+        IQuest? shadowCopy;
+
+        public IQuest GetShadowCopy()
+        {
+            shadowCopy = new Quest
+            {
+                ThreadName = ThreadName,
+                DisplayName = DisplayName,
+                ForumType = ForumType,
+                StartPost = StartPost,
+                EndPost = EndPost,
+                CheckForLastThreadmark = CheckForLastThreadmark,
+                UseRSSThreadmarks = UseRSSThreadmarks,
+                PostsPerPage = PostsPerPage,
+                UseCustomThreadmarkFilters = UseCustomThreadmarkFilters,
+                CustomThreadmarkFilters = CustomThreadmarkFilters,
+                UseCustomPostFilters = UseCustomPostFilters,
+                CustomPostFilters = CustomPostFilters,
+                UseCustomTaskFilters = UseCustomTaskFilters,
+                CustomTaskFilters = CustomTaskFilters,
+                UseCustomUsernameFilters = UseCustomUsernameFilters,
+                CustomUsernameFilters = CustomUsernameFilters,
+                PartitionMode = PartitionMode,
+                WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant,
+                CaseIsSignificant = CaseIsSignificant,
+                ForcePlanReferencesToBeLabeled = ForcePlanReferencesToBeLabeled,
+                ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames,
+                AllowUsersToUpdatePlans = AllowUsersToUpdatePlans,
+                DisableProxyVotes = DisableProxyVotes,
+                ForcePinnedProxyVotes = ForcePinnedProxyVotes,
+                IgnoreSpoilers = IgnoreSpoilers,
+                TrimExtendedText = TrimExtendedText
+            };
+            
+            foreach (IQuest q in LinkedQuests)
+                shadowCopy.LinkedQuests.Add(q);
+
+            return shadowCopy;
+        }
+
+        public void UpdateFromShadowCopy()
+        {
+            if (shadowCopy is not null)
+            {
+                ThreadName = shadowCopy.ThreadName;
+                DisplayName = shadowCopy.DisplayName;
+                ForumType = shadowCopy.ForumType;
+                StartPost = shadowCopy.StartPost;
+                EndPost = shadowCopy.EndPost;
+                CheckForLastThreadmark = shadowCopy.CheckForLastThreadmark;
+                UseRSSThreadmarks = shadowCopy.UseRSSThreadmarks;
+                PostsPerPage = shadowCopy.PostsPerPage;
+                UseCustomThreadmarkFilters = shadowCopy.UseCustomThreadmarkFilters;
+                CustomThreadmarkFilters = shadowCopy.CustomThreadmarkFilters;
+                UseCustomPostFilters = shadowCopy.UseCustomPostFilters;
+                CustomPostFilters = shadowCopy.CustomPostFilters;
+                UseCustomTaskFilters = shadowCopy.UseCustomTaskFilters;
+                CustomTaskFilters = shadowCopy.CustomTaskFilters;
+                UseCustomUsernameFilters = shadowCopy.UseCustomUsernameFilters;
+                CustomUsernameFilters = shadowCopy.CustomUsernameFilters;
+                PartitionMode = shadowCopy.PartitionMode;
+                WhitespaceAndPunctuationIsSignificant = shadowCopy.WhitespaceAndPunctuationIsSignificant;
+                CaseIsSignificant = shadowCopy.CaseIsSignificant;
+                ForcePlanReferencesToBeLabeled = shadowCopy.ForcePlanReferencesToBeLabeled;
+                ForbidVoteLabelPlanNames = shadowCopy.ForbidVoteLabelPlanNames;
+                AllowUsersToUpdatePlans = shadowCopy.AllowUsersToUpdatePlans;
+                DisableProxyVotes = shadowCopy.DisableProxyVotes;
+                ForcePinnedProxyVotes = shadowCopy.ForcePinnedProxyVotes;
+                IgnoreSpoilers = shadowCopy.IgnoreSpoilers;
+                TrimExtendedText = shadowCopy.TrimExtendedText;
+
+                LinkedQuests.Clear();
+
+                foreach (IQuest q in shadowCopy.LinkedQuests)
+                    LinkedQuests.Add(q);
+            }
+        }
+
+        #endregion
     }
 }
