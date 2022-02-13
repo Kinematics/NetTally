@@ -22,8 +22,11 @@
     <Style Selector="TextBox.Error">
         <Setter Property="Background" Value="LightCoral" />
     </Style>
+	<Style Selector="TextBlock.SubCheck, TextBox.SubCheck">
+		<Setter Property="Margin" Value="20,0,0,3"/>
+	</Style>
 
-    <Style Selector="StackPanel.OptionList">
+	<Style Selector="StackPanel.OptionList">
         <Setter Property="Spacing" Value="2"/>
     </Style>
 	<Style Selector="StackPanel.GroupList">

@@ -37,8 +37,6 @@ namespace NetTally.Avalonia.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
-            // not sure why the setting in XAML isn't being respected, but resetting this here appears to work.
-            this.SizeToContent = SizeToContent.WidthAndHeight;
         }
 
         #region Window element event handlers
@@ -63,16 +61,16 @@ namespace NetTally.Avalonia.Views
             // Guard against events we don't want to handle, since this will trigger for all
             // PropertyChanged events on this control.
             if (e.Property != TextBox.TextProperty
-                || !(e.NewValue is string newUrl)
-                || !(sender is TextBox textBox)
+                || e.NewValue is not string newUrl
+                || sender is not TextBox textBox
                 || textBox.Name != "ThreadUrl")
             {
                 return;
             }
 
             // check if the string would be accepted by Quest, if so set it, and remove our error class.
-            if (Uri.IsWellFormedUriString(newUrl, UriKind.Absolute)
-                && !string.IsNullOrWhiteSpace(newUrl))
+            if (!string.IsNullOrWhiteSpace(newUrl) &&
+                Uri.IsWellFormedUriString(newUrl, UriKind.Absolute))
             {
                 this.Quest.ThreadName = newUrl;
                 textBox.Classes.Remove("Error");

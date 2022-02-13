@@ -6,8 +6,9 @@
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
         mc:Ignorable="d"
         x:Class="NetTally.Avalonia.Views.QuestOptions"
-        Title="Quest Options"
-        Classes="Dialog">
+        Title="Quest Options" Icon="/Assets/CheckVoteWin.ico"
+        Classes="Dialog"
+		Width="640" Height="480" MinWidth="640" MinHeight="480">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
@@ -33,12 +34,12 @@
     <StackPanel Classes="CommandFooter" 
                 DockPanel.Dock="Bottom" 
                 Margin="0 5 0 0">
-      <Button Name="Reset" Content="Reset"
+      <Button Name="Reset" Content="Reset" Width="75"
               Click="Reset_Click"/>
-      <Button Name="Ok" Content="OK"
+      <Button Name="Ok" Content="OK" Width="75"
               IsDefault="True"
               Click="Ok_Click" />
-      <Button Name="Cancel" Content="Cancel"
+      <Button Name="Cancel" Content="Cancel" Width="75"
               IsCancel="True"
               Click="Cancel_Click" />
     </StackPanel>
@@ -51,9 +52,9 @@
                       Content="Use custom threadmark filters"
                       IsChecked="{Binding UseCustomThreadmarkFilters}" 
                       ToolTip.Tip="Use these threadmark filters defined in the textbox below to filter votes." />
-            <TextBlock Classes="Description"
+            <TextBlock Classes="SubCheck Description"
                        Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. &#x0d;&#x0a;The default value that will always be skipped is the word 'omake'." />
-            <TextBox Name="customThreadmarkFilters" TextWrapping="Wrap"
+			<TextBox Classes="SubCheck" Name="customThreadmarkFilters"
                      Text="{Binding CustomThreadmarkFilters}"
                      IsEnabled="{Binding #UseCustomThreadmarkFilters.IsChecked}"
                      ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
@@ -64,9 +65,9 @@
                       Content="Use custom task filters"
                       IsChecked="{Binding UseCustomTaskFilters}"
                       ToolTip.Tip="Use the task filters to filter quest tasks." />
-            <TextBlock Classes="Description"
+            <TextBlock Classes="SubCheck Description"
                        Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
-            <TextBox Name="CustomTaskFilters" TextWrapping="Wrap"
+            <TextBox Name="CustomTaskFilters" Classes="SubCheck"
                      Text="{Binding CustomTaskFilters}" 
                      IsEnabled="{Binding #UseCustomTaskFilters.IsChecked}"
                      ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
@@ -77,9 +78,9 @@
                       Content="Use custom username filters"
                       IsChecked="{Binding UseCustomUsernameFilters}" 
                       ToolTip.Tip="Use the username filters to filter user votes." />
-            <TextBlock Classes="Description"
+            <TextBlock Classes="SubCheck Description"
                        Text="Do not include the specified users in the tally. &#x0d;&#x0a;If no value is set, the tally will default to ignoring the thread author."/>
-            <TextBox Name="CustomUsernameFilters" TextWrapping="Wrap"
+            <TextBox Name="CustomUsernameFilters" Classes="SubCheck"
                      Text="{Binding CustomUsernameFilters}" 
                      IsEnabled="{Binding #UseCustomUsernameFilters.IsChecked}"
                      ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
@@ -90,9 +91,9 @@
                       Content="Use custom post filters"
                       IsChecked="{Binding UseCustomPostFilters}" 
                       ToolTip.Tip="Filter out the post numbers in this list." />
-            <TextBlock Classes="Description"
+            <TextBlock Classes="SubCheck Description"
                        Text="Do not include votes with the specified post numbers or IDs in the tally." />
-            <TextBox Name="CustomPostFilters" TextWrapping="Wrap"
+            <TextBox Name="CustomPostFilters" Classes="SubCheck"
                      Text="{Binding CustomPostFilters}" 
                      IsEnabled="{Binding #UseCustomPostFilters.IsChecked}"
                      ToolTip.Tip="Enter a space or comma-delimited list of values, or a number range (eg: 120-130)." />
@@ -103,11 +104,11 @@
       <TabItem Header="Options">
         <StackPanel Classes="GroupList">
           <HeaderedContentControl Header="Posts Per Page" Classes="GroupBox">
-            <StackPanel Orientation="Horizontal" Spacing="5">
-              <ComboBox Name="PostsPerPage"
+            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,3,0,0">
+              <ComboBox Name="PostsPerPage" Margin="10,0,0,0"
                         Items="{x:Static vm:ViewModelStatics.ValidPostsPerPage}" SelectedItem="{Binding PostsPerPage}"
                         ToolTip.Tip="Specify the number of posts per page for this forum thread." />
-              <TextBlock Classes="Description"
+              <TextBlock Classes="Description" Margin="0,3,0,0"
                          Text="A value of 0 will reset to the default for the forum." />
             </StackPanel>
           </HeaderedContentControl>
@@ -186,7 +187,7 @@
                 <ToolTip.Tip>
                   <StackPanel>
                     <TextBlock Text="Ignores spoiler blocks within posts. Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
-                    <TextBlock Margin="0,5,0,0" Text="Defaults to false."/>
+                    <TextBlock Text="Defaults to false."/>
                   </StackPanel>
                 </ToolTip.Tip>
               </CheckBox>
@@ -194,9 +195,9 @@
                         IsChecked="{Binding TrimExtendedText}" >
                 <ToolTip.Tip>
                   <StackPanel>
-                    <TextBlock TextWrapping="Wrap" FontStyle="Italic" Text="Experimental."/>
-                    <TextBlock TextWrapping="Wrap" Text="Attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
-                    <TextBlock TextWrapping="Wrap" Text="Defaults to false."/>
+                    <TextBlock FontStyle="Italic" Text="Experimental."/>
+                    <TextBlock Text="Attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
+                    <TextBlock Text="Defaults to false."/>
                   </StackPanel>
                 </ToolTip.Tip>
               </CheckBox>
@@ -204,8 +205,8 @@
                         IsChecked="{Binding UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
                 <ToolTip.Tip>
                   <StackPanel>
-                    <TextBlock TextWrapping="Wrap" Text="Searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
-                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to unknown."/>
+                    <TextBlock Text="Searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
+                    <TextBlock Text="Defaults to unknown."/>
                   </StackPanel>
                 </ToolTip.Tip>
               </CheckBox>
