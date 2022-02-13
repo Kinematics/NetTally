@@ -14,22 +14,24 @@ namespace NetTally.Avalonia.Views
         #region Private Properties
         private ILogger<QuestOptions> Logger { get; }
         private IQuest Quest { get; }
+        private IQuest ShadowCopy { get; }
         private IEnumerable<IQuest> QuestList { get; }
         #endregion        
 
         public QuestOptions(IQuest quest, ILogger<QuestOptions> logger, Collections.QuestCollection questList)
         {
             this.Quest = quest;
+            this.ShadowCopy = quest.GetShadowCopy();
             this.Logger = logger;
 
             // filter out the current quest.
             this.QuestList = questList.Where(q => q != quest);
 
-            DataContext = this.Quest;
+            DataContext = this.ShadowCopy;
 
             AvaloniaXamlLoader.Load(this);
 
-            this.FindControl<TextBox>("ThreadUrl").Text = this.Quest.ThreadName;
+            this.FindControl<TextBox>("ThreadUrl").Text = this.ShadowCopy.ThreadName;
 
             this.FindControl<ComboBox>("AvailableQuests").Items = this.QuestList;
             this.FindControl<ComboBox>("AvailableQuests").SelectedItem = this.QuestList.FirstOrDefault();
@@ -72,7 +74,7 @@ namespace NetTally.Avalonia.Views
             if (!string.IsNullOrWhiteSpace(newUrl) &&
                 Uri.IsWellFormedUriString(newUrl, UriKind.Absolute))
             {
-                this.Quest.ThreadName = newUrl;
+                this.ShadowCopy.ThreadName = newUrl;
                 textBox.Classes.Remove("Error");
             } else {
                 // bad string add the error class.
@@ -109,7 +111,7 @@ namespace NetTally.Avalonia.Views
         {
             if (this.FindControl<ComboBox>("AvailableQuests").SelectedItem is IQuest selectedQuest)
             {
-                this.Quest.AddLinkedQuest(selectedQuest);
+                this.ShadowCopy.AddLinkedQuest(selectedQuest);
             }
         }
 
@@ -117,13 +119,18 @@ namespace NetTally.Avalonia.Views
         {
             if (this.FindControl<ListBox>("LinkedQuests").SelectedItem is IQuest selectedQuest)
             {
-                this.Quest.RemoveLinkedQuest(selectedQuest);
+                this.ShadowCopy.RemoveLinkedQuest(selectedQuest);
             }
         }
 
         public void Cancel_Click(object sender, RoutedEventArgs e) => this.Close(false);
 
-        public void Ok_Click(object sender, RoutedEventArgs e) => this.Close(true);
+        public void Ok_Click(object sender, RoutedEventArgs e)
+        {
+            Quest.UpdateFromShadowCopy();
+            this.Close(true);
+        }
+
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
