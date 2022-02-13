@@ -2,12 +2,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
         x:Class="NetTally.Avalonia.Views.ManageVotes"
-        SizeToContent="WidthAndHeight"
-        Title="Manage Votes"
-        ShowInTaskbar="False">
+        Title="Manage Votes" Icon="/Assets/CheckVoteWin.ico"
+        ShowInTaskbar="False"
+		MinWidth="800" MinHeight="600" Width="800" Height="600">
     <Window.Resources>
         <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter" />
     </Window.Resources>

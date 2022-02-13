@@ -142,18 +142,16 @@ namespace NetTally.Avalonia.Views
             this.MainViewModel = mainViewModel;
             this.Logger = logger;
 
+            AvaloniaXamlLoader.Load(this);
+
             // Set the data context for binding.
             this.DataContext = this;
 
 #if DEBUG
             this.AttachDevTools();
 #endif
-            AvaloniaXamlLoader.Load(this);
 
             this.MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-
-            // not sure why the setting in XAML isn't being respected, but resetting this here appears to work.
-            this.SizeToContent = SizeToContent.WidthAndHeight;
         }
 
         /// <summary>
