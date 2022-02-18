@@ -46,7 +46,7 @@
     <TrimmerRootAssembly Include="PresentationFramework-SystemXmlLinq" />
   </ItemGroup>
 
-
+<!--
   <Target Name="CreateBuildBin" AfterTargets="Build">
     <MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
   </Target>
@@ -67,12 +67,13 @@
     <Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
     <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
   </Target>
+-->
 
-  <Target Name="CreatePublishBin" AfterTargets="Publish">
+  <Target Name="CreatePublishBin" AfterTargets="Publish" Condition="$(PublishSingleFile)==false">
     <MakeDir Directories="$(PublishDir)bin" Condition="!Exists('$(PublishDir)bin')" />
   </Target>
 
-  <Target Name="MovePublishDlls" AfterTargets="CreatePublishBin">
+  <Target Name="MovePublishDlls" AfterTargets="CreatePublishBin" Condition="$(PublishSingleFile)==false">
     <Message Importance="high" Text="Publish directory = $(PublishDir)" />
     <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
     <Move SourceFiles="$(PublishDir)HtmlAgilityPack.dll" DestinationFolder="$(PublishDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />

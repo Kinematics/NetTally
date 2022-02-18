@@ -1,0 +1,242 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
+        mc:Ignorable="d"
+        x:Class="NetTally.Avalonia.Views.QuestOptions"
+        Title="Quest Options" Icon="/Assets/CheckVoteWin.ico"
+        Classes="Dialog"
+		Width="640" Height="480" MinWidth="640" MinHeight="480">
+  <Window.Resources>
+    <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
+  </Window.Resources>
+
+  <DockPanel>
+    <Grid Name="QuestThreadNames"
+          DockPanel.Dock="Top"
+          RowDefinitions="auto,auto" ColumnDefinitions="auto,*"
+          Margin="0 5">
+        <TextBlock Classes="Label" Text="Quest Name"
+                   Grid.Row="0" Grid.Column="0" />
+        <TextBox   Name="QuestName"      
+                   Text="{Binding DisplayName}"
+                   Grid.Row="0" Grid.Column="1"
+                   Margin="0 0 0 2" />
+        <TextBlock Classes="Label" Text="Thread Url"
+                   Grid.Row="1" Grid.Column="0"/>
+        <TextBox   Name="ThreadUrl"
+                   PropertyChanged="ThreadUrl_PropertyChanged"
+                   Grid.Row="1" Grid.Column="1"/>
+    </Grid>
+
+    <StackPanel Classes="CommandFooter" 
+                DockPanel.Dock="Bottom" 
+                Margin="0 5 0 0">
+      <Button Name="Reset" Content="Reset" Width="75"
+              Click="Reset_Click"/>
+      <Button Name="Ok" Content="OK" Width="75"
+              IsDefault="True"
+              Click="Ok_Click" />
+      <Button Name="Cancel" Content="Cancel" Width="75"
+              IsCancel="True"
+              Click="Cancel_Click" />
+    </StackPanel>
+
+    <TabControl Name="tabControl">
+      <TabItem Header="Filters">
+        <StackPanel Classes="GroupList">
+          <StackPanel>
+            <CheckBox Name="UseCustomThreadmarkFilters" Classes="Label"
+                      Content="Use custom threadmark filters"
+                      IsChecked="{Binding UseCustomThreadmarkFilters}" 
+                      ToolTip.Tip="Use these threadmark filters defined in the textbox below to filter votes." />
+            <TextBlock Classes="SubCheck Description"
+                       Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. &#x0d;&#x0a;The default value that will always be skipped is the word 'omake'." />
+			<TextBox Name="CustomThreadmarkFilters" Classes="SubCheck"
+                     Text="{Binding CustomThreadmarkFilters}"
+                     IsEnabled="{Binding #UseCustomThreadmarkFilters.IsChecked}"
+                     ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
+          </StackPanel>
+
+          <StackPanel>
+            <CheckBox Name="UseCustomTaskFilters" Classes="Label"
+                      Content="Use custom task filters"
+                      IsChecked="{Binding UseCustomTaskFilters}"
+                      ToolTip.Tip="Use the task filters to filter quest tasks." />
+            <TextBlock Classes="SubCheck Description"
+                       Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
+            <TextBox Name="CustomTaskFilters" Classes="SubCheck"
+                     Text="{Binding CustomTaskFilters}" 
+                     IsEnabled="{Binding #UseCustomTaskFilters.IsChecked}"
+                     ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
+          </StackPanel>
+
+          <StackPanel>
+            <CheckBox Name="UseCustomUsernameFilters" Classes="Label"
+                      Content="Use custom username filters"
+                      IsChecked="{Binding UseCustomUsernameFilters}" 
+                      ToolTip.Tip="Use the username filters to filter user votes." />
+            <TextBlock Classes="SubCheck Description"
+                       Text="Do not include the specified users in the tally. &#x0d;&#x0a;If no value is set, the tally will default to ignoring the thread author."/>
+            <TextBox Name="CustomUsernameFilters" Classes="SubCheck"
+                     Text="{Binding CustomUsernameFilters}" 
+                     IsEnabled="{Binding #UseCustomUsernameFilters.IsChecked}"
+                     ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
+          </StackPanel>
+
+          <StackPanel>
+            <CheckBox Name="UseCustomPostFilters" Classes="Label"
+                      Content="Use custom post filters"
+                      IsChecked="{Binding UseCustomPostFilters}" 
+                      ToolTip.Tip="Filter out the post numbers in this list." />
+            <TextBlock Classes="SubCheck Description"
+                       Text="Do not include votes with the specified post numbers or IDs in the tally." />
+            <TextBox Name="CustomPostFilters" Classes="SubCheck"
+                     Text="{Binding CustomPostFilters}" 
+                     IsEnabled="{Binding #UseCustomPostFilters.IsChecked}"
+                     ToolTip.Tip="Enter a space or comma-delimited list of values, or a number range (eg: 120-130)." />
+          </StackPanel>
+        </StackPanel>
+      </TabItem>
+      
+      <TabItem Header="Options">
+        <StackPanel Classes="GroupList">
+          <HeaderedContentControl Header="Posts Per Page" Classes="GroupBox">
+            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,3,0,0">
+              <ComboBox Name="PostsPerPage" Margin="10,0,0,0"
+                        Items="{x:Static vm:ViewModelStatics.ValidPostsPerPage}" SelectedItem="{Binding PostsPerPage}"
+                        ToolTip.Tip="Specify the number of posts per page for this forum thread." />
+              <TextBlock Classes="Description" Margin="0,3,0,0"
+                         Text="A value of 0 will reset to the default for the forum." />
+            </StackPanel>
+          </HeaderedContentControl>
+
+          <HeaderedContentControl Header="Quest Vote Rules" Classes="GroupBox">
+            <StackPanel Classes="OptionList">
+
+              <CheckBox Name="WhitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant"
+                        IsChecked="{Binding WhitespaceAndPunctuationIsSignificant}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Treat whitespace and punctuation as significant when comparing votes and voters."/>
+                    <TextBlock Text="Enable it if votes that should be considered separate are being treated as the same."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="CaseIsSignificant" Content="Case is Significant"
+                        IsChecked="{Binding CaseIsSignificant}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Use case sensitive comparisons."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForcePlanReferencesToBeLabeled" Content="Force Plan References to be Labeled"
+                        IsChecked="{Binding ForcePlanReferencesToBeLabeled}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Only count references thata use the initial label of 'plan'."/>
+                    <TextBlock Text="Lack of such a label implies the vote line will be treated as normal text."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names"
+                        IsChecked="{Binding ForbidVoteLabelPlanNames}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Ignore votes that have a 'plan' line (which has no content) as the first line of the vote as a means of giving the entire vote a plan name."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="AllowUsersToUpdatePlans" Content="Allow users to update their own plans in later posts"
+                        IsChecked="{Binding AllowUsersToUpdatePlans}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Allowed users to update plans by reposting the plan, with changes, in a later post."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="DisableProxyVotes" Content="Disable User Proxy Votes"
+                        IsChecked="{Binding DisableProxyVotes}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Disable proxy votes (votes for another username, causing your vote to be the same as that users)."/>
+                    <TextBlock Text="This allows valid votes that happened to be the same as another user's name to be properly counted."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="ForcePinnedProxyVotes" Content="Force Pinned Proxy Votes"
+                        IsChecked="{Binding ForcePinnedProxyVotes}">
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="User proxy votes (votes for another username, causing your vote to be the same as that users) are always considered 'pinned', rather than 'tracking'.  They will always refer to a vote prior to the vote currently being processed."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="IgnoreSpoilers" Content="Ignore Spoilers"
+                        IsChecked="{Binding IgnoreSpoilers}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Ignores spoiler blocks within posts. Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="TrimExtendedText" Content="Trim Extended Vote Descriptions"
+                        IsChecked="{Binding TrimExtendedText}" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock FontStyle="Italic" Text="Experimental."/>
+                    <TextBlock Text="Attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
+                    <TextBlock Text="Defaults to false."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+              <CheckBox Name="UseRSSThreadmarks" Content="Use RSS Threadmarks"
+                        IsChecked="{Binding UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
+                <ToolTip.Tip>
+                  <StackPanel>
+                    <TextBlock Text="Searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
+                    <TextBlock Text="Defaults to unknown."/>
+                  </StackPanel>
+                </ToolTip.Tip>
+              </CheckBox>
+            </StackPanel>
+          </HeaderedContentControl>
+        </StackPanel>
+      </TabItem>
+      
+      <TabItem Header="Linked Quests">
+        <Grid RowDefinitions="*,auto" ColumnDefinitions="*,Auto"
+              Margin="10">
+
+          <ListBox Name="LinkedQuests"
+                   Grid.Row="0" Grid.Column="0"
+                   Items="{Binding LinkedQuests}"/>
+          <Button Name="RemoveLinkedQuest" Content="Remove"
+                  Grid.Row="0" Grid.Column="1"
+                  VerticalAlignment="Top"
+                  Click="RemoveLinkedQuest_Click"
+                  IsEnabled="{Binding #LinkedQuest.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+          <ComboBox Name="AvailableQuests"
+                    Grid.Row="1" Grid.Column="0"/>
+          <Button Name="AddLinkedQuest" Content="Add"
+                  Grid.Row="1" Grid.Column="1"
+                  Click="AddLinkedQuest_Click" 
+                  IsEnabled="{Binding #AvailableQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+        </Grid>
+      </TabItem>
+    </TabControl>
+
+  </DockPanel>
+
+</Window>

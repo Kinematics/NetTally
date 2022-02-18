@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
+    <AssemblyName>NetTally</AssemblyName>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Styles\NetTallyStyles.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.12" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.12" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.12" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.12" />
+    <PackageReference Include="MessageBox.Avalonia" Version="1.7.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\CheckVoteWin.ico" />
+  </ItemGroup>
+</Project>

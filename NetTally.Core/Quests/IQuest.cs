@@ -183,5 +183,15 @@ namespace NetTally
         /// <param name="quest">The quest to remove.</param>
         /// <returns>Returns true if the quest was found and removed.</returns>
         bool RemoveLinkedQuest(IQuest quest);
+
+        /// <summary>
+        /// Get a shadow copy of the current quest so that any changes to it can be discarded.
+        /// </summary>
+        /// <returns>Returns a copy of the current quest.</returns>
+        IQuest GetShadowCopy();
+        /// <summary>
+        /// Update the current quest from its shadow copy (if any).
+        /// </summary>
+        void UpdateFromShadowCopy();
     }
 }

@@ -1,0 +1,239 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="NetTally.Avalonia.Views.MainWindow"
+        Icon="/Assets/CheckVoteWin.ico"
+        Title="NetTally.Avalonia"
+		Width="1024" Height="600" MinWidth="1024" MinHeight="600">
+
+  <Grid>
+    <Button Name="AddQuestButton" Content="New"
+            Width="60" Height="30" Margin="10,45,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            Click="AddQuestButton_Click">
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Add Quest</TextBlock>
+          <TextBlock>Add a new forum thread to the quest list.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+    <Button Name="removeQuestButton" Content="Del"
+            Width="60" Height="30" Margin="75,45,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            Command="{Binding RemoveQuestCommand}">
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Delete Quest</TextBlock>
+          <TextBlock>Delete the current quest from the quest list.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+    <ComboBox Name="questList" 
+              Height="30" Margin="10,10,327,0" Padding="8,2,4,4"
+              VerticalAlignment="Top" FontSize="13.333"
+              SelectedItem="{Binding SelectedQuest}" Items="{Binding QuestList}" >
+      <ComboBox.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="HasQuests" Mode="OneWay" />
+        </MultiBinding>
+      </ComboBox.IsEnabled>
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding DisplayName}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Select Quest</TextBlock>
+          <TextBlock>Select the quest to run the tally for.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </ComboBox>
+    <Button Name="questOptionsButton" Content="Quest Options" 
+            Width="95" Height="30" Margin="0,10,227,0"
+            VerticalAlignment="Top" HorizontalAlignment="Right"
+            Click="QuestOptionsButton_Click">
+      <Button.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </Button.IsEnabled>
+        <ToolTip.Tip>
+          <StackPanel>
+            <TextBlock FontWeight="Bold">Set quest options</TextBlock>
+            <TextBlock>Make modifications to quest-specific options.</TextBlock>
+          </StackPanel>
+        </ToolTip.Tip>
+    </Button>
+    <Button Name="GlobalOptionsButton" Content="Global Options"
+            Width="95" Height="30" Margin="0,45,227,0"
+            VerticalAlignment="Top" HorizontalAlignment="Right"
+		    Click="GlobalOptionsButton_Click"
+		    IsEnabled="{Binding !TallyIsRunning}">
+	    <ToolTip.Tip>
+		    <StackPanel>
+			    <TextBlock FontWeight="Bold">Advanced Options</TextBlock>
+			    <TextBlock>Open the window to configure certain advanced parsing options.</TextBlock>
+		    </StackPanel>
+	    </ToolTip.Tip>
+    </Button>
+	  
+    <TextBox Name="startPost" Height="30" Width="60" Margin="140,45,0,0"
+             HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
+             Text="{Binding SelectedQuest.StartPost}">
+      <TextBox.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </TextBox.IsEnabled>
+        <ToolTip.Tip>
+          <StackPanel>
+            <TextBlock FontWeight="Bold">Starting Post Number</TextBlock>
+            <TextBlock>Enter the post number to begin tallying from.</TextBlock>
+          </StackPanel>
+        </ToolTip.Tip>
+    </TextBox>
+    
+    <TextBox Name="endPost" Text="{Binding SelectedQuest.EndPost}"
+             Width="60" Height="30" Margin="205,45,0,0"
+             HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">
+      <TextBox.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </TextBox.IsEnabled>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Ending Post Number</TextBlock>
+          <TextBlock>Enter the post number to end tallying at.  A '0' will run to the end of the thread.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </TextBox>
+    <CheckBox Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
+              RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding SelectedQuest.CheckForLastThreadmark}">
+      <CheckBox.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </CheckBox.IsEnabled>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Search For Threadmark</TextBlock>
+          <TextBlock>Attempt to run the tally from the last non-omake threadmark to the end of the thread.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </CheckBox>
+    <ComboBox Name="partitionMode" 
+              Margin="270,45,0,0"
+              VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
+              Items="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
+      <ComboBox.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </ComboBox.IsEnabled>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Partition Mode</TextBlock>
+          <TextBlock>Specify the partition mode to use for constructing votes during the tally.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </ComboBox>
+    <ComboBox Name="displayMode" Margin="420,45,0,0" VerticalAlignment="Top"
+		    Items="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
+		    HorizontalAlignment="Left" Width="145" Height="30">
+	    <ComboBox.IsEnabled>
+		    <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+			    <Binding Path="!TallyIsRunning" Mode="OneWay" />
+			    <Binding Path="IsQuestSelected" Mode="OneWay" />
+		    </MultiBinding>
+	    </ComboBox.IsEnabled>
+	    <ToolTip.Tip>
+		    <StackPanel>
+			    <TextBlock FontWeight="Bold">Display Mode</TextBlock>
+			    <TextBlock>Specify the display mode for the tally results.</TextBlock>
+		    </StackPanel>
+	    </ToolTip.Tip>
+    </ComboBox>
+	  
+    <Button Name="OpenManageVotesWindow" Content="Manage Votes..."
+			Margin="570,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="127"
+            Click="OpenManageVotesWindow_Click">
+      <Button.IsEnabled>
+        <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+          <Binding Path="!TallyIsRunning" Mode="OneWay" />
+          <Binding Path="IsQuestSelected" Mode="OneWay" />
+        </MultiBinding>
+      </Button.IsEnabled>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
+          <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+
+
+    <Button Name="clearTallyCacheButton" Command="{Binding ClearTallyCacheCommand}"
+            Width="49" Height="47" Margin="0,10,173,0" 
+            VerticalAlignment="Top" HorizontalAlignment="Right">
+      <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Clear Tally Cache</TextBlock>
+          <TextBlock>Clear cached web pages, to force the program to reload them from the web when tallying.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+    <Button Name="tallyButton" Content="Tally"
+            Width="158" Height="47" Margin="0,10,10,0" 
+            VerticalAlignment="Top" HorizontalAlignment="Right"
+            Command="{Binding RunTallyCommand}">
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Tally Quest</TextBlock>
+          <TextBlock>Run the tally on the currently selected quest.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+    <Button Name="cancelTally" Content="Cancel"
+            Width="94" Height="30" Margin="0,66,128,0" 
+            VerticalAlignment="Top" HorizontalAlignment="Right"
+            Command="{Binding CancelTallyCommand}">
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Cancel Tally</TextBlock>
+          <TextBlock>Cancel the currently running tally.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+    </Button>
+    <Button Name="copyToClipboardButton" Content="Copy to Clipboard" 
+            Width="113" Height="30" Margin="0,66,10,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Click="copyToClipboardButton_Click" 
+            IsEnabled="{Binding HasOutput}">
+      <ToolTip.Tip>
+        <StackPanel>
+          <TextBlock FontWeight="Bold">Copy To Clipboard</TextBlock>
+          <TextBlock>Copy the entirety of the tally results to the clipboard.</TextBlock>
+        </StackPanel>
+      </ToolTip.Tip>
+  </Button>
+
+    <TextBox Name="resultsWindow" Text="{Binding Path=Output, Mode=OneWay}"
+             Margin="10,107,10,30" FontSize="13.333"
+             TextWrapping="Wrap" IsReadOnly="True"/>
+
+  </Grid>
+
+</Window>

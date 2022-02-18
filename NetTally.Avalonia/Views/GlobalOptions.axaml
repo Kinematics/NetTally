@@ -1,0 +1,117 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
+        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        mc:Ignorable="d"
+        x:Class="NetTally.Avalonia.Views.GlobalOptions"
+        Classes="Dialog"
+        Title="Global Options" Icon="/Assets/CheckVoteWin.ico"
+		d:DesignWidth="350" d:DesignHeight="275"
+		MinWidth="350" CanResize="False">
+  <Window.Resources>
+    <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
+  </Window.Resources>
+
+  <StackPanel Classes="GroupList">
+    <HeaderedContentControl Header="Vote Processing" Classes="GroupBox">
+      <StackPanel Classes="OptionList">
+        <ComboBox Name="RankedVoteAlgorithm" Margin="0,0,0,5"
+                  Items="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
+                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={x:Static converters:EnumConverter.Instance}}">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="Specify the algorithm to use when tallying ranked votes."/>
+              <TextBlock Text="Options include:"/>
+              <TextBlock Text="Rated Instant Runoff (default) - A system that uses Wilson scoring to determine the top two options, and then does a runoff between those two."/>
+              <TextBlock Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
+              <TextBlock Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
+              <TextBlock Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </ComboBox>
+        <CheckBox Name="AllowUsersToUpdatePlans" Content="Users can update plans"
+                  IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="When true, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+              <TextBlock Text="When false, users are not allowed to make such changes."/>
+              <TextBlock Text="When indeterminate, the quest-specific setting is used instead."/>
+              <TextBlock Text="Defaults to indeterminate."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="TrackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  IsChecked="{Binding TrackPostAuthorsUniquely}">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="Track post authors by name + post ID instead of just name."/>
+              <TextBlock Text="This always resets to false on program startup."/>
+              <TextBlock Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Header="Output" Classes="GroupBox">
+      <StackPanel Classes="OptionList">
+        <CheckBox Name="GlobalSpoilers" Content="Always Use Full Spoilers"
+                  IsChecked="{Binding GlobalSpoilers}">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="Places tally inside a full spolier block for all display modes (similar to Spoiler All)."/>
+              <TextBlock Text="This does not affect whether voter lists are placed in spoilers."/>
+              <TextBlock Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="DisplayPlansWithNoVotes" Content="Display Plans With No Votes"
+                  IsChecked="{Binding DisplayPlansWithNoVotes}">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="Displays plans with no voter support."/>
+              <TextBlock Text="This does not affect the compact display mode."/>
+              <TextBlock Text="Defaults to false."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Header="Misc" Classes="GroupBox">
+      <StackPanel Classes="OptionList">
+        <CheckBox Name="DisableWebProxy" Content="Disable Web Proxy"
+                  IsChecked="{Binding DisableWebProxy}">
+          <ToolTip.Tip>
+            <StackPanel Classes="OptionList">
+              <TextBlock Text="Disables usage of the proxy defined on the local system, and attempts to connect to web sites directly."/>
+              <TextBlock Text="Fixes a problem with some Vista and Windows 7 systems."/>
+              <TextBlock Text="Only takes effect after program restart."/>
+            </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+        <CheckBox Name="DebugMode" Content="Debug Mode"
+                  IsChecked="{Binding DebugMode}">
+          <ToolTip.Tip>
+              <StackPanel Classes="OptionList">
+                <TextBlock Text="Displays additional information in the tally results, and more detailed logging is enabled."/>
+                <TextBlock Text="Always resets to false on program startup."/>
+              </StackPanel>
+          </ToolTip.Tip>
+        </CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <StackPanel Classes="CommandFooter">
+      <Button Name="ResetAll" Content="Reset All" Width="100"
+              ToolTip.Tip="Reset all options to their default values."
+              Click="ResetAll_Click" />
+      <Button Name="Close" Content="Close" Width="100"
+              ToolTip.Tip="Close the window, accepting the currently selected options."
+              IsDefault="True" IsCancel="True"
+              Click="Close_Click" />
+    </StackPanel>
+  </StackPanel>
+</Window>
