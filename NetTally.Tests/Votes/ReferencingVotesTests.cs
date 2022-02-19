@@ -701,7 +701,7 @@ namespace NetTally.Tests.Votes
 -[x] Camelback Mountain
 -[x] Grand Canyon";
 
-            string voteText2 = @"[75%] Plan Mountain Biking";
+            string voteText2 = @"[75%] Plan Mountain biking";
 
             Post post1 = GetPostFromKinematics1(voteText1);
             Post post2 = GetPostFromKinematics2(voteText2);

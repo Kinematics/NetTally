@@ -41,7 +41,7 @@ namespace NetTally.Votes
         public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
             bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
         {
-            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
+            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
 
             // Either split the vote into blocks, or encapsulate the vote into an enumerable
             // so that it can be treated the same way.

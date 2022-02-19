@@ -36,7 +36,8 @@ namespace NetTally.Votes
         }
 
 
-        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName)
+            IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -51,7 +52,8 @@ namespace NetTally.Votes
             return (isPlan, false, planName);
         }
 
-        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName)
+            IsBlockAnImplicitPlan(IEnumerable<VoteLine> block)
         {
             if (block.Count() > 1)
             {
@@ -68,7 +70,8 @@ namespace NetTally.Votes
             return (false, false, "");
         }
 
-        public static (bool isPlan, bool isImplicit, string planName) IsBlockAnImplicitPlan(IEnumerable<VoteLineBlock> blocks)
+        public static (bool isPlan, bool isImplicit, string planName)
+            IsBlockAnImplicitPlan(IEnumerable<VoteLineBlock> blocks)
         {
             var firstBlock = blocks.First();
 
@@ -85,7 +88,8 @@ namespace NetTally.Votes
             return (false, false, "");
         }
 
-        public static (bool isPlan, bool isImplicit, string planName) IsBlockAProposedPlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName)
+            IsBlockAProposedPlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -100,7 +104,8 @@ namespace NetTally.Votes
             return (isPlan, false, planName);
         }
 
-        public static (bool isPlan, bool isImplicit, string planName) IsBlockASingleLinePlan(IEnumerable<VoteLine> block)
+        public static (bool isPlan, bool isImplicit, string planName)
+            IsBlockASingleLinePlan(IEnumerable<VoteLine> block)
         {
             bool isPlan = false;
             var firstLine = block.First();
@@ -108,6 +113,8 @@ namespace NetTally.Votes
 
             if (lineStatus == LineStatus.Plan && block.Count() == 1)
             {
+                // Make sure a fully realized version of this plan name doesn't already exist.
+
                 isPlan = true;
             }
 
