@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
+using NetTally.Views;
 
 namespace NetTally
 {
@@ -72,10 +73,10 @@ namespace NetTally
 
             // Register all the Windows of the applications via the service provider.
             services.AddTransient<MainWindow>();
-            services.AddTransient<GlobalOptionsWindow>();
-            services.AddTransient<QuestOptionsWindow>();
-            services.AddTransient<ManageVotesWindow>();
-            services.AddTransient<ReorderTasksWindow>();
+            services.AddTransient<GlobalOptions>();
+            services.AddTransient<QuestOptions>();
+            services.AddTransient<ManageVotes>();
+            services.AddTransient<ReorderTasks>();
         }
     }
 }

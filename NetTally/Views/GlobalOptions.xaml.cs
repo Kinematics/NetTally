@@ -4,17 +4,17 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.ViewModels;
 
-namespace NetTally
+namespace NetTally.Views
 {
     /// <summary>
     /// Interaction logic for the global options window.
     /// </summary>
-    public partial class GlobalOptionsWindow : Window, IActivable
+    public partial class GlobalOptions : Window, IActivable
     {
         #region Setup and construction
-        readonly ILogger<GlobalOptionsWindow> logger;
+        readonly ILogger<GlobalOptions> logger;
 
-        public GlobalOptionsWindow(ViewModel model, ILogger<GlobalOptionsWindow> logger)
+        public GlobalOptions(ViewModel model, ILogger<GlobalOptions> logger)
         {
             this.logger = logger;
 

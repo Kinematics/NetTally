@@ -9,18 +9,18 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.ViewModels;
 
-namespace NetTally
+namespace NetTally.Views
 {
     /// <summary>
     /// Interaction logic for quest options window.
     /// </summary>
-    public partial class QuestOptionsWindow : Window, IActivable
+    public partial class QuestOptions : Window, IActivable
     {
         #region Setup and construction
-        readonly ILogger<QuestOptionsWindow> logger;
+        readonly ILogger<QuestOptions> logger;
         readonly ViewModel viewModel;
 
-        public QuestOptionsWindow(ViewModel model, ILogger<QuestOptionsWindow> logger)
+        public QuestOptions(ViewModel model, ILogger<QuestOptions> logger)
         {
             viewModel = model;
             this.logger = logger;

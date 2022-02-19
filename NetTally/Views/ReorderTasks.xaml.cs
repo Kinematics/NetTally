@@ -12,20 +12,19 @@ using NetTally.Collections;
 using NetTally.Navigation;
 using NetTally.ViewModels;
 using NetTally.ViewModels.Commands;
-using NetTally.VoteCounting;
 using NetTally.Types.Enums;
 
-namespace NetTally
+namespace NetTally.Views
 {
     /// <summary>
     /// Interaction logic for reorder tasks window.
     /// </summary>
-    public partial class ReorderTasksWindow : Window, IActivable, INotifyPropertyChanged, ICommandFilter
+    public partial class ReorderTasks : Window, IActivable, INotifyPropertyChanged, ICommandFilter
     {
         #region Setup and construction
         readonly ViewModel mainViewModel;
         readonly ObservableCollectionExt<string> taskCollection;
-        readonly ILogger<ReorderTasksWindow> logger;
+        readonly ILogger<ReorderTasks> logger;
 
         /// <summary>
         /// The ListCollectionView that the ListBox uses to display information from.
@@ -48,7 +47,7 @@ namespace NetTally
         /// </summary>
         /// <param name="viewModel">The primary view model of the program</param>
         /// <param name="loggerFactory">DI for the local logger.</param>
-        public ReorderTasksWindow(ViewModel viewModel, ILogger<ReorderTasksWindow> logger)
+        public ReorderTasks(ViewModel viewModel, ILogger<ReorderTasks> logger)
         {
             // Save dependencies
             mainViewModel = viewModel;

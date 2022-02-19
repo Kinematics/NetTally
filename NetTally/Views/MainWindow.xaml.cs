@@ -18,13 +18,10 @@ using NetTally.Collections;
 using NetTally.CustomEventArgs;
 using NetTally.Navigation;
 using NetTally.Options;
-using NetTally.Platform;
 using NetTally.SystemInfo;
-using NetTally.Utility;
-using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 
-namespace NetTally
+namespace NetTally.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -406,7 +403,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<ManageVotesWindow>(this);
+            await navigationService.ShowDialogAsync<ManageVotes>(this);
 
             mainViewModel.UpdateOutput();
         }
@@ -418,7 +415,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<GlobalOptionsWindow>(this);
+            await navigationService.ShowDialogAsync<GlobalOptions>(this);
         }
 
         /// <summary>
@@ -428,7 +425,7 @@ namespace NetTally
         /// <param name="e"></param>
         private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<QuestOptionsWindow>(this);
+            await navigationService.ShowDialogAsync<QuestOptions>(this);
         }
 
         /// <summary>

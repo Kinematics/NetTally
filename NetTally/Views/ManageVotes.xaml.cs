@@ -20,12 +20,12 @@ using NetTally.ViewModels;
 using NetTally.Votes;
 using NetTally.Types.Components;
 
-namespace NetTally
+namespace NetTally.Views
 {
     /// <summary>
     /// Interaction logic for MergeVotesWindow.xaml
     /// </summary>
-    public partial class ManageVotesWindow : Window, INotifyPropertyChanged, IActivable
+    public partial class ManageVotes : Window, INotifyPropertyChanged, IActivable
     {
         #region Constructor and variables
         public ListCollectionView VoteView1 { get; } = new ListCollectionView(Array.Empty<string>());
@@ -48,7 +48,7 @@ namespace NetTally
         string filter1String = "";
         string filter2String = "";
 
-        private readonly ILogger<ManageVotesWindow> logger;
+        private readonly ILogger<ManageVotes> logger;
         private readonly IoCNavigationService navigationService;
 
         public Task ActivateAsync(object? parameter)
@@ -65,7 +65,7 @@ namespace NetTally
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotesWindow(ViewModel mainViewModel, IoCNavigationService navigationService, ILogger<ManageVotesWindow> logger)
+        public ManageVotes(ViewModel mainViewModel, IoCNavigationService navigationService, ILogger<ManageVotes> logger)
         {
             this.mainViewModel = mainViewModel;
             this.navigationService = navigationService;
@@ -485,7 +485,7 @@ namespace NetTally
 
         private async void reorderTasks_ClickAsync(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<ReorderTasksWindow>(this);
+            await navigationService.ShowDialogAsync<ReorderTasks>(this);
 
             mainViewModel.UpdateOutput();
         }
