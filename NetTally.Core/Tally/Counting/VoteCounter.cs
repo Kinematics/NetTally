@@ -43,7 +43,7 @@ namespace NetTally.VoteCounting
 
         // Private
 
-        readonly List<Post> postsList = new List<Post>();
+        readonly List<Post> postsList = new();
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
@@ -253,7 +253,7 @@ namespace NetTally.VoteCounting
             if (string.IsNullOrEmpty(planName))
                 return null;
 
-            Origin test = new Origin(planName, IdentityType.Plan);
+            Origin test = new(planName, IdentityType.Plan);
 
             if (ReferenceOrigins.TryGetValue(test, out Origin? actual))
             {
@@ -273,7 +273,7 @@ namespace NetTally.VoteCounting
             if (string.IsNullOrEmpty(voterName))
                 return null;
 
-            Origin test = new Origin(voterName, IdentityType.User);
+            Origin test = new(voterName, IdentityType.User);
 
             if (ReferenceOrigins.TryGetValue(test, out Origin? actual))
             {
@@ -576,7 +576,6 @@ namespace NetTally.VoteCounting
         /// <param name="voters">The voters that will support the new voter.</param>
         /// <param name="voterToJoin">The voter to join.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local function")]
         public bool Join(List<Origin> voters, Origin voterToJoin)
         {
             bool joined = false;

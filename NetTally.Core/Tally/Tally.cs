@@ -39,7 +39,7 @@ namespace NetTally.VoteCounting
         public VoteConstructor VoteConstructor => voteConstructor;
 
         // Tracking cancellations
-        readonly List<CancellationTokenSource> sources = new List<CancellationTokenSource>();
+        readonly List<CancellationTokenSource> sources = new();
 
         public Tally(IServiceProvider serviceProvider, VoteConstructor constructor,
             IVoteCounter counter, IGeneralOutputOptions options, ILogger<Tally> logger)
@@ -210,7 +210,7 @@ namespace NetTally.VoteCounting
 
                         voteCounter.SetThreadTitles(threadTitles);
 
-                        Stopwatch stopwatch = new Stopwatch();
+                        Stopwatch stopwatch = new();
                         stopwatch.Start();
                         await TallyPosts(posts, quest, token).ConfigureAwait(false);
                         stopwatch.Stop();
@@ -446,7 +446,7 @@ namespace NetTally.VoteCounting
             }
 
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
-                new List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)>()
+                new()
                 {
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
@@ -476,7 +476,7 @@ namespace NetTally.VoteCounting
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
-            Dictionary<string, VoteLineBlock> allPlans = new Dictionary<string, VoteLineBlock>(StringComparer.Ordinal);
+            Dictionary<string, VoteLineBlock> allPlans = new(StringComparer.Ordinal);
 
             foreach (var (asBlocks, isPlanFunction) in planProcesses)
             {

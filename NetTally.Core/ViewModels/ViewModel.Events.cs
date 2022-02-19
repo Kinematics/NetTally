@@ -38,7 +38,7 @@ namespace NetTally.ViewModels
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+            PropertyChangedEventArgs e = new(propertyName);
 
             if (SynchronizationContext.Current == originalSynchronizationContext)
             {
@@ -80,7 +80,7 @@ namespace NetTally.ViewModels
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyDataChanged<T>(T propertyData, [CallerMemberName] string propertyName = "")
         {
-            PropertyDataChangedEventArgs<T> e = new PropertyDataChangedEventArgs<T>(propertyName, propertyData);
+            PropertyDataChangedEventArgs<T> e = new(propertyName, propertyData);
 
             if (SynchronizationContext.Current == originalSynchronizationContext)
             {
@@ -122,7 +122,7 @@ namespace NetTally.ViewModels
         /// <param name="e">The exception that was raised.</param>
         protected ExceptionEventArgs OnExceptionRaised(Exception e)
         {
-            ExceptionEventArgs args = new ExceptionEventArgs(e);
+            ExceptionEventArgs args = new(e);
 
             if (SynchronizationContext.Current == originalSynchronizationContext)
             {

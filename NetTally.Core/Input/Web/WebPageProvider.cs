@@ -74,7 +74,7 @@ namespace NetTally.Web
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
             ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
-            HttpClient client = new HttpClient(ClientHandler);
+            HttpClient client = new(ClientHandler);
 
             client.Timeout = timeout;
             client.DefaultRequestHeaders.Add("Accept", "text/html");
@@ -204,7 +204,7 @@ namespace NetTally.Web
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));
 
-            Uri uri = new Uri(url);
+            Uri uri = new(url);
             string url2 = Uri.UnescapeDataString(url);
 
             return (uri, url2);
@@ -318,7 +318,7 @@ namespace NetTally.Web
                         {
                             if (response.IsSuccessStatusCode)
                             {
-                                result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                result = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
 
                                 // Get expires value
                                 // Cannot get Expires value until we move to .NET Standard 2.0.
@@ -456,7 +456,7 @@ namespace NetTally.Web
 
                     try
                     {
-                        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, uri);
+                        using HttpRequestMessage request = new(HttpMethod.Head, uri);
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
                         using (HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false))

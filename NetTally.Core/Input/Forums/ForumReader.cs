@@ -51,19 +51,18 @@ namespace NetTally.Forums
         #endregion
 
         #region Public method
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
         public async Task<(List<string> threadTitles, List<Post> posts)> ReadQuestAsync(IQuest quest, CancellationToken token)
         {
             // Tally the selected quests, and any linked quests.
-            List<IQuest> quests = new List<IQuest>() { quest };
+            List<IQuest> quests = new() { quest };
             quests.AddRange(quest.LinkedQuests);
 
             logger.LogDebug("Reading quest {questName} and {questCount} linked quests with ForumReader.",
                 quest.DisplayName, quest.LinkedQuests.Count);
 
-            List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new List<Task<(string threadTitle, List<Post> posts)>>();
+            List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new();
 
-            Dictionary<string, IPageProvider> pageProviders = new Dictionary<string, IPageProvider>(StringComparer.Ordinal);
+            Dictionary<string, IPageProvider> pageProviders = new(StringComparer.Ordinal);
 
             try
             {
@@ -90,8 +89,8 @@ namespace NetTally.Forums
 
                 logger.LogDebug("Quest threads finished loading.");
 
-                List<string> titles = new List<string>();
-                List<Post> resultPosts = new List<Post>();
+                List<string> titles = new();
+                List<Post> resultPosts = new();
 
                 foreach (var (threadTitle, posts) in results)
                 {
@@ -219,7 +218,7 @@ namespace NetTally.Forums
                 GetRemainingPages(firstPageNumber, lastPageNumber, quest, adapter, pageProvider, token);
 
             // Collect all the page load tasks (including the finished first page) to return to caller.
-            List<Task<HtmlDocument?>> pagesToLoad = new List<Task<HtmlDocument?>>() { firstPage };
+            List<Task<HtmlDocument?>> pagesToLoad = new() { firstPage };
             pagesToLoad.AddRange(remainingPages);
 
             return pagesToLoad;
@@ -331,7 +330,7 @@ namespace NetTally.Forums
             ThreadRangeInfo threadRangeInfo)
         {
             ThreadInfo? threadInfo = null;
-            List<Post> postsList = new List<Post>();
+            List<Post> postsList = new();
             int pageNumber = threadRangeInfo.GetStartPage(quest) - 1;
             bool incomplete = false;
 
@@ -357,7 +356,7 @@ namespace NetTally.Forums
 
             if (incomplete)
             {
-                InvalidOperationException e = new InvalidOperationException("Unable to load all pages.");
+                InvalidOperationException e = new("Unable to load all pages.");
                 e.Data["Application"] = true;
                 throw e;
             }
