@@ -168,7 +168,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Logger.LogInformation($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+            Logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
             
             this.SaveConfig();
         }

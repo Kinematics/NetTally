@@ -154,7 +154,7 @@ namespace NetTally.VoteCounting
         /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
         public void AddPosts(IEnumerable<Post> posts)
         {
-            logger.LogDebug($"Adding {posts.Count()} posts to the VoteCounter.");
+            logger.LogDebug("Adding {Count} posts to the VoteCounter.", posts.Count());
 
             postsList.Clear();
             if (posts != null)
@@ -166,7 +166,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void ClearPosts()
         {
-            logger.LogDebug($"Clearing posts from the VoteCounter.");
+            logger.LogDebug("Clearing posts from the VoteCounter.");
             postsList.Clear();
         }
         #endregion

@@ -205,7 +205,8 @@ namespace NetTally.Views
         {
             if (e.PropertyName == "Tasks" || e.PropertyName == "TaskList")
             {
-                logger.LogDebug($"Received notification of property change from MainViewModel: {e.PropertyName}.");
+                logger.LogDebug("Received notification of property change from MainViewModel: {PropertyName}.",
+                    e.PropertyName);
 
                 TaskView.Refresh();
             }

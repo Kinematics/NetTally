@@ -46,7 +46,7 @@ namespace NetTally.Avalonia
             Utility.Comparers.Agnostic.Init(this.InternalServiceProvider.GetRequiredService<Utility.Comparers.IHash>());
 
             var logger = this.ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger<App>();
-            logger?.LogInformation($"Services defined. Starting application. Version: {SystemInfo.ProductInfo.Version}");
+            logger?.LogInformation("Services defined. Starting application. Version: {Version}", SystemInfo.ProductInfo.Version);
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {

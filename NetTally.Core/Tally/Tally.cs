@@ -214,7 +214,8 @@ namespace NetTally.VoteCounting
                         stopwatch.Start();
                         await TallyPosts(posts, quest, token).ConfigureAwait(false);
                         stopwatch.Stop();
-                        logger.LogDebug($"Time to process posts: {stopwatch.ElapsedMilliseconds} ms.");
+                        logger.LogDebug("Time to process posts: {Milliseconds} ms.",
+                            stopwatch.ElapsedMilliseconds);
                     }
                     finally
                     {

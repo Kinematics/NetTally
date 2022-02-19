@@ -27,7 +27,7 @@ namespace NetTally.Avalonia.Navigation
         /// <typeparam name="T">The type of window being requested.</typeparam>
         public void Show<T>() where T : Window
         {
-            Logger.LogDebug($"Showing Window {typeof(T)}");
+            Logger.LogDebug("Showing Window {type}", typeof(T));
 
             try
             {
@@ -52,7 +52,7 @@ namespace NetTally.Avalonia.Navigation
         public async Task<bool?> ShowDialogAsync<T>(Window parentWindow, params object[] parameters)
             where T : Window
         {
-            Logger.LogDebug($"Showing Dialog Window {typeof(T)}");
+            Logger.LogDebug("Showing Dialog Window {type}", typeof(T));
 
             // Get the service provider to resolve our dependencies and call our window. If we got passed a
             // parameter that isn't (or at least, shouldn't be) a dependency we can resolve, then we pass

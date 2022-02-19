@@ -58,7 +58,8 @@ namespace NetTally.Forums
             List<IQuest> quests = new List<IQuest>() { quest };
             quests.AddRange(quest.LinkedQuests);
 
-            logger.LogDebug($"Reading quest {quest.DisplayName} and {quest.LinkedQuests.Count} linked quests with ForumReader.");
+            logger.LogDebug("Reading quest {questName} and {questCount} linked quests with ForumReader.",
+                quest.DisplayName, quest.LinkedQuests.Count);
 
             List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new List<Task<(string threadTitle, List<Post> posts)>>();
 
@@ -76,25 +77,26 @@ namespace NetTally.Forums
                     }
                 }
 
-                logger.LogDebug($"Created {pageProviders.Count} page providers.");
+                logger.LogDebug("Created {pageProvidersCount} page providers.", pageProviders.Count);
 
                 foreach (var questToRead in quests)
                 {
                     loadTasks.Add(ReadQuestAsyncImpl(questToRead, pageProviders[questToRead.ThreadUri.Host], token));
                 }
 
-                logger.LogDebug($"Initiated loading quest threads.");
+                logger.LogDebug("Initiated loading quest threads.");
 
                 var results = await Task.WhenAll(loadTasks).ConfigureAwait(false);
 
-                logger.LogDebug($"Quest threads finished loading.");
+                logger.LogDebug("Quest threads finished loading.");
 
                 List<string> titles = new List<string>();
                 List<Post> resultPosts = new List<Post>();
 
                 foreach (var (threadTitle, posts) in results)
                 {
-                    logger.LogDebug($"Read {posts.Count} posts for thread titled: {threadTitle}");
+                    logger.LogDebug("Read {postCount} posts for thread titled: {threadTitle}",
+                        posts.Count, threadTitle);
 
                     if (posts.Count > 0)
                     {
@@ -130,31 +132,32 @@ namespace NetTally.Forums
         private async Task<(string threadTitle, List<Post> posts)> ReadQuestAsyncImpl(
             IQuest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            logger.LogDebug($"Reading quest {quest.DisplayName} with ForumReader.");
+            logger.LogDebug("Reading quest {questDisplayName} with ForumReader.", quest.DisplayName);
 
             IForumAdapter2 adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
 
-            logger.LogDebug($"Forum adapter created for {quest.DisplayName}.");
+            logger.LogDebug("Forum adapter created for {questDisplayName}.", quest.DisplayName);
 
             SyncQuestWithForumAdapter(quest, adapter);
 
-            logger.LogDebug($"Quest {quest.DisplayName} synced with forum adapter.");
+            logger.LogDebug("Quest {questDisplayName} synced with forum adapter.", quest.DisplayName);
 
             ThreadRangeInfo rangeInfo = await GetStartInfoAsync(quest, adapter, pageProvider, token).ConfigureAwait(false);
 
-            logger.LogDebug($"Range info acquired for {quest.DisplayName}. ({rangeInfo})");
+            logger.LogDebug("Range info acquired for {questDisplayName}. ({rangeInfo})", quest.DisplayName, rangeInfo);
 
             List<Task<HtmlDocument?>> loadingPages = await LoadQuestPagesAsync(quest, adapter, rangeInfo, pageProvider, token).ConfigureAwait(false);
 
-            logger.LogDebug($"Got {loadingPages.Count} pages loading {quest.DisplayName}.");
+            logger.LogDebug("Got {Count} pages loading {DisplayName}.", loadingPages.Count, quest.DisplayName);
 
             var (threadInfo, posts2) = await GetPostsFromPagesAsync(loadingPages, quest, adapter, rangeInfo).ConfigureAwait(false);
 
-            logger.LogDebug($"Got {posts2.Count} posts for quest {quest.DisplayName}.");
+            logger.LogDebug("Got {posts2.Count} posts for quest {questDisplayName}.", posts2.Count, quest.DisplayName);
 
             List<Post> filteredPosts = FilterPosts(posts2, quest, threadInfo, rangeInfo);
 
-            logger.LogDebug($"Filtered to {filteredPosts.Count} posts for quest {quest.DisplayName}.");
+            logger.LogDebug("Filtered to {Count} posts for quest {DisplayName}.",
+                filteredPosts.Count, quest.DisplayName);
 
             return (threadInfo.Title, filteredPosts);
         }

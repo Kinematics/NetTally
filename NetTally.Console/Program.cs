@@ -82,7 +82,8 @@ namespace NetTally.CLI
             Thread.Sleep(30);
 
             bool canAddQuest = viewModel.AddQuestCommand.CanExecute(null);
-            logger.LogTrace($"Can Add Quest: {canAddQuest} (TallyIsRunning: {viewModel.TallyIsRunning})");
+            logger.LogTrace("Can Add Quest: {canAddQuest} (TallyIsRunning: {TallyIsRunning})",
+                canAddQuest, viewModel.TallyIsRunning);
 
             if (canAddQuest)
             {
@@ -95,7 +96,7 @@ namespace NetTally.CLI
                 logger.LogTrace("Quest selected");
 
                 bool canRunTally = viewModel.RunTallyCommand.CanExecute(null);
-                logger.LogTrace($"Can Run Tally: {canRunTally}");
+                logger.LogTrace("Can Run Tally: {canRunTally}", canRunTally);
 
                 if (canRunTally)
                 {
@@ -192,7 +193,7 @@ namespace NetTally.CLI
         /// <param name="e"></param>
         private static void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            logger.LogTrace($"MainViewModel property changed event: {e.PropertyName}");
+            logger.LogTrace("MainViewModel property changed event: {PropertyName}", e.PropertyName);
 
             if (e is PropertyDataChangedEventArgs<string> eData)
             {

@@ -110,18 +110,18 @@ namespace NetTally.Web
         public async Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            logger.LogInformation($"Requested HTML document \"{shortDescrip}\"");
+            logger.LogInformation("Requested HTML document \"{shortDescrip}\"", shortDescrip);
             HtmlDocument? htmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
-                logger.LogInformation($"\"{shortDescrip}\" successfully loaded from web.");
+                logger.LogInformation("\"{shortDescrip}\" successfully loaded from web.", shortDescrip);
                 htmldoc = new HtmlDocument();
 
                 await Task.Run(() => htmldoc.LoadHtml(content), token).ConfigureAwait(false);
-                logger.LogDebug($"\"{shortDescrip}\" successfully parsed into HtmlDocument.");
+                logger.LogDebug("\"{shortDescrip}\" successfully parsed into HtmlDocument.", shortDescrip);
             }
 
             return htmldoc;
@@ -140,16 +140,16 @@ namespace NetTally.Web
         public async Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            logger.LogInformation($"Requested XML document \"{shortDescrip}\"");
+            logger.LogInformation("Requested XML document \"{shortDescrip}\"", shortDescrip);
             XDocument? xmldoc = null;
 
             string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
-                logger.LogInformation($"\"{shortDescrip}\" successfully loaded.");
+                logger.LogInformation("\"{shortDescrip}\" successfully loaded.", shortDescrip);
                 xmldoc = XDocument.Parse(content);
-                logger.LogDebug($"\"{shortDescrip}\" successfully parsed into XDocument.");
+                logger.LogDebug("\"{shortDescrip}\" successfully parsed into XDocument.", shortDescrip);
             }
 
             return xmldoc;
@@ -312,7 +312,7 @@ namespace NetTally.Web
                     try
                     {
                         getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
-                        logger.LogDebug($"Get URI {uri} task ID: {getResponseTask.Id}");
+                        logger.LogDebug("Get URI {uri} task ID: {Id}", uri, getResponseTask.Id);
 
                         using (var response = await getResponseTask.ConfigureAwait(false))
                         {
@@ -352,12 +352,14 @@ namespace NetTally.Web
                         else
                         {
                             // timeout via cancellation
-                            logger.LogDebug($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
+                            logger.LogDebug("Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}",
+                                shortDescrip, tries);
                         }
                     }
                     catch (TimeoutException)
                     {
-                        logger.LogDebug($"Attempt to load {shortDescrip} timed out. Tries={tries}");
+                        logger.LogDebug("Attempt to load {shortDescrip} timed out. Tries={tries}",
+                            shortDescrip, tries);
                     }
                     catch (HttpRequestException e)
                     {
@@ -367,7 +369,8 @@ namespace NetTally.Web
 
                 } while (tries < retryLimit);
 
-                logger.LogDebug($"Finished getting URI {uri} task ID: {getResponseTask?.Id ?? 0}");
+                logger.LogDebug("Finished getting URI {uri} task ID: {getResponseTaskId}",
+                    uri, getResponseTask?.Id ?? 0);
 
                 if (result == null && tries >= retryLimit)
                     httpClient.CancelPendingRequests();
@@ -476,12 +479,14 @@ namespace NetTally.Web
                         else
                         {
                             // timeout via cancellation
-                            logger.LogDebug($"Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}");
+                            logger.LogDebug("Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}",
+                                shortDescrip, tries);
                         }
                     }
                     catch (TimeoutException)
                     {
-                        logger.LogDebug($"Attempt to load {shortDescrip} timed out. Tries={tries}");
+                        logger.LogDebug("Attempt to load {shortDescrip} timed out. Tries={tries}",
+                            shortDescrip, tries);
                     }
 
                 } while (tries < retryLimit);
