@@ -17,7 +17,7 @@ namespace NetTally.ViewModels
         /// The thread context that this class was originally created in, so that we
         /// can send notifications back on that same (UI) thread.
         /// </summary>
-        readonly SynchronizationContext originalSynchronizationContext = SynchronizationContext.Current;
+        readonly SynchronizationContext? originalSynchronizationContext = SynchronizationContext.Current;
 
         /// <summary>
         /// A collection of any property changed notification values that should not be
@@ -48,7 +48,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                originalSynchronizationContext.Send(RaisePropertyChanged, e);
+                originalSynchronizationContext?.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -67,7 +67,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                originalSynchronizationContext.Send(RaisePropertyChanged, e);
+                originalSynchronizationContext?.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -90,7 +90,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                originalSynchronizationContext.Send(RaisePropertyChanged, e);
+                originalSynchronizationContext?.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -132,7 +132,7 @@ namespace NetTally.ViewModels
             else
             {
                 // Raises the PropertyChanged event on the creator thread
-                originalSynchronizationContext.Send(RaiseExceptionRaised, args);
+                originalSynchronizationContext?.Send(RaiseExceptionRaised, args);
             }
 
             return args;
