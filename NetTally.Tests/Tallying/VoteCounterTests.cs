@@ -397,13 +397,13 @@ namespace NetTally.Tests.Tallying
 [x] Plan 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
 Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
 
-            Post post1 = new Post(origin3, postText1);
-            Post post2 = new Post(origin1, postText2);
+            Post post1 = new(origin3, postText1);
+            Post post2 = new(origin1, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -431,13 +431,13 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 [x] Plan 『url=""https://forums.sufficientvelocity.com/members/4076/""』Kinematics『/url』 
 Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
 
-            Post post1 = new Post(origin3, postText1);
-            Post post2 = new Post(origin1, postText2);
+            Post post1 = new(origin3, postText1);
+            Post post2 = new(origin1, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -465,13 +465,13 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 [x] 『url=""https://forums.sufficientvelocity.com/members/4076/""』@Kinematics『/url』 
 Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
 
-            Post post1 = new Post(origin3, postText1);
-            Post post2 = new Post(origin1, postText2);
+            Post post1 = new(origin3, postText1);
+            Post post2 = new(origin1, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -499,13 +499,13 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 [x] 『url=""https://forums.sufficientvelocity.com/members/4076/""』Kinematics『/url』 
 Wouldn't be applied to my proposed plan because it got turned into a member link (the '@' symbol is dropped on QQ's forums, so that doesn't interfere in this case).";
 
-            Post post1 = new Post(origin3, postText1);
-            Post post2 = new Post(origin1, postText2);
+            Post post1 = new(origin3, postText1);
+            Post post2 = new(origin1, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
