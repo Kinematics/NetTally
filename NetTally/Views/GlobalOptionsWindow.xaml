@@ -6,7 +6,7 @@
         xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
         Title="Global Options" Height="370" Width="640" ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>

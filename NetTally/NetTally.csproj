@@ -7,7 +7,7 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
+		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
@@ -42,7 +42,7 @@
 		<ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Resource Include="CheckVoteWin.ico" />
+		<Resource Include="Assets\CheckVoteWin.ico" />
 	</ItemGroup>
 	<ItemGroup>
 		<TrimmerRootAssembly Include="System" />

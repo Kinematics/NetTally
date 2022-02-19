@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
         Title="Reorder Tasks" Height="361.933" Width="317" MinHeight="350" MinWidth="300"
-        WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico" ShowInTaskbar="False">
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />

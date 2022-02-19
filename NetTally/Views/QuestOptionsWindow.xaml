@@ -6,7 +6,8 @@
         xmlns:converters="clr-namespace:NetTally.Converters"
         xmlns:local="clr-namespace:NetTally"
         mc:Ignorable="d"
-        Title="Quest Options" Height="500" Width="640" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="CheckVoteWin.ico">
+        Title="Quest Options" Height="500" Width="640" ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico">
 
     <Window.Resources>
         <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"></converters:ThreeStateBoolConverter>
