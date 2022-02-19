@@ -118,7 +118,7 @@ namespace NetTally.Votes
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
         static readonly Regex basePlanRegex = new Regex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
         // Check for a plan reference. "Plan: Dwarf Raid"
-        static readonly Regex anyPlanRegex = new Regex(@"^plan(:|\s)+◈?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+        static readonly Regex anyPlanRegex = new Regex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
         // Check for a plan reference, alternate format. "Arkatekt's Plan"
         static readonly Regex altPlanRegex = new Regex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase);
 

@@ -180,7 +180,7 @@ namespace NetTally.Votes
             if (post.WorkingVoteComplete)
                 return;
 
-            List<(VoteLine? line, VoteLineBlock? block)> workingVote = new List<(VoteLine? line, VoteLineBlock? block)>();
+            List<(VoteLine? line, VoteLineBlock? block)> workingVote = new();
 
             // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
             // Keep everything else, flattening the blocks back into a simple list of vote lines.
@@ -326,7 +326,7 @@ namespace NetTally.Votes
 
         // A regex to extract potential references from a vote line.
         static readonly Regex referenceNameRegex =
-            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*(?<reference>.+)",
+            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)",
                 RegexOptions.IgnoreCase,
                 TimeSpan.FromSeconds(1));
 
