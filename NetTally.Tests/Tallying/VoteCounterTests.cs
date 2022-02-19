@@ -25,11 +25,11 @@ namespace NetTally.Tests.Tallying
         static Tally tally;
         static IQuest quest;
         static IAgnostic agnostic;
-        static readonly Origin origin1 = new Origin("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
-        static readonly Origin origin1a = new Origin("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
-        static readonly Origin origin2 = new Origin("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");
-        static readonly Origin origin2a = new Origin("Madfish", "123466", 105, new Uri("http://www.example.com/"), "http://www.example.com");
-        static readonly Origin origin3 = new Origin("Kinematics", "123426", 98, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin1a = new("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin2 = new("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin2a = new("Madfish", "123466", 105, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin3 = new("Kinematics", "123426", 98, new Uri("http://www.example.com/"), "http://www.example.com");
 
 
         [ClassInitialize]
@@ -74,13 +74,13 @@ namespace NetTally.Tests.Tallying
 [X] This is fine by you.
 -[X] At least for today.";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -109,13 +109,13 @@ namespace NetTally.Tests.Tallying
 [X] This is fine by you.
 -[X] At least for today.";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -145,13 +145,13 @@ namespace NetTally.Tests.Tallying
 [X] This is fine by you.
 -[X] At least for today.";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -190,13 +190,13 @@ namespace NetTally.Tests.Tallying
 [X] This is fine by you.
 -[X] At least for today.";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -241,13 +241,13 @@ namespace NetTally.Tests.Tallying
             string postText2 =
 @"[X] Brogatar";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -275,15 +275,15 @@ namespace NetTally.Tests.Tallying
 [X] This is fine by you.
 -[X] At least for today.";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
-            Post post3 = new Post(origin1a, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
+            Post post3 = new(origin1a, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2, post3 };
+            List<Post> posts = new() { post1, post2, post3 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -310,13 +310,13 @@ namespace NetTally.Tests.Tallying
             string postText2 =
 @"[X] Brogatar";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -351,14 +351,13 @@ namespace NetTally.Tests.Tallying
             quest.PartitionMode = PartitionMode.None;
             quest.AllowUsersToUpdatePlans = true;
             voteCounter.Quest = quest;
-            List<Post> posts;
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
-            Post post3 = new Post(origin3, postText2);
-            Post post4 = new Post(origin1a, postText2);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
+            Post post3 = new(origin3, postText2);
+            Post post4 = new(origin1a, postText2);
 
-            posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
             voteCounter.AddPosts(posts);
             var plans = await tally.PreprocessPosts(default);
 
@@ -533,15 +532,15 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             string postText3 =
 @"[X] Brogatar's Second post";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
-            Post post3 = new Post(origin1a, postText3);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
+            Post post3 = new(origin1a, postText3);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2, post3 };
+            List<Post> posts = new() { post1, post2, post3 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -570,17 +569,17 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             string postText4 =
 @"[X] Brogatar's Second post";
 
-            Post post1 = new Post(origin1, postText1);
-            Post post2 = new Post(origin2, postText2);
-            Post post3 = new Post(origin2a, postText3);
-            Post post4 = new Post(origin1a, postText4);
+            Post post1 = new(origin1, postText1);
+            Post post2 = new(origin2, postText2);
+            Post post3 = new(origin2a, postText3);
+            Post post4 = new(origin1a, postText4);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
             Assert.IsTrue(post4.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2, post3, post4 };
+            List<Post> posts = new() { post1, post2, post3, post4 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -608,13 +607,13 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsFalse(string.IsNullOrEmpty(text2));
             agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
-            Post post1 = new Post(origin1, text1);
-            Post post2 = new Post(origin2, text2);
+            Post post1 = new(origin1, text1);
+            Post post2 = new(origin2, text2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 
@@ -642,13 +641,13 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsFalse(string.IsNullOrEmpty(text2));
             agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
-            Post post1 = new Post(origin1, text1);
-            Post post2 = new Post(origin2, text2);
+            Post post1 = new(origin1, text1);
+            Post post2 = new(origin2, text2);
 
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
 

@@ -85,28 +85,28 @@ namespace NetTally.Tests.Votes
         #region Generate user posts
         Post GetPostFromKinematics1(string postText)
         {
-            Origin origin = new Origin("Kinematics", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Kinematics", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
         Post GetPostFromAtreya(string postText)
         {
-            Origin origin = new Origin("Atreya", "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Atreya", "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
         Post GetPostFromKimberly(string postText)
         {
-            Origin origin = new Origin("Kimberly", "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Kimberly", "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
         Post GetPostFromKinematics2(string postText)
         {
-            Origin origin = new Origin("Kinematics", "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Kinematics", "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
@@ -124,7 +124,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKinematics1(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -165,7 +165,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKinematics1(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -206,7 +206,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKinematics1(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -247,7 +247,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromAtreya(voteText1);
             Post post2 = GetPostFromKimberly(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -288,7 +288,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromAtreya(voteText1);
             Post post2 = GetPostFromKimberly(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -329,7 +329,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromAtreya(voteText1);
             Post post2 = GetPostFromKimberly(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -370,7 +370,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromAtreya(voteText1);
             Post post2 = GetPostFromKimberly(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -411,7 +411,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromKinematics1(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -452,7 +452,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromAtreya(voteText1);
             Post post2 = GetPostFromKinematics1(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
             voteCounter.AddReferenceVoter(post1.Origin);
@@ -493,7 +493,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 
@@ -534,7 +534,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 
@@ -575,7 +575,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromKinematics2(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 
@@ -618,7 +618,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 
@@ -659,7 +659,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKimberly(voteText1);
             Post post2 = GetPostFromAtreya(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 
@@ -706,7 +706,7 @@ namespace NetTally.Tests.Votes
             Post post1 = GetPostFromKinematics1(voteText1);
             Post post2 = GetPostFromKinematics2(voteText2);
 
-            List<Post> posts = new List<Post>() { post1, post2 };
+            List<Post> posts = new() { post1, post2 };
 
             voteCounter.AddPosts(posts);
 

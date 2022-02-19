@@ -45,7 +45,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_One()
         {
-            PostId id = new PostId("1");
+            PostId id = new("1");
             Assert.AreEqual(1, id.Value);
             Assert.IsTrue(id == 1);
         }
@@ -53,7 +53,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_Basic()
         {
-            PostId id = new PostId("2701897");
+            PostId id = new("2701897");
             Assert.AreEqual(2701897, id.Value);
             Assert.IsTrue(id == 2701897);
         }
@@ -61,7 +61,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_Comma()
         {
-            PostId id = new PostId("2,701,897");
+            PostId id = new("2,701,897");
             Assert.AreEqual(2701897, id.Value);
             Assert.IsTrue(id == 2701897);
         }
@@ -69,7 +69,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_Int_Overflow()
         {
-            PostId id = new PostId("4,294,967,296");
+            PostId id = new("4,294,967,296");
             Assert.AreEqual(4294967296, id.Value);
             Assert.IsTrue(id == 4294967296);
         }
@@ -77,7 +77,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_Negative()
         {
-            PostId id = new PostId("-2701897");
+            PostId id = new("-2701897");
             Assert.AreEqual(0, id.Value);
             Assert.IsTrue(id == 0);
         }
@@ -85,7 +85,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Construct_Hex()
         {
-            PostId id = new PostId("270A8C7");
+            PostId id = new("270A8C7");
             Assert.AreEqual(0, id.Value);
             Assert.IsTrue(id == 0);
         }
@@ -95,8 +95,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Basic_Equal()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("2701897");
+            PostId id1 = new("2701897");
+            PostId id2 = new("2701897");
             Assert.AreEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2) == 0);
             Assert.IsTrue(PostId.Compare(id1, id2) == 0);
@@ -107,8 +107,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Basic_Diff()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("2701911");
+            PostId id1 = new("2701897");
+            PostId id2 = new("2701911");
             Assert.AreNotEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2) == -1);
             Assert.IsTrue(PostId.Compare(id1, id2) == -1);
@@ -120,8 +120,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Operators()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("2701911");
+            PostId id1 = new("2701897");
+            PostId id2 = new("2701911");
             Assert.AreNotEqual(id1, id2);
             Assert.IsTrue(id1 < id2);
             Assert.IsTrue(id1 <= id2);
@@ -138,8 +138,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Long_Diff()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("4,294,967,296");
+            PostId id1 = new("2701897");
+            PostId id2 = new("4,294,967,296");
             Assert.AreNotEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2) == -1);
             Assert.IsTrue(PostId.Compare(id1, id2) == -1);
@@ -152,8 +152,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_String_Equal()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("2701897");
+            PostId id1 = new("2701897");
+            PostId id2 = new("2701897");
             Assert.AreEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2.Text) == 0);
             Assert.IsTrue(id1.CompareTo(id2.Value) == 0);
@@ -163,8 +163,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_String_Diff()
         {
-            PostId id1 = new PostId("2701897");
-            PostId id2 = new PostId("2701911");
+            PostId id1 = new("2701897");
+            PostId id2 = new("2701911");
             Assert.AreNotEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo("2701911") == -1);
             Assert.IsFalse(id1.Equals("2701911"));
@@ -176,8 +176,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Hex_Equal()
         {
-            PostId id1 = new PostId("270A8C7");
-            PostId id2 = new PostId("270A8C7");
+            PostId id1 = new("270A8C7");
+            PostId id2 = new("270A8C7");
             Assert.AreEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2) == 0);
             Assert.IsTrue(id1.Equals(id2));
@@ -187,8 +187,8 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public void Compare_Hex_Diff()
         {
-            PostId id1 = new PostId("270A8C7");
-            PostId id2 = new PostId("270A8CF");
+            PostId id1 = new("270A8C7");
+            PostId id2 = new("270A8CF");
             Assert.AreNotEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2) == -1);
             Assert.IsFalse(id1.Equals(id2));
