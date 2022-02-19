@@ -15,6 +15,8 @@ namespace NetTally.Types.Components
 
         public PostId(string postId)
         {
+            ArgumentNullException.ThrowIfNull(postId, nameof(postId));
+
             if (string.IsNullOrWhiteSpace(postId))
                 throw new ArgumentException("Post ID is not valid.", nameof(postId));
 

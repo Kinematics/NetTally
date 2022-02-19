@@ -34,7 +34,7 @@ namespace NetTally.Tests.Forums
 #nullable enable
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void Construct_Empty()
         {
             _ = new PostId("");
@@ -47,7 +47,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("1");
             Assert.AreEqual(1, id.Value);
-            Assert.IsTrue(id.Equals(1));
+            Assert.IsTrue(id == 1);
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("2701897");
             Assert.AreEqual(2701897, id.Value);
-            Assert.IsTrue(id.Equals(2701897));
+            Assert.IsTrue(id == 2701897);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("2,701,897");
             Assert.AreEqual(2701897, id.Value);
-            Assert.IsTrue(id.Equals(2701897));
+            Assert.IsTrue(id == 2701897);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("4,294,967,296");
             Assert.AreEqual(4294967296, id.Value);
-            Assert.IsTrue(id.Equals(4294967296));
+            Assert.IsTrue(id == 4294967296);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("-2701897");
             Assert.AreEqual(0, id.Value);
-            Assert.IsTrue(id.Equals(0));
+            Assert.IsTrue(id == 0);
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new PostId("270A8C7");
             Assert.AreEqual(0, id.Value);
-            Assert.IsTrue(id.Equals(0));
+            Assert.IsTrue(id == 0);
         }
         #endregion
 
@@ -157,7 +157,7 @@ namespace NetTally.Tests.Forums
             Assert.AreEqual(id1, id2);
             Assert.IsTrue(id1.CompareTo(id2.Text) == 0);
             Assert.IsTrue(id1.CompareTo(id2.Value) == 0);
-            Assert.IsTrue(id1.Equals("2701897"));
+            Assert.IsTrue(id1 == "2701897");
         }
 
         [TestMethod]

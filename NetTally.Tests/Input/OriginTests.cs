@@ -31,7 +31,7 @@ namespace NetTally.Tests.Forums
         {
             Origin origin = new Origin("Kinematics", "-101", 10, new Uri("http://www.example.com/"), "http://www.example.com/");
 
-            Assert.AreEqual("Kinematics", origin.Author);
+            Assert.AreEqual("Kinematics", origin.Author.Name);
             Assert.AreEqual(IdentityType.User, origin.AuthorType);
             Assert.AreEqual(10, origin.ThreadPostNumber);
             Assert.AreEqual("http://www.example.com/", origin.Permalink);
@@ -43,7 +43,7 @@ namespace NetTally.Tests.Forums
         {
             Origin origin = new Origin("Kinematics", "101xq", 10, new Uri("http://www.example.com/"), "http://www.example.com/");
 
-            Assert.AreEqual("Kinematics", origin.Author);
+            Assert.AreEqual("Kinematics", origin.Author.Name);
             Assert.AreEqual(IdentityType.User, origin.AuthorType);
             Assert.AreEqual(10, origin.ThreadPostNumber);
             Assert.AreEqual("http://www.example.com/", origin.Permalink);
@@ -55,7 +55,7 @@ namespace NetTally.Tests.Forums
         {
             Origin origin = new Origin("Kinematics", "4294967296", 10, new Uri("http://www.example.com/"), "http://www.example.com/");
 
-            Assert.AreEqual("Kinematics", origin.Author);
+            Assert.AreEqual("Kinematics", origin.Author.Name);
             Assert.AreEqual(IdentityType.User, origin.AuthorType);
             Assert.AreEqual(10, origin.ThreadPostNumber);
             Assert.AreEqual("http://www.example.com/", origin.Permalink);
@@ -67,7 +67,7 @@ namespace NetTally.Tests.Forums
         {
             Origin origin = new Origin("Kinematics", IdentityType.User);
 
-            Assert.AreEqual("Kinematics", origin.Author);
+            Assert.AreEqual("Kinematics", origin.Author.Name);
             Assert.AreEqual(IdentityType.User, origin.AuthorType);
             Assert.AreEqual(0, origin.ThreadPostNumber);
             Assert.AreEqual("", origin.Permalink);
