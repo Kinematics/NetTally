@@ -1,79 +1,84 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <PropertyGroup Label="Configuration">
-    <AssemblyName>nettally</AssemblyName>
-    <RootNamespace>NetTally.CLI</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>10.0</LangVersion>
-    <ApplicationIcon />
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<VersionPrefix>4.0.0</VersionPrefix>
+		<VersionSuffix>pre1</VersionSuffix>
+	</PropertyGroup>
+	<PropertyGroup Label="Configuration">
+		<AssemblyName>nettally</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>NetTally.CLI</RootNamespace>
+		<TargetFramework>net6.0</TargetFramework>
+		<ApplicationIcon />
+		<StartupObject />
+	</PropertyGroup>
+	<PropertyGroup>
+		<Product>NetTally</Product>
+		<Company>Wayward Gamers</Company>
+		<Copyright>2015-2022</Copyright>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.8.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
+		<PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
+	</ItemGroup>
 
-  <Target Name="CreateBuildBin" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
-  </Target>
+	<Target Name="CreateBuildBin" AfterTargets="Build">
+		<MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
+	</Target>
 
-  <Target Name="MoveBuildDlls" AfterTargets="CreateBuildBin">
-    <Message Importance="high" Text="Build directory = $(TargetDir)" />
-    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(TargetDir)" />
-    <Move SourceFiles="$(TargetDir)CommandLine.dll" DestinationFolder="$(TargetDir)bin/CommandLineParser/2.8.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)HtmlAgilityPack.dll" DestinationFolder="$(TargetDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-    <!-- <Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
-  </Target>
+	<Target Name="MoveBuildDlls" AfterTargets="CreateBuildBin">
+		<Message Importance="high" Text="Build directory = $(TargetDir)" />
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(TargetDir)" />
+		<Move SourceFiles="$(TargetDir)CommandLine.dll" DestinationFolder="$(TargetDir)bin/CommandLineParser/2.8.0/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)HtmlAgilityPack.dll" DestinationFolder="$(TargetDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
+		<Move SourceFiles="$(TargetDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(TargetDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
+		<Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
+		<!-- <Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
+	</Target>
 
 
-  <Target Name="CreatePublishBin" AfterTargets="Publish">
-    <MakeDir Directories="$(PublishDir)bin" Condition="!Exists('$(PublishDir)bin')" />
-  </Target>
+	<Target Name="CreatePublishBin" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)bin" Condition="!Exists('$(PublishDir)bin')" />
+	</Target>
 
-  <Target Name="MovePublishDlls" AfterTargets="CreatePublishBin">
-    <Message Importance="high" Text="Publish directory = $(PublishDir)" />
-    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
-    <Move SourceFiles="$(PublishDir)CommandLine.dll" DestinationFolder="$(PublishDir)bin/CommandLineParser/2.8.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)HtmlAgilityPack.dll" DestinationFolder="$(PublishDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-    <!-- <Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
-  </Target>
+	<Target Name="MovePublishDlls" AfterTargets="CreatePublishBin">
+		<Message Importance="high" Text="Publish directory = $(PublishDir)" />
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
+		<Move SourceFiles="$(PublishDir)CommandLine.dll" DestinationFolder="$(PublishDir)bin/CommandLineParser/2.8.0/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)HtmlAgilityPack.dll" DestinationFolder="$(PublishDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
+		<Move SourceFiles="$(PublishDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
+		<Move SourceFiles="$(PublishDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
+		<Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
+		<!-- <Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
+	</Target>
 </Project>

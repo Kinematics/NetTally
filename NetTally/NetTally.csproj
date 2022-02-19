@@ -1,92 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
-    <LangVersion>10.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <PublishTrimmed>false</PublishTrimmed>
-
-    <Authors>David Smith</Authors>
-    <Company>Wayward Gamers</Company>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyTitle>NetTally</AssemblyTitle>
-    <Description>Program for tallying forum user votes.</Description>
-    <Copyright>Copyright ©  2015-2022</Copyright>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.1" />
-    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-    <PackageReference Include="Nito.AsyncEx.Tasks" Version="5.1.2" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="CheckVoteWin.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <TrimmerRootAssembly Include="System" />
-    <TrimmerRootAssembly Include="PresentationFramework-SystemXmlLinq" />
-  </ItemGroup>
-
-<!--
-  <Target Name="CreateBuildBin" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
-  </Target>
-
-  <Target Name="MoveBuildDlls" AfterTargets="CreateBuildBin">
-    <Message Importance="high" Text="Build directory = $(TargetDir)" />
-    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(TargetDir)" />
-    <Move SourceFiles="$(TargetDir)HtmlAgilityPack.dll" DestinationFolder="$(TargetDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(TargetDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(TargetDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
-    <Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-  </Target>
--->
-
-  <Target Name="CreatePublishBin" AfterTargets="Publish" Condition="$(PublishSingleFile)==false">
-    <MakeDir Directories="$(PublishDir)bin" Condition="!Exists('$(PublishDir)bin')" />
-  </Target>
-
-  <Target Name="MovePublishDlls" AfterTargets="CreatePublishBin" Condition="$(PublishSingleFile)==false">
-    <Message Importance="high" Text="Publish directory = $(PublishDir)" />
-    <Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
-    <Move SourceFiles="$(PublishDir)HtmlAgilityPack.dll" DestinationFolder="$(PublishDir)bin/HtmlAgilityPack/1.11.42/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.DependencyInjection.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Abstractions.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Abstractions/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Logging.Debug.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Logging.Debug/6.0.0/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Options.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Options/6.0.0/lib/netstandard2.1" />
-    <Move SourceFiles="$(PublishDir)Microsoft.Extensions.Primitives.dll" DestinationFolder="$(PublishDir)bin/Microsoft.Extensions.Primitives/6.0.0/lib/net6.0" />
-    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Coordination.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Coordination/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
-    <Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-  </Target>
+	<PropertyGroup>
+		<VersionPrefix>4.0.0</VersionPrefix>
+		<VersionSuffix>pre1</VersionSuffix>
+	</PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>CheckVoteWin.ico</ApplicationIcon>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Product>NetTally</Product>
+		<Description>Program for tallying forum user votes.</Description>
+		<Company>Wayward Gamers</Company>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Copyright>2015-2022</Copyright>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
+		<PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.1" />
+		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+		<PackageReference Include="Nito.AsyncEx.Tasks" Version="5.1.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="CheckVoteWin.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<TrimmerRootAssembly Include="System" />
+		<TrimmerRootAssembly Include="PresentationFramework-SystemXmlLinq" />
+	</ItemGroup>
 </Project>
