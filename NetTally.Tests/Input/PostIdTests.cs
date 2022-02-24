@@ -9,7 +9,7 @@ namespace NetTally.Tests.Forums
     public class PostIdTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
+        static IServiceProvider? serviceProvider;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

@@ -19,12 +19,12 @@ namespace NetTally.Tests.Votes
     public class ReferencingVotesTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static IVoteCounter voteCounter;
-        static VoteConstructor voteConstructor;
-        static Tally tally;
-        static IQuest quest;
-        static IAgnostic agnostic;
+        static IServiceProvider? serviceProvider;
+        static IVoteCounter? voteCounter;
+        static VoteConstructor? voteConstructor;
+        static Tally? tally;
+        static IQuest? quest;
+        static IAgnostic? agnostic;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
