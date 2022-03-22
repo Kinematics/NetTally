@@ -791,7 +791,7 @@ namespace NetTally.Output
             sb.Append("[url=\"");
             sb.Append(voter.Permalink);
             sb.Append("\"]");
-            sb.Append(voter.Author);
+            sb.Append(voter.Author.Name);
             sb.Append("[/url]");
 
             if (voter.AuthorType == IdentityType.Plan) sb.Append("[/b]");
