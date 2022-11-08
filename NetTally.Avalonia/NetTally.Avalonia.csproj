@@ -5,7 +5,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
 		<AssemblyName>NetTally</AssemblyName>
