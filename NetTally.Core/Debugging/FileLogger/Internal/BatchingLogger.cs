@@ -19,7 +19,7 @@ namespace NetTally.Debugging.FileLogger.Internal
             _category = categoryName;
         }
 
-        public IDisposable BeginScope<TState>(TState state)
+        public IDisposable? BeginScope<TState>(TState state) where TState: notnull
         {
             // NOTE: Differs from source
             if (_provider.ScopeProvider is IExternalScopeProvider scopeProvider)

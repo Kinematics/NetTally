@@ -18,7 +18,7 @@ namespace NetTally.Debugging.FileLogger.Internal
         private readonly TimeSpan _interval;
         private readonly int? _queueSize;
         private readonly int? _batchSize;
-        private readonly IDisposable _optionsChangeToken;
+        private readonly IDisposable? _optionsChangeToken;
 
         private BlockingCollection<LogMessage> _messageQueue;
         private Task? _outputTask;

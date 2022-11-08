@@ -105,7 +105,7 @@ namespace NetTally
             return "Logs";
         }
 
-        public static bool FileLoggingFilter(string category, LogLevel logLevel)
+        public static bool FileLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
                 return logLevel >= LogLevel.Debug;
@@ -113,7 +113,7 @@ namespace NetTally
             return logLevel >= LogLevel.Warning;
         }
 
-        public static bool DebugLoggingFilter(string category, LogLevel logLevel)
+        public static bool DebugLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
                 return true;
