@@ -37,7 +37,7 @@ namespace NetTally.Output
         DisplayMode displayMode;
         IQuest quest;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         const string cancelled = "Cancelled!";
 
         public TallyOutput(
@@ -144,7 +144,7 @@ namespace NetTally.Output
         private Dictionary<MarkerType, VoteStorage> GetVoteGroupings()
         {
             Dictionary<MarkerType, VoteStorage> group =
-                new Dictionary<MarkerType, VoteStorage>
+                new()
                 {
                     [MarkerType.Rank] = new VoteStorage(),
                     [MarkerType.Score] = new VoteStorage(),
@@ -251,7 +251,6 @@ namespace NetTally.Output
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
         /// <param name="token">Cancellation token.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Local function")]
         private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
         {
             if (votes.Count == 0)
@@ -549,7 +548,7 @@ namespace NetTally.Output
         /// <summary>
         /// Get the double line break.  There are no alternate versions right now.
         /// </summary>
-        public string DoubleLineBreak => "<==========================================================>";
+        public static string DoubleLineBreak => "<==========================================================>";
 
         /// <summary>
         /// Add a label for the specified task.
@@ -773,11 +772,11 @@ namespace NetTally.Output
             string markerToDisplay;
             if (voter.AuthorType == IdentityType.Plan)
                 markerToDisplay = Strings.PlanNameMarker;
-            else if (marker == MarkerType.Rank && !(vote is null) && vote.MarkerType != MarkerType.Rank)
+            else if (marker == MarkerType.Rank && vote is not null && vote.MarkerType != MarkerType.Rank)
                 markerToDisplay = Strings.NoRankMarker;
             else if (marker == MarkerType.Rank && (vote is null))
                 markerToDisplay = Strings.NonVotingMarker;
-            else if (!(vote is null))
+            else if (vote is not null)
                 markerToDisplay = vote.Marker;
             else
                 markerToDisplay = Strings.UnknownMarker;
