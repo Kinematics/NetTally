@@ -13,7 +13,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Number of ValidPostsPerPage
         /// </summary>
-        public static readonly List<int> ValidPostsPerPage = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+        public static readonly List<int> ValidPostsPerPage = new() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
 
         /// <summary>
