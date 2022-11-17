@@ -1,17 +1,15 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Types.Components;
+using NetTally.Types.Enums;
+using NetTally.Utility.Comparers;
+using NetTally.VoteCounting;
+using NetTally.Votes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Utility;
-using NetTally.Utility.Comparers;
-using NetTally.VoteCounting;
-using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Tests.Votes
 {
@@ -19,12 +17,12 @@ namespace NetTally.Tests.Votes
     public class ReferencingVotesTests
     {
         #region Setup
-        static IServiceProvider? serviceProvider;
-        static IVoteCounter? voteCounter;
-        static VoteConstructor? voteConstructor;
-        static Tally? tally;
-        static IQuest? quest;
-        static IAgnostic? agnostic;
+        static IServiceProvider serviceProvider = null!;
+        static IVoteCounter voteCounter = null!;
+        static VoteConstructor voteConstructor = null!;
+        static Tally tally = null!;
+        static IQuest quest = null!;
+        static IAgnostic agnostic = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -172,7 +170,7 @@ namespace NetTally.Tests.Votes
             voteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-            
+
             if (results1 != null)
             {
                 voteCounter.AddVotes(results1, post1.Origin);

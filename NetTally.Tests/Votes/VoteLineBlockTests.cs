@@ -12,11 +12,11 @@ namespace NetTally.Tests.Votes
     public class VoteLineBlockTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static IVoteCounter voteCounter;
-        static VoteConstructor voteConstructor;
-        static Tally tally;
-        static IQuest quest;
+        static IServiceProvider serviceProvider = null!;
+        static IVoteCounter voteCounter = null!;
+        static VoteConstructor voteConstructor = null!;
+        static Tally tally = null!;
+        static IQuest quest = null!;
 
 
         [ClassInitialize]

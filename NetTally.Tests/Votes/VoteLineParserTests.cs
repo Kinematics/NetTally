@@ -9,7 +9,7 @@ namespace NetTally.Tests.Votes
     public class VoteLineParserTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
+        static IServiceProvider serviceProvider = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

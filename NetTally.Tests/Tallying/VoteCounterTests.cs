@@ -19,12 +19,12 @@ namespace NetTally.Tests.Tallying
     public class VoteCounterTests
     {
         #region Setup
-        static IServiceProvider? serviceProvider;
-        static IVoteCounter? voteCounter;
-        static VoteConstructor? voteConstructor;
-        static Tally? tally;
-        static IQuest quest = new Quest();
-        static IAgnostic? agnostic;
+        static IServiceProvider serviceProvider = null!;
+        static IVoteCounter voteCounter = null!;
+        static VoteConstructor voteConstructor = null!;
+        static Tally tally = null!;
+        static IQuest quest = null!;
+        static IAgnostic agnostic = null!;
         static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin2 = new("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");

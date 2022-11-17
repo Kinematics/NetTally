@@ -15,9 +15,9 @@ namespace NTTests.Resources
     [TestClass]
     public class ConvertResources
     {
-        static IPageProvider pageProvider;
-        static IServiceProvider serviceProvider;
-        static ForumAdapterFactory forumAdapterFactory;
+        static IPageProvider pageProvider = null!;
+        static IServiceProvider serviceProvider = null!;
+        static ForumAdapterFactory forumAdapterFactory = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Votes;
-using NetTally.VoteCounting.RankVotes;
 using NetTally.Types.Components;
+using NetTally.Votes;
+using System;
 
 namespace NetTally.Tests.Tallying
 {
     [TestClass]
     public class RankedRIRTests
     {
-        static IServiceProvider serviceProvider;
-        static VoteConstructor voteConstructor;
-        static IQuest sampleQuest;
+        static IServiceProvider serviceProvider = null!;
+        static VoteConstructor voteConstructor = null!;
+        static IQuest sampleQuest = null!;
         static readonly Origin origin = new Origin("User1", "1", 1, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]

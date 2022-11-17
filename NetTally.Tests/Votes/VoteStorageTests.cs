@@ -13,8 +13,8 @@ namespace NetTally.Tests.Votes
     public class VoteStorageTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static IVoteCounter voteCounter;
+        static IServiceProvider serviceProvider = null!;
+        static IVoteCounter voteCounter = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

@@ -11,8 +11,8 @@ namespace NetTally.Tests.Votes
     [TestClass]
     public class VoteLineTests
     {
-        static IServiceProvider serviceProvider;
-        static IAgnostic agnostic;
+        static IServiceProvider serviceProvider = null!;
+        static IAgnostic agnostic = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

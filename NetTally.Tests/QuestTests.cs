@@ -1,19 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using NetTally.Forums;
-using NetTally.Votes;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
-using NetTally.Web;
-using NetTally.SystemInfo;
-using NetTally.Cache;
-using NetTally.Options;
-using Microsoft.Extensions.DependencyInjection;
+using NetTally.Forums;
 using NetTally.Tests;
 using NetTally.Types.Enums;
+using NetTally.Web;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NTTests.QuestTests
 {
@@ -38,8 +34,8 @@ namespace NTTests.QuestTests
     public abstract class IQuestTestBase
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static IPageProvider pageProvider;
+        static IServiceProvider serviceProvider = null!;
+        static IPageProvider pageProvider = null!;
 
         protected IQuest quest { get; set; } = new Quest();
         bool notified;
@@ -80,10 +76,11 @@ namespace NTTests.QuestTests
         #endregion
 
         #region Stuff for handling checking event notification
-        void IQuest_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void IQuest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             notified = true;
-            propertiesRaised.Add(e.PropertyName);
+
+            propertiesRaised.Add(e?.PropertyName ?? "");
         }
 
         void VerifyNoNotification()

@@ -13,11 +13,11 @@ namespace NetTally.Tests.Votes
     public class PartitioningTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static IVoteCounter voteCounter;
-        static VoteConstructor voteConstructor;
-        static Tally tally;
-        static IQuest quest;
+        static IServiceProvider serviceProvider = null!;
+        static IVoteCounter voteCounter = null!;
+        static VoteConstructor voteConstructor = null!;
+        static Tally tally = null!;
+        static IQuest quest = null!;
         static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]

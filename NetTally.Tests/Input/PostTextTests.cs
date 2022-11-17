@@ -11,7 +11,7 @@ namespace NetTally.Tests.Forums
     public class PostTextTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
+        static IServiceProvider serviceProvider = null!;
         static readonly Uri exampleUri = new Uri("http://www.example.com/");
 
         [ClassInitialize]

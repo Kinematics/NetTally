@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
+using NetTally.Types.Components;
+using NetTally.Types.Enums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NetTally.Tests.Tallying
 {
@@ -15,10 +14,10 @@ namespace NetTally.Tests.Tallying
     public class VoteConstructorVoteTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static VoteConstructor voteConstructor;
-        static IVoteCounter voteCounter;
-        static IQuest quest;
+        static IServiceProvider serviceProvider = null!;
+        static VoteConstructor voteConstructor = null!;
+        static IVoteCounter voteCounter = null!;
+        static IQuest quest = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -86,7 +85,7 @@ But might include something else...
         Post GetPost4()
         {
             Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
-            string postText = 
+            string postText =
 @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
 [x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
 [x] Head over to Oriko's.

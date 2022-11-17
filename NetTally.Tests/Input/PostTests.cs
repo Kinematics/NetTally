@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Types.Components;
+using System;
 
 namespace NetTally.Tests.Forums
 {
@@ -9,7 +8,7 @@ namespace NetTally.Tests.Forums
     public class PostTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
+        static IServiceProvider serviceProvider = null!;
         static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.VoteCounting;
-using NetTally.Votes;
-using NetTally.Types.Enums;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Types.Components;
+using NetTally.Types.Enums;
+using NetTally.Votes;
+using System;
 
 namespace NetTally.Tests.Votes
 {
@@ -15,8 +10,8 @@ namespace NetTally.Tests.Votes
     public class VoterStorageTests
     {
         #region Setup
-        static IServiceProvider serviceProvider;
-        static VoteLineBlock vote;
+        static IServiceProvider serviceProvider = null!;
+        static VoteLineBlock vote = VoteLineBlock.Empty;
         static readonly VoterStorage voterStorage = new VoterStorage();
 
         [ClassInitialize]
