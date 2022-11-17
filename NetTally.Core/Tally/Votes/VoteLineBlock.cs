@@ -18,6 +18,8 @@ namespace NetTally.Votes
         public IReadOnlyList<VoteLine> Lines { get; }
         public MarkerType Category { get; set; } = MarkerType.None;
 
+        public static readonly VoteLineBlock Empty = new(VoteLine.Empty);
+
         readonly int _hash;
 
         /// <summary>
