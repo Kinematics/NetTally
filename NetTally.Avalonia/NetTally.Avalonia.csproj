@@ -9,6 +9,8 @@
 		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
 		<AssemblyName>NetTally</AssemblyName>
 		<DebugType>embedded</DebugType>
+		<TrimMode>copyused</TrimMode>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>
