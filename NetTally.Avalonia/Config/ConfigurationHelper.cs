@@ -30,18 +30,21 @@ namespace NetTally.Avalonia.Config
             if (portableConfig.HasFile)
                 configs.Add(portableConfig);
 
-            Configuration currentConfig = GetCurrentRoamingConfig();
-
-            if (currentConfig.HasFile)
+            if (OperatingSystem.IsWindows())
             {
-                configs.Add(currentConfig);
-            }
-            else
-            {
-                Configuration roamingConfig = GetRecentRoamingConfig();
+                Configuration currentConfig = GetCurrentRoamingConfig();
 
-                if (roamingConfig.HasFile)
-                    configs.Add(roamingConfig);
+                if (currentConfig.HasFile)
+                {
+                    configs.Add(currentConfig);
+                }
+                else
+                {
+                    Configuration roamingConfig = GetRecentRoamingConfig();
+
+                    if (roamingConfig.HasFile)
+                        configs.Add(roamingConfig);
+                }
             }
 
             return configs;
@@ -53,7 +56,15 @@ namespace NetTally.Avalonia.Config
         /// <returns>Returns a list of Configurations to be written to.</returns>
         public static List<Configuration> GetConfigsToWriteTo()
         {
-            return new List<Configuration> { GetPortableConfig(), GetCurrentRoamingConfig() };
+            List<Configuration> configs = new List<Configuration>() { GetPortableConfig() };
+
+            if (OperatingSystem.IsWindows())
+            {
+                configs.Add(GetCurrentRoamingConfig());
+            }
+
+            return configs;
+            //return new List<Configuration> { GetPortableConfig(), GetCurrentRoamingConfig() };
         }
         #endregion
 
@@ -117,19 +128,23 @@ namespace NetTally.Avalonia.Config
         private static ExeConfigurationFileMap GetCurrentRoamingMap()
         {
             Configuration defaultConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming);
-            FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
-            // Default: Roaming\Wayward_Gamers\NetTally.exe_Url_<hash>\1.7.0.0\user.config
-            // Change to: Roaming\Wayward_Gamers\NetTally\1.7.0.0\user.config
 
-            DirectoryInfo? companyDirectory = defaultFile?.Directory?.Parent?.Parent;
-
-            if (companyDirectory != null)
+            if (!string.IsNullOrEmpty(defaultConfig.FilePath))
             {
-                string product = GetProductDirectory();
+                FileInfo defaultFile = new FileInfo(defaultConfig.FilePath);
+                // Default: Roaming\Wayward_Gamers\NetTally.exe_Url_<hash>\1.7.0.0\user.config
+                // Change to: Roaming\Wayward_Gamers\NetTally\1.7.0.0\user.config
 
-                var configFile = Path.Combine(companyDirectory.FullName, product, ProductInfo.AssemblyVersion.ToString(), "user.config");
+                DirectoryInfo? companyDirectory = defaultFile?.Directory?.Parent?.Parent;
 
-                return GetMapWithUserPath(configFile);
+                if (companyDirectory != null)
+                {
+                    string product = GetProductDirectory();
+
+                    var configFile = Path.Combine(companyDirectory.FullName, product, ProductInfo.AssemblyVersion.ToString(), "user.config");
+
+                    return GetMapWithUserPath(configFile);
+                }
             }
 
             return new ExeConfigurationFileMap();
