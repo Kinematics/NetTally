@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "NetTally.Avalonia": {
+      "commandName": "Project"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {
+        "DISPLAY": "192.168.1.69:0.0",
+        "LIBGL_ALWAYS_INDIRECT": "1"
+      },
+      "distributionName": "Ubuntu-22.04"
+    }
+  }
+}
