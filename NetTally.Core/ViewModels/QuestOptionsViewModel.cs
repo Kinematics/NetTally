@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -53,6 +54,10 @@ namespace NetTally.ViewModels
             IgnoreSpoilers = quest.IgnoreSpoilers;
             TrimExtendedText = quest.TrimExtendedText;
 
+            Quests.Clear();
+            foreach (var q in quest.LinkedQuests)
+                Quests.Add(q);
+
             logger.LogInformation("Quest information loaded into view model.");
         }
 
@@ -84,6 +89,10 @@ namespace NetTally.ViewModels
             quest.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
             quest.IgnoreSpoilers = IgnoreSpoilers;
             quest.TrimExtendedText = TrimExtendedText;
+
+            quest.LinkedQuests.Clear();
+            foreach (var q in Quests)
+                quest.LinkedQuests.Add(q);
 
             logger.LogInformation("View model information saved to quest.");
         }
@@ -177,5 +186,35 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         private bool trimExtendedText;
+
+
+        [ObservableProperty]
+        private ObservableCollection<IQuest> quests = new();
+
+        [RelayCommand]
+        private void AddLinkedQuest(IQuest? quest)
+        {
+            if (quest is not null)
+            {
+                if (!Quests.Contains(quest))
+                {
+                    Quests.Add(quest);
+                    OnPropertyChanged(nameof(Quests));
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void RemoveLinkedQuest(IQuest? quest)
+        {
+            if (quest is not null)
+            {
+                if (Quests.Contains(quest))
+                {
+                    Quests.Remove(quest);
+                    OnPropertyChanged(nameof(Quests));
+                }
+            }
+        }
     }
 }
