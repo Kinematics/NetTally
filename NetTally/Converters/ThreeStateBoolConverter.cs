@@ -14,21 +14,16 @@ namespace NetTally.Converters
         /// <returns>Returns whether the specified target control value should be on or off.</returns>
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch (value)
+            return value switch
             {
-                case BoolEx b:
-                    switch (b)
-                    {
-                        case BoolEx.True:
-                            return true;
-                        case BoolEx.False:
-                            return false;
-                        default:
-                            return null;
-                    }
-                default:
-                    throw new ArgumentException("Value is not a BoolEx.");
-            }
+                BoolEx b => b switch
+                {
+                    BoolEx.True => true,
+                    BoolEx.False => false,
+                    _ => null,
+                },
+                _ => throw new ArgumentException("Value is not a BoolEx."),
+            };
         }
 
         /// <summary>
@@ -37,15 +32,12 @@ namespace NetTally.Converters
         /// <returns>Returns what the source property value should be set to based on the target value.</returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return BoolEx.Unknown;
-                case bool b:
-                    return b ? BoolEx.True : BoolEx.False;
-                default:
-                    throw new ArgumentException("Value is not a bool.");
-            }
+                null => BoolEx.Unknown,
+                bool b => (object)(b ? BoolEx.True : BoolEx.False),
+                _ => throw new ArgumentException("Value is not a bool."),
+            };
         }
     }
 }
