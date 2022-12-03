@@ -37,9 +37,11 @@ namespace NetTally.Extensions
         /// </summary>
         /// <typeparam name="T">The type of object held in the collection.</typeparam>
         /// <param name="collection">The collection to be sorted.</param>
-        public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
+        public static void Sort<T>(this ObservableCollection<T> collection,
+            bool descending = false) where T : IComparable
         {
-            var sorted = collection.OrderBy(x => x).ToList();
+            var sorted = descending ? collection.OrderDescending().ToList() : collection.Order().ToList();
+
             for (int i = 0; i < sorted.Count(); i++)
             {
                 int src = collection.IndexOf(sorted[i]);
