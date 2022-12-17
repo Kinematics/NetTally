@@ -18,7 +18,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +43,7 @@ namespace NetTally
     public partial class App : Application
     {
         private readonly IHost host;
+        private ILogger<App>? logger;
 
         public App()
         {
@@ -58,10 +62,11 @@ namespace NetTally
             var hash = host.Services.GetRequiredService<IHash>();
             Agnostic.Init(hash);
 
+            // Create logger for the app.
             var loggerFactory = host.Services.GetService<ILoggerFactory>();
             if (loggerFactory != null)
             {
-                var logger = loggerFactory.CreateLogger<App>();
+                logger = loggerFactory.CreateLogger<App>();
                 logger.LogInformation("Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
             }
 
@@ -74,10 +79,16 @@ namespace NetTally
         {
             using (host)
             {
+                // Save user config
+                await SaveConfiguration();
+
                 // Wait up to 5 seconds before forcing a shutdown.
                 await host.StopAsync(TimeSpan.FromSeconds(5));
             }
         }
+
+        #region Configuration Files
+        const string UserConfigJsonFile = "userconfig.json";
 
         /// <summary>
         /// Add user configuration files to the configuration builder.
@@ -85,23 +96,46 @@ namespace NetTally
         /// <param name="builder"></param>
         private void ConfigureConfiguration(IConfigurationBuilder builder)
         {
+            foreach (var path in GetConfigurationPaths())
+            {
+                builder.AddJsonFile(path, optional: true);
+            }
+        }
+
+        /// <summary>
+        /// Save user configuration on shutdown.
+        /// </summary>
+        private async Task SaveConfiguration()
+        {
+            foreach (var path in GetConfigurationPaths())
+            {
+                await SaveJsonConfiguration(path);
+            }
+        }
+
+        /// <summary>
+        /// Get the available paths to load or save user configuration.
+        /// This may vary depending on OS and directory permissions.
+        /// </summary>
+        /// <returns>Returns an enumeration of configuration file paths.</returns>
+        private IEnumerable<string> GetConfigurationPaths()
+        {
             // Try to find the AppSettings path on Windows, and use it
-            // first when trying to load user config info.
+            // first when trying to load or save user config info.
             string? appSettingsPath = GetWindowsAppSettingsConfigPath();
 
             if (Path.Exists(appSettingsPath))
             {
-                builder.AddJsonFile(Path.Combine(appSettingsPath, "userconfig.json"));
+                yield return Path.Combine(appSettingsPath, UserConfigJsonFile);
             }
 
-            // A user config file in the local directory takes priority
-            // over the AppSettings version, if any.
-            builder.AddJsonFile("userconfig.json");
+            // After that, supply the file for the local directory.
+            // This will override the AppSettings version of the file, if it exists.
+            yield return UserConfigJsonFile;
         }
 
         /// <summary>
-        /// Get the AppSettings path where config files are stored,
-        /// if we're running on Windows.
+        /// Get the AppSettings path where config files are stored, if we're running on Windows.
         /// </summary>
         /// <returns>Returns a string containing the AppSettings path, if available.</returns>
         private string? GetWindowsAppSettingsConfigPath()
@@ -114,6 +148,30 @@ namespace NetTally
             return null;
         }
 
+        /// <summary>
+        /// Saves the user configuration information to the user config file.
+        /// </summary>
+        /// <param name="path">The path to the file where the configuration is to be saved.</param>
+        private async Task SaveJsonConfiguration(string path)
+        {
+            JsonSerializerOptions options = new() { WriteIndented = true };
+
+            try
+            {
+                using var stream = File.Create(path);
+
+                await JsonSerializer.SerializeAsync(stream, "someValue", options);
+
+                logger?.LogInformation("Configuration saved to {path}", path);
+            }
+            catch (Exception)
+            {
+                logger?.LogInformation("Unable to save configuration to {path}", path);
+            }
+        }
+        #endregion Configuration Files
+
+        #region Services
         private void ConfigureServices(IServiceCollection services)
         {
             // Get the services provided by the core library.
@@ -134,7 +192,9 @@ namespace NetTally
             services.AddTransient<ManageVotes>();
             services.AddTransient<ReorderTasks>();
         }
+        #endregion Services
 
+        #region Logging
         private void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
         {
             builder
@@ -209,5 +269,6 @@ namespace NetTally
 
             return logLevel >= LogLevel.Debug;
         }
+        #endregion Logging
     }
 }

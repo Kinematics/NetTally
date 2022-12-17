@@ -180,7 +180,7 @@ namespace NetTally.Views
         /// <param name="title">The text to use as the title of the message box.</param>
         private void ShowWarning(string primaryMessage, string title)
         {
-            MessageBox.Show($"{primaryMessage}\nLogs have been saved in: {Startup.GetLoggingDirectoryPath()}",
+            MessageBox.Show($"{primaryMessage}\nLogs have been saved.",
                 title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
         #endregion
