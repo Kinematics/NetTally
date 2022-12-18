@@ -29,10 +29,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using NetTally.Debugging.FileLogger;
+using NetTally.Global;
 using NetTally.Navigation;
 using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
+using NetTally.ViewModels;
 using NetTally.Views;
 
 namespace NetTally
@@ -48,7 +50,7 @@ namespace NetTally
         public App()
         {
             host = Host.CreateDefaultBuilder(Environment.GetCommandLineArgs())
-                .ConfigureHostConfiguration(ConfigureConfiguration)
+                .ConfigureAppConfiguration(ConfigureConfiguration)
                 .ConfigureServices(ConfigureServices)
                 .ConfigureLogging(ConfigureLogging)
                 .Build();
@@ -58,21 +60,24 @@ namespace NetTally
         {
             await host.StartAsync();
 
-            // Initialize
+            InitializeStartup();
+
+            logger?.LogInformation("Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
+
+            // Request the navigation service and create our main window.
+            var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
+            await navigationService.ShowAsync<MainWindow>();
+        }
+
+        private void InitializeStartup()
+        {
+            // Initialize string comparer system.
             var hash = host.Services.GetRequiredService<IHash>();
             Agnostic.Init(hash);
 
             // Create logger for the app.
             var loggerFactory = host.Services.GetService<ILoggerFactory>();
-            if (loggerFactory != null)
-            {
-                logger = loggerFactory.CreateLogger<App>();
-                logger.LogInformation("Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
-            }
-
-            // Request the navigation service and create our main window.
-            var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
-            await navigationService.ShowAsync<MainWindow>();
+            logger = loggerFactory?.CreateLogger<App>();
         }
 
         private async void Application_Exit(object sender, ExitEventArgs e)
@@ -99,17 +104,6 @@ namespace NetTally
             foreach (var path in GetConfigurationPaths())
             {
                 builder.AddJsonFile(path, optional: true);
-            }
-        }
-
-        /// <summary>
-        /// Save user configuration on shutdown.
-        /// </summary>
-        private async Task SaveConfiguration()
-        {
-            foreach (var path in GetConfigurationPaths())
-            {
-                await SaveJsonConfiguration(path);
             }
         }
 
@@ -149,18 +143,35 @@ namespace NetTally
         }
 
         /// <summary>
+        /// Save user configuration on shutdown.
+        /// </summary>
+        private async Task SaveConfiguration()
+        {
+            foreach (var path in GetConfigurationPaths())
+            {
+                await SaveJsonConfiguration(path);
+            }
+        }
+
+        /// <summary>
         /// Saves the user configuration information to the user config file.
         /// </summary>
         /// <param name="path">The path to the file where the configuration is to be saved.</param>
         private async Task SaveJsonConfiguration(string path)
         {
-            JsonSerializerOptions options = new() { WriteIndented = true };
+            JsonSerializerOptions jsonOptions = new() {
+                WriteIndented = true,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
+                IgnoreReadOnlyProperties= true
+            };
 
             try
             {
+                var config = GetConfigurationInfo();
+
                 using var stream = File.Create(path);
 
-                await JsonSerializer.SerializeAsync(stream, "someValue", options);
+                await JsonSerializer.SerializeAsync(stream, config, jsonOptions);
 
                 logger?.LogInformation("Configuration saved to {path}", path);
             }
@@ -169,10 +180,23 @@ namespace NetTally
                 logger?.LogInformation("Unable to save configuration to {path}", path);
             }
         }
+
+        /// <summary>
+        /// Get configuration info, put in a wrapper so that the section name is preserved.
+        /// </summary>
+        /// <returns>Returns config info in a wrapper.</returns>
+        private ConfigInfoWrapper GetConfigurationInfo()
+        {
+            MainViewModel mainViewModel = host.Services.GetRequiredService<MainViewModel>();
+
+            ConfigInfoWrapper config = new() { ConfigInfo = mainViewModel.ConfigInfo };
+
+            return config;
+        }
         #endregion Configuration Files
 
         #region Services
-        private void ConfigureServices(IServiceCollection services)
+        private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
             // Get the services provided by the core library.
             NetTally.Startup.ConfigureServices(services);
@@ -181,6 +205,8 @@ namespace NetTally
             // or override services provided by the core library.
 
             //services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
+
+            services.Configure<ConfigInfo>(context.Configuration.GetSection(nameof(ConfigInfo)));
 
             // Add IoCNavigationService for the application.
             services.AddSingleton<IoCNavigationService>();

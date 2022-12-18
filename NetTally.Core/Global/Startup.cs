@@ -41,6 +41,11 @@ namespace NetTally
             services.AddSingleton<VoteConstructor>();
             services.AddSingleton<RankVoteCounterFactory>();
             services.AddTransient<ITextResultsProvider, TallyOutput>();
+
+            services.AddSingleton<MainViewModel>();
+            services.AddTransient<ManageVotesViewModel>();
+            services.AddTransient<QuestOptionsViewModel>();
+            services.AddTransient<TasksViewModel>();
         }
     }
 }
