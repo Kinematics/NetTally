@@ -189,7 +189,10 @@ namespace NetTally
         {
             MainViewModel mainViewModel = host.Services.GetRequiredService<MainViewModel>();
 
-            ConfigInfoWrapper config = new() { ConfigInfo = mainViewModel.ConfigInfo };
+            ConfigInfoWrapper config = new()
+            {
+                ConfigInfo = new ConfigInfo(mainViewModel.Quests, mainViewModel.ConfigInfo.GlobalSettings)
+            };
 
             return config;
         }

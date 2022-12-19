@@ -1,29 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NetTally.Options;
 
 namespace NetTally.Global
 {
     public class ConfigInfoWrapper
     {
-        public ConfigInfo ConfigInfo { get; set; } = new();
+        public required ConfigInfo ConfigInfo { get; init; }
     }
 
     public class ConfigInfo
     {
         public ConfigInfo() 
         {
-            Quests = new();
         }
 
-        public ConfigInfo(IEnumerable<Quest> quests)
+        [SetsRequiredMembers]
+        public ConfigInfo(IEnumerable<Quest> quests, GlobalSettings globalSettings)
         {
             Quests = quests.ToList();
+            GlobalSettings = globalSettings;
         }
 
-        public List<Quest> Quests { get; set; }
+        public required GlobalSettings GlobalSettings { get; init; }
+
+        public required List<Quest> Quests { get; init; }
     }
 }
