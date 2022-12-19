@@ -41,7 +41,7 @@ namespace NetTally
         /// Hash code for the quest object.
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => questHash;
+        public override int GetHashCode() => QuestId.GetHashCode();
 
         /// <summary>
         /// IComparer function.

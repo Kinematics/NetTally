@@ -19,24 +19,16 @@ namespace NetTally
     public partial class Quest : IQuest
     {
         public const string OmakeFilter = @"\bomake\b";
+        public Guid QuestId { get; init; } = Guid.NewGuid();
 
         public Quest()
         {
-            questHash = indexer.Next();
             ThreadName = NewThreadEntry;
 
             CustomThreadmarkFilters = string.Empty;
             CustomTaskFilters = string.Empty;
             CustomUsernameFilters = string.Empty;
         }
-
-        #region Hashing
-        // Quest hash is used to set the hash code for this object.
-        // Since all other intrinsic values are mutable, it is set to 
-        // an immutable random value.
-        static readonly Random indexer = new Random();
-        private readonly int questHash;
-        #endregion
 
         #region Linked Quests
         /// <summary>
@@ -126,7 +118,6 @@ namespace NetTally
             return false;
         }
         #endregion Linked Quests
-
 
         #region URL and Display Name
         string threadName = string.Empty;
