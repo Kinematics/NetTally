@@ -7,8 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace NetTally.ViewModels
 {
-    [ObservableObject]
-    public partial class ManageVotesViewModel
+    public partial class ManageVotesViewModel : ObservableObject
     {
     }
 }

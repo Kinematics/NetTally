@@ -13,8 +13,7 @@ using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
-    [ObservableObject]
-    public partial class MainViewModel
+    public partial class MainViewModel : ObservableObject
     {
         private readonly Logger<MainViewModel> logger;
 

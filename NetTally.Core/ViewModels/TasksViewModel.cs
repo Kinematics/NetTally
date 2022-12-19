@@ -8,8 +8,7 @@ using NetTally.VoteCounting;
 
 namespace NetTally.ViewModels
 {
-    [ObservableObject]
-    public partial class TasksViewModel
+    public partial class TasksViewModel : ObservableObject
     {
         private readonly ILogger<TasksViewModel> logger;
         private readonly IVoteCounter voteCounter;

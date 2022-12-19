@@ -8,8 +8,7 @@ using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
-    [ObservableObject]
-    public partial class QuestOptionsViewModel
+    public partial class QuestOptionsViewModel : ObservableObject
     {
         private readonly ILogger<QuestOptionsViewModel> logger;
         private readonly IQuest quest;
