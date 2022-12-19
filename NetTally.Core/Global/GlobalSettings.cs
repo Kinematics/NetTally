@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Types.Enums;
 
@@ -14,14 +15,16 @@ namespace NetTally.Global
         bool globalSpoilers = false;
         [ObservableProperty]
         RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
+
         [ObservableProperty]
         BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
+        [ObservableProperty]
+        bool trackPostAuthorsUniquely = false;
 
         [ObservableProperty]
         bool disableWebProxy = false;
         [ObservableProperty]
+        [property: JsonIgnore]
         bool debugMode = false;
-        [ObservableProperty]
-        bool trackPostAuthorsUniquely = false;
     }
 }
