@@ -18,7 +18,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="title">The text to use as the title of the message box.</param>
         public static Task<ButtonResult> Show(string primaryMessage, string title, bool logsSaved = true)
         {
-            primaryMessage += (logsSaved) ? $"\nLogs have been saved in: {Startup.GetLoggingDirectoryPath()}" : "";
+            primaryMessage += (logsSaved) ? $"\nLogs have been saved." : "";
 
             return MessageBoxManager.GetMessageBoxStandardWindow(StandardParamGenerator(title, primaryMessage)).Show();
         }
