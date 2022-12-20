@@ -19,12 +19,12 @@ namespace NetTally.Global
         [SetsRequiredMembers]
         public ConfigInfo(IEnumerable<Quest> quests, GlobalSettings globalSettings)
         {
-            Quests = quests.ToList();
+            UserQuests = new(quests);
             GlobalSettings = globalSettings;
         }
 
         public required GlobalSettings GlobalSettings { get; init; }
 
-        public required List<Quest> Quests { get; init; }
+        public required UserQuests UserQuests { get; init; }
     }
 }

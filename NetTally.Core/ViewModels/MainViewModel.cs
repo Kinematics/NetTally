@@ -1,26 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Extensions;
+using NetTally.Global;
 using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly Logger<MainViewModel> logger;
+        private readonly ILogger<MainViewModel> logger;
+        private readonly IOptions<GlobalSettings> globalSettings;
+        private readonly IOptions<UserQuests> userQuests;
 
-        public MainViewModel(Logger<MainViewModel> logger)
+        public MainViewModel(ILogger<MainViewModel> logger,
+            IOptions<GlobalSettings> globalSettings,
+            IOptions<UserQuests> userQuests)
         {
             this.logger = logger;
+            this.globalSettings = globalSettings;
+            this.userQuests = userQuests;
+
+            Quests = new ObservableCollection<Quest>(userQuests.Value.Quests);
         }
+
+        public GlobalSettings GlobalSettings => globalSettings.Value;
+
+        public ObservableCollection<Quest> Quests { get; } = new();
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
@@ -28,17 +40,15 @@ namespace NetTally.ViewModels
 
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
 
-
-        public ObservableCollection<IQuest> Quests { get; } = new();
-
+        
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
-        private IQuest? selectedQuest;
+        private Quest? selectedQuest;
 
         [RelayCommand]
         private void AddQuest()
         {
-            IQuest q = new Quest();
+            Quest q = new();
             if (!Quests.Contains(q))
             {
                 Quests.Add(q);
@@ -48,7 +58,7 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
-        private void RemoveQuest() 
+        private void RemoveQuest()
         {
             if (SelectedQuest != null)
             {
@@ -84,8 +94,9 @@ namespace NetTally.ViewModels
 
         private CancellationTokenSource? tallyCTS;
 
-        [RelayCommand(CanExecute = nameof(CanRunTally))]
-        private async Task RunTally()
+        [RelayCommand(CanExecute = nameof(CanRunTally),
+            IncludeCancelCommand = true)]
+        private async Task RunTallyAsync(CancellationToken cancellationToken)
         {
             try
             {

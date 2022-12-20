@@ -141,7 +141,7 @@ namespace NetTally.ViewModels
 
         public ObservableCollection<IQuest> LinkedQuests { get; } = new();
 
-        public ObservableCollection<IQuest> AvailableQuests { get; }
+        public ObservableCollection<Quest> AvailableQuests { get; }
 
 
         [ObservableProperty]

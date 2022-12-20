@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -56,6 +58,7 @@ namespace NetTally
                 .Build();
         }
 
+        #region Startup and Shutdown
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
             await host.StartAsync();
@@ -91,6 +94,29 @@ namespace NetTally
                 await host.StopAsync(TimeSpan.FromSeconds(5));
             }
         }
+        #endregion Startup and Shutdown
+
+        #region Services
+        private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+        {
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(services);
+
+            // Set configuration options
+            services.Configure<GlobalSettings>(context.Configuration.GetSection(nameof(GlobalSettings)));
+            services.Configure<UserQuests>(context.Configuration.GetSection(nameof(UserQuests)));
+
+            // Add IoCNavigationService for the application.
+            services.AddSingleton<IoCNavigationService>();
+
+            // Register all the Windows of the applications via the service provider.
+            services.AddTransient<MainWindow>();
+            services.AddTransient<GlobalOptions>();
+            services.AddTransient<QuestOptions>();
+            services.AddTransient<ManageVotes>();
+            services.AddTransient<ReorderTasks>();
+        }
+        #endregion Services
 
         #region Configuration Files
         const string UserConfigJsonFile = "userconfig.json";
@@ -167,7 +193,7 @@ namespace NetTally
 
             try
             {
-                var config = GetConfigurationInfo();
+                var config = GetConfigurationToSave();
 
                 using var stream = File.Create(path);
 
@@ -182,46 +208,19 @@ namespace NetTally
         }
 
         /// <summary>
-        /// Get configuration info, put in a wrapper so that the section name is preserved.
+        /// Get configuration info to save into the JSON config file.
         /// </summary>
-        /// <returns>Returns config info in a wrapper.</returns>
-        private ConfigInfoWrapper GetConfigurationInfo()
+        /// <returns>Returns current config info.</returns>
+        private ConfigInfo GetConfigurationToSave()
         {
             MainViewModel mainViewModel = host.Services.GetRequiredService<MainViewModel>();
 
-            ConfigInfoWrapper config = new()
-            {
-                ConfigInfo = new ConfigInfo(mainViewModel.Quests, mainViewModel.ConfigInfo.GlobalSettings)
-            };
+            ConfigInfo config = new(mainViewModel.Quests, mainViewModel.GlobalSettings);
 
             return config;
         }
         #endregion Configuration Files
 
-        #region Services
-        private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-        {
-            // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(services);
-
-            // Then add services known by the current assembly,
-            // or override services provided by the core library.
-
-            //services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
-
-            services.Configure<ConfigInfo>(context.Configuration.GetSection(nameof(ConfigInfo)));
-
-            // Add IoCNavigationService for the application.
-            services.AddSingleton<IoCNavigationService>();
-
-            // Register all the Windows of the applications via the service provider.
-            services.AddTransient<MainWindow>();
-            services.AddTransient<GlobalOptions>();
-            services.AddTransient<QuestOptions>();
-            services.AddTransient<ManageVotes>();
-            services.AddTransient<ReorderTasks>();
-        }
-        #endregion Services
 
         #region Logging
         private void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
