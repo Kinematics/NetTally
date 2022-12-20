@@ -16,21 +16,42 @@ namespace NetTally.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly ILogger<MainViewModel> logger;
-        private readonly IOptions<GlobalSettings> globalSettings;
-        private readonly IOptions<UserQuests> userQuests;
+        private readonly GlobalSettings globalSettings;
+        private readonly UserQuests userQuests;
 
         public MainViewModel(ILogger<MainViewModel> logger,
             IOptions<GlobalSettings> globalSettings,
-            IOptions<UserQuests> userQuests)
+            IOptions<UserQuests> userQuests,
+            ConfigInfo legacyConfig)
         {
             this.logger = logger;
-            this.globalSettings = globalSettings;
-            this.userQuests = userQuests;
+            this.globalSettings = globalSettings.Value;
+            this.userQuests = userQuests.Value;
 
-            Quests = new ObservableCollection<Quest>(userQuests.Value.Quests);
+            if (this.userQuests.Quests.Count == 0 &&
+                legacyConfig.UserQuests.Quests.Count > 0)
+            {
+                Quests = new ObservableCollection<Quest>(legacyConfig.UserQuests.Quests);
+
+                if (!string.IsNullOrEmpty(legacyConfig.UserQuests.CurrentQuest))
+                {
+                    SelectedQuest = legacyConfig.UserQuests.Quests.FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
+                }
+
+                this.globalSettings = legacyConfig.GlobalSettings;
+            }
+            else
+            {
+                Quests = new ObservableCollection<Quest>(this.userQuests.Quests);
+
+                if (!string.IsNullOrEmpty(this.userQuests.CurrentQuest))
+                {
+                    SelectedQuest = this.userQuests.Quests.FirstOrDefault(q => q.ThreadName == this.userQuests.CurrentQuest);
+                }
+            }
         }
 
-        public GlobalSettings GlobalSettings => globalSettings.Value;
+        public GlobalSettings GlobalSettings => globalSettings;
 
         public ObservableCollection<Quest> Quests { get; } = new();
 

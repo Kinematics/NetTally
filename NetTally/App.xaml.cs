@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -30,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
+using NetTally.Collections;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
 using NetTally.Navigation;
@@ -72,6 +74,18 @@ namespace NetTally
             await navigationService.ShowAsync<MainWindow>();
         }
 
+        private async void Application_Exit(object sender, ExitEventArgs e)
+        {
+            using (host)
+            {
+                // Save user config
+                SaveConfiguration();
+
+                // Wait up to 5 seconds before forcing a shutdown.
+                await host.StopAsync(TimeSpan.FromSeconds(5));
+            }
+        }
+
         private void InitializeStartup()
         {
             // Initialize string comparer system.
@@ -81,18 +95,6 @@ namespace NetTally
             // Create logger for the app.
             var loggerFactory = host.Services.GetService<ILoggerFactory>();
             logger = loggerFactory?.CreateLogger<App>();
-        }
-
-        private async void Application_Exit(object sender, ExitEventArgs e)
-        {
-            using (host)
-            {
-                // Save user config
-                await SaveConfiguration();
-
-                // Wait up to 5 seconds before forcing a shutdown.
-                await host.StopAsync(TimeSpan.FromSeconds(5));
-            }
         }
         #endregion Startup and Shutdown
 
@@ -105,6 +107,9 @@ namespace NetTally
             // Set configuration options
             services.Configure<GlobalSettings>(context.Configuration.GetSection(nameof(GlobalSettings)));
             services.Configure<UserQuests>(context.Configuration.GetSection(nameof(UserQuests)));
+
+            if (LegacyConfig is not null)
+                services.AddSingleton(LegacyConfig);
 
             // Add IoCNavigationService for the application.
             services.AddSingleton<IoCNavigationService>();
@@ -120,6 +125,7 @@ namespace NetTally
 
         #region Configuration Files
         const string UserConfigJsonFile = "userconfig.json";
+        ConfigInfo? LegacyConfig;
 
         /// <summary>
         /// Add user configuration files to the configuration builder.
@@ -131,6 +137,29 @@ namespace NetTally
             {
                 builder.AddJsonFile(path, optional: true);
             }
+
+            // Load Legacy Config
+            LegacyConfig = LoadLegacyConfig();
+        }
+
+        private ConfigInfo LoadLegacyConfig()
+        {
+            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
+
+            GlobalSettings gb = new()
+            {
+                DisplayMode = AdvancedOptions.Instance.DisplayMode,
+                DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
+                DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
+                GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
+                RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
+                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
+                TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
+            };
+
+            ConfigInfo config = new(quests.Select(q => (Quest)q).ToList(), currentQuest, gb);
+
+            return config;
         }
 
         /// <summary>
@@ -171,11 +200,11 @@ namespace NetTally
         /// <summary>
         /// Save user configuration on shutdown.
         /// </summary>
-        private async Task SaveConfiguration()
+        private void SaveConfiguration()
         {
             foreach (var path in GetConfigurationPaths())
             {
-                await SaveJsonConfiguration(path);
+                SaveJsonConfiguration(path);
             }
         }
 
@@ -183,12 +212,13 @@ namespace NetTally
         /// Saves the user configuration information to the user config file.
         /// </summary>
         /// <param name="path">The path to the file where the configuration is to be saved.</param>
-        private async Task SaveJsonConfiguration(string path)
+        private void SaveJsonConfiguration(string path)
         {
-            JsonSerializerOptions jsonOptions = new() {
+            JsonSerializerOptions jsonOptions = new()
+            {
                 WriteIndented = true,
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
-                IgnoreReadOnlyProperties= true
+                IgnoreReadOnlyProperties = true
             };
 
             try
@@ -197,7 +227,8 @@ namespace NetTally
 
                 using var stream = File.Create(path);
 
-                await JsonSerializer.SerializeAsync(stream, config, jsonOptions);
+                // Async can fail on large saves when exiting. Use sync.
+                JsonSerializer.Serialize(stream, config, jsonOptions);
 
                 logger?.LogInformation("Configuration saved to {path}", path);
             }
@@ -215,7 +246,7 @@ namespace NetTally
         {
             MainViewModel mainViewModel = host.Services.GetRequiredService<MainViewModel>();
 
-            ConfigInfo config = new(mainViewModel.Quests, mainViewModel.GlobalSettings);
+            ConfigInfo config = new(mainViewModel.Quests, mainViewModel.SelectedQuest?.ThreadName, mainViewModel.GlobalSettings);
 
             return config;
         }

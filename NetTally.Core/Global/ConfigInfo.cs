@@ -17,9 +17,9 @@ namespace NetTally.Global
         }
 
         [SetsRequiredMembers]
-        public ConfigInfo(IEnumerable<Quest> quests, GlobalSettings globalSettings)
+        public ConfigInfo(IEnumerable<Quest> quests, string? currentQuest, GlobalSettings globalSettings)
         {
-            UserQuests = new(quests);
+            UserQuests = new(quests, currentQuest);
             GlobalSettings = globalSettings;
         }
 
