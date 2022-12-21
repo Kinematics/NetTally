@@ -95,6 +95,20 @@ namespace NetTally
             // Create logger for the app.
             var loggerFactory = host.Services.GetService<ILoggerFactory>();
             logger = loggerFactory?.CreateLogger<App>();
+
+            // Create handlers for unhandled exceptions
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+        }
+
+        private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
+        {
+            logger?.LogDebug(e.Exception, "First chance exception warning.");
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            logger?.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
         }
         #endregion Startup and Shutdown
 
