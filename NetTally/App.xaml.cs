@@ -19,12 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +69,7 @@ namespace NetTally
 
             // Request the navigation service and create our main window.
             var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
-            await navigationService.ShowAsync<MainWindow>();
+            await navigationService.ShowAsync<MainWindow2>();
         }
 
         private async void Application_Exit(object sender, ExitEventArgs e)
@@ -130,8 +128,10 @@ namespace NetTally
 
             // Register all the Windows of the applications via the service provider.
             services.AddTransient<MainWindow>();
+            services.AddTransient<MainWindow2>();
             services.AddTransient<GlobalOptions>();
             services.AddTransient<QuestOptions>();
+            services.AddTransient<QuestOptions2>();
             services.AddTransient<ManageVotes>();
             services.AddTransient<ReorderTasks>();
         }

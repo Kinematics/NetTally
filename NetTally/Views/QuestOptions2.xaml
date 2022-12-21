@@ -1,0 +1,352 @@
+﻿<Window x:Class="NetTally.Views.QuestOptions2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        mc:Ignorable="d"
+        xmlns:local="clr-namespace:NetTally"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:QuestOptionsViewModel}"
+        Title="Quest Options" Height="520" Width="640" ShowInTaskbar="False" ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico">
+
+    <Window.Resources>
+        <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"></converters:ThreeStateBoolConverter>
+    </Window.Resources>
+
+    <Grid>
+        <TextBlock x:Name="questLabel" HorizontalAlignment="Left" Margin="10,12,0,0" TextWrapping="Wrap"
+                   Text="Quest:" VerticalAlignment="Top" FontSize="14.667"/>
+        <TextBox x:Name="QuestNameBox" Margin="60,10,10,10" Height="25"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Text="{Binding Path=DisplayName}"
+                 GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown"/>
+
+        <TextBlock x:Name="uriLabel" HorizontalAlignment="Left" Margin="10,42,0,0" TextWrapping="Wrap"
+                   Text="URL:" VerticalAlignment="Top" FontSize="14.667"/>
+        <TextBox x:Name="QuestUrlBox" Margin="60,40,10,10" Height="25"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Text="{Binding Path=ThreadName}"
+                 GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown"/>
+
+        <TabControl x:Name="tabControl" Margin="0,80,0,0" VerticalAlignment="Stretch">
+            <TabItem Header="Filters">
+                <Grid Background="#FFE5E5E5">
+                    <CheckBox x:Name="useCustomThreadmarkFilters" Content="Use custom threadmark filters"
+                              HorizontalAlignment="Left"  VerticalAlignment="Top" Margin="10,10,0,0"
+                             IsChecked="{Binding Path=UseCustomThreadmarkFilters}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Use Custom Threadmark Filters</TextBlock>
+                                    <TextBlock>When set, use the threadmark filters defined in the textbox below.</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <TextBlock x:Name="describeCustomThreadmarkFilters" Margin="29,31,11,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. The default value that will always be skipped is the word 'omake'." />
+                    <TextBox x:Name="customThreadmarkFilters" Height="23" Margin="30,68,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+                             Text="{Binding Path=CustomThreadmarkFilters}" IsEnabled="{Binding ElementName=useCustomThreadmarkFilters, Path=IsChecked}">
+                        <TextBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Custom Threadmark Filters</TextBlock>
+                                    <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </TextBox.ToolTip>
+                    </TextBox>
+
+                    <CheckBox x:Name="useCustomTaskFilters" Content="Use custom task filters"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,96,0,0"
+                              IsChecked="{Binding Path=UseCustomTaskFilters}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Use Custom Task Filters</TextBlock>
+                                    <TextBlock>When set, use the task filters defined in the textbox below.</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <TextBlock x:Name="describeCustomTaskFilters" Margin="29,117,11,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="Limit tally results to the specified tasks only.  This value is not saved across sessions." />
+                    <TextBox x:Name="customTaskFilters" Height="23" Margin="30,138,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+                             Text="{Binding Path=CustomTaskFilters}" IsEnabled="{Binding ElementName=useCustomTaskFilters, Path=IsChecked}">
+                        <TextBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Custom Task Filters</TextBlock>
+                                    <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </TextBox.ToolTip>
+                    </TextBox>
+
+                    <CheckBox x:Name="useCustomUsernameFilters" Content="Use custom username filters"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,166,0,0"
+                              IsChecked="{Binding Path=UseCustomUsernameFilters}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Use Custom Username Filters</TextBlock>
+                                    <TextBlock>When set, use the username filters defined in the textbox below.</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <TextBlock x:Name="describeCustomUsernameFilters" Margin="29,187,11,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="Do not include the specified users in the tally. If no value is set, the tally will default to ignoring the thread author."/>
+                    <TextBox x:Name="customUsernameFilters" Height="23" Margin="29,224,11,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+                             Text="{Binding Path=CustomUsernameFilters}" IsEnabled="{Binding ElementName=useCustomUsernameFilters, Path=IsChecked}">
+                        <TextBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Custom Username Filters</TextBlock>
+                                    <TextBlock>Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/).</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </TextBox.ToolTip>
+                    </TextBox>
+
+                    <CheckBox x:Name="useCustomPostFilters" Content="Use custom post filters"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,252,0,0"
+                              IsChecked="{Binding UseCustomPostFilters}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold"><Run Text="Use Custom Post Filters"/></TextBlock>
+                                    <TextBlock><Run Text="When set, filter out the post numbers in the below list."/></TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <TextBlock x:Name="describeCustomPostFilters" Margin="29,273,11,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="Do not include votes with the specified post numbers or IDs in the tally." />
+                    <TextBox x:Name="customPostFilters" Height="23" Margin="30,294,10,0" TextWrapping="Wrap" VerticalAlignment="Top" ToolTipService.ShowOnDisabled="True"
+                             Text="{Binding CustomPostFilters}" IsEnabled="{Binding IsChecked, ElementName=useCustomPostFilters}">
+                        <TextBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold"><Run Text="Custom Post Filters"/></TextBlock>
+                                    <TextBlock><Run Text="Enter a space or comma-delimited list of values, or a number range (eg: 120-130)."/></TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </TextBox.ToolTip>
+                    </TextBox>
+                    
+                    <Button x:Name="ResetButton1" Content="Reset" Margin="10,0,0,10"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
+                            Command="{Binding ResetCommand}"/>
+                    <Button x:Name="ClearFiltersButton" Content="Clear" Margin="90,0,0,10"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
+                            Click="ClearFiltersButton_Click"/>
+                    <Button x:Name="SaveButton1" Content="Save" Margin="0,0,95,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
+                    <Button x:Name="CancelButton1" Content="Cancel" Margin="0,0,10,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Options">
+                <Grid Background="#FFE5E5E5">
+                    <ComboBox x:Name="postsPerPage" Margin="10,10,0,0" VerticalAlignment="Top" Height="30"  HorizontalAlignment="Left" Width="65"
+                              ItemsSource="{Binding Path=ValidPostsPerPage}" SelectedItem="{Binding Path=PostsPerPage}" 
+                              VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Posts Per Page</TextBlock>
+                                    <TextBlock>Specify the number of posts per page for this forum thread.</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </ComboBox.ToolTip>
+                    </ComboBox>
+                    <TextBlock x:Name="describePostsPerPage" Margin="86,17,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
+
+                    <Label x:Name="labelFormatting" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"
+                           Content="Rules for handling votes in this quest:" FontSize="14" />
+
+                    <CheckBox Grid.Column="0" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,95,0,0"
+                              IsChecked="{Binding Path=WhitespaceAndPunctuationIsSignificant}" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Whitespace &amp; Punctuation is Significant"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, this makes it so that whitespace and punctuation is significant when comparing votes and voters.  Enable it if votes that should be considered separate are being treated as the same."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox Grid.Column="0" x:Name="caseIsSignificant" Content="Case is Significant"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,115,0,0"
+                              IsChecked="{Binding CaseIsSignificant}" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Case is Significant"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, this makes the comparison case sensitive"/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="forcePlanReferencesToBeLabeled" Content="Force Plan References to be Labeled"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,135,0,0"
+                              IsChecked="{Binding Path=ForcePlanReferencesToBeLabeled}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Plan References to be Labeled"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, references to plans must use the initial label of 'plan'.  Lack of such a label implies the vote line will be treated as normal text."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,155,0,0"
+                              IsChecked="{Binding Path=ForbidVoteLabelPlanNames}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Forbid Vote Labels as Plan Names"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, votes that have a 'plan' line (which has no content) as the first line of the vote, ignore that as a means of giving the entire vote a plan name."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="allowUsersToUpdatePlans" Content="Allow users to update their own plans in later posts"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,175,0,0"
+                              IsChecked="{Binding Path=AllowUsersToUpdatePlans}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Allow Users to Update Their Plans"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,195,0,0"
+                              IsChecked="{Binding Path=DisableProxyVotes}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Disable User Proxy Votes"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are disabled.  This allows valid votes that happened to be the same as another user's name to be properly counted."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,215,0,0"
+                              IsChecked="{Binding Path=ForcePinnedProxyVotes}">
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Force Pinned Proxy Votes"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, user proxy votes (votes for another user, in order to import their vote into your own) are always considered 'pinned', rather than 'tracking'.  That is, they will always refer to a vote prior to the vote currently being processed."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox Grid.Column="0" x:Name="ignoreSpoilers" Content="Ignore Spoilers"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,235,0,0"
+                              IsChecked="{Binding Path=IgnoreSpoilers}" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Ignore Spoilers"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, this ignores spoiler blocks within posts.  Content within spoilers will not be tallied, and tally results inside spoilers will not cause the entire post to be ignored."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,255,0,0"
+                              IsChecked="{Binding Path=TrimExtendedText}" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Trim Extended Vote Descriptions"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, the program will attempt to trim excess text from long text line, if there's a punctuation separator (colon, em dash, or hyphen) that it recognizes in an appropriate spot (less than 30% of the full string length, and not inside parentheses)."/>
+                                    <TextBlock TextWrapping="Wrap" FontStyle="Italic" Text="Experimental."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+
+                    <CheckBox Grid.Column="0" x:Name="useRSSThreadmarks" Content="Use RSS Threadmarks"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,290,0,0"
+                              IsChecked="{Binding Path=UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
+                        <CheckBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" MaxWidth="640">
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" Text="Use RSS Threadmarks"/>
+                                    <TextBlock TextWrapping="Wrap" Text="When set, searching for the last threadmark for the thread will request the RSS feed for the thread first."/>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to unknown."/>
+                                </StackPanel>
+                            </ToolTip>
+                        </CheckBox.ToolTip>
+                    </CheckBox>
+
+                    <Button x:Name="ResetButton2" Content="Reset" Margin="10,0,0,10"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
+                            Command="{Binding ResetCommand}"/>
+                    <Button x:Name="ClearOptionsButton" Content="Clear" Margin="90,0,0,10"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
+                            Click="ClearOptionsButton_Click"/>
+                    <Button x:Name="SaveButton2" Content="Save" Margin="0,0,95,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
+                    <Button x:Name="CancelButton2" Content="Cancel" Margin="0,0,10,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Linked Quests" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="93" Margin="0">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="linkedQuests" HorizontalAlignment="Left" Height="158" VerticalAlignment="Top" Width="524" Margin="10,10,0,0"
+                             ItemsSource="{Binding LinkedQuests}"/>
+                    <Button x:Name="removeLinkedQuest" Content="Remove"
+                            HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="539,10,0,0"
+                            Command="{Binding Path=RemoveLinkedQuestCommand}"
+                            CommandParameter="{Binding ElementName=linkedQuests, Path=SelectedItem}"/>
+                    <ComboBox x:Name="availableQuests" HorizontalAlignment="Left" VerticalAlignment="Top" Width="524" Margin="10,173,0,0"
+                              ItemsSource="{Binding AvailableQuests}"/>
+                    <Button x:Name="addLinkedQuest" Content="Add"
+                            HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="539,173,0,0"
+                            Command="{Binding Path=AddLinkedQuestCommand}"
+                            CommandParameter="{Binding ElementName=availableQuests, Path=SelectedValue}" />
+
+                    <Button x:Name="SaveButton3" Content="Save" Margin="0,0,95,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
+                    <Button x:Name="CancelButton3" Content="Cancel" Margin="0,0,10,10"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
+                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
