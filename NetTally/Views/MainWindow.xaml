@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
-        Height="617.588" Width="926" MinWidth="857" Closing="Window_Closing" MinHeight="200"
+        Height="620" Width="926" MinWidth="857" Closing="Window_Closing" MinHeight="200"
         Icon="/Assets/CheckVoteWin.ico" KeyUp="Window_KeyUp">
 
     <Window.Resources>
