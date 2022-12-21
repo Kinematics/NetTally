@@ -21,19 +21,6 @@ namespace NetTally
 
         public int CompareTo(Quest? other) => Compare(this, other);
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is Quest other)
-            {
-                if (ReferenceEquals(this, other))
-                    return true;
-
-                return QuestId == other.QuestId;
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Hash code for the quest object.
         /// </summary>
@@ -61,7 +48,18 @@ namespace NetTally
 
         public bool Equals(Quest? other)
         {
-            throw new NotImplementedException();
+            if (other is null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return QuestId == other.QuestId;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as Quest);
         }
 
         public static bool operator ==(Quest? left, Quest? right)
