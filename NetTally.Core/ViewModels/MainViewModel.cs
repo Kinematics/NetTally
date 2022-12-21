@@ -28,6 +28,10 @@ namespace NetTally.ViewModels
             this.globalSettings = globalSettings.Value;
             this.userQuests = userQuests.Value;
 
+            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+            System.Net.ServicePointManager.Expect100Continue = true;
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+
             if (this.userQuests.Quests.Count == 0 &&
                 legacyConfig.UserQuests.Quests.Count > 0)
             {
