@@ -16,7 +16,7 @@ namespace NetTally.Tests.Votes
         static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
 
 
         [ClassInitialize]

@@ -8,6 +8,6 @@ namespace NetTally.Utility.Comparers
 {
     public interface IAgnostic
     {
-        void ComparisonPropertyChanged(IQuest quest, PropertyChangedEventArgs e);
+        void ComparisonPropertyChanged(Quest quest, PropertyChangedEventArgs e);
     }
 }

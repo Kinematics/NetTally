@@ -37,7 +37,7 @@ namespace NTTests.QuestTests
         static IServiceProvider serviceProvider = null!;
         static IPageProvider pageProvider = null!;
 
-        protected IQuest quest { get; set; } = new Quest();
+        protected Quest quest { get; set; } = new Quest();
         bool notified;
         readonly List<string> propertiesRaised = new List<string>();
 

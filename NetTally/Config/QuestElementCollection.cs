@@ -42,7 +42,7 @@ namespace NetTally
             }
         }
 
-        public void Add(IQuest quest)
+        public void Add(Quest quest)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));

@@ -38,7 +38,7 @@ namespace NetTally.Votes
         /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
         /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
         /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
-        public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
+        public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, Quest quest,
             bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
         {
             Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
@@ -70,7 +70,7 @@ namespace NetTally.Votes
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns a list of all vote partitions from this post.
         /// May return null if nothing was processed.</returns>
-        public List<VoteLineBlock>? ProcessPostGetVotes(Post post, IQuest quest)
+        public List<VoteLineBlock>? ProcessPostGetVotes(Post post, Quest quest)
         {
             if (post.Processed)
                 return null;
@@ -175,7 +175,7 @@ namespace NetTally.Votes
         /// <param name="post">The post with the working vote to configure.</param>
         /// <param name="quest">The quest being tallied.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
-        public void ConfigureWorkingVote(Post post, IQuest quest)
+        public void ConfigureWorkingVote(Post post, Quest quest)
         {
             if (post.WorkingVoteComplete)
                 return;
@@ -339,7 +339,7 @@ namespace NetTally.Votes
         /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
-        private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, IQuest quest)
+        private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, Quest quest)
         {
             // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
             if (voteLine.CleanContent.Length > 100)
@@ -434,7 +434,7 @@ namespace NetTally.Votes
         /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-        private bool DoesTaskFilterPass(VoteLineBlock block, IQuest quest)
+        private bool DoesTaskFilterPass(VoteLineBlock block, Quest quest)
         {
             // Always allow if no filters are active.
             if (!quest.UseCustomTaskFilters)

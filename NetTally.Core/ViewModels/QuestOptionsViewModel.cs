@@ -11,7 +11,7 @@ namespace NetTally.ViewModels
     public partial class QuestOptionsViewModel : ObservableObject
     {
         private readonly ILogger<QuestOptionsViewModel> logger;
-        private readonly IQuest quest;
+        private readonly Quest quest;
 
         public QuestOptionsViewModel(
             ILogger<QuestOptionsViewModel> logger,
@@ -108,7 +108,7 @@ namespace NetTally.ViewModels
             SaveCompleted?.Invoke();
         }
 
-        public event Action SaveCompleted;
+        public event Action? SaveCompleted;
 
         [RelayCommand]
         private void Reset()
@@ -117,7 +117,7 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
-        private void AddLinkedQuest(IQuest? quest)
+        private void AddLinkedQuest(Quest? quest)
         {
             if (quest is not null)
             {
@@ -129,7 +129,7 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
-        private void RemoveLinkedQuest(IQuest? quest)
+        private void RemoveLinkedQuest(Quest? quest)
         {
             if (quest is not null)
             {
@@ -142,7 +142,7 @@ namespace NetTally.ViewModels
 
         public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
 
-        public ObservableCollection<IQuest> LinkedQuests { get; } = new();
+        public ObservableCollection<Quest> LinkedQuests { get; } = new();
 
         public ObservableCollection<Quest> AvailableQuests { get; }
 

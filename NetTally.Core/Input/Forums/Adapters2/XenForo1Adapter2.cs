@@ -89,7 +89,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        public string GetUrlForPage(IQuest quest, int page)
+        public string GetUrlForPage(Quest quest, int page)
         {
             if (page < 1)
                 throw new ArgumentException($"Invalid page number: {page}", nameof(page));
@@ -126,7 +126,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -157,7 +157,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
@@ -224,7 +224,7 @@ namespace NetTally.Forums.Adapters2
 
         #region Get ThreadInfoRange information
         private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetThreadmarksRange(
-            IQuest quest, IPageProvider pageProvider, CancellationToken token)
+            Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 return (false, ThreadRangeInfo.Empty);
@@ -306,7 +306,7 @@ namespace NetTally.Forums.Adapters2
         }
 
         private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
-            IQuest quest, IPageProvider pageProvider, CancellationToken token)
+            Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
                 return (false, ThreadRangeInfo.Empty);
@@ -387,7 +387,7 @@ namespace NetTally.Forums.Adapters2
             return (false, ThreadRangeInfo.Empty);
         }
 
-        private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, IQuest quest)
+        private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, Quest quest)
         {
             try
             {
@@ -458,7 +458,7 @@ namespace NetTally.Forums.Adapters2
             return messageList?.Elements("li") ?? Enumerable.Empty<HtmlNode>();
         }
 
-        private Post? GetPost(HtmlNode li, IQuest quest)
+        private Post? GetPost(HtmlNode li, Quest quest)
         {
             if (li == null)
                 return null;
@@ -494,7 +494,7 @@ namespace NetTally.Forums.Adapters2
             return li.Id.Substring("post-".Length);
         }
 
-        private string GetPostText(HtmlNode li, IQuest quest)
+        private string GetPostText(HtmlNode li, Quest quest)
         {
             // Get the primary content of the list item
             HtmlNode? primaryContent = li.GetChildWithClass("primaryContent");

@@ -8,21 +8,21 @@ namespace NetTally.Collections
     /// Generic observable collection for Quest items.
     /// Can be serialized via Data Contract.
     /// </summary>
-    public class QuestCollection : ObservableCollection<IQuest>
+    public class QuestCollection : ObservableCollection<Quest>
     {
         /// <summary>
         /// Indexer into the collection by quest name.
         /// </summary>
         /// <param name="name">The name of the quest to look for.</param>
         /// <returns>Returns the quest if found, or null if not.</returns>
-        public IQuest? this[string name] => this.FirstOrDefault(q => q.ThreadName == name);
+        public Quest? this[string name] => this.FirstOrDefault(q => q.ThreadName == name);
 
         /// <summary>
         /// Add a new quest to the current collection.
         /// </summary>
         /// <returns>Returns the newly created quest if it was successfully added,
         /// or returns null if it was not (ie: duplicate).</returns>
-        public IQuest? AddNewQuest()
+        public Quest? AddNewQuest()
         {
             var nq = new Quest();
             Add(nq);
@@ -37,7 +37,7 @@ namespace NetTally.Collections
         /// </summary>
         /// <param name="index">Index to enter the new item at.</param>
         /// <param name="item">Item to be entered.</param>
-        protected override void InsertItem(int index, IQuest item)
+        protected override void InsertItem(int index, Quest item)
         {
             if (this.Any(q => q.ThreadName == item.ThreadName))
                 return;
@@ -45,54 +45,10 @@ namespace NetTally.Collections
             base.InsertItem(index, item);
         }
 
-
-        #region XML Serialization
-        //public string GetAsSerializedXml()
-        //{
-        //    string xml;
-
-        //    var questList = GetAsQuestType();
-
-        //    XmlSerializer ser = new XmlSerializer(questList.GetType());
-
-        //    using (StringWriter textWriter = new StringWriter())
-        //    {
-        //        ser.Serialize(textWriter, questList);
-        //        xml = textWriter.ToString();
-        //    }
-
-        //    return xml;
-        //}
-
-        public List<Quest> GetAsQuestType()
-        {
-            var collectionAsQuests = from q in this
-                                     let qq = q as Quest
-                                     where qq != null
-                                     select qq;
-
-            return collectionAsQuests.ToList();
-        }
-
-        //public void DeserializeFromXml(string xml)
-        //{
-        //    XmlSerializer ser = new XmlSerializer(typeof(List<Quest>));
-
-        //    List<Quest> questList;
-
-        //    using (StringReader textReader = new StringReader(xml))
-        //    {
-        //        questList = (List<Quest>)ser.Deserialize(textReader);
-        //    }
-
-        //    AddQuests(questList);
-        //}
-
         public void AddQuests(IEnumerable<Quest> quests)
         {
             foreach (var quest in quests)
                 Add(quest);
         }
-        #endregion
     }
 }

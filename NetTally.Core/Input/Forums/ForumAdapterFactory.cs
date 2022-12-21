@@ -55,7 +55,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
         /// <param name="token">A cancellation token for if we need to make a web request.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async Task<IForumAdapter2> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<IForumAdapter2> CreateForumAdapterAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest.ThreadUri == Quest.InvalidThreadUri)
                 throw new InvalidOperationException("Quest does not have a valid thread specified.");

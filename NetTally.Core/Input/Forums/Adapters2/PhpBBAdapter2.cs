@@ -64,7 +64,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        public string GetUrlForPage(IQuest quest, int page)
+        public string GetUrlForPage(Quest quest, int page)
         {
             if (page < 1)
                 throw new ArgumentException($"Invalid page number: {page}", nameof(page));
@@ -103,7 +103,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -119,7 +119,7 @@ namespace NetTally.Forums.Adapters2
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return Enumerable.Empty<Post>();
@@ -199,7 +199,7 @@ namespace NetTally.Forums.Adapters2
             return pagebody.Elements("div").Where(p => p.HasClass("post"));
         }
 
-        private Post? GetPost(HtmlNode div, IQuest quest, int postNumber)
+        private Post? GetPost(HtmlNode div, Quest quest, int postNumber)
         {
             if (div == null)
                 return null;
@@ -241,7 +241,7 @@ namespace NetTally.Forums.Adapters2
             return ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
         }
 
-        private string GetPostText(HtmlNode div, IQuest quest)
+        private string GetPostText(HtmlNode div, Quest quest)
         {
             // Get the full post text.  Two different layout variants.
             HtmlNode? inner = div.GetChildWithClass("div", "inner");

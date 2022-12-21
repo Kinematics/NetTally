@@ -194,7 +194,7 @@ namespace NetTally.Avalonia.Config
         {
             currentQuest = CurrentQuest;
             quests = new QuestCollection();
-            Dictionary<IQuest, string> linkedQuestNames = new Dictionary<IQuest, string>();
+            Dictionary<Quest, string> linkedQuestNames = new();
 
             foreach (QuestElement? questElement in Quests)
             {
@@ -203,7 +203,7 @@ namespace NetTally.Avalonia.Config
 
                 try
                 {
-                    Quest q = new Quest
+                    Quest q = new()
                     {
                         DisplayName = questElement.DisplayName,
                         ThreadName = questElement.ThreadName,

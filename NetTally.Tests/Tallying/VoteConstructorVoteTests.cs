@@ -17,7 +17,7 @@ namespace NetTally.Tests.Tallying
         static IServiceProvider serviceProvider = null!;
         static VoteConstructor voteConstructor = null!;
         static IVoteCounter voteCounter = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)

@@ -7,7 +7,7 @@ namespace NetTally
     /// <summary>
     /// Implement <see cref="INotifyPropertyChanged"/> for <see cref="NetTally.Quest"/> class.
     /// </summary>
-    public partial class Quest : IQuest
+    public partial class Quest2 
     {
         /// <summary>
         /// Event for INotifyPropertyChanged.

@@ -119,7 +119,7 @@ namespace NetTally.VoteCounting
         /// <param name="e">Info about a property of the quest that changed.</param>
         private async void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (sender is IQuest quest)
+            if (sender is Quest quest)
             {
                 if (quest == voteCounter.Quest 
                     && string.Equals(e.PropertyName, "PartitionMode", StringComparison.Ordinal))
@@ -184,7 +184,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="quest">The quest to scan.</param>
         /// <param name="token">Cancellation token.</param>
-        public async Task RunAsync(IQuest quest, CancellationToken token)
+        public async Task RunAsync(Quest quest, CancellationToken token)
         {
             if (quest == null)
                 throw new ArgumentNullException(nameof(quest));
@@ -384,7 +384,7 @@ namespace NetTally.VoteCounting
         /// <param name="posts">The posts to be tallied.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="token">Cancellation token.</param>
-        public async Task TallyPosts(IEnumerable<Post> posts, IQuest quest, CancellationToken token)
+        public async Task TallyPosts(IEnumerable<Post> posts, Quest quest, CancellationToken token)
         {
             voteCounter.Quest = quest;
             voteCounter.AddPosts(posts);
@@ -472,7 +472,7 @@ namespace NetTally.VoteCounting
         /// <param name="planProcesses">The list of functions to run on the posts.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-        private Dictionary<string, VoteLineBlock> RunPlanPreprocessing(IReadOnlyList<Post> posts, IQuest quest,
+        private Dictionary<string, VoteLineBlock> RunPlanPreprocessing(IReadOnlyList<Post> posts, Quest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
             CancellationToken token)
         {

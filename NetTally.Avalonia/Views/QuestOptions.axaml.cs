@@ -13,12 +13,12 @@ namespace NetTally.Avalonia.Views
     {
         #region Private Properties
         private ILogger<QuestOptions> Logger { get; }
-        private IQuest Quest { get; }
-        private IQuest ShadowCopy { get; }
-        private IEnumerable<IQuest> QuestList { get; }
+        private Quest Quest { get; }
+        private Quest ShadowCopy { get; }
+        private IEnumerable<Quest> QuestList { get; }
         #endregion        
 
-        public QuestOptions(IQuest quest, ILogger<QuestOptions> logger, Collections.QuestCollection questList)
+        public QuestOptions(Quest quest, ILogger<QuestOptions> logger, Collections.QuestCollection questList)
         {
             this.Quest = quest;
             this.ShadowCopy = quest.GetShadowCopy();
@@ -111,7 +111,7 @@ namespace NetTally.Avalonia.Views
 
         public void AddLinkedQuest_Click(object sender, RoutedEventArgs e)
         {
-            if (this.FindControl<ComboBox>("AvailableQuests").SelectedItem is IQuest selectedQuest)
+            if (this.FindControl<ComboBox>("AvailableQuests").SelectedItem is Quest selectedQuest)
             {
                 this.ShadowCopy.AddLinkedQuest(selectedQuest);
             }
@@ -119,7 +119,7 @@ namespace NetTally.Avalonia.Views
 
         public void RemoveLinkedQuest_Click(object sender, RoutedEventArgs e)
         {
-            if (this.FindControl<ListBox>("LinkedQuests").SelectedItem is IQuest selectedQuest)
+            if (this.FindControl<ListBox>("LinkedQuests").SelectedItem is Quest selectedQuest)
             {
                 this.ShadowCopy.RemoveLinkedQuest(selectedQuest);
             }

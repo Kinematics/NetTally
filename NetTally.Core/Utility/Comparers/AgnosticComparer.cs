@@ -58,7 +58,7 @@ namespace NetTally.Utility.Comparers
         /// <summary>
         /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
         /// </value>
-        public static StringComparer QuestSensitiveStringComparer(IQuest quest)
+        public static StringComparer QuestSensitiveStringComparer(Quest quest)
         {
             return
                 quest switch
@@ -87,7 +87,7 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <param name="mainViewModel">The view model that allows us to check the current quest's options.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        public void ComparisonPropertyChanged(IQuest quest, PropertyChangedEventArgs e)
+        public void ComparisonPropertyChanged(Quest quest, PropertyChangedEventArgs e)
         {
             if (e.PropertyName is not null)
             {

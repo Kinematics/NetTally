@@ -29,10 +29,10 @@ namespace NetTally.Forums.Adapters2
         public string GetDefaultLineBreak(Uri uri) => "";
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx GetHasRssThreadmarksFeed(Uri uri) => BoolEx.False;
-        public IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber) => Enumerable.Empty<Post>();
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token) 
+        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => Enumerable.Empty<Post>();
+        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token) 
             => Task.FromResult(new ThreadRangeInfo(false, 0));
         public ThreadInfo GetThreadInfo(HtmlDocument page) => new ThreadInfo("Unknown", "Unknown", 1);
-        public string GetUrlForPage(IQuest quest, int page) => "";
+        public string GetUrlForPage(Quest quest, int page) => "";
     }
 }

@@ -17,7 +17,7 @@ namespace NetTally.Tests.Votes
         static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
         static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]

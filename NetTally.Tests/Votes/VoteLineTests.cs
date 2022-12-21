@@ -20,14 +20,14 @@ namespace NetTally.Tests.Votes
             serviceProvider = TestStartup.ConfigureServices();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
-            IQuest quest = new Quest();
+            Quest quest = new Quest();
             agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            IQuest quest = new Quest();
+            Quest quest = new Quest();
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
             agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));

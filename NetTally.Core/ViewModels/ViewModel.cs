@@ -177,8 +177,8 @@ namespace NetTally.ViewModels
         /// <summary>
         /// The currently selected quest.
         /// </summary>
-        IQuest? selectedQuest;
-        public IQuest? SelectedQuest
+        Quest? selectedQuest;
+        public Quest? SelectedQuest
         {
             get { return selectedQuest; }
             set
@@ -222,7 +222,7 @@ namespace NetTally.ViewModels
         #endregion
 
         #region Manage Events from the Quest
-        private void BindQuest(IQuest? quest)
+        private void BindQuest(Quest? quest)
         {
             if (quest != null)
             {
@@ -234,7 +234,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private void UnbindQuest(IQuest? quest)
+        private void UnbindQuest(Quest? quest)
         {
             if (quest != null)
             {
@@ -249,11 +249,11 @@ namespace NetTally.ViewModels
                 QuestList.Sort();
                 OnPropertyChanged("RenameQuest");
             }
-            else if (e.PropertyName == $"{nameof(IQuest.CaseIsSignificant)}")
+            else if (e.PropertyName == $"{nameof(Quest.CaseIsSignificant)}")
             {
                 agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
             }
-            else if (e.PropertyName == $"{nameof(IQuest.WhitespaceAndPunctuationIsSignificant)}")
+            else if (e.PropertyName == $"{nameof(Quest.WhitespaceAndPunctuationIsSignificant)}")
             {
                 agnostic.ComparisonPropertyChanged(SelectedQuest!, e);
             }
@@ -269,7 +269,7 @@ namespace NetTally.ViewModels
         /// Adds the quest quietly.
         /// </summary>
         /// <param name="questToAdd">The quest to add.</param>
-        public void AddQuestQuiet(IQuest questToAdd)
+        public void AddQuestQuiet(Quest questToAdd)
         {
             if (questToAdd != null)
             {
@@ -303,7 +303,7 @@ namespace NetTally.ViewModels
         /// Removes the quest quietly.
         /// </summary>
         /// <param name="questToRemove">The quest to remove.</param>
-        public void RemoveQuestQuiet(IQuest questToRemove)
+        public void RemoveQuestQuiet(Quest questToRemove)
         {
             if (questToRemove != null)
             {
@@ -349,7 +349,7 @@ namespace NetTally.ViewModels
             if (SelectedQuest == null)
                 return false;
 
-            if (parameter is IQuest questToAdd)
+            if (parameter is Quest questToAdd)
             {
                 if (SelectedQuest == questToAdd)
                     return false;
@@ -369,7 +369,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">An IQuest that should be linked to the current quest.</param>
         private void AddLinkedQuest(object? parameter)
         {
-            if (parameter is IQuest questToAdd)
+            if (parameter is Quest questToAdd)
             {
                 SelectedQuest?.AddLinkedQuest(questToAdd);
             }
@@ -394,7 +394,7 @@ namespace NetTally.ViewModels
             if (SelectedQuest == null)
                 return false;
 
-            if (parameter is IQuest questToAdd)
+            if (parameter is Quest questToAdd)
             {
                 if (SelectedQuest.HasLinkedQuest(questToAdd))
                 {
@@ -411,7 +411,7 @@ namespace NetTally.ViewModels
         /// <param name="parameter">An IQuest that should be removed from the current quest.</param>
         private void RemoveLinkedQuest(object? parameter)
         {
-            if (parameter is IQuest questToRemove)
+            if (parameter is Quest questToRemove)
             {
                 SelectedQuest?.RemoveLinkedQuest(questToRemove);
             }
@@ -437,14 +437,14 @@ namespace NetTally.ViewModels
         /// <param name="parameter"></param>
         private void DoAddQuest(object? parameter)
         {
-            if (parameter is IQuest quest)
+            if (parameter is Quest quest)
             {
                 QuestList.Add(quest);
                 SelectedQuest = quest;
             }
             else
             {
-                IQuest? newEntry = QuestList.AddNewQuest();
+                Quest? newEntry = QuestList.AddNewQuest();
 
                 if (newEntry != null)
                 {
@@ -479,7 +479,7 @@ namespace NetTally.ViewModels
         /// SelectedQuest.</param>
         private void DoRemoveQuest(object? parameter)
         {
-            if (GetThisQuest(parameter) is IQuest questToRemove)
+            if (GetThisQuest(parameter) is Quest questToRemove)
             {
                 int index = QuestList.IndexOf(questToRemove);
 
@@ -803,9 +803,9 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="parameter">Indicator of what quest is being requested.</param>
         /// <returns>Returns an IQuest based on the above stipulations, or null.</returns>
-        private IQuest? GetThisQuest(object? parameter)
+        private Quest? GetThisQuest(object? parameter)
         {
-            if (parameter is IQuest quest)
+            if (parameter is Quest quest)
             {
                 return quest;
             }

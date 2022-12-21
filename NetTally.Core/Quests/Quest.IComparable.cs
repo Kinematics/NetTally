@@ -5,7 +5,7 @@ namespace NetTally
     /// <summary>
     /// Implement <see cref="IComparable"/> for <see cref="NetTally.Quest"/> class.
     /// </summary>
-    public partial class Quest : IQuest
+    public partial class Quest : IComparable<Quest>, IComparable, IEquatable<Quest>
     {
         /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that
@@ -17,21 +17,18 @@ namespace NetTally
         /// <returns>
         /// Returns -1 if this is before obj, 0 if it's the same, and 1 if it's after obj.
         /// </returns>
-        public int CompareTo(object? obj) => Compare(this, obj as IQuest);
+        public int CompareTo(object? obj) => Compare(this, obj as Quest);
 
-        public int CompareTo(IQuest other) => Compare(this, other);
+        public int CompareTo(Quest? other) => Compare(this, other);
 
         public override bool Equals(object? obj)
         {
-            if (obj is IQuest other)
+            if (obj is Quest other)
             {
                 if (ReferenceEquals(this, other))
                     return true;
 
-                if (string.Compare(ThreadName.ToLowerInvariant(), other.ThreadName.ToLowerInvariant(), StringComparison.Ordinal) != 0)
-                    return false;
-
-                return string.Compare(DisplayName.ToLowerInvariant(), other.DisplayName.ToLowerInvariant(), StringComparison.Ordinal) == 0;
+                return QuestId == other.QuestId;
             }
 
             return false;
@@ -50,7 +47,7 @@ namespace NetTally
         /// <param name="right">The second object being compared.</param>
         /// <returns>Returns a negative value if left is 'before' right, 0 if they're equal, and
         /// a positive value if left is 'after' right.</returns>
-        public static int Compare(IQuest? left, IQuest? right)
+        public static int Compare(Quest? left, Quest? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -60,6 +57,11 @@ namespace NetTally
                 return 1;
 
             return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
+        }
+
+        public bool Equals(Quest? other)
+        {
+            throw new NotImplementedException();
         }
 
         public static bool operator ==(Quest? left, Quest? right)

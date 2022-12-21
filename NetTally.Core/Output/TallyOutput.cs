@@ -35,7 +35,7 @@ namespace NetTally.Output
         readonly IForumAdapter2 forumAdapter;
 
         DisplayMode displayMode;
-        IQuest quest;
+        Quest quest;
 
         StringBuilder sb = new();
         const string cancelled = "Cancelled!";

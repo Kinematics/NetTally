@@ -16,7 +16,7 @@ namespace NetTally.Tests.Tallying
     {
         static IServiceProvider serviceProvider;
         static VoteConstructor voteConstructor;
-        static IQuest sampleQuest;
+        static Quest sampleQuest;
         static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]

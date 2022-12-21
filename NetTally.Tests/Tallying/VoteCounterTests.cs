@@ -23,7 +23,7 @@ namespace NetTally.Tests.Tallying
         static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
         static IAgnostic agnostic = null!;
         static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");

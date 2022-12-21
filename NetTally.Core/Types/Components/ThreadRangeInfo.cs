@@ -77,7 +77,7 @@ namespace NetTally.Types.Components
         /// </summary>
         /// <param name="quest">The quest this info is for.</param>
         /// <returns>Returns the page number to start tallying.</returns>
-        public int GetStartPage(IQuest quest)
+        public int GetStartPage(Quest quest)
         {
             if (ByNumber)
             {

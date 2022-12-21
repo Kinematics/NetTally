@@ -39,7 +39,7 @@ namespace NetTally.Forums
         /// <param name="uri">The URI of the site that we're constructing a URL for.</param>
         /// <param name="page">The page number to create a URL for.</param>
         /// <returns>Returns a URL for the page requested.</returns>
-        string GetUrlForPage(IQuest quest, int page);
+        string GetUrlForPage(Quest quest, int page);
 
         /// <summary>
         /// Get thread info from the provided page.
@@ -56,7 +56,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        Task<ThreadRangeInfo> GetQuestRangeInfoAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token);
+        Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token);
 
         /// <summary>
         /// Get a list of posts from the provided page.
@@ -64,6 +64,6 @@ namespace NetTally.Forums
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<Post> GetPosts(HtmlDocument page, IQuest quest, int pageNumber);
+        IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
     }
 }

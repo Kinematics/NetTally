@@ -21,7 +21,7 @@ namespace NetTally.Tests.Votes
         static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
         static IAgnostic agnostic = null!;
 
         [ClassInitialize]
@@ -34,7 +34,7 @@ namespace NetTally.Tests.Votes
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
 
-            IQuest quest = new Quest();
+            Quest quest = new Quest();
             agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
