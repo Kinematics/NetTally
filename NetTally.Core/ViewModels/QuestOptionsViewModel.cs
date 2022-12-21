@@ -105,7 +105,10 @@ namespace NetTally.ViewModels
         private void Save()
         {
             SaveQuestOptions();
+            SaveCompleted?.Invoke();
         }
+
+        public event Action SaveCompleted;
 
         [RelayCommand]
         private void Reset()

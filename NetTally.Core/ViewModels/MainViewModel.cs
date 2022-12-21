@@ -65,10 +65,29 @@ namespace NetTally.ViewModels
 
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
 
+        [ObservableProperty]
+        private bool hasNewRelease;
+
+        [ObservableProperty]
+        private string output = string.Empty;
+
+        public bool HasOutput => Output != string.Empty;
+
+        public void UpdateOutput()
+        {
+
+        }
+
         
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
         [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
         private Quest? selectedQuest;
+
+        public bool HasQuests => Quests.Count > 0;
+
+        public bool IsQuestSelected => SelectedQuest != null;
 
         [RelayCommand]
         private void AddQuest()
@@ -76,20 +95,24 @@ namespace NetTally.ViewModels
             Quest q = new();
             if (!Quests.Contains(q))
             {
-                Quests.Add(q);
                 SelectedQuest = q;
+                Quests.Add(q);
+                OnPropertyChanged(nameof(HasQuests));
                 logger.LogInformation("Added new quest");
             }
         }
 
-        [RelayCommand]
+        private bool CanRemoveQuest() => IsQuestSelected;
+
+        [RelayCommand(CanExecute = nameof(CanRemoveQuest))]
         private void RemoveQuest()
         {
             if (SelectedQuest != null)
             {
+                logger.LogInformation("Removing quest for thread: {url}", SelectedQuest.ThreadName);
                 int selectedQuestPosition = Quests.IndexOf(SelectedQuest);
                 Quests.Remove(SelectedQuest);
-                logger.LogInformation("Removed quest for thread: {url}", SelectedQuest.ThreadName);
+                OnPropertyChanged(nameof(HasQuests));
 
                 if (Quests.Count > 0)
                 {
@@ -99,7 +122,7 @@ namespace NetTally.ViewModels
                     }
                     else
                     {
-                        SelectedQuest = Quests[^0];
+                        SelectedQuest = Quests[^1];
                     }
 
                     logger.LogInformation("Selected quest updated to thread: {url}", SelectedQuest.ThreadName);
@@ -113,9 +136,13 @@ namespace NetTally.ViewModels
         }
 
 
-        private bool CanRunTally() => !RunTallyCommand.IsRunning && SelectedQuest != null;
-        private bool TallyIsRunning() => RunTallyCommand.IsRunning;
-        private bool TallyIsNotRunning() => !RunTallyCommand.IsRunning;
+        public bool TallyIsRunning => RunTallyCommand.IsRunning;
+        public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
+
+        private bool CanRunTally() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanCancelTally() => TallyIsRunning;
+        private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
+
 
         private CancellationTokenSource? tallyCTS;
 
@@ -136,7 +163,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        [RelayCommand(CanExecute = nameof(TallyIsRunning))]
+        [RelayCommand(CanExecute = nameof(CanCancelTally))]
         private void CancelTally()
         {
             if (tallyCTS?.IsCancellationRequested == false)
@@ -145,7 +172,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        [RelayCommand(CanExecute = nameof(TallyIsNotRunning))]
+        [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
         private void ClearTallyCache()
         {
 
