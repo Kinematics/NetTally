@@ -540,6 +540,7 @@ namespace NetTally
         #region Quest configuration properties: Tally processing
 
         PartitionMode partitionMode = PartitionMode.None;
+        DisplayMode displayMode = DisplayMode.Normal;
         bool whitespaceAndPunctuationIsSignificant = false;
         bool caseIsSignificant = false;
         bool forcePlanReferencesToBeLabeled = false;
@@ -560,6 +561,16 @@ namespace NetTally
             set
             {
                 partitionMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DisplayMode DisplayMode
+        {
+            get { return displayMode; }
+            set
+            {
+                displayMode = value;
                 OnPropertyChanged();
             }
         }
