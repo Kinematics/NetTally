@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Collections;
@@ -291,6 +292,7 @@ namespace NetTally
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
+        [JsonIgnore]
         public HashSet<long> PostsToFilter { get; } = new();
 
 
