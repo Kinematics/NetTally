@@ -241,20 +241,20 @@ namespace NetTally
                 }
             }
 
-            foreach (var (quest, linkedNames) in linkedQuestNames)
-            {
-                var names = linkedNames.Split(new char[] { '⦂' });
+            //foreach (var (quest, linkedNames) in linkedQuestNames)
+            //{
+            //    var names = linkedNames.Split(new char[] { '⦂' });
 
-                foreach (var name in names)
-                {
-                    var linkedQuest = quests.FirstOrDefault(q => q.ThreadName == name);
+            //    foreach (var name in names)
+            //    {
+            //        var linkedQuest = quests.FirstOrDefault(q => q.ThreadName == name);
 
-                    if (linkedQuest != null)
-                    {
-                        quest.LinkedQuests.Add(linkedQuest);
-                    }
-                }
-            }
+            //        if (linkedQuest != null)
+            //        {
+            //            quest.LinkedQuests.Add(linkedQuest);
+            //        }
+            //    }
+            //}
 
             if (options != null)
             {

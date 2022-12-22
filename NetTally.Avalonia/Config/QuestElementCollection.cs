@@ -72,7 +72,7 @@ namespace NetTally.Avalonia.Config
                 IgnoreSpoilers = quest.IgnoreSpoilers,
                 TrimExtendedText = quest.TrimExtendedText,
                 UseRSSThreadmarks = quest.UseRSSThreadmarks,
-                LinkedQuests = quest.LinkedQuests.Select(q => q.ThreadName).DefaultIfEmpty(string.Empty).Aggregate((p, q) => $"{p}⦂{q}"),
+                LinkedQuests = quest.LinkedQuestIds.Select(q => q.ToString()).DefaultIfEmpty(string.Empty).Aggregate((p, q) => $"{p}⦂{q}"),
             };
 
             BaseAdd(questElement, false);

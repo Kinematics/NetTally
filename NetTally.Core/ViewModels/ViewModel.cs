@@ -493,12 +493,6 @@ namespace NetTally.ViewModels
                 else
                     SelectedQuest = QuestList[index];
 
-                var linkedQuestsToRemove = questToRemove.LinkedQuests.ToList();
-                foreach (var linkedQuest in linkedQuestsToRemove)
-                {
-                    questToRemove.RemoveLinkedQuest(linkedQuest);
-                }
-
                 OnPropertyChanged("RemoveQuest");
                 OnPropertyChanged(nameof(HasQuests));
             }

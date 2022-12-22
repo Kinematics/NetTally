@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ namespace NetTally.ViewModels
             this.logger = logger;
 
             ArgumentNullException.ThrowIfNull(mainViewModel.SelectedQuest, nameof(mainViewModel.SelectedQuest));
+
             quest = mainViewModel.SelectedQuest;
             AvailableQuests = mainViewModel.Quests;
 
@@ -57,9 +59,13 @@ namespace NetTally.ViewModels
             TrimExtendedText = quest.TrimExtendedText;
 
             LinkedQuests.Clear();
-            foreach (var q in quest.LinkedQuests)
+            foreach (var questId in quest.LinkedQuestIds)
             {
-                LinkedQuests.Add(q);
+                var linkedQuest = AvailableQuests.FirstOrDefault(q => q.QuestId == questId);
+                if (linkedQuest != null)
+                {
+                    LinkedQuests.Add(linkedQuest);
+                }
             }
 
             logger.LogInformation("Quest information loaded into view model.");
@@ -94,9 +100,11 @@ namespace NetTally.ViewModels
             quest.IgnoreSpoilers = IgnoreSpoilers;
             quest.TrimExtendedText = TrimExtendedText;
 
-            quest.LinkedQuests.Clear();
-            foreach (var q in LinkedQuests)
-                quest.LinkedQuests.Add(q);
+            quest.LinkedQuestIds.Clear();
+            foreach (var linkedQuest in LinkedQuests)
+            {
+                quest.AddLinkedQuest(linkedQuest);
+            }
 
             logger.LogInformation("View model information saved to quest.");
         }

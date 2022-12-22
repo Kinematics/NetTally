@@ -78,6 +78,11 @@ namespace NetTally.ViewModels
 
         }
 
+        public List<Quest> GetLinkedQuests(Quest quest)
+        {
+            return Quests.Where(quest.HasLinkedQuest).ToList();
+        }
+
         
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsQuestSelected))]

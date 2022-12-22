@@ -10,6 +10,7 @@ using NetTally.CustomEventArgs;
 using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
+using NetTally.ViewModels;
 
 namespace NetTally.Forums
 {
@@ -21,12 +22,17 @@ namespace NetTally.Forums
         #region Constructor
         readonly IServiceProvider serviceProvider;
         readonly ForumAdapterFactory forumAdapterFactory;
+        readonly MainViewModel mainViewModel;
         readonly ILogger<ForumReader> logger;
 
-        public ForumReader(IServiceProvider provider, ForumAdapterFactory factory, ILogger<ForumReader> logger)
+        public ForumReader(IServiceProvider provider,
+            ForumAdapterFactory factory,
+            MainViewModel mainViewModel,
+            ILogger<ForumReader> logger)
         {
             serviceProvider = provider;
             forumAdapterFactory = factory;
+            this.mainViewModel = mainViewModel;
             this.logger = logger;
         }
 
@@ -55,10 +61,11 @@ namespace NetTally.Forums
         {
             // Tally the selected quests, and any linked quests.
             List<Quest> quests = new() { quest };
-            quests.AddRange(quest.LinkedQuests);
+            var linkedQuests = mainViewModel.GetLinkedQuests(quest);
+            quests.AddRange(linkedQuests);
 
             logger.LogDebug("Reading quest {questName} and {questCount} linked quests with ForumReader.",
-                quest.DisplayName, quest.LinkedQuests.Count);
+                quest.DisplayName, linkedQuests.Count);
 
             List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new();
 

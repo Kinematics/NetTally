@@ -20,6 +20,10 @@ namespace NetTally
     /// </summary>
     public partial class Quest : ObservableValidator
     {
+        public Quest()
+        {
+        }
+
         #region Static class data
         public const string OmakeFilter = @"\bomake\b";
         public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
@@ -33,20 +37,9 @@ namespace NetTally
         private static partial Regex displayNameRegex();
         #endregion
 
-        public Quest()
-        {
-            ThreadName = NewThreadEntry;
-
-            CustomThreadmarkFilters = string.Empty;
-            CustomTaskFilters = string.Empty;
-            CustomUsernameFilters = string.Empty;
-            CustomPostFilters = string.Empty;
-        }
-
-
         #region Quest Identification
         public Guid QuestId { get; init; } = Guid.NewGuid();
-        string threadName = string.Empty;
+        string threadName = NewThreadEntry;
         string displayName = string.Empty;
         public override string ToString() => DisplayName;
 
@@ -203,13 +196,11 @@ namespace NetTally
         [ObservableProperty]
         BoolEx useRSSThreadmarks = BoolEx.Unknown;
 
-
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
         public bool ReadToEndOfThread => EndPost == 0;
-
         #endregion
 
         #region Quest configuration properties: Filtering
@@ -228,7 +219,7 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
-        public Filter ThreadmarkFilter { get; private set; } = Filter.Empty;
+        public Filter ThreadmarkFilter { get; private set; } = new Filter("", OmakeFilter);
 
         partial void OnCustomThreadmarkFiltersChanged(string value)
         {
@@ -288,15 +279,11 @@ namespace NetTally
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PostsToFilter))]
         string customPostFilters = string.Empty;
-
         /// <summary>
         /// Collection of post numbers to filter from the tally.
         /// </summary>
         [JsonIgnore]
         public HashSet<long> PostsToFilter { get; } = new();
-
-
-
 
         /// <summary>
         /// Convert the CustomPostFilters string to a hashset of post
@@ -368,32 +355,45 @@ namespace NetTally
 
         #region Linked Quests
         /// <summary>
-        /// A collection of linked quests that should be tallied alongside this one.
+        /// A collection of the IDs of any quests that should be tallied together
+        /// with this one.
         /// </summary>
-        public ObservableCollection<Quest> LinkedQuests { get; } = new();
+        public ObservableCollection<Guid> LinkedQuestIds = new();
 
         /// <summary>
-        /// Check if the given quest is one of the linked quests.
+        /// Determine whether this quest is linked to the provided quest ID.
         /// </summary>
-        /// <param name="quest">The quest to check on.</param>
-        /// <returns>Returns true if this quest has the given quest in its links.</returns>
+        /// <param name="questId">The ID of the quest to check for.</param>
+        /// <returns>Returns true if the quest is linked, or false if not.</returns>
+        public bool HasLinkedQuest(Guid questId)
+        {
+            return LinkedQuestIds.Contains(questId);
+        }
+
+        /// <summary>
+        /// Determine whether this quest is linked to the provided quest.
+        /// </summary>
+        /// <param name="quest">The quest to check for.</param>
+        /// <returns>Returns true if the quest is linked, or false if not.</returns>
         public bool HasLinkedQuest(Quest quest)
         {
-            return LinkedQuests.Any(q => q == quest);
+            return LinkedQuestIds.Contains(quest.QuestId);
         }
 
         /// <summary>
-        /// Check if the quest with the given name is one of the linked quests.
+        /// Adds the provided quest ID to this quest's list of linked quests.
         /// </summary>
-        /// <param name="questName">The name of the quest to check on.</param>
-        /// <returns>Returns true if this quest has the given quest in its links.</returns>
-        public bool HasLinkedQuest(string questName)
+        /// <param name="questId">The quest ID to add.</param>
+        public void AddLinkedQuest(Guid questId)
         {
-            return LinkedQuests.Any(q => q.DisplayName == questName);
+            if (!LinkedQuestIds.Contains(questId))
+            {
+                LinkedQuestIds.Add(questId);
+            }
         }
 
         /// <summary>
-        /// Add the provided quest to the list of links this quest has.
+        /// Adds the provided quest to this quest's list of linked quests.
         /// </summary>
         /// <param name="quest">The quest to add.</param>
         public void AddLinkedQuest(Quest quest)
@@ -401,25 +401,27 @@ namespace NetTally
             if (quest == this)
                 return;
 
-            LinkedQuests.Add(quest);
-            quest.AddLinkedQuest(this);
+            AddLinkedQuest(quest.QuestId);
         }
 
         /// <summary>
-        /// Remove the provided quest from the list of quests this quest is linked to.
+        /// Remove the provided quest ID from this quest's list of linked quests.
+        /// </summary>
+        /// <param name="questId">The quest ID to remove.</param>
+        /// <returns>Returns true if the quest was removed, or false if not.</returns>
+        public bool RemoveLinkedQuest(Guid questId)
+        {
+            return LinkedQuestIds.Remove(questId);
+        }
+
+        /// <summary>
+        /// Remove the provided quest from this quest's list of linked quests.
         /// </summary>
         /// <param name="quest">The quest to remove.</param>
         /// <returns>Returns true if the quest was found and removed.</returns>
         public bool RemoveLinkedQuest(Quest quest)
         {
-            bool found = LinkedQuests.Remove(quest);
-
-            if (quest.LinkedQuests.Contains(this))
-            {
-                quest.RemoveLinkedQuest(this);
-            }
-
-            return found;
+            return LinkedQuestIds.Remove(quest.QuestId);
         }
         #endregion Linked Quests
 
@@ -459,8 +461,8 @@ namespace NetTally
                 TrimExtendedText = TrimExtendedText
             };
 
-            foreach (Quest q in LinkedQuests)
-                shadowCopy.LinkedQuests.Add(q);
+            foreach (var q in LinkedQuestIds)
+                shadowCopy.AddLinkedQuest(q);
 
             return shadowCopy;
         }
@@ -496,10 +498,10 @@ namespace NetTally
                 IgnoreSpoilers = shadowCopy.IgnoreSpoilers;
                 TrimExtendedText = shadowCopy.TrimExtendedText;
 
-                LinkedQuests.Clear();
+                LinkedQuestIds.Clear();
 
-                foreach (Quest q in shadowCopy.LinkedQuests)
-                    LinkedQuests.Add(q);
+                foreach (var q in shadowCopy.LinkedQuestIds)
+                    AddLinkedQuest(q);
             }
         }
 
