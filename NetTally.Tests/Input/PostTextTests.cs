@@ -26,14 +26,14 @@ namespace NetTally.Tests.Forums
         }
         #endregion
 
-        private HtmlNode GetHtmlFromString(string input)
+        private static HtmlNode GetHtmlFromString(string input)
         {
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(input);
             return doc.DocumentNode;
         }
 
-        private Predicate<HtmlNode> GetXenForoPredicate()
+        private static Predicate<HtmlNode> GetXenForoPredicate()
         {
             List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
                 "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
@@ -113,10 +113,6 @@ Edit: Vote changed. See next page.";
             {
                 string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
 
-
-                ReadOnlySpan<char> e = expectedText.AsSpan();
-                ReadOnlySpan<char> r = results.AsSpan();
-
                 Assert.AreEqual(expectedText, results);
             }
 
@@ -148,10 +144,6 @@ Edit: Vote changed. See next page.";
             {
                 string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
 
-
-                ReadOnlySpan<char> e = expectedText.AsSpan();
-                ReadOnlySpan<char> r = results.AsSpan();
-
                 Assert.AreEqual(expectedText, results);
             }
 
@@ -182,10 +174,6 @@ Edit: Vote changed. See next page.";
             if (node != null)
             {
                 string results = ForumPostTextConverter.ExtractPostText(node, GetXenForoPredicate(), exampleUri);
-
-
-                ReadOnlySpan<char> e = expectedText.AsSpan();
-                ReadOnlySpan<char> r = results.AsSpan();
 
                 Assert.AreEqual(expectedText, results);
             }
@@ -249,8 +237,8 @@ We seem to have a real talent for divination considering that we managed to affe
 
                 Assert.AreEqual(expectedText, results);
 
-                Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-                Post post = new Post(origin, results);
+                Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new(origin, results);
 
                 Assert.IsTrue(post.HasVote);
                 Assert.AreEqual(3, post.VoteLines.Count);
@@ -285,8 +273,8 @@ Font test";
 
                 Assert.AreEqual(expectedText, results);
 
-                Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-                Post post = new Post(origin, results);
+                Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new(origin, results);
 
                 Assert.IsTrue(post.HasVote);
                 Assert.AreEqual(2, post.VoteLines.Count);
@@ -319,8 +307,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
                 Assert.AreEqual(expectedText, results);
 
-                Origin origin = new Origin("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-                Post post = new Post(origin, results);
+                Origin origin = new("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new(origin, results);
 
                 Assert.IsTrue(post.HasVote);
                 Assert.AreEqual(1, post.VoteLines.Count);
@@ -352,8 +340,8 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
                 Assert.AreEqual(expectedText, results);
 
-                Origin origin = new Origin("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-                Post post = new Post(origin, results);
+                Origin origin = new("Kinematics1", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+                Post post = new(origin, results);
 
                 Assert.IsTrue(post.HasVote);
                 Assert.AreEqual(1, post.VoteLines.Count);

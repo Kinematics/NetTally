@@ -24,14 +24,12 @@ namespace NetTally.Tests.Forums
         #endregion
 
         #region Bad construction
-#nullable disable
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_Null()
         {
-            _ = new PostId(null);
+            _ = new PostId(null!);
         }
-#nullable enable
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]

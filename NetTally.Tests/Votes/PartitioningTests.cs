@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 using NetTally.Types.Enums;
@@ -14,7 +13,6 @@ namespace NetTally.Tests.Votes
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
         static Quest quest = null!;
@@ -25,7 +23,6 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
@@ -33,10 +30,10 @@ namespace NetTally.Tests.Votes
         [TestInitialize]
         public void Initialize()
         {
-            quest = new Quest();
-
-            voteCounter.Reset();
-            voteCounter.ClearPosts();
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
         #endregion
 
@@ -62,8 +59,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = oneLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -78,8 +74,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = oneLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -94,8 +89,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = oneLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -110,8 +104,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = oneLineTask;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -126,8 +119,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -142,8 +134,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -159,8 +150,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -176,8 +166,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoLineTask;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -193,8 +182,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = childLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -209,8 +197,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = childLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -226,8 +213,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = childLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -242,8 +228,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = childLine;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -259,8 +244,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoChunk;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -275,8 +259,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoChunk;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -293,8 +276,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoChunk;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);
@@ -310,8 +292,7 @@ namespace NetTally.Tests.Votes
         {
             string postText = twoChunk;
 
-            Post post = new Post(origin, postText);
-            voteCounter.Quest = quest;
+            Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
             var result = voteConstructor.ProcessPostGetVotes(post, quest);

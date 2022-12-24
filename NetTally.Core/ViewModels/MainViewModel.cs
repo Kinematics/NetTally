@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
@@ -16,48 +15,24 @@ namespace NetTally.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly ILogger<MainViewModel> logger;
-        private readonly GlobalSettings globalSettings;
-        private readonly UserQuests userQuests;
+        private readonly QuestsInfo questsInfo;
 
-        public MainViewModel(ILogger<MainViewModel> logger,
-            IOptions<GlobalSettings> globalSettings,
-            IOptions<UserQuests> userQuests,
-            ConfigInfo legacyConfig)
+        public MainViewModel(
+            ILogger<MainViewModel> logger,
+            QuestsInfo questsInfo)
         {
             this.logger = logger;
-            this.globalSettings = globalSettings.Value;
-            this.userQuests = userQuests.Value;
+            this.questsInfo = questsInfo;
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
             System.Net.ServicePointManager.Expect100Continue = true;
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
-
-            if (this.userQuests.Quests.Count == 0 &&
-                legacyConfig.UserQuests.Quests.Count > 0)
-            {
-                Quests = new ObservableCollection<Quest>(legacyConfig.UserQuests.Quests);
-
-                if (!string.IsNullOrEmpty(legacyConfig.UserQuests.CurrentQuest))
-                {
-                    SelectedQuest = legacyConfig.UserQuests.Quests.FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
-                }
-
-                this.globalSettings = legacyConfig.GlobalSettings;
-            }
-            else
-            {
-                Quests = new ObservableCollection<Quest>(this.userQuests.Quests);
-
-                if (!string.IsNullOrEmpty(this.userQuests.CurrentQuest))
-                {
-                    SelectedQuest = this.userQuests.Quests.FirstOrDefault(q => q.ThreadName == this.userQuests.CurrentQuest);
-                }
-            }
         }
 
-        public GlobalSettings GlobalSettings => globalSettings;
+        public ObservableCollection<Quest> Quests => questsInfo.Quests;
 
-        public ObservableCollection<Quest> Quests { get; } = new();
+        public bool HasQuests => Quests.Count > 0;
+
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
@@ -83,14 +58,17 @@ namespace NetTally.ViewModels
             return Quests.Where(quest.HasLinkedQuest).ToList();
         }
 
-        
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
         [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
         private Quest? selectedQuest;
 
-        public bool HasQuests => Quests.Count > 0;
+        partial void OnSelectedQuestChanged(Quest? value)
+        {
+            questsInfo.SelectedQuest = value;
+        }
 
         public bool IsQuestSelected => SelectedQuest != null;
 

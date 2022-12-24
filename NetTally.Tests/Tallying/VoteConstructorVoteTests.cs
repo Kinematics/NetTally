@@ -31,8 +31,10 @@ namespace NetTally.Tests.Tallying
         [TestInitialize]
         public void TestInit()
         {
-            quest = new Quest();
-            voteCounter.Quest = quest;
+            quest = new Quest
+            {
+                VoteCounter = voteCounter
+            };
         }
         #endregion
 

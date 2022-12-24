@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
-using NetTally.Collections;
 using NetTally.Input.Utility;
 using NetTally.Types.Enums;
 using NetTally.Utility;
+using NetTally.VoteCounting;
 
 namespace NetTally
 {
@@ -22,6 +20,21 @@ namespace NetTally
     {
         public Quest()
         {
+        }
+
+        private IVoteCounter voteCounter = null!;
+        public IVoteCounter VoteCounter
+        {
+            get { return voteCounter; }
+            set
+            {
+                if (voteCounter == null &&
+                    value != null)
+                {
+                    voteCounter = value;
+                    voteCounter.SetQuest(this);
+                }
+            }
         }
 
         #region Static class data
@@ -127,7 +140,7 @@ namespace NetTally
                     else
                         displayName = value.RemoveUnsafeCharacters();
 
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(DisplayName));
                 }
             }
         }
@@ -185,10 +198,20 @@ namespace NetTally
         [Range(1, 1_000_000, ErrorMessage = "Starting post number must be at least 1")]
         int startPost = 1;
 
+        partial void OnStartPostChanging(int value)
+        {
+            ValidateProperty(value, nameof(StartPost));
+        }
+
         [ObservableProperty]
         [Range(0, 1_000_000, ErrorMessage = "Ending post number must be at least 0")]
         [NotifyPropertyChangedFor(nameof(ReadToEndOfThread))]
         int endPost = 0;
+
+        partial void OnEndPostChanging(int value)
+        {
+            ValidateProperty(value, nameof(EndPost));
+        }
 
         [ObservableProperty]
         bool checkForLastThreadmark = true;
@@ -424,7 +447,6 @@ namespace NetTally
             return LinkedQuestIds.Remove(quest.QuestId);
         }
         #endregion Linked Quests
-
 
         #region Shadow Copy
         Quest? shadowCopy;

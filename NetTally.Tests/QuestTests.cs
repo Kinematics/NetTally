@@ -1,45 +1,33 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
-using NetTally.Forums;
-using NetTally.Tests;
-using NetTally.Types.Enums;
-using NetTally.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Forums;
+using NetTally.Types.Enums;
+using NetTally.VoteCounting;
+using NetTally.Web;
 
-namespace NTTests.QuestTests
+namespace NetTally.Tests.QuestTests
 {
     /// <summary>
     /// Class that tests the implementation of the Quest class against the IQuest interface.
     /// </summary>
-    [TestClass]
-    public class QuestTest : IQuestTestBase
-    {
-        [TestInitialize]
-        public void Setup()
-        {
-            quest = new Quest();
-            Init();
-        }
-    }
-
     /// <summary>
     /// Class that tests a given IQuest object.
     /// </summary>
     [TestClass]
-    public abstract class IQuestTestBase
+    public class QuestTests
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static IPageProvider pageProvider = null!;
 
-        protected Quest quest { get; set; } = new Quest();
+        Quest Quest { get; set; } = null!;
         bool notified;
-        readonly List<string> propertiesRaised = new List<string>();
+        readonly List<string> propertiesRaised = new();
 
 
         [ClassInitialize]
@@ -48,30 +36,27 @@ namespace NTTests.QuestTests
             serviceProvider = TestStartup.ConfigureServices();
             pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
         }
-        #endregion
 
-        #region Local vars, setup, and teardown
-
-        /// <summary>
-        /// General initialization for the test, in addition to whatever the
-        /// implmentation class does.
-        /// </summary>
-        public void Init()
+        [TestInitialize]
+        public void Initialize()
         {
-            serviceProvider = TestStartup.ConfigureServices();
-            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
-            quest.PropertyChanged += IQuest_PropertyChanged;
+            Quest = new Quest()
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
+
+            Quest.PropertyChanged += IQuest_PropertyChanged;
         }
 
         /// <summary>
         /// Cleanup per test.
         /// </summary>
         [TestCleanup]
-        void Reset()
+        public void Reset()
         {
             notified = false;
             propertiesRaised.Clear();
-            quest.PropertyChanged -= IQuest_PropertyChanged;
+            Quest.PropertyChanged -= IQuest_PropertyChanged;
         }
         #endregion
 
@@ -106,35 +91,33 @@ namespace NTTests.QuestTests
         [TestMethod]
         public void IQuest_Construction_State()
         {
-            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
-            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
-            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadUri?.AbsoluteUri);
+            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
 
-            Assert.AreEqual(0, quest.PostsPerPage);
-            Assert.AreEqual(1, quest.StartPost);
-            Assert.AreEqual(0, quest.EndPost);
-            Assert.AreEqual(true, quest.ReadToEndOfThread);
-            Assert.AreEqual(true, quest.CheckForLastThreadmark);
+            Assert.AreEqual(0, Quest.PostsPerPage);
+            Assert.AreEqual(1, Quest.StartPost);
+            Assert.AreEqual(0, Quest.EndPost);
+            Assert.AreEqual(true, Quest.ReadToEndOfThread);
+            Assert.AreEqual(true, Quest.CheckForLastThreadmark);
 
-            Assert.AreEqual(PartitionMode.None, quest.PartitionMode);
+            Assert.AreEqual(PartitionMode.None, Quest.PartitionMode);
 
-            Assert.IsFalse(quest.UseCustomThreadmarkFilters);
-            Assert.IsFalse(quest.UseCustomTaskFilters);
-            Assert.AreEqual("", quest.CustomThreadmarkFilters);
-            Assert.AreEqual("", quest.CustomTaskFilters);
+            Assert.IsFalse(Quest.UseCustomThreadmarkFilters);
+            Assert.IsFalse(Quest.UseCustomTaskFilters);
+            Assert.AreEqual("", Quest.CustomThreadmarkFilters);
+            Assert.AreEqual("", Quest.CustomTaskFilters);
 
-            Assert.AreEqual(quest.DisplayName, quest.ToString());
+            Assert.AreEqual(Quest.DisplayName, Quest.ToString());
         }
         #endregion
-
-#nullable disable
 
         #region Thread Name
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Null()
         {
-            quest.ThreadName = null;
+            Quest.ThreadName = null!;
         }
 
         [TestMethod]
@@ -142,7 +125,7 @@ namespace NTTests.QuestTests
         {
             try
             {
-                quest.ThreadName = null;
+                Quest.ThreadName = null!;
                 Assert.Fail("An exception should have been thrown.");
             }
             catch (ArgumentException)
@@ -154,7 +137,7 @@ namespace NTTests.QuestTests
                 Assert.Fail("Unexpected exception caught:\n" + e.Message);
             }
 
-            Assert.AreEqual(Quest.NewThreadEntry, quest.ThreadName);
+            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadName);
             VerifyNoNotification();
         }
 
@@ -162,223 +145,222 @@ namespace NTTests.QuestTests
         [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Blank()
         {
-            quest.ThreadName = "";
+            Quest.ThreadName = "";
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Empty()
         {
-            quest.ThreadName = "  ";
+            Quest.ThreadName = "  ";
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Host()
         {
-            quest.ThreadName = "/forums.sufficientvelocity.com/";
-            Assert.AreEqual("/forums.sufficientvelocity.com/", quest.ThreadName);
+            Quest.ThreadName = "/forums.sufficientvelocity.com/";
+            Assert.AreEqual("/forums.sufficientvelocity.com/", Quest.ThreadName);
             VerifyNotification("ThreadName");
         }
 
         [TestMethod]
         public void IQuest_ThreadName_ValidHost()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/", quest.ThreadName);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/", Quest.ThreadName);
             VerifyNotification("ThreadName");
         }
 
         [TestMethod]
         public void IQuest_ThreadName_WithThread()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", quest.ThreadName);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", Quest.ThreadName);
             VerifyNotification("ThreadName");
         }
 
         [TestMethod]
         public void IQuest_ThreadName_WithPage()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", quest.ThreadName);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", Quest.ThreadName);
             VerifyNotification("ThreadName");
         }
 
         [TestMethod]
         public void IQuest_ThreadName_WithPost()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221#post-19942121";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", quest.ThreadName);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221#post-19942121";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", Quest.ThreadName);
             VerifyNotification("ThreadName");
-            quest.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#post288335";
-            Assert.AreEqual("http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread", quest.ThreadName);
+            Quest.ThreadName = "http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread&p=288335#post288335";
+            Assert.AreEqual("http://www.fandompost.com/oldforums/showthread.php?39239-Yurikuma-Arashi-Discussion-Thread", Quest.ThreadName);
         }
 
         [TestMethod]
         public void IQuest_ThreadName_RemoveInvalidUnicode()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-\u200bhomura-quest.10402/page-221#post-19942121";
-            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", quest.ThreadName);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-\u200bhomura-quest.10402/page-221#post-19942121";
+            Assert.AreEqual("http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/", Quest.ThreadName);
         }
 
         #endregion
-#nullable enable
 
         #region Display Name
         [TestMethod]
         public void IQuest_DisplayName_Null()
         {
 #nullable disable
-            quest.DisplayName = null;
+            Quest.DisplayName = null;
 #nullable enable
-            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
+            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Blank()
         {
-            quest.DisplayName = "";
-            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
-            VerifyNotification("DisplayName");
+            Quest.DisplayName = "";
+            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            VerifyNoNotification();
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Empty()
         {
-            quest.DisplayName = "   ";
-            Assert.AreEqual("   ", quest.DisplayName);
+            Quest.DisplayName = "   ";
+            Assert.AreEqual("   ", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Normal()
         {
-            quest.DisplayName = "My Quest";
-            Assert.AreEqual("My Quest", quest.DisplayName);
+            Quest.DisplayName = "My Quest";
+            Assert.AreEqual("My Quest", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Normal_CleanUnicode()
         {
-            quest.DisplayName = "My\u200bQuest";
-            Assert.AreEqual("MyQuest", quest.DisplayName);
+            Quest.DisplayName = "My\u200bQuest";
+            Assert.AreEqual("MyQuest", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Normal_Trim()
         {
-            quest.DisplayName = " My Quest  ";
-            Assert.AreEqual(" My Quest  ", quest.DisplayName);
+            Quest.DisplayName = " My Quest  ";
+            Assert.AreEqual(" My Quest  ", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_ResetNull()
         {
-            quest.DisplayName = "My Quest";
+            Quest.DisplayName = "My Quest";
 #nullable disable
-            quest.DisplayName = null;
+            Quest.DisplayName = null;
 #nullable enable
-            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
+            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_ResetEmpty()
         {
-            quest.DisplayName = "My Quest";
-            quest.DisplayName = "";
-            Assert.AreEqual("fake-thread.00000", quest.DisplayName);
+            Quest.DisplayName = "My Quest";
+            Quest.DisplayName = "";
+            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
         #endregion
 
         #region Start and End Post Numbers
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void IQuest_StartPost_Zero()
         {
-            quest.StartPost = 0;
+            Quest.StartPost = 0;
+            VerifyNotification("HasErrors");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void IQuest_StartPost_Negative()
         {
-            quest.StartPost = -1;
+            Quest.StartPost = -1;
+            VerifyNotification("HasErrors");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void IQuest_StartPost_Min()
         {
-            quest.StartPost = int.MinValue;
+            Quest.StartPost = int.MinValue;
+            VerifyNotification("HasErrors");
         }
 
         [TestMethod]
         public void IQuest_StartPost_One()
         {
-            quest.StartPost = 1;
-            VerifyNotification("StartPost");
+            Quest.StartPost = 1;
+            VerifyNoNotification();
         }
 
         [TestMethod]
         public void IQuest_StartPost_Positive()
         {
-            quest.StartPost = 45000;
+            Quest.StartPost = 45000;
             VerifyNotification("StartPost");
         }
 
         [TestMethod]
         public void IQuest_StartPost_Max()
         {
-            quest.StartPost = int.MaxValue;
+            Quest.StartPost = int.MaxValue;
             VerifyNotification("StartPost");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void IQuest_EndPost_Negative()
         {
-            quest.EndPost = -1;
+            Quest.EndPost = -1;
+            VerifyNotification("HasErrors");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void IQuest_EndPost_Min()
         {
-            quest.EndPost = int.MinValue;
+            Quest.EndPost = int.MinValue;
+            VerifyNotification("HasErrors");
         }
 
         [TestMethod]
         public void IQuest_EndPost_Zero()
         {
-            quest.EndPost = 0;
-            VerifyNotification("EndPost");
+            Quest.EndPost = 0;
+            VerifyNoNotification();
         }
 
         [TestMethod]
         public void IQuest_EndPost_One()
         {
-            quest.EndPost = 1;
+            Quest.EndPost = 1;
             VerifyNotification("EndPost");
         }
 
         [TestMethod]
         public void IQuest_EndPost_Positive()
         {
-            quest.EndPost = 45000;
+            Quest.EndPost = 45000;
             VerifyNotification("EndPost");
         }
 
         [TestMethod]
         public void IQuest_EndPost_Max()
         {
-            quest.EndPost = int.MaxValue;
+            Quest.EndPost = int.MaxValue;
             VerifyNotification("EndPost");
         }
         #endregion
@@ -387,21 +369,21 @@ namespace NTTests.QuestTests
         [TestMethod]
         public void IQuest_PostsPerPage_Notify()
         {
-            quest.PostsPerPage = 25;
+            Quest.PostsPerPage = 25;
             VerifyNotification("PostsPerPage");
         }
 
         [TestMethod]
         public void IQuest_CheckForLastThreadmark_Notify()
         {
-            quest.CheckForLastThreadmark = true;
+            Quest.CheckForLastThreadmark = false;
             VerifyNotification("CheckForLastThreadmark");
         }
 
         [TestMethod]
         public void IQuest_PartitionMode_Notify()
         {
-            quest.PartitionMode = PartitionMode.ByBlock;
+            Quest.PartitionMode = PartitionMode.ByBlock;
             VerifyNotification("PartitionMode");
         }
         #endregion
@@ -410,39 +392,39 @@ namespace NTTests.QuestTests
         [TestMethod]
         public void IQuest_ReadToEndOfThread_NoThreadmarks_ZeroEnd()
         {
-            quest.EndPost = 0;
-            Assert.IsTrue(quest.ReadToEndOfThread);
+            Quest.EndPost = 0;
+            Assert.IsTrue(Quest.ReadToEndOfThread);
         }
 
         [TestMethod]
         public void IQuest_ReadToEndOfThread_NoThreadmarks_PosEnd()
         {
-            quest.EndPost = 100;
-            Assert.IsFalse(quest.ReadToEndOfThread);
+            Quest.EndPost = 100;
+            Assert.IsFalse(Quest.ReadToEndOfThread);
         }
 
         [TestMethod]
         public void IQuest_ReadToEndOfThread_Threadmarks_ZeroEnd()
         {
-            quest.EndPost = 0;
-            quest.CheckForLastThreadmark = true;
-            Assert.IsTrue(quest.ReadToEndOfThread);
+            Quest.EndPost = 0;
+            Quest.CheckForLastThreadmark = true;
+            Assert.IsTrue(Quest.ReadToEndOfThread);
         }
 
         [TestMethod]
         public void IQuest_ReadToEndOfThread_Threadmarks_PosEnd()
         {
-            quest.EndPost = 100;
-            quest.CheckForLastThreadmark = true;
-            Assert.IsFalse(quest.ReadToEndOfThread);
+            Quest.EndPost = 100;
+            Quest.CheckForLastThreadmark = true;
+            Assert.IsFalse(Quest.ReadToEndOfThread);
         }
 
         [TestMethod]
         public void IQuest_ReadToEndOfThread_Threadmarks_FoundThreadmark()
         {
-            quest.EndPost = 100;
-            quest.CheckForLastThreadmark = true;
-            Assert.IsFalse(quest.ReadToEndOfThread);
+            Quest.EndPost = 100;
+            Quest.CheckForLastThreadmark = true;
+            Assert.IsFalse(Quest.ReadToEndOfThread);
         }
         #endregion
 
@@ -450,37 +432,37 @@ namespace NTTests.QuestTests
         [TestMethod]
         public async Task IQuest_SetThreadName()
         {
-            quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
+            Quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
             await Task.Delay(1);
         }
 
         [TestMethod]
         public async Task IQuest_IdentifyThread()
         {
-            quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
+            Quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(Quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo2, forumType);
         }
 
         [TestMethod]
         public async Task IQuest_IdentifyThread_Change_SameHost()
         {
-            quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
+            Quest.ThreadName = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(Quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo2, forumType);
-            quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
-            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
+            Quest.ThreadName = "https://forums.sufficientvelocity.com/threads/vote-tally-program.199/page-19#post-4889303";
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(Quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo2, forumType);
         }
 
         [TestMethod]
         public async Task IQuest_InitForumAdapter_Change_DiffHost()
         {
-            quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
+            Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
+            var forumType = await ForumIdentifier.IdentifyForumTypeAsync(Quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo2, forumType);
-            quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
-            forumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
+            Quest.ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/page-24";
+            forumType = await ForumIdentifier.IdentifyForumTypeAsync(Quest.ThreadUri, pageProvider, CancellationToken.None).ConfigureAwait(false);
             Assert.AreEqual(ForumType.XenForo2, forumType);
         }
         #endregion

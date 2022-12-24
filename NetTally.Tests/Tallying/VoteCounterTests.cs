@@ -20,7 +20,6 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
         static Quest quest = null!;
@@ -37,7 +36,6 @@ namespace NetTally.Tests.Tallying
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
@@ -47,9 +45,7 @@ namespace NetTally.Tests.Tallying
         public void Initialize()
         {
             quest = new Quest();
-
-            voteCounter?.Reset();
-            voteCounter?.ClearPosts();
+            quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
         }
 
         [TestCleanup]
@@ -86,14 +82,14 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
 
@@ -121,15 +117,15 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            voteCounter.Reset();
+            quest.VoteCounter.Reset();
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(0, allVotes.Count);
         }
@@ -157,21 +153,21 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
-            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
-            var vote1 = voteCounter.VoteStorage.GetVotesBy(origin1);
+            var vote1 = quest.VoteCounter.VoteStorage.GetVotesBy(origin1);
 
             Assert.AreEqual(1, vote1.Count);
 
-            var voters1 = voteCounter.GetVotersFor(vote1[0]);
+            var voters1 = quest.VoteCounter.GetVotersFor(vote1[0]);
 
             Assert.AreEqual(2, voters1.Count());
         }
@@ -202,7 +198,7 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
@@ -210,9 +206,9 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.ByLine;
 
-            await tally.TallyPosts(CancellationToken.None);
+            await tally.TallyPosts(quest, CancellationToken.None);
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(4, allVotes.Count);
             Assert.AreEqual(1, allVotes[0].Lines.Count);
@@ -222,9 +218,9 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.None;
 
-            await tally.TallyPosts(CancellationToken.None);
+            await tally.TallyPosts(quest, CancellationToken.None);
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
@@ -253,13 +249,13 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
 
@@ -289,14 +285,14 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
@@ -322,16 +318,16 @@ namespace NetTally.Tests.Tallying
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
-            Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+            Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
-            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
         }
 
         [TestMethod]
@@ -350,7 +346,6 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.None;
             quest.AllowUsersToUpdatePlans = true;
-            voteCounter.Quest = quest;
 
             Post post1 = new(origin1, postText1);
             Post post2 = new(origin2, postText2);
@@ -358,24 +353,24 @@ namespace NetTally.Tests.Tallying
             Post post4 = new(origin1a, postText2);
 
             List<Post> posts = new() { post1, post2 };
-            voteCounter.AddPosts(posts);
-            var plans = await tally.PreprocessPosts(default);
+            quest.VoteCounter.AddPosts(posts);
+            var plans = await tally.PreprocessPosts(quest, default);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
-            voteCounter.Reset();
+            quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3 };
-            voteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(default);
+            quest.VoteCounter.AddPosts(posts);
+            plans = await tally.PreprocessPosts(quest, default);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
-            voteCounter.Reset();
+            quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3, post4 };
-            voteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(default);
+            quest.VoteCounter.AddPosts(posts);
+            plans = await tally.PreprocessPosts(quest, default);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);
@@ -408,14 +403,14 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -442,14 +437,14 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -476,14 +471,14 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
@@ -510,14 +505,14 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
         #endregion Callouts as proxies
 
@@ -546,15 +541,15 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
 
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
             Assert.AreEqual("[] Brogatar's Second post", allVotes[0].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
@@ -585,18 +580,18 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
 
             Assert.AreEqual("[] Changed my mind", allVotes[0].ToString());
             Assert.AreEqual("[] Brogatar's Second post", allVotes[1].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
         #endregion Future references
 
@@ -619,16 +614,16 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
-            var voters = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+            var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
 
             Assert.AreEqual(2, voters.Count);
             Assert.IsTrue(voters.Contains(origin1));
@@ -653,18 +648,18 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
             await tally.TallyPosts(posts, quest, CancellationToken.None);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
-            var voters1 = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+            var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
             var vote2 = allVotes[1];
-            var voters2 = voteCounter.VoteStorage.GetVotersFor(vote2).ToList();
+            var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2).ToList();
 
             Assert.AreEqual(1, voters1.Count);
             Assert.AreEqual(1, voters2.Count);

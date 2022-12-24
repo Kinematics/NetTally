@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
@@ -17,7 +18,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_XenForo1()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.XenForo1);
             doc.LoadHtml(rawPage);
 
@@ -29,7 +30,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_XenForo2()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.XenForo2);
             doc.LoadHtml(rawPage);
 
@@ -41,7 +42,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_vBulletin3()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.vBulletin3);
             doc.LoadHtml(rawPage);
 
@@ -53,7 +54,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_vBulletin4()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.vBulletin4);
             doc.LoadHtml(rawPage);
 
@@ -65,7 +66,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_vBulletin5()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.vBulletin5);
             doc.LoadHtml(rawPage);
 
@@ -78,7 +79,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_NodeBB()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.NodeBB);
             doc.LoadHtml(rawPage);
 
@@ -90,7 +91,7 @@ namespace NetTally.Tests.Forums
         [TestMethod]
         public async Task Identify_phpBB()
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             string rawPage = await GetForumResource(ForumType.phpBB);
             doc.LoadHtml(rawPage);
 
@@ -117,7 +118,7 @@ namespace NetTally.Tests.Forums
             if (string.IsNullOrEmpty(filename))
                 return string.Empty;
 
-            filename = $"Resources/{filename}";
+            filename = Path.Combine("Resources", filename);
 
             return await LoadResource.Read(filename) ?? "";
         }

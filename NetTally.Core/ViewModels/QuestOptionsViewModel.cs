@@ -5,6 +5,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Global;
 using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
@@ -16,14 +17,14 @@ namespace NetTally.ViewModels
 
         public QuestOptionsViewModel(
             ILogger<QuestOptionsViewModel> logger,
-            MainViewModel mainViewModel)
+            QuestsInfo questsInfo)
         {
             this.logger = logger;
 
-            ArgumentNullException.ThrowIfNull(mainViewModel.SelectedQuest, nameof(mainViewModel.SelectedQuest));
+            ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
 
-            quest = mainViewModel.SelectedQuest;
-            AvailableQuests = mainViewModel.Quests;
+            quest = questsInfo.SelectedQuest;
+            AvailableQuests = questsInfo.Quests;
 
             LoadQuestOptions();
         }
@@ -52,9 +53,9 @@ namespace NetTally.ViewModels
             CaseIsSignificant = quest.CaseIsSignificant;
             ForbidVoteLabelPlanNames = quest.ForbidVoteLabelPlanNames;
             ForcePlanReferencesToBeLabeled = quest.ForcePlanReferencesToBeLabeled;
-            AllowUsersToUpdatePlans= quest.AllowUsersToUpdatePlans;
+            AllowUsersToUpdatePlans = quest.AllowUsersToUpdatePlans;
             DisableProxyVotes = quest.DisableProxyVotes;
-            ForcePinnedProxyVotes= quest.ForcePinnedProxyVotes;
+            ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes;
             IgnoreSpoilers = quest.IgnoreSpoilers;
             TrimExtendedText = quest.TrimExtendedText;
 

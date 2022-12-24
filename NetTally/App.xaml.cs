@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
+using Microsoft.Extensions.Options;
 using NetTally.Collections;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
@@ -156,7 +157,7 @@ namespace NetTally
             LegacyConfig = LoadLegacyConfig();
         }
 
-        private ConfigInfo LoadLegacyConfig()
+        private static ConfigInfo LoadLegacyConfig()
         {
             NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
 
@@ -258,9 +259,10 @@ namespace NetTally
         /// <returns>Returns current config info.</returns>
         private ConfigInfo GetConfigurationToSave()
         {
-            MainViewModel mainViewModel = host.Services.GetRequiredService<MainViewModel>();
+            QuestsInfo questsInfo = host.Services.GetRequiredService<QuestsInfo>();
+            IOptions<GlobalSettings> globalSettings = host.Services.GetRequiredService<IOptions<GlobalSettings>>();
 
-            ConfigInfo config = new(mainViewModel.Quests, mainViewModel.SelectedQuest?.ThreadName, mainViewModel.GlobalSettings);
+            ConfigInfo config = new(questsInfo.Quests, questsInfo.SelectedQuest?.ThreadName, globalSettings.Value);
 
             return config;
         }

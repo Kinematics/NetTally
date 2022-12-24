@@ -16,15 +16,8 @@ namespace NetTally.Votes
     /// </summary>
     public class VoteConstructor
     {
-        readonly IVoteCounter voteCounter;
-
-        /// <summary>
-        /// <see cref="VoteConstructor"/> class has a dependency on <see cref="IVoteCounter"/>.
-        /// </summary>
-        /// <param name="voteCounter">The vote counter to store locally and use within this class.</param>
-        public VoteConstructor(IVoteCounter voteCounter)
+        public VoteConstructor()
         {
-            this.voteCounter = voteCounter;
         }
 
         #region Public functions
@@ -53,7 +46,7 @@ namespace NetTally.Votes
 
                 if (isPlan &&
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                    IsValidPlanName(planName, post.Origin.Author.Name) &&
+                    IsValidPlanName(planName, post.Origin.Author.Name, quest) &&
                     DoesTaskFilterPass(block, quest))
                 {
                     plans[planName] = block;
@@ -85,7 +78,7 @@ namespace NetTally.Votes
                 // that this post was a prior future reference that got overridden later.
                 // If so, don't process it now, but allow the post to be marked as
                 // processed so that it doesn't try to re-submit it later.
-                if (voteCounter.HasNewerVote(post))
+                if (quest.VoteCounter.HasNewerVote(post))
                 {
                     post.Processed = true;
                 }
@@ -197,7 +190,7 @@ namespace NetTally.Votes
                     if (isPlan)
                     {
                         // We can rely on GetReference returning a valid plan name.
-                        var refPlan = voteCounter.GetReferencePlan(refName);
+                        var refPlan = quest.VoteCounter.GetReferencePlan(refName);
 
                         // If there is no available reference plan, just add the line and continue.
                         if (refPlan == null)
@@ -226,7 +219,7 @@ namespace NetTally.Votes
 
                         // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
 
-                        var voteBlocks = voteCounter.GetVotesBy(refName);
+                        var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                         foreach (var voteBlock in voteBlocks)
                         {
@@ -238,7 +231,7 @@ namespace NetTally.Votes
                     {
                         PostId postSearchLimit = isPinnedUser ? post.Origin.ID : PostId.Zero;
 
-                        Post? refUserPost = voteCounter.GetLastPostByAuthor(refName, postSearchLimit);
+                        Post? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
                         // If we can't find the reference post, just treat this as a normal line.
                         if (refUserPost == null)
@@ -254,7 +247,7 @@ namespace NetTally.Votes
                         // Otherwise save the reference vote.
                         else
                         {
-                            var voteBlocks = voteCounter.GetVotesBy(refName);
+                            var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                             if (voteBlocks.Count > 0)
                             {
@@ -294,7 +287,7 @@ namespace NetTally.Votes
 
                 if (isProposedPlan)
                 {
-                    Origin? planOrigin = voteCounter.GetPlanOriginByName(proposedPlanName);
+                    Origin? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                     if (planOrigin == null)
                         return false;
@@ -353,7 +346,7 @@ namespace NetTally.Votes
 
                 if (string.Equals(label, "^") || string.Equals(label, "↑"))
                 {
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
@@ -362,20 +355,20 @@ namespace NetTally.Votes
                 else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                       || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
                 {
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
                 }
                 else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
                 {
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                     // Check user names second
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     // Force pinning if requested.
@@ -385,13 +378,13 @@ namespace NetTally.Votes
                 else // Any unlabeled lines
                 {
                     // Check user names first
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     // Check to make sure the quest doesn't forbid non-labeled plan references.
                     if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
@@ -412,10 +405,10 @@ namespace NetTally.Votes
         /// <param name="planName">The name of the plan.</param>
         /// <param name="postAuthor">The post's author.</param>
         /// <returns>Returns true if the plan name is deemed valid.</returns>
-        private bool IsValidPlanName(string planName, string postAuthor)
+        private bool IsValidPlanName(string planName, string postAuthor, Quest quest)
         {
             // A named vote that is named after a user is only valid if it matches the post author's name.
-            if (voteCounter.HasVoter(planName))
+            if (quest.VoteCounter.HasVoter(planName))
             {
                 if (!Agnostic.StringComparer.Equals(planName, postAuthor))
                 {

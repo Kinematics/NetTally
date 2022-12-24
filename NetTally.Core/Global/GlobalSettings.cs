@@ -26,5 +26,16 @@ namespace NetTally.Global
         [ObservableProperty]
         [property: JsonIgnore]
         bool debugMode = false;
+
+        public void UpdateFromLegacySettings(GlobalSettings legacySettings)
+        {
+            DisplayMode = legacySettings.DisplayMode;
+            DisplayPlansWithNoVotes= legacySettings.DisplayPlansWithNoVotes;
+            GlobalSpoilers= legacySettings.GlobalSpoilers;
+            RankVoteCounterMethod = legacySettings.RankVoteCounterMethod;
+            AllowUsersToUpdatePlans = legacySettings.AllowUsersToUpdatePlans;
+            TrackPostAuthorsUniquely = legacySettings.TrackPostAuthorsUniquely;
+            DisableWebProxy = legacySettings.DisableWebProxy;
+        }
     }
 }

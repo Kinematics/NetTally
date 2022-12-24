@@ -6,24 +6,26 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Extensions;
-using NetTally.Forums;
 using NetTally.Options;
 using NetTally.Votes;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
+using Microsoft.Extensions.Options;
+using NetTally.Global;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounter : IVoteCounter
+    public class VoteCounter2 : IVoteCounter
     {
-        readonly ILogger<VoteCounter> logger;
-        readonly IGlobalOptions globalOptions;
+        private readonly GlobalSettings globalSettings;
+        private readonly ILogger<VoteCounter2> logger;
 
-        public VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger)
+        public VoteCounter2(IOptions<GlobalSettings> globalOptions,
+            ILogger<VoteCounter2> logger)
         {
+            this.globalSettings = globalOptions.Value;
             this.logger = logger;
-            this.globalOptions = globalOptions;
         }
 
         #region Data Collections
@@ -32,11 +34,11 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The overall collection of voters and supporters.
         /// </summary>
-        public VoteStorage VoteStorage { get; } = new VoteStorage();
+        public VoteStorage VoteStorage { get; } = new();
         /// <summary>
         /// The list of posts that reference future posts, preventing immediate tallying.
         /// </summary>
-        public HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
+        public HashSet<Post> FutureReferences { get; } = new();
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
@@ -47,11 +49,11 @@ namespace NetTally.VoteCounting
         readonly List<Post> postsList = new();
         bool voteCounterIsTallying = false;
 
-        Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
-        MergeRecords UserMerges { get; } = new MergeRecords();
+        Stack<UndoAction> UndoBuffer { get; } = new();
+        MergeRecords UserMerges { get; } = new();
 
-        VoterStorage ReferencePlans { get; } = new VoterStorage();
-        HashSet<Origin> ReferenceOrigins { get; } = new HashSet<Origin>();
+        VoterStorage ReferencePlans { get; } = new();
+        HashSet<Origin> ReferenceOrigins { get; } = new();
         #endregion
 
         #region General Tally Properties
@@ -61,7 +63,7 @@ namespace NetTally.VoteCounting
         [AllowNull]
         public Quest Quest { get; private set; } = null;
 
-        public void SetQuest(Quest quest) => Quest = quest;
+        public void SetQuest(Quest quest) => Quest ??= quest;
 
         /// <summary>
         /// The titles of the quest threads that have been tallied.
@@ -122,15 +124,12 @@ namespace NetTally.VoteCounting
         /// quest name is different than the one the vote counter has.
         /// </summary>
         /// <param name="forQuestName">The quest name that may have changed.</param>
-        public void ResetUserDefinedTasks() { }
-        public void ResetUserDefinedTasks(string forQuestName)
+        public void ResetUserDefinedTasks(string questName) { }
+        public void ResetUserDefinedTasks()
         {
-            if (Quest == null || !string.Equals(Quest.DisplayName, forQuestName, StringComparison.Ordinal))
-            {
-                UserDefinedTasks.Clear();
-                OrderedUserTaskList.Clear();
-                ResetUserMerges();
-            }
+            UserDefinedTasks.Clear();
+            OrderedUserTaskList.Clear();
+            ResetUserMerges();
         }
 
         /// <summary>
@@ -159,8 +158,6 @@ namespace NetTally.VoteCounting
         /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
         public void AddPosts(IEnumerable<Post> posts)
         {
-            logger.LogDebug("Adding {Count} posts to the VoteCounter.", posts.Count());
-
             postsList.Clear();
             if (posts != null)
                 postsList.AddRange(posts);
@@ -171,7 +168,6 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void ClearPosts()
         {
-            logger.LogDebug("Clearing posts from the VoteCounter.");
             postsList.Clear();
         }
         #endregion
@@ -194,8 +190,8 @@ namespace NetTally.VoteCounting
                 return true;
             }
             else if (
-                      (globalOptions.AllowUsersToUpdatePlans == BoolEx.True ||
-                       (globalOptions.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest!.AllowUsersToUpdatePlans)) &&
+                      (globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
+                       (globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans)) &&
                       ReferenceOrigins.TryGetValue(planOrigin, out Origin? currentOrigin)
                     )
             {
@@ -209,7 +205,7 @@ namespace NetTally.VoteCounting
 
                 if (planOrigin.Source != Origin.Empty && planOrigin.Source == currentOrigin.Source &&
                     planOrigin.ID > currentOrigin.ID &&
-                    plan.Lines.Count > 1 && 
+                    plan.Lines.Count > 1 &&
                     ReferencePlans.TryGetValue(currentOrigin, out VoteLineBlock? currentPlan) &&
                     plan != currentPlan)
                 {
@@ -405,7 +401,7 @@ namespace NetTally.VoteCounting
             if (!HasVoter(post.Origin.Author.Name))
                 return false;
 
-            return Posts.Any(p => 
+            return Posts.Any(p =>
                                p.Processed
                             && p.Origin.ID > post.Origin.ID
                             && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
@@ -451,7 +447,7 @@ namespace NetTally.VoteCounting
         public bool Merge(VoteLineBlock fromVote, VoteLineBlock toVote)
         {
             UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
-            UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest!.PartitionMode);
+            UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest.PartitionMode);
 
             bool merged = MergeImplWrapper(fromVote, toVote);
 
@@ -535,7 +531,7 @@ namespace NetTally.VoteCounting
         public bool Split(VoteLineBlock fromVote, List<VoteLineBlock> toVotes)
         {
             UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
-            UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest!.PartitionMode);
+            UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest.PartitionMode);
 
             bool merged = SplitImplWrapper(fromVote, toVotes);
 
@@ -684,9 +680,6 @@ namespace NetTally.VoteCounting
             if (!HasUndoActions)
                 return false;
 
-            if (Quest is null)
-                throw new InvalidOperationException("Quest is null.");
-
             UndoAction undoAction = UndoBuffer.Pop();
 
             UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undoAction.ActionType);
@@ -707,44 +700,41 @@ namespace NetTally.VoteCounting
         /// </summary>
         public void RunMergeActions()
         {
-            if (Quest != null)
+            var recordedMerges = UserMerges.GetMergeRecordList(Quest.PartitionMode);
+
+            foreach (var mergeData in recordedMerges)
             {
-                var recordedMerges = UserMerges.GetMergeRecordList(Quest.PartitionMode);
-
-                foreach (var mergeData in recordedMerges)
+                if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
                 {
-                    if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
-                    {
-                        UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage, storageVote: mergeData.FromVote));
-                    }
-                    else
-                    {
-                        UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage));
-                    }
+                    UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage, storageVote: mergeData.FromVote));
+                }
+                else
+                {
+                    UndoBuffer.Push(new UndoAction(mergeData.UndoActionType, VoteStorage));
+                }
 
-                    if (mergeData.UndoActionType == UndoActionType.Split && mergeData.ToVotes.Count > 0)
-                    {
-                        SplitImplWrapper(mergeData.FromVote, mergeData.ToVotes);
-                    }
-                    else if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
-                    {
-                        ReplaceTaskImplWrapper(mergeData.FromVote, mergeData.ToVote.Task);
-                    }
-                    else
-                    {
-                        MergeImplWrapper(mergeData.FromVote, mergeData.ToVote);
-                    }
+                if (mergeData.UndoActionType == UndoActionType.Split && mergeData.ToVotes.Count > 0)
+                {
+                    SplitImplWrapper(mergeData.FromVote, mergeData.ToVotes);
+                }
+                else if (mergeData.UndoActionType == UndoActionType.ReplaceTask)
+                {
+                    ReplaceTaskImplWrapper(mergeData.FromVote, mergeData.ToVote.Task);
+                }
+                else
+                {
+                    MergeImplWrapper(mergeData.FromVote, mergeData.ToVote);
                 }
             }
         }
         #endregion
 
         #region Task properties
-        HashSet<string> VoteDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        List<string> OrderedVoteTaskList { get; } = new List<string>();
-        List<string> OrderedUserTaskList { get; } = new List<string>();
-        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
+        HashSet<string> VoteDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> UserDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
+        List<string> OrderedVoteTaskList { get; } = new();
+        List<string> OrderedUserTaskList { get; } = new();
+        public ObservableCollectionExt<string> TaskList { get; } = new();
 
 
         /// <summary>
@@ -837,7 +827,7 @@ namespace NetTally.VoteCounting
 
             if (ReplaceTaskImplWrapper(vote, task))
             {
-                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest!.PartitionMode);
+                UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest.PartitionMode);
 
                 OnPropertyChanged("Votes");
                 OnPropertyChanged(nameof(HasUndoActions));
@@ -865,7 +855,7 @@ namespace NetTally.VoteCounting
             // Adjust so that we're always pointing at an actual vote.
             // If the vote isn't found in VoteStorage, just use the one provided.
             vote = VoteStorage.GetVoteMatching(vote) ?? vote;
-            
+
             // Remove the version of the vote we're starting with.
             VoteStorage.Remove(vote);
 

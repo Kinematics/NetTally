@@ -16,7 +16,8 @@ namespace NetTally.VoteCounting.RankVotes
                 RankVoteCounterMethod.Schulze => new Schulze(),
                 RankVoteCounterMethod.Wilson => new Wilson(),
                 RankVoteCounterMethod.Default => new RatedInstantRunoff(),
-                _ => throw new ArgumentOutOfRangeException($"Unknown rank vote counter type: {rankVoteCounterMethod}", nameof(rankVoteCounterMethod))
+                _ => throw new ArgumentOutOfRangeException(nameof(rankVoteCounterMethod),
+                $"Unknown rank vote counter type: {rankVoteCounterMethod}")
             };
 
             return rankVoteCounter;

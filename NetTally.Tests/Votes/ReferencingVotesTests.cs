@@ -18,7 +18,6 @@ namespace NetTally.Tests.Votes
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
         static Quest quest = null!;
@@ -29,22 +28,19 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tally>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
-
-            Quest quest = new Quest();
-            agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestInitialize]
         public void Initialize()
         {
             quest = new Quest();
+            IVoteCounter voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+            quest.VoteCounter = voteCounter;
 
-            voteCounter.Reset();
-            voteCounter.ClearPosts();
+            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestCleanup]
@@ -81,28 +77,28 @@ namespace NetTally.Tests.Votes
         #endregion
 
         #region Generate user posts
-        Post GetPostFromKinematics1(string postText)
+        static Post GetPostFromKinematics1(string postText)
         {
             Origin origin = new("Kinematics", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromAtreya(string postText)
+        static Post GetPostFromAtreya(string postText)
         {
             Origin origin = new("Atreya", "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromKimberly(string postText)
+        static Post GetPostFromKimberly(string postText)
         {
             Origin origin = new("Kimberly", "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromKinematics2(string postText)
+        static Post GetPostFromKinematics2(string postText)
         {
             Origin origin = new("Kinematics", "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
 
@@ -115,7 +111,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLine;
             string voteText2 = refKinematics;
@@ -124,15 +119,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -140,9 +135,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -156,7 +151,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLine;
             string voteText2 = refKinematicsPercent;
@@ -165,15 +159,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -181,9 +175,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -197,7 +191,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLine;
             string voteText2 = refKinematicsApprove;
@@ -206,15 +199,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -222,9 +215,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -238,7 +231,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLineTask;
             string voteText2 = refAtreya;
@@ -247,15 +239,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -263,9 +255,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -279,7 +271,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLineTask;
             string voteText2 = refAtreyaPercent;
@@ -288,15 +279,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -304,9 +295,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -320,7 +311,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = oneLineTask;
             string voteText2 = refAtreyaApprove;
@@ -329,15 +319,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -345,9 +335,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -361,7 +351,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = twoLine;
             string voteText2 = refKimberly;
@@ -370,15 +359,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -386,9 +375,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsTrue(results2 == null);
@@ -402,7 +391,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = true;
-            voteCounter.Quest = quest;
 
             string voteText1 = twoLine;
             string voteText2 = refKimberly;
@@ -411,25 +399,25 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
                     Assert.IsFalse(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -443,7 +431,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = twoLine;
             string voteText2 = refKimberlyPercent;
@@ -452,15 +439,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -468,9 +455,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsFalse(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -484,7 +471,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = implicitPlan;
             string voteText2 = refKimberlyApprove;
@@ -493,15 +479,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -509,9 +495,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -525,7 +511,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = explicitPlan;
             string voteText2 = oneLine;
@@ -534,15 +519,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -550,9 +535,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0] == results2[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -566,7 +551,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = twoChunkPlan;
             string voteText2 = oneLine;
@@ -575,27 +559,27 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
                     Assert.IsTrue(results1[0] == results2[0]);
                     Assert.AreEqual(2, results1.Count);
                     Assert.AreEqual(1, results2.Count);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -609,7 +593,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.None;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = implicitPlan;
             string voteText2 = oneLine;
@@ -618,15 +601,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -634,9 +617,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0] == results2[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -650,7 +633,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 = implicitPlan;
             string voteText2 = oneLine;
@@ -659,15 +641,15 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
-                voteCounter.AddVotes(results1, post1.Origin);
+                quest.VoteCounter.AddVotes(results1, post1.Origin);
 
                 var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
@@ -675,9 +657,9 @@ namespace NetTally.Tests.Votes
                 {
                     Assert.IsTrue(results1[0] == results2[0]);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+                    quest.VoteCounter.AddVotes(results2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
+                    Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(results1[0]));
                 }
 
                 Assert.IsFalse(results2 == null);
@@ -692,7 +674,6 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
             string voteText1 =
 @"[X] Proposed plan: Mountain biking
@@ -706,9 +687,9 @@ namespace NetTally.Tests.Votes
 
             List<Post> posts = new() { post1, post2 };
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            await tally.PreprocessPosts(quest, default);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -725,12 +706,12 @@ namespace NetTally.Tests.Votes
             {
                 Assert.AreEqual(1, results2.Count);
 
-                voteCounter.AddVotes(results2, post2.Origin);
-                Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results2[0]));
-                Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportersFor(results2[0])?.Count ?? 0);
-                Assert.AreEqual(1, voteCounter.VoteStorage.GetVotesBy(post2.Origin).Count);
+                quest.VoteCounter.AddVotes(results2, post2.Origin);
+                Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(results2[0]));
+                Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportersFor(results2[0])?.Count ?? 0);
+                Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetVotesBy(post2.Origin).Count);
 
-                var allVotes = voteCounter.GetAllVotes();
+                var allVotes = quest.VoteCounter.GetAllVotes();
                 Assert.AreEqual(1, allVotes.Count());
 
                 Assert.AreEqual(MarkerType.Score, allVotes.First().Category);
@@ -738,7 +719,5 @@ namespace NetTally.Tests.Votes
 
             Assert.IsFalse(results2 == null);
         }
-
-
     }
 }

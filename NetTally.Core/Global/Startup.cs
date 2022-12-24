@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
 using NetTally.Forums;
+using NetTally.Global;
 using NetTally.Options;
 using NetTally.Output;
 using NetTally.SystemInfo;
@@ -33,19 +34,22 @@ namespace NetTally
             services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
             services.AddSingleton<Tally>();
-            services.AddSingleton<ForumAdapterFactory>();
-            services.AddSingleton<IVoteCounter, VoteCounter>();
+            services.AddTransient<IVoteCounter, VoteCounter>();
+            services.AddTransient<IVoteCounter, VoteCounter2>();
             services.AddTransient<IPageProvider, WebPageProvider>();
             services.AddTransient<ForumReader>();
+            services.AddSingleton<ForumAdapterFactory>();
 
             services.AddSingleton<VoteConstructor>();
             services.AddSingleton<RankVoteCounterFactory>();
-            services.AddTransient<ITextResultsProvider, TallyOutput>();
+            services.AddSingleton<ITextResultsProvider, TallyOutput>();
 
             services.AddSingleton<MainViewModel>();
             services.AddTransient<ManageVotesViewModel>();
             services.AddTransient<QuestOptionsViewModel>();
             services.AddTransient<TasksViewModel>();
+
+            services.AddSingleton<QuestsInfo>();
         }
     }
 }

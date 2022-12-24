@@ -14,6 +14,8 @@ using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
+using Microsoft.Extensions.Options;
+using NetTally.Global;
 
 namespace NetTally.Output
 {
@@ -29,38 +31,26 @@ namespace NetTally.Output
     public class TallyOutput : ITextResultsProvider
     {
         #region Constructor and private fields
-        readonly IVoteCounter voteCounter;
-        readonly IGeneralOutputOptions outputOptions;
-        readonly IRankVoteCounter2 rankVoteCounter;
-        readonly IForumAdapter2 forumAdapter;
-
-        DisplayMode displayMode;
-        Quest quest;
-
-        StringBuilder sb = new();
         const string cancelled = "Cancelled!";
 
+        private readonly GlobalSettings globalSettings;
+        private readonly RankVoteCounterFactory rankVoteCounterFactory;
+        private readonly ForumAdapterFactory forumAdapterFactory;
+        private readonly StringBuilder sb = new();
+
+        private Quest quest = null!;
+        private DisplayMode displayMode;
+        private IVoteCounter voteCounter = null!;
+        private IRankVoteCounter2 rankVoteCounter = null!;
+
         public TallyOutput(
-            IVoteCounter counter,
             RankVoteCounterFactory rankVoteCounterFactory,
             ForumAdapterFactory forumAdapterFactory,
-            IGeneralOutputOptions options)
+            IOptions<GlobalSettings> globalSettings)
         {
-            voteCounter = counter;
-            outputOptions = options;
-
-            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(options.RankVoteCounterMethod);
-
-            if (voteCounter.Quest != null)
-            {
-                quest = voteCounter.Quest;
-                forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
-            }
-            else
-            {
-                quest = new Quest();
-                forumAdapter = forumAdapterFactory.CreateForumAdapter(ForumType.Unknown, Quest.InvalidThreadUri);
-            }
+            this.rankVoteCounterFactory = rankVoteCounterFactory;
+            this.forumAdapterFactory = forumAdapterFactory;
+            this.globalSettings = globalSettings.Value;
         }
         #endregion
 
@@ -72,17 +62,21 @@ namespace NetTally.Output
         /// <param name="displayMode"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<string> BuildOutputAsync(DisplayMode displayMode, CancellationToken token)
+        public async Task<string> BuildOutputAsync(Quest quest, CancellationToken token)
         {
-            if (voteCounter.Quest == null)
-                return string.Empty;
+            this.quest = quest;
+            voteCounter = quest.VoteCounter;
+            displayMode = quest.DisplayMode;
+
+            var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
+            LineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+
+            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
+
             if (voteCounter.TallyWasCanceled)
                 return cancelled;
 
-            quest = voteCounter.Quest;
-            this.displayMode = displayMode;
-
-            sb = new StringBuilder();
+            sb.Clear();
 
             try
             {
@@ -109,7 +103,7 @@ namespace NetTally.Output
 
             var voteGroupings = GetVoteGroupings();
 
-            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || outputOptions.GlobalSpoilers))
+            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || globalSettings.GlobalSpoilers))
             {
                 AddHeader(token);
 
@@ -187,11 +181,8 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
-            if (voteCounter.Quest is null)
-                return;
-
             sb.Append("[b]Vote Tally");
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
 
@@ -206,14 +197,14 @@ namespace NetTally.Output
             sb.Append(ProductInfo.Version);
             sb.AppendLine("[/color]");
 
-            if (voteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
+            if (quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
             {
                 sb.Append("[color=transparent]Username Filters: ");
                 sb.Append(quest.CustomUsernameFilters);
                 sb.AppendLine("[/color]");
             }
 
-            if (voteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
+            if (quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
             {
                 sb.Append("[color=transparent]Post Filters: ");
                 sb.Append(quest.CustomPostFilters);
@@ -543,12 +534,12 @@ namespace NetTally.Output
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
         /// </summary>
-        public string LineBreak => forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+        private string LineBreak { get; set; } = string.Empty;
 
         /// <summary>
         /// Get the double line break.  There are no alternate versions right now.
         /// </summary>
-        public static string DoubleLineBreak => "<==========================================================>";
+        private static string DoubleLineBreak => "<==========================================================>";
 
         /// <summary>
         /// Add a label for the specified task.
@@ -605,7 +596,7 @@ namespace NetTally.Output
 
             sb.Append("[b]Score: ");
             sb.Append(score.score).Append('%');
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
                   .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
@@ -625,7 +616,7 @@ namespace NetTally.Output
 
             sb.Append("[b]Ranking: ");
             sb.Append('#').Append(ranking.rank);
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
                   .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)

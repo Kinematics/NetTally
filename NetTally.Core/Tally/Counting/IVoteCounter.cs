@@ -13,7 +13,9 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The quest the vote counter is set to track.
         /// </summary>
-        Quest? Quest { get; set; }
+        Quest Quest { get; }
+
+        void SetQuest(Quest quest);
         /// <summary>
         /// The titles of the quest threads that have been tallied.
         /// </summary>
@@ -60,6 +62,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="forQuestName">The name of the quest the tally is about to be run for.</param>
         void ResetUserDefinedTasks(string forQuestName);
+        void ResetUserDefinedTasks();
         /// <summary>
         /// Clear any user merge information we've retained, so that it doesn't get used to auto-merge.
         /// </summary>

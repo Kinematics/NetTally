@@ -6,6 +6,7 @@ using NetTally.Forums;
 using NetTally.Votes;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
+using NetTally.VoteCounting;
 
 #nullable disable
 
@@ -26,7 +27,10 @@ namespace NetTally.Tests.Tallying
 
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
 
-            sampleQuest = new Quest();
+            sampleQuest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
 
         #region Base Plans

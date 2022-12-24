@@ -25,21 +25,19 @@ namespace NetTally.Tests.Forums
 
 
         #region General failures
-#nullable disable
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_Fail_NullText()
         {
-            _ = new Post(Origin.Empty, null);
+            _ = new Post(Origin.Empty, null!);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Construct_Fail_NullOrigin()
         {
-            _ = new Post(null, "Some text");
+            _ = new Post(null!, "Some text");
         }
-#nullable enable
         #endregion
 
         [TestMethod]
@@ -49,7 +47,7 @@ namespace NetTally.Tests.Forums
 @"[x] Line 1
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(postText, post.Text);
             Assert.AreEqual(origin, post.Origin);
@@ -62,7 +60,7 @@ namespace NetTally.Tests.Forums
 @"A line of discussion, going on about
 what we might consider doing.";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
             Assert.IsFalse(post.HasVote);
@@ -76,7 +74,7 @@ what we might consider doing.";
 ##### NetTally
 [X] A count of votes";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
             Assert.IsFalse(post.HasVote);
@@ -90,7 +88,7 @@ what we might consider doing.";
 『color=Transparent』#『b』####『/b』 NetTally『/color』
 [X] A count of votes";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
             Assert.IsFalse(post.HasVote);
@@ -104,7 +102,7 @@ what we might consider doing.";
 『color=Transparent』##### NetTally『/color』
 [X] A count of votes";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
             Assert.IsFalse(post.HasVote);
@@ -117,11 +115,11 @@ what we might consider doing.";
 @"[x] Line 1
 [x] Line 2";
 
-            Origin origin1 = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-            Origin origin2 = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin1 = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin2 = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
-            Post post1 = new Post(origin1, postText);
-            Post post2 = new Post(origin2, postText);
+            Post post1 = new(origin1, postText);
+            Post post2 = new(origin2, postText);
 
             Assert.AreEqual(post1, post2);
             Assert.IsTrue(post1 == post2);
@@ -134,11 +132,11 @@ what we might consider doing.";
 @"[x] Line 1
 [x] Line 2";
 
-            Origin origin1 = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
-            Origin origin2 = new Origin("Kinematics", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin1 = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin2 = new("Kinematics", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
 
-            Post post1 = new Post(origin1, postText);
-            Post post2 = new Post(origin2, postText);
+            Post post1 = new(origin1, postText);
+            Post post2 = new(origin2, postText);
 
             Assert.AreNotEqual(post1, post2);
             Assert.IsTrue(post1 != post2);
@@ -152,7 +150,7 @@ what we might consider doing.";
 @"[x] Line 1
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -169,7 +167,7 @@ what we might consider doing.";
 But might include something else...
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -185,7 +183,7 @@ But might include something else...
 『url=""https://forums.sufficientvelocity.com/members/4078/""』@TheInnerHollow『/url』
 ";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(0, post.VoteLines.Count);
             Assert.IsFalse(post.HasVote);
@@ -199,7 +197,7 @@ But might include something else...
 『url=""https://forums.sufficientvelocity.com/members/4078/""』@TheInnerHollow『/url』
 ";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -216,7 +214,7 @@ But might include something else...
 [30%][Exception] Line 2
 -[x] Really don't care for this option";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(5, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -231,7 +229,7 @@ But might include something else...
 『b』[x] Ferris wheel
 -[x] At the top『/b』";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -249,7 +247,7 @@ But might include something else...
 [x] Ferris wheel
 [X] 『i』Teacups『/i』";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -267,7 +265,7 @@ But might include something else...
 [x] Ferris wheel
 [x] 『color=orange』Teacups『/color』";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -285,7 +283,7 @@ But might include something else...
 [x] Ferris wheel
 [x] 『color=#ff00AA』Teacups『/color』";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -303,7 +301,7 @@ But might include something else...
 [x] Ferris wheel
 -[x] At the top";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -321,7 +319,7 @@ But might include something else...
 -[x] Ferris wheel
 -[x] At the top";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.AreEqual(2, post.VoteLines.Count);
             Assert.IsTrue(post.HasVote);
@@ -337,7 +335,8 @@ But might include something else...
             string postText =
 @"Considering:
 ❰[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
-            Post post = new Post(origin, postText);
+            
+            Post post = new(origin, postText);
 
             Assert.IsFalse(post.HasVote);
         }
@@ -348,10 +347,10 @@ But might include something else...
             string postText =
 @"Considering:
 ❰⦂[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
-            Post post = new Post(origin, postText);
+            
+            Post post = new(origin, postText);
 
             Assert.IsFalse(post.HasVote);
-
         }
 
         [TestMethod]
@@ -363,12 +362,12 @@ But might include something else...
 -[X] Aeromancy (40%)
 -[X] Pyromancy (25%)
 -[X] Pyromantic Divination (35%)";
-            Post post = new Post(origin, postText);
+            
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
             Assert.AreEqual("[X] Plan Air, 『s』Earth, Water,『/s』 Fire", post.VoteLines[0].ToString());
-
         }
 
         [TestMethod]
@@ -377,12 +376,12 @@ But might include something else...
             string postText =
 @"Considering:
 [X] ❰Earth, Water,❱ Fire";
-            Post post = new Post(origin, postText);
+           
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
             Assert.AreEqual("[X] 『s』Earth, Water,『/s』 Fire", post.VoteLines[0].ToString());
-
         }
     }
 }

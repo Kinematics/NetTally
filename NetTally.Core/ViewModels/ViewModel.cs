@@ -557,7 +557,7 @@ namespace NetTally.ViewModels
         /// </summary>
         public async void UpdateOutput()
         {
-            await Tally.UpdateResults().ConfigureAwait(false);
+            //await Tally.UpdateResults().ConfigureAwait(false);
         }
 
         #region Run the Tally
