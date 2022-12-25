@@ -48,6 +48,7 @@ namespace NetTally
             services.AddTransient<ManageVotesViewModel>();
             services.AddTransient<QuestOptionsViewModel>();
             services.AddTransient<TasksViewModel>();
+            services.AddTransient<GlobalOptionsViewModel>();
 
             services.AddSingleton<QuestsInfo>();
         }

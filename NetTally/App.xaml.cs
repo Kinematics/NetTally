@@ -131,6 +131,7 @@ namespace NetTally
             services.AddTransient<MainWindow>();
             services.AddTransient<MainWindow2>();
             services.AddTransient<GlobalOptions>();
+            services.AddTransient<GlobalOptions2>();
             services.AddTransient<QuestOptions>();
             services.AddTransient<QuestOptions2>();
             services.AddTransient<ManageVotes>();

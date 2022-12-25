@@ -47,7 +47,7 @@ namespace NetTally.Views
 
         private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigation.ShowDialogAsync<GlobalOptions>(this);
+            await navigation.ShowDialogAsync<GlobalOptions2>(this);
         }
 
         private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)

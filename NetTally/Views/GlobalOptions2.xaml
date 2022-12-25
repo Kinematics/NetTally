@@ -1,0 +1,136 @@
+﻿<Window x:Class="NetTally.Views.GlobalOptions2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:GlobalOptionsViewModel}"
+        Title="Global Options" Height="370" Width="640" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+        <converters:RankCountingModeConverter x:Key="RankCountingModeConverter"></converters:RankCountingModeConverter>
+        <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"></converters:ThreeStateBoolConverter>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="6*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Label x:Name="labelGeneral" Content="Vote Processing" Grid.Row="1" HorizontalAlignment="Left"  VerticalAlignment="Top" Margin="10,2,0,0" Height="26"/>
+        <ComboBox x:Name="rankedVoteAlgorithm" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                  Margin="33,35,0,0" Height="30" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=RankVoteCountingModes}"
+                  SelectedIndex="{Binding Path=GlobalSettings.RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
+        </ComboBox>
+        <CheckBox x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
+                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
+        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.TrackPostAuthorsUniquely}"/>
+
+        <Label x:Name="labelOutput" Content="Output" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,117,0,0"/>
+        <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,145,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.GlobalSpoilers}"/>
+        <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,165,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.DisplayPlansWithNoVotes}"/>
+
+        <Label x:Name="labelMisc" Content="Misc" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
+        <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy"
+                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,218,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.DisableWebProxy}" />
+        <CheckBox x:Name="debugMode" Content="Debug Mode"
+                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,238,0,0"
+                  IsChecked="{Binding Path=GlobalSettings.DebugMode}" />
+
+        <!-- External Tooltip Descriptions -->
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=rankedVoteAlgorithm, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Ranked Vote Algorithm"/>
+            <TextBlock TextWrapping="Wrap" Text="Specify the algorithm to use when tallying ranked votes.  This may be temporarily changed from the default.  Changing this value updates the current tally immediately."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Options include:"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Rated Instant Runoff (default) - A system that uses Wilson scoring to determine the top two options, and then does a runoff between those two."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of GlobalSettings.  Uses Wilson's Bournelli limit method."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowUsersToUpdatePlans, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Users to Update Plans"/>
+            <TextBlock TextWrapping="Wrap" Text="When set to true, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>
+            <TextBlock TextWrapping="Wrap" Text="When set to false, users are not allowed to make such changes."/>
+            <TextBlock TextWrapping="Wrap" Text="When set to indeterminate, the quest-specific setting is used instead."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to indeterminate."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=trackPostAuthorsUniquely, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Track Post Authors Uniquely"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, post authors are tracked by name + post ID instead of just name."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=globalSpoilers, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Always Use Full Spoilers"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, all display modes will be placed inside a full spoiler block (similar to Spoiler All).  This does not affect whether voter lists are placed in spoilers."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=displayPlansWithNoVotes, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Display Plans With No Votes"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, plans that do not have any voter support will be displayed.  This does not affect the compact display mode."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Defaults to false."/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=debugMode, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Debug Mode"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, certain additional information is displayed in the tally results, and more detailed logging is enabled."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This always resets to false on program startup."/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=disableWebProxy, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Disable Web Proxy"/>
+            <TextBlock TextWrapping="Wrap" Text="When set, disables usage of the proxy defined on the local system, and attempts to connect to web sites directly.  Fixes a problem with some Vista and Windows 7 systems."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This only takes effect after the next program restart."/>
+        </StackPanel>
+
+        <Button x:Name="ResetAllButton" Content="Reset All" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10" Width="100" Height="32"
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="ResetAllButton_Click">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Reset All Options</TextBlock>
+                        <TextBlock>Reset all options to their default values.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="CloseButton" Content="Close" Grid.Column="1" Grid.Row="2" Margin="0,0,10,10" Width="100" Height="32"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True" Click="CloseButton_Click">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Close Window</TextBlock>
+                        <TextBlock>Close the window, accepting the currently selected GlobalSettings.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+
+    </Grid>
+</Window>
