@@ -25,8 +25,8 @@ namespace NetTally.Views
 
             this.questOptionsViewModel.SaveCompleted += QuestOptionsViewModel_SaveCompleted;
 
-            DataContext = this.questOptionsViewModel;
             InitializeComponent();
+            DataContext = this.questOptionsViewModel;
         }
 
         public Task ActivateAsync(object? parameter)

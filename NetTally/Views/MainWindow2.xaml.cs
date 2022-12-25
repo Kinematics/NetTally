@@ -31,18 +31,24 @@ namespace NetTally.Views
             this.navigation = navigation;
             this.logger = logger;
 
-            DataContext = this.mainViewModel;
             InitializeComponent();
+            DataContext = this.mainViewModel;
 
             Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
             this.mainViewModel.Quests.CollectionChanged += Quests_CollectionChanged;
         }
 
+
         #region Event Handlers
         private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             await ShowQuestOptions();
+        }
+
+        private async Task ShowQuestOptions()
+        {
+            await navigation.ShowDialogAsync<QuestOptions2>(this);
         }
 
         private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
@@ -113,11 +119,6 @@ namespace NetTally.Views
         }
         #endregion Event Handlers
 
-
-        private async Task ShowQuestOptions()
-        {
-            await navigation.ShowDialogAsync<QuestOptions2>(this);
-        }
 
 
         private void CopyOutputTextToClipboard()
