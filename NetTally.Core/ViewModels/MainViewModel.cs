@@ -23,6 +23,7 @@ namespace NetTally.ViewModels
         {
             this.logger = logger;
             this.questsInfo = questsInfo;
+            SelectedQuest = questsInfo.SelectedQuest;
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
             System.Net.ServicePointManager.Expect100Continue = true;
