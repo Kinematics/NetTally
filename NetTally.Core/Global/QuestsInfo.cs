@@ -7,7 +7,7 @@ using NetTally.VoteCounting;
 
 namespace NetTally.Global
 {
-    public partial class QuestsInfo
+    public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     {
         public QuestsInfo(
             IOptions<GlobalSettings> globalSettings,

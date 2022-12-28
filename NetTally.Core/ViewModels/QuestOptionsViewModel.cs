@@ -17,7 +17,7 @@ namespace NetTally.ViewModels
 
         public QuestOptionsViewModel(
             ILogger<QuestOptionsViewModel> logger,
-            QuestsInfo questsInfo)
+            IQuestsInfo questsInfo)
         {
             this.logger = logger;
 

@@ -260,7 +260,7 @@ namespace NetTally
         /// <returns>Returns current config info.</returns>
         private ConfigInfo GetConfigurationToSave()
         {
-            QuestsInfo questsInfo = host.Services.GetRequiredService<QuestsInfo>();
+            IQuestsInfo questsInfo = host.Services.GetRequiredService<IQuestsInfo>();
             IOptions<GlobalSettings> globalSettings = host.Services.GetRequiredService<IOptions<GlobalSettings>>();
 
             ConfigInfo config = new(questsInfo.Quests, questsInfo.SelectedQuest?.ThreadName, globalSettings.Value);

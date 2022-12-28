@@ -14,12 +14,12 @@ namespace NetTally.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private readonly IQuestsInfoMod questsInfo;
         private readonly ILogger<MainViewModel> logger;
-        private readonly QuestsInfo questsInfo;
 
         public MainViewModel(
-            ILogger<MainViewModel> logger,
-            QuestsInfo questsInfo)
+            IQuestsInfoMod questsInfo,
+            ILogger<MainViewModel> logger)
         {
             this.logger = logger;
             this.questsInfo = questsInfo;
