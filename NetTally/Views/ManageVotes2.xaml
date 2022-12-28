@@ -1,0 +1,247 @@
+﻿<Window x:Class="NetTally.Views.ManageVotes2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ManageVotesViewModel}"
+        Title="Manage Votes" Height="669.837" Width="862" MinWidth="828" MinHeight="445"
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False" KeyDown="Window_KeyDown"
+        Name="window">
+    
+    <Window.Resources>
+        <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
+        <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></converters:MultiBoolOrConverter>
+        <converters:MultiBoolAndConverter x:Key="MultiBoolAndConverter"></converters:MultiBoolAndConverter>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+        <converters:MultiStringCompareConverter x:Key="MultiStringCompareConverter"></converters:MultiStringCompareConverter>
+
+        <ContextMenu x:Key="TaskContextMenu" x:Name="TaskContextMenu" Opened="TaskContextMenu_Opened"></ContextMenu>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="4*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <!-- Grid 0,0 : From Votes -->
+
+        <Label Grid.Column="0" Grid.Row="0" x:Name="label1" Content="Votes (Merge From)"
+               Margin="10,10,0,0" Width="116" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+
+        <TextBox Grid.Column="0" Grid.Row="0" x:Name="filterVotes1" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding ElementName=window, Path=Filter1String, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Filter 'From' Votes</TextBlock>
+                        <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+        
+        <Label Grid.Column="0" Grid.Row="0" x:Name="filterLabel1" Content="Filter Votes"
+               Margin="148,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding ElementName=window, Path=IsFilter1Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+
+        <ListBox Grid.Column="0" Grid.Row="0" x:Name="VotesFromListBox" Margin="10,36,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoteView1}" IsSynchronizedWithCurrentItem="True"
+                 SelectionChanged="VotesFromListBox_SelectionChanged"
+                 ContextMenu="{StaticResource TaskContextMenu}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
+        </ListBox>
+
+
+        <!-- Grid 2,0 : To Votes -->
+
+        <Label Grid.Column="2" Grid.Row="0" x:Name="label2" Content="Votes (Merge To)"
+               Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+        <TextBox Grid.Column="2" Grid.Row="0" x:Name="filterVotes2" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                 Text="{Binding ElementName=window, Path=Filter2String, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Filter 'To' Votes</TextBlock>
+                        <TextBlock>Only display votes containing the text in the filter box.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+        <Label Grid.Column="2" Grid.Row="0" x:Name="filterLabel2" Content="Filter Votes"
+               Margin="148,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding ElementName=window, Path=IsFilter2Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+
+        <ListBox Grid.Column="2" Grid.Row="0" x:Name="VotesToListBox" Margin="10,36,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoteView2}" SelectionChanged="VotesToListBox_SelectionChanged"
+                 ContextMenu="{StaticResource TaskContextMenu}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding ManageVotesDisplay}" Margin="0, 0, 0, 10" FontSize="13.333" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
+        </ListBox>
+
+        <!-- Grid 0,1 : From Voters -->
+
+        <Label Grid.Column="0" Grid.Row="1" x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+
+        <ListBox Grid.Column="0" Grid.Row="1" x:Name="votersFromListBox" Margin="10,31,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoterView1}" IsSynchronizedWithCurrentItem="True">
+        </ListBox>
+
+        <!-- Grid 2,1 : To Voters -->
+
+        <Label Grid.Column="2" Grid.Row="1" x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+
+        <ListBox Grid.Column="2" Grid.Row="1" x:Name="votersToListBox" Margin="10,31,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoterView2}">
+        </ListBox>
+
+        <!-- Grid 1,0 : Vote Controls -->
+
+        <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="Merge ⇒"
+                Margin="10,47,10,0" Height="35" 
+                VerticalAlignment="Top" FontSize="13.333" ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=MergeCommand}">
+            <!--<Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="InvertVoteLineBlock">
+                    <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>-->
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Merge</TextBlock>
+                        <TextBlock>Merge the voters for the selected vote on the left into the vote on the right.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⊘ Delete"
+                Margin="10,196,10,0" Height="35" VerticalAlignment="Top" FontSize="13.333" RenderTransformOrigin="0.507,0.1"
+                ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=DeleteCommand}">
+            <!--<Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="VoteLineBlock">
+                    <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
+                    <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>-->
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Delete</TextBlock>
+                        <TextBlock>Delete the selected vote.  Select the same vote from both columns.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+
+        <Button Grid.Column="1" Grid.Row="0" x:Name="undo" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
+                ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=UndoCommand}" >
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Undo</TextBlock>
+                        <TextBlock>Undo the last merge, delete, or join action.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+
+
+        <!-- Grid 1,1 : Voter Controls -->
+
+        <Button Grid.Column="1" Grid.Row="1" x:Name="joinVoters" Content="Join ⇒" Height="35" Margin="10,35,10,0" VerticalAlignment="Top"
+                FontSize="13.333" ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=JoinCommand}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Join</TextBlock>
+                        <TextBlock>Have all voters from the list on the left support all votes of the voter selected on the right.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+
+        <!-- Grid 2,2 : Close Window -->
+
+        <Button Grid.Column="2" Grid.Row="2" x:Name="closeButton" Content="Close" Margin="0,0,10,10"
+                IsCancel="True" HorizontalAlignment="Right" Width="117" Height="30" VerticalAlignment="Bottom"/>
+
+
+        <!-- Textbox input for Tasks -->
+
+        <!-- It's important that this is in the end of the XAML as it needs to be on top of everything else! -->
+        <Grid x:Name="InputBox" Visibility="Collapsed" Grid.RowSpan="3" Grid.ColumnSpan="3">
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+            MinWidth="250"
+            Background="AliceBlue" 
+            BorderBrush="Black" 
+            BorderThickness="1" 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Margin="5" Text="Enter Task Description:" FontWeight="Bold" FontFamily="Cambria" />
+                    <TextBox MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="InputTextBox" Keyboard.KeyDown="InputTextBox_KeyDown"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="YesButton" Margin="5" Content="OK" Background="{x:Null}" Click="YesButton_Click" />
+                        <Button x:Name="NoButton" Margin="5" Content="Cancel" Background="{x:Null}" Click="NoButton_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</Window>

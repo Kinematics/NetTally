@@ -86,7 +86,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">Contains info about which program option was updated.</param>
-        private async void Options_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void Options_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (string.Equals(e.PropertyName, "RankVoteCounterMethod", StringComparison.Ordinal)
                 || string.Equals(e.PropertyName, "DebugMode", StringComparison.Ordinal))
