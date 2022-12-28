@@ -258,5 +258,11 @@ namespace NetTally.VoteCounting
         /// <param name="task">The new task to use.</param>
         /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
         bool ReplaceTask(VoteLineBlock vote, string task);
+        
+        /// <summary>
+        /// Replace the current list of tasks with the provided list.
+        /// </summary>
+        /// <param name="tasks"></param>
+        void ReplaceTasks(IEnumerable<string> tasks);
     }
 }

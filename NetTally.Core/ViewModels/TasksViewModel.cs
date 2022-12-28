@@ -4,23 +4,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
-using NetTally.VoteCounting;
+using NetTally.Global;
 
 namespace NetTally.ViewModels
 {
     public partial class TasksViewModel : ObservableObject
     {
+        private readonly Quest quest;
         private readonly ILogger<TasksViewModel> logger;
-        private readonly IVoteCounter voteCounter;
 
         public ObservableCollection<string> Tasks { get; } = new();
 
 
-        public TasksViewModel(ILogger<TasksViewModel> logger,
-            IVoteCounter voteCounter)
+        public TasksViewModel(
+            IQuestsInfo questsInfo,
+            ILogger<TasksViewModel> logger)
         {
             this.logger = logger;
-            this.voteCounter = voteCounter;
+
+            ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest);
+            quest = questsInfo.SelectedQuest;
 
             LoadTasks();
         }
@@ -28,7 +31,7 @@ namespace NetTally.ViewModels
         private void LoadTasks()
         {
             Tasks.Clear();
-            foreach (var t in voteCounter.TaskList)
+            foreach (var t in quest.VoteCounter.TaskList)
             {
                 Tasks.Add(t);
             }
@@ -38,12 +41,7 @@ namespace NetTally.ViewModels
 
         private void SaveTasks()
         {
-            voteCounter.TaskList.Clear();
-            foreach (var t in Tasks)
-            {
-                voteCounter.TaskList.Add(t);
-            }
-
+            quest.VoteCounter.ReplaceTasks(Tasks);
             logger.LogInformation("{count} tasks saved.", Tasks.Count);
         }
 
@@ -86,7 +84,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void PutInTallyOrder()
         {
-            voteCounter.ResetTasksOrder(Types.Enums.TasksOrdering.AsTallied);
+            quest.VoteCounter.ResetTasksOrder(Types.Enums.TasksOrdering.AsTallied);
             LoadTasks();
         }
 
