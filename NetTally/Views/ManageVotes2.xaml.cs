@@ -429,7 +429,7 @@ namespace NetTally.Views
 
         private async void reorderTasksAsync_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<ReorderTasks>(this);
+            await navigationService.ShowDialogAsync<ReorderTasks2>(this);
         }
 
         private void partitionChildren_Click(object sender, RoutedEventArgs e)

@@ -1,0 +1,85 @@
+﻿<Window x:Class="NetTally.Views.ReorderTasks2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NetTally"
+        mc:Ignorable="d"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:TasksViewModel}"
+        Title="Reorder Tasks" Height="361.933" Width="317" MinHeight="350" MinWidth="300"
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+
+        <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskCollectionView" Margin="10,10,2,10"
+                 ItemsSource="{Binding TaskView}" IsSynchronizedWithCurrentItem="True">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30"
+                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveUpCommand}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Move Up</TextBlock>
+                        <TextBlock>Move the selected task up in the ordering.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="10,162,0,0" Width="30" Height="30" FontSize="24" Padding="0,-4,0,0"
+                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveDownCommand}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Move Down</TextBlock>
+                        <TextBlock>Move the selected task down in the ordering.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Margin="18,0,0,2"
+                Width="75" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                Command="{Binding Path=SortAlphaCommand}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Sort Alphabetically</TextBlock>
+                        <TextBlock>Re-sort the task list alphabetically.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="As Tallied" Margin="0,0,18,2"
+                Width="75" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Command="{Binding Path=SortOriginalCommand}">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Sort As Tallied</TextBlock>
+                        <TextBlock>Re-sort the task list into the order the tasks were encountered when tallying the vote.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button Grid.Column="1" Grid.Row="1" x:Name="closeButton" Content="Close" Margin="0,0,2,2" IsCancel="True"  Width="55" Height="30"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+    </Grid>
+</Window>

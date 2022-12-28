@@ -819,6 +819,11 @@ namespace NetTally.VoteCounting
             OnPropertyChanged("Tasks");
         }
 
+        public void ReplaceTasks(IEnumerable<string> tasks)
+        {
+            TaskList.Replace(tasks);
+        }
+
         /// <summary>
         /// Replace the task on the provided vote with the requested task.
         /// </summary>

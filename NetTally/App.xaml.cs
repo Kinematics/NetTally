@@ -135,7 +135,9 @@ namespace NetTally
             services.AddTransient<QuestOptions>();
             services.AddTransient<QuestOptions2>();
             services.AddTransient<ManageVotes>();
+            services.AddTransient<ManageVotes2>();
             services.AddTransient<ReorderTasks>();
+            services.AddTransient<ReorderTasks2>();
         }
         #endregion Services
 

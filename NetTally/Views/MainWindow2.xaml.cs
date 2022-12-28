@@ -58,7 +58,7 @@ namespace NetTally.Views
 
         private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await navigation.ShowDialogAsync<ManageVotes>(this);
+            await navigation.ShowDialogAsync<ManageVotes2>(this);
 
             mainViewModel.UpdateOutput();
         }

@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Collections;
 using NetTally.Extensions;
-using NetTally.Options;
-using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
-using Microsoft.Extensions.Options;
 using NetTally.Global;
-using System.Diagnostics.CodeAnalysis;
+using NetTally.Types.Components;
+using NetTally.Types.Enums;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
@@ -24,7 +23,7 @@ namespace NetTally.VoteCounting
         public VoteCounter2(IOptions<GlobalSettings> globalOptions,
             ILogger<VoteCounter2> logger)
         {
-            this.globalSettings = globalOptions.Value;
+            globalSettings = globalOptions.Value;
             this.logger = logger;
         }
 
@@ -191,7 +190,7 @@ namespace NetTally.VoteCounting
             }
             else if (
                       (globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
-                       (globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans)) &&
+                       globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans) &&
                       ReferenceOrigins.TryGetValue(planOrigin, out Origin? currentOrigin)
                     )
             {
