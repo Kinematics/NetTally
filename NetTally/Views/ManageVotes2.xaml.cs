@@ -274,28 +274,36 @@ namespace NetTally.Views
             newTask = new()
             {
                 Header = "New Task...",
-                ToolTip = "Create a new task value."
+                ToolTip = "Create a new task value.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
             };
             newTask.Click += newTask_Click;
 
             clearTask = new()
             {
                 Header = "Clear Task",
-                ToolTip = "Clear the task from the currently selected vote."
+                ToolTip = "Clear the task from the currently selected vote.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
             };
             clearTask.Click += clearTask_Click;
 
             reorderTasks = new()
             {
                 Header = "Re-Order Tasks",
-                ToolTip = "Modify the order in which the tasks appear in the output."
+                ToolTip = "Modify the order in which the tasks appear in the output.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
             };
             reorderTasks.Click += reorderTasksAsync_Click;
 
             partitionChildren = new()
             {
                 Header = "Partition Children",
-                ToolTip = "Split child vote lines into their own vote blocks."
+                ToolTip = "Split child vote lines into their own vote blocks.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
             };
             partitionChildren.Click += partitionChildren_Click;
 
