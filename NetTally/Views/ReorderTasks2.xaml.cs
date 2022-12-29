@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Extensions.Logging;
+using NetTally.ViewModels;
 
 namespace NetTally.Views
 {
@@ -19,9 +22,30 @@ namespace NetTally.Views
     /// </summary>
     public partial class ReorderTasks2 : Window
     {
-        public ReorderTasks2()
+        private readonly ILogger<ReorderTasks2> logger;
+
+        public ReorderTasks2(
+            TasksViewModel tasksViewModel,
+            ILogger<ReorderTasks2> logger)
         {
+            this.logger = logger;
+
+            TasksView = CollectionViewSource.GetDefaultView(tasksViewModel.Tasks);
+
             InitializeComponent();
+            DataContext = tasksViewModel;
         }
+
+        public Task ActivateAsync(object? parameter)
+        {
+            if (parameter is Window owner)
+            {
+                this.Owner = owner;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public ICollectionView TasksView { get; }
     }
 }

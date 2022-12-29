@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Collections;
 using NetTally.Extensions;
 using NetTally.Global;
+using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
@@ -13,7 +14,7 @@ namespace NetTally.ViewModels
         private readonly Quest quest;
         private readonly ILogger<TasksViewModel> logger;
 
-        public ObservableCollection<string> Tasks { get; } = new();
+        public ObservableCollectionExt<string> Tasks { get; } = new();
 
 
         public TasksViewModel(
@@ -30,12 +31,7 @@ namespace NetTally.ViewModels
 
         private void LoadTasks()
         {
-            Tasks.Clear();
-            foreach (var t in quest.VoteCounter.TaskList)
-            {
-                Tasks.Add(t);
-            }
-
+            Tasks.Replace(quest.VoteCounter.TaskList);
             logger.LogInformation("{count} tasks loaded.", Tasks.Count);
         }
 
@@ -45,27 +41,31 @@ namespace NetTally.ViewModels
             logger.LogInformation("{count} tasks saved.", Tasks.Count);
         }
 
-        [RelayCommand]
+        private bool CanMoveTaskUp(int? position)
+        {
+            return (Tasks.Count > 1 && position.HasValue && position.Value > 0);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanMoveTaskUp))]
         private void MoveTaskUp(int? position)
         {
-            if (position.HasValue)
+            if (position.HasValue && position.Value > 0 && position < Tasks.Count)
             {
-                if (position.Value >= 0 && position < Tasks.Count)
-                {
-                    Tasks.Move(position.Value, position.Value - 1);
-                }
+                Tasks.Move(position.Value, position.Value - 1);
             }
         }
 
-        [RelayCommand]
+        private bool CanMoveTaskDown(int? position)
+        {
+            return (Tasks.Count > 1 && position.HasValue && position.Value < Tasks.Count - 1);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanMoveTaskDown))]
         private void MoveTaskDown(int? position)
         {
-            if (position.HasValue)
+            if (position.HasValue && position.Value >= 0 && position < Tasks.Count - 1)
             {
-                if (position.Value >= 0 && position < Tasks.Count)
-                {
-                    Tasks.Move(position.Value, position.Value + 1);
-                }
+                Tasks.Move(position.Value, position.Value + 1);
             }
         }
 
@@ -84,7 +84,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void PutInTallyOrder()
         {
-            quest.VoteCounter.ResetTasksOrder(Types.Enums.TasksOrdering.AsTallied);
+            quest.VoteCounter.ResetTasksOrder(TasksOrdering.AsTallied);
             LoadTasks();
         }
 

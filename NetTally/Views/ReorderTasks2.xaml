@@ -8,7 +8,8 @@
         xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
         d:DataContext="{d:DesignInstance Type=viewmodels:TasksViewModel}"
         Title="Reorder Tasks" Height="361.933" Width="317" MinHeight="350" MinWidth="300"
-        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False"
+        Name="window">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
@@ -22,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <ListBox Grid.Column="0" Grid.Row="0" x:Name="taskCollectionView" Margin="10,10,2,10"
-                 ItemsSource="{Binding TaskView}" IsSynchronizedWithCurrentItem="True">
+                 ItemsSource="{Binding Tasks}" IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -33,7 +34,7 @@
 
         <Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30"
-                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveUpCommand}">
+                Command="{Binding Path=MoveTaskUpCommand}" CommandParameter="{Binding ElementName=window, Path=TasksView.CurrentPosition}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -45,7 +46,7 @@
         </Button>
         <Button Grid.Column="1" Grid.Row="0" x:Name="down" Content="⇓" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="10,162,0,0" Width="30" Height="30" FontSize="24" Padding="0,-4,0,0"
-                CommandParameter="{Binding Path=TaskView.CurrentPosition}" Command="{Binding Path=MoveDownCommand}">
+                Command="{Binding Path=MoveTaskDownCommand}" CommandParameter="{Binding ElementName=window, Path=TasksView.CurrentPosition}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -57,7 +58,7 @@
         </Button>
         <Button Grid.Column="0" Grid.Row="1" x:Name="alphaSort" Content="Alphabetic" Margin="18,0,0,2"
                 Width="75" Height="30" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                Command="{Binding Path=SortAlphaCommand}">
+                Command="{Binding Path=AlphabetizeCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -69,7 +70,7 @@
         </Button>
         <Button Grid.Column="0" Grid.Row="1" x:Name="defaultSort" Content="As Tallied" Margin="0,0,18,2"
                 Width="75" Height="30" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Command="{Binding Path=SortOriginalCommand}">
+                Command="{Binding Path=PutInTallyOrderCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -79,7 +80,9 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button Grid.Column="1" Grid.Row="1" x:Name="closeButton" Content="Close" Margin="0,0,2,2" IsCancel="True"  Width="55" Height="30"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <Button Grid.Column="1" Grid.Row="1" x:Name="closeButton" Content="Close"
+                Margin="0,0,2,2" IsDefault="True" Width="55" Height="30"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Command="{Binding SaveCommand}"/>
     </Grid>
 </Window>
