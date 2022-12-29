@@ -390,13 +390,19 @@ namespace NetTally.Views
                 return;
 
             if (cm.PlacementTarget is not ListBox listBox)
-                return;
-
-            if (listBox.SelectedItem is VoteLineBlock selectedVote)
             {
-                // Only enable the Parition Children context menu item if it's a valid action for the vote.
-                partitionChildren.IsEnabled = HasChildLines(selectedVote);
+                e.Handled = true;
+                return;
             }
+
+            if (listBox.SelectedItem is not VoteLineBlock selectedVote)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // Only enable the Parition Children context menu item if it's a valid action for the vote.
+            partitionChildren.IsEnabled = HasChildLines(selectedVote);
 
             // Only enable Reorder Tasks if we have tasks to reorder
             reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;

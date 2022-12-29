@@ -16,8 +16,8 @@ namespace NetTally.ViewModels
         private readonly Quest quest;
 
         public QuestOptionsViewModel(
-            ILogger<QuestOptionsViewModel> logger,
-            IQuestsInfo questsInfo)
+            IQuestsInfo questsInfo,
+            ILogger<QuestOptionsViewModel> logger)
         {
             this.logger = logger;
 
@@ -28,6 +28,13 @@ namespace NetTally.ViewModels
 
             LoadQuestOptions();
         }
+
+        public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+
+        public ObservableCollection<Quest> LinkedQuests { get; } = new();
+
+        public ObservableCollection<Quest> AvailableQuests { get; }
+
 
 
         private void LoadQuestOptions()
@@ -148,12 +155,6 @@ namespace NetTally.ViewModels
                 }
             }
         }
-
-        public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
-
-        public ObservableCollection<Quest> LinkedQuests { get; } = new();
-
-        public ObservableCollection<Quest> AvailableQuests { get; }
 
 
         [ObservableProperty]

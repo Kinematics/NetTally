@@ -60,7 +60,7 @@ namespace NetTally.Views
         {
             await navigation.ShowDialogAsync<ManageVotes2>(this);
 
-            mainViewModel.UpdateOutput();
+            await mainViewModel.UpdateOutput();
         }
 
         private async void Quests_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

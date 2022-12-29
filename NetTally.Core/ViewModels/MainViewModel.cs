@@ -9,20 +9,24 @@ using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
+using NetTally.VoteCounting;
 
 namespace NetTally.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
         private readonly IQuestsInfoMod questsInfo;
+        private readonly Tally tally;
         private readonly ILogger<MainViewModel> logger;
 
         public MainViewModel(
             IQuestsInfoMod questsInfo,
+            Tally tally,
             ILogger<MainViewModel> logger)
         {
             this.logger = logger;
             this.questsInfo = questsInfo;
+            this.tally = tally;
             SelectedQuest = questsInfo.SelectedQuest;
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
@@ -49,9 +53,10 @@ namespace NetTally.ViewModels
 
         public bool HasOutput => Output != string.Empty;
 
-        public void UpdateOutput()
+        public async Task UpdateOutput()
         {
-
+            if (SelectedQuest is not null)
+                await tally.UpdateResults(SelectedQuest);
         }
 
         public List<Quest> GetLinkedQuests(Quest quest)
