@@ -125,7 +125,10 @@ namespace NetTally.Views
         {
             try
             {
-                Clipboard.SetText(mainViewModel.Output);
+                if (OperatingSystem.IsWindows())
+                {
+                    Clipboard.SetText(mainViewModel.Output);
+                }
             }
             catch (Exception e1)
             {

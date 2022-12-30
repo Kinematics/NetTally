@@ -23,6 +23,8 @@ namespace NetTally
         }
 
         private IVoteCounter voteCounter = null!;
+
+        [JsonIgnore]
         public IVoteCounter VoteCounter
         {
             get { return voteCounter; }
@@ -351,9 +353,9 @@ namespace NetTally
         #region Quest configuration properties: Tally processing
 
         [ObservableProperty]
-        PartitionMode partitionMode = PartitionMode.None;
+        PartitionMode partitionMode = Types.Enums.PartitionMode.None;
         [ObservableProperty]
-        DisplayMode displayMode = DisplayMode.Normal;
+        DisplayMode displayMode = Types.Enums.DisplayMode.Normal;
         [ObservableProperty]
         bool whitespaceAndPunctuationIsSignificant = false;
         [ObservableProperty]
