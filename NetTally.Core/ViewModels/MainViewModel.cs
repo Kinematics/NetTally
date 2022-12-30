@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -8,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Cache;
+using NetTally.CustomEventArgs;
 using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
@@ -39,6 +41,7 @@ namespace NetTally.ViewModels
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
             RunTallyCommand.PropertyChanged += RunTallyCommand_PropertyChanged;
+            tally.PropertyChanged += Tally_PropertyChanged;
         }
 
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
@@ -53,11 +56,30 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         private bool hasNewRelease;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasOutput))]
-        private string output = string.Empty;
 
-        public bool HasOutput => Output != string.Empty;
+
+        private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Tally.TallyResults))
+            {
+                OnPropertyChanged(nameof(Output));
+            }
+            else if (e.PropertyName == nameof(Tally.HasTallyResults))
+            {
+                OnPropertyChanged(nameof(HasOutput));
+            }
+            //else if (e is PropertyDataChangedEventArgs<string> eData)
+            //{
+            //    if (eData.PropertyName == "TallyResultsStatusChanged")
+            //    {
+            //        OnPropertyDataChanged(eData.PropertyData, eData.PropertyName);
+            //    }
+            //}
+        }
+
+        public string Output => tally.TallyResults;
+
+        public bool HasOutput => tally.HasTallyResults;
 
         public async Task UpdateOutput()
         {
@@ -148,6 +170,11 @@ namespace NetTally.ViewModels
                 ClearTallyCacheCommand.NotifyCanExecuteChanged();
                 OnPropertyChanged(nameof(TallyIsRunning));
                 OnPropertyChanged(nameof(TallyIsNotRunning));
+
+                if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
+                {
+                    OnPropertyChanged(nameof(Output));
+                }
             }
         }
 
@@ -159,9 +186,20 @@ namespace NetTally.ViewModels
         {
             try
             {
-                await Task.Delay(5000, cancellationToken);
+                await tally.RunAsync(SelectedQuest!, cancellationToken).ConfigureAwait(false);
+                //await Task.Delay(5000, cancellationToken);
             }
-            catch (TaskCanceledException) { }
+            catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
+            {
+                if (RunTallyCommand.IsCancellationRequested)
+                {
+                    tally.TallyResults += "Tally cancelled!\n";
+                }
+                else
+                {
+                    RunTallyCommand.Cancel();
+                }
+            }
         }
 
         private bool CanCancelTally() => TallyIsRunning;
