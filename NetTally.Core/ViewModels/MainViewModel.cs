@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Cache;
 using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
@@ -17,27 +19,30 @@ namespace NetTally.ViewModels
     {
         private readonly IQuestsInfoMod questsInfo;
         private readonly Tally tally;
+        private readonly ICache<string> pageCache;
         private readonly ILogger<MainViewModel> logger;
 
         public MainViewModel(
             IQuestsInfoMod questsInfo,
             Tally tally,
+            ICache<string> cache,
             ILogger<MainViewModel> logger)
         {
             this.logger = logger;
             this.questsInfo = questsInfo;
             this.tally = tally;
+            this.pageCache = cache;
             SelectedQuest = questsInfo.SelectedQuest;
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
             System.Net.ServicePointManager.Expect100Continue = true;
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+
+            RunTallyCommand.PropertyChanged += RunTallyCommand_PropertyChanged;
         }
 
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
-
         public bool HasQuests => Quests.Count > 0;
-
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
@@ -49,6 +54,7 @@ namespace NetTally.ViewModels
         private bool hasNewRelease;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasOutput))]
         private string output = string.Empty;
 
         public bool HasOutput => Output != string.Empty;
@@ -59,16 +65,12 @@ namespace NetTally.ViewModels
                 await tally.UpdateResults(SelectedQuest);
         }
 
-        public List<Quest> GetLinkedQuests(Quest quest)
-        {
-            return Quests.Where(quest.HasLinkedQuest).ToList();
-        }
-
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
         [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ClearTallyCacheCommand))]
         private Quest? selectedQuest;
 
         partial void OnSelectedQuestChanged(Quest? value)
@@ -78,7 +80,15 @@ namespace NetTally.ViewModels
 
         public bool IsQuestSelected => SelectedQuest != null;
 
-        [RelayCommand]
+        public List<Quest> GetLinkedQuests(Quest quest)
+        {
+            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
+        }
+
+
+        private bool CanAddQuest => TallyIsNotRunning;
+
+        [RelayCommand(CanExecute = nameof(CanAddQuest))]
         private void AddQuest()
         {
             Quest q = new();
@@ -91,7 +101,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanRemoveQuest() => IsQuestSelected;
+        private bool CanRemoveQuest() => TallyIsNotRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRemoveQuest))]
         private void RemoveQuest()
@@ -128,43 +138,47 @@ namespace NetTally.ViewModels
         public bool TallyIsRunning => RunTallyCommand.IsRunning;
         public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
 
+        private void RunTallyCommand_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(RunTallyCommand.IsRunning))
+            {
+                AddQuestCommand.NotifyCanExecuteChanged();
+                RemoveQuestCommand.NotifyCanExecuteChanged();
+                CancelTallyCommand.NotifyCanExecuteChanged();
+                ClearTallyCacheCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(TallyIsRunning));
+                OnPropertyChanged(nameof(TallyIsNotRunning));
+            }
+        }
+
         private bool CanRunTally() => TallyIsNotRunning && IsQuestSelected;
-        private bool CanCancelTally() => TallyIsRunning;
-        private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
-
-
-        private CancellationTokenSource? tallyCTS;
 
         [RelayCommand(CanExecute = nameof(CanRunTally),
             IncludeCancelCommand = true)]
-        private async Task RunTallyAsync(CancellationToken cancellationToken)
+        private async Task RunTally(CancellationToken cancellationToken)
         {
             try
             {
-                using (tallyCTS = new CancellationTokenSource())
-
-                    await Task.Delay(100, tallyCTS.Token).ConfigureAwait(false);
-
+                await Task.Delay(5000, cancellationToken);
             }
-            finally
-            {
-                tallyCTS = null;
-            }
+            catch (TaskCanceledException) { }
         }
+
+        private bool CanCancelTally() => TallyIsRunning;
 
         [RelayCommand(CanExecute = nameof(CanCancelTally))]
         private void CancelTally()
         {
-            if (tallyCTS?.IsCancellationRequested == false)
-            {
-                tallyCTS.Cancel();
-            }
+            RunTallyCommand.Cancel();
         }
+
+        private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
         private void ClearTallyCache()
         {
-
+            pageCache.Clear();
+            SelectedQuest?.VoteCounter.ResetUserMerges();
         }
     }
 }
