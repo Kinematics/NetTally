@@ -278,7 +278,7 @@ namespace NetTally.Views
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalContentAlignment = VerticalAlignment.Top,
             };
-            newTask.Click += newTask_Click;
+            newTask.Click += NewTask_Click;
 
             clearTask = new()
             {
@@ -287,7 +287,7 @@ namespace NetTally.Views
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalContentAlignment = VerticalAlignment.Top,
             };
-            clearTask.Click += clearTask_Click;
+            clearTask.Click += ClearTask_Click;
 
             reorderTasks = new()
             {
@@ -296,7 +296,7 @@ namespace NetTally.Views
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalContentAlignment = VerticalAlignment.Top,
             };
-            reorderTasks.Click += reorderTasksAsync_Click;
+            reorderTasks.Click += ReorderTasksAsync_Click;
 
             partitionChildren = new()
             {
@@ -305,7 +305,7 @@ namespace NetTally.Views
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalContentAlignment = VerticalAlignment.Top,
             };
-            partitionChildren.Click += partitionChildren_Click;
+            partitionChildren.Click += PartitionChildren_Click;
 
             InitKnownTasks();
             UpdateContextMenu();
@@ -335,7 +335,7 @@ namespace NetTally.Views
                 ToolTip = $"Change the task for the selected item to '{name}'",
                 Tag = "NamedTask"
             };
-            mi.Click += modifyTask_Click;
+            mi.Click += ModifyTask_Click;
 
             return mi;
         }
@@ -408,7 +408,7 @@ namespace NetTally.Views
             reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;
         }
 
-        private void newTask_Click(object sender, RoutedEventArgs e)
+        private void NewTask_Click(object sender, RoutedEventArgs e)
         {
             selectedVoteForNewTask = GetSelectedVoteInContext(sender);
 
@@ -417,7 +417,7 @@ namespace NetTally.Views
             InputTextBox.Focus();
         }
 
-        private void clearTask_Click(object sender, RoutedEventArgs e)
+        private void ClearTask_Click(object sender, RoutedEventArgs e)
         {
             var selectedVote = GetSelectedVoteInContext(sender);
 
@@ -425,7 +425,7 @@ namespace NetTally.Views
                 ModifyTask(selectedVote, string.Empty);
         }
 
-        private void modifyTask_Click(object sender, RoutedEventArgs e)
+        private void ModifyTask_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem mi)
             {
@@ -441,12 +441,12 @@ namespace NetTally.Views
             }
         }
 
-        private async void reorderTasksAsync_Click(object sender, RoutedEventArgs e)
+        private async void ReorderTasksAsync_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<ReorderTasks2>(this);
         }
 
-        private void partitionChildren_Click(object sender, RoutedEventArgs e)
+        private void PartitionChildren_Click(object sender, RoutedEventArgs e)
         {
             var selectedVote = GetSelectedVoteInContext(sender);
 
