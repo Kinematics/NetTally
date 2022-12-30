@@ -123,7 +123,8 @@ namespace NetTally.VoteCounting
         {
             if (sender is Quest quest)
             {
-                if (string.Equals(e.PropertyName, "PartitionMode", StringComparison.Ordinal))
+                if (string.Equals(e.PropertyName, nameof(quest.PartitionMode), StringComparison.Ordinal) ||
+                    string.Equals(e.PropertyName, nameof(quest.DisplayMode), StringComparison.Ordinal))
                 {
                     try
                     {
