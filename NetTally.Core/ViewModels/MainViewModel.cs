@@ -113,14 +113,12 @@ namespace NetTally.ViewModels
         [RelayCommand(CanExecute = nameof(CanAddQuest))]
         private void AddQuest()
         {
-            Quest q = new();
-            if (!Quests.Contains(q))
-            {
-                SelectedQuest = q;
-                Quests.Add(q);
+            bool hadZeroQuests = Quests.Count == 0;
+            Quest q = questsInfo.CreateQuest();
+            SelectedQuest = q;
+            if (hadZeroQuests)
                 OnPropertyChanged(nameof(HasQuests));
-                logger.LogInformation("Added new quest");
-            }
+            logger.LogInformation("Added new quest");
         }
 
         private bool CanRemoveQuest() => TallyIsNotRunning && IsQuestSelected;
@@ -131,28 +129,26 @@ namespace NetTally.ViewModels
             if (SelectedQuest != null)
             {
                 logger.LogInformation("Removing quest for thread: {url}", SelectedQuest.ThreadName);
-                int selectedQuestPosition = Quests.IndexOf(SelectedQuest);
-                Quests.Remove(SelectedQuest);
-                OnPropertyChanged(nameof(HasQuests));
 
-                if (Quests.Count > 0)
+                if (questsInfo.RemoveQuest(SelectedQuest))
                 {
-                    if (selectedQuestPosition < Quests.Count)
+                    SelectedQuest = questsInfo.SelectedQuest;
+
+                    if (Quests.Count == 0)
                     {
-                        SelectedQuest = Quests[selectedQuestPosition];
+                        OnPropertyChanged(nameof(HasQuests));
+                    }
+
+                    if (SelectedQuest != null)
+                    {
+                        logger.LogInformation("Selected quest updated to thread: {url}", SelectedQuest.ThreadName);
                     }
                     else
                     {
-                        SelectedQuest = Quests[^1];
+                        logger.LogInformation("There are no remaining quests.");
                     }
+                }
 
-                    logger.LogInformation("Selected quest updated to thread: {url}", SelectedQuest.ThreadName);
-                }
-                else
-                {
-                    SelectedQuest = null;
-                    logger.LogInformation("There are no remaining quests.");
-                }
             }
         }
 
