@@ -124,6 +124,9 @@ namespace NetTally.Global
             if (quest is null)
                 return false;
 
+            if (quest == SelectedQuest)
+                SelectedQuest = null;
+
             return Quests.Remove(quest);
         }
     }
