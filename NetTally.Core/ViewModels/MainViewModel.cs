@@ -114,10 +114,12 @@ namespace NetTally.ViewModels
         private void AddQuest()
         {
             bool hadZeroQuests = Quests.Count == 0;
-            Quest q = questsInfo.CreateQuest();
-            SelectedQuest = q;
+
+            SelectedQuest = questsInfo.CreateQuest();
+            
             if (hadZeroQuests)
                 OnPropertyChanged(nameof(HasQuests));
+            
             logger.LogInformation("Added new quest");
         }
 
@@ -130,25 +132,26 @@ namespace NetTally.ViewModels
             {
                 logger.LogInformation("Removing quest for thread: {url}", SelectedQuest.ThreadName);
 
+                int position = Quests.IndexOf(SelectedQuest);
+
                 if (questsInfo.RemoveQuest(SelectedQuest))
                 {
-                    SelectedQuest = questsInfo.SelectedQuest;
-
                     if (Quests.Count == 0)
                     {
                         OnPropertyChanged(nameof(HasQuests));
-                    }
-
-                    if (SelectedQuest != null)
-                    {
-                        logger.LogInformation("Selected quest updated to thread: {url}", SelectedQuest.ThreadName);
+                        logger.LogInformation("There are no remaining quests.");
                     }
                     else
                     {
-                        logger.LogInformation("There are no remaining quests.");
+                        position = Math.Min(position, Quests.Count - 1);
+                        SelectedQuest = Quests[position];
+                        logger.LogInformation("Selected quest updated to thread: {url}", SelectedQuest.ThreadName);
                     }
                 }
-
+                else
+                {
+                    logger.LogWarning("Failed to remove quest for thread: {url}", SelectedQuest.ThreadName);
+                }
             }
         }
 

@@ -124,30 +124,7 @@ namespace NetTally.Global
             if (quest is null)
                 return false;
 
-            int questPosition = Quests.IndexOf(quest);
-
-            if (Quests.Remove(quest))
-            {
-                if (Quests.Count > 0)
-                {
-                    if (questPosition < Quests.Count)
-                    {
-                        SelectedQuest = Quests[questPosition];
-                    }
-                    else
-                    {
-                        SelectedQuest = Quests[^1];
-                    }
-                }
-                else
-                {
-                    SelectedQuest = null;
-                }
-
-                return true;
-            }
-
-            return false;
+            return Quests.Remove(quest);
         }
     }
 }
