@@ -44,8 +44,12 @@ namespace NetTally.ViewModels
             tally.PropertyChanged += Tally_PropertyChanged;
         }
 
+        #region View Model Properties
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
         public bool HasQuests => Quests.Count > 0;
+
+        [ObservableProperty]
+        private bool hasNewRelease;
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
@@ -53,11 +57,58 @@ namespace NetTally.ViewModels
 
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
 
+        public string Output => tally.TallyResults;
+
+        public bool HasOutput => tally.HasTallyResults;
+
         [ObservableProperty]
-        private bool hasNewRelease;
+        [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
+        [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ClearTallyCacheCommand))]
+        private Quest? selectedQuest;
 
+        partial void OnSelectedQuestChanging(Quest? value)
+        {
+            if (SelectedQuest is not null)
+            {
+                SelectedQuest.PropertyChanged -= Quest_PropertyChanged;
+            }
+        }
 
+        partial void OnSelectedQuestChanged(Quest? value)
+        {
+            questsInfo.SelectedQuest = value;
 
+            if (value is not null)
+            {
+                value.PropertyChanged += Quest_PropertyChanged;
+            }
+        }
+
+        public bool IsQuestSelected => SelectedQuest != null;
+        #endregion View Model Properties
+
+        #region Utility Functions
+        public async Task UpdateOutput()
+        {
+            if (SelectedQuest is not null)
+                await tally.UpdateResults(SelectedQuest);
+        }
+
+        public async Task UpdateTally()
+        {
+            if (SelectedQuest is not null)
+                await tally.UpdateResults(SelectedQuest);
+        }
+
+        public List<Quest> GetLinkedQuests(Quest quest)
+        {
+            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
+        }
+        #endregion Utility Functions
+
+        #region Event Handling
         private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Tally.TallyResults))
@@ -77,37 +128,23 @@ namespace NetTally.ViewModels
             //}
         }
 
-        public string Output => tally.TallyResults;
-
-        public bool HasOutput => tally.HasTallyResults;
-
-        public async Task UpdateOutput()
+        private async void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (SelectedQuest is not null)
-                await tally.UpdateResults(SelectedQuest);
+            if (sender is not Quest quest)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(quest.DisplayName):
+                    break;
+                default:
+                    await tally.UpdateResults(quest);
+                    break;
+            }
         }
+        #endregion Event Handling
 
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
-        [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
-        [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(ClearTallyCacheCommand))]
-        private Quest? selectedQuest;
-
-        partial void OnSelectedQuestChanged(Quest? value)
-        {
-            questsInfo.SelectedQuest = value;
-        }
-
-        public bool IsQuestSelected => SelectedQuest != null;
-
-        public List<Quest> GetLinkedQuests(Quest quest)
-        {
-            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
-        }
-
-
+        #region View Model Commands
         private bool CanAddQuest => TallyIsNotRunning;
 
         [RelayCommand(CanExecute = nameof(CanAddQuest))]
@@ -186,7 +223,6 @@ namespace NetTally.ViewModels
             try
             {
                 await tally.RunAsync(SelectedQuest!, cancellationToken).ConfigureAwait(false);
-                //await Task.Delay(5000, cancellationToken);
             }
             catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
             {
@@ -217,5 +253,6 @@ namespace NetTally.ViewModels
             pageCache.Clear();
             SelectedQuest?.VoteCounter.ResetUserMerges();
         }
+        #endregion View Model Commands
     }
 }
