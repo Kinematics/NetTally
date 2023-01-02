@@ -11,6 +11,7 @@ using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
 using NetTally.ViewModels;
+using NetTally.Global;
 
 namespace NetTally.Forums
 {
@@ -20,19 +21,19 @@ namespace NetTally.Forums
     class ForumReader : IDisposable
     {
         #region Constructor
-        readonly IServiceProvider serviceProvider;
-        readonly ForumAdapterFactory forumAdapterFactory;
-        readonly MainViewModel mainViewModel;
-        readonly ILogger<ForumReader> logger;
+        private readonly IServiceProvider serviceProvider;
+        private readonly ForumAdapterFactory forumAdapterFactory;
+        private readonly IQuestsInfo questsInfo;
+        private readonly ILogger<ForumReader> logger;
 
         public ForumReader(IServiceProvider provider,
             ForumAdapterFactory factory,
-            MainViewModel mainViewModel,
+            IQuestsInfo questsInfo,
             ILogger<ForumReader> logger)
         {
             serviceProvider = provider;
             forumAdapterFactory = factory;
-            this.mainViewModel = mainViewModel;
+            this.questsInfo = questsInfo;
             this.logger = logger;
         }
 
@@ -61,7 +62,7 @@ namespace NetTally.Forums
         {
             // Tally the selected quests, and any linked quests.
             List<Quest> quests = new() { quest };
-            var linkedQuests = mainViewModel.GetLinkedQuests(quest);
+            var linkedQuests = questsInfo.GetLinkedQuests(quest);
             quests.AddRange(linkedQuests);
 
             logger.LogDebug("Reading quest {questName} and {questCount} linked quests with ForumReader.",

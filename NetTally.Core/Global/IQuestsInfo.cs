@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace NetTally.Global
 {
@@ -16,5 +17,12 @@ namespace NetTally.Global
         /// Gets the currently selected quest.
         /// </summary>
         Quest? SelectedQuest { get; }
+
+        /// <summary>
+        /// Get a list of any linked quests associated with the provided quest.
+        /// </summary>
+        /// <param name="quest">The quest to get linked quests for.</param>
+        /// <returns>Returns a list of any linked quests.</returns>
+        List<Quest> GetLinkedQuests(Quest quest);
     }
 }

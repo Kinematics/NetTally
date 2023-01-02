@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -128,6 +129,16 @@ namespace NetTally.Global
                 SelectedQuest = null;
 
             return Quests.Remove(quest);
+        }
+
+        /// <summary>
+        /// Get a list of any linked quests associated with the provided quest.
+        /// </summary>
+        /// <param name="quest">The quest to get linked quests for.</param>
+        /// <returns>Returns a list of any linked quests.</returns>
+        public List<Quest> GetLinkedQuests(Quest quest)
+        {
+            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
         }
     }
 }
