@@ -89,6 +89,27 @@ namespace NetTally.Output
 
             return sb.ToString();
         }
+
+        public string BuildOutput(Quest quest)
+        {
+            this.quest = quest;
+            voteCounter = quest.VoteCounter;
+            displayMode = quest.DisplayMode;
+
+            var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
+            LineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+
+            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
+
+            if (voteCounter.TallyWasCanceled)
+                return cancelled;
+
+            sb.Clear();
+
+            BuildGlobal();
+
+            return sb.ToString();
+        }
         #endregion
 
         #region Setup for generating output
@@ -123,6 +144,35 @@ namespace NetTally.Output
                     AddDoubleLineBreak();
                 }
                 ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote, token);
+
+                AddTotalVoters();
+            }
+        }
+        
+        private void BuildGlobal()
+        {
+            var voteGroupings = GetVoteGroupings();
+
+            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || globalSettings.GlobalSpoilers))
+            {
+                AddHeader();
+
+                ConstructOutput(voteGroupings[MarkerType.Rank], MarkerType.Rank);
+                if (voteGroupings[MarkerType.Rank].Count > 0)
+                {
+                    AddDoubleLineBreak();
+                }
+                ConstructOutput(voteGroupings[MarkerType.Score], MarkerType.Score);
+                if (voteGroupings[MarkerType.Score].Count > 0)
+                {
+                    AddDoubleLineBreak();
+                }
+                ConstructOutput(voteGroupings[MarkerType.Approval], MarkerType.Approval);
+                if (voteGroupings[MarkerType.Approval].Count > 0)
+                {
+                    AddDoubleLineBreak();
+                }
+                ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote);
 
                 AddTotalVoters();
             }
@@ -181,6 +231,11 @@ namespace NetTally.Output
         {
             token.ThrowIfCancellationRequested();
 
+            AddHeader();
+        }
+
+        private void AddHeader()
+        {
             sb.Append("[b]Vote Tally");
             if (globalSettings.DebugMode)
                 sb.Append(" (DEBUG)");
@@ -258,6 +313,74 @@ namespace NetTally.Output
             {
                 token.ThrowIfCancellationRequested();
 
+                if (task.Any())
+                {
+                    if (!firstTask)
+                    {
+                        AddLineBreak();
+                    }
+
+                    firstTask = false;
+
+                    AddTaskLabel(task.Key);
+
+                    IEnumerable<CompactVote> compactTask = Enumerable.Empty<CompactVote>();
+
+                    if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
+                        compactTask = CompactVote.GetCompactVotes(task);
+
+                    switch (marker)
+                    {
+                        case MarkerType.Vote:
+                            ConstructNormalOutput(task, compactTask);
+                            break;
+                        case MarkerType.Score:
+                            ConstructScoredOutput(task, compactTask);
+                            break;
+                        case MarkerType.Approval:
+                            ConstructApprovedOutput(task, compactTask);
+                            break;
+                        case MarkerType.Rank:
+                            var allVoters = GetAllVotersInTask(task);
+                            ConstructRankedOutput(task, compactTask, allVoters);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
+                    }
+
+                    sb.AppendLine();
+                }
+            }
+
+            /// <summary>
+            /// Function to wrap the logic of grouping votes by task.
+            /// </summary>
+            /// <param name="votes">The original vote set.</param>
+            /// <returns>Returns the votes grouped by task.</returns>
+            IEnumerable<VotesGroupedByTask>
+                GetVotesGroupedByTask(VoteStorage votes)
+            {
+                var groupByTask = votes.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
+
+                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
+
+                return groupByTask;
+            }
+        }
+        
+        private void ConstructOutput(VoteStorage votes, MarkerType marker)
+        {
+            if (votes.Count == 0)
+            {
+                return;
+            }
+
+            var groupByTask = GetVotesGroupedByTask(votes);
+
+            bool firstTask = true;
+
+            foreach (var task in groupByTask)
+            {
                 if (task.Any())
                 {
                     if (!firstTask)

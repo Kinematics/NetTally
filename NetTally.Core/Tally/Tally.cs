@@ -123,8 +123,7 @@ namespace NetTally.VoteCounting
         {
             if (sender is Quest quest)
             {
-                if (string.Equals(e.PropertyName, nameof(quest.PartitionMode), StringComparison.Ordinal) ||
-                    string.Equals(e.PropertyName, nameof(quest.DisplayMode), StringComparison.Ordinal))
+                if (string.Equals(e.PropertyName, nameof(quest.PartitionMode), StringComparison.Ordinal))
                 {
                     try
                     {
@@ -179,6 +178,45 @@ namespace NetTally.VoteCounting
 
         public bool HasTallyResults => !string.IsNullOrEmpty(results);
         #endregion
+
+        public async Task ReadPostsFromQuest(Quest quest, CancellationToken cancellationToken = default)
+        {
+            using var forumReader = serviceProvider.GetRequiredService<ForumReader>();
+
+            try
+            {
+                forumReader.StatusChanged += ForumReader_StatusChanged;
+
+                var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
+                                                             .ConfigureAwait(false);
+
+                quest.VoteCounter.AddPosts(posts);
+                quest.VoteCounter.SetThreadTitles(threadTitles);
+            }
+            finally
+            {
+                forumReader.StatusChanged -= ForumReader_StatusChanged;
+            }
+        }
+
+        public void ConstructVotesFromPosts(Quest quest)
+        {
+            if (quest.VoteCounter.Posts.Count > 0)
+            {
+                quest.VoteCounter.Reset();
+
+                PreprocessPosts2(quest);
+                ProcessPosts2(quest);
+            }
+        }
+
+        public void GenerateOutputFromVotes(Quest quest)
+        {
+            if (quest.VoteCounter.VoteStorage.Count > 0)
+            {
+                TallyResults = textResultsProvider.BuildOutput(quest);
+            }
+        }
 
         #region Interface functions
         /// <summary>
@@ -454,6 +492,33 @@ namespace NetTally.VoteCounting
             return allPlans;
         }
 
+        public IDictionary<string, VoteLineBlock> PreprocessPosts2(Quest quest)
+        {
+            foreach (var post in quest.VoteCounter.Posts)
+            {
+                // Reset the processed state of all the posts.
+                post.Processed = false;
+                post.ForceProcess = false;
+                post.WorkingVoteComplete = false;
+                post.WorkingVote.Clear();
+                quest.VoteCounter.AddReferenceVoter(post.Origin);
+            }
+
+            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
+                new()
+                {
+                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+                    (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+                    (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+                };
+
+            // Run the above series of preprocessing functions to extract plans from the post list.
+            var allPlans = RunPlanPreprocessing(quest.VoteCounter.Posts, quest, planProcesses, default);
+
+            return allPlans;
+        }
+
 
         /// <summary>
         /// Run the logic for the sequence of processing phases for plan
@@ -560,6 +625,51 @@ namespace NetTally.VoteCounting
             quest.VoteCounter.RunMergeActions();
 
             await Task.FromResult(0).ConfigureAwait(false);
+        }
+        
+        private void ProcessPosts2(Quest quest)
+        {
+            var unprocessed = quest.VoteCounter.Posts;
+
+            // Loop as long as there are any more to process.
+            while (unprocessed.Any())
+            {
+                bool processedAny = false;
+
+                foreach (var post in unprocessed)
+                {
+                    var filteredResults = voteConstructor.ProcessPostGetVotes(post, quest);
+
+                    if (post.Processed)
+                        processedAny = true;
+
+                    if (filteredResults != null)
+                    {
+                        // Add those to the vote counter.
+                        quest.VoteCounter.AddVotes(filteredResults, post.Origin);
+                    }
+                }
+
+                if (processedAny)
+                {
+                    // As long as some got processed, remove those from the unprocessed list
+                    // and let the loop run again.
+                    unprocessed = unprocessed.Where(p => !p.Processed).ToList();
+                }
+                else
+                {
+                    // If none got processed (and there must be at least some waiting on processing),
+                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
+                    foreach (var post in unprocessed)
+                    {
+                        post.ForceProcess = true;
+                    }
+                }
+            }
+
+            quest.VoteCounter.AddUserDefinedTasksToTaskList();
+
+            quest.VoteCounter.RunMergeActions();
         }
         #endregion
     }

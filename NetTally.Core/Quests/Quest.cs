@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Input.Utility;
+using NetTally.Types.Components;
 using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.VoteCounting;
@@ -374,7 +375,6 @@ namespace NetTally
         bool ignoreSpoilers = false;
         [ObservableProperty]
         bool trimExtendedText = false;
-
         #endregion
         #endregion
 

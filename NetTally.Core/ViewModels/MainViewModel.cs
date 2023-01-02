@@ -83,6 +83,7 @@ namespace NetTally.ViewModels
             if (value is not null)
             {
                 value.PropertyChanged += Quest_PropertyChanged;
+                UpdateOutput2();
             }
         }
 
@@ -106,6 +107,35 @@ namespace NetTally.ViewModels
         {
             return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
         }
+
+
+
+        public async Task RunTally2()
+        {
+            if (SelectedQuest is not null)
+            {
+                await tally.ReadPostsFromQuest(SelectedQuest);
+                tally.ConstructVotesFromPosts(SelectedQuest);
+                tally.GenerateOutputFromVotes(SelectedQuest);
+            }
+        }
+
+        public void UpdateTally2()
+        {
+            if (SelectedQuest is not null && SelectedQuest.VoteCounter.Posts.Count > 0)
+            {
+                tally.ConstructVotesFromPosts(SelectedQuest);
+                tally.GenerateOutputFromVotes(SelectedQuest);
+            }
+        }
+
+        public void UpdateOutput2()
+        {
+            if (SelectedQuest is not null && SelectedQuest.VoteCounter.Posts.Count > 0)
+            { 
+                tally.GenerateOutputFromVotes(SelectedQuest);
+            }
+        }
         #endregion Utility Functions
 
         #region Event Handling
@@ -128,17 +158,21 @@ namespace NetTally.ViewModels
             //}
         }
 
-        private async void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender is not Quest quest)
                 return;
 
             switch (e.PropertyName)
             {
-                case nameof(quest.DisplayName):
+                case nameof(quest.DisplayMode):
+                    UpdateOutput2();
+                    break;
+                case nameof(quest.PartitionMode):
+                    UpdateTally2();
                     break;
                 default:
-                    await tally.UpdateResults(quest);
+                    //await tally.UpdateResults(quest);
                     break;
             }
         }

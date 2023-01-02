@@ -14,5 +14,6 @@ namespace NetTally.Output
         /// <param name="token">Cancellation token so that processing can be cancelled.</param>
         /// <returns>Returns the full string to be displayed.</returns>
         Task<string> BuildOutputAsync(Quest quest, CancellationToken token);
+        string BuildOutput(Quest quest);
     }
 }
