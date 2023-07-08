@@ -64,12 +64,6 @@ namespace NetTally
             // Create logger for the app.
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             logger = loggerFactory.CreateLogger<App>();
-
-            //var oldhost = Host.CreateDefaultBuilder(Environment.GetCommandLineArgs())
-            //    .ConfigureAppConfiguration(ConfigureConfiguration1)
-            //    .ConfigureServices(ConfigureServices)
-            //    .ConfigureLogging(ConfigureLogging)
-            //    .Build();
         }
 
         #region Startup and Shutdown
@@ -126,11 +120,16 @@ namespace NetTally
             ConfigureConfiguration(builder.Configuration);
             ConfigureOptions(builder.Services);
             ConfigureServices(builder.Services);
-            ConfigureLogging(builder.Environment, builder.Logging);
+            ConfigureLogging(builder.Logging);
 
             return builder.Build();
         }
 
+        /// <summary>
+        /// Use the configuration builder to add user configuration files to
+        /// be read from.
+        /// </summary>
+        /// <param name="configuration">The configuration builder.</param>
         private static void ConfigureConfiguration(IConfigurationBuilder configuration)
         {
             // Add additional files for the configuration manager to load options from.
@@ -147,12 +146,20 @@ namespace NetTally
             }
         }
 
+        /// <summary>
+        /// Add binding to the types of options stored in the user configuration.
+        /// </summary>
+        /// <param name="services">The services collection that allows us to set up options.</param>
         private static void ConfigureOptions(IServiceCollection services)
         {
             services.AddOptions<GlobalSettings>().BindConfiguration(nameof(GlobalSettings));
             services.AddOptions<UserQuests>().BindConfiguration(nameof(UserQuests));
         }
 
+        /// <summary>
+        /// Set up dependency injection services.
+        /// </summary>
+        /// <param name="services">The services collection to add the services to.</param>
         private static void ConfigureServices(IServiceCollection services)
         {
             // Get the services provided by the core library.
@@ -174,13 +181,17 @@ namespace NetTally
             services.AddTransient<ReorderTasks2>();
         }
 
-        private static void ConfigureLogging(IHostEnvironment environment, ILoggingBuilder logging)
+        /// <summary>
+        /// Set up the logging configuration.
+        /// </summary>
+        /// <param name="logging">The logging builder to set up.</param>
+        private static void ConfigureLogging(ILoggingBuilder logging)
         {
             logging
                 .AddDebug()
                 .AddFile(options =>
                 {
-                    options.LogDirectory = GetLoggingDirectoryPath();
+                    options.LogDirectory = GetLoggingPath();
                     options.Periodicity = PeriodicityOptions.Daily;
                     options.RetainedFileCountLimit = 7;
                 })
@@ -188,6 +199,10 @@ namespace NetTally
                 .AddFilter<FileLoggerProvider>(FileLoggingFilter);
         }
 
+        /// <summary>
+        /// Load legacy XML user configuration data, to be used in migration to json config files.
+        /// </summary>
+        /// <returns>Returns any legacy configuration.</returns>
         private static ConfigInfo LoadLegacyConfig()
         {
             NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
@@ -208,53 +223,6 @@ namespace NetTally
             return config;
         }
         #endregion Setup
-
-        #region Services
-        private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-        {
-            // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(services);
-
-            // Set configuration options
-            services.Configure<GlobalSettings>(context.Configuration.GetSection(nameof(GlobalSettings)));
-            services.Configure<UserQuests>(context.Configuration.GetSection(nameof(UserQuests)));
-
-            if (LegacyConfig is not null)
-                services.AddSingleton(LegacyConfig);
-
-            // Add IoCNavigationService for the application.
-            services.AddSingleton<IoCNavigationService>();
-
-            // Register all the Windows of the applications via the service provider.
-            services.AddTransient<MainWindow>();
-            services.AddTransient<MainWindow2>();
-            services.AddTransient<GlobalOptions>();
-            services.AddTransient<GlobalOptions2>();
-            services.AddTransient<QuestOptions>();
-            services.AddTransient<QuestOptions2>();
-            services.AddTransient<ManageVotes>();
-            services.AddTransient<ManageVotes2>();
-            services.AddTransient<ReorderTasks>();
-            services.AddTransient<ReorderTasks2>();
-        }
-
-        ConfigInfo? LegacyConfig;
-
-        /// <summary>
-        /// Add user configuration files to the configuration builder.
-        /// </summary>
-        /// <param name="builder"></param>
-        private void ConfigureConfiguration1(IConfigurationBuilder builder)
-        {
-            foreach (var path in GetConfigurationPaths())
-            {
-                builder.AddJsonFile(path, optional: true);
-            }
-
-            // Load Legacy Config
-            LegacyConfig = LoadLegacyConfig();
-        }
-        #endregion Services
 
         #region Save Configuration
         /// <summary>
@@ -310,7 +278,6 @@ namespace NetTally
         }
         #endregion Save Configuration
 
-
         #region Paths
         /// <summary>
         /// Get the available paths to load or save user configuration.
@@ -339,6 +306,10 @@ namespace NetTally
             yield return UserConfigJsonFile;
         }
 
+        /// <summary>
+        /// Get the directory path to save logs to.
+        /// </summary>
+        /// <returns>Returns a path to save logs to.</returns>
         private static string GetLoggingPath()
         {
             if (OperatingSystem.IsWindows())
@@ -356,69 +327,7 @@ namespace NetTally
 
             return "Logs";
         }
-
         #endregion Paths
-
-        #region Logging
-        private void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
-        {
-            builder
-                .AddDebug()
-                .AddFile(options =>
-                {
-                    options.LogDirectory = GetLoggingDirectoryPath();
-                    options.Periodicity = PeriodicityOptions.Daily;
-                    options.RetainedFileCountLimit = 7;
-                })
-                .AddFilter<DebugLoggerProvider>(DebugLoggingFilter)
-                .AddFilter<FileLoggerProvider>(FileLoggingFilter);
-        }
-
-        /// <summary>
-        /// Get a logging directory to save file logs to.
-        /// </summary>
-        /// <returns>Returns a path to a directory to store log files in.</returns>
-        private static string GetLoggingDirectoryPath()
-        {
-            try
-            {
-                // First check where the runtime is located.  If it's the same as the application itself,
-                // this is a self-contained app, and it should use a local Logs directory.
-                string runtimePath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-                string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                string? appPath = Path.GetDirectoryName(appLocation);
-
-                if (appPath is not null &&
-                    string.Compare(Path.GetFullPath(runtimePath).TrimEnd('\\'),
-                                   Path.GetFullPath(appPath).TrimEnd('\\'),
-                                   StringComparison.InvariantCultureIgnoreCase) == 0)
-                {
-                    return "Logs";
-                }
-
-                // If we're not running a self-contained app, check for permissions to write
-                // to the application data folder. Windows-only.
-                if (OperatingSystem.IsWindows())
-                {
-                    string loggingPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-
-                    if (Directory.Exists(loggingPath))
-                    {
-                        loggingPath = Path.Combine(loggingPath, ProductInfo.Name);
-                        Directory.CreateDirectory(loggingPath);
-
-                        return loggingPath;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
-
-            // If we don't have access to the AppData path, just fall back to a Logs subdirectory.
-            return "Logs";
-        }
-        #endregion Logging
 
         #region Log Filters
         private static bool FileLoggingFilter(string? category, LogLevel logLevel)
