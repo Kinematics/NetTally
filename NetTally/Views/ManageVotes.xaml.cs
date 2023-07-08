@@ -24,11 +24,11 @@ namespace NetTally.Views
     /// Interaction logic for ManageVotes2.xaml
     /// </summary>
     [ObservableObject]
-    public partial class ManageVotes2 : Window, IActivable
+    public partial class ManageVotes : Window, IActivable
     {
         private readonly ManageVotesViewModel manageVotesViewModel;
         private readonly IoCNavigationService navigationService;
-        private readonly ILogger<ManageVotes2> logger;
+        private readonly ILogger<ManageVotes> logger;
 
         public ListCollectionView VoteView1 { get; }
         public ListCollectionView VoteView2 { get; }
@@ -36,10 +36,10 @@ namespace NetTally.Views
         public ListCollectionView VoterView2 { get; }
 
 
-        public ManageVotes2(
+        public ManageVotes(
             ManageVotesViewModel manageVotesViewModel,
             IoCNavigationService navigationService,
-            ILogger<ManageVotes2> logger)
+            ILogger<ManageVotes> logger)
         {
             this.manageVotesViewModel = manageVotesViewModel;
             this.navigationService = navigationService;
@@ -443,7 +443,7 @@ namespace NetTally.Views
 
         private async void ReorderTasksAsync_Click(object sender, RoutedEventArgs e)
         {
-            await navigationService.ShowDialogAsync<ReorderTasks2>(this);
+            await navigationService.ShowDialogAsync<ReorderTasks>(this);
         }
 
         private void PartitionChildren_Click(object sender, RoutedEventArgs e)

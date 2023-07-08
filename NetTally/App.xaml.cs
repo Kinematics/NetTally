@@ -80,7 +80,7 @@ namespace NetTally
 
                 // Request the navigation service and create our main window.
                 var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
-                await navigationService.ShowAsync<MainWindow2>();
+                await navigationService.ShowAsync<MainWindow>();
             }
             catch (Exception ex)
             {
@@ -170,15 +170,10 @@ namespace NetTally
 
             // Register all the Windows of the applications.
             services.AddTransient<MainWindow>();
-            services.AddTransient<MainWindow2>();
             services.AddTransient<GlobalOptions>();
-            services.AddTransient<GlobalOptions2>();
             services.AddTransient<QuestOptions>();
-            services.AddTransient<QuestOptions2>();
             services.AddTransient<ManageVotes>();
-            services.AddTransient<ManageVotes2>();
             services.AddTransient<ReorderTasks>();
-            services.AddTransient<ReorderTasks2>();
         }
 
         /// <summary>

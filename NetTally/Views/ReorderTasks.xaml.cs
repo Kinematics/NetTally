@@ -20,13 +20,13 @@ namespace NetTally.Views
     /// <summary>
     /// Interaction logic for ReorderTasks2.xaml
     /// </summary>
-    public partial class ReorderTasks2 : Window
+    public partial class ReorderTasks : Window
     {
-        private readonly ILogger<ReorderTasks2> logger;
+        private readonly ILogger<ReorderTasks> logger;
 
-        public ReorderTasks2(
+        public ReorderTasks(
             TasksViewModel tasksViewModel,
-            ILogger<ReorderTasks2> logger)
+            ILogger<ReorderTasks> logger)
         {
             this.logger = logger;
 

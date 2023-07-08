@@ -12,13 +12,13 @@ namespace NetTally.Views
     /// <summary>
     /// Interaction logic for QuestOptions2.xaml
     /// </summary>
-    public partial class QuestOptions2 : Window
+    public partial class QuestOptions : Window
     {
         private readonly QuestOptionsViewModel questOptionsViewModel;
-        private readonly ILogger<QuestOptions2> logger;
+        private readonly ILogger<QuestOptions> logger;
 
-        public QuestOptions2(QuestOptionsViewModel questOptionsViewModel,
-            ILogger<QuestOptions2> logger)
+        public QuestOptions(QuestOptionsViewModel questOptionsViewModel,
+            ILogger<QuestOptions> logger)
         {
             this.questOptionsViewModel = questOptionsViewModel;
             this.logger = logger;

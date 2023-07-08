@@ -14,18 +14,18 @@ using NetTally.ViewModels;
 namespace NetTally.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow2.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow2 : Window
+    public partial class MainWindow : Window
     {
         private readonly MainViewModel mainViewModel;
         private readonly IoCNavigationService navigation;
-        private readonly ILogger<MainWindow2> logger;
+        private readonly ILogger<MainWindow> logger;
 
-        public MainWindow2(
+        public MainWindow(
             MainViewModel mainViewModel,
             IoCNavigationService navigation,
-            ILogger<MainWindow2> logger)
+            ILogger<MainWindow> logger)
         {
             this.mainViewModel = mainViewModel;
             this.navigation = navigation;
@@ -48,19 +48,19 @@ namespace NetTally.Views
 
         private async Task ShowQuestOptions()
         {
-            await navigation.ShowDialogAsync<QuestOptions2>(this);
+            await navigation.ShowDialogAsync<QuestOptions>(this);
         }
 
         private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            await navigation.ShowDialogAsync<GlobalOptions2>(this);
+            await navigation.ShowDialogAsync<GlobalOptions>(this);
         }
 
         private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await navigation.ShowDialogAsync<ManageVotes2>(this);
+            await navigation.ShowDialogAsync<ManageVotes>(this);
 
-            await mainViewModel.UpdateOutput();
+            mainViewModel.UpdateOutput();
         }
 
         private async void Quests_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

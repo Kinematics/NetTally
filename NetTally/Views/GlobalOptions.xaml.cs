@@ -9,13 +9,13 @@ namespace NetTally.Views
     /// <summary>
     /// Interaction logic for GlobalOptions2.xaml
     /// </summary>
-    public partial class GlobalOptions2 : Window, IActivable
+    public partial class GlobalOptions : Window, IActivable
     {
-        private readonly ILogger<GlobalOptions2> logger;
+        private readonly ILogger<GlobalOptions> logger;
 
-        public GlobalOptions2(
+        public GlobalOptions(
             GlobalOptionsViewModel globalOptionsViewModel,
-            ILogger<GlobalOptions2> logger)
+            ILogger<GlobalOptions> logger)
         {
             this.logger = logger;
 
