@@ -14,7 +14,7 @@ using NetTally.ViewModels;
 using NetTally.ViewModels.Commands;
 using NetTally.Types.Enums;
 
-namespace NetTally.Views
+namespace NetTally.Views.original
 {
     /// <summary>
     /// Interaction logic for reorder tasks window.

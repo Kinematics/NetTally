@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.ViewModels;
 
-namespace NetTally.Views
+namespace NetTally.Views.original
 {
     /// <summary>
     /// Interaction logic for the global options window.

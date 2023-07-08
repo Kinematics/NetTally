@@ -21,7 +21,7 @@ using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.ViewModels;
 
-namespace NetTally.Views
+namespace NetTally.Views.original
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

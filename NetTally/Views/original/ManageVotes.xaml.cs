@@ -20,7 +20,7 @@ using NetTally.ViewModels;
 using NetTally.Votes;
 using NetTally.Types.Components;
 
-namespace NetTally.Views
+namespace NetTally.Views.original
 {
     /// <summary>
     /// Interaction logic for MergeVotesWindow.xaml
