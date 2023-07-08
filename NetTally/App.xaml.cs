@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,29 +49,49 @@ namespace NetTally
     public partial class App : Application
     {
         private readonly IHost host;
-        private ILogger<App>? logger;
+        private readonly ILogger<App> logger;
+
+        const string UserConfigJsonFile = "userconfig.json";
 
         public App()
         {
-            host = Host.CreateDefaultBuilder(Environment.GetCommandLineArgs())
-                .ConfigureAppConfiguration(ConfigureConfiguration)
-                .ConfigureServices(ConfigureServices)
-                .ConfigureLogging(ConfigureLogging)
-                .Build();
+            // Create handlers for unhandled exceptions
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            // Create host.
+            host = CreateHost();
+
+            // Create logger for the app.
+            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            logger = loggerFactory.CreateLogger<App>();
+
+            //var oldhost = Host.CreateDefaultBuilder(Environment.GetCommandLineArgs())
+            //    .ConfigureAppConfiguration(ConfigureConfiguration1)
+            //    .ConfigureServices(ConfigureServices)
+            //    .ConfigureLogging(ConfigureLogging)
+            //    .Build();
         }
 
         #region Startup and Shutdown
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            await host.StartAsync();
+            try
+            {
+                // Start the app
+                await host.StartAsync();
 
-            InitializeStartup();
+                InitializeStartup();
 
-            logger?.LogInformation("Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
+                logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
 
-            // Request the navigation service and create our main window.
-            var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
-            await navigationService.ShowAsync<MainWindow2>();
+                // Request the navigation service and create our main window.
+                var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
+                await navigationService.ShowAsync<MainWindow2>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex, "Error during application startup");
+            }
         }
 
         private async void Application_Exit(object sender, ExitEventArgs e)
@@ -78,7 +99,7 @@ namespace NetTally
             using (host)
             {
                 // Save user config
-                SaveConfiguration();
+                SaveJsonConfiguration();
 
                 // Wait up to 5 seconds before forcing a shutdown.
                 await host.StopAsync(TimeSpan.FromSeconds(5));
@@ -90,26 +111,103 @@ namespace NetTally
             // Initialize string comparer system.
             var hash = host.Services.GetRequiredService<IHash>();
             Agnostic.Init(hash);
-
-            // Create logger for the app.
-            var loggerFactory = host.Services.GetService<ILoggerFactory>();
-            logger = loggerFactory?.CreateLogger<App>();
-
-            // Create handlers for unhandled exceptions
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-        }
-
-        private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
-        {
-            logger?.LogDebug(e.Exception, "First chance exception warning.");
-        }
-
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            logger?.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
         }
         #endregion Startup and Shutdown
+
+        #region Setup
+        private static IHost CreateHost()
+        {
+            var builder = Host.CreateApplicationBuilder();
+
+            // Load legacy config
+            ConfigInfo legacyConfig = LoadLegacyConfig();
+            builder.Services.AddSingleton(legacyConfig);
+
+            ConfigureConfiguration(builder.Configuration);
+            ConfigureOptions(builder.Services);
+            ConfigureServices(builder.Services);
+            ConfigureLogging(builder.Environment, builder.Logging);
+
+            return builder.Build();
+        }
+
+        private static void ConfigureConfiguration(IConfigurationBuilder configuration)
+        {
+            // Add additional files for the configuration manager to load options from.
+            foreach (var path in GetConfigurationPaths())
+            {
+                try
+                {
+                    configuration.AddJsonFile(path, optional: true);
+                }
+                catch (InvalidDataException)
+                {
+                    // Invalid config file. Ignore and keep processing.
+                }
+            }
+        }
+
+        private static void ConfigureOptions(IServiceCollection services)
+        {
+            services.AddOptions<GlobalSettings>().BindConfiguration(nameof(GlobalSettings));
+            services.AddOptions<UserQuests>().BindConfiguration(nameof(UserQuests));
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            // Get the services provided by the core library.
+            NetTally.Startup.ConfigureServices(services);
+
+            // Add IoCNavigationService for the application.
+            services.AddSingleton<IoCNavigationService>();
+
+            // Register all the Windows of the applications.
+            services.AddTransient<MainWindow>();
+            services.AddTransient<MainWindow2>();
+            services.AddTransient<GlobalOptions>();
+            services.AddTransient<GlobalOptions2>();
+            services.AddTransient<QuestOptions>();
+            services.AddTransient<QuestOptions2>();
+            services.AddTransient<ManageVotes>();
+            services.AddTransient<ManageVotes2>();
+            services.AddTransient<ReorderTasks>();
+            services.AddTransient<ReorderTasks2>();
+        }
+
+        private static void ConfigureLogging(IHostEnvironment environment, ILoggingBuilder logging)
+        {
+            logging
+                .AddDebug()
+                .AddFile(options =>
+                {
+                    options.LogDirectory = GetLoggingDirectoryPath();
+                    options.Periodicity = PeriodicityOptions.Daily;
+                    options.RetainedFileCountLimit = 7;
+                })
+                .AddFilter<DebugLoggerProvider>(DebugLoggingFilter)
+                .AddFilter<FileLoggerProvider>(FileLoggingFilter);
+        }
+
+        private static ConfigInfo LoadLegacyConfig()
+        {
+            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
+
+            GlobalSettings gb = new()
+            {
+                DisplayMode = AdvancedOptions.Instance.DisplayMode,
+                DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
+                DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
+                GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
+                RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
+                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
+                TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
+            };
+
+            ConfigInfo config = new(quests.Select(q => (Quest)q).ToList(), currentQuest, gb);
+
+            return config;
+        }
+        #endregion Setup
 
         #region Services
         private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
@@ -139,17 +237,14 @@ namespace NetTally
             services.AddTransient<ReorderTasks>();
             services.AddTransient<ReorderTasks2>();
         }
-        #endregion Services
 
-        #region Configuration Files
-        const string UserConfigJsonFile = "userconfig.json";
         ConfigInfo? LegacyConfig;
 
         /// <summary>
         /// Add user configuration files to the configuration builder.
         /// </summary>
         /// <param name="builder"></param>
-        private void ConfigureConfiguration(IConfigurationBuilder builder)
+        private void ConfigureConfiguration1(IConfigurationBuilder builder)
         {
             foreach (var path in GetConfigurationPaths())
             {
@@ -159,78 +254,13 @@ namespace NetTally
             // Load Legacy Config
             LegacyConfig = LoadLegacyConfig();
         }
+        #endregion Services
 
-        private static ConfigInfo LoadLegacyConfig()
-        {
-            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
-
-            GlobalSettings gb = new()
-            {
-                DisplayMode = AdvancedOptions.Instance.DisplayMode,
-                DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
-                DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
-                GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
-                RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
-                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
-                TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
-            };
-
-            ConfigInfo config = new(quests.Select(q => (Quest)q).ToList(), currentQuest, gb);
-
-            return config;
-        }
-
+        #region Save Configuration
         /// <summary>
-        /// Get the available paths to load or save user configuration.
-        /// This may vary depending on OS and directory permissions.
+        /// Saves the user configuration information to the user config file(s).
         /// </summary>
-        /// <returns>Returns an enumeration of configuration file paths.</returns>
-        private IEnumerable<string> GetConfigurationPaths()
-        {
-            // Try to find the AppSettings path on Windows, and use it
-            // first when trying to load or save user config info.
-            string? appSettingsPath = GetWindowsAppSettingsConfigPath();
-
-            if (Path.Exists(appSettingsPath))
-            {
-                yield return Path.Combine(appSettingsPath, UserConfigJsonFile);
-            }
-
-            // After that, supply the file for the local directory.
-            // This will override the AppSettings version of the file, if it exists.
-            yield return UserConfigJsonFile;
-        }
-
-        /// <summary>
-        /// Get the AppSettings path where config files are stored, if we're running on Windows.
-        /// </summary>
-        /// <returns>Returns a string containing the AppSettings path, if available.</returns>
-        private string? GetWindowsAppSettingsConfigPath()
-        {
-            if (OperatingSystem.IsWindows())
-            {
-                // Adapt from NetTallyConfig
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Save user configuration on shutdown.
-        /// </summary>
-        private void SaveConfiguration()
-        {
-            foreach (var path in GetConfigurationPaths())
-            {
-                SaveJsonConfiguration(path);
-            }
-        }
-
-        /// <summary>
-        /// Saves the user configuration information to the user config file.
-        /// </summary>
-        /// <param name="path">The path to the file where the configuration is to be saved.</param>
-        private void SaveJsonConfiguration(string path)
+        private void SaveJsonConfiguration()
         {
             JsonSerializerOptions jsonOptions = new()
             {
@@ -243,16 +273,25 @@ namespace NetTally
             {
                 var config = GetConfigurationToSave();
 
-                using var stream = File.Create(path);
+                if (config is null)
+                {
+                    logger.LogWarning("Unable to save configuration. No config available.");
+                    return;
+                }
 
-                // Async can fail on large saves when exiting. Use sync.
-                JsonSerializer.Serialize(stream, config, jsonOptions);
+                foreach (var path in GetConfigurationPaths())
+                {
+                    using var stream = File.Create(path);
 
-                logger?.LogInformation("Configuration saved to {path}", path);
+                    // Async can fail on large saves when exiting. Use sync.
+                    JsonSerializer.Serialize(stream, config, jsonOptions);
+
+                    logger.LogInformation("Configuration saved to {path}", path);
+                }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                logger?.LogInformation("Unable to save configuration to {path}", path);
+                logger.LogWarning(e, "Unable to save configuration.");
             }
         }
 
@@ -260,7 +299,7 @@ namespace NetTally
         /// Get configuration info to save into the JSON config file.
         /// </summary>
         /// <returns>Returns current config info.</returns>
-        private ConfigInfo GetConfigurationToSave()
+        private ConfigInfo? GetConfigurationToSave()
         {
             IQuestsInfo questsInfo = host.Services.GetRequiredService<IQuestsInfo>();
             IOptions<GlobalSettings> globalSettings = host.Services.GetRequiredService<IOptions<GlobalSettings>>();
@@ -269,8 +308,56 @@ namespace NetTally
 
             return config;
         }
-        #endregion Configuration Files
+        #endregion Save Configuration
 
+
+        #region Paths
+        /// <summary>
+        /// Get the available paths to load or save user configuration.
+        /// This may vary depending on OS and directory permissions.
+        /// </summary>
+        /// <returns>Returns an enumeration of configuration file paths.</returns>
+        private static IEnumerable<string> GetConfigurationPaths()
+        {
+            // Try to find the AppSettings path on Windows, and use it
+            // first when trying to load or save user config info.
+            if (OperatingSystem.IsWindows())
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+                if (Path.Exists(path))
+                {
+                    path = Path.Combine(path, ProductInfo.Name);
+                    Directory.CreateDirectory(path);
+
+                    yield return Path.Combine(path, UserConfigJsonFile);
+                }
+            }
+
+            // After that, supply the file for the local directory.
+            // This will take precedence over the AppSettings version of the file, if it exists.
+            yield return UserConfigJsonFile;
+        }
+
+        private static string GetLoggingPath()
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+                if (Directory.Exists(path))
+                {
+                    path = Path.Combine(path, ProductInfo.Name, "Logs");
+                    Directory.CreateDirectory(path);
+
+                    return path;
+                }
+            }
+
+            return "Logs";
+        }
+
+        #endregion Paths
 
         #region Logging
         private void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
@@ -331,7 +418,9 @@ namespace NetTally
             // If we don't have access to the AppData path, just fall back to a Logs subdirectory.
             return "Logs";
         }
+        #endregion Logging
 
+        #region Log Filters
         private static bool FileLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
@@ -347,6 +436,13 @@ namespace NetTally
 
             return logLevel >= LogLevel.Debug;
         }
-        #endregion Logging
+        #endregion Log Filters
+
+        #region Error Handling
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            logger.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
+        }
+        #endregion Error Handling
     }
 }
