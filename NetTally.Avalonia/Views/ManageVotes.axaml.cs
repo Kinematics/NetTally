@@ -1,24 +1,22 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.Logging;
+using NetTally.Types.Components;
+using NetTally.Utility;
+using NetTally.Votes;
 
 namespace NetTally.Avalonia.Views
 {
-    using global::Avalonia.Input;
-    using NetTally.Forums;
-    using NetTally.Types.Components;
-    using NetTally.Utility;
-using NetTally.Votes;
-
-    public class ManageVotes : Window, INotifyPropertyChanged
+    public partial class ManageVotes : Window, INotifyPropertyChanged
     {
         #region Properties for binding
 
@@ -76,8 +74,8 @@ using NetTally.Votes;
         /// Triggers <see cref="PropertyChanged"/> for <see cref="VotersTo"/> because a change
         /// of this value indicates that that properties has changed.
         /// </remarks>
-        public VoteLineBlock? SelectedToVote 
-        { 
+        public VoteLineBlock? SelectedToVote
+        {
             get => this.InternalSelectedToVote;
             set
             {

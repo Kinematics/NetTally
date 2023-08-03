@@ -11,7 +11,7 @@ namespace NetTally.Avalonia.Views
     /// <summary>
     /// Window that handles modifying global options.
     /// </summary>
-    public class GlobalOptions : Window
+    public partial class GlobalOptions : Window
     {
         #region Constructor
 

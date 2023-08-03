@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace NetTally.Avalonia.Views
 {
-    public class QuestOptions : Window
+    public partial class QuestOptions : Window
     {
         #region Private Properties
         private ILogger<QuestOptions> Logger { get; }

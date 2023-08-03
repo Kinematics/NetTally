@@ -10,7 +10,7 @@ using System.Runtime.ExceptionServices;
 
 namespace NetTally.Avalonia.Views
 {
-    public class MainWindow : Window
+    public partial class MainWindow : Window
     {
         #region Fields and Properties
         private ViewModels.ViewModel ViewModel { get; }

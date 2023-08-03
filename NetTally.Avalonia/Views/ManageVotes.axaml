@@ -31,7 +31,7 @@
 
         <TextBlock Grid.Column="0" Grid.Row="0" Text="Votes (Merge From)" Margin="10,10,0,0" VerticalAlignment="Top" Width="116" HorizontalAlignment="Left"/>
 
-        <TextBox Grid.Column="0" Grid.Row="0" Name="VoteFromFilter" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox Grid.Column="0" Grid.Row="0" Name="VoteFromFilterTextBox" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding VoteFromFilter}"
                  Watermark="Filter Votes">
           <ToolTip.Tip>
@@ -42,7 +42,7 @@
           </ToolTip.Tip>
         </TextBox>
 
-        <ListBox Grid.Column="0" Grid.Row="0" Name="VotesFrom" Margin="10,36,10,10"
+        <ListBox Grid.Column="0" Grid.Row="0" Name="VotesFromListBox" Margin="10,36,10,10"
                  Items="{Binding VotesFrom}" SelectedItem="{Binding SelectedFromVote}" SelectionMode="Single"
 				 ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemTemplate>
@@ -57,7 +57,7 @@
 
         <TextBlock Grid.Column="2" Grid.Row="0" Text="Votes (Merge To)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
 
-        <TextBox Grid.Column="2" Grid.Row="0" Name="VoteToFilter" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+        <TextBox Grid.Column="2" Grid.Row="0" Name="VoteToFilterTextBox" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding VoteToFilter}"
                  Watermark="Filter Votes">
           <ToolTip.Tip>
@@ -68,7 +68,7 @@
           </ToolTip.Tip>
         </TextBox>
 
-        <ListBox Grid.Column="2" Grid.Row="0" Name="VotesTo" Margin="10,36,10,10"
+        <ListBox Grid.Column="2" Grid.Row="0" Name="VotesToListBox" Margin="10,36,10,10"
                  Items="{Binding VotesTo}" SelectedItem="{Binding SelectedToVote}" SelectionMode="Single"
 				 ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemTemplate>
@@ -82,7 +82,7 @@
 
         <TextBlock Grid.Column="0" Grid.Row="1" Text="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
-        <ListBox Grid.Column="0" Grid.Row="1" Name="VotersFrom" Margin="10,31,10,10"
+        <ListBox Grid.Column="0" Grid.Row="1" Name="VotersFromListBox" Margin="10,31,10,10"
                  Items="{Binding VotersFrom}">
         </ListBox>
 
@@ -90,7 +90,7 @@
 
         <TextBlock Grid.Column="2" Grid.Row="1" Text="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
-        <ListBox Grid.Column="2" Grid.Row="1" Name="VotersTo" Margin="10,31,10,10"
+        <ListBox Grid.Column="2" Grid.Row="1" Name="VotersToListBox" Margin="10,31,10,10"
                  Items="{Binding VotersTo}">
         </ListBox>
 
