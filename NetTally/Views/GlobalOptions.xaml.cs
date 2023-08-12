@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
@@ -7,17 +8,21 @@ using NetTally.ViewModels;
 namespace NetTally.Views
 {
     /// <summary>
-    /// Interaction logic for GlobalOptions2.xaml
+    /// Interaction logic for GlobalOptions.xaml
     /// </summary>
     public partial class GlobalOptions : Window, IActivable
     {
+        private readonly GlobalOptionsViewModel globalOptionsViewModel;
         private readonly ILogger<GlobalOptions> logger;
 
         public GlobalOptions(
             GlobalOptionsViewModel globalOptionsViewModel,
             ILogger<GlobalOptions> logger)
         {
+            this.globalOptionsViewModel = globalOptionsViewModel;
             this.logger = logger;
+
+            this.globalOptionsViewModel.SaveCompleted += GlobalOptionsViewModel_SaveCompleted;
 
             InitializeComponent();
             DataContext = globalOptionsViewModel;
@@ -33,17 +38,15 @@ namespace NetTally.Views
             return Task.CompletedTask;
         }
 
-        private void ResetAllButton_Click(object sender, RoutedEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            rankedVoteAlgorithm.SelectedIndex = 0;
-            allowUsersToUpdatePlans.IsChecked = null;
-            trackPostAuthorsUniquely.IsChecked = false;
-            globalSpoilers.IsChecked = false;
-            displayPlansWithNoVotes.IsChecked = false;
-            debugMode.IsChecked = false;
-            disableWebProxy.IsChecked = false;
+            globalOptionsViewModel.SaveCompleted -= GlobalOptionsViewModel_SaveCompleted;
+            base.OnClosing(e);
+        }
 
-            logger.LogDebug("Global options have been reset.");
+        private void GlobalOptionsViewModel_SaveCompleted()
+        {
+            Close();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

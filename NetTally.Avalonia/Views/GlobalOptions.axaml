@@ -8,8 +8,8 @@
         x:Class="NetTally.Avalonia.Views.GlobalOptions"
         Classes="Dialog"
         Title="Global Options" Icon="/Assets/CheckVoteWin.ico"
-		d:DesignWidth="350" d:DesignHeight="275"
-		MinWidth="350" CanResize="False">
+        Width="640" Heigh="370" CanResize="False"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
@@ -107,11 +107,10 @@
     <StackPanel Classes="CommandFooter">
       <Button Name="ResetAll" Content="Reset All" Width="100"
               ToolTip.Tip="Reset all options to their default values."
-              Click="ResetAll_Click" />
+              Command="{Binding ResetCommand}" />
       <Button Name="Close" Content="Close" Width="100"
               ToolTip.Tip="Close the window, accepting the currently selected options."
-              IsDefault="True" IsCancel="True"
-              Click="Close_Click" />
+              IsDefault="True" Command="{Binding SaveCommand}" />
     </StackPanel>
   </StackPanel>
 </Window>

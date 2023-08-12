@@ -31,7 +31,7 @@
         <ComboBox x:Name="rankedVoteAlgorithm" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" 
                   Margin="33,35,0,0" Height="30" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=RankVoteCountingModes}"
-                  SelectedIndex="{Binding Path=GlobalSettings.RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
+                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -41,26 +41,26 @@
         </ComboBox>
         <CheckBox x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
+                  IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
         <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.TrackPostAuthorsUniquely}"/>
+                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
 
         <Label x:Name="labelOutput" Content="Output" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,117,0,0"/>
         <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers"
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,145,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.GlobalSpoilers}"/>
+                  IsChecked="{Binding Path=GlobalSpoilers}"/>
         <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes"
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,165,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.DisplayPlansWithNoVotes}"/>
+                  IsChecked="{Binding Path=DisplayPlansWithNoVotes}"/>
 
         <Label x:Name="labelMisc" Content="Misc" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
         <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,218,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.DisableWebProxy}" />
+                  IsChecked="{Binding Path=DisableWebProxy}" />
         <CheckBox x:Name="debugMode" Content="Debug Mode"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,238,0,0"
-                  IsChecked="{Binding Path=GlobalSettings.DebugMode}" />
+                  IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=rankedVoteAlgorithm, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -70,7 +70,7 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Rated Instant Runoff (default) - A system that uses Wilson scoring to determine the top two options, and then does a runoff between those two."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of GlobalSettings.  Uses Wilson's Bournelli limit method."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of   Uses Wilson's Bournelli limit method."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowUsersToUpdatePlans, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Users to Update Plans"/>
@@ -110,7 +110,7 @@
         </StackPanel>
 
         <Button x:Name="ResetAllButton" Content="Reset All" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10" Width="100" Height="32"
-                HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="ResetAllButton_Click">
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Command="{Binding ResetCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -121,12 +121,12 @@
             </Button.ToolTip>
         </Button>
         <Button x:Name="CloseButton" Content="Close" Grid.Column="1" Grid.Row="2" Margin="0,0,10,10" Width="100" Height="32"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True" Click="CloseButton_Click">
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True" Command="{Binding SaveCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Close Window</TextBlock>
-                        <TextBlock>Close the window, accepting the currently selected GlobalSettings.</TextBlock>
+                        <TextBlock>Close the window, accepting the currently selected options.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </Button.ToolTip>
