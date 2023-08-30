@@ -542,7 +542,8 @@ namespace NetTally.Forums.Adapters2
 
             var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
-            var articleBody = article.GetDescendantWithClass("article", "message-body")?.GetChildWithClass("div", "bbWrapper");
+            var articleBody = article.GetDescendantWithClass("article", "message-body")
+                ?.GetDescendantsWithClass("div", "bbWrapper").FirstOrDefault();
 
             Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
