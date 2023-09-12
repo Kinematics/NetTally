@@ -6,7 +6,7 @@
 		<AssemblyName>nettally</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>NetTally.CLI</RootNamespace>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ApplicationIcon />
 		<StartupObject />
 	</PropertyGroup>
