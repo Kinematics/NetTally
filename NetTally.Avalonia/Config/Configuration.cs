@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using NetTally.Collections;
 using NetTally.Options;
 
 namespace NetTally.Avalonia.Config
 {
-    public static class ConfigPrefs
-    {
-        public static bool Strict = false;
-    }
-
     /// <summary>
     /// Class for loading and saving program configuration information.
     /// </summary>
-    public class NetTallyConfig
+    public class LegacyNetTallyConfig
     {
         #region Loading
         /// <summary>
@@ -21,11 +17,21 @@ namespace NetTally.Avalonia.Config
         /// quests.
         /// </summary>
         /// <returns>Returns the quests wrapper to store data in.</returns>
-        public static void Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions? options)
+        public static bool Load(
+            [NotNullWhen(true)] out QuestCollection? quests,
+            out string? currentQuest,
+            AdvancedOptions? options)
         {
             List<Configuration> configs = NetTallyConfigHelper.GetConfigsToLoadFrom();
 
-            ReadConfigInformation(configs, out quests, out currentQuest, options);
+            if (configs.Count == 0)
+            {
+                quests = null;
+                currentQuest = null;
+                return false;
+            }
+
+            return ReadConfigInformation(configs, out quests, out currentQuest, options);
         }
 
         /// <summary>
@@ -34,24 +40,31 @@ namespace NetTally.Avalonia.Config
         /// </summary>
         /// <param name="configs">The list of configuration objects to attempt to read.</param>
         /// <param name="quests">The quests wrapper to store data in.</param>
-        private static void ReadConfigInformation(List<Configuration> configs, out QuestCollection quests, out string? currentQuest, AdvancedOptions? options)
+        private static bool ReadConfigInformation(
+            List<Configuration> configs,
+            out QuestCollection? quests,
+            out string? currentQuest,
+            AdvancedOptions? options)
         {
             if (configs.Count > 0)
             {
                 ConfigurationException? failure = null;
 
-                ConfigPrefs.Strict = true;
+                bool[] toggles = [true, false];
 
-                while (true)
+                foreach (var toggle in toggles)
                 {
+                    // Try both strict and not strict.
+                    ConfigPrefs.Strict = toggle;
+
                     foreach (var config in configs)
                     {
                         try
                         {
-                            if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
+                            if (config.Sections[ConfigStrings.SectionName] is QuestsSection questsSection)
                             {
                                 questsSection.Load(out quests, out currentQuest, options);
-                                return;
+                                return true;
                             }
                         }
                         catch (ConfigurationException e)
@@ -59,75 +72,20 @@ namespace NetTally.Avalonia.Config
                             failure = e;
                         }
                     }
-
-                    ConfigPrefs.Strict = !ConfigPrefs.Strict;
-
-                    if (ConfigPrefs.Strict)
-                        break;
                 }
 
-                // If all config files generated an error, throw the last one we got.
+                // If all config files failed to load, and there were any errors,
+                // throw the last error we got.
                 if (failure != null)
                     throw failure;
             }
 
             // If nothing was loaded, just provide default values.
-            quests = new QuestCollection();
+            quests = null;
             currentQuest = null;
-        }
-        #endregion
 
-        #region Saving
-        /// <summary>
-        /// Saves the data from the specified quests wrapper into the config file.
-        /// Tries to save in both the portable location (same directory as the executable),
-        /// and to the roaming location (AppData).
-        /// The portable location is transferable between computers without needing
-        /// a corresponding user account, while the roaming location keeps data from
-        /// being lost if you unzip a new version of the program to a differently-named
-        /// folder.
-        /// </summary>
-        /// <param name="quests">The quests wrapper.</param>
-        public static void Save(QuestCollection quests, string currentQuest, AdvancedOptions options)
-        {
-            // If there's nothing to save, don't do anything.
-            if (quests == null)
-                return;
-
-            // Write to each config location (portable and roaming)
-            List<Configuration> configs = NetTallyConfigHelper.GetConfigsToWriteTo();
-
-            foreach (var config in configs)
-            {
-                WriteConfigInformation(config, quests, currentQuest, options);
-            }
-        }
-
-        /// <summary>
-        /// Writes the data from the provided quests wrapper object into the specified configuration file.
-        /// </summary>
-        /// <param name="quests">The quests wrapper with program data.</param>
-        /// <param name="config">The configuration file to save to.</param>
-        private static void WriteConfigInformation(Configuration config, QuestCollection quests, string currentQuest, AdvancedOptions options)
-        {
-            try
-            {
-                ConfigPrefs.Strict = false;
-
-                if (config.Sections[QuestsSection.SectionName] is QuestsSection questsSection)
-                {
-                    questsSection.Save(quests, currentQuest, options);
-                }
-
-                config.Save(ConfigurationSaveMode.Minimal);
-            }
-            catch (ConfigurationErrorsException)
-            {
-                // May not have permission to write, or the original config may have errors.
-            }
+            return false;
         }
         #endregion
     }
-
-
 }

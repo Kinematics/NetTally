@@ -29,8 +29,6 @@ namespace NetTally.Avalonia
         private readonly ILogger<App> logger;
         public IServiceProvider Services => host.Services;
 
-        const string UserConfigJsonFile = "userconfig.json";
-
 
         public App()
         {
@@ -42,14 +40,25 @@ namespace NetTally.Avalonia
             // Create handlers for unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            logger.LogInformation("App constructor completed.");
+            logger.LogDebug("Application constructor completed.");
         }
 
 
         #region Hosting Setup
-        private IHost CreateHost()
+        /// <summary>
+        /// Creates and configures the IHost for the application using the default builder.
+        /// </summary>
+        /// <returns>Returns an IHost that can run the application.</returns>
+        private static IHost CreateHost()
         {
             var builder = Host.CreateApplicationBuilder();
+
+            // Load legacy config, if available.
+            if (LoadLegacyConfig() is ConfigInfo legacyConfig)
+            {
+                builder.Services.AddKeyedSingleton(ConfigStrings.LegacyKey, legacyConfig);
+                //builder.Services.AddSingleton(legacyConfig);
+            }
 
             ConfigureConfiguration(builder.Configuration);
             ConfigureOptions(builder.Services);
@@ -59,9 +68,13 @@ namespace NetTally.Avalonia
             return builder.Build();
         }
 
+        /// <summary>
+        /// Handle setting up configuration files for the program to load configuration
+        /// data from.
+        /// </summary>
+        /// <param name="configuration">The configuration manager of the Host.</param>
         private static void ConfigureConfiguration(ConfigurationManager configuration)
         {
-            // Add additional files for the configuration manager to load options from.
             foreach (var path in GetConfigurationPaths())
             {
                 try
@@ -75,12 +88,21 @@ namespace NetTally.Avalonia
             }
         }
 
+        /// <summary>
+        /// Configure the options that can be loaded from configuration files.
+        /// Bind them to defined classes.
+        /// </summary>
+        /// <param name="services">The services collection of the Host.</param>
         private static void ConfigureOptions(IServiceCollection services)
         {
             services.AddOptions<GlobalSettings>().BindConfiguration(nameof(GlobalSettings));
             services.AddOptions<UserQuests>().BindConfiguration(nameof(UserQuests));
         }
 
+        /// <summary>
+        /// Configure the logging details for the program to use.
+        /// </summary>
+        /// <param name="logging">The logging builder of the Host.</param>
         private static void ConfigureLogging(ILoggingBuilder logging)
         {
             logging
@@ -95,6 +117,10 @@ namespace NetTally.Avalonia
                 .AddFilter<FileLoggerProvider>(FileLoggingFilter);
         }
 
+        /// <summary>
+        /// Add all the services that the Host will manage while running the application.
+        /// </summary>
+        /// <param name="services">The service collection of the Host.</param>
         private static void ConfigureServices(IServiceCollection services)
         {
             // Get the services provided by the core library.
@@ -108,36 +134,39 @@ namespace NetTally.Avalonia
             // Add IoCNavigationService for the application.
             services.AddSingleton<Navigation.AvaloniaNavigationService>();
 
-            // Register all the Windows of the applications via the service provider.
+            // Register all the windows that the applications can display.
             services.AddTransient<Views.MainWindow>();
             services.AddTransient<Views.GlobalOptions>();
             services.AddTransient<Views.QuestOptions>();
             services.AddTransient<Views.ManageVotes>();
-            //            services.AddTransient<ReorderTasksWindow>();
+            services.AddTransient<Views.ReorderTasks>();
         }
 
         /// <summary>
         /// Load legacy XML user configuration data, to be used in migration to json config files.
         /// </summary>
         /// <returns>Returns any legacy configuration.</returns>
-        private static ConfigInfo LoadLegacyConfig()
+        private static ConfigInfo? LoadLegacyConfig()
         {
-            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
-
-            GlobalSettings gb = new()
+            if (LegacyNetTallyConfig.Load(out QuestCollection? quests, out string? currentQuest, AdvancedOptions.Instance))
             {
-                DisplayMode = AdvancedOptions.Instance.DisplayMode,
-                DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
-                DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
-                GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
-                RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
-                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
-                TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
-            };
+                GlobalSettings gb = new()
+                {
+                    DisplayMode = AdvancedOptions.Instance.DisplayMode,
+                    DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
+                    DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
+                    GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
+                    RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
+                    AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
+                    TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
+                };
 
-            ConfigInfo config = new(quests.ToList(), currentQuest, gb);
+                ConfigInfo config = new(quests.ToList(), currentQuest, gb);
 
-            return config;
+                return config;
+            }
+
+            return null;
         }
         #endregion Hosting Setup
 
@@ -255,13 +284,13 @@ namespace NetTally.Avalonia
                     path = Path.Combine(path, ProductInfo.Name);
                     Directory.CreateDirectory(path);
 
-                    yield return Path.Combine(path, UserConfigJsonFile);
+                    yield return Path.Combine(path, ConfigStrings.UserConfigJsonFile);
                 }
             }
 
             // After that, supply the file for the local directory.
             // This will take precedence over the AppSettings version of the file, if it exists.
-            yield return UserConfigJsonFile;
+            yield return ConfigStrings.UserConfigJsonFile;
         }
 
         /// <summary>

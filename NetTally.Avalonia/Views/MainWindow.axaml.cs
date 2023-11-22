@@ -53,7 +53,7 @@ namespace NetTally.Avalonia.Views
                 try
                 {
                     this.Logger.LogDebug("Loading configuration.");
-                    Config.NetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
+                    Config.LegacyNetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
                     this.Logger.LogInformation("Configuration loaded.");
                 }
                 catch (ConfigurationErrorsException e)
@@ -108,7 +108,7 @@ namespace NetTally.Avalonia.Views
             {
                 string selectedQuest = ViewModel.SelectedQuest?.ThreadName ?? "";
 
-                Config.NetTallyConfig.Save(ViewModel.QuestList, selectedQuest, Options.AdvancedOptions.Instance);
+                Config.LegacyNetTallyConfig.Save(ViewModel.QuestList, selectedQuest, Options.AdvancedOptions.Instance);
 
                 Logger.LogDebug("Configuration saved.");
             }

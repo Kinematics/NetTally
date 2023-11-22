@@ -108,7 +108,7 @@
       <Button Name="ResetAll" Content="Reset All" Width="100"
               ToolTip.Tip="Reset all options to their default values."
               Command="{Binding ResetCommand}" />
-      <Button Name="Close" Content="Close" Width="100"
+      <Button Name="CloseButton" Content="Close" Width="100"
               ToolTip.Tip="Close the window, accepting the currently selected options."
               IsDefault="True" Command="{Binding SaveCommand}" />
     </StackPanel>

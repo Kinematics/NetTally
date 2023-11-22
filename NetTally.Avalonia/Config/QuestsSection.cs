@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
-using NetTally.Extensions;
 using NetTally.Options;
-using NetTally.Output;
 using NetTally.Types.Enums;
 
 namespace NetTally.Avalonia.Config
@@ -18,14 +16,9 @@ namespace NetTally.Avalonia.Config
     {
         #region Meta info
         /// <summary>
-        /// Defined name of the config section, as saved in the config file.
-        /// </summary>
-        public const string SectionName = "NetTally.Quests";
-
-        /// <summary>
         /// A list of all deprecated attributes.
         /// </summary>
-        readonly string[] deprecatedAttributes = new string[] { "IgnoreSymbols", "AllowVoteLabelPlanNames" };
+        readonly string[] deprecatedAttributes = ["IgnoreSymbols", "AllowVoteLabelPlanNames"];
 
         /// <summary>
         /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
@@ -53,133 +46,137 @@ namespace NetTally.Avalonia.Config
         #endregion
 
         #region Properties
-        [ConfigurationProperty("Quests", IsDefaultCollection = false)]
+        [ConfigurationProperty(nameof(Quests), IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(QuestElement))]
         public QuestElementCollection Quests
         {
-            get { return (QuestElementCollection)this["Quests"]; }
-            set { this["Quests"] = value; }
+            get { return (QuestElementCollection)this[nameof(Quests)]; }
+            set { this[nameof(Quests)] = value; }
         }
 
-        [ConfigurationProperty("CurrentQuest", DefaultValue = null)]
+        [ConfigurationProperty(nameof(CurrentQuest), DefaultValue = null)]
         public string CurrentQuest
         {
-            get { return (string)this["CurrentQuest"]; }
-            set { this["CurrentQuest"] = value; }
+            get { return (string)this[nameof(CurrentQuest)]; }
+            set { this[nameof(CurrentQuest)] = value; }
         }
 
-        [ConfigurationProperty("AllowRankedVotes", DefaultValue = true)]
+        [ConfigurationProperty(nameof(AllowRankedVotes), DefaultValue = true)]
         public bool AllowRankedVotes
         {
-            get { return (bool)this["AllowRankedVotes"]; }
-            set { this["AllowRankedVotes"] = value; }
+            get { return (bool)this[nameof(AllowRankedVotes)]; }
+            set { this[nameof(AllowRankedVotes)] = value; }
         }
 
-        [ConfigurationProperty("GlobalSpoilers", DefaultValue = false)]
+        [ConfigurationProperty(nameof(GlobalSpoilers), DefaultValue = false)]
         public bool GlobalSpoilers
         {
-            get { return (bool)this["GlobalSpoilers"]; }
-            set { this["GlobalSpoilers"] = value; }
+            get { return (bool)this[nameof(GlobalSpoilers)]; }
+            set { this[nameof(GlobalSpoilers)] = value; }
         }
 
-        [ConfigurationProperty("DisplayPlansWithNoVotes", DefaultValue = false)]
+        [ConfigurationProperty(nameof(DisplayPlansWithNoVotes), DefaultValue = false)]
         public bool DisplayPlansWithNoVotes
         {
-            get { return (bool)this["DisplayPlansWithNoVotes"]; }
-            set { this["DisplayPlansWithNoVotes"] = value; }
+            get { return (bool)this[nameof(DisplayPlansWithNoVotes)]; }
+            set { this[nameof(DisplayPlansWithNoVotes)] = value; }
         }
 
-        [ConfigurationProperty("DisplayMode", DefaultValue = DisplayMode.Normal)]
+        [ConfigurationProperty(nameof(DisplayMode), DefaultValue = DisplayMode.Normal)]
         public DisplayMode DisplayMode
         {
             get
             {
                 try
                 {
-                    return (DisplayMode)this["DisplayMode"];
+                    return (DisplayMode)this[nameof(DisplayMode)];
                 }
                 catch (ConfigurationException)
                 {
                     return DisplayMode.Normal;
                 }
             }
-            set { this["DisplayMode"] = value; }
+            set { this[nameof(DisplayMode)] = value; }
         }
 
-        [ConfigurationProperty("DisableWebProxy", DefaultValue = false)]
+        [ConfigurationProperty(nameof(DisableWebProxy), DefaultValue = false)]
         public bool DisableWebProxy
         {
-            get { return (bool)this["DisableWebProxy"]; }
-            set { this["DisableWebProxy"] = value; }
+            get { return (bool)this[nameof(DisableWebProxy)]; }
+            set { this[nameof(DisableWebProxy)] = value; }
         }
 
-        [ConfigurationProperty("AllowUsersToUpdatePlans", DefaultValue = BoolEx.Unknown)]
+        [ConfigurationProperty(nameof(AllowUsersToUpdatePlans), DefaultValue = BoolEx.Unknown)]
         public BoolEx AllowUsersToUpdatePlans
         {
             get
             {
                 try
                 {
-                    return (BoolEx)this["AllowUsersToUpdatePlans"];
+                    return (BoolEx)this[nameof(AllowUsersToUpdatePlans)];
                 }
                 catch (ConfigurationException)
                 {
                     return BoolEx.Unknown;
                 }
             }
-            set { this["AllowUsersToUpdatePlans"] = value; }
+            set { this[nameof(AllowUsersToUpdatePlans)] = value; }
         }
 
         #endregion
 
         #region Obsolete Properties
+#pragma warning disable CS0618 // Type or member is obsolete
+
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("WhitespaceAndPunctuationIsSignificant", DefaultValue = false)]
+        [ConfigurationProperty(nameof(WhitespaceAndPunctuationIsSignificant), DefaultValue = false)]
         public bool WhitespaceAndPunctuationIsSignificant
         {
-            get { return (bool)this["WhitespaceAndPunctuationIsSignificant"]; }
-            set { this["WhitespaceAndPunctuationIsSignificant"] = value; }
+            get { return (bool)this[nameof(WhitespaceAndPunctuationIsSignificant)]; }
+            set { this[nameof(WhitespaceAndPunctuationIsSignificant)] = value; }
         }
 
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("ForbidVoteLabelPlanNames", DefaultValue = false)]
+        [ConfigurationProperty(nameof(ForbidVoteLabelPlanNames), DefaultValue = false)]
         public bool ForbidVoteLabelPlanNames
         {
-            get { return (bool)this["ForbidVoteLabelPlanNames"]; }
-            set { this["ForbidVoteLabelPlanNames"] = value; }
+            get { return (bool)this[nameof(ForbidVoteLabelPlanNames)]; }
+            set { this[nameof(ForbidVoteLabelPlanNames)] = value; }
         }
 
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("DisableProxyVotes", DefaultValue = false)]
+        [ConfigurationProperty(nameof(DisableProxyVotes), DefaultValue = false)]
         public bool DisableProxyVotes
         {
-            get { return (bool)this["DisableProxyVotes"]; }
-            set { this["DisableProxyVotes"] = value; }
+            get { return (bool)this[nameof(DisableProxyVotes)]; }
+            set { this[nameof(DisableProxyVotes)] = value; }
         }
 
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("ForcePinnedProxyVotes", DefaultValue = false)]
+        [ConfigurationProperty(nameof(ForcePinnedProxyVotes), DefaultValue = false)]
         public bool ForcePinnedProxyVotes
         {
-            get { return (bool)this["ForcePinnedProxyVotes"]; }
-            set { this["ForcePinnedProxyVotes"] = value; }
+            get { return (bool)this[nameof(ForcePinnedProxyVotes)]; }
+            set { this[nameof(ForcePinnedProxyVotes)] = value; }
         }
 
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("TrimExtendedText", DefaultValue = false)]
+        [ConfigurationProperty(nameof(TrimExtendedText), DefaultValue = false)]
         public bool TrimExtendedText
         {
-            get { return (bool)this["TrimExtendedText"]; }
-            set { this["TrimExtendedText"] = value; }
+            get { return (bool)this[nameof(TrimExtendedText)]; }
+            set { this[nameof(TrimExtendedText)] = value; }
         }
 
         [Obsolete("Moved to QuestElement")]
-        [ConfigurationProperty("IgnoreSpoilers", DefaultValue = false)]
+        [ConfigurationProperty(nameof(IgnoreSpoilers), DefaultValue = false)]
         public bool IgnoreSpoilers
         {
-            get { return (bool)this["IgnoreSpoilers"]; }
-            set { this["IgnoreSpoilers"] = value; }
+            get { return (bool)this[nameof(IgnoreSpoilers)]; }
+            set { this[nameof(IgnoreSpoilers)] = value; }
         }
+
+#pragma warning restore CS0618 // Type or member is obsolete
         #endregion Obsolete Properties
 
         #region Loading and saving        
@@ -193,8 +190,8 @@ namespace NetTally.Avalonia.Config
         public void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions? options)
         {
             currentQuest = CurrentQuest;
-            quests = new QuestCollection();
-            Dictionary<Quest, string> linkedQuestNames = new();
+            quests = [];
+            Dictionary<Quest, string> linkedQuestNames = [];
 
             foreach (QuestElement? questElement in Quests)
             {
@@ -263,34 +260,6 @@ namespace NetTally.Avalonia.Config
                 options.GlobalSpoilers = GlobalSpoilers;
                 options.DisplayPlansWithNoVotes = DisplayPlansWithNoVotes;
                 options.DisableWebProxy = DisableWebProxy;
-            }
-        }
-
-        /// <summary>
-        /// Saves the information from the provided quest wrapper into this config object.
-        /// Also pulls global advanced options.
-        /// </summary>
-        /// <param name="quests">The collection of saved quests.</param>
-        /// <param name="currentQuest">The currently selected quest.</param>
-        /// <param name="options">The program configuration options.</param>
-        public void Save(QuestCollection quests, string currentQuest, AdvancedOptions options)
-        {
-            if (quests == null)
-                throw new ArgumentNullException(nameof(quests));
-
-            Quests.Clear();
-            foreach (var quest in quests)
-                Quests.Add(quest);
-
-            CurrentQuest = currentQuest;
-
-            if (options != null)
-            {
-                DisplayMode = options.DisplayMode;
-                AllowUsersToUpdatePlans = options.AllowUsersToUpdatePlans;
-                GlobalSpoilers = options.GlobalSpoilers;
-                DisplayPlansWithNoVotes = options.DisplayPlansWithNoVotes;
-                DisableWebProxy = options.DisableWebProxy;
             }
         }
         #endregion
