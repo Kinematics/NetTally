@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using NetTally.SystemInfo;
 
-namespace NetTally.Avalonia.Config
+namespace NetTally.Avalonia.Config.Xml
 {
     /// <summary>
     /// Helper class to get the configs to use for loading and saving configuration information.
@@ -23,15 +23,15 @@ namespace NetTally.Avalonia.Config
         /// <returns>Returns the Configuration object for the program.</returns>
         public static List<Configuration> GetConfigsToLoadFrom()
         {
-            List<Configuration> configs = new List<Configuration>();
-
-            Configuration portableConfig = GetPortableConfig();
-
-            if (portableConfig.HasFile)
-                configs.Add(portableConfig);
+            List<Configuration> configs = [];
 
             if (OperatingSystem.IsWindows())
             {
+                Configuration portableConfig = GetPortableConfig();
+
+                if (portableConfig.HasFile)
+                    configs.Add(portableConfig);
+
                 Configuration currentConfig = GetCurrentRoamingConfig();
 
                 if (currentConfig.HasFile)
@@ -56,7 +56,7 @@ namespace NetTally.Avalonia.Config
         /// <returns>Returns a list of Configurations to be written to.</returns>
         public static List<Configuration> GetConfigsToWriteTo()
         {
-            List<Configuration> configs = new List<Configuration>() { GetPortableConfig() };
+            List<Configuration> configs = [GetPortableConfig()];
 
             if (OperatingSystem.IsWindows())
             {
@@ -64,7 +64,6 @@ namespace NetTally.Avalonia.Config
             }
 
             return configs;
-            //return new List<Configuration> { GetPortableConfig(), GetCurrentRoamingConfig() };
         }
         #endregion
 

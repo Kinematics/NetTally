@@ -6,7 +6,7 @@ using NetTally.Collections;
 using NetTally.Options;
 using NetTally.Types.Enums;
 
-namespace NetTally.Avalonia.Config
+namespace NetTally.Avalonia.Config.Xml
 {
     /// <summary>
     /// Class to handle the section for storing quests in the user config file.
@@ -179,7 +179,7 @@ namespace NetTally.Avalonia.Config
 #pragma warning restore CS0618 // Type or member is obsolete
         #endregion Obsolete Properties
 
-        #region Loading and saving        
+        #region Loading        
         /// <summary>
         /// Loads the configuration information into the provided quest wrapper.
         /// Global information is stored in the advanced options instance.

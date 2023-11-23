@@ -1,4 +1,4 @@
-﻿namespace NetTally.Avalonia.Config
+﻿namespace NetTally.Avalonia.Config.Xml
 {
     internal static class ConfigPrefs
     {

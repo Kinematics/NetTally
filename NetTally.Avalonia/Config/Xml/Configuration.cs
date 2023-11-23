@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using NetTally.Collections;
 using NetTally.Options;
 
-namespace NetTally.Avalonia.Config
+namespace NetTally.Avalonia.Config.Xml
 {
     /// <summary>
     /// Class for loading and saving program configuration information.

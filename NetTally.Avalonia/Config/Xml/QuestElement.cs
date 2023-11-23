@@ -5,7 +5,7 @@ using System.Linq;
 using NetTally.Types.Enums;
 using NetTally.Votes;
 
-namespace NetTally.Avalonia.Config
+namespace NetTally.Avalonia.Config.Xml
 {
     /// <summary>
     /// Class for individual quest entries to be added to the user config file.

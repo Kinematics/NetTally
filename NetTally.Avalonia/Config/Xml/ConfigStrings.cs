@@ -1,4 +1,4 @@
-﻿namespace NetTally.Avalonia.Config
+﻿namespace NetTally.Avalonia.Config.Xml
 {
     internal static class ConfigStrings
     {
@@ -11,7 +11,7 @@
         /// The name for the keyed singleton for any legacy config info.
         /// </summary>
         public const string LegacyKey = "Legacy config";
-        
+
         /// <summary>
         /// Defined name of the config section, as saved in the legacy XML config file.
         /// </summary>

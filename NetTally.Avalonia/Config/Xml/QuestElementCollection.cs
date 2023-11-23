@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
 
-namespace NetTally.Avalonia.Config
+namespace NetTally.Avalonia.Config.Xml
 {
     /// <summary>
     /// Wrapper class for a collection of quest elements to be added to the user config file.
