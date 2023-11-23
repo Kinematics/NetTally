@@ -14,7 +14,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
-using NetTally.Avalonia.Config;
+using NetTally.Avalonia.Config.Json;
+using NetTally.Avalonia.Config.Xml;
 using NetTally.Collections;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
@@ -57,7 +58,6 @@ namespace NetTally.Avalonia
             if (LoadLegacyConfig() is ConfigInfo legacyConfig)
             {
                 builder.Services.AddKeyedSingleton(ConfigStrings.LegacyKey, legacyConfig);
-                //builder.Services.AddSingleton(legacyConfig);
             }
 
             ConfigureConfiguration(builder.Configuration);
@@ -75,7 +75,7 @@ namespace NetTally.Avalonia
         /// <param name="configuration">The configuration manager of the Host.</param>
         private static void ConfigureConfiguration(ConfigurationManager configuration)
         {
-            foreach (var path in GetConfigurationPaths())
+            foreach (var path in JsonConfiguration.GetConfigurationPaths())
             {
                 try
                 {
@@ -127,6 +127,8 @@ namespace NetTally.Avalonia
             Startup.ConfigureServices(services);
 
             services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
+
+            services.AddTransient<JsonConfiguration>();
 
             // Then add services known by the current assembly,
             // or override services provided by the core library.
@@ -190,6 +192,7 @@ namespace NetTally.Avalonia
                 // Without this line you will get duplicate validations from both Avalonia and CT
                 BindingPlugins.DataValidators.RemoveAt(0);
 
+                // Add event handler for when the program exits.
                 desktop.Exit += Desktop_Exit;
 
                 Views.MainWindow mainWindow = Services.GetRequiredService<Views.MainWindow>();
@@ -204,95 +207,14 @@ namespace NetTally.Avalonia
         private void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
         {
             // Save settings on exit.
-            SaveJsonConfiguration();
+            JsonConfiguration jsonConfiguration = host.Services.GetRequiredService<JsonConfiguration>();
+            jsonConfiguration.SaveJsonConfiguration();
 
             logger.LogDebug("Application exit.");
         }
         #endregion Avalonia
 
-
-        #region Save Configuration
-        /// <summary>
-        /// Saves the user configuration information to the user config file(s).
-        /// </summary>
-        private void SaveJsonConfiguration()
-        {
-            JsonSerializerOptions jsonOptions = new()
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
-                IgnoreReadOnlyProperties = true
-            };
-
-            try
-            {
-                var config = GetConfigurationToSave();
-
-                if (config is null)
-                {
-                    logger.LogWarning("Unable to save configuration. No config available.");
-                    return;
-                }
-
-                foreach (var path in GetConfigurationPaths())
-                {
-                    using var stream = File.Create(path);
-
-                    // Async can fail on large saves when exiting. Use sync.
-                    JsonSerializer.Serialize(stream, config, jsonOptions);
-
-                    logger.LogInformation("Configuration saved to {path}", path);
-                }
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Unable to save configuration.");
-            }
-        }
-
-        /// <summary>
-        /// Get configuration info to save into the JSON config file.
-        /// </summary>
-        /// <returns>Returns current config info.</returns>
-        private ConfigInfo? GetConfigurationToSave()
-        {
-            IQuestsInfo questsInfo = host.Services.GetRequiredService<IQuestsInfo>();
-            IOptions<GlobalSettings> globalSettings = host.Services.GetRequiredService<IOptions<GlobalSettings>>();
-
-            ConfigInfo config = new(questsInfo.Quests, questsInfo.SelectedQuest?.ThreadName, globalSettings.Value);
-
-            return config;
-        }
-        #endregion Save Configuration
-
-        #region Paths
-        /// <summary>
-        /// Get the available paths to load or save user configuration.
-        /// This may vary depending on OS and directory permissions.
-        /// </summary>
-        /// <returns>Returns an enumeration of configuration file paths.</returns>
-        private static IEnumerable<string> GetConfigurationPaths()
-        {
-            // Try to find the AppSettings path on Windows, and use it
-            // first when trying to load or save user config info.
-            if (OperatingSystem.IsWindows())
-            {
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-
-                if (Path.Exists(path))
-                {
-                    path = Path.Combine(path, ProductInfo.Name);
-                    Directory.CreateDirectory(path);
-
-                    yield return Path.Combine(path, ConfigStrings.UserConfigJsonFile);
-                }
-            }
-
-            // After that, supply the file for the local directory.
-            // This will take precedence over the AppSettings version of the file, if it exists.
-            yield return ConfigStrings.UserConfigJsonFile;
-        }
-
+        #region Logging
         /// <summary>
         /// Get the directory path to save logs to.
         /// </summary>
@@ -314,9 +236,7 @@ namespace NetTally.Avalonia
 
             return "Logs";
         }
-        #endregion Paths
 
-        #region Log Filters
         private static bool FileLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
