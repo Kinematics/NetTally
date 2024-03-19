@@ -38,6 +38,10 @@ namespace NetTally.Web
                     cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host);
                     cookie.Expires = clock.Now + TimeSpan.FromDays(30);
                     break;
+                case "xf2.questionablequesting.com":
+                    cookie = new Cookie("xf_session", "BjoGWljYfJalZOo8mp7LcaDnWFdsKGVY", "/", uri.Host);
+                    cookie.Expires = clock.Now + TimeSpan.FromDays(30);
+                    break;
             }
 
             return cookie;
