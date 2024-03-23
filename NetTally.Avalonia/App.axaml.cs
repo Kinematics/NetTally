@@ -160,7 +160,7 @@ namespace NetTally.Avalonia
                     TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
                 };
 
-                ConfigInfo config = new(quests.ToList(), currentQuest, gb);
+                ConfigInfo config = new([.. quests], currentQuest, gb);
 
                 return config;
             }
@@ -224,16 +224,31 @@ namespace NetTally.Avalonia
 
                 if (Directory.Exists(path))
                 {
-                    path = Path.Combine(path, ProductInfo.Name, "Logs");
-                    Directory.CreateDirectory(path);
+                    try
+                    {
+                        path = Path.Combine(path, ProductInfo.Name, "Logs");
+                        Directory.CreateDirectory(path);
 
-                    return path;
+                        return path;
+                    }
+                    catch (Exception)
+                    {
+                        // If attempt to use the common app data path fails, fall back on the simple "Logs" path.
+                        return "Logs";
+                    }
                 }
             }
 
             return "Logs";
         }
 
+        /// <summary>
+        /// Filter function for handling logs that get sent to the file logger.
+        /// Will normally log warnings, but will log debug levels if DebugMode is on.
+        /// </summary>
+        /// <param name="category">The log category.</param>
+        /// <param name="logLevel">The log level.</param>
+        /// <returns>True if the event should be logged, or false if not.</returns>
         private static bool FileLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
@@ -242,6 +257,13 @@ namespace NetTally.Avalonia
             return logLevel >= LogLevel.Warning;
         }
 
+        /// <summary>
+        /// Filter function for handling logs that get sent to the debug logger.
+        /// Will normally log debug, but will log anything if DebugMode is on.
+        /// </summary>
+        /// <param name="category">The log category.</param>
+        /// <param name="logLevel">The log level.</param>
+        /// <returns>True if the event should be logged, or false if not.</returns>
         private static bool DebugLoggingFilter(string? category, LogLevel logLevel)
         {
             if (AdvancedOptions.Instance.DebugMode)
@@ -252,6 +274,11 @@ namespace NetTally.Avalonia
         #endregion Log Filters
 
         #region Error Handling
+        /// <summary>
+        /// Special handlers if an exception isn't handled by the program.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             logger.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
