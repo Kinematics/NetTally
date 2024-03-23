@@ -19,7 +19,7 @@ namespace NetTally.Avalonia.Config.Json
         private readonly IQuestsInfo questsInfo = questsInfo;
         private readonly GlobalSettings globalSettings = options.Value;
 
-        readonly JsonSerializerOptions jsonOptions = new()
+        private readonly JsonSerializerOptions jsonOptions = new()
         {
             WriteIndented = true,
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
