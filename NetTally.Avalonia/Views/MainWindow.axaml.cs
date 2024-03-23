@@ -3,18 +3,21 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
+using NetTally.Avalonia.Config.Xml;
 using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Runtime.ExceptionServices;
+using NetTally.ViewModels;
+using NetTally.Avalonia.Navigation;
 
 namespace NetTally.Avalonia.Views
 {
     public partial class MainWindow : Window
     {
         #region Fields and Properties
-        private ViewModels.ViewModel ViewModel { get; }
-        private Navigation.AvaloniaNavigationService NavigationService { get; }
+        private MainViewModel MainViewModel { get; }
+        private AvaloniaNavigationService NavigationService { get; }
         private ILogger<MainWindow> Logger { get; }
         #endregion
 
@@ -25,21 +28,17 @@ namespace NetTally.Avalonia.Views
         /// Set up the data context links with the local variables.
         /// </summary>
         public MainWindow(
-            ViewModels.ViewModel model,
-            Navigation.AvaloniaNavigationService navigationService, 
+            MainViewModel model,
+            AvaloniaNavigationService navigationService, 
             ILogger<MainWindow> logger)
         {
             // Initialize the readonly properties.
-            this.ViewModel = model;
-            this.NavigationService = navigationService;
-            this.Logger = logger;
+            MainViewModel = model;
+            NavigationService = navigationService;
+            Logger = logger;
 
             try
             {
-                // Set up an event handler for any otherwise unhandled exceptions in the code.
-                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-                AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-
                 // Initialize the window.
                 AvaloniaXamlLoader.Load(this);
 
@@ -52,24 +51,22 @@ namespace NetTally.Avalonia.Views
 
                 try
                 {
-                    this.Logger.LogDebug("Loading configuration.");
-                    Config.LegacyNetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
-                    this.Logger.LogInformation("Configuration loaded.");
+                    LegacyNetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
                 }
                 catch (ConfigurationErrorsException e)
                 {
-                    this.Logger.LogError(e, "Failure during configuration.");
+                    Logger.LogError(e, "Failure during loading legacy configuration.");
                     WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration");
                 }
 
                 // Complete the platform setup.
-                this.PlatformSetup(quests, currentQuest);
+                PlatformSetup(quests, currentQuest);
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, "Failure during program startup.");
+                Logger.LogError(e, "Failure during program startup.");
                 WarningDialog.Show("Unable to start the program.", "Failure on startup");
-                this.Close();
+                Close();
             }
         }
 
@@ -85,13 +82,9 @@ namespace NetTally.Avalonia.Views
                 System.Net.ServicePointManager.Expect100Continue = true;
                 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
-                ViewModel.InitializeQuests(quests, currentQuest);
-
-                DataContext = ViewModel;
-                ViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                ViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
-
-                ViewModel.CheckForNewRelease();
+                DataContext = MainViewModel;
+                MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                //MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
             }
             catch (InvalidOperationException e)
             {
@@ -99,61 +92,10 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        /// <summary>
-        /// Saves the configuration.
-        /// </summary>
-        private void SaveConfig()
+        protected override async void OnLoaded(RoutedEventArgs e)
         {
-            try
-            {
-                string selectedQuest = ViewModel.SelectedQuest?.ThreadName ?? "";
-
-                Config.LegacyNetTallyConfig.Save(ViewModel.QuestList, selectedQuest, Options.AdvancedOptions.Instance);
-
-                Logger.LogDebug("Configuration saved.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex, "Failed to save configuration.");
-                WarningDialog.Show("The program failed to save configuration data.", "Failed to save configuration");
-            }
-        }
-
-        /// <summary>
-        /// Handles the FirstChanceException event of the Current Domain.
-        /// Logs all first chance exceptions when debug mode is on, for debug builds.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
-        private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
-        {
-            if (Options.AdvancedOptions.Instance.DebugMode)
-                Logger.LogWarning(e.Exception, "First chance exception warning.");
-        }
-
-        /// <summary>
-        /// Unhandled exception handler.  If an unhandled exception crashes the program, save
-        /// the stack trace to a log file.
-        /// </summary>
-        /// <param name="sender">The AppDomain.</param>
-        /// <param name="e">The details of the unhandled exception.</param>
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Exception ex = (Exception)e.ExceptionObject;
-            Logger.LogCritical(ex, "Unhandled exception");
-            WarningDialog.Show("The program failed to handle an exception.", "Unhandled exception");
-        }
-
-        /// <summary>
-        /// Raises the <see cref="Window" />.Closed event.
-        /// Removes event listeners on close, to prevent memory leaks.
-        /// </summary>
-        /// <param name="e">Event data.</param>
-        protected override void OnClosed(EventArgs e)
-        {
-            this.SaveConfig();
-
-            base.OnClosed(e);
+            await MainViewModel.CheckForNewRelease();
+            base.OnLoaded(e);
         }
         #endregion
 
@@ -166,11 +108,21 @@ namespace NetTally.Avalonia.Views
         /// </remarks>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private async void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             Logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
-            
-            this.SaveConfig();
+
+            if (e.PropertyName == nameof(MainViewModel.AddQuestCommand))
+            {
+                string? clipboard = null;
+
+                if (Clipboard is not null)
+                    clipboard = await Clipboard.GetTextAsync();
+
+                clipboard ??= string.Empty;
+
+                var result = await NavigationService.ShowDialogAsync<QuestOptions>(this, clipboard);
+            }
         }
 
         /// <summary>
@@ -204,18 +156,18 @@ namespace NetTally.Avalonia.Views
 
         #region UI Events
 
-        public async void AddQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            // should IQuest go into the IoC and we get this via that instead?
-            var newQuest = new Quest();
-            var result = await this.NavigationService.ShowDialogAsync<Views.QuestOptions>(this, newQuest, this.ViewModel.QuestList);
+        //public async void AddQuestButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    // should IQuest go into the IoC and we get this via that instead?
+        //    var newQuest = new Quest();
+        //    var result = await NavigationService.ShowDialogAsync<QuestOptions>(this);
 
-            if (result is true)
-            {
-                this.ViewModel.AddQuestQuiet(newQuest);
-                this.ViewModel.SelectedQuest = newQuest;
-            }
-        }
+        //    if (result is true)
+        //    {
+        //        MainViewModel.AddQuestQuiet(newQuest);
+        //        MainViewModel.SelectedQuest = newQuest;
+        //    }
+        //}
 
         /// <summary>
         /// Event to cause the program to copy the current contents of the the tally
@@ -223,12 +175,11 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        public async void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Application.Current is not null &&
-                Application.Current.Clipboard is not null)
+            if (Clipboard is not null)
             {
-                Application.Current.Clipboard.SetTextAsync(ViewModel.Output);
+                await Clipboard.SetTextAsync(MainViewModel.Output);
             }
         }
 
@@ -239,9 +190,9 @@ namespace NetTally.Avalonia.Views
         /// <param name="e"></param>
         public async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await this.NavigationService.ShowDialogAsync<ManageVotes>(this);
+            await NavigationService.ShowDialogAsync<ManageVotes>(this);
 
-            ViewModel.UpdateOutput();
+            MainViewModel.UpdateOutput();
         }
 
         /// <summary>
@@ -250,7 +201,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await this.NavigationService.ShowDialogAsync<GlobalOptions>(this, this.ViewModel.Options);
+            await NavigationService.ShowDialogAsync<GlobalOptions>(this);
 
         /// <summary>
         /// Opens the quest options window.
@@ -261,9 +212,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await NavigationService.ShowDialogAsync<Views.QuestOptions>(this,
-                                                                        this.ViewModel.SelectedQuest ?? throw new ArgumentNullException("Selected Quest is null."),
-                                                                        this.ViewModel.QuestList);
+            await NavigationService.ShowDialogAsync<QuestOptions>(this);
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
