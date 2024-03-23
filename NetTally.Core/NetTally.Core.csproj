@@ -12,7 +12,7 @@
 	<PropertyGroup>
 		<Product>NetTally</Product>
 		<Company>Wayward Gamers</Company>
-		<Copyright>2015-2022</Copyright>
+		<Copyright>2015-2024</Copyright>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>embedded</DebugType>
