@@ -8,7 +8,7 @@
         x:Class="NetTally.Avalonia.Views.GlobalOptions"
         Classes="Dialog"
         Title="Global Options" Icon="/Assets/CheckVoteWin.ico"
-        Width="640" Heigh="370" CanResize="False"
+        Width="640" Height="370" CanResize="False"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
