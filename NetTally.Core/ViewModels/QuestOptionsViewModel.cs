@@ -29,9 +29,9 @@ namespace NetTally.ViewModels
             LoadQuestOptions();
         }
 
-        public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+        public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
-        public ObservableCollection<Quest> LinkedQuests { get; } = new();
+        public ObservableCollection<Quest> LinkedQuests { get; } = [];
 
         public ObservableCollection<Quest> AvailableQuests { get; }
 
@@ -149,10 +149,7 @@ namespace NetTally.ViewModels
         {
             if (quest is not null)
             {
-                if (LinkedQuests.Contains(quest))
-                {
-                    LinkedQuests.Remove(quest);
-                }
+                LinkedQuests.Remove(quest);
             }
         }
 

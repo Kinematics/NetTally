@@ -43,9 +43,9 @@ namespace NetTally.Avalonia.Views
 
         private void GlobalOptionsViewModel_SaveCompleted()
         {
+            logger.LogDebug("Global options were saved.");
             Close();
         }
-
 
         #endregion
 
