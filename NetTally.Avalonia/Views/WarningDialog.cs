@@ -1,7 +1,7 @@
-﻿using MessageBox.Avalonia;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Enums;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
 
 namespace NetTally.Avalonia.Views
 {
@@ -20,7 +20,7 @@ namespace NetTally.Avalonia.Views
         {
             primaryMessage += (logsSaved) ? $"\nLogs have been saved." : "";
 
-            return MessageBoxManager.GetMessageBoxStandardWindow(StandardParamGenerator(title, primaryMessage)).Show();
+            return MessageBoxManager.GetMessageBoxStandard(StandardParamGenerator(title, primaryMessage)).ShowAsync();
         }
 
         private static MessageBoxStandardParams StandardParamGenerator(string title, string message) =>
