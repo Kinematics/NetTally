@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>4.0.0</VersionPrefix>
+		<VersionPrefix>5.0.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -17,7 +17,7 @@
 		<Description>Program for tallying forum user votes.</Description>
 		<Company>Wayward Gamers</Company>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Copyright>2015-2022</Copyright>
+		<Copyright>2015-2024</Copyright>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\*" />
@@ -26,12 +26,12 @@
 		<AvaloniaResource Include="Assets\Styles\NetTallyStyles.xaml" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="11.0.5" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
-		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.5" />
-		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.5" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
+		<PackageReference Include="Avalonia" Version="11.0.10" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.0.10" />
+		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.10" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.10" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
@@ -42,5 +42,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Resource Include="Assets\CheckVoteWin.ico" />
+	</ItemGroup>
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Views\ReorderTasks.axaml" />
 	</ItemGroup>
 </Project>
