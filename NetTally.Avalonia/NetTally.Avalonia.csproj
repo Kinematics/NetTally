@@ -11,6 +11,7 @@
 		<DebugType>embedded</DebugType>
 		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+		<RollForward>LatestMajor</RollForward>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>
