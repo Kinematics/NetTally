@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>4.0.1</VersionPrefix>
+		<VersionPrefix>4.0.2</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -14,7 +14,7 @@
 		<Description>Program for tallying forum user votes.</Description>
 		<Company>Wayward Gamers</Company>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Copyright>2015-2022</Copyright>
+		<Copyright>2015-2024</Copyright>
 	</PropertyGroup>
 	<PropertyGroup>
 		<RepositoryType>git</RepositoryType>
