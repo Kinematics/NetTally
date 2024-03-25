@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Cache;
-using NetTally.CustomEventArgs;
 using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
@@ -22,18 +21,21 @@ namespace NetTally.ViewModels
         private readonly IQuestsInfoMod questsInfo;
         private readonly Tally tally;
         private readonly ICache<string> pageCache;
+        private readonly CheckForNewRelease2 checkForNewRelease;
         private readonly ILogger<MainViewModel> logger;
 
         public MainViewModel(
             IQuestsInfoMod questsInfo,
             Tally tally,
             ICache<string> cache,
+            CheckForNewRelease2 checkForNewRelease,
             ILogger<MainViewModel> logger)
         {
             this.logger = logger;
             this.questsInfo = questsInfo;
             this.tally = tally;
             this.pageCache = cache;
+            this.checkForNewRelease = checkForNewRelease;
             SelectedQuest = questsInfo.SelectedQuest;
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 4;
@@ -42,14 +44,16 @@ namespace NetTally.ViewModels
 
             RunTallyCommand.PropertyChanged += RunTallyCommand_PropertyChanged;
             tally.PropertyChanged += Tally_PropertyChanged;
+            checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
         }
+
 
         #region View Model Properties
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
         public bool HasQuests => Quests.Count > 0;
 
         [ObservableProperty]
-        private bool hasNewRelease;
+        private bool newRelease;
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
@@ -139,6 +143,16 @@ namespace NetTally.ViewModels
         #endregion Utility Functions
 
         #region Event Handling
+        public void CheckForNewRelease()
+        {
+            checkForNewRelease.ToString();
+        }
+
+        private void CheckForNewRelease_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e.PropertyName);
+        }
+
         private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Tally.TallyResults))

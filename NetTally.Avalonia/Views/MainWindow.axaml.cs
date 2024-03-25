@@ -94,8 +94,8 @@ namespace NetTally.Avalonia.Views
 
         protected override async void OnLoaded(RoutedEventArgs e)
         {
-            await MainViewModel.CheckForNewRelease();
             base.OnLoaded(e);
+            mainViewModel.CheckForNewRelease();
         }
         #endregion
 
