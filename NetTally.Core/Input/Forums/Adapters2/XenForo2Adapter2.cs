@@ -22,7 +22,7 @@ namespace NetTally.Forums.Adapters2
     {
         #region Static data
         // May possibly end with /page-00#post-00
-        static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
+        static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#post-(?<post>\d+))?$");
         // The short HREF version gives the post ID
         static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
         // RSS permalink does not include the page number.
