@@ -16,14 +16,17 @@ namespace NetTally.Global
     public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly ILogger<QuestsInfo> logger;
 
         public QuestsInfo(
             IOptions<GlobalSettings> globalSettings,
             IOptions<UserQuests> userQuests,
             ConfigInfo legacyConfig,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            ILogger<QuestsInfo> logger)
         {
             this.serviceProvider = serviceProvider;
+            this.logger = logger;
 
             // If there are no user quests, but there are legacy quests,
             // load the legacy information. Otherwise load user information.
@@ -56,6 +59,8 @@ namespace NetTally.Global
             }
 
             globalSettings.Value.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
+
+            logger.LogDebug("Loaded {count} legacy quests", Quests.Count);
         }
 
         /// <summary>
@@ -70,6 +75,8 @@ namespace NetTally.Global
             {
                 SelectedQuest = userQuests.Value.Quests.FirstOrDefault(q => q.ThreadName == userQuests.Value.CurrentQuest);
             }
+
+            logger.LogDebug("Loaded {count} user quests", Quests.Count);
         }
 
         /// <summary>
@@ -136,6 +143,8 @@ namespace NetTally.Global
             }
 
             Quests.Move(index, newIndex);
+
+            logger.LogDebug("Moved quest {name} from position {start} to position {end}.", quest.DisplayName, index, newIndex);
         }
 
         /// <summary>
@@ -150,6 +159,8 @@ namespace NetTally.Global
 
             if (quest == SelectedQuest)
                 SelectedQuest = null;
+
+            logger.LogDebug("Removing quest {name}", quest.DisplayName);
 
             return Quests.Remove(quest);
         }
