@@ -56,11 +56,6 @@ namespace NetTally.Avalonia.Views
             questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
             base.OnClosing(e);
         }
-
-        private void ThreadUrl_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.

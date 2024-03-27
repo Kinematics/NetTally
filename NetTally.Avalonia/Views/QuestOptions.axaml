@@ -20,14 +20,11 @@
           Margin="0 5">
         <TextBlock Classes="Label" Text="Quest Name"
                    Grid.Row="0" Grid.Column="0" />
-        <TextBox   Name="QuestName"      
-                   Text="{Binding DisplayName}"
-                   Grid.Row="0" Grid.Column="1"
-                   Margin="0 0 0 2" />
+        <TextBox   Name="QuestName" Text="{Binding DisplayName}"
+                   Grid.Row="0" Grid.Column="1" Margin="0 0 0 2" />
         <TextBlock Classes="Label" Text="Thread Url"
                    Grid.Row="1" Grid.Column="0"/>
-        <TextBox   Name="ThreadUrl"
-				   Text="{Binding ThreadName}"
+        <TextBox   Name="ThreadUrl" Text="{Binding ThreadName}"
                    Grid.Row="1" Grid.Column="1"/>
     </Grid>
 
