@@ -76,6 +76,11 @@ namespace NetTally.Avalonia.Views
                 }
                  
                 var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
+
+                if (!result.HasValue || result.Value == false)
+                {
+                    mainViewModel.RemoveQuestCommand.Execute(null);
+                }
             }
         }
 
