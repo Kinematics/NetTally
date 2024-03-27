@@ -3,13 +3,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        mc:Ignorable="d"
         x:Class="NetTally.Avalonia.Views.MainWindow"
-        Icon="/Assets/CheckVoteWin.ico"
-        Title="NetTally.Avalonia"
+        Icon="/Assets/CheckVoteWin.ico" Title="NetTally.Avalonia"
+		d:DesignWidth="800" d:DesignHeight="450"
 		Width="1024" Height="600" MinWidth="1024" MinHeight="600">
-
-  <Grid>
+	<Grid>
     <Button Name="AddQuestButton" Content="New"
             Width="60" Height="30" Margin="10,45,0,0"
             HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -21,7 +21,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </Button>
-    <Button Name="removeQuestButton" Content="Del"
+    <Button Name="RemoveQuestButton" Content="Del"
             Width="60" Height="30" Margin="75,45,0,0"
             HorizontalAlignment="Left" VerticalAlignment="Top"
             Command="{Binding RemoveQuestCommand}">
@@ -54,7 +54,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </ComboBox>
-    <Button Name="questOptionsButton" Content="Quest Options" 
+    <Button Name="QuestOptionsButton" Content="Quest Options" 
             Width="105" Height="30" Margin="0,10,227,0"
             VerticalAlignment="Top" HorizontalAlignment="Right"
             Click="QuestOptionsButton_Click">
@@ -84,7 +84,7 @@
 	    </ToolTip.Tip>
     </Button>
 	  
-    <TextBox Name="startPost" Height="30" Width="60" Margin="140,45,0,0"
+    <TextBox Name="StartPost" Height="30" Width="60" Margin="140,45,0,0"
              HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
              Text="{Binding SelectedQuest.StartPost}">
       <TextBox.IsEnabled>
@@ -101,7 +101,7 @@
         </ToolTip.Tip>
     </TextBox>
     
-    <TextBox Name="endPost" Text="{Binding SelectedQuest.EndPost}"
+    <TextBox Name="EndPost" Text="{Binding SelectedQuest.EndPost}"
              Width="60" Height="30" Margin="205,45,0,0"
              HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">
       <TextBox.IsEnabled>
@@ -117,7 +117,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </TextBox>
-    <CheckBox Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
+    <CheckBox Name="TryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
               RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding SelectedQuest.CheckForLastThreadmark}">
       <CheckBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
@@ -132,7 +132,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </CheckBox>
-    <ComboBox Name="partitionMode" 
+    <ComboBox Name="PartitionMode" 
               Margin="270,45,0,0"
               VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
               ItemsSource="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
@@ -149,7 +149,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </ComboBox>
-    <ComboBox Name="displayMode" Margin="420,45,0,0" VerticalAlignment="Top"
+    <ComboBox Name="DisplayMode" Margin="420,45,0,0" VerticalAlignment="Top"
 		    ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
 		    HorizontalAlignment="Left" Width="145" Height="30">
 	    <ComboBox.IsEnabled>
@@ -184,7 +184,7 @@
     </Button>
 
 
-    <Button Name="clearTallyCacheButton" Command="{Binding ClearTallyCacheCommand}"
+    <Button Name="ClearTallyCacheButton" Command="{Binding ClearTallyCacheCommand}"
             Width="49" Height="47" Margin="0,10,173,0" 
             VerticalAlignment="Top" HorizontalAlignment="Right">
       <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
@@ -195,7 +195,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </Button>
-    <Button Name="tallyButton" Content="Tally"
+    <Button Name="TallyButton" Content="Tally"
             Width="158" Height="47" Margin="0,10,10,0" 
             VerticalAlignment="Top" HorizontalAlignment="Right"
             Command="{Binding RunTallyCommand}">
@@ -206,7 +206,7 @@
         </StackPanel>
       </ToolTip.Tip>
     </Button>
-    <Button Name="cancelTally" Content="Cancel"
+    <Button Name="CancelTallyButton" Content="Cancel"
             Width="90" Height="30" Margin="0,66,132,0" 
             VerticalAlignment="Top" HorizontalAlignment="Right"
             Command="{Binding CancelTallyCommand}">
@@ -217,10 +217,10 @@
         </StackPanel>
       </ToolTip.Tip>
     </Button>
-    <Button Name="copyToClipboardButton" Content="Copy to Clipboard" 
+    <Button Name="CopyToClipboardButton" Content="Copy to Clipboard" 
             Width="117" Height="30" Margin="0,66,10,0"
             HorizontalAlignment="Right" VerticalAlignment="Top"
-            Click="copyToClipboardButton_Click" 
+            Click="CopyToClipboardButton_Click" 
             IsEnabled="{Binding HasOutput}">
       <ToolTip.Tip>
         <StackPanel>
@@ -230,7 +230,7 @@
       </ToolTip.Tip>
   </Button>
 
-    <TextBox Name="resultsWindow" Text="{Binding Path=Output, Mode=OneWay}"
+    <TextBox Name="ResultsWindow" Text="{Binding Path=Output, Mode=OneWay}"
              Margin="10,107,10,30" FontSize="13.333"
              TextWrapping="Wrap" IsReadOnly="True"/>
 

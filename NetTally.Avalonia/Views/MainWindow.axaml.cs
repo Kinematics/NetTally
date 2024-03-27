@@ -1,24 +1,19 @@
-﻿using Avalonia;
+﻿using System;
+using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
-using NetTally.Avalonia.Config.Xml;
-using System;
-using System.ComponentModel;
-using System.Configuration;
-using System.Runtime.ExceptionServices;
-using NetTally.ViewModels;
 using NetTally.Avalonia.Navigation;
+using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
 {
     public partial class MainWindow : Window
     {
         #region Fields and Properties
-        private MainViewModel MainViewModel { get; }
-        private AvaloniaNavigationService NavigationService { get; }
-        private ILogger<MainWindow> Logger { get; }
+        private readonly MainViewModel mainViewModel;
+        private readonly AvaloniaNavigationService navigationService;
+        private readonly ILogger<MainWindow> logger;
         #endregion
 
         #region Startup/shutdown events
@@ -28,74 +23,28 @@ namespace NetTally.Avalonia.Views
         /// Set up the data context links with the local variables.
         /// </summary>
         public MainWindow(
-            MainViewModel model,
-            AvaloniaNavigationService navigationService, 
+            MainViewModel viewModel,
+            AvaloniaNavigationService navigationService,
             ILogger<MainWindow> logger)
         {
-            // Initialize the readonly properties.
-            MainViewModel = model;
-            NavigationService = navigationService;
-            Logger = logger;
+            mainViewModel = viewModel;
+            this.navigationService = navigationService;
+            this.logger = logger;
 
-            try
-            {
-                // Initialize the window.
-                AvaloniaXamlLoader.Load(this);
+            // Initialize the window.
+            InitializeComponent();
+            Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
 
-                // Set the title.
-                Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
-
-                // Load configuration data
-                Collections.QuestCollection? quests = null;
-                string? currentQuest = null;
-
-                try
-                {
-                    LegacyNetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
-                }
-                catch (ConfigurationErrorsException e)
-                {
-                    Logger.LogError(e, "Failure during loading legacy configuration.");
-                    WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration");
-                }
-
-                // Complete the platform setup.
-                PlatformSetup(quests, currentQuest);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failure during program startup.");
-                WarningDialog.Show("Unable to start the program.", "Failure on startup");
-                Close();
-            }
+            mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            DataContext = mainViewModel;
         }
 
-        /// <summary>
-        /// Set up the program with various platform-specific configurations.
-        /// </summary>
-        /// <param name="quests">The program's config data.</param>
-        private void PlatformSetup(Collections.QuestCollection? quests, string? currentQuest)
-        {
-            try
-            {
-                System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-                System.Net.ServicePointManager.Expect100Continue = true;
-                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
-
-                DataContext = MainViewModel;
-                MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                //MainViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
-            }
-            catch (InvalidOperationException e)
-            {
-                Logger.LogError(e, "Invalid operation during platform setup.");
-            }
-        }
-
-        protected override async void OnLoaded(RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
-            mainViewModel.CheckForNewRelease();
+
+            if (!Design.IsDesignMode)
+                mainViewModel.CheckForNewRelease();
         }
         #endregion
 
@@ -110,18 +59,19 @@ namespace NetTally.Avalonia.Views
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private async void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
+            logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
 
-            if (e.PropertyName == nameof(MainViewModel.AddQuestCommand))
+            if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
             {
                 string? clipboard = null;
 
                 if (Clipboard is not null)
                     clipboard = await Clipboard.GetTextAsync();
 
-                clipboard ??= string.Empty;
+                Uri? uri = Uri.IsWellFormedUriString(clipboard, UriKind.Absolute) ?
+                    new Uri(clipboard) : null;
 
-                var result = await NavigationService.ShowDialogAsync<QuestOptions>(this, clipboard);
+                var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
             }
         }
 
@@ -147,79 +97,88 @@ namespace NetTally.Avalonia.Views
 
             WarningDialog.Show(exmsg, "Error");
 
-            if (!(ex.Data.Contains("Application")))
-                Logger.LogError(ex, "Exception bubbled up from the view model.");
+            if (!ex.Data.Contains("Application"))
+                logger.LogError(ex, "Exception bubbled up from the view model.");
 
             e.Handled = true;
         }
         #endregion
 
         #region UI Events
-
-        //public async void AddQuestButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    // should IQuest go into the IoC and we get this via that instead?
-        //    var newQuest = new Quest();
-        //    var result = await NavigationService.ShowDialogAsync<QuestOptions>(this);
-
-        //    if (result is true)
-        //    {
-        //        MainViewModel.AddQuestQuiet(newQuest);
-        //        MainViewModel.SelectedQuest = newQuest;
-        //    }
-        //}
-
         /// <summary>
-        /// Event to cause the program to copy the current contents of the the tally
-        /// results (ie: what's shown in the main text window) to the clipboard.
+        /// Copy the current contents of the the tally results (ie: what's shown in the main text window) to the clipboard.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        public async void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Clipboard is not null)
+            try
             {
-                await Clipboard.SetTextAsync(MainViewModel.Output);
+                if (Clipboard is not null)
+                {
+                    await Clipboard.SetTextAsync(mainViewModel.Output);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error copying to clipboard");
             }
         }
 
         /// <summary>
         /// Open the window for handling merging votes.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         public async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await NavigationService.ShowDialogAsync<ManageVotes>(this);
+            try
+            {
+                await navigationService.ShowDialogAsync<ManageVotes>(this);
 
-            MainViewModel.UpdateOutput();
+                mainViewModel.UpdateOutput();
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error managing votes");
+            }
         }
 
         /// <summary>
         /// Opens the global options window.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await NavigationService.ShowDialogAsync<GlobalOptions>(this);
+        public async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<GlobalOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling global options");
+            }
+        }
 
         /// <summary>
         /// Opens the quest options window.
         /// </summary>
-        /// <remarks>
-        /// Refactor this into a function taking a parameter instead?
-        /// </remarks>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await NavigationService.ShowDialogAsync<QuestOptions>(this);
+        public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<QuestOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling quest options");
+            }
+        }
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public MainWindow() { throw new InvalidOperationException("The default constructor should not be called"); }
+        public MainWindow() 
+        {
+            //throw new InvalidOperationException("The default constructor should not be called");
+        }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }
