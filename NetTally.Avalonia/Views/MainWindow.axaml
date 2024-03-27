@@ -35,7 +35,7 @@
     <ComboBox Name="questList" 
               Height="30" Margin="10,10,337,0" Padding="8,2,4,4"
               VerticalAlignment="Top" FontSize="13.333"
-              SelectedItem="{Binding SelectedQuest}" ItemsSource="{Binding QuestList}" >
+              SelectedItem="{Binding SelectedQuest}" ItemsSource="{Binding Quests}" >
       <ComboBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />
@@ -150,7 +150,7 @@
       </ToolTip.Tip>
     </ComboBox>
     <ComboBox Name="DisplayMode" Margin="420,45,0,0" VerticalAlignment="Top"
-		    ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
+		    ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding Path=SelectedQuest.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
 		    HorizontalAlignment="Left" Width="145" Height="30">
 	    <ComboBox.IsEnabled>
 		    <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">

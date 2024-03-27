@@ -27,7 +27,7 @@
         <TextBlock Classes="Label" Text="Thread Url"
                    Grid.Row="1" Grid.Column="0"/>
         <TextBox   Name="ThreadUrl"
-                   PropertyChanged="ThreadUrl_PropertyChanged"
+				   Text="{Binding ThreadName}"
                    Grid.Row="1" Grid.Column="1"/>
     </Grid>
 
@@ -223,13 +223,14 @@
           <Button Name="RemoveLinkedQuest" Content="Remove"
                   Grid.Row="0" Grid.Column="1"
                   VerticalAlignment="Top"
-				  Command="{Binding RemoveLinkedQuest}"
-                  IsEnabled="{Binding #LinkedQuest.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+				  Command="{Binding RemoveLinkedQuestCommand}"
+				  CommandParameter="{Binding #LinkedQuests.SelectedItem}"
+                  IsEnabled="{Binding #LinkedQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
           <ComboBox Name="AvailableQuests"
                     Grid.Row="1" Grid.Column="0"/>
           <Button Name="AddLinkedQuest" Content="Add"
                   Grid.Row="1" Grid.Column="1"
-				  Command="{Binding AddLinkedQuest}"
+				  Command="{Binding AddLinkedQuestCommand}"
                   IsEnabled="{Binding #AvailableQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
         </Grid>
       </TabItem>
