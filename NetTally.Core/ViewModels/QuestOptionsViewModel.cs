@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
+using NetTally.Utility;
 
 namespace NetTally.ViewModels
 {
@@ -35,10 +40,9 @@ namespace NetTally.ViewModels
 
         public ObservableCollection<Quest> AvailableQuests { get; }
 
-
-
         private void LoadQuestOptions()
         {
+            ThreadUri = quest.ThreadUri;
             ThreadName = quest.ThreadName;
             DisplayName = quest.DisplayName;
             ForumType = quest.ForumType;
@@ -81,6 +85,7 @@ namespace NetTally.ViewModels
 
         private void SaveQuestOptions()
         {
+            quest.ThreadUri = ThreadUri;
             quest.ThreadName = ThreadName;
             quest.DisplayName = DisplayName;
             quest.ForumType = ForumType;
@@ -121,15 +126,14 @@ namespace NetTally.ViewModels
         private void Save()
         {
             SaveQuestOptions();
-            SaveCompleted?.Invoke();
+            OnPropertyChanged(nameof(SaveCommand));
         }
-
-        public event Action? SaveCompleted;
 
         [RelayCommand]
         private void Reset()
         {
             LoadQuestOptions();
+            OnPropertyChanged(nameof(ResetCommand));
         }
 
         [RelayCommand]
@@ -153,6 +157,9 @@ namespace NetTally.ViewModels
             }
         }
 
+
+        [ObservableProperty]
+        private Uri threadUri = Quest.InvalidThreadUri;
 
         [ObservableProperty]
         private string threadName = string.Empty;
@@ -231,5 +238,81 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         private bool trimExtendedText;
+
+
+
+
+        public void SetQuestThreadFromClipboard(string? uri)
+        {
+            if (string.IsNullOrWhiteSpace(uri))
+                return;
+
+            if (ThreadName != Quest.NewThreadEntry)
+                return;
+
+            if (Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+                ThreadName = uri;
+        }
+
+
+        partial void OnThreadNameChanged(string? oldValue, string newValue)
+        {
+            // cleanup newValue
+            string cleanValue = CleanupThreadName(newValue);
+            cleanValue = Uri.UnescapeDataString(cleanValue);
+
+            // set thread name to cleaned up value
+#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+            threadName = cleanValue;
+#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+
+            Uri newUri = new(cleanValue);
+
+            // if host changed, reset forum type and update the thread uri
+            if (ThreadUri.Host != newUri.Host)
+            {
+                ForumType = ForumType.Unknown;
+            }
+
+            ThreadUri = newUri;
+
+            // check old value and display name to determine if we're replacing display name
+            if (string.IsNullOrEmpty(oldValue) || GetDisplayNameFromUrl(oldValue) == DisplayName)
+            {
+                // change display name if it's solely based on the thread name
+                DisplayName = GetDisplayNameFromUrl(cleanValue);
+            }
+        }
+
+
+        [GeneratedRegex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(\?[^#]*)?(#[^/]*)?(unread)?$", RegexOptions.None, 50)]
+        private static partial Regex pageNumberRegex();
+
+        private static string CleanupThreadName(string url)
+        {
+            url = url.RemoveUnsafeCharacters();
+
+            Match m = pageNumberRegex().Match(url);
+            if (m.Success)
+                url = m.Groups["base"].Value;
+
+            return url;
+        }
+
+        [GeneratedRegex(@"(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
+        private static partial Regex displayNameRegex();
+
+        private static string GetDisplayNameFromUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return string.Empty;
+
+            Match m = displayNameRegex().Match(url);
+            if (m.Success)
+                return m.Groups["displayName"].Value;
+            else
+                return url;
+        }
+
     }
 }
