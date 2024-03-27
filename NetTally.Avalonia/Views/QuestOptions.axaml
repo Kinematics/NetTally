@@ -28,15 +28,13 @@
                    Grid.Row="1" Grid.Column="1"/>
     </Grid>
 
-    <StackPanel Classes="CommandFooter" 
-                DockPanel.Dock="Bottom" 
-                Margin="0 5 0 0">
+    <StackPanel Classes="CommandFooter" DockPanel.Dock="Bottom" Margin="0 5 0 0">
       <Button Name="Reset" Content="Reset" Width="75"
               Command="{Binding ResetCommand}"/>
       <Button Name="Ok" Content="OK" Width="75"
-              IsDefault="True"/>
+              IsDefault="True" Command="{Binding SaveCommand}"/>
       <Button Name="Cancel" Content="Cancel" Width="75"
-              IsCancel="True"/>
+              IsCancel="True" Command="{Binding CancelCommand}"/>
     </StackPanel>
 
     <TabControl Name="tabControl">

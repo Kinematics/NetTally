@@ -134,6 +134,12 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
+        private void Cancel()
+        {
+            OnPropertyChanged(nameof(CancelCommand));
+        }
+
+        [RelayCommand]
         private void AddLinkedQuest(Quest? quest)
         {
             if (quest is not null)

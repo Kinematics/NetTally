@@ -41,11 +41,15 @@ namespace NetTally.Avalonia.Views
             if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
             {
                 logger.LogDebug("Quest options were saved.");
-                Close();
+                Close(true);
             }
             else if (e.PropertyName == nameof(questOptionsViewModel.ResetCommand))
             {
                 questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.CancelCommand))
+            {
+                Close(false);
             }
         }
         #endregion View Model event handlers

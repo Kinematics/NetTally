@@ -57,7 +57,8 @@ namespace NetTally.Avalonia.Navigation
             // that along as well.
 
             T window = ActivatorUtilities.CreateInstance<T>(serviceProvider, parameters);
-            return await window.ShowDialog<bool?>(parentWindow);
+            var result = await window.ShowDialog<bool?>(parentWindow);
+            return result;
 
             // ActivatorUtilities seems to call the default constructor if we call it with no extera parameters
             // instead of resolving our dependencies. I'm not sure if this is a bug or intended behavior, but
