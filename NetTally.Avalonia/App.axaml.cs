@@ -56,6 +56,10 @@ namespace NetTally.Avalonia
             {
                 builder.Services.AddKeyedSingleton(ConfigStrings.LegacyKey, legacyConfig);
             }
+            else
+            {
+                builder.Services.AddSingleton(new ConfigInfo());
+            }
 
             ConfigureConfiguration(builder.Configuration);
             ConfigureOptions(builder.Services);

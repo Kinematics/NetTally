@@ -12,8 +12,11 @@ namespace NetTally.Global
 
     public class ConfigInfo
     {
+        [SetsRequiredMembers]
         public ConfigInfo() 
         {
+            UserQuests = new();
+            GlobalSettings = new();
         }
 
         [SetsRequiredMembers]
