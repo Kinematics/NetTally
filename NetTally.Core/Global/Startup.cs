@@ -51,8 +51,11 @@ namespace NetTally
             services.AddTransient<TasksViewModel>();
             services.AddTransient<GlobalOptionsViewModel>();
 
-            services.AddSingleton<IQuestsInfo, QuestsInfo>();
-            services.AddSingleton<IQuestsInfoMod, QuestsInfo>();
+            
+            services.AddSingleton<QuestsInfo>();
+
+            services.AddSingleton<IQuestsInfo>(x => x.GetRequiredService<QuestsInfo>());
+            services.AddSingleton<IQuestsInfoMod>(x => x.GetRequiredService<QuestsInfo>());
         }
     }
 }
