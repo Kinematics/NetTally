@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
@@ -11,43 +12,49 @@ namespace NetTally.Avalonia.Views
         #region Private Properties
         private readonly ILogger<QuestOptions> logger;
         private readonly QuestOptionsViewModel questOptionsViewModel;
+        private readonly string clipboardUrl;
         #endregion        
 
         public QuestOptions(
             QuestOptionsViewModel viewModel,
             ILogger<QuestOptions> logger,
-            string? label = "")
+            string url = "")
         {
             questOptionsViewModel = viewModel;
             this.logger = logger;
+            clipboardUrl = url;
 
-            questOptionsViewModel.SaveCompleted += QuestOptionsViewModel_SaveCompleted;
-            DataContext = questOptionsViewModel;
+            questOptionsViewModel.PropertyChanged += QuestOptionsViewModel_PropertyChanged;
+            questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
 
-            //AvaloniaXamlLoader.Load(this);
             InitializeComponent();
+            DataContext = questOptionsViewModel;
 
 #if DEBUG
             this.AttachDevTools();
 #endif
         }
 
+        #region View Model event handlers
+        private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
+            {
+                logger.LogDebug("Quest options were saved.");
+                Close();
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.ResetCommand))
+            {
+                questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
+            }
+        }
+        #endregion View Model event handlers
 
         #region Window element event handlers
-
-        // Idealy I would like to change all of these into standard functions or commands for better
-        // type safety.
-
         protected override void OnClosing(WindowClosingEventArgs e)
         {
-            questOptionsViewModel.SaveCompleted -= QuestOptionsViewModel_SaveCompleted;
+            questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
             base.OnClosing(e);
-        }
-
-        private void QuestOptionsViewModel_SaveCompleted()
-        {
-            logger.LogDebug("Global options were saved.");
-            Close();
         }
 
         private void ThreadUrl_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -60,7 +67,10 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public QuestOptions() { throw new InvalidOperationException("The default constructor should not be called"); }
+        public QuestOptions() 
+        {
+            //throw new InvalidOperationException("The default constructor should not be called");
+        }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }
