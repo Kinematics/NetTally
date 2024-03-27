@@ -62,7 +62,7 @@ namespace NetTally
         /// <summary>
         /// The URI that represents the thread URL string.
         /// </summary>
-        public Uri ThreadUri { get; private set; } = InvalidThreadUri;
+        public Uri ThreadUri { get; set; } = InvalidThreadUri;
 
         /// <summary>
         /// Gets the type of forum used by this quest.
