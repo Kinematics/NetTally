@@ -68,9 +68,13 @@ namespace NetTally.Avalonia.Views
                 if (Clipboard is not null)
                     clipboard = await Clipboard.GetTextAsync();
 
-                Uri? uri = Uri.IsWellFormedUriString(clipboard, UriKind.Absolute) ?
-                    new Uri(clipboard) : null;
+                string? uri = string.Empty;
 
+                if (Uri.IsWellFormedUriString(clipboard, UriKind.Absolute))
+                {
+                    uri = clipboard;
+                }
+                 
                 var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
             }
         }
