@@ -34,6 +34,12 @@ namespace NetTally.Global
         Quest CreateQuest();
 
         /// <summary>
+        /// Reposition the specified quest in alphabetical order.
+        /// </summary>
+        /// <param name="quest">The quest to reposition in the Quests collection.</param>
+        void RepositionQuest(Quest? quest);
+
+        /// <summary>
         /// Remove the selected quest.
         /// </summary>
         /// <param name="quest">The quest to remove.</param>

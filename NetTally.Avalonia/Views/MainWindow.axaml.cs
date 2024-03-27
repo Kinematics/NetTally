@@ -52,19 +52,20 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// Handles the PropertyChanged event of the MainViewModel control.
         /// </summary>
-        /// <remarks>
-        /// This should probably move to a seperate config class?
-        /// </remarks>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private async void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
 
+            // If a new quest was added, load the QuestOptions dialog to
+            // allow setting the URL and display name.
             if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
             {
                 string? clipboard = null;
 
+                // If we have a URL in the clipboard, make use of that as
+                // the default new URL for the quest.
                 if (Clipboard is not null)
                     clipboard = await Clipboard.GetTextAsync();
 
@@ -77,9 +78,15 @@ namespace NetTally.Avalonia.Views
                  
                 var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
 
+                // If the QuestOptions dialog was canceled, remove the quest we just added.
+                // Otherwise, update the position of the quest.
                 if (!result.HasValue || result.Value == false)
                 {
                     mainViewModel.RemoveQuestCommand.Execute(null);
+                }
+                else
+                {
+                    mainViewModel.RepositionQuest();
                 }
             }
         }
@@ -172,6 +179,7 @@ namespace NetTally.Avalonia.Views
             try
             {
                 await navigationService.ShowDialogAsync<QuestOptions>(this);
+                mainViewModel.RepositionQuest();
             }
             catch (Exception ex)
             {

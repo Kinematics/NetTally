@@ -86,7 +86,7 @@ namespace NetTally.Global
         /// <summary>
         /// Gets an observable collection of quests.
         /// </summary>
-        public ObservableCollection<Quest> Quests { get; private set; } = new();
+        public ObservableCollection<Quest> Quests { get; private set; } = [];
 
         /// <summary>
         /// Gets or sets currently selected quest.
@@ -112,6 +112,30 @@ namespace NetTally.Global
             }
 
             return quest;
+        }
+
+        /// <summary>
+        /// Reposition the specified quest in alphabetical order.
+        /// </summary>
+        /// <param name="quest">The quest to reposition in the Quests collection.</param>
+        public void RepositionQuest(Quest? quest)
+        {
+            if (quest is null)
+                return;
+
+            var index = Quests.IndexOf(quest);
+
+            if (index == -1)
+                return;
+
+            int newIndex = 0;
+            for (; newIndex < Quests.Count; newIndex++)
+            {
+                if (Quests[newIndex].DisplayName.CompareTo(quest.DisplayName) > 0)
+                    break;
+            }
+
+            Quests.Move(index, newIndex);
         }
 
         /// <summary>
