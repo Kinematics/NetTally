@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Types.Enums;
 using NetTally.Utility;
@@ -24,9 +21,9 @@ namespace NetTally.ViewModels
             IQuestsInfo questsInfo,
             ILogger<QuestOptionsViewModel> logger)
         {
-            this.logger = logger;
-
             ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
+
+            this.logger = logger;
 
             quest = questsInfo.SelectedQuest;
             AvailableQuests = questsInfo.Quests;
@@ -242,16 +239,16 @@ namespace NetTally.ViewModels
 
 
 
-        public void SetQuestThreadFromClipboard(string? uri)
+        public void SetQuestThreadFromClipboard(string? url)
         {
-            if (string.IsNullOrWhiteSpace(uri))
+            if (string.IsNullOrWhiteSpace(url))
                 return;
 
             if (ThreadName != Quest.NewThreadEntry)
                 return;
 
-            if (Uri.IsWellFormedUriString(uri, UriKind.Absolute))
-                ThreadName = uri;
+            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                ThreadName = url;
         }
 
 
@@ -313,6 +310,5 @@ namespace NetTally.ViewModels
             else
                 return url;
         }
-
     }
 }
