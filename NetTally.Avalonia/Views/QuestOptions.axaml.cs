@@ -32,6 +32,7 @@ namespace NetTally.Avalonia.Views
 #endif
         }
 
+
         #region Window element event handlers
 
         // Idealy I would like to change all of these into standard functions or commands for better
@@ -49,6 +50,10 @@ namespace NetTally.Avalonia.Views
             Close();
         }
 
+        private void ThreadUrl_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.

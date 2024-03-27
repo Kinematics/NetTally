@@ -9,7 +9,8 @@
         Classes="Dialog"
         Title="Global Options" Icon="/Assets/CheckVoteWin.ico"
         Width="640" Height="370" CanResize="False"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+		d:DesignWidth="640" d:DesignHeight="480">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
@@ -18,7 +19,7 @@
     <HeaderedContentControl Header="Vote Processing" Classes="GroupBox">
       <StackPanel Classes="OptionList">
         <ComboBox Name="RankedVoteAlgorithm" Margin="0,0,0,5"
-                  Items="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
+				  ItemsSource="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
                   SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={x:Static converters:EnumConverter.Instance}}">
           <ToolTip.Tip>
             <StackPanel Classes="OptionList">

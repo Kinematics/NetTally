@@ -13,7 +13,7 @@
     <Button Name="AddQuestButton" Content="New"
             Width="60" Height="30" Margin="10,45,0,0"
             HorizontalAlignment="Left" VerticalAlignment="Top"
-            Click="AddQuestButton_Click">
+            Command="{Binding AddQuestCommand}">
       <ToolTip.Tip>
         <StackPanel>
           <TextBlock FontWeight="Bold">Add Quest</TextBlock>
@@ -35,7 +35,7 @@
     <ComboBox Name="questList" 
               Height="30" Margin="10,10,337,0" Padding="8,2,4,4"
               VerticalAlignment="Top" FontSize="13.333"
-              SelectedItem="{Binding SelectedQuest}" Items="{Binding QuestList}" >
+              SelectedItem="{Binding SelectedQuest}" ItemsSource="{Binding QuestList}" >
       <ComboBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />
@@ -135,7 +135,7 @@
     <ComboBox Name="partitionMode" 
               Margin="270,45,0,0"
               VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
-              Items="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
+              ItemsSource="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
       <ComboBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />
@@ -150,7 +150,7 @@
       </ToolTip.Tip>
     </ComboBox>
     <ComboBox Name="displayMode" Margin="420,45,0,0" VerticalAlignment="Top"
-		    Items="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
+		    ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={x:Static converters:EnumConverter.Instance}}"
 		    HorizontalAlignment="Left" Width="145" Height="30">
 	    <ComboBox.IsEnabled>
 		    <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
