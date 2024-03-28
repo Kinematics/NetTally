@@ -108,11 +108,11 @@ namespace NetTally.Views
 
             VoteView1.CurrentChanged += (sender, e) =>
             {
-                manageVotesViewModel.FromVote = VoteView1.CurrentItem as VoteLineBlock;
+                manageVotesViewModel.SelectedFromVote = VoteView1.CurrentItem as VoteLineBlock;
             };
             VoteView2.CurrentChanged += (sender, e) =>
             {
-                manageVotesViewModel.ToVote = VoteView2.CurrentItem as VoteLineBlock;
+                manageVotesViewModel.SelectedToVote = VoteView2.CurrentItem as VoteLineBlock;
             };
 
             // ** Voters **
@@ -180,7 +180,7 @@ namespace NetTally.Views
             if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
                 return true;
 
-            var voters = manageVotesViewModel.GetVoterListForVote(vote).ToList();
+            var voters = manageVotesViewModel.GetVotersForVote(vote).ToList();
 
             if (voters.Count == 0)
                 return false;
@@ -206,7 +206,7 @@ namespace NetTally.Views
 
             if (voteView.CurrentItem is VoteLineBlock currentVote)
             {
-                var voters = manageVotesViewModel.GetVoterListForVote(currentVote);
+                var voters = manageVotesViewModel.GetVotersForVote(currentVote);
                 return voters.Contains(voter);
             }
 

@@ -1,162 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Logging;
-using NetTally.Types.Components;
 using NetTally.Utility;
+using NetTally.ViewModels;
 using NetTally.Votes;
 
 namespace NetTally.Avalonia.Views
 {
     public partial class ManageVotes : Window, INotifyPropertyChanged
     {
-        #region Properties for binding
-
-        #region Votes Properties
-
-        /// <summary>
-        /// Gets the list of <see cref="VoteLineBlock"/> that should be displayed in the from box.
-        /// </summary>
-        /// <remarks>
-        /// This list is based on the internal <see cref="AllVotes"/> list, automatically sorted
-        /// and filtered based on the <see cref="VoteFromFilter"/>.
-        /// </remarks>
-        public IEnumerable<VoteLineBlock> VotesFrom => this.AllVotes
-            .OrderBy(vote => vote)
-            .Where(vote => this.FilterVotes(this.VoteFromFilter, vote));
-
-        /// <summary>
-        /// Gets the list of <see cref="VoteLineBlock"/> that should be displayed in the to box.
-        /// </summary>
-        /// <remarks>
-        /// This list is based on the internal <see cref="AllVotes"/> list, automatically sorted
-        /// and filtered based on the <see cref="VoteToFilter"/>.
-        /// </remarks>
-        public IEnumerable<VoteLineBlock> VotesTo => this.AllVotes
-            .OrderBy(vote => vote)
-            .Where(vote => this.FilterVotes(this.VoteToFilter, vote));
-
-        /// <summary>
-        /// Gets all <see cref="VoteLineBlock"/>s present in the <see cref="ViewModel"/>,
-        /// </summary>
-        private IEnumerable<VoteLineBlock> AllVotes => this.MainViewModel.AllVotesCollection;
-
-        /// <summary>
-        /// Gets or Sets the currently selected From Vote.
-        /// </summary>
-        /// <remarks>
-        /// Triggers <see cref="PropertyChanged"/> for <see cref="VotersFrom"/> because a change
-        /// of this value indicates that that properties has changed.
-        /// </remarks>
-        public VoteLineBlock? SelectedFromVote
-        {
-            get => this.InternalSelectedFromVote;
-            set
-            {
-                this.InternalSelectedFromVote = value;
-                this.OnPropertyChanged(nameof(this.VotersFrom));
-            }
-        }
-        private VoteLineBlock? InternalSelectedFromVote { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the currently selected To Vote.
-        /// </summary>
-        /// <remarks>
-        /// Triggers <see cref="PropertyChanged"/> for <see cref="VotersTo"/> because a change
-        /// of this value indicates that that properties has changed.
-        /// </remarks>
-        public VoteLineBlock? SelectedToVote
-        {
-            get => this.InternalSelectedToVote;
-            set
-            {
-                this.InternalSelectedToVote = value;
-                this.OnPropertyChanged(nameof(this.VotersTo));
-            }
-        }
-        private VoteLineBlock? InternalSelectedToVote { get; set; }
-
-        #endregion
-
-        #region Voters Properties
-        public IEnumerable<Origin> VotersFrom =>
-            this.GetVotersForVote(this.SelectedFromVote).OrderBy(voters => voters);
-        public IEnumerable<Origin> VotersTo =>
-            this.GetVotersForVote(this.SelectedToVote).OrderBy(voters => voters);
-
-        #endregion
-
-        #region Filter Properties
-
-        /// <summary>
-        /// Property for holding the string used to filter the 'from' votes.
-        /// </summary>
-        public string VoteFromFilter
-        {
-            get => this.InternalVoteFromFilter;
-            set
-            {
-                InternalVoteFromFilter = value.RemoveUnsafeCharacters();
-                OnPropertyChanged(nameof(this.VotesFrom));
-            }
-        }
-        private string InternalVoteFromFilter { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Property for holding the string used to filter the 'to' votes.
-        /// </summary>
-        public string VoteToFilter
-        {
-            get => this.InternalVoteToFilter;
-            set
-            {
-                InternalVoteToFilter = value.RemoveUnsafeCharacters();
-                OnPropertyChanged(nameof(this.VotesTo));
-            }
-        }
-        private string InternalVoteToFilter { get; set; } = string.Empty;
-
-        #endregion
-
-        private ViewModels.ViewModel MainViewModel { get; }
-
-        private ILogger<ManageVotes> Logger { get; set; }
-
+        private readonly ManageVotesViewModel manageVotesViewModel;
+        private readonly ILogger<ManageVotes> logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotes(ViewModels.ViewModel mainViewModel, ILogger<ManageVotes> logger)
+        public ManageVotes(
+            ManageVotesViewModel manageVotesViewModel,
+            ILogger<ManageVotes> logger)
         {
-            this.MainViewModel = mainViewModel;
-            this.Logger = logger;
-
-            AvaloniaXamlLoader.Load(this);
+            this.manageVotesViewModel = manageVotesViewModel;
+            this.logger = logger;
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
             InitKnownTasks();
             UpdateContextMenu();
 
-            // Set the data context for binding.
-            this.DataContext = this;
+            InitializeComponent();
+            DataContext = manageVotesViewModel;
+
+            manageVotesViewModel.PropertyChanged += ManageVotesViewModel_PropertyChanged;
 
 #if DEBUG
             this.AttachDevTools();
 #endif
-
-            this.MainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
         }
+
+        private void ManageVotesViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            logger.LogTrace("Received notification of property change from manageVotesViewModel: {PropertyName}.", e.PropertyName);
+
+            if (!string.IsNullOrEmpty(e.PropertyName))
+            {
+                OnPropertyChanged(e.PropertyName);
+            }
+        }
+
+        /// <summary>
+        /// Closes the window.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        public void Close_Click(object sender, RoutedEventArgs e) => this.Close();
 
         /// <summary>
         /// Raises the <see cref="Window" />.Closed event.
@@ -165,11 +69,10 @@ namespace NetTally.Avalonia.Views
         /// <param name="e">Event data.</param>
         protected override void OnClosed(EventArgs e)
         {
-            MainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+            manageVotesViewModel.PropertyChanged -= ManageVotesViewModel_PropertyChanged;
 
             base.OnClosed(e);
         }
-        #endregion
 
         #region INotifyPropertyChanged implementation
         /// <summary>
@@ -183,153 +86,6 @@ namespace NetTally.Avalonia.Views
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        #endregion
-
-        #region Filtering
-
-        /// <summary>
-        /// Filters votes and containing a given string.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="vote">The vote being checked.</param>
-        /// <returns><see langword="true"/> if the vote contains the string, <see langword="false"/> otherwise.</returns>
-        private bool FilterVotes(string filter, VoteLineBlock vote) =>
-            (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0)
-            || string.IsNullOrEmpty(filter);
-
-        /// <summary>
-        /// Gets a list of voters that support a given vote.
-        /// </summary>
-        /// <remarks>
-        /// <paramref name="vote"/> is nullable here, because the view might want to query when it has no votes.
-        /// </remarks>
-        /// <param name="vote">The vote to lookup.</param>
-        /// <returns>All voters that support the given vote.</returns>
-        public IEnumerable<Origin> GetVotersForVote(VoteLineBlock? vote) =>
-            (vote != null) ? this.MainViewModel.GetVoterListForVote(vote) : Enumerable.Empty<Origin>();
-
-        #endregion
-
-        #region Window events
-        /// <summary>
-        /// Handler for the button to merge two vote items together.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Merge_Click(object sender, RoutedEventArgs e)
-        {
-            if ((this.SelectedFromVote != null) && (this.SelectedToVote != null))
-            {
-                MergeVotes(this.SelectedFromVote, this.SelectedToVote);
-            }
-        }
-
-        /// <summary>
-        /// Handler for the button to join voters.
-        /// All voters from the from list are adjusted to support all votes supported by the
-        /// voter selected in the to list.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Join_Click(object sender, RoutedEventArgs e)
-        {
-            if ((this.VotesFrom.Count() != 0) && (this.FindControl<ListBox>("VotersTo").SelectedItem is Origin joinVoter))
-            {
-                try
-                {
-                    this.MainViewModel.JoinVoters(this.VotersFrom.ToList(), joinVoter);
-                }
-                catch (Exception ex)
-                {
-                    WarningDialog.Show(ex.Message, "Error", false);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Delete the vote that has been selected in both list boxes.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (this.SelectedFromVote != null)
-                {
-                    MainViewModel.DeleteVote(this.SelectedFromVote);
-                }
-            }
-            catch (Exception ex)
-            {
-                WarningDialog.Show(ex.Message, "Error", false);
-            }
-        }
-
-        /// <summary>
-        /// Calls Undo on the vote counter to undo the most recent vote modification action.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        public void Undo_Click(object sender, RoutedEventArgs e) => this.UndoLastAction();
-
-        /// <summary>
-        /// Closes the window.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        public void Close_Click(object sender, RoutedEventArgs e) => this.Close();
-
-        #endregion
-
-        #region Binding Properties
-        /// <summary>
-        /// Binding for the Undo button on the window.
-        /// </summary>
-        public bool HasUndoActions => this.MainViewModel.HasUndoActions;
-        #endregion
-
-        #region Window Action Functions
-
-        /// <summary>
-        /// Undoes the last action.
-        /// </summary>
-        private void UndoLastAction()
-        {
-            try
-            {
-                this.MainViewModel.UndoVoteModification();
-            }
-            catch (Exception ex)
-            {
-                WarningDialog.Show(ex.Message, "Error", false);
-            }
-        }
-        #endregion
-
-        #region Watched Events        
-        /// <summary>
-        /// Watch for notifications from the main view model about changes in the vote backend.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            Logger.LogTrace("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
-
-            if (string.Equals(e.PropertyName, nameof(this.MainViewModel.AllVotesCollection), StringComparison.Ordinal))
-            {
-                this.UpdateVoteCollections();
-            }
-            else if (string.Equals(e.PropertyName, nameof(this.MainViewModel.AllVotersCollection), StringComparison.Ordinal))
-            {
-                this.UpdateVoterCollections();
-            }
-            else if (!string.IsNullOrEmpty(e.PropertyName))
-            {
-                this.OnPropertyChanged(e.PropertyName);
-            }
-        }
         #endregion
 
         #region Context Menu Events
@@ -364,12 +120,9 @@ namespace NetTally.Avalonia.Views
                 }
             }
 
-            if (this.FindControl<Grid>("InputBox") is Grid InputBox)
-            {
-                // Show the custom input box, and put focus on the text box.
-                InputBox.IsVisible = true;
-                this.FindControl<TextBox>("InputTextBox")?.Focus();
-            }
+            // Show the custom input box, and put focus on the text box.
+            InputBox.IsVisible = true;
+            InputTextBox.Focus();
         }
 
         private void YesButton_Click(object? sender, RoutedEventArgs e)
@@ -414,9 +167,9 @@ namespace NetTally.Avalonia.Views
                         if (!string.IsNullOrEmpty(newTask))
                         {
                             if (string.Equals(newTask, "Clear Task", StringComparison.Ordinal))
-                                MainViewModel.ReplaceTask(selectedVote, "");
+                                manageVotesViewModel.ReplaceTask(selectedVote, "");
                             else
-                                MainViewModel.ReplaceTask(selectedVote, newTask);
+                                manageVotesViewModel.ReplaceTask(selectedVote, newTask);
                         }
                     }
                 }
@@ -433,8 +186,7 @@ namespace NetTally.Avalonia.Views
                     {
                         if (box.SelectedItem is VoteLineBlock selectedVote)
                         {
-                            MainViewModel.PartitionChildren(selectedVote);
-                            MainViewModel.UpdateOutput();
+                            manageVotesViewModel.PartitionChildren(selectedVote);
                         }
                     }
                 }
@@ -445,9 +197,9 @@ namespace NetTally.Avalonia.Views
 
         #region Context Menu Utility
         ListBox? newTaskBox = null;
-        readonly List<MenuItem> ContextMenuCommands = new();
-        readonly List<MenuItem> ContextMenuTasks = new();
-        List<MenuItem> ContextMenuItems { get; } = new();
+        readonly List<MenuItem> ContextMenuCommands = [];
+        readonly List<MenuItem> ContextMenuTasks = [];
+        List<MenuItem> ContextMenuItems { get; } = [];
         readonly MenuItem separator = new() { Header = "-" };
 
 
@@ -456,13 +208,17 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void CreateContextMenuCommands()
         {
-            MenuItem newTask = new MenuItem();
-            newTask.Header = "New Task...";
+            MenuItem newTask = new MenuItem
+            {
+                Header = "New Task..."
+            };
             newTask.Click += newTask_Click;
             //newTask.ToolTip = "Create a new task value.";
 
-            MenuItem clearTask = new MenuItem();
-            clearTask.Header = "Clear Task";
+            MenuItem clearTask = new()
+            {
+                Header = "Clear Task"
+            };
             clearTask.Click += modifyTask_Click;
             //clearTask.ToolTip = "Clear the task from the currently selected vote.";
 
@@ -487,7 +243,7 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void InitKnownTasks()
         {
-            foreach (var task in MainViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
+            foreach (var task in manageVotesViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
                 ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
         }
 
@@ -515,8 +271,10 @@ namespace NetTally.Avalonia.Views
         /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
         private MenuItem CreateContextMenuTaskItem(string name)
         {
-            MenuItem mi = new MenuItem();
-            mi.Header = name;
+            MenuItem mi = new()
+            {
+                Header = name
+            };
             mi.Click += modifyTask_Click;
             //mi.ToolTip = $"Change the task for the selected item to '{mi.Header}'";
             mi.Tag = "NamedTask";
@@ -562,30 +320,22 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void AcceptInput()
         {
-            Grid? InputBox = this.FindControl<Grid>("InputBox");
-            if (InputBox is null)
-                return;
-
             // YesButton Clicked! Let's hide our InputBox and handle the input text.
             InputBox.IsVisible = false;
 
-            TextBox? InputTextBox = this.FindControl<TextBox>("InputTextBox");
-            if (InputTextBox is null)
-                return;
-
-            string newTask = InputTextBox.Text.RemoveUnsafeCharacters().Trim();
+            string newTask = InputTextBox.Text?.RemoveUnsafeCharacters().Trim() ?? "";
 
             // Clear InputBox.
             InputTextBox.Text = string.Empty;
 
             // Do something with the Input
             AddTaskToContextMenu(newTask);
-            MainViewModel.AddUserDefinedTask(newTask);
+            manageVotesViewModel.AddUserDefinedTask(newTask);
 
             // Update the selected item of the list box
             if (newTaskBox?.SelectedItem is VoteLineBlock selectedVote)
             {
-                MainViewModel.ReplaceTask(selectedVote, newTask);
+                manageVotesViewModel.ReplaceTask(selectedVote, newTask);
             }
 
             newTaskBox = null;
@@ -596,17 +346,8 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void CancelInput()
         {
-            Grid? InputBox = this.FindControl<Grid>("InputBox");
-            if (InputBox is null)
-                return;
-
             // NoButton Clicked! Let's hide our InputBox.
             InputBox.IsVisible = false;
-
-
-            TextBox? InputTextBox = this.FindControl<TextBox>("InputTextBox");
-            if (InputTextBox is null)
-                return;
 
             // Clear InputBox.
             InputTextBox.Text = string.Empty;
@@ -620,41 +361,6 @@ namespace NetTally.Avalonia.Views
         }
         #endregion
 
-
-        #region Utility functions
-        /// <summary>
-        /// Shorthand call to run both collection updates.
-        /// </summary>
-        private void UpdateVoteCollections()
-        {
-            this.OnPropertyChanged(nameof(this.VotesFrom));
-            this.OnPropertyChanged(nameof(this.VotesTo));
-        }
-
-        private void UpdateVoterCollections()
-        {
-            this.OnPropertyChanged(nameof(this.VotersFrom));
-            this.OnPropertyChanged(nameof(this.VotersTo));
-        }
-
-        /// <summary>
-        /// Handle busywork for merging votes together and updating the VotesCollection.
-        /// </summary>
-        /// <param name="fromVote">The vote being merged.</param>
-        /// <param name="toVote">The vote being merged into.</param>
-        private void MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote)
-        {
-            try
-            {
-                MainViewModel.MergeVotes(fromVote, toVote);
-            }
-            catch (ArgumentException ex)
-            {
-                WarningDialog.Show(ex.Message, "Error", false);
-            }
-        }
-
-        #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>
