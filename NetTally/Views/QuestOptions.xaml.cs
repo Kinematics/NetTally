@@ -23,7 +23,7 @@ namespace NetTally.Views
             this.questOptionsViewModel = questOptionsViewModel;
             this.logger = logger;
 
-            this.questOptionsViewModel.SaveCompleted += QuestOptionsViewModel_SaveCompleted;
+            this.questOptionsViewModel.PropertyChanged += QuestOptionsViewModel_PropertyChanged;
 
             InitializeComponent();
             DataContext = this.questOptionsViewModel;
@@ -50,7 +50,7 @@ namespace NetTally.Views
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            questOptionsViewModel.SaveCompleted -= QuestOptionsViewModel_SaveCompleted;
+            questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
         }
 
         #region Window element event handlers
@@ -122,11 +122,13 @@ namespace NetTally.Views
             Close();
         }
 
-        private void QuestOptionsViewModel_SaveCompleted()
+        private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Close();
+            if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
+            {
+                Close();
+            }
         }
         #endregion
-
     }
 }
