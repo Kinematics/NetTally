@@ -47,7 +47,7 @@
                 <ControlTemplate>
                     <Border>
                         <StackPanel>
-                            <ContentPresenter TextBlock.FontWeight="Bold" Content="{TemplateBinding Header}" />
+                            <!--<ContentPresenter TextBlock.FontWeight="Bold" Content="{TemplateBinding Header}" />-->
                             <ContentPresenter Content="{TemplateBinding Content}" />
                         </StackPanel>
                     </Border>
