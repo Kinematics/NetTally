@@ -92,6 +92,7 @@ namespace NetTally.ViewModels
         private void Save()
         {
             SaveTasks();
+            OnPropertyChanged(nameof(SaveCommand));
         }
     }
 }
