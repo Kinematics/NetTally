@@ -78,28 +78,36 @@ namespace NetTally.ViewModels
         public event Action? SaveCompleted;
 
 
-        //public GlobalSettings GlobalSettings { get; }
+        // Options list
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
 
-
-        [ObservableProperty]
-        DisplayMode displayMode = DisplayMode.Normal;
-        [ObservableProperty]
-        bool displayPlansWithNoVotes = false;
-        [ObservableProperty]
-        bool globalSpoilers = false;
+        // Vote options
         [ObservableProperty]
         RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
 
         [ObservableProperty]
         BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
+
+        // Output
+        [ObservableProperty]
+        bool globalSpoilers = false;
+
+        [ObservableProperty]
+        bool displayPlansWithNoVotes = false;
+
+        // Networking
+        [ObservableProperty]
+        bool disableWebProxy = false;
+
+        // Debugging
         [ObservableProperty]
         bool trackPostAuthorsUniquely = false;
 
         [ObservableProperty]
-        bool disableWebProxy = false;
-        [ObservableProperty]
         bool debugMode = false;
 
+        // Obsolete. Quest option now
+        [ObservableProperty]
+        DisplayMode displayMode = DisplayMode.Normal;
     }
 }
