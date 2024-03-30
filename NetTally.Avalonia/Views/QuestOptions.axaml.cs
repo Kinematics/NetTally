@@ -35,7 +35,12 @@ namespace NetTally.Avalonia.Views
 #endif
         }
 
-        #region View Model event handlers
+        protected override void OnClosing(WindowClosingEventArgs e)
+        {
+            questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
+            base.OnClosing(e);
+        }
+
         private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
@@ -52,15 +57,6 @@ namespace NetTally.Avalonia.Views
                 Close(false);
             }
         }
-        #endregion View Model event handlers
-
-        #region Window element event handlers
-        protected override void OnClosing(WindowClosingEventArgs e)
-        {
-            questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
-            base.OnClosing(e);
-        }
-        #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>
