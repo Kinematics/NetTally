@@ -14,7 +14,7 @@ namespace NetTally.ViewModels
         private readonly Quest quest;
         private readonly ILogger<TasksViewModel> logger;
 
-        public ObservableCollectionExt<string> Tasks { get; } = new();
+        public ObservableCollectionExt<string> Tasks { get; } = [];
 
 
         public TasksViewModel(

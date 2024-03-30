@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
@@ -22,10 +23,10 @@ namespace NetTally.Avalonia.Views
             tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
         }
 
-        protected override void OnClosing(WindowClosingEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
             tasksViewModel.PropertyChanged -= TasksViewModel_PropertyChanged;
-            base.OnClosing(e);
+            base.OnClosed(e);
         }
 
         private void TasksViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
