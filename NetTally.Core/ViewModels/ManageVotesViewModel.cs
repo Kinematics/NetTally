@@ -297,5 +297,14 @@ namespace NetTally.ViewModels
             UpdateVotesCollection();
             UpdateVotersCollection();
         }
+
+        [RelayCommand]
+        private void RunTest(VoteLineBlock? voteLines)
+        {
+            if (voteLines is not null)
+            {
+
+            }
+        }
     }
 }

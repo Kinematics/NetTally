@@ -8,6 +8,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
+using NetTally.Avalonia.Navigation;
+using NetTally.Collections;
 using NetTally.Utility;
 using NetTally.ViewModels;
 using NetTally.Votes;
@@ -17,6 +19,7 @@ namespace NetTally.Avalonia.Views
     public partial class ManageVotes : Window, INotifyPropertyChanged
     {
         private readonly ManageVotesViewModel manageVotesViewModel;
+        private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         /// <summary>
@@ -25,9 +28,11 @@ namespace NetTally.Avalonia.Views
         /// <param name="mainViewModel">The primary view model of the program.</param>
         public ManageVotes(
             ManageVotesViewModel manageVotesViewModel,
+            AvaloniaNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {
             this.manageVotesViewModel = manageVotesViewModel;
+            this.navigationService = navigationService;
             this.logger = logger;
 
             // Populate the context menu with known tasks.
@@ -104,13 +109,14 @@ namespace NetTally.Avalonia.Views
                 {
                     // Parition Children context menu item if it's a valid action for the vote.
                     // Only relevant when we add in that action option.
-                    //if (HasChildLines(selectedVote))
-                    //{ }
+                    if (HasChildLines(selectedVote))
+                    {
+                    }
                 }
             }
         }
 
-        private void newTask_Click(object? sender, RoutedEventArgs e)
+        private void NewTask_Click(object? sender, RoutedEventArgs e)
         {
             if (sender is MenuItem mi)
             {
@@ -150,7 +156,7 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        private void modifyTask_Click(object? sender, RoutedEventArgs e)
+        private void ModifyTask_Click(object? sender, RoutedEventArgs e)
         {
             // Get the context menu for the menu item.
             if (sender is MenuItem mi && mi.Parent is ContextMenu cm)
@@ -162,7 +168,7 @@ namespace NetTally.Avalonia.Views
                 {
                     if (listBox.SelectedItem is VoteLineBlock selectedVote)
                     {
-                        string newTask = mi.Header.ToString() ?? "";
+                        string newTask = mi.Header?.ToString() ?? "";
 
                         if (!string.IsNullOrEmpty(newTask))
                         {
@@ -176,7 +182,19 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        private void partitionChildren_Click(object? sender, RoutedEventArgs e)
+        private async void ReorderTasks_Click(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<ReorderTasks>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error reordering tasks.");
+            }
+        }
+
+        private void PartitionChildren_Click(object? sender, RoutedEventArgs e)
         {
             if (sender is MenuItem mi)
             {
@@ -196,11 +214,11 @@ namespace NetTally.Avalonia.Views
         #endregion Context Menu Events
 
         #region Context Menu Utility
-        ListBox? newTaskBox = null;
+        ObservableCollectionExt<MenuItem> ContextMenuItems { get; } = [];
         readonly List<MenuItem> ContextMenuCommands = [];
-        readonly List<MenuItem> ContextMenuTasks = [];
-        List<MenuItem> ContextMenuItems { get; } = [];
         readonly MenuItem separator = new() { Header = "-" };
+        readonly List<MenuItem> ContextMenuTasks = [];
+        ListBox? newTaskBox = null;
 
 
         /// <summary>
@@ -208,34 +226,38 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void CreateContextMenuCommands()
         {
-            MenuItem newTask = new MenuItem
+            MenuItem newTask = new()
             {
                 Header = "New Task..."
             };
-            newTask.Click += newTask_Click;
-            //newTask.ToolTip = "Create a new task value.";
+            newTask.Click += NewTask_Click;
+            ToolTip.SetTip(newTask, "Create a new task value.");
 
             MenuItem clearTask = new()
             {
                 Header = "Clear Task"
             };
-            clearTask.Click += modifyTask_Click;
-            //clearTask.ToolTip = "Clear the task from the currently selected vote.";
+            clearTask.Click += ModifyTask_Click;
+            ToolTip.SetTip(clearTask, "Clear the task from the currently selected vote.");
 
-            //MenuItem reorderTasks = new MenuItem();
-            //reorderTasks.Header = "Re-Order Tasks";
-            //reorderTasks.Click += reorderTasks_ClickAsync;
-            //reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
+            MenuItem reorderTasks = new()
+            {
+                Header = "Re-Order Tasks"
+            };
+            reorderTasks.Click += ReorderTasks_Click;
+            ToolTip.SetTip(reorderTasks, "Modify the order in which the tasks appear in the output.");
 
-            //MenuItem partitionChildren = new MenuItem();
-            //partitionChildren.Header = "Partition Children";
-            //partitionChildren.Click += partitionChildren_Click;
-            //partitionChildren.ToolTip = "Split child vote lines into their own vote blocks.";
+            MenuItem partitionChildren = new()
+            {
+                Header = "Partition Children"
+            };
+            partitionChildren.Click += PartitionChildren_Click;
+            ToolTip.SetTip(partitionChildren, "Split child vote lines into their own vote blocks.");
 
             ContextMenuCommands.Add(newTask);
             ContextMenuCommands.Add(clearTask);
-            //ContextMenuCommands.Add(reorderTasks);
-            //ContextMenuCommands.Add(partitionChildren);
+            ContextMenuCommands.Add(reorderTasks);
+            ContextMenuCommands.Add(partitionChildren);
         }
 
         /// <summary>
@@ -256,7 +278,7 @@ namespace NetTally.Avalonia.Views
             if (string.IsNullOrEmpty(task))
                 return;
 
-            if (ContextMenuTasks.Any(t => string.Equals(t.Header.ToString(), task, StringComparison.Ordinal)))
+            if (ContextMenuTasks.Any(t => string.Equals(t.Header?.ToString(), task, StringComparison.Ordinal)))
                 return;
 
             ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
@@ -275,8 +297,8 @@ namespace NetTally.Avalonia.Views
             {
                 Header = name
             };
-            mi.Click += modifyTask_Click;
-            //mi.ToolTip = $"Change the task for the selected item to '{mi.Header}'";
+            mi.Click += ModifyTask_Click;
+            ToolTip.SetTip(mi, $"Change the task for the selected item to '{mi.Header}'");
             mi.Tag = "NamedTask";
 
             return mi;
@@ -355,7 +377,7 @@ namespace NetTally.Avalonia.Views
             newTaskBox = null;
         }
 
-        private bool HasChildLines(VoteLineBlock vote)
+        private static bool HasChildLines(VoteLineBlock vote)
         {
             return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
