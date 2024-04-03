@@ -23,12 +23,8 @@ namespace NetTally.VoteCounting
     public partial class Tally : ObservableObject
     {
         #region Construction
-        // Disposal
-        bool _disposed;
-
         // State
         bool tallyIsRunning;
-        string results = string.Empty;
 
         private readonly ITextResultsProvider textResultsProvider;
         private readonly IServiceProvider serviceProvider;
@@ -56,6 +52,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Flag whether the tally is currently running.
         /// </summary>
+        [Obsolete]
         public bool TallyIsRunning
         {
             get { return tallyIsRunning; }
@@ -69,26 +66,24 @@ namespace NetTally.VoteCounting
             }
         }
 
+
         /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
         /// If it changes to or from an empty string, the HasTallyResults property also changes.
         /// </summary>
-        public string TallyResults
-        {
-            get { return results; }
-            set
-            {
-                bool hasResultsChanged = string.IsNullOrEmpty(results) ^ string.IsNullOrEmpty(value);
+        [ObservableProperty]
+        private string tallyResults = string.Empty;
+        [ObservableProperty]
+        private bool hasTallyResults = false;
 
-                results = value;
-                OnPropertyChanged();
-                if (hasResultsChanged)
-                    OnPropertyChanged(nameof(HasTallyResults));
+        partial void OnTallyResultsChanged(string? oldValue, string newValue)
+        {
+            if (string.IsNullOrEmpty(oldValue) ^ string.IsNullOrEmpty(newValue))
+            {
+                HasTallyResults = string.IsNullOrEmpty(newValue);
             }
         }
-
-        public bool HasTallyResults => !string.IsNullOrEmpty(results);
         #endregion
 
 
