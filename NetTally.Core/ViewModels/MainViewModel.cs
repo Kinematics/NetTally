@@ -145,7 +145,7 @@ namespace NetTally.ViewModels
         #region Event Handling
         public void CheckForNewRelease()
         {
-            checkForNewRelease.ToString();
+            checkForNewRelease.Start();
         }
 
         private void CheckForNewRelease_PropertyChanged(object? sender, PropertyChangedEventArgs e)
