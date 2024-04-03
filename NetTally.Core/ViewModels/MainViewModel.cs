@@ -47,23 +47,28 @@ namespace NetTally.ViewModels
             checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
         }
 
-
-        #region View Model Properties
+        #region Item Source Properties
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
-        public bool HasQuests => Quests.Count > 0;
-
-        [ObservableProperty]
-        private bool newRelease;
 
         public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
 
         public List<string> PartitionModes { get; } = EnumExtensions.EnumDescriptionsList<PartitionMode>().ToList();
 
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
+        #endregion Item Source Properties
 
-        public string Output => tally.TallyResults;
-
+        #region State Properties
+        public bool HasQuests => Quests.Count > 0;
+        public bool IsQuestSelected => SelectedQuest != null;
+        public bool TallyIsRunning => RunTallyCommand.IsRunning;
+        public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
         public bool HasOutput => tally.HasTallyResults;
+        public string Output => tally.TallyResults;
+        #endregion State Properties
+
+        #region Generated Properties
+        [ObservableProperty]
+        private bool hasNewRelease;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
@@ -83,114 +88,45 @@ namespace NetTally.ViewModels
         partial void OnSelectedQuestChanged(Quest? value)
         {
             questsInfo.SelectedQuest = value;
+            tally.ClearTallyResults();
 
             if (value is not null)
             {
                 value.PropertyChanged += Quest_PropertyChanged;
-                UpdateOutput2();
+                UpdateOutput();
             }
         }
+        #endregion Generated Properties
 
-        public bool IsQuestSelected => SelectedQuest != null;
-        #endregion View Model Properties
-
-        #region Utility Functions
-        public async Task UpdateOutput()
-        {
-            if (SelectedQuest is not null)
-                await tally.UpdateResults(SelectedQuest);
-        }
-
-        public async Task UpdateTally()
-        {
-            if (SelectedQuest is not null)
-                await tally.UpdateResults(SelectedQuest);
-        }
-
-        public List<Quest> GetLinkedQuests(Quest quest)
-        {
-            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
-        }
-
-
-
-        public async Task RunTally2()
-        {
-            if (SelectedQuest is not null)
-            {
-                await tally.ReadPostsFromQuest(SelectedQuest);
-                tally.ConstructVotesFromPosts(SelectedQuest);
-                tally.GenerateOutputFromVotes(SelectedQuest);
-            }
-        }
-
-        public void UpdateTally2()
-        {
-            if (SelectedQuest is not null && SelectedQuest.VoteCounter.Posts.Count > 0)
-            {
-                tally.ConstructVotesFromPosts(SelectedQuest);
-                tally.GenerateOutputFromVotes(SelectedQuest);
-            }
-        }
-
-        public void UpdateOutput2()
-        {
-            if (SelectedQuest is not null && SelectedQuest.VoteCounter.Posts.Count > 0)
-            { 
-                tally.GenerateOutputFromVotes(SelectedQuest);
-            }
-        }
-        #endregion Utility Functions
-
-        #region Event Handling
+        #region Update Functions
         public void CheckForNewRelease()
         {
             checkForNewRelease.Start();
         }
 
-        private void CheckForNewRelease_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        public void UpdateTally()
         {
-            OnPropertyChanged(e.PropertyName);
-        }
-
-        private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Tally.TallyResults))
+            if (SelectedQuest is not null)
             {
-                OnPropertyChanged(nameof(Output));
-            }
-            else if (e.PropertyName == nameof(Tally.HasTallyResults))
-            {
-                OnPropertyChanged(nameof(HasOutput));
-            }
-            //else if (e is PropertyDataChangedEventArgs<string> eData)
-            //{
-            //    if (eData.PropertyName == "TallyResultsStatusChanged")
-            //    {
-            //        OnPropertyDataChanged(eData.PropertyData, eData.PropertyName);
-            //    }
-            //}
-        }
-
-        private void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not Quest quest)
-                return;
-
-            switch (e.PropertyName)
-            {
-                case nameof(quest.DisplayMode):
-                    UpdateOutput2();
-                    break;
-                case nameof(quest.PartitionMode):
-                    UpdateTally2();
-                    break;
-                default:
-                    //await tally.UpdateResults(quest);
-                    break;
+                tally.UpdateTally(SelectedQuest);
             }
         }
-        #endregion Event Handling
+
+        public void UpdateOutput()
+        {
+            if (SelectedQuest is not null)
+            {
+                tally.UpdateOutput(SelectedQuest);
+            }
+        }
+
+        public void RepositionQuest()
+        {
+            var wasQuest = SelectedQuest;
+            questsInfo.RepositionQuest(SelectedQuest);
+            SelectedQuest = wasQuest;
+        }
+        #endregion Update Functions
 
         #region View Model Commands
         private bool CanAddQuest => TallyIsNotRunning;
@@ -204,6 +140,8 @@ namespace NetTally.ViewModels
             
             if (hadZeroQuests)
                 OnPropertyChanged(nameof(HasQuests));
+                
+            OnPropertyChanged(nameof(AddQuestCommand));
             
             logger.LogInformation("Added new quest");
         }
@@ -240,28 +178,6 @@ namespace NetTally.ViewModels
             }
         }
 
-
-        public bool TallyIsRunning => RunTallyCommand.IsRunning;
-        public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
-
-        private void RunTallyCommand_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(RunTallyCommand.IsRunning))
-            {
-                AddQuestCommand.NotifyCanExecuteChanged();
-                RemoveQuestCommand.NotifyCanExecuteChanged();
-                CancelTallyCommand.NotifyCanExecuteChanged();
-                ClearTallyCacheCommand.NotifyCanExecuteChanged();
-                OnPropertyChanged(nameof(TallyIsRunning));
-                OnPropertyChanged(nameof(TallyIsNotRunning));
-
-                if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
-                {
-                    OnPropertyChanged(nameof(Output));
-                }
-            }
-        }
-
         private bool CanRunTally() => TallyIsNotRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRunTally),
@@ -270,7 +186,10 @@ namespace NetTally.ViewModels
         {
             try
             {
-                await tally.RunAsync(SelectedQuest!, cancellationToken).ConfigureAwait(false);
+                if (SelectedQuest is not null)
+                {
+                    await tally.RunTallyAsync(SelectedQuest, cancellationToken).ConfigureAwait(false);
+                }
             }
             catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
             {
@@ -302,5 +221,60 @@ namespace NetTally.ViewModels
             SelectedQuest?.VoteCounter.ResetUserMerges();
         }
         #endregion View Model Commands
+
+        #region Event Handling
+        private void CheckForNewRelease_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            HasNewRelease = checkForNewRelease.HasNewRelease;
+        }
+
+        private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Tally.TallyResults))
+            {
+                OnPropertyChanged(nameof(Output));
+            }
+            else if (e.PropertyName == nameof(Tally.HasTallyResults))
+            {
+                OnPropertyChanged(nameof(HasOutput));
+            }
+        }
+
+        private void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is Quest quest)
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(quest.DisplayMode):
+                        UpdateOutput();
+                        break;
+                    case nameof(quest.PartitionMode):
+                        UpdateTally();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void RunTallyCommand_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(RunTallyCommand.IsRunning))
+            {
+                AddQuestCommand.NotifyCanExecuteChanged();
+                RemoveQuestCommand.NotifyCanExecuteChanged();
+                CancelTallyCommand.NotifyCanExecuteChanged();
+                ClearTallyCacheCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(TallyIsRunning));
+                OnPropertyChanged(nameof(TallyIsNotRunning));
+
+                if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
+                {
+                    OnPropertyChanged(nameof(Output));
+                }
+            }
+        }
+        #endregion Event Handling
     }
 }
