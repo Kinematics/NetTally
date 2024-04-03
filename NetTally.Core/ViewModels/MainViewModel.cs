@@ -188,7 +188,7 @@ namespace NetTally.ViewModels
             {
                 if (SelectedQuest is not null)
                 {
-                    await tally.RunTallyAsync(SelectedQuest, cancellationToken).ConfigureAwait(false);
+                    await tally.RunTallyAsync(SelectedQuest, cancellationToken);
                 }
             }
             catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
@@ -201,6 +201,11 @@ namespace NetTally.ViewModels
                 {
                     RunTallyCommand.Cancel();
                 }
+            }
+            catch (Exception e)
+            {
+                tally.TallyResults += e.Message;
+                RunTallyCommand.Cancel();
             }
         }
 
