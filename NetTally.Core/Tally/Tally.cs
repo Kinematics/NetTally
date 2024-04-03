@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Output;
-using NetTally.Votes;
 using NetTally.Types.Components;
-using CommunityToolkit.Mvvm.ComponentModel;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
@@ -23,18 +21,12 @@ namespace NetTally.VoteCounting
     public partial class Tally : ObservableObject
     {
         #region Construction
-        // State
-        bool tallyIsRunning;
-
         private readonly ITextResultsProvider textResultsProvider;
         private readonly IServiceProvider serviceProvider;
         private readonly VoteConstructor voteConstructor;
         private readonly ILogger<Tally> logger;
 
         public VoteConstructor VoteConstructor => voteConstructor;
-
-        // Tracking cancellations
-        private readonly List<CancellationTokenSource> sources = [];
 
         public Tally(IServiceProvider serviceProvider,
                      VoteConstructor voteConstructor,
@@ -49,23 +41,8 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Current Properties
-        /// <summary>
-        /// Flag whether the tally is currently running.
-        /// </summary>
-        [Obsolete]
-        public bool TallyIsRunning
-        {
-            get { return tallyIsRunning; }
-            set
-            {
-                if (value != tallyIsRunning)
-                {
-                    tallyIsRunning = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
+        [ObservableProperty]
+        bool tallyIsRunning;
 
         /// <summary>
         /// The string containing the current tally progress or results.
@@ -94,9 +71,8 @@ namespace NetTally.VoteCounting
 
             try
             {
-                await ReadPostsFromQuest(quest, cancellationToken).ConfigureAwait(false);
-                ConstructVotesFromPosts(quest);
-                GenerateOutputFromVotes(quest);
+                await ReadPostsFromQuestAsync(quest, cancellationToken).ConfigureAwait(false);
+                UpdateTally(quest);
             }
             finally
             {
@@ -110,15 +86,15 @@ namespace NetTally.VoteCounting
             if (quest.VoteCounter.Posts.Count > 0)
             {
                 ConstructVotesFromPosts(quest);
-                GenerateOutputFromVotes(quest);
+                UpdateOutput(quest);
             }
         }
 
         public void UpdateOutput(Quest quest)
         {
-            if (quest.VoteCounter.Posts.Count > 0)
+            if (quest.VoteCounter.VoteStorage.Count > 0)
             {
-                GenerateOutputFromVotes(quest);
+                TallyResults = textResultsProvider.BuildOutput(quest);
             }
         }
 
@@ -129,8 +105,13 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Support Methods
-
-        private async Task ReadPostsFromQuest(Quest quest, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Use the forum reader to read the posts from the quest.
+        /// Posts are stored in the quest.
+        /// </summary>
+        /// <param name="quest">The quest to read.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        private async Task ReadPostsFromQuestAsync(Quest quest, CancellationToken cancellationToken)
         {
             using var forumReader = serviceProvider.GetRequiredService<ForumReader>();
 
@@ -141,8 +122,8 @@ namespace NetTally.VoteCounting
                 var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
                                                              .ConfigureAwait(false);
 
-                quest.VoteCounter.AddPosts(posts);
                 quest.VoteCounter.SetThreadTitles(threadTitles);
+                quest.VoteCounter.AddPosts(posts);
             }
             finally
             {
@@ -170,209 +151,11 @@ namespace NetTally.VoteCounting
             {
                 quest.VoteCounter.Reset();
 
-                PreprocessPosts2(quest);
-                ProcessPosts2(quest);
-            }
-        }
-
-        private void GenerateOutputFromVotes(Quest quest)
-        {
-            if (quest.VoteCounter.VoteStorage.Count > 0)
-            {
-                TallyResults = textResultsProvider.BuildOutput(quest);
+                PreprocessPosts(quest);
+                ProcessPosts(quest);
             }
         }
         #endregion
-
-        #region Interface functions
-        /// <summary>
-        /// Run the tally for the specified quest.
-        /// </summary>
-        /// <param name="quest">The quest to scan.</param>
-        /// <param name="token">Cancellation token.</param>
-        [Obsolete]
-        public async Task RunAsync(Quest quest, CancellationToken token)
-        {
-            ArgumentNullException.ThrowIfNull(nameof(quest));
-
-            try
-            {
-                TallyIsRunning = true;
-                TallyResults = string.Empty;
-
-                // Mark the quest as one that we will listen for changes from.
-                //quest.PropertyChanged -= Quest_PropertyChanged;
-                //quest.PropertyChanged += Quest_PropertyChanged;
-
-                quest.VoteCounter.ResetUserDefinedTasks();
-
-                using (var forumReader = serviceProvider.GetRequiredService<ForumReader>())
-                {
-                    try
-                    {
-                        forumReader.StatusChanged += ForumReader_StatusChanged;
-
-                        var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, token).ConfigureAwait(false);
-
-                        quest.VoteCounter.SetThreadTitles(threadTitles);
-
-                        Stopwatch stopwatch = new();
-                        stopwatch.Start();
-                        await TallyPosts(posts, quest, token).ConfigureAwait(false);
-                        stopwatch.Stop();
-                        logger.LogDebug("Time to process posts: {Milliseconds} ms.",
-                            stopwatch.ElapsedMilliseconds);
-                    }
-                    finally
-                    {
-                        forumReader.StatusChanged -= ForumReader_StatusChanged;
-                    }
-                }
-            }
-            catch (InvalidOperationException e)
-            {
-                TallyResults += $"\n{e.Message}";
-                return;
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                TallyIsRunning = false;
-
-                // Free memory used by loading pages as soon as we're done:
-                GC.Collect();
-            }
-
-            await UpdateResults(quest, token).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Compose the tallied results into a string to put in the TallyResults property,
-        /// for display in the UI.
-        /// </summary>
-        [Obsolete]
-        public async Task UpdateResults(Quest quest)
-        {
-            await RunWithTallyIsRunningFlagAsync(quest, UpdateResults).ConfigureAwait(false);
-        }
-        #endregion
-
-        #region Private update methods
-        /// <summary>
-        /// Process the results of the tally through the vote counter, and update the output.
-        /// </summary>
-        [Obsolete]
-        private async Task UpdateTally(Quest quest, CancellationToken token)
-        {
-            // Tally the votes from the loaded pages.
-            await TallyPosts(quest, token).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Compose the tallied results into a string to put in the TallyResults property,
-        /// for display in the UI.
-        /// </summary>
-        [Obsolete]
-        private async Task UpdateResults(Quest quest, CancellationToken token)
-        {
-            TallyResults = await textResultsProvider
-                .BuildOutputAsync(quest, token)
-                .ConfigureAwait(false);
-        }
-        #endregion
-
-        #region Cancellable function calls that signal the TallyIsRunning flag.
-        /// <summary>
-        /// Run the specified function with the TallyIsRunning flag active.
-        /// Provide a cancellation token to the specified function.
-        /// </summary>
-        /// <param name="action">A cancellable function.</param>
-        [Obsolete]
-        private void RunWithTallyIsRunningFlag(Action<CancellationToken> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            CancellationTokenSource? cts = null;
-
-            try
-            {
-                using (cts = new CancellationTokenSource())
-                {
-                    sources.Add(cts);
-
-                    bool rememberDuringRun = TallyIsRunning;
-
-                    try
-                    {
-                        TallyIsRunning = true;
-
-                        action(cts.Token);
-                    }
-                    finally
-                    {
-                        TallyIsRunning = rememberDuringRun;
-                    }
-                }
-            }
-            finally
-            {
-                if (cts != null)
-                    sources.Remove(cts);
-            }
-        }
-
-        /// <summary>
-        /// Run the specified async function with the TallyIsRunning flag active.
-        /// Provide a cancellation token to the specified function.
-        /// </summary>
-        /// <param name="action">A cancellable async function.</param>
-        [Obsolete]
-        private async Task RunWithTallyIsRunningFlagAsync(Quest quest, Func<Quest, CancellationToken, Task> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            CancellationTokenSource? cts = null;
-
-            try
-            {
-                using (cts = new CancellationTokenSource())
-                {
-                    sources.Add(cts);
-
-                    bool rememberDuringRun = TallyIsRunning;
-
-                    try
-                    {
-                        TallyIsRunning = true;
-
-                        await action(quest, cts.Token).ConfigureAwait(false);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // This might be called on startup, in which case an error is thrown because there's no quest set yet.
-                        System.Diagnostics.Debug.WriteLine("InvalidOperationException");
-                    }
-                    finally
-                    {
-                        TallyIsRunning = rememberDuringRun;
-                    }
-                }
-            }
-            finally
-            {
-                if (cts != null)
-                    sources.Remove(cts);
-            }
-        }
 
         /// <summary>
         /// Cancel any functions running under the above RunWithTallyFlag functions
@@ -380,66 +163,10 @@ namespace NetTally.VoteCounting
         [Obsolete]
         public void Cancel()
         {
-            foreach (var cts in sources)
-            {
-                cts.Cancel();
-            }
-        }
-        #endregion
-
-        #region Handle running the actual tally
-        /// <summary>
-        /// Run the tally using the provided posts, for the selected quest.
-        /// </summary>
-        /// <param name="posts">The posts to be tallied.</param>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="token">Cancellation token.</param>
-        [Obsolete]
-        public async Task TallyPosts(IEnumerable<Post> posts, Quest quest, CancellationToken token)
-        {
-            quest.VoteCounter.AddPosts(posts);
-            await TallyPosts(quest, token).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Construct the tally results based on the stored list of posts.
-        /// Run async so that it doesn't cause UI jank.
-        /// </summary>
-        /// <param name="token">Cancellation token.</param>
-        [Obsolete]
-        public async Task TallyPosts(Quest quest, CancellationToken token)
-        {
-            try
-            {
-                quest.VoteCounter.VoteCounterIsTallying = true;
-                quest.VoteCounter.TallyWasCanceled = false;
 
-                quest.VoteCounter.Reset();
-
-                if (quest.VoteCounter.Posts.Count == 0)
-                    return;
-
-                await PreprocessPosts(quest, token).ConfigureAwait(false);
-                await ProcessPosts(quest, token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                quest.VoteCounter.TallyWasCanceled = true;
-            }
-            finally
-            {
-                quest.VoteCounter.VoteCounterIsTallying = false;
-            }
-        }
-        #endregion
-
-        #region Preprocessing
-        /// <summary>
-        /// The first half of tallying posts involves doing the preprocessing
-        /// work on the plans in the post list.
-        /// </summary>
-        [Obsolete, DebuggerHidden]
-        public async Task<IDictionary<string, VoteLineBlock>> PreprocessPosts(Quest quest, CancellationToken token)
+        public IDictionary<string, VoteLineBlock> PreprocessPosts(Quest quest)
         {
             foreach (var post in quest.VoteCounter.Posts)
             {
@@ -452,60 +179,29 @@ namespace NetTally.VoteCounting
             }
 
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
-                new()
-                {
+                [
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
                     (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
                     (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
-                };
+                ];
 
             // Run the above series of preprocessing functions to extract plans from the post list.
-            var allPlans = RunPlanPreprocessing(quest.VoteCounter.Posts, quest, planProcesses, token);
-
-            await Task.FromResult(0).ConfigureAwait(false);
-
-            return allPlans;
-        }
-
-        public IDictionary<string, VoteLineBlock> PreprocessPosts2(Quest quest)
-        {
-            foreach (var post in quest.VoteCounter.Posts)
-            {
-                // Reset the processed state of all the posts.
-                post.Processed = false;
-                post.ForceProcess = false;
-                post.WorkingVoteComplete = false;
-                post.WorkingVote.Clear();
-                quest.VoteCounter.AddReferenceVoter(post.Origin);
-            }
-
-            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
-                new()
-                {
-                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
-                    (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
-                    (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
-                    (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
-                };
-
-            // Run the above series of preprocessing functions to extract plans from the post list.
-            var allPlans = RunPlanPreprocessing(quest.VoteCounter.Posts, quest, planProcesses, default);
+            var allPlans = PreprocessPlans(quest.VoteCounter.Posts, quest, planProcesses, default);
 
             return allPlans;
         }
 
 
         /// <summary>
-        /// Run the logic for the sequence of processing phases for plan
-        /// examination and extraction.
+        /// Run the logic for the sequence of processing phases for plan examination and extraction.
         /// </summary>
         /// <param name="posts">The posts being examined for plans.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <param name="planProcesses">The list of functions to run on the posts.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-        private Dictionary<string, VoteLineBlock> RunPlanPreprocessing(
+        private Dictionary<string, VoteLineBlock> PreprocessPlans(
             IReadOnlyList<Post> posts,
             Quest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
@@ -547,63 +243,8 @@ namespace NetTally.VoteCounting
 
             return allPlans;
         }
-        #endregion
 
-        #region Processing
-        /// <summary>
-        /// The second half of tallying the posts involves cycling through for
-        /// as long as future references need to be handled.
-        /// </summary>
-        private async Task ProcessPosts(Quest quest, CancellationToken token)
-        {
-            var unprocessed = quest.VoteCounter.Posts;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                token.ThrowIfCancellationRequested();
-
-                bool processedAny = false;
-
-                foreach (var post in unprocessed)
-                {
-                    var filteredResults = voteConstructor.ProcessPostGetVotes(post, quest);
-
-                    if (post.Processed)
-                        processedAny = true;
-
-                    if (filteredResults != null)
-                    {
-                        // Add those to the vote counter.
-                        quest.VoteCounter.AddVotes(filteredResults, post.Origin);
-                    }
-                }
-
-                if (processedAny)
-                {
-                    // As long as some got processed, remove those from the unprocessed list
-                    // and let the loop run again.
-                    unprocessed = unprocessed.Where(p => !p.Processed).ToList();
-                }
-                else
-                {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var post in unprocessed)
-                    {
-                        post.ForceProcess = true;
-                    }
-                }
-            }
-
-            quest.VoteCounter.AddUserDefinedTasksToTaskList();
-
-            quest.VoteCounter.RunMergeActions();
-
-            await Task.FromResult(0).ConfigureAwait(false);
-        }
-        
-        private void ProcessPosts2(Quest quest)
+        private void ProcessPosts(Quest quest)
         {
             var unprocessed = quest.VoteCounter.Posts;
 
@@ -647,6 +288,5 @@ namespace NetTally.VoteCounting
 
             quest.VoteCounter.RunMergeActions();
         }
-        #endregion
     }
 }
