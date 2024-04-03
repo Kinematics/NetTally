@@ -58,7 +58,7 @@ namespace NetTally
         private async void TimerCallback(object? obj)
         {
             // Don't need to repeat if we already found a new version.
-            if (NewRelease)
+            if (HasNewRelease)
                 return;
 
             try
@@ -67,7 +67,7 @@ namespace NetTally
 
                 if (newVersion)
                 {
-                    NewRelease = true;
+                    HasNewRelease = true;
                 }
             }
             catch (Exception e)
@@ -79,7 +79,7 @@ namespace NetTally
 
 
         [ObservableProperty]
-        bool newRelease = false;
+        bool hasNewRelease = false;
 
         #region Private version checking methods
         /// <summary>
