@@ -209,7 +209,7 @@
     <Button Name="CancelTallyButton" Content="Cancel"
             Width="90" Height="30" Margin="0,66,132,0" 
             VerticalAlignment="Top" HorizontalAlignment="Right"
-            Command="{Binding CancelTallyCommand}">
+            Command="{Binding RunTallyCancelCommand}">
       <ToolTip.Tip>
         <StackPanel>
           <TextBlock FontWeight="Bold">Cancel Tally</TextBlock>

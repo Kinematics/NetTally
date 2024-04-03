@@ -204,14 +204,6 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanCancelTally() => TallyIsRunning;
-
-        [RelayCommand(CanExecute = nameof(CanCancelTally))]
-        private void CancelTally()
-        {
-            RunTallyCommand.Cancel();
-        }
-
         private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
@@ -264,7 +256,6 @@ namespace NetTally.ViewModels
             {
                 AddQuestCommand.NotifyCanExecuteChanged();
                 RemoveQuestCommand.NotifyCanExecuteChanged();
-                CancelTallyCommand.NotifyCanExecuteChanged();
                 ClearTallyCacheCommand.NotifyCanExecuteChanged();
                 OnPropertyChanged(nameof(TallyIsRunning));
                 OnPropertyChanged(nameof(TallyIsNotRunning));

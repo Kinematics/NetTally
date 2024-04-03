@@ -264,7 +264,7 @@
         <Button x:Name="CancelTallyButton" Content="Cancel" Margin="0,66,128,0"
                 Height="30" Width="94" VerticalAlignment="Top" HorizontalAlignment="Right"
                 ToolTipService.ShowOnDisabled="True"
-                Command="{Binding Path=CancelTallyCommand}">
+                Command="{Binding Path=RunTallyCancelCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
