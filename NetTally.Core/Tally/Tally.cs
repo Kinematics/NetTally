@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
-using NetTally.Options;
 using NetTally.Output;
 using NetTally.Votes;
 using NetTally.Types.Components;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace NetTally.VoteCounting
 {
@@ -20,7 +20,7 @@ namespace NetTally.VoteCounting
     /// Class that links together the various pieces of the tally system.
     /// Call this to run a tally.
     /// </summary>
-    public partial class Tally : INotifyPropertyChanged, IDisposable
+    public partial class Tally : ObservableObject, IDisposable
     {
         #region Construction
         // Disposal
