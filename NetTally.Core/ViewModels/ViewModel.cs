@@ -586,7 +586,7 @@ namespace NetTally.ViewModels
                     try
                     {
                         if (SelectedQuest != null)
-                            await Tally.RunAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
+                            await Tally.RunTallyAsync(SelectedQuest, cts.Token).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
