@@ -54,7 +54,7 @@ namespace NetTally.Avalonia
             // Load legacy config, if available.
             if (LoadLegacyConfig() is ConfigInfo legacyConfig)
             {
-                builder.Services.AddKeyedSingleton(ConfigStrings.LegacyKey, legacyConfig);
+                builder.Services.AddSingleton(legacyConfig);
             }
             else
             {
