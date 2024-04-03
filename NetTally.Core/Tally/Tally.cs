@@ -88,7 +88,7 @@ namespace NetTally.VoteCounting
 
 
         #region Public Methods
-        public async Task RunTallyAsync(Quest quest, CancellationToken cancellationToken = default)
+        public async Task RunTallyAsync(Quest quest, CancellationToken cancellationToken)
         {
             TallyResults = string.Empty;
 
