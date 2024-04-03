@@ -81,7 +81,6 @@ namespace NetTally.ViewModels
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                Tally.Dispose();
             }
 
             _disposed = true;
