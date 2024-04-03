@@ -234,6 +234,8 @@ namespace NetTally.ViewModels
 
         private void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            // If the display mode is changed, we just have to update the output.
+            // Any other change to the quest preferences needs a full re-tally.
             if (sender is Quest quest)
             {
                 switch (e.PropertyName)
@@ -241,10 +243,8 @@ namespace NetTally.ViewModels
                     case nameof(quest.DisplayMode):
                         UpdateOutput();
                         break;
-                    case nameof(quest.PartitionMode):
-                        UpdateTally();
-                        break;
                     default:
+                        UpdateTally();
                         break;
                 }
             }
