@@ -217,7 +217,7 @@ namespace NetTally
         }
 
         [ObservableProperty]
-        bool checkForLastThreadmark = true;
+        bool checkForLastThreadmark;
 
         [ObservableProperty]
         BoolEx useRSSThreadmarks = BoolEx.Unknown;

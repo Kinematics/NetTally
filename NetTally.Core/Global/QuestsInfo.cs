@@ -112,7 +112,8 @@ namespace NetTally.Global
             {
                 quest = new Quest
                 {
-                    VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+                    VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
+                    CheckForLastThreadmark = true
                 };
 
                 Quests.Add(quest);
