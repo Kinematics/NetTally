@@ -467,7 +467,7 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_Name_RefAsync()
+        public void Implicit_Plan_Name_RefAsync()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
@@ -481,7 +481,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -507,7 +507,7 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
-        public async Task Explicit_Plan_RefAsync()
+        public void Explicit_Plan_RefAsync()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
@@ -521,7 +521,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -547,7 +547,7 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
-        public async Task Explicit_Plan_TwoChunk_RefAsync()
+        public void Explicit_Plan_TwoChunk_RefAsync()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
@@ -561,7 +561,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -589,7 +589,7 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_RefAsync()
+        public void Implicit_Plan_RefAsync()
         {
             quest.PartitionMode = PartitionMode.None;
             quest.DisableProxyVotes = false;
@@ -603,7 +603,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -629,7 +629,7 @@ namespace NetTally.Tests.Votes
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_Block_RefAsync()
+        public void Implicit_Plan_Block_RefAsync()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
@@ -643,7 +643,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -670,7 +670,7 @@ namespace NetTally.Tests.Votes
 
 
         [TestMethod]
-        public async Task Cross_Marker_Reference_PlanAsync()
+        public void Cross_Marker_Reference_PlanAsync()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
@@ -689,7 +689,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(quest, default);
+            tally.PreprocessPosts(quest);
 
             var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
 

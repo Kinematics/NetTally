@@ -44,8 +44,10 @@ namespace NetTally.Tests.Tallying
         [TestInitialize]
         public void Initialize()
         {
-            quest = new Quest();
-            quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
 
         [TestCleanup]
@@ -59,7 +61,7 @@ namespace NetTally.Tests.Tallying
 
         #region Basics
         [TestMethod]
-        public async Task Check_Tally_Adds_Normal()
+        public void Check_Tally_Adds_Normal()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -79,8 +81,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -94,7 +97,7 @@ namespace NetTally.Tests.Tallying
 
 
         [TestMethod]
-        public async Task Check_Reset()
+        public void Check_Reset()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -114,8 +117,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -130,7 +134,7 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(0, allVotes.Count);
         }
 
-        public async Task Check_Tally_Adds_Plan()
+        public void Check_Tally_Adds_Plan()
         {
             string postText1 =
 @"[X] Plan Experiment
@@ -150,8 +154,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -175,7 +180,7 @@ namespace NetTally.Tests.Tallying
 
         #region Replacements
         [TestMethod]
-        public async Task Reprocess_Doesnt_Stack_Lines()
+        public void Reprocess_Doesnt_Stack_Lines()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -195,8 +200,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -206,7 +212,7 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.ByLine;
 
-            await tally.TallyPosts(quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -218,7 +224,7 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.None;
 
-            await tally.TallyPosts(quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -228,7 +234,7 @@ namespace NetTally.Tests.Tallying
         }
 
         [TestMethod]
-        public async Task Check_Tally_Adds_Reference()
+        public void Check_Tally_Adds_Reference()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -246,8 +252,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -282,8 +289,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2, post3 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -296,7 +304,7 @@ namespace NetTally.Tests.Tallying
         }
 
         [TestMethod]
-        public async Task Check_User_Proxy_Only_Proposed_Plan()
+        public void Check_User_Proxy_Only_Proposed_Plan()
         {
             string postText1 =
 @"[X] Proposed Plan: Experiment
@@ -315,8 +323,9 @@ namespace NetTally.Tests.Tallying
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -331,7 +340,7 @@ namespace NetTally.Tests.Tallying
         }
 
         [TestMethod]
-        public async Task Check_Original_User_Can_Replace_Plan()
+        public void Check_Original_User_Can_Replace_Plan()
         {
             string postText1 =
 @"[X] Plan: Experiment
@@ -354,7 +363,7 @@ namespace NetTally.Tests.Tallying
 
             List<Post> posts = new() { post1, post2 };
             quest.VoteCounter.AddPosts(posts);
-            var plans = await tally.PreprocessPosts(quest, default);
+            var plans = tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -362,7 +371,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3 };
             quest.VoteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(quest, default);
+            plans = tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -370,7 +379,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3, post4 };
             quest.VoteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(quest, default);
+            plans = tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);
@@ -380,7 +389,7 @@ namespace NetTally.Tests.Tallying
 
         #region Callouts as proxies
         [TestMethod]
-        public async Task Check_Callout_Links_With_At_As_Plan()
+        public void Check_Callout_Links_With_At_As_Plan()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -400,8 +409,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -414,7 +424,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_Without_At_As_Plan()
+        public void Check_Callout_Links_Without_At_As_Plan()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -434,8 +444,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -448,7 +459,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_With_At()
+        public void Check_Callout_Links_With_At()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -468,8 +479,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -482,7 +494,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_Without_At()
+        public void Check_Callout_Links_Without_At()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -500,10 +512,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post2.HasVote);
 
             List<Post> posts = new() { post1, post2 };
+            quest.VoteCounter.AddPosts(posts);
 
-            quest.PartitionMode = PartitionMode.None;
-
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -518,7 +529,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
 
         #region Future references
         [TestMethod]
-        public async Task Check_Future_Reference_Handling_Normal()
+        public void Check_Future_Reference_Handling_Normal()
         {
             string postText1 =
 @"[X] Brogatar's First post";
@@ -538,8 +549,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2, post3 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -553,7 +565,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         }
 
         [TestMethod]
-        public async Task Check_Future_Reference_Handling_Preempted()
+        public void Check_Future_Reference_Handling_Preempted()
         {
             string postText1 =
 @"[X] Brogatar's First post";
@@ -577,8 +589,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2, post3, post4 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -596,7 +609,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         #endregion Future references
 
         #region Test general vote matching
-        public async Task Test_Votes_Match(string text1, string text2)
+        public void Test_Votes_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
@@ -611,8 +624,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -630,7 +644,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(voters.Contains(origin2));
         }
 
-        public async Task Test_Votes_Dont_Match(string text1, string text2)
+        public void Test_Votes_Dont_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
@@ -645,8 +659,9 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             List<Post> posts = new() { post1, post2 };
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
             List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
@@ -666,172 +681,172 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         }
 
         [TestMethod]
-        public async Task Check_Match_Same()
+        public void Check_Match_Same()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic test";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_BBCode()
+        public void Check_Match_BBCode()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 『b』test『/b』";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_No_Case()
+        public void Check_Match_No_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic TEST";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Case()
+        public void Check_Match_Yes_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic TEST";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Punc()
+        public void Check_Match_No_Punc()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Punc()
+        public void Check_Match_Yes_Punc()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Space()
+        public void Check_Match_No_Space()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'Test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space()
+        public void Check_Match_Yes_Space()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic  Test";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Space_And_Case()
+        public void Check_Match_No_Space_And_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'Test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space_And_Case()
+        public void Check_Match_Yes_Space_And_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space_And_Case_2()
+        public void Check_Match_Yes_Space_And_Case_2()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic Test";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Apostrophe()
+        public void Check_Match_Apostrophe()
         {
             string text1 = "[x] Basic don't";
             string text2 = "[x] Basic don’t";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Quote()
+        public void Check_Match_Quote()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic “test”";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_Apostrophe_2()
+        public void Check_Match_Apostrophe_2()
         {
             string text1 = "[x] Basic don't";
             string text2 = "[x] Basic don’t";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Quote_2()
+        public void Check_Match_Quote_2()
         {
             string text1 = @"[x] Basic ""test""";
             string text2 = "[x] Basic “test”";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
         #endregion Test general vote matching
     }
