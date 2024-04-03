@@ -301,6 +301,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void RunTest(VoteLineBlock? voteLines)
         {
+            // context menu experiment.
             if (voteLines is not null)
             {
 
