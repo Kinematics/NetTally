@@ -18,7 +18,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class for handling reading forum posts from a quest's forum.
     /// </summary>
-    class ForumReader : IDisposable
+    public class ForumReader : IDisposable
     {
         #region Constructor
         private readonly IServiceProvider serviceProvider;

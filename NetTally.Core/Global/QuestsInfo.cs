@@ -172,7 +172,7 @@ namespace NetTally.Global
         /// <returns>Returns a list of any linked quests.</returns>
         public List<Quest> GetLinkedQuests(Quest quest)
         {
-            return Quests.Where(q => quest.HasLinkedQuest(q)).ToList();
+            return Quests.Where(quest.HasLinkedQuest).ToList();
         }
     }
 }

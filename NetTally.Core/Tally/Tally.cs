@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
@@ -21,22 +20,24 @@ namespace NetTally.VoteCounting
     public partial class Tally : ObservableObject
     {
         #region Construction
-        private readonly ITextResultsProvider textResultsProvider;
-        private readonly IServiceProvider serviceProvider;
+        private readonly ForumReader forumReader;
         private readonly VoteConstructor voteConstructor;
+        private readonly ITextResultsProvider textResultsProvider;
         private readonly ILogger<Tally> logger;
 
         public VoteConstructor VoteConstructor => voteConstructor;
 
-        public Tally(IServiceProvider serviceProvider,
+        public Tally(ForumReader forumReader,
                      VoteConstructor voteConstructor,
                      ITextResultsProvider textResultsProvider,
                      ILogger<Tally> logger)
         {
-            this.serviceProvider = serviceProvider;
+            this.forumReader = forumReader;
             this.voteConstructor = voteConstructor;
             this.textResultsProvider = textResultsProvider;
             this.logger = logger;
+
+            this.forumReader.StatusChanged += ForumReader_StatusChanged;
         }
         #endregion
 
@@ -63,7 +64,6 @@ namespace NetTally.VoteCounting
         }
         #endregion
 
-
         #region Public Methods
         public async Task RunTallyAsync(Quest quest, CancellationToken cancellationToken)
         {
@@ -73,6 +73,8 @@ namespace NetTally.VoteCounting
             {
                 await ReadPostsFromQuestAsync(quest, cancellationToken).ConfigureAwait(false);
                 UpdateTally(quest);
+
+                logger.LogInformation("Tally for quest {questName} completed.", quest.DisplayName);
             }
             finally
             {
@@ -102,6 +104,14 @@ namespace NetTally.VoteCounting
         {
             TallyResults = string.Empty;
         }
+
+        /// <summary>
+        /// Cancel any functions running under the above RunWithTallyFlag functions
+        /// </summary>
+        [Obsolete]
+        public void Cancel()
+        {
+        }
         #endregion
 
         #region Support Methods
@@ -113,36 +123,11 @@ namespace NetTally.VoteCounting
         /// <param name="cancellationToken">Cancellation token</param>
         private async Task ReadPostsFromQuestAsync(Quest quest, CancellationToken cancellationToken)
         {
-            using var forumReader = serviceProvider.GetRequiredService<ForumReader>();
+            var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
+                                                         .ConfigureAwait(false);
 
-            try
-            {
-                forumReader.StatusChanged += ForumReader_StatusChanged;
-
-                var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
-                                                             .ConfigureAwait(false);
-
-                quest.VoteCounter.SetThreadTitles(threadTitles);
-                quest.VoteCounter.AddPosts(posts);
-            }
-            finally
-            {
-                forumReader.StatusChanged -= ForumReader_StatusChanged;
-            }
-        }
-
-        /// <summary>
-        /// Keep watch for any status messasges from the forum reader, and add them
-        /// to the TallyResults string so that they can be displayed in the UI.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">Contains the text to be added to the output.</param>
-        private void ForumReader_StatusChanged(object? sender, MessageEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Message))
-            {
-                TallyResults += e.Message;
-            }
+            quest.VoteCounter.SetThreadTitles(threadTitles);
+            quest.VoteCounter.AddPosts(posts);
         }
 
         private void ConstructVotesFromPosts(Quest quest)
@@ -155,16 +140,6 @@ namespace NetTally.VoteCounting
                 ProcessPosts(quest);
             }
         }
-        #endregion
-
-        /// <summary>
-        /// Cancel any functions running under the above RunWithTallyFlag functions
-        /// </summary>
-        [Obsolete]
-        public void Cancel()
-        {
-        }
-
 
         public IDictionary<string, VoteLineBlock> PreprocessPosts(Quest quest)
         {
@@ -288,5 +263,22 @@ namespace NetTally.VoteCounting
 
             quest.VoteCounter.RunMergeActions();
         }
+        #endregion
+
+        #region Events
+        /// <summary>
+        /// Keep watch for any status messasges from the forum reader, and add them
+        /// to the TallyResults string so that they can be displayed in the UI.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Contains the text to be added to the output.</param>
+        private void ForumReader_StatusChanged(object? sender, MessageEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                TallyResults += e.Message;
+            }
+        }
+        #endregion Events
     }
 }
