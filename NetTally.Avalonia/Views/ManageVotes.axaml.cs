@@ -44,21 +44,9 @@ namespace NetTally.Avalonia.Views
 
             DataContext = manageVotesViewModel;
 
-            manageVotesViewModel.PropertyChanged += ManageVotesViewModel_PropertyChanged;
-
 #if DEBUG
             this.AttachDevTools();
 #endif
-        }
-
-        private void ManageVotesViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            logger.LogTrace("Received notification of property change from manageVotesViewModel: {PropertyName}.", e.PropertyName);
-
-            if (!string.IsNullOrEmpty(e.PropertyName))
-            {
-                OnPropertyChanged(e.PropertyName);
-            }
         }
 
         /// <summary>
@@ -67,18 +55,6 @@ namespace NetTally.Avalonia.Views
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         public void Close_Click(object sender, RoutedEventArgs e) => this.Close();
-
-        /// <summary>
-        /// Raises the <see cref="Window" />.Closed event.
-        /// Removes event listeners on close, to prevent memory leaks.
-        /// </summary>
-        /// <param name="e">Event data.</param>
-        protected override void OnClosed(EventArgs e)
-        {
-            manageVotesViewModel.PropertyChanged -= ManageVotesViewModel_PropertyChanged;
-
-            base.OnClosed(e);
-        }
 
         #region INotifyPropertyChanged implementation
         /// <summary>
