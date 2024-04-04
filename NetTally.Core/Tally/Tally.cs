@@ -71,7 +71,9 @@ namespace NetTally.VoteCounting
 
             try
             {
-                await ReadPostsFromQuestAsync(quest, cancellationToken).ConfigureAwait(false);
+                await ReadPostsFromQuestAsync(quest, cancellationToken)
+                     .ConfigureAwait(false);
+
                 UpdateTally(quest);
 
                 logger.LogInformation("Tally for quest {questName} completed.", quest.DisplayName);

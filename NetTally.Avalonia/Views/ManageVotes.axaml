@@ -15,9 +15,9 @@
 					 DataContext="{Binding ElementName=ManageVotesWindow}"
 					 ItemsSource="{Binding ContextMenuItems}"
 					 />
-					  <!--MenuOpened="TaskContextMenu_Opened"-->
 		<ContextMenu x:Key="TestMenu" x:Name="TestMenu">
-			<MenuItem Header="Test1" Command="{Binding RunTestCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1,AncestorType=ListBox}, Path=SelectedItem}" />
+			<MenuItem Header="Test1" Command="{Binding RunTestCommand}"
+					  CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1,AncestorType=ListBox}, Path=SelectedItem}" />
 		</ContextMenu>
 	</Window.Resources>
 

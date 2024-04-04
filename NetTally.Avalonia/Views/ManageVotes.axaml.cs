@@ -35,12 +35,13 @@ namespace NetTally.Avalonia.Views
             this.navigationService = navigationService;
             this.logger = logger;
 
+            InitializeComponent();
+
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
             InitKnownTasks();
             UpdateContextMenu();
 
-            InitializeComponent();
             DataContext = manageVotesViewModel;
 
             manageVotesViewModel.PropertyChanged += ManageVotesViewModel_PropertyChanged;
