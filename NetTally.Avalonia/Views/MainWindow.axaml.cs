@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
 using NetTally.ViewModels;
@@ -14,6 +15,7 @@ namespace NetTally.Avalonia.Views
         private readonly MainViewModel mainViewModel;
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<MainWindow> logger;
+        private readonly IHostEnvironment hostEnvironment;
         #endregion
 
         #region Startup/shutdown events
@@ -25,11 +27,13 @@ namespace NetTally.Avalonia.Views
         public MainWindow(
             MainViewModel viewModel,
             AvaloniaNavigationService navigationService,
-            ILogger<MainWindow> logger)
+            ILogger<MainWindow> logger,
+            IHostEnvironment hostEnvironment)
         {
             mainViewModel = viewModel;
             this.navigationService = navigationService;
             this.logger = logger;
+            this.hostEnvironment = hostEnvironment;
 
             // Initialize the window.
             InitializeComponent();
@@ -42,6 +46,9 @@ namespace NetTally.Avalonia.Views
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+
+            if (hostEnvironment.IsDevelopment())
+                return;
 
             if (!Design.IsDesignMode)
                 mainViewModel.CheckForNewRelease();
