@@ -73,6 +73,10 @@ namespace NetTally.VoteCounting
         /// </summary>
         IReadOnlyList<Post> Posts { get; }
         /// <summary>
+        /// Whether the quest has any recorded posts.
+        /// </summary>
+        bool HasPosts { get; }
+        /// <summary>
         /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
         /// </summary>
         /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
@@ -174,6 +178,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a count of the registered reference voters.</returns>
         int GetTotalVoterCount();
 
+        bool HasVotes { get; }
 
         /// <summary>
         /// Determines if there is a more recent vote made by the author of the provided post.

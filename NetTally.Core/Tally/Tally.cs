@@ -87,7 +87,7 @@ namespace NetTally.VoteCounting
 
         public void UpdateTally(Quest quest)
         {
-            if (quest.VoteCounter.Posts.Count > 0)
+            if (quest.VoteCounter.HasPosts)
             {
                 ConstructVotesFromPosts(quest);
                 UpdateOutput(quest);
@@ -96,7 +96,7 @@ namespace NetTally.VoteCounting
 
         public void UpdateOutput(Quest quest)
         {
-            if (quest.VoteCounter.VoteStorage.Count > 0)
+            if (quest.VoteCounter.HasVotes)
             {
                 TallyResults = textResultsProvider.BuildOutput(quest);
             }
@@ -134,7 +134,7 @@ namespace NetTally.VoteCounting
 
         private void ConstructVotesFromPosts(Quest quest)
         {
-            if (quest.VoteCounter.Posts.Count > 0)
+            if (quest.VoteCounter.HasPosts)
             {
                 quest.VoteCounter.Reset();
 

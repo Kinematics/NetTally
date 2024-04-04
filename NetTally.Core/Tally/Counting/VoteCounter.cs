@@ -42,6 +42,10 @@ namespace NetTally.VoteCounting
         /// </summary>
         public IReadOnlyList<Post> Posts => postsList;
 
+        public bool HasPosts => postsList.Count > 0;
+
+        public bool HasVotes => VoteStorage.Count > 0;
+
         // Private
 
         readonly List<Post> postsList = new();
