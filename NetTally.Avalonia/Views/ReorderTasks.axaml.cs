@@ -20,6 +20,8 @@ namespace NetTally.Avalonia.Views
 
             InitializeComponent();
 
+            DataContext = this.tasksViewModel;
+
             tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
         }
 

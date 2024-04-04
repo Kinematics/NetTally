@@ -16,7 +16,6 @@ namespace NetTally.ViewModels
 
         public ObservableCollectionExt<string> Tasks { get; } = [];
 
-
         public TasksViewModel(
             IQuestsInfo questsInfo,
             ILogger<TasksViewModel> logger)
@@ -41,31 +40,40 @@ namespace NetTally.ViewModels
             logger.LogInformation("{count} tasks saved.", Tasks.Count);
         }
 
-        private bool CanMoveTaskUp(int? position)
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(MoveTaskUpCommand))]
+        [NotifyCanExecuteChangedFor(nameof(MoveTaskDownCommand))]
+        private int selectedTaskIndex;
+
+        private bool CanMoveTaskUp()
         {
-            return (Tasks.Count > 1 && position.HasValue && position.Value > 0);
+            return (Tasks.Count > 1 && SelectedTaskIndex > 0);
         }
 
         [RelayCommand(CanExecute = nameof(CanMoveTaskUp))]
-        private void MoveTaskUp(int? position)
+        private void MoveTaskUp()
         {
-            if (position.HasValue && position.Value > 0 && position < Tasks.Count)
+            if (Tasks.Count > 1 && SelectedTaskIndex > 0)
             {
-                Tasks.Move(position.Value, position.Value - 1);
+                int newIndex = SelectedTaskIndex - 1;
+                Tasks.Move(SelectedTaskIndex, newIndex);
+                SelectedTaskIndex = newIndex;
             }
         }
 
-        private bool CanMoveTaskDown(int? position)
+        private bool CanMoveTaskDown()
         {
-            return (Tasks.Count > 1 && position.HasValue && position.Value < Tasks.Count - 1);
+            return (Tasks.Count > 1 && SelectedTaskIndex >= 0 && SelectedTaskIndex < Tasks.Count - 1);
         }
 
         [RelayCommand(CanExecute = nameof(CanMoveTaskDown))]
-        private void MoveTaskDown(int? position)
+        private void MoveTaskDown()
         {
-            if (position.HasValue && position.Value >= 0 && position < Tasks.Count - 1)
+            if (Tasks.Count > 1 && SelectedTaskIndex >= 0 && SelectedTaskIndex < Tasks.Count - 1)
             {
-                Tasks.Move(position.Value, position.Value + 1);
+                int newIndex = SelectedTaskIndex + 1;
+                Tasks.Move(SelectedTaskIndex, newIndex);
+                SelectedTaskIndex = newIndex;
             }
         }
 
