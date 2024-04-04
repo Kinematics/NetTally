@@ -133,7 +133,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Gets the user-readable list of valid posts per page, for use in the view.
         /// </summary>
-        public List<int> ValidPostsPerPage { get; } = new List<int> { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+        public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
         /// <summary>
         /// Public link to the advanced options instance, for data binding.
@@ -163,7 +163,7 @@ namespace NetTally.ViewModels
             }
             else
             {
-                QuestList = new QuestCollection();
+                QuestList = [];
                 SelectQuest(null);
             }
         }
@@ -171,7 +171,7 @@ namespace NetTally.ViewModels
         /// <summary>
         /// List of quests for binding.
         /// </summary>
-        public QuestCollection QuestList { get; private set; } = new QuestCollection();
+        public QuestCollection QuestList { get; private set; } = [];
 
         /// <summary>
         /// The currently selected quest.
@@ -684,8 +684,8 @@ namespace NetTally.ViewModels
         #region Section: Vote Counter
         public IVoteCounter VoteCounter => voteCounter;
 
-        public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = new ObservableCollectionExt<VoteLineBlock>();
-        public ObservableCollectionExt<Origin> AllVotersCollection { get; } = new ObservableCollectionExt<Origin>();
+        public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = [];
+        public ObservableCollectionExt<Origin> AllVotersCollection { get; } = [];
         public ObservableCollectionExt<string> TaskList => VoteCounter.TaskList;
 
         /// <summary>

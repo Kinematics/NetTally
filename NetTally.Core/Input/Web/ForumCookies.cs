@@ -22,11 +22,9 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
         public static Cookie? GetCookie(Uri uri, IClock clock)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
-            if (clock == null)
-                throw new ArgumentNullException(nameof(clock));
+            ArgumentNullException.ThrowIfNull(clock);
 
             Cookie? cookie = null;
 

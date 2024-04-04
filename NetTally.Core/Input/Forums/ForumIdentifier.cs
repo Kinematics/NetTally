@@ -14,9 +14,7 @@ namespace NetTally.Forums
     /// </summary>
     static class ForumIdentifier
     {
-        static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
-        {
-        };
+        static readonly Dictionary<string, ForumType> forumTypes = [];
 
         /// <summary>
         /// Public function to check for identifiable forums from a provided web page.
@@ -35,7 +33,7 @@ namespace NetTally.Forums
 
                 if (doc == null)
                 {
-                    ArgumentException e = new ArgumentException($"Unable to load forum URL:  {uri.AbsoluteUri}");
+                    ArgumentException e = new($"Unable to load forum URL:  {uri.AbsoluteUri}");
                     e.Data["Notify"] = true;
                     throw e;
                 }

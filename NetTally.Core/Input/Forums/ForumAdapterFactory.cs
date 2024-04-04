@@ -6,6 +6,7 @@ using NetTally.Forums.Adapters2;
 using NetTally.Options;
 using NetTally.Web;
 using NetTally.Types.Enums;
+using NetTally.Forums.Adapters;
 
 namespace NetTally.Forums
 {
@@ -16,7 +17,7 @@ namespace NetTally.Forums
     {
         readonly IGeneralInputOptions inputOptions;
         readonly ILoggerFactory loggerFactory;
-        readonly SemaphoreSlim ss = new SemaphoreSlim(1);
+        readonly SemaphoreSlim ss = new(1);
 
         public ForumAdapterFactory(IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
         {
@@ -84,27 +85,18 @@ namespace NetTally.Forums
         /// <returns>Returns a forum adapter matching the requested forum type.</returns>
         public IForumAdapter2 CreateForumAdapter(ForumType forumType, Uri uri)
         {
-            switch (forumType)
+            return forumType switch
             {
-                case ForumType.XenForo1:
-                    return new XenForo1Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter2>());
-                case ForumType.XenForo2:
-                    return new XenForo2Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter2>());
-                case ForumType.vBulletin3:
-                    return new VBulletin3Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter2>());
-                case ForumType.vBulletin4:
-                    return new VBulletin4Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter2>());
-                case ForumType.vBulletin5:
-                    return new VBulletin5Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter2>());
-                case ForumType.phpBB:
-                    return new PhpBBAdapter2(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter2>());
-                //case ForumType.NodeBB:
-                //    return new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>());
-                case ForumType.Unknown:
-                    return new UnknownForumAdapter2(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter2>());
-                default:
-                    throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
-            }
+                ForumType.XenForo1 => new XenForo1Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter2>()),
+                ForumType.XenForo2 => new XenForo2Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter2>()),
+                ForumType.vBulletin3 => new VBulletin3Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter2>()),
+                ForumType.vBulletin4 => new VBulletin4Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter2>()),
+                ForumType.vBulletin5 => new VBulletin5Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter2>()),
+                ForumType.phpBB => new PhpBBAdapter2(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter2>()),
+                //ForumType.NodeBB => new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>()),
+                ForumType.Unknown => new UnknownForumAdapter2(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter2>()),
+                _ => throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType)),
+            };
         }
     }
 }

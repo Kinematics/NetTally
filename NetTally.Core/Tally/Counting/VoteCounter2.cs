@@ -33,11 +33,11 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The overall collection of voters and supporters.
         /// </summary>
-        public VoteStorage VoteStorage { get; } = new();
+        public VoteStorage VoteStorage { get; } = [];
         /// <summary>
         /// The list of posts that reference future posts, preventing immediate tallying.
         /// </summary>
-        public HashSet<Post> FutureReferences { get; } = new();
+        public HashSet<Post> FutureReferences { get; } = [];
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
@@ -45,14 +45,14 @@ namespace NetTally.VoteCounting
 
         // Private
 
-        readonly List<Post> postsList = new();
+        readonly List<Post> postsList = [];
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new();
         MergeRecords UserMerges { get; } = new();
 
-        VoterStorage ReferencePlans { get; } = new();
-        HashSet<Origin> ReferenceOrigins { get; } = new();
+        VoterStorage ReferencePlans { get; } = [];
+        HashSet<Origin> ReferenceOrigins { get; } = [];
         #endregion
 
         #region General Tally Properties
@@ -67,7 +67,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The titles of the quest threads that have been tallied.
         /// </summary>
-        public List<string> Titles { get; } = new();
+        public List<string> Titles { get; } = [];
 
         /// <summary>
         /// Flag whether the tally is currently running.
@@ -502,7 +502,7 @@ namespace NetTally.VoteCounting
         /// <param name="fromSupport">The support block for the from vote.</param>
         /// <param name="toSupport">The support block for the to vote.</param>
         /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
-        private bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
+        private static bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
             VoterStorage fromSupport, VoterStorage toSupport)
         {
             bool merged = false;
@@ -611,7 +611,7 @@ namespace NetTally.VoteCounting
                 var source = GetVotesBy(joiningVoter);
                 var dest = GetVotesBy(voterToJoin);
 
-                if (!source.Any() || !dest.Any())
+                if (source.Count == 0 || dest.Count == 0)
                     return false;
 
                 bool joined = false;
@@ -731,9 +731,9 @@ namespace NetTally.VoteCounting
         #region Task properties
         HashSet<string> VoteDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> UserDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
-        List<string> OrderedVoteTaskList { get; } = new();
-        List<string> OrderedUserTaskList { get; } = new();
-        public ObservableCollectionExt<string> TaskList { get; } = new();
+        List<string> OrderedVoteTaskList { get; } = [];
+        List<string> OrderedUserTaskList { get; } = [];
+        public ObservableCollectionExt<string> TaskList { get; } = [];
 
 
         /// <summary>

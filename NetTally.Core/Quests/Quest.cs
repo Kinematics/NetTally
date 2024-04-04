@@ -309,7 +309,7 @@ namespace NetTally
         /// Collection of post numbers to filter from the tally.
         /// </summary>
         [JsonIgnore]
-        public HashSet<long> PostsToFilter { get; } = new();
+        public HashSet<long> PostsToFilter { get; } = [];
 
         /// <summary>
         /// Convert the CustomPostFilters string to a hashset of post
@@ -383,7 +383,7 @@ namespace NetTally
         /// A collection of the IDs of any quests that should be tallied together
         /// with this one.
         /// </summary>
-        public ObservableCollection<Guid> LinkedQuestIds = new();
+        public ObservableCollection<Guid> LinkedQuestIds = [];
 
         /// <summary>
         /// Determine whether this quest is linked to the provided quest ID.

@@ -48,8 +48,7 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                if (httpClient != null)
-                    httpClient.Dispose();
+                httpClient?.Dispose();
             }
 
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
@@ -74,9 +73,10 @@ namespace NetTally.Web
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
             ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
-            HttpClient client = new(ClientHandler);
-
-            client.Timeout = timeout;
+            HttpClient client = new(ClientHandler)
+            {
+                Timeout = timeout
+            };
             client.DefaultRequestHeaders.Add("Accept", "text/html");
             client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
             client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");

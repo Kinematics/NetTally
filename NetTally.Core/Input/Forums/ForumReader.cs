@@ -18,7 +18,7 @@ namespace NetTally.Forums
     /// <summary>
     /// Class for handling reading forum posts from a quest's forum.
     /// </summary>
-    public class ForumReader : IDisposable
+    public class ForumReader
     {
         #region Constructor
         private readonly IServiceProvider serviceProvider;
@@ -35,10 +35,6 @@ namespace NetTally.Forums
             forumAdapterFactory = factory;
             this.questsInfo = questsInfo;
             this.logger = logger;
-        }
-
-        public void Dispose()
-        {
         }
         #endregion
 
@@ -61,14 +57,14 @@ namespace NetTally.Forums
         public async Task<(List<string> threadTitles, List<Post> posts)> ReadQuestAsync(Quest quest, CancellationToken token)
         {
             // Tally the selected quests, and any linked quests.
-            List<Quest> quests = new() { quest };
+            List<Quest> quests = [quest];
             var linkedQuests = questsInfo.GetLinkedQuests(quest);
             quests.AddRange(linkedQuests);
 
             logger.LogDebug("Reading quest {questName} and {questCount} linked quests with ForumReader.",
                 quest.DisplayName, linkedQuests.Count);
 
-            List<Task<(string threadTitle, List<Post> posts)>> loadTasks = new();
+            List<Task<(string threadTitle, List<Post> posts)>> loadTasks = [];
 
             Dictionary<string, IPageProvider> pageProviders = new(StringComparer.Ordinal);
 
@@ -97,8 +93,8 @@ namespace NetTally.Forums
 
                 logger.LogDebug("Quest threads finished loading.");
 
-                List<string> titles = new();
-                List<Post> resultPosts = new();
+                List<string> titles = [];
+                List<Post> resultPosts = [];
 
                 foreach (var (threadTitle, posts) in results)
                 {
@@ -176,7 +172,7 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="quest">The quest to sync up.</param>
         /// <param name="adapter">The forum adapter created for the quest.</param>
-        private void SyncQuestWithForumAdapter(Quest quest, IForumAdapter2 adapter)
+        private static void SyncQuestWithForumAdapter(Quest quest, IForumAdapter2 adapter)
         {
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri);
@@ -193,7 +189,8 @@ namespace NetTally.Forums
         /// <param name="adapter">The quest's forum adapter.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the quest's thread range info.</returns>
-        private async Task<ThreadRangeInfo> GetStartInfoAsync(Quest quest, IForumAdapter2 adapter, IPageProvider pageProvider, CancellationToken token)
+        private static async Task<ThreadRangeInfo> GetStartInfoAsync(Quest quest,
+            IForumAdapter2 adapter, IPageProvider pageProvider, CancellationToken token)
         {
             ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfoAsync(quest, pageProvider, token).ConfigureAwait(false);
 
@@ -209,7 +206,7 @@ namespace NetTally.Forums
         /// <param name="threadRangeInfo">The range of posts that are wanted in the tally.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns a list of page loading tasks.</returns>
-        private async Task<List<Task<HtmlDocument?>>> LoadQuestPagesAsync(
+        private static async Task<List<Task<HtmlDocument?>>> LoadQuestPagesAsync(
             Quest quest, IForumAdapter2 adapter, ThreadRangeInfo threadRangeInfo, IPageProvider pageProvider, CancellationToken token)
         {
             int firstPageNumber = threadRangeInfo.GetStartPage(quest);
@@ -226,8 +223,7 @@ namespace NetTally.Forums
                 GetRemainingPages(firstPageNumber, lastPageNumber, quest, adapter, pageProvider, token);
 
             // Collect all the page load tasks (including the finished first page) to return to caller.
-            List<Task<HtmlDocument?>> pagesToLoad = new() { firstPage };
-            pagesToLoad.AddRange(remainingPages);
+            List<Task<HtmlDocument?>> pagesToLoad = [firstPage, .. remainingPages];
 
             return pagesToLoad;
         }
@@ -240,7 +236,7 @@ namespace NetTally.Forums
         /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns>Returns the thread page that starts the tally.</returns>
-        private async Task<HtmlDocument?> GetFirstPage(
+        private static async Task<HtmlDocument?> GetFirstPage(
             int firstPageNumber, Quest quest, IForumAdapter2 adapter,
             IPageProvider pageProvider, CancellationToken token)
         {
@@ -266,7 +262,7 @@ namespace NetTally.Forums
         /// <param name="threadRangeInfo">The range of posts that are wanted in the tally.</param>
         /// <param name="firstPage">The first page of the tally, from which we can get the page range of the thread.</param>
         /// <returns>Returns the last page number of the tally.</returns>
-        private async Task<int> GetLastPageNumber(Quest quest, IForumAdapter2 adapter,
+        private static async Task<int> GetLastPageNumber(Quest quest, IForumAdapter2 adapter,
             ThreadRangeInfo threadRangeInfo, Task<HtmlDocument?> firstPage)
         {
             // Check for quick results first.
@@ -304,7 +300,7 @@ namespace NetTally.Forums
         /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of pages being loaded.</returns>
-        private IEnumerable<Task<HtmlDocument?>> GetRemainingPages(
+        private static IEnumerable<Task<HtmlDocument?>> GetRemainingPages(
             int firstPageNumber, int lastPageNumber,
             Quest quest, IForumAdapter2 adapter,
             IPageProvider pageProvider, CancellationToken token)
@@ -332,13 +328,13 @@ namespace NetTally.Forums
         /// <param name="adapter">The forum adapter that handles the quest's thread.</param>
         /// <returns>Returns all posts extracted from all pages provided,
         /// and the thread title.</returns>
-        private async Task<(ThreadInfo threadInfo, List<Post> posts)> GetPostsFromPagesAsync(
+        private static async Task<(ThreadInfo threadInfo, List<Post> posts)> GetPostsFromPagesAsync(
             List<Task<HtmlDocument?>> loadingPages,
             Quest quest, IForumAdapter2 adapter,
             ThreadRangeInfo threadRangeInfo)
         {
             ThreadInfo? threadInfo = null;
-            List<Post> postsList = new();
+            List<Post> postsList = [];
             int pageNumber = threadRangeInfo.GetStartPage(quest) - 1;
             bool incomplete = false;
 
@@ -354,10 +350,7 @@ namespace NetTally.Forums
                     continue;
                 }
 
-                if (threadInfo == null)
-                {
-                    threadInfo = adapter.GetThreadInfo(page);
-                }
+                threadInfo ??= adapter.GetThreadInfo(page);
 
                 postsList.AddRange(adapter.GetPosts(page, quest, pageNumber));
             }
@@ -369,8 +362,7 @@ namespace NetTally.Forums
                 throw e;
             }
 
-            if (threadInfo == null)
-                threadInfo = new ThreadInfo("Unknown", "Unknown", 0);
+            threadInfo ??= new ThreadInfo("Unknown", "Unknown", 0);
 
             return (threadInfo, postsList);
         }
@@ -384,7 +376,7 @@ namespace NetTally.Forums
         /// <param name="threadInfo">Thread info provides the thread author.</param>
         /// <param name="rangeInfo">Range info provides information on the range of valid posts.</param>
         /// <returns>Returns a list of posts that satisfy the filtering criteria.</returns>
-        private List<Post> FilterPosts(List<Post> postsList,
+        private static List<Post> FilterPosts(List<Post> postsList,
             Quest quest, ThreadInfo threadInfo, ThreadRangeInfo rangeInfo)
         {
             // Remove any posts that are not votes, that aren't in the valid post range, or that

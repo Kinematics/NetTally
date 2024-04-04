@@ -263,7 +263,7 @@ namespace NetTally.Views
         MenuItem reorderTasks = default!;
         MenuItem partitionChildren = default!;
         private readonly Separator separator = new();
-        private readonly List<MenuItem> ContextMenuTasks = new();
+        private readonly List<MenuItem> ContextMenuTasks = [];
         VoteLineBlock? selectedVoteForNewTask;
 
         /// <summary>
