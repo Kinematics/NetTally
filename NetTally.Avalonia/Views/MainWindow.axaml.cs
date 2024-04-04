@@ -186,7 +186,6 @@ namespace NetTally.Avalonia.Views
             try
             {
                 await navigationService.ShowDialogAsync<QuestOptions>(this);
-                mainViewModel.RepositionQuest();
             }
             catch (Exception ex)
             {
