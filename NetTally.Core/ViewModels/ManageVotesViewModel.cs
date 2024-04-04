@@ -58,51 +58,52 @@ namespace NetTally.ViewModels
             .Where(FilterToVote);
 
         /// <summary>
-        /// Filter function for From votes.
-        /// </summary>
-        /// <param name="vote">The vote being tested.</param>
-        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterFromVote(VoteLineBlock vote)
-        {
-            return FilterVotes(VoteFromFilter, vote);
-        }
-
-        /// <summary>
-        /// Filter function for To votes.
-        /// </summary>
-        /// <param name="vote">The vote being tested.</param>
-        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterToVote(VoteLineBlock vote)
-        {
-            return FilterVotes(VoteToFilter, vote);
-        }
-
-        /// <summary>
-        /// General filter function to show or hide votes in a listbox.
-        /// </summary>
-        /// <param name="filter">The filter to apply.</param>
-        /// <param name="vote">The vote to test.</param>
-        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterVotes(string filter, VoteLineBlock vote)
-        {
-            if (string.IsNullOrEmpty(filter))
-                return true;
-
-            return CultureInfo.InvariantCulture.CompareInfo
-                .IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0;
-        }
-
-        /// <summary>
         /// Get the voters associated with the currently selected From vote (if any).
         /// </summary>
-        public IEnumerable<Origin> VotersFrom =>
-            GetVotersForVote(SelectedFromVote).Order();
+        public ObservableCollectionExt<Origin> VotersFrom { get; } = [];
 
         /// <summary>
         /// Get the voters associated with the currently selected To vote (if any).
         /// </summary>
-        public IEnumerable<Origin> VotersTo =>
-            GetVotersForVote(SelectedToVote).Order();
+        public ObservableCollectionExt<Origin> VotersTo { get; } = [];
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+        private VoteLineBlock? selectedFromVote;
+
+        partial void OnSelectedFromVoteChanged(VoteLineBlock? value)
+        {
+            if (value is null)
+            {
+                VotersFrom.Clear();
+                return;
+            }
+
+            VotersFrom.Replace(GetVotersForVote(value).Order());
+            JoinCommand.NotifyCanExecuteChanged();
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+        private VoteLineBlock? selectedToVote;
+
+        partial void OnSelectedToVoteChanged(VoteLineBlock? value)
+        {
+            if (value is null)
+            {
+                VotersTo.Clear();
+                return;
+            }
+
+            VotersTo.Replace(GetVotersForVote(value).Order());
+            JoinCommand.NotifyCanExecuteChanged();
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
+        private Origin? selectedToVoter;
 
         /// <summary>
         /// Get the voters for a given vote.
@@ -111,6 +112,7 @@ namespace NetTally.ViewModels
         /// <returns>A list of voter origins.</returns>
         public IEnumerable<Origin> GetVotersForVote(VoteLineBlock? vote) =>
             (vote != null) ? quest.VoteCounter.GetVotersFor(vote) : [];
+
         #endregion Observable Vote List Properties
 
         #region Observable Filter Properties
@@ -157,33 +159,50 @@ namespace NetTally.ViewModels
             voteToFilter = voteToFilter.RemoveUnsafeCharacters();
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
         }
+
+        /// <summary>
+        /// Filter function for From votes.
+        /// </summary>
+        /// <param name="vote">The vote being tested.</param>
+        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
+        private bool FilterFromVote(VoteLineBlock vote)
+        {
+            return FilterVotes(VoteFromFilter, vote);
+        }
+
+        /// <summary>
+        /// Filter function for To votes.
+        /// </summary>
+        /// <param name="vote">The vote being tested.</param>
+        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
+        private bool FilterToVote(VoteLineBlock vote)
+        {
+            return FilterVotes(VoteToFilter, vote);
+        }
+
+        /// <summary>
+        /// General filter function to show or hide votes in a listbox.
+        /// Will allow it to be displayed if the contents of the vote, or any of the voters for the vote,
+        /// match the provided filter.
+        /// </summary>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="vote">The vote to test.</param>
+        /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
+        private bool FilterVotes(string filter, VoteLineBlock vote)
+        {
+            if (string.IsNullOrEmpty(filter))
+                return true;
+
+            bool matchVote = CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0;
+
+            bool matchAnyVoter = GetVotersForVote(vote)
+                        .Any(v => CultureInfo.InvariantCulture.CompareInfo.IndexOf(v.Author.Name, filter, CompareOptions.IgnoreCase) >= 0);
+
+            return matchVote || matchAnyVoter;
+        }
         #endregion Observable Filter Properties
 
-
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
-        [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteLineBlock? selectedFromVote;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
-        [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteLineBlock? selectedToVote;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        private List<Origin> fromVoters = [];
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        private List<Origin> toVoters = [];
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        private Origin? toVoter;
-
-
+        #region Collection Updates
         /// <summary>
         /// Update the observable collection of votes.
         /// </summary>
@@ -207,7 +226,9 @@ namespace NetTally.ViewModels
             OnPropertyChanged(nameof(VotersFrom));
             OnPropertyChanged(nameof(VotersTo));
         }
+        #endregion Collection Updates
 
+        #region Commands
         public void ReplaceTask(VoteLineBlock selectedVote, string newTask)
         {
             quest.VoteCounter.ReplaceTask(selectedVote, newTask);
@@ -246,19 +267,17 @@ namespace NetTally.ViewModels
 
         private bool CanJoin()
         {
-            return (FromVoters is not null &&
-                    FromVoters.Count > 0 &&
-                    ToVoter is not null);
+            return (VotersFrom.Count > 0 &&
+                    SelectedToVoter is not null);
         }
 
         [RelayCommand(CanExecute = nameof(CanJoin))]
         private void Join()
         {
-            if (FromVoters is not null &&
-                FromVoters.Count > 0 &&
-                ToVoter is not null)
+            if (VotersFrom.Count > 0 &&
+                SelectedToVoter is not null)
             {
-                quest.VoteCounter.Join(FromVoters, ToVoter);
+                quest.VoteCounter.Join([.. VotersFrom], SelectedToVoter);
                 UpdateVotesCollection();
                 UpdateVotersCollection();
             }
@@ -305,5 +324,16 @@ namespace NetTally.ViewModels
 
             }
         }
+        #endregion Commands
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
+        [Obsolete]
+        private List<Origin> fromVoters = [];
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
+        [Obsolete]
+        private Origin? toVoter;
     }
 }
