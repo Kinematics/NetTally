@@ -22,10 +22,6 @@ namespace NetTally.Avalonia.Views
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="mainViewModel">The primary view model of the program.</param>
         public ManageVotes(
             ManageVotesViewModel manageVotesViewModel,
             AvaloniaNavigationService navigationService,
@@ -275,7 +271,7 @@ namespace NetTally.Avalonia.Views
                 Header = name
             };
             mi.Click += ModifyTask_Click;
-            ToolTip.SetTip(mi, $"Change the task for the selected item to '{mi.Header}'");
+            ToolTip.SetTip(mi, $"Change the task for the selected vote item to '{mi.Header}'");
             mi.Tag = "NamedTask";
 
             return mi;
@@ -289,19 +285,14 @@ namespace NetTally.Avalonia.Views
         {
             ContextMenuItems.Clear();
 
-            foreach (MenuItem header in ContextMenuCommands)
+            foreach (MenuItem command in ContextMenuCommands)
             {
-                //switch (header.Header.ToString())
-                //{
-                //    case "Re-Order Tasks":
-                //        header.IsEnabled = MainViewModel.TaskList.Any();
-                //        break;
-                //    case "Partition Children":
-                //        pMenuItems.Add(new Separator());
-                //        break;
-                //}
+                if (command.Header?.ToString() == "Re-Order Tasks")
+                {
+                    command.IsEnabled = ContextMenuTasks.Count > 1;
+                }
 
-                ContextMenuItems.Add(header);
+                ContextMenuItems.Add(command);
             }
 
             ContextMenuItems.Add(separator);
