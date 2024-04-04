@@ -232,11 +232,13 @@ namespace NetTally.ViewModels
         public void ReplaceTask(VoteLineBlock selectedVote, string newTask)
         {
             quest.VoteCounter.ReplaceTask(selectedVote, newTask);
+            UpdateVotesCollection();
         }
 
         public void PartitionChildren(VoteLineBlock selectedVote)
         {
             quest.VoteCounter.Split(selectedVote, voteConstructor.PartitionChildren(selectedVote));
+            UpdateVotesCollection();
         }
 
         public void AddUserDefinedTask(string newTask)
