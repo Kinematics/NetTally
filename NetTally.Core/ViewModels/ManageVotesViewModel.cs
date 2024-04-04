@@ -29,6 +29,9 @@ namespace NetTally.ViewModels
             quest = questsInfo.SelectedQuest;
             this.voteConstructor = voteConstructor;
             this.logger = logger;
+
+            UpdateVotesCollection();
+            UpdateVotersCollection();
         }
 
         public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = [];
