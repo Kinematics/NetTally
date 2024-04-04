@@ -161,17 +161,12 @@ namespace NetTally.ViewModels
 
 
 
-
-
-
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(VotesFrom))]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
         private VoteLineBlock? selectedFromVote;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(VotesTo))]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
         private VoteLineBlock? selectedToVote;
