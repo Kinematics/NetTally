@@ -331,14 +331,14 @@ namespace NetTally.ViewModels
         }
         #endregion Commands
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        [Obsolete]
-        private List<Origin> fromVoters = [];
+        //[ObservableProperty]
+        //[NotifyCanExecuteChangedFor(nameof(JoinCommand))]
+        //[Obsolete]
+        //private List<Origin> fromVoters = [];
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        [Obsolete]
-        private Origin? toVoter;
+        //[ObservableProperty]
+        //[NotifyCanExecuteChangedFor(nameof(JoinCommand))]
+        //[Obsolete]
+        //private Origin? toVoter;
     }
 }

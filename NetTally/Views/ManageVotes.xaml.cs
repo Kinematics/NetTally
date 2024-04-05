@@ -24,7 +24,7 @@ namespace NetTally.Views
     /// Interaction logic for ManageVotes2.xaml
     /// </summary>
     [ObservableObject]
-    public partial class ManageVotes : Window, IActivable
+    public partial class ManageVotes : Window
     {
         private readonly ManageVotesViewModel manageVotesViewModel;
         private readonly WPFNavigationService navigationService;
@@ -45,6 +45,8 @@ namespace NetTally.Views
             this.navigationService = navigationService;
             this.logger = logger;
 
+            InitializeComponent();
+
             VoteView1 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
             VoteView2 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
 
@@ -56,20 +58,10 @@ namespace NetTally.Views
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
+            InitKnownTasks();
+            UpdateContextMenu();
 
-            // Initialize the window and set up the data context binding.
-            InitializeComponent();
             DataContext = manageVotesViewModel;
-        }
-
-        public Task ActivateAsync(object? parameter)
-        {
-            if (parameter is Window owner)
-            {
-                this.Owner = owner;
-            }
-
-            return Task.CompletedTask;
         }
 
         private void SetupViews()
@@ -80,27 +72,12 @@ namespace NetTally.Views
             VoteView1.GroupDescriptions.Add(groupDescription);
             VoteView2.GroupDescriptions.Add(groupDescription);
 
-            if (VoteView1.CanSort)
-            {
-                IComparer voteCompare = new CustomVoteComparer();
-                VoteView1.CustomSort = voteCompare;
-            }
+            IComparer voteCompare = new CustomVoteComparer();
+            VoteView1.CustomSort = voteCompare;
+            VoteView2.CustomSort = voteCompare;
 
-            if (VoteView2.CanSort)
-            {
-                IComparer voteCompare = new CustomVoteComparer();
-                VoteView2.CustomSort = voteCompare;
-            }
-
-            if (VoteView1.CanFilter)
-            {
-                VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
-            }
-
-            if (VoteView2.CanFilter)
-            {
-                VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
-            }
+            VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
+            VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
 
             // Initialize starting selected positions
             VoteView1.MoveCurrentToPosition(-1);
@@ -123,13 +100,13 @@ namespace NetTally.Views
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a as Origin);
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a as Origin);
 
-            VoterView1.CurrentChanged += (sender, e) =>
-            {
-                manageVotesViewModel.FromVoters = VoterView1.SourceCollection.OfType<Origin>().ToList();
-            };
+            //VoterView1.CurrentChanged += (sender, e) =>
+            //{
+            //    manageVotesViewModel.FromVoters = VoterView1.SourceCollection.OfType<Origin>().ToList();
+            //};
             VoterView2.CurrentChanged += (sender, e) =>
             {
-                manageVotesViewModel.ToVoter = VoterView2.CurrentItem as Origin;
+                manageVotesViewModel.SelectedToVoter = VoterView2.CurrentItem as Origin;
             };
 
             // Update the voters to match the votes.
@@ -177,7 +154,8 @@ namespace NetTally.Views
             if (string.IsNullOrEmpty(filterString))
                 return true;
 
-            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
+            if (CultureInfo.InvariantCulture.CompareInfo
+                .IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
                 return true;
 
             var voters = manageVotesViewModel.GetVotersForVote(vote).ToList();
@@ -185,7 +163,8 @@ namespace NetTally.Views
             if (voters.Count == 0)
                 return false;
 
-            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
+            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo
+                .IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
         }
 
         /// <summary>
@@ -403,6 +382,9 @@ namespace NetTally.Views
 
             // Only enable the Parition Children context menu item if it's a valid action for the vote.
             partitionChildren.IsEnabled = HasChildLines(selectedVote);
+
+            // Only clear a task if the vote has one.
+            clearTask.IsEnabled = !string.IsNullOrEmpty(selectedVote.Task);
 
             // Only enable Reorder Tasks if we have tasks to reorder
             reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;
