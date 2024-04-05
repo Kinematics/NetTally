@@ -19,12 +19,12 @@ namespace NetTally.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel mainViewModel;
-        private readonly IoCNavigationService navigation;
+        private readonly WPFNavigationService navigation;
         private readonly ILogger<MainWindow> logger;
 
         public MainWindow(
             MainViewModel mainViewModel,
-            IoCNavigationService navigation,
+            WPFNavigationService navigation,
             ILogger<MainWindow> logger)
         {
             this.mainViewModel = mainViewModel;

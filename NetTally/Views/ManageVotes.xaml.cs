@@ -27,7 +27,7 @@ namespace NetTally.Views
     public partial class ManageVotes : Window, IActivable
     {
         private readonly ManageVotesViewModel manageVotesViewModel;
-        private readonly IoCNavigationService navigationService;
+        private readonly WPFNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         public ListCollectionView VoteView1 { get; }
@@ -38,7 +38,7 @@ namespace NetTally.Views
 
         public ManageVotes(
             ManageVotesViewModel manageVotesViewModel,
-            IoCNavigationService navigationService,
+            WPFNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {
             this.manageVotesViewModel = manageVotesViewModel;

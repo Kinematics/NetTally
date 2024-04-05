@@ -79,7 +79,7 @@ namespace NetTally
                 logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
 
                 // Request the navigation service and create our main window.
-                var navigationService = host.Services.GetRequiredService<IoCNavigationService>();
+                var navigationService = host.Services.GetRequiredService<WPFNavigationService>();
                 await navigationService.ShowAsync<MainWindow>();
             }
             catch (Exception ex)
@@ -166,7 +166,7 @@ namespace NetTally
             NetTally.Startup.ConfigureServices(services);
 
             // Add IoCNavigationService for the application.
-            services.AddSingleton<IoCNavigationService>();
+            services.AddSingleton<WPFNavigationService>();
 
             // Register all the Windows of the applications.
             services.AddTransient<MainWindow>();

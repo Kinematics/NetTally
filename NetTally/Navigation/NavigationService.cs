@@ -10,10 +10,10 @@ namespace NetTally.Navigation
     /// An IoC service to allow creating and showing windows via the standard
     /// service provider.
     /// </summary>
-    public class IoCNavigationService(IServiceProvider serviceProvider, ILogger<IoCNavigationService> logger)
+    public class WPFNavigationService(IServiceProvider serviceProvider, ILogger<WPFNavigationService> logger)
     {
         private readonly IServiceProvider serviceProvider = serviceProvider;
-        private readonly ILogger<IoCNavigationService> logger = logger;
+        private readonly ILogger<WPFNavigationService> logger = logger;
 
         /// <summary>
         /// Show a non-modal window.

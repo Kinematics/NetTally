@@ -49,7 +49,7 @@ namespace NetTally.Views.original
         string filter2String = "";
 
         private readonly ILogger<ManageVotes> logger;
-        private readonly IoCNavigationService navigationService;
+        private readonly WPFNavigationService navigationService;
 
         public Task ActivateAsync(object? parameter)
         {
@@ -65,7 +65,7 @@ namespace NetTally.Views.original
         /// Constructor.
         /// </summary>
         /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotes(ViewModel mainViewModel, IoCNavigationService navigationService, ILogger<ManageVotes> logger)
+        public ManageVotes(ViewModel mainViewModel, WPFNavigationService navigationService, ILogger<ManageVotes> logger)
         {
             this.mainViewModel = mainViewModel;
             this.navigationService = navigationService;

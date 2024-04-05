@@ -31,7 +31,7 @@ namespace NetTally.Views.original
         #region Fields and Properties
         private bool updateFlag;
         private readonly ViewModel mainViewModel;
-        private readonly IoCNavigationService navigationService;
+        private readonly WPFNavigationService navigationService;
         private readonly SynchronizationContext _syncContext;
         private readonly ILogger<MainWindow> logger;
         #endregion
@@ -41,7 +41,7 @@ namespace NetTally.Views.original
         /// Function that's run when the program first starts.
         /// Set up the data context links with the local variables.
         /// </summary>
-        public MainWindow(ViewModel model, IoCNavigationService navigationService, ILogger<MainWindow> logger)
+        public MainWindow(ViewModel model, WPFNavigationService navigationService, ILogger<MainWindow> logger)
         {
             // Initialize the readonly fields.
             this.mainViewModel = model;
