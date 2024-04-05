@@ -67,8 +67,7 @@ namespace NetTally.Avalonia.Views
         #endregion
 
         #region Context Menu Events
-
-        private void TaskContextMenu_Opened(object? sender, RoutedEventArgs e)
+        private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
         {
             if (sender is not ContextMenu cm)
                 return;
@@ -80,10 +79,32 @@ namespace NetTally.Avalonia.Views
             {
                 if (listBox.SelectedItem is VoteLineBlock selectedVote)
                 {
-                    // Parition Children context menu item if it's a valid action for the vote.
-                    // Only relevant when we add in that action option.
-                    if (HasChildLines(selectedVote))
+                    string selectedVoteTask = selectedVote.Task;
+
+                    // Enable/Disable commands based on whether it's valid for the selected vote.
+
+                    foreach (var cmd in ContextMenuCommands)
                     {
+                        string? cmdHeader = cmd.Header as string;
+
+                        switch (cmdHeader)
+                        {
+                            case partitionChildrenString:
+                                cmd.IsEnabled = HasChildLines(selectedVote);
+                                break;
+                            case clearTaskString:
+                                cmd.IsEnabled = !string.IsNullOrEmpty(selectedVoteTask);
+                                break;
+                            case reorderTasksString:
+                                cmd.IsEnabled = ContextMenuTasks.Count > 1;
+                                break;
+                        }
+                    }
+
+                    foreach (var task in ContextMenuTasks)
+                    {
+                        string? menuTask = task.Header as string;
+                        task.IsEnabled = menuTask != selectedVoteTask;
                     }
                 }
             }
@@ -189,9 +210,12 @@ namespace NetTally.Avalonia.Views
         #region Context Menu Utility
         ObservableCollectionExt<MenuItem> ContextMenuItems { get; } = [];
         readonly List<MenuItem> ContextMenuCommands = [];
-        readonly MenuItem separator = new() { Header = "-" };
         readonly List<MenuItem> ContextMenuTasks = [];
+        readonly MenuItem separator = new() { Header = "-" };
         ListBox? newTaskBox = null;
+        const string partitionChildrenString = "Partition Children";
+        const string clearTaskString = "Clear Task";
+        const string reorderTasksString = "Re-Order Tasks";
 
 
         /// <summary>
@@ -208,21 +232,21 @@ namespace NetTally.Avalonia.Views
 
             MenuItem clearTask = new()
             {
-                Header = "Clear Task"
+                Header = clearTaskString
             };
             clearTask.Click += ModifyTask_Click;
             ToolTip.SetTip(clearTask, "Clear the task from the currently selected vote.");
 
             MenuItem reorderTasks = new()
             {
-                Header = "Re-Order Tasks"
+                Header = reorderTasksString
             };
             reorderTasks.Click += ReorderTasks_Click;
             ToolTip.SetTip(reorderTasks, "Modify the order in which the tasks appear in the output.");
 
             MenuItem partitionChildren = new()
             {
-                Header = "Partition Children"
+                Header = partitionChildrenString
             };
             partitionChildren.Click += PartitionChildren_Click;
             ToolTip.SetTip(partitionChildren, "Split child vote lines into their own vote blocks.");
@@ -285,22 +309,11 @@ namespace NetTally.Avalonia.Views
         {
             ContextMenuItems.Clear();
 
-            foreach (MenuItem command in ContextMenuCommands)
-            {
-                if (command.Header?.ToString() == "Re-Order Tasks")
-                {
-                    command.IsEnabled = ContextMenuTasks.Count > 1;
-                }
-
-                ContextMenuItems.Add(command);
-            }
+            ContextMenuItems.AddRange(ContextMenuCommands);
 
             ContextMenuItems.Add(separator);
 
-            foreach (MenuItem task in ContextMenuTasks.OrderBy(m => m.Header))
-            {
-                ContextMenuItems.Add(task);
-            }
+            ContextMenuItems.AddRange(ContextMenuTasks.OrderBy(m => m.Header));
 
             OnPropertyChanged(nameof(ContextMenuItems));
         }
@@ -350,7 +363,6 @@ namespace NetTally.Avalonia.Views
             return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
         #endregion
-
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>

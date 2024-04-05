@@ -14,6 +14,7 @@
 		<ContextMenu x:Key="TaskContextMenu" x:Name="TaskContextMenu"
 					 DataContext="{Binding ElementName=ManageVotesWindow}"
 					 ItemsSource="{Binding ContextMenuItems}"
+					 Opened="ContextMenu_Opened"
 					 />
 		<ContextMenu x:Key="TestMenu" x:Name="TestMenu">
 			<MenuItem Header="Test1" Command="{Binding RunTestCommand}"
