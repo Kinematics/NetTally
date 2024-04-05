@@ -6,6 +6,9 @@ using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
 {
+    /// <summary>
+    /// Code-behind for window used for reordering tasks.
+    /// </summary>
     public partial class ReorderTasks : Window
     {
         private readonly TasksViewModel tasksViewModel;
@@ -19,7 +22,6 @@ namespace NetTally.Avalonia.Views
             this.logger = logger;
 
             InitializeComponent();
-
             DataContext = this.tasksViewModel;
 
             tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;

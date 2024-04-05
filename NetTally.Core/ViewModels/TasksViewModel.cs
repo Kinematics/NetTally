@@ -9,6 +9,9 @@ using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels
 {
+    /// <summary>
+    /// A view model for managing and rearranging tasks.
+    /// </summary>
     public partial class TasksViewModel : ObservableObject
     {
         private readonly Quest quest;
@@ -20,10 +23,10 @@ namespace NetTally.ViewModels
             IQuestsInfo questsInfo,
             ILogger<TasksViewModel> logger)
         {
-            this.logger = logger;
-
             ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest);
-            quest = questsInfo.SelectedQuest;
+
+            this.logger = logger;
+            this.quest = questsInfo.SelectedQuest;
 
             LoadTasks();
         }
