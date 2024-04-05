@@ -37,10 +37,11 @@ namespace NetTally.Avalonia.Views
 
             // Initialize the window.
             InitializeComponent();
-            Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
+            DataContext = mainViewModel;
 
             mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-            DataContext = mainViewModel;
+
+            Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
         }
 
         protected override void OnLoaded(RoutedEventArgs e)

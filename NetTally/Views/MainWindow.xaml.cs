@@ -19,16 +19,16 @@ namespace NetTally.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel mainViewModel;
-        private readonly WPFNavigationService navigation;
+        private readonly WPFNavigationService navigationService;
         private readonly ILogger<MainWindow> logger;
 
         public MainWindow(
             MainViewModel mainViewModel,
-            WPFNavigationService navigation,
+            WPFNavigationService navigationService,
             ILogger<MainWindow> logger)
         {
             this.mainViewModel = mainViewModel;
-            this.navigation = navigation;
+            this.navigationService = navigationService;
             this.logger = logger;
 
             InitializeComponent();
@@ -36,44 +36,109 @@ namespace NetTally.Views
 
             Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
 
-            this.mainViewModel.Quests.CollectionChanged += Quests_CollectionChanged;
+            this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
         }
 
 
         #region Event Handlers
-        private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void MainViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            await ShowQuestOptions();
-        }
+            logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
 
-        private async Task ShowQuestOptions()
-        {
-            await navigation.ShowDialogAsync<QuestOptions>(this);
-        }
-
-        private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            await navigation.ShowDialogAsync<GlobalOptions>(this);
-        }
-
-        private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
-        {
-            await navigation.ShowDialogAsync<ManageVotes>(this);
-
-            mainViewModel.UpdateOutput();
-        }
-
-        private async void Quests_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            // If a new quest was added, load the QuestOptions dialog to
+            // allow setting the URL and display name.
+            if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
             {
-                await ShowQuestOptions();
+                // If we have a URL in the clipboard, make use of that as
+                // the default new URL for the quest.
+                string clipboard = Clipboard.GetText();
+
+                string uri = string.Empty;
+
+                if (Uri.IsWellFormedUriString(clipboard, UriKind.Absolute))
+                {
+                    uri = clipboard;
+                }
+
+                var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
+
+                // If the QuestOptions dialog was canceled, remove the quest we just added.
+                // Otherwise, update the position of the quest.
+                if (!result.HasValue || result.Value == false)
+                {
+                    mainViewModel.RemoveQuestCommand.Execute(null);
+                }
+                else
+                {
+                    mainViewModel.RepositionQuest();
+                }
             }
         }
 
         private void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             CopyOutputTextToClipboard();
+        }
+
+        private void CopyOutputTextToClipboard()
+        {
+            try
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    Clipboard.SetText(mainViewModel.Output);
+                }
+            }
+            catch (Exception e1)
+            {
+                try
+                {
+                    // Try again
+                    Clipboard.SetDataObject(mainViewModel.Output, false);
+                }
+                catch (Exception)
+                {
+                    logger.LogWarning(e1, "Unable to copy output to the clipboard.");
+                }
+            }
+        }
+
+        private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<ManageVotes>(this);
+
+                mainViewModel.UpdateOutput();
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error managing votes");
+            }
+        }
+
+        private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<GlobalOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling global options");
+            }
+        }
+
+        private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<QuestOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling quest options");
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -118,30 +183,5 @@ namespace NetTally.Views
             }
         }
         #endregion Event Handlers
-
-
-
-        private void CopyOutputTextToClipboard()
-        {
-            try
-            {
-                if (OperatingSystem.IsWindows())
-                {
-                    Clipboard.SetText(mainViewModel.Output);
-                }
-            }
-            catch (Exception e1)
-            {
-                try
-                {
-                    // Try again
-                    Clipboard.SetDataObject(mainViewModel.Output, false);
-                }
-                catch (Exception)
-                {
-                    logger.LogWarning(e1, "Unable to copy output to the clipboard.");
-                }
-            }
-        }
     }
 }
