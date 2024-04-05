@@ -111,7 +111,7 @@ namespace NetTally.Forums.Adapters2
             string author = GetPageAuthor(headerNode);
             int pages = GetMaxPageNumberOfThread(bodyNode);
 
-            ThreadInfo info = new ThreadInfo(title, author, pages);
+            ThreadInfo info = new(title, author, pages);
 
             return info;
         }

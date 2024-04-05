@@ -342,7 +342,7 @@ namespace NetTally.Forums
             {
                 var page = await loadingPage.ConfigureAwait(false);
 
-                pageNumber++;
+                Interlocked.Increment(ref pageNumber);
 
                 if (page == null)
                 {
