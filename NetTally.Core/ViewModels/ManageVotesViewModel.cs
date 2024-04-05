@@ -194,10 +194,12 @@ namespace NetTally.ViewModels
             if (string.IsNullOrEmpty(filter))
                 return true;
 
-            bool matchVote = CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0;
+            bool matchVote = CultureInfo.InvariantCulture.CompareInfo
+                .IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0;
 
             bool matchAnyVoter = GetVotersForVote(vote)
-                        .Any(v => CultureInfo.InvariantCulture.CompareInfo.IndexOf(v.Author.Name, filter, CompareOptions.IgnoreCase) >= 0);
+                        .Any(v => CultureInfo.InvariantCulture.CompareInfo
+                            .IndexOf(v.Author.Name, filter, CompareOptions.IgnoreCase) >= 0);
 
             return matchVote || matchAnyVoter;
         }
