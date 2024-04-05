@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using NetTally.Votes;
 
@@ -8,7 +9,7 @@ namespace NetTally.Comparers
     /// Custom sorting class for sorting votes.
     /// Sorts by Task+Content.
     /// </summary>
-    public class CustomVoteComparer : IComparer<VoteLineBlock>
+    public class CustomVoteComparer : IComparer<VoteLineBlock>, IComparer
     {
         public int Compare(object? x, object? y)
         {
