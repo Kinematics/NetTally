@@ -10,16 +10,10 @@ namespace NetTally.Navigation
     /// An IoC service to allow creating and showing windows via the standard
     /// service provider.
     /// </summary>
-    public class IoCNavigationService
+    public class IoCNavigationService(IServiceProvider serviceProvider, ILogger<IoCNavigationService> logger)
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly ILogger<IoCNavigationService> logger;
-
-        public IoCNavigationService(IServiceProvider serviceProvider, ILogger<IoCNavigationService> logger)
-        {
-            this.serviceProvider = serviceProvider;
-            this.logger = logger;
-        }
+        private readonly IServiceProvider serviceProvider = serviceProvider;
+        private readonly ILogger<IoCNavigationService> logger = logger;
 
         /// <summary>
         /// Show a non-modal window.
@@ -27,22 +21,19 @@ namespace NetTally.Navigation
         /// <typeparam name="T">The type of window being requested.</typeparam>
         /// <param name="parameter">Optional parameter to pass to the window before activating it.</param>
         /// <returns></returns>
-        public async Task ShowAsync<T>(object? parameter = null) where T : Window
+        public async Task ShowAsync<T>(params object[] parameters)
+            where T : Window
         {
-            try
-            {
-                var window = serviceProvider.GetRequiredService<T>();
-                if (window is IActivable activableWindow)
-                {
-                    await activableWindow.ActivateAsync(parameter);
-                }
+            logger.LogDebug("Showing Window {type}", typeof(T));
 
-                window.Show();
-            }
-            catch (Exception e)
+            var window = serviceProvider.GetRequiredService<T>();
+
+            if (window is IActivable activableWindow && parameters.Length > 0)
             {
-                logger.LogError(e, "Failed to create window");
+                await activableWindow.ActivateAsync(parameters);
             }
+
+            window.Show();
         }
 
         /// <summary>
@@ -51,13 +42,17 @@ namespace NetTally.Navigation
         /// <typeparam name="T">The type of window being requested.</typeparam>
         /// <param name="parameter">Optional parameter to pass to the window before activating it.</param>
         /// <returns>Returns the dialog result.</returns>
-        public async Task<bool?> ShowDialogAsync<T>(object? parameter = null)
+        public async Task<bool?> ShowDialogAsync<T>(Window parentWindow, params object[] parameters)
             where T : Window
         {
+            logger.LogDebug("Showing Dialog Window {type}", typeof(T));
+
             var window = serviceProvider.GetRequiredService<T>();
-            if (window is IActivable activableWindow)
+            window.Owner = parentWindow;
+
+            if (window is IActivable activableWindow && parameters.Length > 0)
             {
-                await activableWindow.ActivateAsync(parameter);
+                await activableWindow.ActivateAsync(parameters);
             }
 
             return window.ShowDialog();
