@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
+using NetTally.Comparers;
 using NetTally.Global;
 using NetTally.Types.Components;
 using NetTally.Utility;
@@ -47,15 +48,15 @@ namespace NetTally.ViewModels
         /// Get the votes for the From side of the window.
         /// </summary>
         public IEnumerable<VoteLineBlock> VotesFrom => AllVotesCollection
-            .Order()
-            .Where(FilterFromVote);
+            .Where(FilterFromVote)
+            .OrderBy(v => v, new CustomVoteComparer());
 
         /// <summary>
         /// Get the votes for the To side of the window.
         /// </summary>
         public IEnumerable<VoteLineBlock> VotesTo => AllVotesCollection
-            .Order()
-            .Where(FilterToVote);
+            .Where(FilterToVote)
+            .OrderBy(v => v, new CustomVoteComparer());
 
         /// <summary>
         /// Get the voters associated with the currently selected From vote (if any).
