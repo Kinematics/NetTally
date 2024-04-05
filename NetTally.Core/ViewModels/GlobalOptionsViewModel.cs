@@ -60,7 +60,7 @@ namespace NetTally.ViewModels
         private void Save()
         {
             SaveGlobalOptions();
-            SaveCompleted?.Invoke();
+            OnPropertyChanged(nameof(SaveCommand));
         }
 
         private void SaveGlobalOptions()
@@ -74,8 +74,6 @@ namespace NetTally.ViewModels
             globalSettings.DisableWebProxy = DisableWebProxy;
             globalSettings.DebugMode = DebugMode;
         }
-
-        public event Action? SaveCompleted;
 
 
         // Options list

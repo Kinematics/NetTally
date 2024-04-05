@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
 using NetTally.ViewModels;
@@ -13,8 +14,6 @@ namespace NetTally.Avalonia.Views
         private readonly GlobalOptionsViewModel globalOptionsViewModel;
         private readonly ILogger<GlobalOptions> logger;
 
-        #region Constructor
-
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalOptions"/> class.
         /// </summary>
@@ -27,27 +26,27 @@ namespace NetTally.Avalonia.Views
             this.globalOptionsViewModel = globalOptionsViewModel;
             this.logger = logger;
 
-            this.globalOptionsViewModel.SaveCompleted += GlobalOptionsViewModel_SaveCompleted;
+            this.globalOptionsViewModel.PropertyChanged += GlobalOptionsViewModel_PropertyChanged;
 
-            //AvaloniaXamlLoader.Load(this);
             InitializeComponent();
 
             DataContext = this.globalOptionsViewModel;
         }
 
-        protected override void OnClosing(WindowClosingEventArgs e)
+        private void GlobalOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            globalOptionsViewModel.SaveCompleted -= GlobalOptionsViewModel_SaveCompleted;
-            base.OnClosing(e);
+            if (e.PropertyName == nameof(globalOptionsViewModel.SaveCommand))
+            {
+                logger.LogDebug("Global options were saved.");
+                Close();
+            }
         }
 
-        private void GlobalOptionsViewModel_SaveCompleted()
+        protected override void OnClosed(EventArgs e)
         {
-            logger.LogDebug("Global options were saved.");
-            Close();
+            this.globalOptionsViewModel.PropertyChanged -= GlobalOptionsViewModel_PropertyChanged;
+            base.OnClosed(e);
         }
-
-        #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>

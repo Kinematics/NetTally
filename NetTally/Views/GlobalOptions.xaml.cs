@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using Microsoft.Extensions.Logging;
-using NetTally.Navigation;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
@@ -10,7 +9,7 @@ namespace NetTally.Views
     /// <summary>
     /// Interaction logic for GlobalOptions.xaml
     /// </summary>
-    public partial class GlobalOptions : Window, IActivable
+    public partial class GlobalOptions : Window
     {
         private readonly GlobalOptionsViewModel globalOptionsViewModel;
         private readonly ILogger<GlobalOptions> logger;
@@ -22,36 +21,25 @@ namespace NetTally.Views
             this.globalOptionsViewModel = globalOptionsViewModel;
             this.logger = logger;
 
-            this.globalOptionsViewModel.SaveCompleted += GlobalOptionsViewModel_SaveCompleted;
+            this.globalOptionsViewModel.PropertyChanged += GlobalOptionsViewModel_PropertyChanged;
 
             InitializeComponent();
             DataContext = globalOptionsViewModel;
         }
 
-        public Task ActivateAsync(object? parameter)
+        private void GlobalOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (parameter is Window owner)
+            if (e.PropertyName == nameof(globalOptionsViewModel.SaveCommand))
             {
-                this.Owner = owner;
+                logger.LogDebug("Global options were saved.");
+                Close();
             }
-
-            return Task.CompletedTask;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            globalOptionsViewModel.SaveCompleted -= GlobalOptionsViewModel_SaveCompleted;
-            base.OnClosing(e);
-        }
-
-        private void GlobalOptionsViewModel_SaveCompleted()
-        {
-            Close();
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+            globalOptionsViewModel.PropertyChanged -= GlobalOptionsViewModel_PropertyChanged;
+            base.OnClosed(e);
         }
     }
 }
