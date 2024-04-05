@@ -71,6 +71,8 @@ namespace NetTally.VoteCounting
 
             try
             {
+                quest.VoteCounter.Reset();
+
                 await ReadPostsFromQuestAsync(quest, cancellationToken)
                      .ConfigureAwait(false);
 
@@ -90,16 +92,14 @@ namespace NetTally.VoteCounting
             if (quest.VoteCounter.HasPosts)
             {
                 ConstructVotesFromPosts(quest);
-                UpdateOutput(quest);
             }
+                
+            UpdateOutput(quest);
         }
 
         public void UpdateOutput(Quest quest)
         {
-            if (quest.VoteCounter.HasVotes)
-            {
-                TallyResults = textResultsProvider.BuildOutput(quest);
-            }
+            TallyResults = textResultsProvider.BuildOutput(quest);
         }
 
         public void ClearTallyResults()
