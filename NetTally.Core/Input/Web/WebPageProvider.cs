@@ -198,8 +198,7 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentException">url</exception>
         private static (Uri uri, string url) GetVerifiedUrl(string url)
         {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
+            ArgumentException.ThrowIfNullOrEmpty(url);
 
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));

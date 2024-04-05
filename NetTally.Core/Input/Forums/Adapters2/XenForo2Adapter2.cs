@@ -74,16 +74,12 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns whether the site is known to use or not use RSS threadmarks.</returns>
         public BoolEx GetHasRssThreadmarksFeed(Uri uri)
         {
-            switch (uri.Host)
+            return uri.Host switch
             {
-                case "forums.sufficientvelocity.com":
-                case "forums.spacebattles.com":
-                    return BoolEx.True;
-                case "forum.questionablequesting.com":
-                    return BoolEx.False;
-                default:
-                    return BoolEx.Unknown;
-            }
+                "forums.sufficientvelocity.com" or "forums.spacebattles.com" => BoolEx.True,
+                "forum.questionablequesting.com" => BoolEx.False,
+                _ => BoolEx.Unknown,
+            };
         }
 
         /// <summary>
@@ -94,8 +90,7 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a URL for the page requested.</returns>
         public string GetUrlForPage(Quest quest, int page)
         {
-            if (page < 1)
-                throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+            ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
             string append = page > 1 ? $"page-{page}" : "";
 
@@ -109,8 +104,7 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             var (headerNode, bodyNode) = GetPageInfoNodes(page);
             string title = GetPageTitle(page, headerNode);
@@ -132,10 +126,8 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
         public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (pageProvider == null)
-                throw new ArgumentNullException(nameof(pageProvider));
+            ArgumentNullException.ThrowIfNull(quest);
+            ArgumentNullException.ThrowIfNull(pageProvider);
 
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
@@ -164,7 +156,7 @@ namespace NetTally.Forums.Adapters2
         public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
-                return Enumerable.Empty<Post>();
+                return [];
 
             var posts = from p in GetPostList(page)
                         where p != null
