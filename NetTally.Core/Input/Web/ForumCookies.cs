@@ -37,7 +37,7 @@ namespace NetTally.Web
                     cookie.Expires = clock.Now + TimeSpan.FromDays(30);
                     break;
                 case "xf2.questionablequesting.com":
-                    cookie = new Cookie("xf_session", "BjoGWljYfJalZOo8mp7LcaDnWFdsKGVY", "/", uri.Host);
+                    cookie = new Cookie("xf_user", "2940%2CZKfOlFI_iQ5kQXU3FVeg4GzE2Y-wS0-V7y3fsvI6", "/", uri.Host);
                     cookie.Expires = clock.Now + TimeSpan.FromDays(30);
                     break;
             }
