@@ -85,7 +85,7 @@ namespace NetTally.Views.original
 
             if (VoteView1.CanSort && VoteView2.CanSort)
             {
-                IComparer voteCompare = new CustomVoteSort();
+                IComparer voteCompare = new CustomVoteComparer();
                 VoteView1.CustomSort = voteCompare;
                 VoteView2.CustomSort = voteCompare;
             }

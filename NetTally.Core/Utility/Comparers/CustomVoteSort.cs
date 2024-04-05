@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using NetTally.Votes;
 
 namespace NetTally.Comparers
@@ -8,7 +9,7 @@ namespace NetTally.Comparers
     /// Custom sorting class for sorting votes.
     /// Sorts by Task+Content.
     /// </summary>
-    public class CustomVoteSort : IComparer
+    public class CustomVoteComparer : IComparer<VoteLineBlock>
     {
         public int Compare(object? x, object? y)
         {
@@ -25,6 +26,20 @@ namespace NetTally.Comparers
             {
                 throw new ArgumentException("Parameters are not known types.");
             }
+        }
+
+        public int Compare(VoteLineBlock? x, VoteLineBlock? y)
+        {
+            if (x is null &&  y is null) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+
+            int result = x.Category.CompareTo(y.Category);
+
+            if (result == 0)
+                return x.CompareTo(y);
+            else
+                return result;
         }
     }
 }

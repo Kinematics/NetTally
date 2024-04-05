@@ -82,13 +82,13 @@ namespace NetTally.Views
 
             if (VoteView1.CanSort)
             {
-                IComparer voteCompare = new CustomVoteSort();
+                IComparer voteCompare = new CustomVoteComparer();
                 VoteView1.CustomSort = voteCompare;
             }
 
             if (VoteView2.CanSort)
             {
-                IComparer voteCompare = new CustomVoteSort();
+                IComparer voteCompare = new CustomVoteComparer();
                 VoteView2.CustomSort = voteCompare;
             }
 
