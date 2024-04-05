@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using NetTally.Votes;
 
@@ -30,16 +29,16 @@ namespace NetTally.Comparers
 
         public int Compare(VoteLineBlock? x, VoteLineBlock? y)
         {
-            if (x is null &&  y is null) return 0;
+            if (x is null && y is null) return 0;
             if (x is null) return -1;
             if (y is null) return 1;
 
-            int result = x.Category.CompareTo(y.Category);
+            int categoryComparison = x.Category.CompareTo(y.Category);
 
-            if (result == 0)
+            if (categoryComparison == 0)
                 return x.CompareTo(y);
             else
-                return result;
+                return categoryComparison;
         }
     }
 }
