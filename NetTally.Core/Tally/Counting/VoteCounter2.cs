@@ -15,17 +15,11 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounter2 : IVoteCounter
+    public class VoteCounter2(IOptions<GlobalSettings> globalOptions,
+        ILogger<VoteCounter2> logger) : IVoteCounter
     {
-        private readonly GlobalSettings globalSettings;
-        private readonly ILogger<VoteCounter2> logger;
-
-        public VoteCounter2(IOptions<GlobalSettings> globalOptions,
-            ILogger<VoteCounter2> logger)
-        {
-            globalSettings = globalOptions.Value;
-            this.logger = logger;
-        }
+        private readonly GlobalSettings globalSettings = globalOptions.Value;
+        private readonly ILogger<VoteCounter2> logger = logger;
 
         #region Data Collections
         // Public
@@ -120,6 +114,8 @@ namespace NetTally.VoteCounting
 
             OnPropertyChanged("VoteCounter");
             OnPropertyChanged("Tasks");
+
+            logger.LogDebug("Vote counter was reset.");
         }
 
         /// <summary>
@@ -492,7 +488,7 @@ namespace NetTally.VoteCounting
 
             // Theoretically, all the supporters in the from vote could already
             // be in the to vote, in which case no merging would happen.
-            MergeImpl(fromVote, toVote, fromSupport, toSupport);
+            MergeImpl(toVote, fromSupport, toSupport);
 
             // But we still want to remove the from vote.
             return VoteStorage.Remove(fromVote);
@@ -506,7 +502,7 @@ namespace NetTally.VoteCounting
         /// <param name="fromSupport">The support block for the from vote.</param>
         /// <param name="toSupport">The support block for the to vote.</param>
         /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
-        private static bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
+        private static bool MergeImpl(VoteLineBlock toVote,
             VoterStorage fromSupport, VoterStorage toSupport)
         {
             bool merged = false;
@@ -566,7 +562,7 @@ namespace NetTally.VoteCounting
                     return false;
                 }
 
-                MergeImpl(fromVote, toVote, fromSupport, toSupport);
+                MergeImpl(toVote, fromSupport, toSupport);
             }
 
             // But we still want to remove the from vote.

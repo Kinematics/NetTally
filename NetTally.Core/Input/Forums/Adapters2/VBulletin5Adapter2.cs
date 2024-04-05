@@ -15,18 +15,11 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.Adapters2
 {
-    public class VBulletin5Adapter2 : IForumAdapter2
+    public partial class VBulletin5Adapter2(IGeneralInputOptions inputOptions, ILogger<VBulletin5Adapter2> logger)
+        : IForumAdapter2
     {
-        #region Constructor
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<VBulletin5Adapter2> logger;
-
-        public VBulletin5Adapter2(IGeneralInputOptions inputOptions, ILogger<VBulletin5Adapter2> logger)
-        {
-            this.inputOptions = inputOptions;
-            this.logger = logger;
-        }
-        #endregion
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILogger<VBulletin5Adapter2> logger = logger;
 
         #region IForumAdapter2 interface
         /// <summary>
@@ -85,14 +78,13 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             string title = GetPageTitle(page);
             string author = string.Empty; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            ThreadInfo info = new ThreadInfo(title, author, pages);
+            ThreadInfo info = new(title, author, pages);
 
             return info;
         }
@@ -107,10 +99,8 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
         public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (pageProvider == null)
-                throw new ArgumentNullException(nameof(pageProvider));
+            ArgumentNullException.ThrowIfNull(quest);
+            ArgumentNullException.ThrowIfNull(pageProvider);
 
             return Task.FromResult(new ThreadRangeInfo(true, quest.StartPost));
         }
@@ -124,7 +114,7 @@ namespace NetTally.Forums.Adapters2
         public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
-                return Enumerable.Empty<Post>();
+                return [];
 
             var posts = from p in GetPostList(page)
                         where p != null
@@ -137,7 +127,7 @@ namespace NetTally.Forums.Adapters2
         #endregion IForumAdapter2 interface
 
         #region Get Page Information
-        private string GetPageTitle(HtmlDocument page)
+        private static string GetPageTitle(HtmlDocument page)
         {
             return ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
@@ -147,7 +137,7 @@ namespace NetTally.Forums.Adapters2
                     ?.InnerText);
         }
 
-        private int GetMaxPageNumberOfThread(HtmlDocument page)
+        private static int GetMaxPageNumberOfThread(HtmlDocument page)
         {
             var threadViewTab = page.GetElementbyId("thread-view-tab");
 
@@ -163,12 +153,12 @@ namespace NetTally.Forums.Adapters2
         #endregion Get Page Information
 
         #region Get Posts
-        private IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
+        private static IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
         {
             var postList = page?.DocumentNode.GetDescendantWithClass("u", "conversation-list");
 
             if (postList == null)
-                return Enumerable.Empty<HtmlNode>();
+                return [];
 
             return postList.Elements("li").Where(p => !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", "")));
         }
@@ -188,23 +178,25 @@ namespace NetTally.Forums.Adapters2
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
+                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
+                logger.LogError(e, 
+                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{displayName})",
+                    author, id, number, quest.DisplayName);
             }
 
             return null;
         }
 
-        private string GetPostId(HtmlNode li)
+        private static string GetPostId(HtmlNode li)
         {
             return li.GetAttributeValue("data-node-id", "");
         }
 
-        private string GetPostAuthor(HtmlNode li)
+        private static string GetPostAuthor(HtmlNode li)
         {
             string author = "";
 
@@ -217,7 +209,7 @@ namespace NetTally.Forums.Adapters2
             return author;
         }
 
-        private int GetPostNumber(HtmlNode li)
+        private static int GetPostNumber(HtmlNode li)
         {
             HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
@@ -227,8 +219,8 @@ namespace NetTally.Forums.Adapters2
             if (postCountAnchor != null)
             {
                 string postNumText = postCountAnchor.InnerText;
-                if (postNumText.StartsWith("#", StringComparison.Ordinal))
-                    postNumText = postNumText.Substring(1);
+                if (postNumText.StartsWith('#'))
+                    postNumText = postNumText[1..];
 
                 return int.Parse(postNumText);
             }
@@ -236,7 +228,7 @@ namespace NetTally.Forums.Adapters2
             return 0;
         }
 
-        private string GetPostText(HtmlNode li, Quest quest)
+        private static string GetPostText(HtmlNode li, Quest quest)
         {
             HtmlNode? contentArea = li.GetDescendantWithClass("div", "b-post__content");
 
@@ -247,7 +239,7 @@ namespace NetTally.Forums.Adapters2
                 // Predicate filtering out elements that we don't want to include
                 var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
-                Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
+                Uri host = new(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
                 // Get the full post text.
                 return ForumPostTextConverter.ExtractPostText(postTextNode, exclusion, host);
@@ -258,29 +250,29 @@ namespace NetTally.Forums.Adapters2
         #endregion Get Posts
 
         #region URL Manipulation
-        static readonly Regex threadNameRegex = new Regex(@"(?<thread>\d+-[^/?]+)/?");
+        [GeneratedRegex(@"(?<thread>\d+-[^/?]+)/?")]
+        private static partial Regex ThreadNameRegex();
 
         /// <summary>
         /// Get the URL string up to the end of any directory paths.
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the last path.</returns>
-        private string GetBaseThreadUrl(Uri uri)
+        private static string GetBaseThreadUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire?p=735857#post735857
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire/page2
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 
             foreach (var segment in uri.Segments)
             {
-                Match m = threadNameRegex.Match(segment);
+                Match m = ThreadNameRegex().Match(segment);
                 if (m.Success)
                 {
                     sb.Append(m.Groups["thread"].Value);
@@ -293,12 +285,13 @@ namespace NetTally.Forums.Adapters2
             return sb.ToString();
         }
 
-        private string GetPermalinkForId(Uri uri, string postId)
+        private static string GetPermalinkForId(Uri uri, string postId)
         {
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire?p=735857#post735857
 
             return $"{GetBaseThreadUrl(uri)}?p={postId}#post{postId}";
         }
+
         #endregion URL Manipulation
     }
 }

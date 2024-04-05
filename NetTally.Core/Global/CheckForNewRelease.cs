@@ -14,18 +14,13 @@ using NetTally.Types.Enums;
 
 namespace NetTally
 {
-    public class CheckForNewRelease : INotifyPropertyChanged
+    public class CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger) : INotifyPropertyChanged
     {
         bool newRelease = false;
-        readonly IPageProvider pageProvider;
-        readonly ILogger<CheckForNewRelease> logger;
-        static readonly string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
-
-        public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
-        {
-            pageProvider = provider;
-            this.logger = logger;
-        }
+        readonly IPageProvider pageProvider = provider;
+        readonly ILogger<CheckForNewRelease> logger = logger;
+        
+        const string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
 
         #region Property event handling.  Notify the main window when this value changes.
         /// <summary>
@@ -130,7 +125,7 @@ namespace NetTally
             var releasePage = await GetReleasesPageAsync();
 
             if (releasePage == null)
-                return new List<Version>();
+                return [];
 
             var body = releasePage.DocumentNode.Element("html").Element("body");
 
@@ -139,9 +134,9 @@ namespace NetTally
             var releaseEntries = repoContent?.GetDescendantsWithClass("release-entry");
 
             if (releaseEntries == null)
-                return new List<Version>();
+                return [];
 
-            List<Version> versions = new List<Version>();
+            List<Version> versions = [];
 
             foreach (var entry in releaseEntries)
             {
@@ -177,7 +172,7 @@ namespace NetTally
         /// <param name="entry">A div containing release information.</param>
         /// <returns>Returns whether the entry contains a prerelease version,
         /// and what the version is.</returns>
-        private (bool prerelease, string version) GetReleaseInfo(HtmlNode entry)
+        private static (bool prerelease, string version) GetReleaseInfo(HtmlNode entry)
         {
             var prerelease = entry.GetDescendantWithClass("Label--prerelease");
 

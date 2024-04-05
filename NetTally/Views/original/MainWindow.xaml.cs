@@ -178,7 +178,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="primaryMessage">The main text to show before showing where the logs have been saved.</param>
         /// <param name="title">The text to use as the title of the message box.</param>
-        private void ShowWarning(string primaryMessage, string title)
+        private static void ShowWarning(string primaryMessage, string title)
         {
             MessageBox.Show($"{primaryMessage}\nLogs have been saved.",
                 title, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -368,7 +368,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        private void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -392,7 +392,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void editNameButton_Click(object sender, RoutedEventArgs e)
+        private void EditNameButton_Click(object sender, RoutedEventArgs e)
         {
             StartEdit();
         }
@@ -402,7 +402,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void openManageVotesWindow_Click(object sender, RoutedEventArgs e)
+        private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<ManageVotes>(this);
 
@@ -414,7 +414,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void globalOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<GlobalOptions>(this);
         }
@@ -424,7 +424,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void questOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
         {
             await navigationService.ShowDialogAsync<QuestOptions>(this);
         }
@@ -476,7 +476,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void editQuestName_KeyUp(object sender, KeyEventArgs e)
+        private void EditQuestName_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -491,7 +491,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void editQuestThread_KeyUp(object sender, KeyEventArgs e)
+        private void EditQuestThread_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -507,7 +507,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void textEntry_GotFocus(object sender, RoutedEventArgs e)
+        private void TextEntry_GotFocus(object sender, RoutedEventArgs e)
         {
             if (sender is TextBox tb)
             {
@@ -521,7 +521,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void editQuest_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        private void EditQuest_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (e.NewFocus == editQuestThread || e.NewFocus == editNameButton)
                 return;
@@ -536,7 +536,7 @@ namespace NetTally.Views.original
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void textEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void TextEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is TextBox tb)
             {

@@ -35,12 +35,12 @@ namespace NetTally.Views.original
         #endregion
 
         #region Window element event handlers
-        private void closeButton_Click(object sender, RoutedEventArgs e)
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private void resetAllButton_Click(object sender, RoutedEventArgs e)
+        private void ResetAllButton_Click(object sender, RoutedEventArgs e)
         {
             rankedVoteAlgorithm.SelectedIndex = 0;
             allowUsersToUpdatePlans.IsChecked = null;

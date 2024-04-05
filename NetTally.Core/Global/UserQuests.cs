@@ -14,6 +14,6 @@ namespace NetTally.Global
 
         public string CurrentQuest { get; set; } = string.Empty;
 
-        public List<Quest> Quests { get; set; } = new();
+        public List<Quest> Quests { get; set; } = [];
     }
 }

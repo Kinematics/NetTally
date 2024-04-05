@@ -110,7 +110,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Cancel any functions running under the above RunWithTallyFlag functions
         /// </summary>
-        [Obsolete]
+        [Obsolete("Use cancellation token")]
         public void Cancel()
         {
         }

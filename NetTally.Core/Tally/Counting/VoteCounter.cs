@@ -15,16 +15,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounter : IVoteCounter
+    public class VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger) : IVoteCounter
     {
-        readonly ILogger<VoteCounter> logger;
-        readonly IGlobalOptions globalOptions;
-
-        public VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger)
-        {
-            this.logger = logger;
-            this.globalOptions = globalOptions;
-        }
+        readonly ILogger<VoteCounter> logger = logger;
+        readonly IGlobalOptions globalOptions = globalOptions;
 
         #region Data Collections
         // Public
@@ -32,11 +26,11 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The overall collection of voters and supporters.
         /// </summary>
-        public VoteStorage VoteStorage { get; } = new VoteStorage();
+        public VoteStorage VoteStorage { get; } = [];
         /// <summary>
         /// The list of posts that reference future posts, preventing immediate tallying.
         /// </summary>
-        public HashSet<Post> FutureReferences { get; } = new HashSet<Post>();
+        public HashSet<Post> FutureReferences { get; } = [];
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
@@ -48,14 +42,14 @@ namespace NetTally.VoteCounting
 
         // Private
 
-        readonly List<Post> postsList = new();
+        readonly List<Post> postsList = [];
         bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new Stack<UndoAction>();
         MergeRecords UserMerges { get; } = new MergeRecords();
 
-        VoterStorage ReferencePlans { get; } = new VoterStorage();
-        HashSet<Origin> ReferenceOrigins { get; } = new HashSet<Origin>();
+        VoterStorage ReferencePlans { get; } = [];
+        HashSet<Origin> ReferenceOrigins { get; } = [];
         #endregion
 
         #region General Tally Properties
@@ -70,7 +64,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The titles of the quest threads that have been tallied.
         /// </summary>
-        public List<string> Titles { get; } = new();
+        public List<string> Titles { get; } = [];
 
         /// <summary>
         /// Flag whether the tally is currently running.
@@ -497,7 +491,7 @@ namespace NetTally.VoteCounting
 
             // Theoretically, all the supporters in the from vote could already
             // be in the to vote, in which case no merging would happen.
-            MergeImpl(fromVote, toVote, fromSupport, toSupport);
+            MergeImpl(toVote, fromSupport, toSupport);
 
             // But we still want to remove the from vote.
             return VoteStorage.Remove(fromVote);
@@ -511,7 +505,7 @@ namespace NetTally.VoteCounting
         /// <param name="fromSupport">The support block for the from vote.</param>
         /// <param name="toSupport">The support block for the to vote.</param>
         /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
-        private bool MergeImpl(VoteLineBlock fromVote, VoteLineBlock toVote,
+        private static bool MergeImpl(VoteLineBlock toVote,
             VoterStorage fromSupport, VoterStorage toSupport)
         {
             bool merged = false;
@@ -571,7 +565,7 @@ namespace NetTally.VoteCounting
                     return false;
                 }
 
-                MergeImpl(fromVote, toVote, fromSupport, toSupport);
+                MergeImpl(toVote, fromSupport, toSupport);
             }
 
             // But we still want to remove the from vote.
@@ -620,7 +614,7 @@ namespace NetTally.VoteCounting
                 var source = GetVotesBy(joiningVoter);
                 var dest = GetVotesBy(voterToJoin);
 
-                if (!source.Any() || !dest.Any())
+                if (source.Count == 0 || dest.Count == 0)
                     return false;
 
                 bool joined = false;
@@ -746,9 +740,9 @@ namespace NetTally.VoteCounting
         #region Task properties
         HashSet<string> VoteDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         HashSet<string> UserDefinedTasks { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        List<string> OrderedVoteTaskList { get; } = new List<string>();
-        List<string> OrderedUserTaskList { get; } = new List<string>();
-        public ObservableCollectionExt<string> TaskList { get; } = new ObservableCollectionExt<string>();
+        List<string> OrderedVoteTaskList { get; } = [];
+        List<string> OrderedUserTaskList { get; } = [];
+        public ObservableCollectionExt<string> TaskList { get; } = [];
 
 
         /// <summary>

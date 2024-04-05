@@ -112,6 +112,8 @@ namespace NetTally.Views
             // Update the voters to match the votes.
             VoterView1.Refresh();
             VoterView2.Refresh();
+
+            logger.LogDebug("Views set up.");
         }
 
 

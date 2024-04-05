@@ -18,26 +18,24 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.Adapters2
 {
-    public class XenForo2Adapter2 : IForumAdapter2
+    public partial class XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
+        : IForumAdapter2
     {
-        #region Static data
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILogger<XenForo2Adapter2> logger = logger;
+
+        #region Regex data
         // May possibly end with /page-00#post-00
-        static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#post-(?<post>\d+))?$");
+        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#post-(?<post>\d+))?$")]
+        private static partial Regex LongFragment();
+
         // The short HREF version gives the post ID
-        static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
+        [GeneratedRegex(@"posts/(?<tmID>\d+)/?$")]
+        private static partial Regex ShortFragment();
+
         // RSS permalink does not include the page number.
-        static readonly Regex permalinkFragment = new Regex(@"threads/[^/]+/(post-(?<post>\d+))?$");
-        #endregion
-
-        #region Constructor
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<XenForo2Adapter2> logger;
-
-        public XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
-        {
-            this.inputOptions = inputOptions;
-            this.logger = logger;
-        }
+        [GeneratedRegex(@"threads/[^/]+/(post-(?<post>\d+))?$")]
+        private static partial Regex PermalinkFragment();
         #endregion
 
         #region IForumAdapter2 interface
@@ -170,7 +168,7 @@ namespace NetTally.Forums.Adapters2
         #endregion IForumAdapter2 interface
 
         #region Get Page Information
-        private (HtmlNode headerNode, HtmlNode bodyNode) GetPageInfoNodes(HtmlDocument page)
+        private static (HtmlNode headerNode, HtmlNode bodyNode) GetPageInfoNodes(HtmlDocument page)
         {
             var topNode = page.GetElementbyId("top");
 
@@ -189,7 +187,7 @@ namespace NetTally.Forums.Adapters2
             return (headerNode, bodyNode);
         }
 
-        private string GetPageTitle(HtmlDocument page, HtmlNode headerNode)
+        private static string GetPageTitle(HtmlDocument page, HtmlNode _)
         {
             //var titleNode = headerNode.GetChildWithClass("div", "p-title");
             //string title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
@@ -205,14 +203,14 @@ namespace NetTally.Forums.Adapters2
                     ?.InnerText);
         }
 
-        private string GetPageAuthor(HtmlNode headerNode)
+        private static string GetPageAuthor(HtmlNode headerNode)
         {
             var descripNode = headerNode.GetChildWithClass("div", "p-description");
             var authorNode = descripNode?.GetDescendantWithClass("a", "username");
             return ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
         }
 
-        private int GetMaxPageNumberOfThread(HtmlNode bodyNode)
+        private static int GetMaxPageNumberOfThread(HtmlNode bodyNode)
         {
             var mainNode = bodyNode.GetChildWithClass("div", "p-body-main") ??
                 throw new InvalidOperationException("Unable to find p-body-main.");
@@ -275,7 +273,7 @@ namespace NetTally.Forums.Adapters2
             // or the short version (which only shows the post number).
 
             // If we're given the short version of the URL, just do a HEAD query to get the long version.
-            Match mShort = shortFragment.Match(lastThreadmarkHref);
+            Match mShort = ShortFragment().Match(lastThreadmarkHref);
             if (mShort.Success)
             {
                 // Get the post ID for the threadmark
@@ -296,7 +294,7 @@ namespace NetTally.Forums.Adapters2
             }
 
             // If we have the long URL, we can extract the page number and post number from the URL itself.
-            Match m1 = longFragment.Match(lastThreadmarkHref);
+            Match m1 = LongFragment().Match(lastThreadmarkHref);
             if (m1.Success)
             {
                 int page = 0;
@@ -324,7 +322,7 @@ namespace NetTally.Forums.Adapters2
             return (false, ThreadRangeInfo.Empty);
         }
 
-        private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
+        private static async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
@@ -351,7 +349,7 @@ namespace NetTally.Forums.Adapters2
 
             XElement? channel = rss.Root.Element(XName.Get("channel", ""));
 
-            IEnumerable<XElement> items = channel?.Elements(XName.Get("item", "")) ?? Enumerable.Empty<XElement>(); ;
+            IEnumerable<XElement> items = channel?.Elements(XName.Get("item", "")) ?? []; ;
 
             XName titleName = XName.Get("title", "");
             XName pubDate = XName.Get("pubDate", "");
@@ -359,7 +357,7 @@ namespace NetTally.Forums.Adapters2
             // Use threadmark filters to filter out unwanted threadmark titles.
             var filteredItems = from item in items
                                 let title1 = item.Element(titleName)?.Value
-                                let title = title1.StartsWith("Threadmark:") ? title1.Substring("Threadmark:".Length).Trim() : title1
+                                let title = title1.StartsWith("Threadmark:") ? title1["Threadmark:".Length..].Trim() : title1
                                 where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
                                         (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(title)))
                                 let pub = item.Element(pubDate)?.Value
@@ -379,7 +377,7 @@ namespace NetTally.Forums.Adapters2
                 {
                     // If we have a permalink fragment, we have no page number, but we can
                     // request a redirect to get the actual href.
-                    Match mr = permalinkFragment.Match(href);
+                    Match mr = PermalinkFragment().Match(href);
                     if (mr.Success)
                     {
                         string redirect = await pageProvider.GetRedirectUrlAsync(
@@ -393,7 +391,7 @@ namespace NetTally.Forums.Adapters2
                     }
 
                     // If we have the long URL, we can extract the page number and post number from the URL itself.
-                    mr = longFragment.Match(href);
+                    mr = LongFragment().Match(href);
                     if (mr.Success)
                     {
                         int page = 0;
@@ -429,7 +427,7 @@ namespace NetTally.Forums.Adapters2
                 HtmlNode? topNode = GetPageContent(threadmarksPage, PageType.Threadmarks);
 
                 if (topNode == null)
-                    return Enumerable.Empty<HtmlNode>();
+                    return [];
 
                 var threadmarkCat1List = threadmarksPage.GetElementbyId("threadmark-category-1");
 
@@ -450,7 +448,7 @@ namespace NetTally.Forums.Adapters2
                 logger.LogError(e, "Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?");
             }
 
-            return Enumerable.Empty<HtmlNode>();
+            return [];
 
             // Local functions
 
@@ -478,7 +476,7 @@ namespace NetTally.Forums.Adapters2
         #endregion Get ThreadInfoRange information
 
         #region Get Posts
-        private IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
+        private static IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
         {
             var top = page.GetElementbyId("top");
 
@@ -502,33 +500,35 @@ namespace NetTally.Forums.Adapters2
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
+                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
+                logger.LogError(e, 
+                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{displayName})",
+                    author, id, number, quest.DisplayName);
             }
 
             return null;
         }
 
-        private string GetPostAuthor(HtmlNode article)
+        private static string GetPostAuthor(HtmlNode article)
         {
             return ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-author", ""));
         }
 
-        private string GetPostId(HtmlNode article)
+        private static string GetPostId(HtmlNode article)
         {
             return ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-content", "post-")
-                                                                  .Substring("post-".Length));
+                                                           ["post-".Length..]);
         }
 
-        private string GetPostText(HtmlNode article, Quest quest)
+        private static string GetPostText(HtmlNode article, Quest quest)
         {
             // Predicate filtering out elements that we don't want to include
-            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
-                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
+            List<string> excludedClasses = [ "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
+                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"];
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
@@ -537,12 +537,12 @@ namespace NetTally.Forums.Adapters2
             var articleBody = article.GetDescendantWithClass("article", "message-body")
                 ?.GetDescendantsWithClass("div", "bbWrapper").FirstOrDefault();
 
-            Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
+            Uri host = new(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
             return ForumPostTextConverter.ExtractPostText(articleBody, exclusions, host);
         }
 
-        private int GetPostNumber(HtmlNode article)
+        private static int GetPostNumber(HtmlNode article)
         {
             var attribution = article.GetDescendantWithClass("header", "message-attribution");
 
@@ -574,12 +574,11 @@ namespace NetTally.Forums.Adapters2
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the thread name.</returns>
-        private string GetBaseThreadUrl(Uri uri)
+        private static string GetBaseThreadUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 
@@ -597,7 +596,7 @@ namespace NetTally.Forums.Adapters2
                     foundThreads = true;
             }
 
-            if (sb[sb.Length - 1] != '/')
+            if (sb[^1] != '/')
                 sb.Append('/');
 
             return sb.ToString();
@@ -609,12 +608,11 @@ namespace NetTally.Forums.Adapters2
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the posts directory.</returns>
-        private string GetHostBasePostsUrl(Uri uri)
+        private static string GetHostBasePostsUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 
@@ -632,36 +630,31 @@ namespace NetTally.Forums.Adapters2
             return sb.ToString();
         }
 
-        private string GetThreadmarksPageUrl(Uri uri)
+        private static string GetThreadmarksPageUrl(Uri uri)
         {
             return $"{GetBaseThreadUrl(uri)}threadmarks#threadmark-category-1";
         }
 
-        private string GetRssThreadmarksUrl(Uri uri)
+        private static string GetRssThreadmarksUrl(Uri uri)
         {
             return $"{GetBaseThreadUrl(uri)}threadmarks.rss?threadmark_category_id=1";
         }
 
-        private string GetPermalinkForId(Uri uri, string postId)
+        private static string GetPermalinkForId(Uri uri, string postId)
         {
             return $"{GetHostBasePostsUrl(uri)}{postId}/";
         }
         #endregion URL Manipulation
 
         #region Misc Helper Functions
-        private HtmlNode? GetPageContent(HtmlDocument page, PageType pageType)
+        private static HtmlNode? GetPageContent(HtmlDocument page, PageType pageType)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
-            var contentNode = page.GetElementbyId("top");
-
-            if (contentNode == null)
+            var contentNode = page.GetElementbyId("top") ??
                 throw new InvalidOperationException("Page does not have a content section.");
 
-            var body = contentNode.ParentNode;
-
-            if (body == null)
+            var body = contentNode.ParentNode ??
                 throw new InvalidOperationException("No body found for the page.");
 
             string dataTemplate = body.GetAttributeValue("data-template", "");

@@ -134,7 +134,7 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(0, allVotes.Count);
         }
 
-        public void Check_Tally_Adds_Plan()
+        public static void Check_Tally_Adds_Plan()
         {
             string postText1 =
 @"[X] Plan Experiment
@@ -609,7 +609,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         #endregion Future references
 
         #region Test general vote matching
-        public void Test_Votes_Match(string text1, string text2)
+        public static void Test_Votes_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
@@ -644,7 +644,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(voters.Contains(origin2));
         }
 
-        public void Test_Votes_Dont_Match(string text1, string text2)
+        public static void Test_Votes_Dont_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));

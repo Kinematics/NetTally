@@ -13,17 +13,11 @@ namespace NetTally.Forums
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    public class ForumAdapterFactory : IDisposable
+    public class ForumAdapterFactory(IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory) : IDisposable
     {
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILoggerFactory loggerFactory;
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILoggerFactory loggerFactory = loggerFactory;
         readonly SemaphoreSlim ss = new(1);
-
-        public ForumAdapterFactory(IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
-        {
-            this.inputOptions = inputOptions;
-            this.loggerFactory = loggerFactory;
-        }
 
         #region Disposal
         bool disposed = false;

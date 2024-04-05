@@ -18,24 +18,16 @@ namespace NetTally.Forums
     /// <summary>
     /// Class for handling reading forum posts from a quest's forum.
     /// </summary>
-    public class ForumReader
+    public class ForumReader(IServiceProvider provider,
+        ForumAdapterFactory factory,
+        IQuestsInfo questsInfo,
+        ILogger<ForumReader> logger)
     {
         #region Constructor
-        private readonly IServiceProvider serviceProvider;
-        private readonly ForumAdapterFactory forumAdapterFactory;
-        private readonly IQuestsInfo questsInfo;
-        private readonly ILogger<ForumReader> logger;
-
-        public ForumReader(IServiceProvider provider,
-            ForumAdapterFactory factory,
-            IQuestsInfo questsInfo,
-            ILogger<ForumReader> logger)
-        {
-            serviceProvider = provider;
-            forumAdapterFactory = factory;
-            this.questsInfo = questsInfo;
-            this.logger = logger;
-        }
+        private readonly IServiceProvider serviceProvider = provider;
+        private readonly ForumAdapterFactory forumAdapterFactory = factory;
+        private readonly IQuestsInfo questsInfo = questsInfo;
+        private readonly ILogger<ForumReader> logger = logger;
         #endregion
 
         #region Event passing
@@ -282,9 +274,7 @@ namespace NetTally.Forums
 
             // If we're reading to the end of the thread (end post 0, or based on a threadmark),
             // then we need to load the first page to find out how many pages there are in the thread.
-            var page = await firstPage.ConfigureAwait(false);
-
-            if (page == null)
+            var page = await firstPage.ConfigureAwait(false) ??
                 throw new InvalidOperationException($"Unable to load first page of {quest.ThreadName}");
 
             return adapter.GetThreadInfo(page).Pages;

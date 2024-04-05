@@ -16,7 +16,7 @@ namespace NetTally.Web
         // Setting it to 5 or higher causes it to hang for several seconds on the last page when
         // loading SB and SV pages.
         protected const int maxSimultaneousConnections = 4;
-        protected readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
+        protected readonly SemaphoreSlim ss = new(maxSimultaneousConnections);
         #endregion
 
         #region Properties
@@ -153,7 +153,7 @@ namespace NetTally.Web
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             switch (status)
             {
@@ -177,7 +177,7 @@ namespace NetTally.Web
                     return;
             }
 
-            sb.Append("\n");
+            sb.Append('\n');
             OnStatusChanged(sb.ToString());
         }
         #endregion
