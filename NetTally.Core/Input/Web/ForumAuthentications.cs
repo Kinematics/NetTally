@@ -14,8 +14,7 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
         public static string? GetAuthorization(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
             string username;
             string password;
@@ -30,8 +29,8 @@ namespace NetTally.Web
                     return null;
             }
 
-            string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(username + ":" + password));
-            string authorization = "Basic " + encoded;
+            string encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+            string authorization = $"Basic {encoded}";
 
             return authorization;
         }
