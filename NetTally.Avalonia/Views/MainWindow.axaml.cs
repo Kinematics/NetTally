@@ -64,7 +64,7 @@ namespace NetTally.Avalonia.Views
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private async void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
+            logger.LogDebug("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
 
             // If a new quest was added, load the QuestOptions dialog to
             // allow setting the URL and display name.
