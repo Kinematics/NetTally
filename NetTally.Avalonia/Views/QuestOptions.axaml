@@ -8,7 +8,7 @@
         x:Class="NetTally.Avalonia.Views.QuestOptions"
         Title="Quest Options" Icon="/Assets/CheckVoteWin.ico"
         Classes="Dialog"
-		Width="640" Height="480" MinWidth="640" MinHeight="480">
+        Width="640" Height="480" MinWidth="640" MinHeight="480">
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
@@ -20,11 +20,11 @@
           Margin="0 5">
         <TextBlock Classes="Label" Text="Quest Name"
                    Grid.Row="0" Grid.Column="0" />
-        <TextBox   Name="QuestName" Text="{Binding DisplayName}"
+        <TextBox   Name="QuestName" Text="{Binding DisplayName}" GotFocus="TextBox_GotFocus"
                    Grid.Row="0" Grid.Column="1" Margin="0 0 0 2" />
         <TextBlock Classes="Label" Text="Thread Url"
                    Grid.Row="1" Grid.Column="0"/>
-        <TextBox   Name="ThreadUrl" Text="{Binding ThreadName}"
+        <TextBox   Name="ThreadUrl" Text="{Binding ThreadName}" GotFocus="TextBox_GotFocus"
                    Grid.Row="1" Grid.Column="1"/>
     </Grid>
 
@@ -47,7 +47,7 @@
                       ToolTip.Tip="Use these threadmark filters defined in the textbox below to filter votes." />
             <TextBlock Classes="SubCheck Description"
                        Text="Ignore any threadmarks that match the specified filter, when searching for a starting post. &#x0d;&#x0a;The default value that will always be skipped is the word 'omake'." />
-			<TextBox Name="CustomThreadmarkFilters" Classes="SubCheck"
+            <TextBox Name="CustomThreadmarkFilters" Classes="SubCheck"
                      Text="{Binding CustomThreadmarkFilters}"
                      IsEnabled="{Binding #UseCustomThreadmarkFilters.IsChecked}"
                      ToolTip.Tip="Enter a comma-delimited list of values (with optional wildcard *), or provide a regular expression (eg: /regular expression/)." />
@@ -218,14 +218,14 @@
           <Button Name="RemoveLinkedQuest" Content="Remove"
                   Grid.Row="0" Grid.Column="1"
                   VerticalAlignment="Top"
-				  Command="{Binding RemoveLinkedQuestCommand}"
-				  CommandParameter="{Binding #LinkedQuests.SelectedItem}"
+                  Command="{Binding RemoveLinkedQuestCommand}"
+                  CommandParameter="{Binding #LinkedQuests.SelectedItem}"
                   IsEnabled="{Binding #LinkedQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
           <ComboBox Name="AvailableQuests"
                     Grid.Row="1" Grid.Column="0"/>
           <Button Name="AddLinkedQuest" Content="Add"
                   Grid.Row="1" Grid.Column="1"
-				  Command="{Binding AddLinkedQuestCommand}"
+                  Command="{Binding AddLinkedQuestCommand}"
                   IsEnabled="{Binding #AvailableQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
         </Grid>
       </TabItem>

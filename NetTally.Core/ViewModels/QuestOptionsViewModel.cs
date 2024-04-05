@@ -160,6 +160,34 @@ namespace NetTally.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            CustomThreadmarkFilters = string.Empty;
+            CustomTaskFilters = string.Empty;
+            CustomUsernameFilters = string.Empty;
+            CustomPostFilters = string.Empty;
+
+            UseCustomThreadmarkFilters = false;
+            UseCustomTaskFilters = false;
+            UseCustomUsernameFilters = false;
+            UseCustomPostFilters = false;
+        }
+
+        [RelayCommand]
+        private void ClearOptions()
+        {
+            UseRSSThreadmarks = BoolEx.Unknown;
+            WhitespaceAndPunctuationIsSignificant = false;
+            CaseIsSignificant = false;
+            ForbidVoteLabelPlanNames = false;
+            ForcePlanReferencesToBeLabeled = false;
+            AllowUsersToUpdatePlans = false;
+            DisableProxyVotes = false;
+            ForcePinnedProxyVotes = false;
+            IgnoreSpoilers = false;
+            TrimExtendedText = false;
+        }
 
         [ObservableProperty]
         private Uri threadUri = Quest.InvalidThreadUri;

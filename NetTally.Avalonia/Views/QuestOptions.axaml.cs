@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.ViewModels;
 
@@ -35,10 +36,18 @@ namespace NetTally.Avalonia.Views
 #endif
         }
 
-        protected override void OnClosing(WindowClosingEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
             questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
-            base.OnClosing(e);
+            base.OnClosed(e);
+        }
+
+        private void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                tb.SelectAll();
+            }
         }
 
         private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -62,7 +71,7 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public QuestOptions() 
+        public QuestOptions()
         {
             //throw new InvalidOperationException("The default constructor should not be called");
         }

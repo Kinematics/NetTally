@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.ViewModels;
@@ -16,27 +15,22 @@ namespace NetTally.Views
     {
         private readonly QuestOptionsViewModel questOptionsViewModel;
         private readonly ILogger<QuestOptions> logger;
+        private readonly string clipboardUrl;
 
-        public QuestOptions(QuestOptionsViewModel questOptionsViewModel,
-            ILogger<QuestOptions> logger)
+        public QuestOptions(
+            QuestOptionsViewModel questOptionsViewModel,
+            ILogger<QuestOptions> logger,
+            string url = "")
         {
             this.questOptionsViewModel = questOptionsViewModel;
             this.logger = logger;
+            this.clipboardUrl = url;
 
             this.questOptionsViewModel.PropertyChanged += QuestOptionsViewModel_PropertyChanged;
+            questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
 
             InitializeComponent();
             DataContext = this.questOptionsViewModel;
-        }
-
-        public Task ActivateAsync(object? parameter)
-        {
-            if (parameter is Window owner)
-            {
-                Owner = owner;
-            }
-
-            return Task.CompletedTask;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -47,54 +41,10 @@ namespace NetTally.Views
             }
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            base.OnClosing(e);
             questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
-        }
-
-        #region Window element event handlers
-        private void ClearFiltersButton_Click(object sender, RoutedEventArgs e)
-        {
-            customPostFilters.Clear();
-            var bindingExpression = BindingOperations.GetBindingExpression(customPostFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customTaskFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customTaskFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customThreadmarkFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customThreadmarkFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customUsernameFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customUsernameFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-
-            useCustomPostFilters.IsChecked = false;
-            useCustomTaskFilters.IsChecked = false;
-            useCustomThreadmarkFilters.IsChecked = false;
-            useCustomUsernameFilters.IsChecked = false;
-
-            logger.LogDebug("Quest filters have been reset.");
-        }
-
-        private void ClearOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            whitespaceAndPunctuationIsSignificant.IsChecked = false;
-            caseIsSignificant.IsChecked = false;
-            forcePlanReferencesToBeLabeled.IsChecked = false;
-            forbidVoteLabelPlanNames.IsChecked = false;
-            allowUsersToUpdatePlans.IsChecked = false;
-            disableProxyVotes.IsChecked = false;
-            forcePinnedProxyVotes.IsChecked = false;
-            ignoreSpoilers.IsChecked = false;
-            trimExtendedText.IsChecked = false;
-            useRSSThreadmarks.IsChecked = null;
-
-            logger.LogDebug("Quest options have been reset.");
+            base.OnClosed(e);
         }
 
         private void TextEntry_GotFocus(object sender, RoutedEventArgs e)
@@ -117,18 +67,23 @@ namespace NetTally.Views
             }
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
             {
+                logger.LogDebug("Quest options were saved.");
+                DialogResult = true;
+                Close();
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.ResetCommand))
+            {
+                questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.CancelCommand))
+            {
+                DialogResult = false;
                 Close();
             }
         }
-        #endregion
     }
 }

@@ -13,7 +13,7 @@
         WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico">
 
     <Window.Resources>
-        <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"></converters:ThreeStateBoolConverter>
+        <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -141,13 +141,13 @@
                             Command="{Binding ResetCommand}"/>
                     <Button x:Name="ClearFiltersButton" Content="Clear" Margin="90,0,0,10"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
-                            Click="ClearFiltersButton_Click"/>
+                            Command="{Binding ClearFiltersCommand}"/>
                     <Button x:Name="SaveButton1" Content="Save" Margin="0,0,95,10"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
                             IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
                     <Button x:Name="CancelButton1" Content="Cancel" Margin="0,0,10,10"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
-                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                            IsCancel="True" IsDefault="False" Command="{Binding CancelCommand}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Options">
@@ -314,13 +314,13 @@
                             Command="{Binding ResetCommand}"/>
                     <Button x:Name="ClearOptionsButton" Content="Clear" Margin="90,0,0,10"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
-                            Click="ClearOptionsButton_Click"/>
+                            Command="{Binding ClearOptionsCommand}"/>
                     <Button x:Name="SaveButton2" Content="Save" Margin="0,0,95,10"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
                             IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
                     <Button x:Name="CancelButton2" Content="Cancel" Margin="0,0,10,10"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
-                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                            IsCancel="True" IsDefault="False" Command="{Binding CancelCommand}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Linked Quests" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="93" Margin="0">
@@ -343,7 +343,7 @@
                             IsCancel="False" IsDefault="True" Command="{Binding SaveCommand}"/>
                     <Button x:Name="CancelButton3" Content="Cancel" Margin="0,0,10,10"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75"
-                            IsCancel="True" IsDefault="False" Click="CancelButton_Click"/>
+                            IsCancel="True" IsDefault="False" Command="{Binding CancelCommand}"/>
                 </Grid>
             </TabItem>
         </TabControl>
