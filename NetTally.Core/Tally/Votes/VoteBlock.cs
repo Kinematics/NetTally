@@ -60,8 +60,11 @@ namespace NetTally.Votes
                 var firstLine = block.First();
                 var secondLine = block.Skip(1).First();
                 var (lineStatus, planName) = CheckIfPlan(firstLine);
+                var (lineStatus2, _) = CheckIfPlan(secondLine);
 
-                if (lineStatus == LineStatus.Plan && secondLine.Depth == 0)
+                if (lineStatus == LineStatus.Plan &&
+                    lineStatus2 != LineStatus.Plan &&
+                    secondLine.Depth == 0)
                 {
                     return (true, true, planName);
                 }
