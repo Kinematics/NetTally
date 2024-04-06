@@ -155,7 +155,8 @@ namespace NetTally.VoteCounting
                 quest.VoteCounter.AddReferenceVoter(post.Origin);
             }
 
-            List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
+            List<(bool asBlocks, Func<IEnumerable<VoteLine>,
+                (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
                 [
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
