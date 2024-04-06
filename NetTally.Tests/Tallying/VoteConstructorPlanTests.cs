@@ -48,7 +48,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -67,7 +67,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -86,7 +86,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -106,7 +106,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -125,7 +125,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -145,7 +145,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -168,7 +168,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAProposedPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -191,7 +191,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -210,7 +210,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -230,7 +230,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -249,7 +249,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -269,7 +269,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -292,7 +292,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: true, VoteBlocks.IsBlockAnExplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -315,7 +315,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -334,7 +334,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -353,7 +353,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -372,7 +372,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -392,7 +392,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }
@@ -412,7 +412,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Cyclops", plans.First().Key);
@@ -435,7 +435,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
 
-            var plans = voteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
+            var plans = VoteConstructor.PreprocessPostGetPlans(post, sampleQuest, asBlocks: false, VoteBlocks.IsBlockAnImplicitPlan);
 
             Assert.AreEqual(0, plans.Count);
         }

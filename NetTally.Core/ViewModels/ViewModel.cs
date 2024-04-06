@@ -760,7 +760,7 @@ namespace NetTally.ViewModels
 
         public bool DeleteVote(VoteLineBlock vote) => VoteCounter.Delete(vote);
 
-        public bool PartitionChildren(VoteLineBlock vote) => VoteCounter.Split(vote, Tally.VoteConstructor.PartitionChildren(vote));
+        public bool PartitionChildren(VoteLineBlock vote) => VoteCounter.Split(vote, VoteConstructor.PartitionChildren(vote));
 
         public bool ReplaceTask(VoteLineBlock vote, string task) => VoteCounter.ReplaceTask(vote, task);
 

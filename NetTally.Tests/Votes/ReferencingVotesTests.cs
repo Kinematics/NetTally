@@ -123,13 +123,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -163,13 +163,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -203,13 +203,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -243,13 +243,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -283,13 +283,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -323,13 +323,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -363,13 +363,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -403,13 +403,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -443,13 +443,13 @@ namespace NetTally.Tests.Votes
             quest.VoteCounter.AddReferenceVoter(post1.Origin);
             quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -481,15 +481,15 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -521,15 +521,15 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -561,15 +561,15 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -603,15 +603,15 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -643,15 +643,15 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             if (results1 != null)
             {
                 quest.VoteCounter.AddVotes(results1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+                var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
                 if (results2 != null)
                 {
@@ -689,9 +689,9 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            tally.PreprocessPosts(quest);
+            Tally.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
             Assert.IsFalse(results1 == null);
 
@@ -700,7 +700,7 @@ namespace NetTally.Tests.Votes
 
             Assert.AreEqual(0, results1.Count);
 
-            var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            var results2 = VoteConstructor.ProcessPostGetVotes(post2, quest);
 
             if (results2 != null)
             {

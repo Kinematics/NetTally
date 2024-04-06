@@ -20,7 +20,6 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static VoteConstructor voteConstructor = null!;
         static Tally tally = null!;
         static Quest quest = null!;
         static IAgnostic agnostic = null!;
@@ -37,7 +36,6 @@ namespace NetTally.Tests.Tallying
             serviceProvider = TestStartup.ConfigureServices();
 
             tally = serviceProvider.GetRequiredService<Tally>();
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
 
@@ -363,7 +361,7 @@ namespace NetTally.Tests.Tallying
 
             List<Post> posts = new() { post1, post2 };
             quest.VoteCounter.AddPosts(posts);
-            var plans = tally.PreprocessPosts(quest);
+            var plans = Tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -371,7 +369,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3 };
             quest.VoteCounter.AddPosts(posts);
-            plans = tally.PreprocessPosts(quest);
+            plans = Tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -379,7 +377,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3, post4 };
             quest.VoteCounter.AddPosts(posts);
-            plans = tally.PreprocessPosts(quest);
+            plans = Tally.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);

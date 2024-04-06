@@ -240,7 +240,7 @@ namespace NetTally.ViewModels
 
         public void PartitionChildren(VoteLineBlock selectedVote)
         {
-            quest.VoteCounter.Split(selectedVote, voteConstructor.PartitionChildren(selectedVote));
+            quest.VoteCounter.Split(selectedVote, VoteConstructor.PartitionChildren(selectedVote));
             UpdateVotesCollection();
         }
 

@@ -21,19 +21,14 @@ namespace NetTally.VoteCounting
     {
         #region Construction
         private readonly ForumReader forumReader;
-        private readonly VoteConstructor voteConstructor;
         private readonly ITextResultsProvider textResultsProvider;
         private readonly ILogger<Tally> logger;
 
-        public VoteConstructor VoteConstructor => voteConstructor;
-
         public Tally(ForumReader forumReader,
-                     VoteConstructor voteConstructor,
                      ITextResultsProvider textResultsProvider,
                      ILogger<Tally> logger)
         {
             this.forumReader = forumReader;
-            this.voteConstructor = voteConstructor;
             this.textResultsProvider = textResultsProvider;
             this.logger = logger;
 
@@ -132,7 +127,7 @@ namespace NetTally.VoteCounting
             quest.VoteCounter.AddPosts(posts);
         }
 
-        private void ConstructVotesFromPosts(Quest quest)
+        private static void ConstructVotesFromPosts(Quest quest)
         {
             if (quest.VoteCounter.HasPosts)
             {
@@ -143,7 +138,7 @@ namespace NetTally.VoteCounting
             }
         }
 
-        public IDictionary<string, VoteLineBlock> PreprocessPosts(Quest quest)
+        public static IDictionary<string, VoteLineBlock> PreprocessPosts(Quest quest)
         {
             foreach (var post in quest.VoteCounter.Posts)
             {
@@ -179,7 +174,7 @@ namespace NetTally.VoteCounting
         /// <param name="planProcesses">The list of functions to run on the posts.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-        private Dictionary<string, VoteLineBlock> PreprocessPlans(
+        private static Dictionary<string, VoteLineBlock> PreprocessPlans(
             IReadOnlyList<Post> posts,
             Quest quest,
             List<(bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses,
@@ -193,13 +188,13 @@ namespace NetTally.VoteCounting
 
                 foreach (var post in posts)
                 {
-                    var plans = voteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
+                    var plans = VoteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
 
                     foreach (var plan in plans)
                     {
                         // Convert "Base/Proposed Plan" to "Plan" before saving.
                         // Set to an undefined marker.
-                        (string normalPlanName, VoteLineBlock normalPlanContents) = voteConstructor.NormalizePlan(plan.Key, plan.Value);
+                        (string normalPlanName, VoteLineBlock normalPlanContents) = VoteConstructor.NormalizePlan(plan.Key, plan.Value);
 
                         var planOrigin = post.Origin.GetPlanOrigin(normalPlanName);
 
@@ -209,7 +204,7 @@ namespace NetTally.VoteCounting
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
-                            var planPartitions = voteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
+                            var planPartitions = VoteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
 
                             quest.VoteCounter.AddVotes(planPartitions, planOrigin);
 
@@ -222,7 +217,7 @@ namespace NetTally.VoteCounting
             return allPlans;
         }
 
-        private void ProcessPosts(Quest quest)
+        private static void ProcessPosts(Quest quest)
         {
             var unprocessed = quest.VoteCounter.Posts;
 
@@ -233,7 +228,7 @@ namespace NetTally.VoteCounting
 
                 foreach (var post in unprocessed)
                 {
-                    var filteredResults = voteConstructor.ProcessPostGetVotes(post, quest);
+                    var filteredResults = VoteConstructor.ProcessPostGetVotes(post, quest);
 
                     if (post.Processed)
                         processedAny = true;

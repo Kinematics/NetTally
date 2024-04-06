@@ -62,7 +62,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -77,7 +77,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -92,7 +92,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -107,7 +107,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -122,7 +122,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -137,7 +137,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -153,7 +153,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -169,7 +169,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -185,7 +185,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -200,7 +200,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -216,7 +216,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -231,7 +231,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -247,7 +247,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result!.Count);
@@ -262,7 +262,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(3, result!.Count);
@@ -279,7 +279,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(2, result!.Count);
@@ -295,7 +295,7 @@ namespace NetTally.Tests.Votes
             Post post = new(origin, postText);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = voteConstructor.ProcessPostGetVotes(post, quest);
+            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(3, result!.Count);
