@@ -263,21 +263,27 @@ namespace NetTally.Forums
                 // If the page range has already been determined, use that.
                 return threadRangeInfo.Pages;
             }
-            
+
+            // Find out how many pages are in the thread, based on the first loaded page.
+            var page = await firstPage.ConfigureAwait(false) ??
+                throw new InvalidOperationException($"Unable to load first page of {quest.ThreadName}");
+
+            int maxPage = adapter.GetThreadInfo(page).Pages;
+
             if (!quest.ReadToEndOfThread && !threadRangeInfo.IsThreadmarkSearchResult)
             {
                 // If we're not reading to the end of the thread, just calculate
                 // what the last page number will be.  Pages to scan will be the
                 // difference in pages +1.
-                return ThreadRangeInfo.GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage);
+                maxPage = Math.Min(maxPage, ThreadRangeInfo.GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage));
+                
+                return maxPage;
             }
 
             // If we're reading to the end of the thread (end post 0, or based on a threadmark),
-            // then we need to load the first page to find out how many pages there are in the thread.
-            var page = await firstPage.ConfigureAwait(false) ??
-                throw new InvalidOperationException($"Unable to load first page of {quest.ThreadName}");
+            // then just return the max page of the thread.
 
-            return adapter.GetThreadInfo(page).Pages;
+            return maxPage;
         }
 
         /// <summary>
