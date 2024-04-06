@@ -265,7 +265,7 @@ namespace NetTally.Tests.Tallying
 
 
         [TestMethod]
-        public async Task Check_Tally_Replacement_Vote()
+        public void Check_Tally_Replacement_Vote()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
