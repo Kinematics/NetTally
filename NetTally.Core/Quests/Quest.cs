@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Input.Utility;
+using NetTally.Quests;
 using NetTally.Types.Components;
 using NetTally.Types.Enums;
 using NetTally.Utility;
@@ -386,16 +387,6 @@ namespace NetTally
         public ObservableCollection<Guid> LinkedQuestIds = [];
 
         /// <summary>
-        /// Determine whether this quest is linked to the provided quest ID.
-        /// </summary>
-        /// <param name="questId">The ID of the quest to check for.</param>
-        /// <returns>Returns true if the quest is linked, or false if not.</returns>
-        public bool HasLinkedQuest(Guid questId)
-        {
-            return LinkedQuestIds.Contains(questId);
-        }
-
-        /// <summary>
         /// Determine whether this quest is linked to the provided quest.
         /// </summary>
         /// <param name="quest">The quest to check for.</param>
@@ -403,18 +394,6 @@ namespace NetTally
         public bool HasLinkedQuest(Quest quest)
         {
             return LinkedQuestIds.Contains(quest.QuestId);
-        }
-
-        /// <summary>
-        /// Adds the provided quest ID to this quest's list of linked quests.
-        /// </summary>
-        /// <param name="questId">The quest ID to add.</param>
-        public void AddLinkedQuest(Guid questId)
-        {
-            if (!LinkedQuestIds.Contains(questId))
-            {
-                LinkedQuestIds.Add(questId);
-            }
         }
 
         /// <summary>
@@ -426,17 +405,10 @@ namespace NetTally
             if (quest == this)
                 return;
 
-            AddLinkedQuest(quest.QuestId);
-        }
-
-        /// <summary>
-        /// Remove the provided quest ID from this quest's list of linked quests.
-        /// </summary>
-        /// <param name="questId">The quest ID to remove.</param>
-        /// <returns>Returns true if the quest was removed, or false if not.</returns>
-        public bool RemoveLinkedQuest(Guid questId)
-        {
-            return LinkedQuestIds.Remove(questId);
+            if (!LinkedQuestIds.Contains(quest.QuestId))
+            {
+                LinkedQuestIds.Add(quest.QuestId);
+            }
         }
 
         /// <summary>
