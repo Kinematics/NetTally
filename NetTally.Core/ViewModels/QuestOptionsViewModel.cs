@@ -308,12 +308,7 @@ namespace NetTally.ViewModels
 
             ThreadUri = newUri;
 
-            // check old value and display name to determine if we're replacing display name
-            if (string.IsNullOrEmpty(oldValue) || GetDisplayNameFromUrl(oldValue) == DisplayName)
-            {
-                // change display name if it's solely based on the thread name
-                DisplayName = GetDisplayNameFromUrl(cleanValue);
-            }
+            DisplayName = GetDisplayNameFromUrl(cleanValue);
         }
 
 

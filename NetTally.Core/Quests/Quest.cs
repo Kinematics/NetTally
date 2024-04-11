@@ -46,22 +46,21 @@ namespace NetTally
         #region Static class data
         public const string OmakeFilter = @"\bomake\b";
         public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
+        public const string NewThreadDisplayName = "~Placeholder~";
         public static readonly Uri InvalidThreadUri = new(NewThreadEntry);
 
         [GeneratedRegex("(?<range>(?<r1>\\d+)\\s*-\\s*(?<r2>\\d+))|(?<num>\\d+)", RegexOptions.None, 50)]
         private static partial Regex postFilterRegex();
-        [GeneratedRegex("^(?<base>.+?)(&?page[-=]?\\d+)?(&p=?\\d+)?(#[^/]*)?(unread)?$", RegexOptions.None, 50)]
-        private static partial Regex pageNumberRegex();
-        [GeneratedRegex("(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
-        private static partial Regex displayNameRegex();
         #endregion
 
         #region Quest Identification
         public Guid QuestId { get; init; } = Guid.NewGuid();
 
-
+        [ObservableProperty]
         string threadName = NewThreadEntry;
-        string displayName = string.Empty;
+
+        [ObservableProperty]
+        string displayName = NewThreadDisplayName;
 
         public override string ToString() => DisplayName;
 
@@ -76,126 +75,6 @@ namespace NetTally
         /// Is set when a forum adapter is created/identified.
         /// </summary>
         public ForumType ForumType { get; set; } = ForumType.Unknown;
-
-        /// <summary>
-        /// The URL of the quest.
-        /// Cannot be set to null or an empty string, and must be a well-formed URL.
-        /// Automatically removes unsafe characters, and navigation elements from the URL.
-        /// </summary>
-        public string ThreadName
-        {
-            get { return threadName; }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("URL cannot be null or empty.", nameof(value));
-                if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
-                    throw new ArgumentException($"URL ({value}) is not well formed.", nameof(value));
-
-                string cleanValue = CleanupThreadName(value);
-                cleanValue = Uri.UnescapeDataString(cleanValue);
-
-                Uri newUri = new(cleanValue);
-
-                if (ThreadUri == InvalidThreadUri || ThreadUri.Host != newUri.Host)
-                {
-                    ForumType = ForumType.Unknown;
-                }
-
-                string oldThreadName = threadName;
-
-                threadName = cleanValue;
-                ThreadUri = newUri;
-
-                OnPropertyChanged();
-
-                // Reset the display name if it's based on the URL.
-                if (string.IsNullOrEmpty(displayName))
-                {
-                    OnPropertyChanged(nameof(DisplayName));
-                }
-                else
-                {
-                    if (displayName == GetDisplayNameFromUrl(oldThreadName))
-                        DisplayName = "";
-                    else if (displayName == GetDisplayNameFromUrl(threadName))
-                        displayName = "";
-                }
-            }
-        }
-
-        /// <summary>
-        /// The friendly display name to show for the quest.
-        /// If the backing var is empty, or if an attempt is made to set it to an empty value,
-        /// automatically generates a value based on the thread URL.
-        /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(displayName))
-                {
-                    return displayName;
-                }
-
-                return GetDisplayNameFromThreadName();
-            }
-            set
-            {
-                if (displayName != value)
-                {
-                    if (string.IsNullOrEmpty(value))
-                        displayName = "";
-                    else
-                        displayName = value.RemoveUnsafeCharacters();
-
-                    OnPropertyChanged(nameof(DisplayName));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Shorthand function to get the display name for the current thread name.
-        /// </summary>
-        /// <returns>Returns a display name based on the current thread name.</returns>
-        private string GetDisplayNameFromThreadName()
-        {
-            return GetDisplayNameFromUrl(ThreadName);
-        }
-
-        /// <summary>
-        /// Function to extract a display name from the provided thread name, if possible.
-        /// If it fails, just returns the entire URL.
-        /// </summary>
-        /// <param name="url">The URL to extract a display name out of.</param>
-        /// <returns>Returns a name based on the provided URL.</returns>
-        private static string GetDisplayNameFromUrl(string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                return string.Empty;
-
-            Match m = displayNameRegex().Match(url);
-            if (m.Success)
-                return m.Groups["displayName"].Value;
-            else
-                return url;
-        }
-
-        /// <summary>
-        /// Remove unsafe characters from the provided URL, and strip navigation elements from the end.
-        /// </summary>
-        /// <param name="url">The URL to clean up.</param>
-        /// <returns>Returns the base URL without navigation elements.</returns>
-        private static string CleanupThreadName(string url)
-        {
-            url = url.RemoveUnsafeCharacters();
-
-            Match m = pageNumberRegex().Match(url);
-            if (m.Success)
-                url = m.Groups["base"].Value;
-
-            return url;
-        }
         #endregion
 
         #region Quest Configuration Properties
