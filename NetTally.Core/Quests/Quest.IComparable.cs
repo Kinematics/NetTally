@@ -43,7 +43,13 @@ namespace NetTally
             if (right is null)
                 return 1;
 
-            return string.Compare(left.DisplayName.ToLowerInvariant(), right.DisplayName.ToLowerInvariant(), StringComparison.Ordinal);
+            if (left.QuestId == right.QuestId)
+                return 0;
+
+            return string.Compare(
+                left.DisplayName.ToLowerInvariant(),
+                right.DisplayName.ToLowerInvariant(),
+                StringComparison.Ordinal);
         }
 
         public bool Equals(Quest? other)
