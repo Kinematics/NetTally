@@ -68,6 +68,7 @@ namespace NetTally.ViewModels
             TrimExtendedText = quest.TrimExtendedText;
 
             LinkedQuests.Clear();
+
             foreach (var questId in quest.LinkedQuestIds)
             {
                 var linkedQuest = AvailableQuests.FirstOrDefault(q => q.QuestId == questId);

@@ -24,6 +24,7 @@ namespace NetTally
         {
         }
 
+        #region Vote Counter
         private IVoteCounter voteCounter = null!;
 
         [JsonIgnore]
@@ -40,6 +41,7 @@ namespace NetTally
                 }
             }
         }
+        #endregion Vote Counter
 
         #region Static class data
         public const string OmakeFilter = @"\bomake\b";
@@ -56,8 +58,11 @@ namespace NetTally
 
         #region Quest Identification
         public Guid QuestId { get; init; } = Guid.NewGuid();
+
+
         string threadName = NewThreadEntry;
         string displayName = string.Empty;
+
         public override string ToString() => DisplayName;
 
         /// <summary>
@@ -194,6 +199,7 @@ namespace NetTally
         #endregion
 
         #region Quest Configuration Properties
+
         #region Quest configuration properties: Post numbers
         [ObservableProperty]
         int postsPerPage = 0;
@@ -228,7 +234,7 @@ namespace NetTally
         /// of the thread.  This is done when the EndPost is 0.
         /// </summary>
         public bool ReadToEndOfThread => EndPost == 0;
-        #endregion
+        #endregion Quest configuration properties: Post numbers
 
         #region Quest configuration properties: Filtering
         /// <summary>
@@ -350,14 +356,13 @@ namespace NetTally
             }
         }
 
-        #endregion
+        #endregion Quest configuration properties: Filtering
 
         #region Quest configuration properties: Tally processing
-
         [ObservableProperty]
-        PartitionMode partitionMode = Types.Enums.PartitionMode.None;
+        PartitionMode partitionMode = PartitionMode.None;
         [ObservableProperty]
-        DisplayMode displayMode = Types.Enums.DisplayMode.Normal;
+        DisplayMode displayMode = DisplayMode.Normal;
         [ObservableProperty]
         bool whitespaceAndPunctuationIsSignificant = false;
         [ObservableProperty]
@@ -376,8 +381,9 @@ namespace NetTally
         bool ignoreSpoilers = false;
         [ObservableProperty]
         bool trimExtendedText = false;
-        #endregion
-        #endregion
+        #endregion Quest configuration properties: Tally processing
+
+        #endregion Quest Configuration Properties
 
         #region Linked Quests
         /// <summary>
