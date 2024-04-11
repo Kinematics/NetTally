@@ -52,14 +52,7 @@ namespace NetTally.Avalonia
             var builder = Host.CreateApplicationBuilder();
 
             // Load legacy config, if available.
-            if (LoadLegacyConfig() is ConfigInfo legacyConfig)
-            {
-                builder.Services.AddSingleton(legacyConfig);
-            }
-            else
-            {
-                builder.Services.AddSingleton(new ConfigInfo());
-            }
+            builder.Services.AddSingleton(LoadLegacyConfig() ?? new ConfigInfo());
 
             ConfigureConfiguration(builder.Configuration);
             ConfigureOptions(builder.Services);
