@@ -212,21 +212,16 @@
         <Grid RowDefinitions="*,auto" ColumnDefinitions="*,Auto"
               Margin="10">
 
-          <ListBox Name="LinkedQuests"
-                   Grid.Row="0" Grid.Column="0"
-                   ItemsSource="{Binding LinkedQuests}"/>
-          <Button Name="RemoveLinkedQuest" Content="Remove"
-                  Grid.Row="0" Grid.Column="1"
-                  VerticalAlignment="Top"
+          <ListBox Name="LinkedQuestsListBox" Grid.Row="0" Grid.Column="0"
+                   ItemsSource="{Binding LinkedQuests}" SelectedItem="{Binding SelectedLinkedQuest}"/>
+          <Button Name="RemoveLinkedQuest" Content="Remove" Grid.Row="0" Grid.Column="1" VerticalAlignment="Top"
                   Command="{Binding RemoveLinkedQuestCommand}"
-                  CommandParameter="{Binding #LinkedQuests.SelectedItem}"
-                  IsEnabled="{Binding #LinkedQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-          <ComboBox Name="AvailableQuests"
-                    Grid.Row="1" Grid.Column="0"/>
-          <Button Name="AddLinkedQuest" Content="Add"
-                  Grid.Row="1" Grid.Column="1"
+                  CommandParameter="{Binding #LinkedQuestsListBox.SelectedItem}"/>
+          <ComboBox Name="AvailableQuestsComboBox" Grid.Row="1" Grid.Column="0"
+					ItemsSource="{Binding AvailableQuests}" SelectedItem="{Binding SelectedAvailableQuest}"/>
+          <Button Name="AddLinkedQuest" Content="Add" Grid.Row="1" Grid.Column="1"
                   Command="{Binding AddLinkedQuestCommand}"
-                  IsEnabled="{Binding #AvailableQuests.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+				  CommandParameter="{Binding #AvailableQuestsComboBox.SelectedItem}"/>
         </Grid>
       </TabItem>
     </TabControl>

@@ -26,16 +26,19 @@ namespace NetTally.ViewModels
             this.logger = logger;
 
             quest = questsInfo.SelectedQuest;
-            AvailableQuests = questsInfo.Quests;
+            AvailableQuests = new ObservableCollection<Quest>(questsInfo.Quests);
+            AvailableQuests.Remove(quest);
+
+            SelectedAvailableQuest = AvailableQuests.FirstOrDefault();
 
             LoadQuestOptions();
         }
 
         public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
-        public ObservableCollection<Quest> LinkedQuests { get; } = [];
-
         public ObservableCollection<Quest> AvailableQuests { get; }
+
+        public ObservableCollection<Quest> LinkedQuests { get; } = [];
 
         private void LoadQuestOptions()
         {
@@ -69,13 +72,11 @@ namespace NetTally.ViewModels
 
             LinkedQuests.Clear();
 
-            foreach (var questId in quest.LinkedQuestIds)
+            var linkedQuests = AvailableQuests.Where(quest.HasLinkedQuest);
+
+            foreach (var linkedQuest in linkedQuests)
             {
-                var linkedQuest = AvailableQuests.FirstOrDefault(q => q.QuestId == questId);
-                if (linkedQuest != null)
-                {
-                    LinkedQuests.Add(linkedQuest);
-                }
+                LinkedQuests.Add(linkedQuest);
             }
 
             logger.LogInformation("Quest information loaded into view model.");
@@ -121,47 +122,6 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
-        private void Save()
-        {
-            SaveQuestOptions();
-            OnPropertyChanged(nameof(SaveCommand));
-        }
-
-        [RelayCommand]
-        private void Reset()
-        {
-            LoadQuestOptions();
-            OnPropertyChanged(nameof(ResetCommand));
-        }
-
-        [RelayCommand]
-        private void Cancel()
-        {
-            OnPropertyChanged(nameof(CancelCommand));
-        }
-
-        [RelayCommand]
-        private void AddLinkedQuest(Quest? quest)
-        {
-            if (quest is not null)
-            {
-                if (!LinkedQuests.Contains(quest))
-                {
-                    LinkedQuests.Add(quest);
-                }
-            }
-        }
-
-        [RelayCommand]
-        private void RemoveLinkedQuest(Quest? quest)
-        {
-            if (quest is not null)
-            {
-                LinkedQuests.Remove(quest);
-            }
-        }
-
-        [RelayCommand]
         private void ClearFilters()
         {
             CustomThreadmarkFilters = string.Empty;
@@ -188,6 +148,63 @@ namespace NetTally.ViewModels
             ForcePinnedProxyVotes = false;
             IgnoreSpoilers = false;
             TrimExtendedText = false;
+        }
+
+        [RelayCommand]
+        private void Reset()
+        {
+            LoadQuestOptions();
+            OnPropertyChanged(nameof(ResetCommand));
+        }
+
+        [RelayCommand]
+        private void Save()
+        {
+            SaveQuestOptions();
+            OnPropertyChanged(nameof(SaveCommand));
+        }
+
+        [RelayCommand]
+        private void Cancel()
+        {
+            OnPropertyChanged(nameof(CancelCommand));
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(AddLinkedQuestCommand))]
+        private Quest? selectedAvailableQuest;
+
+        [RelayCommand(CanExecute = nameof(CanAddLinkedQuest))]
+        private void AddLinkedQuest(Quest? quest)
+        {
+            if (quest is not null &&
+                !LinkedQuests.Contains(quest))
+            {
+                LinkedQuests.Add(quest);
+            }
+        }
+
+        private static bool CanAddLinkedQuest(Quest? quest)
+        {
+            return quest is not null;
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(RemoveLinkedQuestCommand))]
+        private Quest? selectedLinkedQuest;
+
+        [RelayCommand(CanExecute = nameof(CanRemoveLinkedQuest))]
+        private void RemoveLinkedQuest(Quest? quest)
+        {
+            if (quest is not null)
+            {
+                LinkedQuests.Remove(quest);
+            }
+        }
+
+        private static bool CanRemoveLinkedQuest(Quest? quest)
+        {
+            return quest is not null;
         }
 
         [ObservableProperty]
