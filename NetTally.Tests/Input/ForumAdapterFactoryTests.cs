@@ -35,7 +35,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://forums.sufficientvelocity.com/threads/vote-tally-program.199/" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForo2Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo2Adapter));
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "https://forums.spacebattles.com/threads/vote-tally-program-v3.260204/" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "https://forum.questionablequesting.com/threads/qq-vote-tally-program.1065/" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://forums.animesuki.com/showthread.php?t=128882" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(VBulletin3Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(VBulletin3Adapter));
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://www.fandompost.com/oldforums/showthread.php?48716-One-Punch-Man-Discussion-Thread/page1" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(VBulletin4Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(VBulletin4Adapter));
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/4333101-vbulletin-5-1-10-connect-is-now-available" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(VBulletin5Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(VBulletin5Adapter));
         }
 
         // "https://community.nodebb.org/topic/6298/nodebb-v0-7-3"
@@ -99,7 +99,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://www.ilovephilosophy.com/viewtopic.php?f=1&t=175054" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(PhpBBAdapter2));
+            Assert.IsInstanceOfType(adapter, typeof(PhpBBAdapter));
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace NetTally.Tests.Forums
             var forumType = ForumIdentifier.IdentifyForumTypeFromHtmlDocument(doc);
 
             var adapter = forumAdapterFactory.CreateForumAdapter(forumType, uri);
-            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter2));
+            Assert.IsInstanceOfType(adapter, typeof(XenForo1Adapter));
         }
     }
 }

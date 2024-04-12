@@ -14,12 +14,12 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public partial class PhpBBAdapter2(IGeneralInputOptions inputOptions, ILogger<PhpBBAdapter2> logger)
-        : IForumAdapter2
+    public partial class PhpBBAdapter(IGeneralInputOptions inputOptions, ILogger<PhpBBAdapter> logger)
+        : IForumAdapter
     {
         #region Constructor
         readonly IGeneralInputOptions inputOptions = inputOptions;
-        readonly ILogger<PhpBBAdapter2> logger = logger;
+        readonly ILogger<PhpBBAdapter> logger = logger;
         #endregion
 
         #region IForumAdapter2 interface

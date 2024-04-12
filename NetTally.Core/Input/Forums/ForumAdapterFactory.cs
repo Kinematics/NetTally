@@ -49,7 +49,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
         /// <param name="token">A cancellation token for if we need to make a web request.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async Task<IForumAdapter2> CreateForumAdapterAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<IForumAdapter> CreateForumAdapterAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest.ThreadUri == Quest.InvalidThreadUri)
                 throw new InvalidOperationException("Quest does not have a valid thread specified.");
@@ -76,18 +76,18 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="forumType">The type of forum being requested.</param>
         /// <returns>Returns a forum adapter matching the requested forum type.</returns>
-        public IForumAdapter2 CreateForumAdapter(ForumType forumType, Uri uri)
+        public IForumAdapter CreateForumAdapter(ForumType forumType, Uri uri)
         {
             return forumType switch
             {
-                ForumType.XenForo1 => new XenForo1Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter2>()),
-                ForumType.XenForo2 => new XenForo2Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter2>()),
-                ForumType.vBulletin3 => new VBulletin3Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter2>()),
-                ForumType.vBulletin4 => new VBulletin4Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter2>()),
-                ForumType.vBulletin5 => new VBulletin5Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter2>()),
-                ForumType.phpBB => new PhpBBAdapter2(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter2>()),
+                ForumType.XenForo1 => new XenForo1Adapter(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter>()),
+                ForumType.XenForo2 => new XenForo2Adapter(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter>()),
+                ForumType.vBulletin3 => new VBulletin3Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter>()),
+                ForumType.vBulletin4 => new VBulletin4Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter>()),
+                ForumType.vBulletin5 => new VBulletin5Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter>()),
+                ForumType.phpBB => new PhpBBAdapter(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter>()),
                 //ForumType.NodeBB => new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>()),
-                ForumType.Unknown => new UnknownForumAdapter2(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter2>()),
+                ForumType.Unknown => new UnknownForumAdapter(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter>()),
                 _ => throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType)),
             };
         }

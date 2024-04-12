@@ -18,11 +18,11 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public partial class XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
-        : IForumAdapter2
+    public partial class XenForo2Adapter(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter> logger)
+        : IForumAdapter
     {
         readonly IGeneralInputOptions inputOptions = inputOptions;
-        readonly ILogger<XenForo2Adapter2> logger = logger;
+        readonly ILogger<XenForo2Adapter> logger = logger;
 
         #region Regex data
         // May possibly end with /page-00#post-00

@@ -15,13 +15,13 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public class VBulletin4Adapter2 : IForumAdapter2
+    public class VBulletin4Adapter : IForumAdapter
     {
         #region Constructor
         readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<VBulletin4Adapter2> logger;
+        readonly ILogger<VBulletin4Adapter> logger;
 
-        public VBulletin4Adapter2(IGeneralInputOptions inputOptions, ILogger<VBulletin4Adapter2> logger)
+        public VBulletin4Adapter(IGeneralInputOptions inputOptions, ILogger<VBulletin4Adapter> logger)
         {
             this.inputOptions = inputOptions;
             this.logger = logger;

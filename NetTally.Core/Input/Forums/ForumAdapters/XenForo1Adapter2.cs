@@ -17,7 +17,7 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public class XenForo1Adapter2 : IForumAdapter2
+    public class XenForo1Adapter : IForumAdapter
     {
         #region Static data
         // May possibly end with /page-00#post-00
@@ -28,9 +28,9 @@ namespace NetTally.Forums.ForumAdapters
 
         #region Constructor
         readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<XenForo1Adapter2> logger;
+        readonly ILogger<XenForo1Adapter> logger;
 
-        public XenForo1Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo1Adapter2> logger)
+        public XenForo1Adapter(IGeneralInputOptions inputOptions, ILogger<XenForo1Adapter> logger)
         {
             this.inputOptions = inputOptions;
             this.logger = logger;

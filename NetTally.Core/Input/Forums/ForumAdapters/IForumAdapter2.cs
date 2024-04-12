@@ -9,7 +9,7 @@ using NetTally.Types.Components;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public interface IForumAdapter2
+    public interface IForumAdapter
     {
         /// <summary>
         /// Get the default number of posts per page for the site used by the origin.
