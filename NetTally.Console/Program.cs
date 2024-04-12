@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,8 @@ namespace NetTally.CLI
 
         static IServiceProvider serviceProvider;
         static ILogger<Program> logger;
-        static ViewModel viewModel;
+        static MainViewModel mainViewModel;
+        static GlobalOptionsViewModel globalOptionsViewModel;
         #endregion
 
         #region Main entry point
@@ -24,7 +26,7 @@ namespace NetTally.CLI
         /// Main entry point for the console application.
         /// </summary>
         /// <param name="args">Arguments passed to the application.</param>
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Create a service collection and configure our dependencies
             var serviceCollection = new ServiceCollection();
@@ -40,15 +42,16 @@ namespace NetTally.CLI
             logger = loggerFactory.CreateLogger<Program>();
             logger.LogDebug("Services defined, starting console app!");
 
-            viewModel = serviceProvider.GetRequiredService<ViewModel>();
+            mainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+            globalOptionsViewModel = serviceProvider.GetService<GlobalOptionsViewModel>();
 
-            viewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
             logger.LogTrace("Watching events from the main view model.");
 
             var arguments = Parser.Default.ParseArguments<Options>(args);
             logger.LogTrace("Options parsed.");
 
-            arguments.WithParsed(o => RunWithOptions(o));
+            await arguments.WithParsedAsync(RunWithOptions);
         }
         #endregion
 
@@ -57,7 +60,7 @@ namespace NetTally.CLI
         /// Set things up to run the tally using the options provided.
         /// </summary>
         /// <param name="options">The options that were parsed from the commandline arguments.</param>
-        public static void RunWithOptions(Options options)
+        public static async Task RunWithOptions(Options options)
         {
             logger.LogTrace("Entered RunWithOptions");
 
@@ -69,7 +72,7 @@ namespace NetTally.CLI
 
             logger.LogTrace("Options set");
 
-            RunTally(quest);
+            await RunTally(quest);
 
         }
 
@@ -77,31 +80,31 @@ namespace NetTally.CLI
         /// The code to actually call the ViewModel API to run the tally.
         /// </summary>
         /// <param name="quest">The quest being tallied.</param>
-        private static void RunTally(Quest quest)
+        private static async Task RunTally(Quest quest)
         {
             Thread.Sleep(30);
 
-            bool canAddQuest = viewModel.AddQuestCommand.CanExecute(null);
+            bool canAddQuest = mainViewModel.AddQuestCommand.CanExecute(null);
             logger.LogTrace("Can Add Quest: {canAddQuest} (TallyIsRunning: {TallyIsRunning})",
-                canAddQuest, viewModel.TallyIsRunning);
+                canAddQuest, mainViewModel.TallyIsRunning);
 
             if (canAddQuest)
             {
-                viewModel.AddQuestCommand.Execute(quest);
+                mainViewModel.AddQuestCommand.Execute(quest);
 
                 logger.LogTrace("Quest added");
 
-                viewModel.SelectedQuest = quest;
+                mainViewModel.SelectedQuest = quest;
 
                 logger.LogTrace("Quest selected");
 
-                bool canRunTally = viewModel.RunTallyCommand.CanExecute(null);
+                bool canRunTally = mainViewModel.RunTallyCommand.CanExecute(null);
                 logger.LogTrace("Can Run Tally: {canRunTally}", canRunTally);
 
                 if (canRunTally)
                 {
                     logger.LogTrace("Running Tally...");
-                    viewModel.DoRunTallyAsync(null).Wait();
+                    await mainViewModel.RunTallyCommand.ExecuteAsync(default);
                 }
             }
         }
@@ -114,15 +117,15 @@ namespace NetTally.CLI
         {
             logger.LogTrace("Setting global options");
 
-            viewModel.Options.DisplayMode = options.DisplayMode;
+            globalOptionsViewModel.DisplayMode = options.DisplayMode;
 
-            viewModel.Options.GlobalSpoilers = options.SpoilerAll;
+            globalOptionsViewModel.GlobalSpoilers = options.SpoilerAll;
 
-            viewModel.Options.DisplayPlansWithNoVotes = options.Display0Votes;
+            globalOptionsViewModel.DisplayPlansWithNoVotes = options.Display0Votes;
 
-            viewModel.Options.DisableWebProxy = options.DisableWebProxy;
+            globalOptionsViewModel.DisableWebProxy = options.DisableWebProxy;
 
-            viewModel.Options.DebugMode = options.Debug;
+            globalOptionsViewModel.DebugMode = options.Debug;
         }
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace NetTally.CLI
         {
             logger.LogTrace("Setting up quest with options.");
 
-            Quest quest = new Quest()
+            Quest quest = new()
             {
                 ThreadName = options.Thread,
                 PartitionMode = options.PartitionMode,
@@ -197,16 +200,16 @@ namespace NetTally.CLI
 
             if (e is PropertyDataChangedEventArgs<string> eData)
             {
-                if (viewModel.TallyIsRunning && verbose)
+                if (mainViewModel.TallyIsRunning && verbose)
                 {
                     Console.Error.Write(eData.PropertyData);
                 }
             }
-            else if (viewModel.TallyIsRunning == false)
+            else if (mainViewModel.TallyIsRunning == false)
             {
-                if (e != null && e.PropertyName == nameof(viewModel.Output))
+                if (e != null && e.PropertyName == nameof(mainViewModel.Output))
                 {
-                    Console.WriteLine(viewModel.Output);
+                    Console.WriteLine(mainViewModel.Output);
 
                     if (verbose)
                         Console.Error.WriteLine("Tally completed!");
