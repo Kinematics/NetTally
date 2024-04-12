@@ -33,7 +33,7 @@
 			  </ToolTip.Tip>
 		  </ComboBox>
 		  <CheckBox Name="AllowUsersToUpdatePlans" Content="Users can update plans" Margin="20,0,0,5"
-					IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True">
+					IsChecked="{Binding AllowUsersToUpdatePlans}" IsThreeState="True">
 			  <ToolTip.Tip>
 				  <StackPanel Classes="OptionList">
 					  <TextBlock Text="When true, users are allowed to update plans that they have written by reposting the plan, with changes, in a later post."/>

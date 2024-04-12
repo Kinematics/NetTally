@@ -189,8 +189,8 @@ namespace NetTally.VoteCounting
                 return true;
             }
             else if (
-                      (globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
-                       globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans) &&
+                     ((globalSettings.AllowUsersToUpdatePlans.HasValue && globalSettings.AllowUsersToUpdatePlans.Value == true) ||
+                      (!globalSettings.AllowUsersToUpdatePlans.HasValue && Quest.AllowUsersToUpdatePlans)) &&
                       ReferenceOrigins.TryGetValue(planOrigin, out Origin? currentOrigin)
                     )
             {

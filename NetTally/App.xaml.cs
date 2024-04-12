@@ -35,6 +35,7 @@ using NetTally.Global;
 using NetTally.Navigation;
 using NetTally.Options;
 using NetTally.SystemInfo;
+using NetTally.Types.Enums;
 using NetTally.Utility.Comparers;
 using NetTally.Views;
 
@@ -206,7 +207,7 @@ namespace NetTally
                 DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
                 GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
                 RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
-                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
+                AllowUsersToUpdatePlans = BoolExConverter.Convert(AdvancedOptions.Instance.AllowUsersToUpdatePlans),
                 TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
             };
 

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
-using NetTally.Extensions;
 using NetTally.Options;
-using NetTally.Output;
 using NetTally.Types.Enums;
 
 namespace NetTally
@@ -227,7 +225,7 @@ namespace NetTally
                         ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
                         IgnoreSpoilers = questElement.IgnoreSpoilers,
                         TrimExtendedText = questElement.TrimExtendedText,
-                        UseRSSThreadmarks = questElement.UseRSSThreadmarks,
+                        UseRSSThreadmarks = BoolExConverter.Convert(questElement.UseRSSThreadmarks)
                     };
 
                     if (!string.IsNullOrEmpty(questElement.LinkedQuests))

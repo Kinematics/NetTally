@@ -103,7 +103,7 @@ namespace NetTally
         bool checkForLastThreadmark;
 
         [ObservableProperty]
-        BoolEx useRSSThreadmarks = BoolEx.Unknown;
+        bool? useRSSThreadmarks = null;
 
         /// <summary>
         /// Boolean value indicating if the tally system should read to the end

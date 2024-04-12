@@ -224,7 +224,7 @@ namespace NetTally.Avalonia.Config.Xml
                         ForcePinnedProxyVotes = questElement.ForcePinnedProxyVotes,
                         IgnoreSpoilers = questElement.IgnoreSpoilers,
                         TrimExtendedText = questElement.TrimExtendedText,
-                        UseRSSThreadmarks = questElement.UseRSSThreadmarks,
+                        UseRSSThreadmarks = BoolExConverter.Convert(questElement.UseRSSThreadmarks)
                     };
 
                     if (!string.IsNullOrEmpty(questElement.LinkedQuests))

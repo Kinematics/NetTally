@@ -48,7 +48,7 @@ namespace NetTally.ViewModels
             DisplayPlansWithNoVotes = false;
             GlobalSpoilers = false;
             RankVoteCounterMethod = RankVoteCounterMethod.Default;
-            AllowUsersToUpdatePlans = BoolEx.Unknown;
+            AllowUsersToUpdatePlans = null;
             TrackPostAuthorsUniquely = false;
             DisableWebProxy = false;
             DebugMode = false;
@@ -84,7 +84,7 @@ namespace NetTally.ViewModels
         RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
 
         [ObservableProperty]
-        BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
+        bool? allowUsersToUpdatePlans = null;
 
         // Output
         [ObservableProperty]

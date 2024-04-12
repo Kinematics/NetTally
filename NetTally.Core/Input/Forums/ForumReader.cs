@@ -169,8 +169,12 @@ namespace NetTally.Forums
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri);
 
-            if (adapter.HasRssThreadmarksFeed(quest.ThreadUri) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
-                quest.UseRSSThreadmarks = BoolEx.True;
+            bool? adapterHasRSSThreadmarksFeed = adapter.HasRssThreadmarksFeed(quest.ThreadUri);
+
+            if (adapterHasRSSThreadmarksFeed.HasValue &&
+                adapterHasRSSThreadmarksFeed.Value == true &&
+                !quest.UseRSSThreadmarks.HasValue)
+                quest.UseRSSThreadmarks = true;
         }
 
         /// <summary>

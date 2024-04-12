@@ -72,13 +72,13 @@ namespace NetTally.Forums.ForumAdapters
         /// </summary>
         /// <param name="uri">The uri of the site that we're querying information for.</param>
         /// <returns>Returns whether the site is known to use or not use RSS threadmarks.</returns>
-        public BoolEx HasRssThreadmarksFeed(Uri uri)
+        public bool? HasRssThreadmarksFeed(Uri uri)
         {
             return uri.Host switch
             {
-                "forums.sufficientvelocity.com" or "forums.spacebattles.com" => BoolEx.True,
-                "forum.questionablequesting.com" => BoolEx.False,
-                _ => BoolEx.Unknown,
+                "forums.sufficientvelocity.com" or "forums.spacebattles.com" => true,
+                "forum.questionablequesting.com" => false,
+                _ => null,
             };
         }
 
@@ -330,7 +330,7 @@ namespace NetTally.Forums.ForumAdapters
             if (quest == null || quest.ThreadUri == null)
                 return (false, ThreadRangeInfo.Empty);
 
-            if (quest.UseRSSThreadmarks == BoolEx.False)
+            if (quest.UseRSSThreadmarks == false)
                 return (false, ThreadRangeInfo.Empty);
 
             XDocument? rss = await pageProvider.GetXmlDocumentAsync(
@@ -340,8 +340,8 @@ namespace NetTally.Forums.ForumAdapters
 
             if (rss == null)
             {
-                if (quest.UseRSSThreadmarks == BoolEx.Unknown)
-                    quest.UseRSSThreadmarks = BoolEx.False;
+                if (!quest.UseRSSThreadmarks.HasValue)
+                    quest.UseRSSThreadmarks = false;
 
                 return (false, ThreadRangeInfo.Empty);
             }

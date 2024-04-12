@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
+using NetTally.Types.Enums;
 
 namespace NetTally.Avalonia.Config.Xml
 {
@@ -71,7 +72,7 @@ namespace NetTally.Avalonia.Config.Xml
                 ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes,
                 IgnoreSpoilers = quest.IgnoreSpoilers,
                 TrimExtendedText = quest.TrimExtendedText,
-                UseRSSThreadmarks = quest.UseRSSThreadmarks,
+                UseRSSThreadmarks = BoolExConverter.Convert(quest.UseRSSThreadmarks),
                 LinkedQuests = quest.LinkedQuestIds.Select(q => q.ToString()).DefaultIfEmpty(string.Empty).Aggregate((p, q) => $"{p}⦂{q}"),
             };
 

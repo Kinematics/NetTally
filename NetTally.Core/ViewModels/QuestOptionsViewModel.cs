@@ -138,7 +138,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void ClearOptions()
         {
-            UseRSSThreadmarks = BoolEx.Unknown;
+            UseRSSThreadmarks = null;
             WhitespaceAndPunctuationIsSignificant = false;
             CaseIsSignificant = false;
             ForbidVoteLabelPlanNames = false;
@@ -232,7 +232,7 @@ namespace NetTally.ViewModels
         private bool checkForLastThreadmark;
 
         [ObservableProperty]
-        private BoolEx useRSSThreadmarks = BoolEx.Unknown;
+        private bool? useRSSThreadmarks = null;
 
         [ObservableProperty]
         private PartitionMode partitionMode;

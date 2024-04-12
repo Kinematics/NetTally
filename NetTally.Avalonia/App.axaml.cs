@@ -18,6 +18,7 @@ using NetTally.Debugging.FileLogger;
 using NetTally.Global;
 using NetTally.Options;
 using NetTally.SystemInfo;
+using NetTally.Types.Enums;
 
 namespace NetTally.Avalonia
 {
@@ -153,7 +154,7 @@ namespace NetTally.Avalonia
                     DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
                     GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
                     RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
-                    AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
+                    AllowUsersToUpdatePlans = BoolExConverter.Convert(AdvancedOptions.Instance.AllowUsersToUpdatePlans),
                     TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
                 };
 
