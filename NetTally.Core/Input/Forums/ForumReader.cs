@@ -184,7 +184,8 @@ namespace NetTally.Forums
         private static async Task<ThreadRangeInfo> GetStartInfoAsync(Quest quest,
             IForumAdapter adapter, IPageProvider pageProvider, CancellationToken token)
         {
-            ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfoAsync(quest, pageProvider, token).ConfigureAwait(false);
+            ThreadRangeInfo rangeInfo = await adapter.GetQuestRangeInfoAsync(quest, pageProvider, token)
+                .ConfigureAwait(false);
 
             return rangeInfo;
         }

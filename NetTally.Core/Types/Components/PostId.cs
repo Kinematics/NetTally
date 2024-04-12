@@ -8,22 +8,20 @@ namespace NetTally.Types.Components
     /// </summary>
     public record PostId : IComparable<PostId>, IComparable<long>, IComparable<string>
     {
-        public static readonly PostId Zero = new PostId(0);
+        public static readonly PostId Zero = new(0);
 
         public string Text { get; init; }
         public long Value { get; init; }
 
         public PostId(string postId)
         {
-            ArgumentNullException.ThrowIfNull(postId, nameof(postId));
-
-            if (string.IsNullOrWhiteSpace(postId))
-                throw new ArgumentException("Post ID is not valid.", nameof(postId));
+            ArgumentNullException.ThrowIfNull(postId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(postId);
 
             Text = postId;
 
-            if (long.TryParse(postId, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long postIdValue) &&
-                postIdValue > 0)
+            if (long.TryParse(postId, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long postIdValue)
+                && postIdValue > 0)
             {
                 Value = postIdValue;
             }
@@ -31,8 +29,7 @@ namespace NetTally.Types.Components
 
         public PostId(long postId)
         {
-            if (postId < 0)
-                throw new ArgumentOutOfRangeException(nameof(postId), $"Post ID number '{postId}' is not valid.");
+            ArgumentOutOfRangeException.ThrowIfNegative(postId);
 
             Value = postId;
             Text = postId.ToString();

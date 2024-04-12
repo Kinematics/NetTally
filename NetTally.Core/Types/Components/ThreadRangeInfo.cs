@@ -14,7 +14,7 @@ namespace NetTally.Types.Components
         public int ID { get; }
         public int Pages { get; }
 
-        public static readonly ThreadRangeInfo Empty = new ThreadRangeInfo(false, 0, 0, 0, 0);
+        public static readonly ThreadRangeInfo Empty = new(false, 0, 0, 0, 0);
 
         /// <summary>
         /// Constructor for thread range info.
@@ -22,7 +22,8 @@ namespace NetTally.Types.Components
         /// </summary>
         /// <param name="byNumber">Whether the range is specified by post number.</param>
         /// <param name="number">The post number that begins the range.</param>
-        public ThreadRangeInfo(bool byNumber, int number) : this(byNumber, number, 0, 0, 0) { }
+        public ThreadRangeInfo(bool byNumber, int number)
+            : this(byNumber, number, 0, 0, 0) { }
 
         /// <summary>
         /// Constructor for thread range info.
@@ -54,14 +55,10 @@ namespace NetTally.Types.Components
         /// <exception cref="ArgumentOutOfRangeException">If any parameter is out of range (negative).</exception>
         public ThreadRangeInfo(bool byNumber, int number, int page, int id, int pages)
         {
-            if (number < 0)
-                throw new ArgumentOutOfRangeException(nameof(number), number, "Post number cannot be negative.");
-            if (page < 0)
-                throw new ArgumentOutOfRangeException(nameof(page), page, "Page number cannot be negative.");
-            if (id < 0)
-                throw new ArgumentOutOfRangeException(nameof(id), id, "Post ID cannot be negative.");
-            if (pages < 0)
-                throw new ArgumentOutOfRangeException(nameof(pages), pages, "Page count cannot be negative.");
+            ArgumentOutOfRangeException.ThrowIfNegative(number);
+            ArgumentOutOfRangeException.ThrowIfNegative(page);
+            ArgumentOutOfRangeException.ThrowIfNegative(id);
+            ArgumentOutOfRangeException.ThrowIfNegative(pages);
 
             ByNumber = byNumber;
             Number = number;
@@ -96,10 +93,8 @@ namespace NetTally.Types.Components
         /// <returns>Returns the page number that the post should be on.</returns>
         public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
         {
-            if (postNumber < 1)
-                throw new ArgumentOutOfRangeException(nameof(postNumber), "Post number cannot be less than 1.");
-            if (postsPerPage < 1)
-                throw new ArgumentOutOfRangeException(nameof(postsPerPage), "Posts per page cannot be less than 1.");
+            ArgumentOutOfRangeException.ThrowIfLessThan(postNumber, 1);
+            ArgumentOutOfRangeException.ThrowIfLessThan(postsPerPage, 1);
 
             int pageNumber = ((postNumber - 1) / postsPerPage) + 1;
 

@@ -18,14 +18,11 @@ namespace NetTally.Types.Components
         /// <param name="pages">The number of pages in the thread.</param>
         /// <exception cref="ArgumentNullException">If title is null or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">If pages is negative.</exception>
-        public ThreadInfo(string title, string author, int pages)
+        public ThreadInfo(string title, string? author, int pages)
         {
-            if (string.IsNullOrEmpty(title))
-                throw new ArgumentNullException(nameof(title));
-            if (pages < 0)
-                throw new ArgumentOutOfRangeException(nameof(pages), pages, "Pages cannot be negative.");
-            if (author == null)
-                author = "";
+            ArgumentException.ThrowIfNullOrEmpty(title);
+            ArgumentOutOfRangeException.ThrowIfNegative(pages);
+            author ??= "";
 
             Title = title;
             Author = author;

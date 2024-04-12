@@ -11,14 +11,26 @@ namespace NetTally.Forums
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.
     /// </summary>
-    static class ForumPostTextConverter
+    static partial class ForumPostTextConverter
     {
+        #region Regex
         // Regex for colors in a span's style
-        static readonly Regex spanColorRegex = new Regex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase);
+        static readonly Regex spanColorRegex = SpanColorRegex();
         // Regex for strike-through in a span's style
-        static readonly Regex spanStrikeRegex = new Regex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase);
+        static readonly Regex spanStrikeRegex = SpanStrikeRegex();
         // Regex for quick spoilers in a span's class
-        static readonly Regex spanSpoilerRegex = new Regex(@"bbc-spoiler", RegexOptions.IgnoreCase);
+        static readonly Regex spanSpoilerRegex = SpanSpoilerRegex();
+
+        [GeneratedRegex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex SpanColorRegex();
+
+        [GeneratedRegex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex SpanStrikeRegex();
+
+        [GeneratedRegex(@"bbc-spoiler", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex SpanSpoilerRegex();
+        #endregion Regex
+
 
         #region Public Functions
         /// <summary>
@@ -46,14 +58,12 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.  A default is used if none is provided.</param>
         /// <returns>Returns a cleaned version of the text of the post.</returns>
         /// <exception cref="ArgumentNullException">If node is null.</exception>
-        public static string ExtractPostText(HtmlNode? node, Predicate<HtmlNode> exclude, Uri host)
+        public static string ExtractPostText(HtmlNode? node, Predicate<HtmlNode>? exclude, Uri host)
         {
-            if (node == null)
-                throw new ArgumentNullException(nameof(node));
+            ArgumentNullException.ThrowIfNull(node);
 
             // If no exclusion is provided, no nodes are removed.
-            if (exclude == null)
-                exclude = (n) => false;
+            exclude ??= (n) => false;
 
             // Recurse into the child nodes of the main post node.
             string postText = ExtractPostTextString(node, exclude, host);
@@ -88,12 +98,17 @@ namespace NetTally.Forums
                 var nodeClasses = n.GetAttributeValue("class", "").Split(' ');
                 return classNames.Any(p => nodeClasses.Contains(p, StringComparer.OrdinalIgnoreCase));
             };
-
         }
 
         #endregion
 
         #region Private Support Functions
+        static readonly char[] newlineChars = ['\r', '\n'];
+        const string normalNewline = "\r\n";
+        const char openStrike = '❰';
+        const char closeStrike = '❱';
+        const char strikeNewline = '⦂';
+
         /// <summary>
         /// Extracts post text as a string from the provided HTML node.
         /// Creates a new string builder to call the full version of this function.
@@ -112,7 +127,10 @@ namespace NetTally.Forums
         /// sub-nodes from the end result.</param>
         /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
-        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, StringBuilder sb, Uri host)
+        private static string ExtractPostTextString(HtmlNode node,
+                                                    Predicate<HtmlNode> exclude,
+                                                    StringBuilder sb,
+                                                    Uri host)
         {
             System.Diagnostics.Debug.Assert(node != null);
             System.Diagnostics.Debug.Assert(exclude != null);
@@ -131,7 +149,7 @@ namespace NetTally.Forums
                         sb.Append(child.InnerText);
                         break;
                     case "br":
-                        sb.Append("\r\n");
+                        sb.Append(normalNewline);
                         break;
                     case "i":
                         sb.Append("『i』");
@@ -155,9 +173,9 @@ namespace NetTally.Forums
                         // Struck-through text is entirely skipped.
                         if (spanStrikeRegex.Match(spanStyle).Success)
                         {
-                            sb.Append("❰");
+                            sb.Append(openStrike);
                             ExtractPostTextString(child, exclude, sb, host);
-                            sb.Append("❱");
+                            sb.Append(closeStrike);
                         }
                         else if (spanSpoilerRegex.Match(spanClass).Success)
                         {
@@ -205,7 +223,7 @@ namespace NetTally.Forums
                             {
                                 // If the source URL is relative, prepend the forum's host.
                                 // This will not modify absolute URLs.
-                                Uri absoluteSrc = new Uri(host, Uri.UnescapeDataString(srcUrl));
+                                Uri absoluteSrc = new(host, Uri.UnescapeDataString(srcUrl));
                                 imgHref = absoluteSrc.ToString();
                             }
                             catch (UriFormatException)
@@ -218,7 +236,7 @@ namespace NetTally.Forums
                     case "div":
                         // Recurse into divs (typically spoilers).
                         ExtractPostTextString(child, exclude, sb, host);
-                        sb.Append("\r\n");
+                        sb.Append(normalNewline);
                         break;
                 }
             }
@@ -226,15 +244,9 @@ namespace NetTally.Forums
             return StripDuplicateNewlines(sb.ToString());
         }
 
-        static readonly char[] newlineChars = new char[] { '\r', '\n' };
-        const char openStrike = '❰';
-        const char closeStrike = '❱';
-        const char strikeNewline = '⦂';
-        const string normalNewline = "\r\n";
-
         private static string StripDuplicateNewlines(ReadOnlySpan<char> input)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             bool newlineState = false;
             bool strikeState = false;
@@ -248,7 +260,7 @@ namespace NetTally.Forums
                 {
                     if (!newlineState)
                     {
-                        sb.Append(input.Slice(bufferStart, c - bufferStart));
+                        sb.Append(input[bufferStart..c]);
 
                         if (strikeState)
                             sb.Append(strikeNewline);
@@ -276,12 +288,11 @@ namespace NetTally.Forums
 
             if (!newlineState)
             {
-                sb.Append(input.Slice(bufferStart));
+                sb.Append(input[bufferStart..]);
             }
 
             return sb.ToString().Trim();
         }
-
         #endregion
     }
 }

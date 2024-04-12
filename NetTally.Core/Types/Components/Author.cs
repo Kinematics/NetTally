@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetTally.Types.Components
 {
@@ -18,8 +14,7 @@ namespace NetTally.Types.Components
         /// <exception cref="ArgumentException">Throws if name is null, empty, or only whitespace.</exception>
         public Author(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException($"Invalid author name: '{name}'");
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
             // Trim any surrounding whitespace, if it exists.
             Name = name.Trim();
