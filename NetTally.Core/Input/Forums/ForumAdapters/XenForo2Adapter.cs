@@ -72,7 +72,7 @@ namespace NetTally.Forums.ForumAdapters
         /// </summary>
         /// <param name="uri">The uri of the site that we're querying information for.</param>
         /// <returns>Returns whether the site is known to use or not use RSS threadmarks.</returns>
-        public BoolEx GetHasRssThreadmarksFeed(Uri uri)
+        public BoolEx HasRssThreadmarksFeed(Uri uri)
         {
             return uri.Host switch
             {

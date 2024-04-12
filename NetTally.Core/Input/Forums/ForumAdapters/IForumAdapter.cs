@@ -23,7 +23,7 @@ namespace NetTally.Forums.ForumAdapters
         /// </summary>
         /// <param name="uri">The uri of the site that we're querying information for.</param>
         /// <returns>Returns whether the site is known to use or not use RSS threadmarks.</returns>
-        BoolEx GetHasRssThreadmarksFeed(Uri uri);
+        BoolEx HasRssThreadmarksFeed(Uri uri);
 
         /// <summary>
         /// String to use for a line break between tasks.

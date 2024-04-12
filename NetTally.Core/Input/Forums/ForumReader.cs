@@ -147,7 +147,7 @@ namespace NetTally.Forums
 
             var (threadInfo, posts2) = await GetPostsFromPagesAsync(loadingPages, quest, adapter, rangeInfo).ConfigureAwait(false);
 
-            logger.LogDebug("Got {posts2.Count} posts for quest {questDisplayName}.", posts2.Count, quest.DisplayName);
+            logger.LogDebug("Got {Count} posts for quest {questDisplayName}.", posts2.Count, quest.DisplayName);
 
             List<Post> filteredPosts = FilterPosts(posts2, quest, threadInfo, rangeInfo);
 
@@ -169,7 +169,7 @@ namespace NetTally.Forums
             if (quest.PostsPerPage == 0)
                 quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri);
 
-            if (adapter.GetHasRssThreadmarksFeed(quest.ThreadUri) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
+            if (adapter.HasRssThreadmarksFeed(quest.ThreadUri) == BoolEx.True && quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.True;
         }
 

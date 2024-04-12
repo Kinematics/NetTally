@@ -28,7 +28,7 @@ namespace NetTally.Forums.ForumAdapters
 
         public string GetDefaultLineBreak(Uri uri) => "";
         public int GetDefaultPostsPerPage(Uri uri) => 25;
-        public BoolEx GetHasRssThreadmarksFeed(Uri uri) => BoolEx.False;
+        public BoolEx HasRssThreadmarksFeed(Uri uri) => BoolEx.False;
         public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => Enumerable.Empty<Post>();
         public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token) 
             => Task.FromResult(new ThreadRangeInfo(false, 0));
