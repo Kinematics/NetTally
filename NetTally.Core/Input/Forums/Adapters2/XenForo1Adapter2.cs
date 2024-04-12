@@ -45,10 +45,11 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns the string to use for a line break event when outputting the tally.</returns>
         public string GetDefaultLineBreak(Uri uri)
         {
-            if (uri.Host == "forums.spacebattles.com")
-                return "———————————————————————————————————————————————————————";
-
-            return "[hr]——————————————————————————————————————————————[/hr]";
+            return uri.Host switch
+            {
+                "forums.spacebattles.com" => "———————————————————————————————————————————————————————",
+                _ => "[hr]——————————————————————————————————————————————[/hr]"
+            };
         }
 
         /// <summary>
@@ -58,10 +59,11 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a default number of posts per page for the given site.</returns>
         public int GetDefaultPostsPerPage(Uri uri)
         {
-            if (uri.Host == "forum.questionablequesting.com")
-                return 30;
-
-            return 25;
+            return uri.Host switch
+            {
+                "forum.questionablequesting.com" => 30,
+                _ => 25
+            };
         }
 
         /// <summary>
@@ -71,16 +73,12 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns whether the site is known to use or not use RSS threadmarks.</returns>
         public BoolEx GetHasRssThreadmarksFeed(Uri uri)
         {
-            switch (uri.Host)
+            return uri.Host switch
             {
-                case "forums.sufficientvelocity.com":
-                case "forums.spacebattles.com":
-                    return BoolEx.True;
-                case "forum.questionablequesting.com":
-                    return BoolEx.False;
-                default:
-                    return BoolEx.Unknown;
-            }
+                "forums.sufficientvelocity.com" or "forums.spacebattles.com" => BoolEx.True,
+                "forum.questionablequesting.com" => BoolEx.False,
+                _ => BoolEx.Unknown,
+            };
         }
 
         /// <summary>
@@ -91,8 +89,7 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a URL for the page requested.</returns>
         public string GetUrlForPage(Quest quest, int page)
         {
-            if (page < 1)
-                throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+            ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
             string append = page > 1 ? $"page-{page}" : "";
 
@@ -106,14 +103,13 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             string title = GetPageTitle(page);
             string author = GetPageAuthor(page);
             int pages = GetMaxPageNumberOfThread(page);
 
-            ThreadInfo info = new ThreadInfo(title, author, pages);
+            ThreadInfo info = new(title, author, pages);
 
             return info;
         }
@@ -128,10 +124,8 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
         public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (pageProvider == null)
-                throw new ArgumentNullException(nameof(pageProvider));
+            ArgumentNullException.ThrowIfNull(quest);
+            ArgumentNullException.ThrowIfNull(pageProvider);
 
             // Use the provided start post if we aren't trying to find the threadmarks.
             if (!quest.CheckForLastThreadmark)
@@ -160,7 +154,7 @@ namespace NetTally.Forums.Adapters2
         public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
-                return Enumerable.Empty<Post>();
+                return [];
 
             var posts = from p in GetPostList(page)
                         where p != null
@@ -174,7 +168,7 @@ namespace NetTally.Forums.Adapters2
         #endregion IForumAdapter2 interface
 
         #region Get Page Information
-        private string GetPageTitle(HtmlDocument page)
+        private static string GetPageTitle(HtmlDocument page)
         {
             return ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
@@ -187,13 +181,11 @@ namespace NetTally.Forums.Adapters2
         private string GetPageAuthor(HtmlDocument page)
         {
             // Find a common parent for other data
-            HtmlNode? pageContent = GetPageContent(page, PageType.Thread);
-
-            if (pageContent == null)
-                throw new InvalidOperationException("Cannot find content on page.");
+            HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
+                ?? throw new InvalidOperationException("Cannot find content on page.");
 
             // Non-thread pages (such as threadmark pages) won't have a title bar.
-            HtmlNode? titleBar = pageContent.GetDescendantWithClass("titleBar") ??
+            _ = pageContent.GetDescendantWithClass("titleBar") ??
                 throw new InvalidOperationException("Not a valid forum thread.");
 
             // Find the thread author
@@ -205,20 +197,15 @@ namespace NetTally.Forums.Adapters2
         private int GetMaxPageNumberOfThread(HtmlDocument page)
         {
             // Find a common parent for other data
-            HtmlNode? pageContent = GetPageContent(page, PageType.Thread);
-
-            if (pageContent == null)
-                throw new InvalidOperationException("Cannot find content on page.");
+            HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
+                ?? throw new InvalidOperationException("Cannot find content on page.");
 
             // Find the number of pages in the thread
             var pageNavLinkGroup = pageContent.GetDescendantWithClass("div", "pageNavLinkGroup");
             var pageNav = pageNavLinkGroup?.GetChildWithClass("PageNav");
             string lastPage = pageNav?.GetAttributeValue("data-last", "") ?? "";
 
-            if (string.IsNullOrEmpty(lastPage))
-                return 1;
-            else
-                return Int32.Parse(lastPage);
+            return string.IsNullOrEmpty(lastPage) ? 1 : int.Parse(lastPage);
         }
         #endregion Get Page Information
 
@@ -444,12 +431,12 @@ namespace NetTally.Forums.Adapters2
                 logger.LogError(e, "Failure when attempting to get the list of threadmarks from the index page. Null list somewhere?");
             }
 
-            return Enumerable.Empty<HtmlNode>();
+            return [];
         }
         #endregion Get ThreadInfoRange information
 
         #region Get Posts
-        private IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
+        private static IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
         {
             // The ordered list containing all messages.
             var messageList = page?.GetElementbyId("messageList");
@@ -484,17 +471,17 @@ namespace NetTally.Forums.Adapters2
             return null;
         }
 
-        private string GetPostAuthor(HtmlNode li)
+        private static string GetPostAuthor(HtmlNode li)
         {
             return ForumPostTextConverter.CleanupWebString(li.GetAttributeValue("data-author", ""));
         }
 
-        private string GetPostId(HtmlNode li)
+        private static string GetPostId(HtmlNode li)
         {
-            return li.Id.Substring("post-".Length);
+            return li.Id["post-".Length..];
         }
 
-        private string GetPostText(HtmlNode li, Quest quest)
+        private static string GetPostText(HtmlNode li, Quest quest)
         {
             // Get the primary content of the list item
             HtmlNode? primaryContent = li.GetChildWithClass("primaryContent");
@@ -503,8 +490,9 @@ namespace NetTally.Forums.Adapters2
             HtmlNode? messageContent = primaryContent?.GetChildWithClass("messageContent");
             HtmlNode? postBlock = messageContent?.Element("article")?.Element("blockquote");
 
-            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
-                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
+            List<string> excludedClasses = ["bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
+                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"];
+
             if (quest.IgnoreSpoilers)
                 excludedClasses.Add("bbCodeSpoilerContainer");
 
@@ -517,7 +505,7 @@ namespace NetTally.Forums.Adapters2
             return ForumPostTextConverter.ExtractPostText(postBlock, exclusions, host);
         }
 
-        private int GetPostNumber(HtmlNode li)
+        private static int GetPostNumber(HtmlNode li)
         {
             // Get the primary content of the list item
             HtmlNode? primaryContent = li.GetChildWithClass("primaryContent");
@@ -550,7 +538,7 @@ namespace NetTally.Forums.Adapters2
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the thread name.</returns>
-        private string GetBaseThreadUrl(Uri uri)
+        private static string GetBaseThreadUrl(Uri uri)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -573,7 +561,7 @@ namespace NetTally.Forums.Adapters2
                     foundThreads = true;
             }
 
-            if (sb[sb.Length - 1] != '/')
+            if (sb[^1] != '/')
                 sb.Append('/');
 
             return sb.ToString();
@@ -585,10 +573,9 @@ namespace NetTally.Forums.Adapters2
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the posts directory.</returns>
-        private string GetHostBasePostsUrl(Uri uri)
+        private static string GetHostBasePostsUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
             StringBuilder sb = new StringBuilder();
 
@@ -608,32 +595,29 @@ namespace NetTally.Forums.Adapters2
             return sb.ToString();
         }
 
-        private string GetThreadmarksPageUrl(Uri uri)
+        private static string GetThreadmarksPageUrl(Uri uri)
         {
             return $"{GetBaseThreadUrl(uri)}threadmarks?category_id=1";
         }
 
-        private string GetRssThreadmarksUrl(Uri uri)
+        private static string GetRssThreadmarksUrl(Uri uri)
         {
             return $"{GetBaseThreadUrl(uri)}threadmarks.rss?category_id=1";
         }
 
-        private string GetPermalinkForId(Uri uri, string postId)
+        private static string GetPermalinkForId(Uri uri, string postId)
         {
             return $"{GetHostBasePostsUrl(uri)}{postId}/";
         }
         #endregion URL Manipulation
 
         #region Misc Helper Functions
-        private HtmlNode? GetPageContent(HtmlDocument page, PageType pageType)
+        private static HtmlNode? GetPageContent(HtmlDocument page, PageType pageType)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
-            var contentNode = page.GetElementbyId("content");
-
-            if (contentNode == null)
-                throw new InvalidOperationException("Page does not have a content section.");
+            var contentNode = page.GetElementbyId("content")
+                ?? throw new InvalidOperationException("Page does not have a content section.");
 
             switch (pageType)
             {

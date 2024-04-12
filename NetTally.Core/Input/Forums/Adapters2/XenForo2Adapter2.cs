@@ -46,10 +46,11 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns the string to use for a line break event when outputting the tally.</returns>
         public string GetDefaultLineBreak(Uri uri)
         {
-            if (uri.Host == "forums.spacebattles.com")
-                return "———————————————————————————————————————————————————————";
-
-            return "[hr]——————————————————————————————————————————————[/hr]";
+            return uri.Host switch
+            {
+                "forums.spacebattles.com" => "———————————————————————————————————————————————————————",
+                _ => "[hr]——————————————————————————————————————————————[/hr]"
+            };
         }
 
         /// <summary>
@@ -59,10 +60,11 @@ namespace NetTally.Forums.Adapters2
         /// <returns>Returns a default number of posts per page for the given site.</returns>
         public int GetDefaultPostsPerPage(Uri uri)
         {
-            if (uri.Host == "forum.questionablequesting.com")
-                return 30;
-
-            return 25;
+            return uri.Host switch
+            {
+                "forum.questionablequesting.com" => 30,
+                _ => 25
+            };
         }
 
         /// <summary>
