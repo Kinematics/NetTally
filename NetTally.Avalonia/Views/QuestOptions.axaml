@@ -2,7 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
         mc:Ignorable="d"
         x:Class="NetTally.Avalonia.Views.QuestOptions"
@@ -99,7 +98,7 @@
           <HeaderedContentControl Header="Posts Per Page" Classes="GroupBox">
             <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,3,0,0">
               <ComboBox Name="PostsPerPage" Margin="10,0,0,0"
-                        ItemsSource="{x:Static vm:ViewModelStatics.ValidPostsPerPage}" SelectedItem="{Binding PostsPerPage}"
+                        ItemsSource="{Binding ValidPostsPerPage}" SelectedItem="{Binding PostsPerPage}"
                         ToolTip.Tip="Specify the number of posts per page for this forum thread." />
               <TextBlock Classes="Description" Margin="0,3,0,0"
                          Text="A value of 0 will reset to the default for the forum." />

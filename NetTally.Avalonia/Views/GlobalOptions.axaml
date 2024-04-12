@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:NetTally.Avalonia.Converters"
-        xmlns:vm="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
         mc:Ignorable="d"
         x:Class="NetTally.Avalonia.Views.GlobalOptions"
         Classes="Dialog1"
@@ -20,7 +19,7 @@
 		  <TextBlock Classes="Label" Text="Vote Processing" />
 		  <TextBlock Text="Ranked Vote Algorithm:" Margin="20,0,0,0" />
 		  <ComboBox Name="RankedVoteAlgorithm" Margin="20,0,0,5"
-					ItemsSource="{x:Static vm:ViewModelStatics.RankVoteCountingModes}"
+					ItemsSource="{Binding RankVoteCountingModes}"
 					SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={x:Static converters:EnumConverter.Instance}}">
 			  <ToolTip.Tip>
 				  <StackPanel Classes="OptionList">
