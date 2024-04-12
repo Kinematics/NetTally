@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
 using NetTally.Forums;
-using NetTally.Forums.Adapters;
 using NetTally.Tests;
 using NetTally.Web;
 

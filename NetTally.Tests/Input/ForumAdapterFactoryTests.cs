@@ -5,7 +5,6 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
-using NetTally.Forums.Adapters;
 using NetTally.Forums.Adapters2;
 using NetTally.Web;
 
@@ -90,16 +89,8 @@ namespace NetTally.Tests.Forums
             Assert.IsInstanceOfType(adapter, typeof(VBulletin5Adapter2));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        [Ignore]
-        public async Task Select_NodeBB()
-        {
-            Quest quest = new() { ThreadName = "https://community.nodebb.org/topic/6298/nodebb-v0-7-3" };
-            var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
-
-            Assert.IsInstanceOfType(adapter, typeof(NodeBBAdapter));
-        }
+        // "https://community.nodebb.org/topic/6298/nodebb-v0-7-3"
+        // Don't know how to handle NodeBB forums.
 
         [TestMethod]
         [Ignore]
@@ -108,7 +99,7 @@ namespace NetTally.Tests.Forums
             Quest quest = new() { ThreadName = "http://www.ilovephilosophy.com/viewtopic.php?f=1&t=175054" };
             var adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, CancellationToken.None);
 
-            Assert.IsInstanceOfType(adapter, typeof(phpBBAdapter));
+            Assert.IsInstanceOfType(adapter, typeof(PhpBBAdapter2));
         }
 
         [TestMethod]
