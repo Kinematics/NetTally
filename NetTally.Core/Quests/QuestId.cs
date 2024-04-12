@@ -19,13 +19,13 @@ public class QuestIdJsonConverter : JsonConverter<QuestId>
         if (reader.TokenType is JsonTokenType.Null)
             return QuestId.Empty;
 
-        var value = JsonSerializer.Deserialize<Guid>(ref reader, options);
+        Guid value = JsonSerializer.Deserialize<Guid>(ref reader, options);
         return new QuestId(value);
     }
 
     public override void Write(Utf8JsonWriter writer, QuestId value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.Id);
+        JsonSerializer.Serialize(writer, value.Id, options);
     }
 }
 
