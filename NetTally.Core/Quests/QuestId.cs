@@ -16,16 +16,12 @@ public class QuestIdJsonConverter : JsonConverter<QuestId>
 {
     public override QuestId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType is JsonTokenType.Null)
-            return QuestId.Empty;
-
-        Guid value = JsonSerializer.Deserialize<Guid>(ref reader, options);
+        Guid value = reader.GetGuid();
         return new QuestId(value);
     }
 
     public override void Write(Utf8JsonWriter writer, QuestId value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value.Id, options);
+        writer.WriteStringValue(value.Id);
     }
 }
-
