@@ -21,9 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +36,6 @@ using NetTally.Navigation;
 using NetTally.Options;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
-using NetTally.ViewModels;
 using NetTally.Views;
 
 namespace NetTally
