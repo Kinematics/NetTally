@@ -112,6 +112,7 @@ namespace NetTally.Global
             {
                 quest = new Quest
                 {
+                    QuestId = Guid.NewGuid(),
                     VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
                     CheckForLastThreadmark = true
                 };
