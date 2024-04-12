@@ -7,11 +7,11 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
-using NetTally.Web;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
-using NetTally.ViewModels;
+using NetTally.Forums.ForumAdapters;
 using NetTally.Global;
+using NetTally.Types.Components;
+using NetTally.Types.Enums;
+using NetTally.Web;
 
 namespace NetTally.Forums
 {
@@ -276,7 +276,7 @@ namespace NetTally.Forums
                 // what the last page number will be.  Pages to scan will be the
                 // difference in pages +1.
                 maxPage = Math.Min(maxPage, ThreadRangeInfo.GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage));
-                
+
                 return maxPage;
             }
 

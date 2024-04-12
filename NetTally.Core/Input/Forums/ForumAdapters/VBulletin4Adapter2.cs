@@ -13,7 +13,7 @@ using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
 
-namespace NetTally.Forums.Adapters2
+namespace NetTally.Forums.ForumAdapters
 {
     public class VBulletin4Adapter2 : IForumAdapter2
     {

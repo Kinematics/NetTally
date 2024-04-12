@@ -12,7 +12,7 @@ using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
 
-namespace NetTally.Forums.Adapters2
+namespace NetTally.Forums.ForumAdapters
 {
     public partial class PhpBBAdapter2(IGeneralInputOptions inputOptions, ILogger<PhpBBAdapter2> logger)
         : IForumAdapter2

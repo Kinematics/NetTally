@@ -13,7 +13,7 @@ using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
 
-namespace NetTally.Forums.Adapters2
+namespace NetTally.Forums.ForumAdapters
 {
     public partial class VBulletin5Adapter2(IGeneralInputOptions inputOptions, ILogger<VBulletin5Adapter2> logger)
         : IForumAdapter2

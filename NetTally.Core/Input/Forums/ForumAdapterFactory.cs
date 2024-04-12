@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetTally.Forums.Adapters2;
+using NetTally.Forums.ForumAdapters;
 using NetTally.Options;
 using NetTally.Web;
 using NetTally.Types.Enums;

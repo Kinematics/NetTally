@@ -16,7 +16,7 @@ using NetTally.Web;
 using NetTally.Types.Enums;
 using NetTally.Types.Components;
 
-namespace NetTally.Forums.Adapters2
+namespace NetTally.Forums.ForumAdapters
 {
     public partial class XenForo2Adapter2(IGeneralInputOptions inputOptions, ILogger<XenForo2Adapter2> logger)
         : IForumAdapter2
