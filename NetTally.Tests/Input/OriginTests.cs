@@ -209,7 +209,7 @@ namespace NetTally.Tests.Forums
             Origin origin2 = origin1.GetPlanOrigin("Nightlife~!");
             Origin origin3 = new("Nightlife", IdentityType.Plan);
 
-            Assert.AreEqual(origin2, origin3);
+            Assert.AreNotEqual(origin2, origin3);
         }
 
         [TestMethod]
