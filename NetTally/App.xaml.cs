@@ -210,7 +210,7 @@ namespace NetTally
                 TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
             };
 
-            ConfigInfo config = new(quests.Select(q => (Quest)q).ToList(), currentQuest, gb);
+            ConfigInfo config = new([.. quests], currentQuest, gb);
 
             return config;
         }

@@ -9,7 +9,7 @@ namespace NetTally.Utility
     /// <summary>
     /// Class for general static functions relating to text manipulation and comparisons.
     /// </summary>
-    public static class Strings
+    public static partial class Strings
     {
         #region Plan names
         /// <summary>
@@ -52,12 +52,16 @@ namespace NetTally.Utility
         #endregion
 
         #region Safe strings
+
+        [GeneratedRegex(@"[\p{C}-[\r\n]]")]
+        private static partial Regex UnsafeCharsRegex();
+
         /// <summary>
         /// Regex for control and formatting characters that we don't want to allow processing of.
         /// EG: \u200B, non-breaking space
         /// Regex is the character set of all control characters {C}, except for CR/LF.
         /// </summary>
-        static Regex UnsafeCharsRegex { get; } = new Regex(@"[\p{C}-[\r\n]]");
+        static readonly Regex unsafeCharsRegex = UnsafeCharsRegex();
 
         /// <summary>
         /// Remove unsafe UTF control characters from the provided string.
@@ -70,7 +74,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(input))
                 return string.Empty;
 
-            return UnsafeCharsRegex.Replace(input, "");
+            return unsafeCharsRegex.Replace(input, "");
         }
         #endregion
 
@@ -78,7 +82,7 @@ namespace NetTally.Utility
         /// <summary>
         /// Static array for use in GetStringLines.
         /// </summary>
-        static char[] newLines = new[] { '\r', '\n' };
+        static readonly char[] newLines = ['\r', '\n'];
 
         /// <summary>
         /// Takes an input string that is potentially composed of multiple text lines,
@@ -147,7 +151,7 @@ namespace NetTally.Utility
         /// <returns></returns>
         public static string RemoveDiacritics(this string s)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             // Update the detailed conversion table on first use.
             if (translate_characters.Count == 0)
@@ -167,7 +171,7 @@ namespace NetTally.Utility
         /// Lookup table for non-latin characters that doesn't require string.Normalize (which isn't available
         /// in .NET Standard below 2.0).
         /// </summary>
-        static Dictionary<string, string> nonlatin_characters = new Dictionary<string, string>
+        static readonly Dictionary<string, string> nonlatin_characters = new()
         {
             { "äæǽ", "ae" },
             { "ÆǼ", "AE" },
@@ -266,7 +270,7 @@ namespace NetTally.Utility
         /// a string every time.
         /// Speeds worst-case comparisons up by a factor of about 10.
         /// </summary>
-        static Dictionary<char, string> translate_characters = new Dictionary<char, string>();
+        static readonly Dictionary<char, string> translate_characters = [];
 
         /// <summary>
         /// Function to copy the nonlatin_characters table to the translate_characters table.

@@ -47,15 +47,13 @@ namespace NetTally.VoteCounting
         /// </summary>
         [ObservableProperty]
         private string tallyResults = string.Empty;
+        
         [ObservableProperty]
         private bool hasTallyResults = false;
 
-        partial void OnTallyResultsChanged(string? oldValue, string newValue)
+        partial void OnTallyResultsChanged(string value)
         {
-            if (string.IsNullOrEmpty(oldValue) ^ string.IsNullOrEmpty(newValue))
-            {
-                HasTallyResults = string.IsNullOrEmpty(newValue);
-            }
+            HasTallyResults = string.IsNullOrEmpty(value);
         }
         #endregion
 
@@ -101,14 +99,6 @@ namespace NetTally.VoteCounting
         {
             TallyResults = string.Empty;
         }
-
-        /// <summary>
-        /// Cancel any functions running under the above RunWithTallyFlag functions
-        /// </summary>
-        [Obsolete("Use cancellation token")]
-        public void Cancel()
-        {
-        }
         #endregion
 
         #region Support Methods
@@ -143,10 +133,7 @@ namespace NetTally.VoteCounting
             foreach (var post in quest.VoteCounter.Posts)
             {
                 // Reset the processed state of all the posts.
-                post.Processed = false;
-                post.ForceProcess = false;
-                post.WorkingVoteComplete = false;
-                post.WorkingVote.Clear();
+                post.Reset();
                 quest.VoteCounter.AddReferenceVoter(post.Origin);
             }
 

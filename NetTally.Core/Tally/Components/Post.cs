@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Hosting;
 using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.Votes;
@@ -12,6 +13,24 @@ namespace NetTally.Tally.Components
     /// </summary>
     public class Post : IComparable<Post>, IEquatable<Post>
     {
+        /// <summary>
+        /// Constructor for the a new post.
+        /// Stores the post data, and extracts any vote lines if this isn't a tally post.
+        /// </summary>
+        /// <param name="author">The author of the post.</param>
+        /// <param name="postId">The ID of the post.</param>
+        /// <param name="text">The text of the post.</param>
+        /// <param name="number">The thread post number.</param>
+        public Post(Origin origin, string text)
+        {
+            ArgumentNullException.ThrowIfNull(origin);
+            ArgumentException.ThrowIfNullOrWhiteSpace(text);
+
+            Origin = origin;
+            Text = text;
+            VoteLines = GetPostAnalysisResults(Text);
+        }
+
         #region Properties and Construction
         /// <summary>
         /// The post's origin (author, post ID, site, etc)
@@ -49,22 +68,20 @@ namespace NetTally.Tally.Components
         /// Flag to bypass process restrictions, if normal processing doesn't happen.
         /// </summary>
         public bool ForceProcess { get; set; }
-
-        /// <summary>
-        /// Constructor for the a new post.
-        /// Stores the post data, and extracts any vote lines if this isn't a tally post.
-        /// </summary>
-        /// <param name="author">The author of the post.</param>
-        /// <param name="postId">The ID of the post.</param>
-        /// <param name="text">The text of the post.</param>
-        /// <param name="number">The thread post number.</param>
-        public Post(Origin origin, string text)
-        {
-            Origin = origin ?? throw new ArgumentNullException(nameof(origin));
-            Text = text ?? throw new ArgumentNullException(nameof(text));
-            VoteLines = GetPostAnalysisResults(Text);
-        }
         #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Reset the processing state of the post.
+        /// </summary>
+        public void Reset()
+        {
+            Processed = false;
+            ForceProcess = false;
+            WorkingVoteComplete = false;
+            WorkingVote.Clear();
+        }
+        #endregion Public methods
 
         #region Private analysis of post
         // A post with ##### at the start of one of the lines is a posting of tally results.
@@ -78,7 +95,7 @@ namespace NetTally.Tally.Components
         /// </summary>
         /// <param name="text">Text of the post.</param>
         /// <returns>Returns a readonly list of any vote lines found.</returns>
-        private static IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
+        private static List<VoteLine> GetPostAnalysisResults(string text)
         {
             List<VoteLine> results = [];
 
