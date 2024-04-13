@@ -28,7 +28,7 @@ namespace NetTally.Votes
                 return [];
 
             // Group votes by first vote line, as that's the basis for further consolidation.
-            var groupedVotes = votes.GroupBy(v => v.Key.Lines.First());
+            var groupedVotes = votes.GroupBy(v => v.Key.Lines[0]);
 
             List<CompactVote> compactVotes = [];
 

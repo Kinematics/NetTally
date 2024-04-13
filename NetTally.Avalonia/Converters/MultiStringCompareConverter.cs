@@ -34,7 +34,7 @@ namespace NetTally.Avalonia.Converters
             };
         }
 
-        private bool CompareStringValues(IList<object?> values)
+        private static bool CompareStringValues(IList<object?> values)
         {
             if (!values.Any())
                 return false;
@@ -43,7 +43,8 @@ namespace NetTally.Avalonia.Converters
 
             return values.All(v => v is string vv && vv == first);
         }
-        private bool CompareVoteLineBlockValues(IList<object?> values, bool inverted)
+
+        private static bool CompareVoteLineBlockValues(IList<object?> values, bool inverted)
         {
             if (values.Count == 0)
                 return false;

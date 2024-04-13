@@ -39,9 +39,9 @@ namespace NetTally.Tests.Tallying
         #endregion
 
         #region Sample Posts
-        Post GetPost1()
+        static Post GetPost1()
         {
-            Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"Tentative vote idea:
 [x][Action] Go to the warehouse~
@@ -49,44 +49,44 @@ namespace NetTally.Tests.Tallying
 But might include something else...
 [x] Loot the boxes";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
             VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost2()
+        static Post GetPost2()
         {
-            Origin origin = new Origin("Karma1", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Karma1", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I agree.
 [x][Action] Go to the warehouse~
 [x] Loot the boxes";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
             VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost3()
+        static Post GetPost3()
         {
-            Origin origin = new Origin("Quincy", "123458", 12, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Quincy", "123458", 12, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I have a better idea.
 [x][Action] Go to the docks
 -[x] With the motorcycle
 [x] And catch them in the act.";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
             VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost4()
+        static Post GetPost4()
         {
-            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
 [x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
@@ -96,15 +96,15 @@ But might include something else...
 -[x] Take both of them food shopping (or whoever wants to go.)
 -[x] Light conversation. No need for serious precog questions right now.";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
             VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost5()
+        static Post GetPost5()
         {
-            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"『b』Vote Tally『/b』
 『color=transparent』##### NetTally 1.0『/color』
@@ -116,50 +116,50 @@ But might include something else...
 -[x] Take both of them food shopping (or whoever wants to go.)
 -[x] Light conversation. No need for serious precog questions right now.";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
             VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        (string name, VoteLineBlock block) GetBasePlan1()
+        static (string name, VoteLineBlock block) GetBasePlan1()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
 
-        (string name, VoteLineBlock block) GetBasePlan2()
+        static (string name, VoteLineBlock block) GetBasePlan2()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Proposed Plan: Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Proposed Plan: Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
 
-        (string name, VoteLineBlock block) GetBasePlan3()
+        static (string name, VoteLineBlock block) GetBasePlan3()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Plan Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Plan Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
@@ -334,7 +334,7 @@ But might include something else...
             Assert.AreEqual(name, outName);
             Assert.AreEqual("", results.Task);
             Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("Plan: Sound of Music", results.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -347,7 +347,7 @@ But might include something else...
             Assert.AreEqual(name, outName);
             Assert.AreEqual("", results.Task);
             Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("Plan: Sound of Music", results.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -360,7 +360,7 @@ But might include something else...
             Assert.AreEqual(name, outName);
             Assert.AreEqual("", results.Task);
             Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("Plan Sound of Music", results.Lines[0].CleanContent);
         }
         #endregion
 

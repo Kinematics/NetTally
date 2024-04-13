@@ -12,7 +12,7 @@ namespace NetTally.Tests.Forums
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static readonly Uri exampleUri = new Uri("http://www.example.com/");
+        static readonly Uri exampleUri = new("http://www.example.com/");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -28,15 +28,15 @@ namespace NetTally.Tests.Forums
 
         private static HtmlNode GetHtmlFromString(string input)
         {
-            HtmlDocument doc = new HtmlDocument();
+            HtmlDocument doc = new();
             doc.LoadHtml(input);
             return doc.DocumentNode;
         }
 
         private static Predicate<HtmlNode> GetXenForoPredicate()
         {
-            List<string> excludedClasses = new List<string> { "bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
-                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"};
+            List<string> excludedClasses = ["bbCodeQuote", "messageTextEndMarker","advbbcodebar_encadre",
+                "advbbcodebar_article", "adv_tabs_wrapper", "adv_slider_wrapper"];
 
             return ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
         }

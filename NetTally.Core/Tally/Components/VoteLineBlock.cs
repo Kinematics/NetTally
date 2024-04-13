@@ -32,7 +32,7 @@ namespace NetTally.Tally.Components
 
             Lines = source.ToList();
 
-            var firstLine = Lines.First();
+            var firstLine = Lines[0];
             Task = firstLine.Task;
             Marker = firstLine.Marker;
             MarkerType = firstLine.MarkerType;
@@ -128,7 +128,7 @@ namespace NetTally.Tally.Components
         #region ToString variations
         public override string ToString()
         {
-            var first = Lines.First();
+            var first = Lines[0];
             string firstString = first.ToOverrideString(displayMarker: Marker, displayTask: Task);
 
             var aggregate = Lines.Select(s => s == first ? firstString : s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
@@ -138,7 +138,7 @@ namespace NetTally.Tally.Components
 
         public string ToComparableString()
         {
-            var first = Lines.First();
+            var first = Lines[0];
             string firstString = first.ToComparableString(displayTask: Task);
 
             string aggregate = Lines.Select(s => s == first ? firstString : s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
@@ -148,7 +148,7 @@ namespace NetTally.Tally.Components
 
         public string ToOutputString(string mainDisplayMarker = "X", string subDisplayMarker = "X")
         {
-            var first = Lines.First();
+            var first = Lines[0];
             string firstString = first.ToOutputString(displayMarker: mainDisplayMarker, displayTask: Task);
 
             var aggregate = Lines.Select(s => s == first ? firstString : s.ToOutputString(displayMarker: subDisplayMarker)).Aggregate((a, b) => $"{a}\n{b}");
@@ -323,7 +323,7 @@ namespace NetTally.Tally.Components
 
         private int ComputeHash()
         {
-            int hash = Lines.First().GetHashCode();
+            int hash = Lines[0].GetHashCode();
 
             foreach (var line in Lines.Skip(1))
             {

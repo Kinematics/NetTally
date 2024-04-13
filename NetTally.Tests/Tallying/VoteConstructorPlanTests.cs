@@ -17,7 +17,7 @@ namespace NetTally.Tests.Tallying
         static IServiceProvider serviceProvider;
         static VoteConstructor voteConstructor;
         static Quest sampleQuest;
-        static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+        static readonly Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -42,7 +42,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Line 1
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -61,7 +61,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Plan Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -80,7 +80,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Base Plan Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -100,7 +100,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Proposed plan: Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -119,7 +119,7 @@ namespace NetTally.Tests.Tallying
             string postText =
 @"[x] Base Plan Cyclops";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -139,7 +139,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -162,7 +162,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
@@ -185,7 +185,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Line 1
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -204,7 +204,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Plan Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -224,7 +224,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Base Plan Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -243,7 +243,7 @@ namespace NetTally.Tests.Tallying
             string postText =
 @"[x] Plan Cyclops";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -263,7 +263,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -286,7 +286,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
@@ -309,7 +309,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Line 1
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -328,7 +328,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Plan Cyclops
 -[x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -347,7 +347,7 @@ namespace NetTally.Tests.Tallying
 @"[x] Plan Cyclops
 [x] Line 2";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(2, post.VoteLines.Count);
@@ -366,7 +366,7 @@ namespace NetTally.Tests.Tallying
             string postText =
 @"[x] Plan Cyclops";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(1, post.VoteLines.Count);
@@ -386,7 +386,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -406,7 +406,7 @@ namespace NetTally.Tests.Tallying
 [x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(3, post.VoteLines.Count);
@@ -429,7 +429,7 @@ namespace NetTally.Tests.Tallying
 -[x] Line 2
 [x] Extra";
 
-            Post post = new Post(origin, postText);
+            Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
             Assert.AreEqual(4, post.VoteLines.Count);
