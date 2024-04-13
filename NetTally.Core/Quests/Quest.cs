@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Input.Utility;
 using NetTally.Types.Enums;
+using NetTally.Utility;
 using NetTally.VoteCounting;
 
 namespace NetTally
@@ -17,9 +18,7 @@ namespace NetTally
     /// </summary>
     public partial class Quest : ObservableValidator
     {
-        public Quest()
-        {
-        }
+        public Quest() { }
 
         #region Vote Counter
         private IVoteCounter voteCounter = null!;
@@ -56,8 +55,42 @@ namespace NetTally
         [ObservableProperty]
         string threadName = NewThreadEntry;
 
+        partial void OnThreadNameChanged(string? oldValue, string newValue)
+        {
+#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+            if (string.IsNullOrWhiteSpace(newValue) ||
+                !Uri.IsWellFormedUriString(newValue, UriKind.Absolute))
+            {
+                this.threadName = oldValue!;
+                throw new ArgumentException(nameof(ThreadName));
+            }
+
+            this.threadName = newValue.RemoveUnsafeCharacters();
+
+            ThreadUri = new Uri(threadName);
+#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+        }
+
+
         [ObservableProperty]
         string displayName = NewThreadDisplayName;
+
+        /// <summary>
+        /// Ensure the display name is not null, nor has unsafe characters.
+        /// </summary>
+        /// <param name="value">The new DisplayName value.</param>
+        partial void OnDisplayNameChanged(string value)
+        {
+#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+            if (value is null)
+            {
+                displayName = string.Empty;
+                return;
+            }
+
+            displayName = value.RemoveUnsafeCharacters().Trim();
+#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+        }
 
         public override string ToString() => DisplayName;
 

@@ -33,11 +33,11 @@ namespace NetTally.Global
             if (userQuests.Value.Quests.Count == 0 &&
                 legacyConfig.UserQuests.Quests.Count > 0)
             {
-                LoadLegacyQuests(globalSettings, legacyConfig);
+                LoadLegacyQuests(legacyConfig, globalSettings.Value);
             }
             else
             {
-                LoadUserQuests(userQuests);
+                LoadUserQuests(userQuests.Value);
             }
 
             InjectVoteCounters();
@@ -47,9 +47,9 @@ namespace NetTally.Global
         /// Load legacy quests from legacy config information.
         /// Also update global settings from legacy config.
         /// </summary>
-        /// <param name="globalSettings"></param>
-        /// <param name="legacyConfig"></param>
-        private void LoadLegacyQuests(IOptions<GlobalSettings> globalSettings, ConfigInfo legacyConfig)
+        /// <param name="legacyConfig">Legacy XML config information.</param>
+        /// <param name="globalSettings">Global settings that need to be updated with legacy info.</param>
+        private void LoadLegacyQuests(ConfigInfo legacyConfig, GlobalSettings globalSettings)
         {
             Quests = new ObservableCollection<Quest>(legacyConfig.UserQuests.Quests);
 
@@ -58,7 +58,7 @@ namespace NetTally.Global
                 SelectedQuest = legacyConfig.UserQuests.Quests.FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
             }
 
-            globalSettings.Value.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
+            globalSettings.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
 
             logger.LogDebug("Loaded {count} legacy quests", Quests.Count);
         }
@@ -67,13 +67,13 @@ namespace NetTally.Global
         /// Load user quests from config information.
         /// </summary>
         /// <param name="userQuests"></param>
-        private void LoadUserQuests(IOptions<UserQuests> userQuests)
+        private void LoadUserQuests(UserQuests userQuests)
         {
-            Quests = new ObservableCollection<Quest>(userQuests.Value.Quests);
+            Quests = new ObservableCollection<Quest>(userQuests.Quests);
 
-            if (!string.IsNullOrEmpty(userQuests.Value.CurrentQuest))
+            if (Quests.Count > 0 && !string.IsNullOrEmpty(userQuests.CurrentQuest))
             {
-                SelectedQuest = userQuests.Value.Quests.FirstOrDefault(q => q.ThreadName == userQuests.Value.CurrentQuest);
+                SelectedQuest = userQuests.Quests.FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
             }
 
             logger.LogDebug("Loaded {count} user quests", Quests.Count);

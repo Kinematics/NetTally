@@ -23,19 +23,17 @@ namespace NetTally.Tests.QuestTests
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IPageProvider pageProvider = null!;
         static ForumIdentifier forumIdentifier = null!;
 
         Quest Quest { get; set; } = null!;
         bool notified;
-        readonly List<string> propertiesRaised = new();
+        readonly List<string> propertiesRaised = [];
 
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
-            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
             forumIdentifier = serviceProvider.GetRequiredService<ForumIdentifier>();
         }
 
@@ -47,7 +45,7 @@ namespace NetTally.Tests.QuestTests
                 VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
             };
 
-            Quest.PropertyChanged += IQuest_PropertyChanged;
+            Quest.PropertyChanged += Quest_PropertyChanged;
         }
 
         /// <summary>
@@ -58,12 +56,12 @@ namespace NetTally.Tests.QuestTests
         {
             notified = false;
             propertiesRaised.Clear();
-            Quest.PropertyChanged -= IQuest_PropertyChanged;
+            Quest.PropertyChanged -= Quest_PropertyChanged;
         }
         #endregion
 
         #region Stuff for handling checking event notification
-        void IQuest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        void Quest_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             notified = true;
 
@@ -94,14 +92,14 @@ namespace NetTally.Tests.QuestTests
         public void IQuest_Construction_State()
         {
             Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadName);
-            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            Assert.AreEqual(Quest.NewThreadDisplayName, Quest.DisplayName);
             Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
 
             Assert.AreEqual(0, Quest.PostsPerPage);
             Assert.AreEqual(1, Quest.StartPost);
             Assert.AreEqual(0, Quest.EndPost);
             Assert.AreEqual(true, Quest.ReadToEndOfThread);
-            Assert.AreEqual(true, Quest.CheckForLastThreadmark);
+            Assert.AreEqual(false, Quest.CheckForLastThreadmark);
 
             Assert.AreEqual(PartitionMode.None, Quest.PartitionMode);
 
@@ -183,6 +181,7 @@ namespace NetTally.Tests.QuestTests
         }
 
         [TestMethod]
+        [Ignore("These validations are performed by the QuestInfoViewModel now.")]
         public void IQuest_ThreadName_WithPage()
         {
             Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221";
@@ -191,6 +190,7 @@ namespace NetTally.Tests.QuestTests
         }
 
         [TestMethod]
+        [Ignore("These validations are performed by the QuestInfoViewModel now.")]
         public void IQuest_ThreadName_WithPost()
         {
             Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/page-221#post-19942121";
@@ -201,6 +201,7 @@ namespace NetTally.Tests.QuestTests
         }
 
         [TestMethod]
+        [Ignore("These validations are performed by the QuestInfoViewModel now.")]
         public void IQuest_ThreadName_RemoveInvalidUnicode()
         {
             Quest.ThreadName = "http://forums.sufficientvelocity.com/threads/renascence-a-\u200bhomura-quest.10402/page-221#post-19942121";
@@ -213,10 +214,8 @@ namespace NetTally.Tests.QuestTests
         [TestMethod]
         public void IQuest_DisplayName_Null()
         {
-#nullable disable
-            Quest.DisplayName = null;
-#nullable enable
-            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            Quest.DisplayName = null!;
+            Assert.AreEqual("", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -224,15 +223,15 @@ namespace NetTally.Tests.QuestTests
         public void IQuest_DisplayName_Blank()
         {
             Quest.DisplayName = "";
-            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
-            VerifyNoNotification();
+            Assert.AreEqual("", Quest.DisplayName);
+            VerifyNotification("DisplayName");
         }
 
         [TestMethod]
         public void IQuest_DisplayName_Empty()
         {
             Quest.DisplayName = "   ";
-            Assert.AreEqual("   ", Quest.DisplayName);
+            Assert.AreEqual("", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -256,7 +255,7 @@ namespace NetTally.Tests.QuestTests
         public void IQuest_DisplayName_Normal_Trim()
         {
             Quest.DisplayName = " My Quest  ";
-            Assert.AreEqual(" My Quest  ", Quest.DisplayName);
+            Assert.AreEqual("My Quest", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -267,7 +266,7 @@ namespace NetTally.Tests.QuestTests
 #nullable disable
             Quest.DisplayName = null;
 #nullable enable
-            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            Assert.AreEqual("", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
 
@@ -276,7 +275,7 @@ namespace NetTally.Tests.QuestTests
         {
             Quest.DisplayName = "My Quest";
             Quest.DisplayName = "";
-            Assert.AreEqual("fake-thread.00000", Quest.DisplayName);
+            Assert.AreEqual("", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }
         #endregion
@@ -378,7 +377,7 @@ namespace NetTally.Tests.QuestTests
         [TestMethod]
         public void IQuest_CheckForLastThreadmark_Notify()
         {
-            Quest.CheckForLastThreadmark = false;
+            Quest.CheckForLastThreadmark = true;
             VerifyNotification("CheckForLastThreadmark");
         }
 

@@ -330,13 +330,13 @@ namespace NetTally.ViewModels
 
 
         [GeneratedRegex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(\?[^#]*)?(#[^/]*)?(unread)?$", RegexOptions.None, 50)]
-        private static partial Regex pageNumberRegex();
+        private static partial Regex PageNumberRegex();
 
         private static string CleanupThreadName(string url)
         {
             url = url.RemoveUnsafeCharacters();
 
-            Match m = pageNumberRegex().Match(url);
+            Match m = PageNumberRegex().Match(url);
             if (m.Success)
                 url = m.Groups["base"].Value;
 
@@ -344,14 +344,14 @@ namespace NetTally.ViewModels
         }
 
         [GeneratedRegex(@"(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
-        private static partial Regex displayNameRegex();
+        private static partial Regex DisplayNameRegex();
 
         private static string GetDisplayNameFromUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
                 return string.Empty;
 
-            Match m = displayNameRegex().Match(url);
+            Match m = DisplayNameRegex().Match(url);
             if (m.Success)
                 return m.Groups["displayName"].Value;
             else

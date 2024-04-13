@@ -122,6 +122,7 @@ namespace NetTally.Forums
             return page;
         }
 
+        #region Identify various forums
         /// <summary>
         /// Determine if a web page is from a XenForo forum.
         /// </summary>
@@ -228,5 +229,6 @@ namespace NetTally.Forums
             // There is currently no known means of identifying NodeBB forums.
             return false;
         }
+        #endregion Identify various forums
     }
 }
