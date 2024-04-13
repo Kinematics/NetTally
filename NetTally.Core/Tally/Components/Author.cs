@@ -1,4 +1,5 @@
 ﻿using System;
+using NetTally.Utility;
 
 namespace NetTally.Tally.Components
 {
@@ -16,8 +17,9 @@ namespace NetTally.Tally.Components
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+            // Remove unsafe characters, if any.
             // Trim any surrounding whitespace, if it exists.
-            Name = name.Trim();
+            Name = name.RemoveUnsafeCharacters().Trim();
         }
     }
 }
