@@ -8,22 +8,6 @@ namespace NetTally.Tests.Forums
     [TestClass]
     public class OriginTests
     {
-        #region Setup
-        static IServiceProvider? serviceProvider;
-
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
-        {
-            serviceProvider = TestStartup.ConfigureServices();
-        }
-
-        [TestInitialize]
-        public void Initialize()
-        {
-        }
-        #endregion
-
-
         [TestMethod]
         public void Construct_BadID()
         {
