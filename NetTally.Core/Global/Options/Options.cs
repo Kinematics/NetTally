@@ -13,7 +13,7 @@ namespace NetTally.Options
     public class AdvancedOptions : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
     {
         #region Lazy singleton creation
-        static readonly Lazy<AdvancedOptions> lazy = new Lazy<AdvancedOptions>(() => new AdvancedOptions());
+        static readonly Lazy<AdvancedOptions> lazy = new(() => new AdvancedOptions());
 
         public static AdvancedOptions Instance => lazy.Value;
 
@@ -28,8 +28,8 @@ namespace NetTally.Options
         /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        readonly Stack<bool> dirty = new Stack<bool>();
-        readonly Stack<string> propertyNames = new Stack<string>();
+        readonly Stack<bool> dirty = new();
+        readonly Stack<string> propertyNames = new();
 
         /// <summary>
         /// Function to raise events when a property has been changed.

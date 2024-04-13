@@ -35,7 +35,7 @@ namespace NetTally.Tally.Components
         /// The <see cref="VoteLine"/> is a normal line, while the <see cref="VoteLineBlock"/> represents a complete plan.
         /// The <see cref="WorkingVote"/> is a sequence of one or the other.
         /// </summary>
-        public List<(VoteLine? line, VoteLineBlock? block)> WorkingVote { get; } = new List<(VoteLine? line, VoteLineBlock? block)>();
+        public List<(VoteLine? line, VoteLineBlock? block)> WorkingVote { get; } = [];
 
         /// <summary>
         /// Flag whether the WorkingVote has been completely filled in.
@@ -68,9 +68,9 @@ namespace NetTally.Tally.Components
 
         #region Private analysis of post
         // A post with ##### at the start of one of the lines is a posting of tally results.
-        readonly static Regex tallyRegex = new Regex(@"^#####", RegexOptions.Multiline, TimeSpan.FromSeconds(1));
+        readonly static Regex tallyRegex = new(@"^#####", RegexOptions.Multiline, TimeSpan.FromSeconds(1));
         // A line solely composed of a callout to a given user is used for nomination tallying.
-        readonly static Regex nominationLineRegex = new Regex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$", RegexOptions.None, TimeSpan.FromSeconds(1));
+        readonly static Regex nominationLineRegex = new(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$", RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>
         /// Get the list of all found vote lines in the post's text content.
@@ -80,7 +80,7 @@ namespace NetTally.Tally.Components
         /// <returns>Returns a readonly list of any vote lines found.</returns>
         private static IReadOnlyList<VoteLine> GetPostAnalysisResults(string text)
         {
-            List<VoteLine> results = new List<VoteLine>();
+            List<VoteLine> results = [];
 
             if (!IsTallyPost(text))
             {
@@ -134,14 +134,14 @@ namespace NetTally.Tally.Components
 
         private static List<VoteLine> GetNominationVoteLines(List<string> postTextLines)
         {
-            List<VoteLine> results = new List<VoteLine>();
+            List<VoteLine> results = [];
 
             foreach (var line in postTextLines)
             {
                 Match m = nominationLineRegex.Match(line);
                 if (m.Success)
                 {
-                    VoteLine voteLine = new VoteLine("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
+                    VoteLine voteLine = new("", "X", "", m.Groups["username"].Value, MarkerType.Vote, 100);
                     results.Add(voteLine);
                 }
                 else

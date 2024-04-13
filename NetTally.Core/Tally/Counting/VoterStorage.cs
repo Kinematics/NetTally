@@ -50,7 +50,7 @@ namespace NetTally.Votes
         /// <summary>
         /// Special lookup for the origin keys stored in the VoterStorage dictionary.
         /// </summary>
-        readonly HashSet<Origin> NameLookup = new HashSet<Origin>();
+        readonly HashSet<Origin> NameLookup = [];
         #endregion Properties
 
         #region Reset

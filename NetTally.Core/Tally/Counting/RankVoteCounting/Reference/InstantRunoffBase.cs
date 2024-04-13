@@ -30,7 +30,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
             int r = 1;
 
             List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+                = [];
 
             var workingVotes = new VoteStorage(taskVotes);
 
@@ -102,7 +102,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private (VoteLineBlock vote, int count) GetMostPreferredVote(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
+        private static (VoteLineBlock vote, int count) GetMostPreferredVote(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
         {
             var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
 

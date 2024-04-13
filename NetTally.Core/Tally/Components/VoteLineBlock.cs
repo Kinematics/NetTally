@@ -64,19 +64,23 @@ namespace NetTally.Tally.Components
         #region Creation of new VoteLineBlock instances based on the current one
         public VoteLineBlock Clone()
         {
-            var copy = new VoteLineBlock(Lines);
-            copy.Task = Task;
-            copy.Marker = Marker;
-            copy.MarkerType = MarkerType;
-            copy.MarkerValue = MarkerValue;
+            var copy = new VoteLineBlock(Lines)
+            {
+                Task = Task,
+                Marker = Marker,
+                MarkerType = MarkerType,
+                MarkerValue = MarkerValue
+            };
 
             return copy;
         }
 
         public VoteLineBlock WithTask(string task)
         {
-            VoteLineBlock partition = new VoteLineBlock(Lines);
-            partition.Task = task;
+            VoteLineBlock partition = new(Lines)
+            {
+                Task = task
+            };
 
             return partition;
         }
@@ -110,11 +114,12 @@ namespace NetTally.Tally.Components
              * 
              */
 
-            VoteLineBlock partition = new VoteLineBlock(Lines);
-
-            partition.Marker = marker;
-            partition.MarkerType = markerType;
-            partition.MarkerValue = markerValue;
+            VoteLineBlock partition = new(Lines)
+            {
+                Marker = marker,
+                MarkerType = markerType,
+                MarkerValue = markerValue
+            };
 
             return partition;
         }

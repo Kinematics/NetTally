@@ -9,7 +9,7 @@ namespace NetTally.Tally.Components
     /// <summary>
     /// Immutable class storing data on a vote line.
     /// </summary>
-    public class VoteLine : IComparable, IComparable<VoteLine>, IEquatable<VoteLine>
+    public partial class VoteLine : IComparable, IComparable<VoteLine>, IEquatable<VoteLine>
     {
         #region Construction and public properties
         public string Prefix { get; }
@@ -30,7 +30,8 @@ namespace NetTally.Tally.Components
         /// <summary>
         /// Default empty vote line.
         /// </summary>
-        public static VoteLine Empty = new VoteLine("", "", "", "", MarkerType.None, 0);
+        public static readonly VoteLine Empty = 
+            new("", "", "", "", MarkerType.None, 0);
 
         /// <summary>
         /// Constructor for the <see cref="VoteLine"/> class.
@@ -75,7 +76,7 @@ namespace NetTally.Tally.Components
             if (level > Depth)
                 level = Depth;
 
-            string prefix = Depth > 0 ? Prefix.Substring(level) : "";
+            string prefix = Depth > 0 ? Prefix[level..] : "";
 
             return new VoteLine(prefix, Marker, Task, Content, MarkerType, MarkerValue);
         }
@@ -93,7 +94,7 @@ namespace NetTally.Tally.Components
             if (prefixDepth == Depth)
                 return this;
 
-            string adjPrefix = new string('-', prefixDepth);
+            string adjPrefix = new('-', prefixDepth);
 
             return new VoteLine(adjPrefix, Marker, Task, Content, MarkerType, MarkerValue);
         }
@@ -241,13 +242,14 @@ namespace NetTally.Tally.Components
             int trimIndex = GetTrimIndexForContent();
 
             if (trimIndex > 0)
-                return CleanContent.Substring(0, trimIndex);
+                return CleanContent[..trimIndex];
             else
                 return CleanContent;
         }
 
-        static readonly Regex extendedTextRegex = new Regex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))");
-        static readonly Regex extendedTextSentenceRegex = new Regex(@"(?<!\([^)]*)(?<![pP][lL][aA][nN]\b.+)(((?<=\S{4,})|(?<=\s[\p{Ll}]\S+))([.?!])(?:\s+[^\p{Ll}]))");
+        static readonly Regex extendedTextRegex = ExtendedTextRegex();
+        static readonly Regex extendedTextSentenceRegex = ExtendedTextSentenceRegex();
+        static readonly Regex wordCountRegex = WordCountRegex();
 
         /// <summary>
         /// Gets the index to trim from for a given content line.
@@ -302,7 +304,7 @@ namespace NetTally.Tally.Components
                     Match m = matches[i];
                     if (m.Success && m.Index > 0 && m.Index < separatorLimit)
                     {
-                        string partial = CleanContent.Substring(0, m.Index);
+                        string partial = CleanContent[..m.Index];
 
                         if (CountWords(partial) > 1)
                             return m.Index;
@@ -327,8 +329,6 @@ namespace NetTally.Tally.Components
             // If no proper matches were found, return 0.
             return 0;
         }
-
-        static readonly Regex wordCountRegex = new Regex(@"\S+\b");
 
         /// <summary>
         /// Counts the words in the provided string.
@@ -411,5 +411,13 @@ namespace NetTally.Tally.Components
         public static bool operator !=(VoteLine first, VoteLine second) => Compare(first, second) != 0;
 #nullable enable
         #endregion
+
+
+        [GeneratedRegex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))")]
+        private static partial Regex ExtendedTextRegex();
+        [GeneratedRegex(@"(?<!\([^)]*)(?<![pP][lL][aA][nN]\b.+)(((?<=\S{4,})|(?<=\s[\p{Ll}]\S+))([.?!])(?:\s+[^\p{Ll}]))")]
+        private static partial Regex ExtendedTextSentenceRegex();
+        [GeneratedRegex(@"\S+\b")]
+        private static partial Regex WordCountRegex();
     }
 }

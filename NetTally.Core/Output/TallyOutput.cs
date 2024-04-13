@@ -26,30 +26,23 @@ namespace NetTally.Output
     // Individual dictionary element from VoteStorage:
     using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
 
-    public class TallyOutput : ITextResultsProvider
+    public class TallyOutput(
+        RankVoteCounterFactory rankVoteCounterFactory,
+        ForumAdapterFactory forumAdapterFactory,
+        IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
         #region Constructor and private fields
         const string cancelled = "Cancelled!";
 
-        private readonly GlobalSettings globalSettings;
-        private readonly RankVoteCounterFactory rankVoteCounterFactory;
-        private readonly ForumAdapterFactory forumAdapterFactory;
+        private readonly GlobalSettings globalSettings = globalSettings.Value;
+        private readonly RankVoteCounterFactory rankVoteCounterFactory = rankVoteCounterFactory;
+        private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
         private readonly StringBuilder sb = new();
 
         private Quest quest = null!;
         private DisplayMode displayMode;
         private IVoteCounter voteCounter = null!;
         private IRankVoteCounter2 rankVoteCounter = null!;
-
-        public TallyOutput(
-            RankVoteCounterFactory rankVoteCounterFactory,
-            ForumAdapterFactory forumAdapterFactory,
-            IOptions<GlobalSettings> globalSettings)
-        {
-            this.rankVoteCounterFactory = rankVoteCounterFactory;
-            this.forumAdapterFactory = forumAdapterFactory;
-            this.globalSettings = globalSettings.Value;
-        }
         #endregion
 
         #region Public ITextResultsProvider functions
@@ -188,13 +181,13 @@ namespace NetTally.Output
             Dictionary<MarkerType, VoteStorage> group =
                 new()
                 {
-                    [MarkerType.Rank] = new VoteStorage(),
-                    [MarkerType.Score] = new VoteStorage(),
-                    [MarkerType.Approval] = new VoteStorage(),
-                    [MarkerType.Vote] = new VoteStorage()
+                    [MarkerType.Rank] = [],
+                    [MarkerType.Score] = [],
+                    [MarkerType.Approval] = [],
+                    [MarkerType.Vote] = []
                 };
 
-            MarkerType[] markers = { MarkerType.Rank, MarkerType.Score, MarkerType.Approval };
+            MarkerType[] markers = [MarkerType.Rank, MarkerType.Score, MarkerType.Approval];
 
             var allVotes = voteCounter.VoteStorage.GetAllVotes();
 
@@ -322,7 +315,7 @@ namespace NetTally.Output
 
                     AddTaskLabel(task.Key);
 
-                    IEnumerable<CompactVote> compactTask = Enumerable.Empty<CompactVote>();
+                    IEnumerable<CompactVote> compactTask = [];
 
                     if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                         compactTask = CompactVote.GetCompactVotes(task);
@@ -343,7 +336,7 @@ namespace NetTally.Output
                             ConstructRankedOutput(task, compactTask, allVoters);
                             break;
                         default:
-                            throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
+                            throw new ArgumentOutOfRangeException(nameof(marker), $"Unknown marker type: {marker}");
                     }
 
                     sb.AppendLine();
@@ -390,7 +383,7 @@ namespace NetTally.Output
 
                     AddTaskLabel(task.Key);
 
-                    IEnumerable<CompactVote> compactTask = Enumerable.Empty<CompactVote>();
+                    IEnumerable<CompactVote> compactTask = [];
 
                     if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                         compactTask = CompactVote.GetCompactVotes(task);
@@ -411,7 +404,7 @@ namespace NetTally.Output
                             ConstructRankedOutput(task, compactTask, allVoters);
                             break;
                         default:
-                            throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
+                            throw new ArgumentOutOfRangeException(nameof(marker), $"Unknown marker type: {marker}");
                     }
 
                     sb.AppendLine();
@@ -434,7 +427,7 @@ namespace NetTally.Output
             }
         }
 
-        private static IList<Origin> GetAllVotersInTask(VotesGroupedByTask task)
+        private static List<Origin> GetAllVotersInTask(VotesGroupedByTask task)
         {
             return task
                 .SelectMany(t => t.Value)

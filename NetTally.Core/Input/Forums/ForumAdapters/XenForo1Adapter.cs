@@ -17,24 +17,23 @@ using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public class XenForo1Adapter : IForumAdapter
+    public partial class XenForo1Adapter(
+        IGeneralInputOptions inputOptions,
+        ILogger<XenForo1Adapter> logger) : IForumAdapter
     {
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILogger<XenForo1Adapter> logger = logger;
+
         #region Static data
         // May possibly end with /page-00#post-00
-        static readonly Regex longFragment = new Regex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$");
+        static readonly Regex longFragment = LongFragmentRegex();
         // The short HREF version gives the post ID
-        static readonly Regex shortFragment = new Regex(@"posts/(?<tmID>\d+)/?$");
-        #endregion
+        static readonly Regex shortFragment = ShortFragmentRegex();
 
-        #region Constructor
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<XenForo1Adapter> logger;
-
-        public XenForo1Adapter(IGeneralInputOptions inputOptions, ILogger<XenForo1Adapter> logger)
-        {
-            this.inputOptions = inputOptions;
-            this.logger = logger;
-        }
+        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$")]
+        private static partial Regex LongFragmentRegex();
+        [GeneratedRegex(@"posts/(?<tmID>\d+)/?$")]
+        private static partial Regex ShortFragmentRegex();
         #endregion
 
         #region IForumAdapter2 interface
@@ -178,7 +177,7 @@ namespace NetTally.Forums.ForumAdapters
                     ?.InnerText);
         }
 
-        private string GetPageAuthor(HtmlDocument page)
+        private static string GetPageAuthor(HtmlDocument page)
         {
             // Find a common parent for other data
             HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
@@ -194,7 +193,7 @@ namespace NetTally.Forums.ForumAdapters
             return ForumPostTextConverter.CleanupWebString(authorNode?.InnerText ?? "");
         }
 
-        private int GetMaxPageNumberOfThread(HtmlDocument page)
+        private static int GetMaxPageNumberOfThread(HtmlDocument page)
         {
             // Find a common parent for other data
             HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
@@ -292,7 +291,7 @@ namespace NetTally.Forums.ForumAdapters
             return (false, ThreadRangeInfo.Empty);
         }
 
-        private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
+        private static async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
@@ -319,7 +318,7 @@ namespace NetTally.Forums.ForumAdapters
 
             var channel = rss.Root.Element(XName.Get("channel", ""));
 
-            var items = channel?.Elements(XName.Get("item", "")) ?? Enumerable.Empty<XElement>(); ;
+            var items = channel?.Elements(XName.Get("item", "")) ?? []; ;
 
             XName titleName = XName.Get("title", "");
             XName pubDate = XName.Get("pubDate", "");
@@ -395,7 +394,7 @@ namespace NetTally.Forums.ForumAdapters
                         if (threadmarkList.GetAttributeValue("class", "").Contains("ThreadmarkCategory"))
                         {
                             if (!threadmarkList.HasClass("ThreadmarkCategory_1"))
-                                return Enumerable.Empty<HtmlNode>();
+                                return [];
                         }
 
                         listOfThreadmarks = threadmarkList;
@@ -419,7 +418,8 @@ namespace NetTally.Forums.ForumAdapters
 
                     Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
 
-                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector = (i) => i.Element("ul")?.Elements("li") ?? new List<HtmlNode>();
+                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector =
+                        (i) => i.Element("ul")?.Elements("li") ?? [];
 
                     var results = listOfThreadmarks.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
 
@@ -460,12 +460,14 @@ namespace NetTally.Forums.ForumAdapters
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
+                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
+                logger.LogError(e, 
+                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
+                    author, id, number, quest.DisplayName);
             }
 
             return null;
@@ -499,7 +501,7 @@ namespace NetTally.Forums.ForumAdapters
             // Predicate for filtering out elements that we don't want to include
             var exclusions = ForumPostTextConverter.GetClassesExclusionPredicate(excludedClasses);
 
-            Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
+            Uri host = new(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
             // Get the full post text.
             return ForumPostTextConverter.ExtractPostText(postBlock, exclusions, host);
@@ -525,8 +527,8 @@ namespace NetTally.Forums.ForumAdapters
 
             string postNumberText = postNumber.InnerText;
             // Skip the leading # character.
-            if (postNumberText.StartsWith("#", StringComparison.Ordinal))
-                postNumberText = postNumberText.Substring(1);
+            if (postNumberText.StartsWith('#'))
+                postNumberText = postNumberText[1..];
 
             return int.Parse(postNumberText);
         }
@@ -540,10 +542,9 @@ namespace NetTally.Forums.ForumAdapters
         /// <returns>Returns a string containing the URL up to the thread name.</returns>
         private static string GetBaseThreadUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 
@@ -577,7 +578,7 @@ namespace NetTally.Forums.ForumAdapters
         {
             ArgumentNullException.ThrowIfNull(uri);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 

@@ -25,12 +25,12 @@ namespace NetTally.Votes
         public static IEnumerable<CompactVote> GetCompactVotes(IEnumerable<VoteStorageEntry> votes)
         {
             if (votes == null || !votes.Any())
-                return Enumerable.Empty<CompactVote>();
+                return [];
 
             // Group votes by first vote line, as that's the basis for further consolidation.
             var groupedVotes = votes.GroupBy(v => v.Key.Lines.First());
 
-            List<CompactVote> compactVotes = new List<CompactVote>();
+            List<CompactVote> compactVotes = [];
 
             foreach (var group in groupedVotes)
             {
@@ -50,7 +50,9 @@ namespace NetTally.Votes
         /// <param name="votes">Votes that were part of the parent CompactVote.</param>
         /// <param name="parent">The parent of the CompactVote being created.</param>
         /// <returns>Returns a compact vote built on the child line provided.</returns>
-        private CompactVote RecursiveCreation(VoteLine childLine, IEnumerable<VoteStorageEntry> votes,
+        private static CompactVote RecursiveCreation(
+            VoteLine childLine,
+            IEnumerable<VoteStorageEntry> votes,
             CompactVote parent)
         {
             // Get the children for the next layer of the tree.
@@ -72,9 +74,9 @@ namespace NetTally.Votes
         private static IEnumerable<VoteLine> GetChildLinesOfLine(VoteLine key,
             IEnumerable<VoteStorageEntry> voteGroup, bool topLevel = false)
         {
-            List<VoteStorageEntry> voteGroupList = new List<VoteStorageEntry>(voteGroup);
-            List<VoteLine> holding = new List<VoteLine>();
-            List<VoteLine> tempHolding = new List<VoteLine>();
+            List<VoteStorageEntry> voteGroupList = new(voteGroup);
+            List<VoteLine> holding = [];
+            List<VoteLine> tempHolding = [];
 
             foreach (var (vote, voteSupport) in voteGroupList)
             {
@@ -130,8 +132,8 @@ namespace NetTally.Votes
         #region Properties
         CompactVote? Parent { get; }
         public VoteLine CurrentLine { get; }
-        public List<CompactVote> Children { get; } = new List<CompactVote>();
-        public List<VoterStorageEntry> Voters { get; } = new List<VoterStorageEntry>();
+        public List<CompactVote> Children { get; } = [];
+        public List<VoterStorageEntry> Voters { get; } = [];
         public int VoterCount { get; }
         #endregion
 
@@ -157,7 +159,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToString();
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -175,7 +177,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToComparableString();
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -195,7 +197,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToOverrideString(displayMarker, displayTask);
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToOverrideString(displayMarker, displayTask)).Aggregate((a, b) => $"{a}\n{b}");
 

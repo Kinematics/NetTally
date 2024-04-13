@@ -48,7 +48,7 @@ namespace NetTally.Votes
             {
                 var referenceVote = vote.WithMarker("", MarkerType.None, 0);
 
-                localVoters = new VoterStorage();
+                localVoters = [];
 
                 Add(referenceVote, localVoters);
             }
@@ -186,7 +186,7 @@ namespace NetTally.Votes
                 return supporters.Select(a => a.Key);
             }
 
-            return Enumerable.Empty<Origin>();
+            return [];
         }
 
         /// <summary>

@@ -41,7 +41,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// <param name="voterRankings">The voter rankings.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a filled-in preferences array.</returns>
-        private int[,] GetPairwisePreferences(Dictionary<Origin, List<VoteLineBlock>> voterRankings, List<VoteLineBlock> listOfChoices)
+        private static int[,] GetPairwisePreferences(Dictionary<Origin, List<VoteLineBlock>> voterRankings, List<VoteLineBlock> listOfChoices)
         {
             int[,] pairwisePreferences = new int[listOfChoices.Count, listOfChoices.Count];
 
@@ -80,7 +80,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// <param name="pairwisePreferences">The strongest paths.</param>
         /// <param name="choicesCount">The choices count (size of table).</param>
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
-        private int[,] GetPairwiseWinners(int[,] pairwisePreferences, int choicesCount)
+        private static int[,] GetPairwiseWinners(int[,] pairwisePreferences, int choicesCount)
         {
             int[,] winningPaths = new int[choicesCount, choicesCount];
 
@@ -111,7 +111,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+        private static List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             GetResultsInOrder(int[,] winningPaths, List<VoteLineBlock> listOfChoices, VoteStorage taskVotes)
         {
             var availableIndexes = Enumerable.Range(0, listOfChoices.Count);
@@ -131,7 +131,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
                                        .ToList();
 
             List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> results
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+                = [];
 
             for (int i = 0; i < orderPaths.Count; i++)
             {
@@ -151,9 +151,9 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="list">The list to convert.</param>
         /// <returns>Returns a dictionary pairing each list entry with its index.</returns>
-        private Dictionary<T, int> GetChoicesIndexes<T>(List<T> list) where T : notnull
+        private static Dictionary<T, int> GetChoicesIndexes<T>(List<T> list) where T : notnull
         {
-            Dictionary<T, int> indexes = new();
+            Dictionary<T, int> indexes = [];
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -170,7 +170,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns a count of the number of positive path strength values.</returns>
-        private int GetPositivePathCount(int[,] paths, int row, int count)
+        private static int GetPositivePathCount(int[,] paths, int row, int count)
         {
             int pathCount = 0;
 
@@ -190,7 +190,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns the sum of the given path.</returns>
-        private int GetPathSum(int[,] paths, int row, int count)
+        private static int GetPathSum(int[,] paths, int row, int count)
         {
             int pathSum = 0;
 

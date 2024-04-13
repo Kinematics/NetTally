@@ -15,18 +15,12 @@ using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public class VBulletin4Adapter : IForumAdapter
+    public partial class VBulletin4Adapter(
+        IGeneralInputOptions inputOptions,
+        ILogger<VBulletin4Adapter> logger) : IForumAdapter
     {
-        #region Constructor
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<VBulletin4Adapter> logger;
-
-        public VBulletin4Adapter(IGeneralInputOptions inputOptions, ILogger<VBulletin4Adapter> logger)
-        {
-            this.inputOptions = inputOptions;
-            this.logger = logger;
-        }
-        #endregion
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILogger<VBulletin4Adapter> logger = logger;
 
         #region IForumAdapter2 interface
         /// <summary>
@@ -85,14 +79,13 @@ namespace NetTally.Forums.ForumAdapters
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         public ThreadInfo GetThreadInfo(HtmlDocument page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             string title = GetPageTitle(page);
             string author = string.Empty; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            ThreadInfo info = new ThreadInfo(title, author, pages);
+            ThreadInfo info = new(title, author, pages);
 
             return info;
         }
@@ -107,10 +100,8 @@ namespace NetTally.Forums.ForumAdapters
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
         public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
-            if (quest == null)
-                throw new ArgumentNullException(nameof(quest));
-            if (pageProvider == null)
-                throw new ArgumentNullException(nameof(pageProvider));
+            ArgumentNullException.ThrowIfNull(quest);
+            ArgumentNullException.ThrowIfNull(pageProvider);
 
             return Task.FromResult(new ThreadRangeInfo(true, quest.StartPost));
         }
@@ -124,7 +115,7 @@ namespace NetTally.Forums.ForumAdapters
         public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
-                return Enumerable.Empty<Post>();
+                return [];
 
             var posts = from p in GetPostList(page)
                         where p != null
@@ -137,7 +128,7 @@ namespace NetTally.Forums.ForumAdapters
         #endregion IForumAdapter2 interface
 
         #region Get Page Information
-        private string GetPageTitle(HtmlDocument page)
+        private static string GetPageTitle(HtmlDocument page)
         {
             return ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
@@ -147,7 +138,7 @@ namespace NetTally.Forums.ForumAdapters
                     ?.InnerText);
         }
 
-        private int GetMaxPageNumberOfThread(HtmlDocument page)
+        private static int GetMaxPageNumberOfThread(HtmlDocument page)
         {
             // Get the number of pages from the navigation elements
             var paginationTop = page.GetElementbyId("pagination_top");
@@ -163,7 +154,7 @@ namespace NetTally.Forums.ForumAdapters
 
                 if (pagesText != null)
                 {
-                    Regex pageNumsRegex = new Regex(@"Page \d+ of (?<pages>\d+)");
+                    Regex pageNumsRegex = PageNumsRegex();
                     Match m = pageNumsRegex.Match(pagesText);
                     if (m.Success)
                     {
@@ -177,12 +168,12 @@ namespace NetTally.Forums.ForumAdapters
         #endregion Get Page Information
 
         #region Get Posts
-        private IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
+        private static IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
         {
             var postList = page?.GetElementbyId("posts");
 
             if (postList == null)
-                return Enumerable.Empty<HtmlNode>();
+                return [];
 
             return postList.Elements("li");
         }
@@ -202,23 +193,25 @@ namespace NetTally.Forums.ForumAdapters
 
             try
             {
-                Origin origin = new Origin(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
+                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
                 return new Post(origin, text);
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{quest.DisplayName})");
+                logger.LogError(e, 
+                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
+                    author, id, number, quest.DisplayName);
             }
 
             return null;
         }
 
-        private string GetPostId(HtmlNode li)
+        private static string GetPostId(HtmlNode li)
         {
-            return li.Id.Substring("post_".Length);
+            return li.Id["post_".Length..];
         }
 
-        private string GetPostAuthor(HtmlNode li)
+        private static string GetPostAuthor(HtmlNode li)
         {
             string author = "";
 
@@ -235,7 +228,7 @@ namespace NetTally.Forums.ForumAdapters
             return author;
         }
 
-        private int GetPostNumber(HtmlDocument page, string id)
+        private static int GetPostNumber(HtmlDocument page, string id)
         {
             var postCount = page.GetElementbyId($"postcount{id}");
 
@@ -245,7 +238,7 @@ namespace NetTally.Forums.ForumAdapters
             return 0;
         }
 
-        private string GetPostText(HtmlNode li, string id, Quest quest)
+        private static string GetPostText(HtmlNode li, string id, Quest quest)
         {
             HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
@@ -259,7 +252,7 @@ namespace NetTally.Forums.ForumAdapters
                 // Predicate filtering out elements that we don't want to include
                 var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
 
-                Uri host = new Uri(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
+                Uri host = new(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
 
                 // Get the full post text.
                 return ForumPostTextConverter.ExtractPostText(message, exclusion, host);
@@ -275,14 +268,13 @@ namespace NetTally.Forums.ForumAdapters
         /// </summary>
         /// <param name="uri">The URI to derive the URL from.</param>
         /// <returns>Returns a string containing the URL up to the last path.</returns>
-        private string GetBaseThreadUrl(Uri uri)
+        private static string GetBaseThreadUrl(Uri uri)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
+            ArgumentNullException.ThrowIfNull(uri);
 
             // http://forums.militarytimes.com/showthread.php/9961-Furlough
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(uri.GetLeftPart(UriPartial.Authority));
 
@@ -307,12 +299,15 @@ namespace NetTally.Forums.ForumAdapters
             return sb.ToString();
         }
 
-        private string GetPermalinkForId(Uri uri, string postId)
+        private static string GetPermalinkForId(Uri uri, string postId)
         {
             // http://forums.militarytimes.com/showthread.php/9961-Furlough?p=371392&viewfull=1#post371392
 
             return $"{GetBaseThreadUrl(uri)}?p={postId}&viewfull=1#post{postId}";
         }
+
+        [GeneratedRegex(@"Page \d+ of (?<pages>\d+)")]
+        private static partial Regex PageNumsRegex();
         #endregion URL Manipulation
     }
 }

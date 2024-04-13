@@ -12,26 +12,22 @@ using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    class UnknownForumAdapter : IForumAdapter
+    class UnknownForumAdapter(
+        IGeneralInputOptions inputOptions,
+        ILogger<UnknownForumAdapter> logger) : IForumAdapter
     {
         #region Constructor
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILogger<UnknownForumAdapter> logger;
-
-        public UnknownForumAdapter(IGeneralInputOptions inputOptions, ILogger<UnknownForumAdapter> logger)
-        {
-            this.inputOptions = inputOptions;
-            this.logger = logger;
-        }
+        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly ILogger<UnknownForumAdapter> logger = logger;
         #endregion
 
         public string GetDefaultLineBreak(Uri uri) => "";
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx HasRssThreadmarksFeed(Uri uri) => BoolEx.False;
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => Enumerable.Empty<Post>();
+        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
         public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
             => Task.FromResult(new ThreadRangeInfo(false, 0));
-        public ThreadInfo GetThreadInfo(HtmlDocument page) => new ThreadInfo("Unknown", "Unknown", 1);
+        public ThreadInfo GetThreadInfo(HtmlDocument page) => new("Unknown", "Unknown", 1);
         public string GetUrlForPage(Quest quest, int page) => "";
     }
 }

@@ -17,10 +17,10 @@ namespace NetTally.Tally.Components
         public string Permalink { get; }
         public Origin Source { get; }
 
-        public static Origin Empty = new Origin("-", "0", 0,
+        public static readonly Origin Empty = new("-", "0", 0,
             DateTime.MinValue, new Uri("http://www.example.com/"), "http://www.example.com/");
 
-        private static readonly Uri exampleUri = new Uri("http://www.example.com/");
+        private static readonly Uri exampleUri = new("http://www.example.com/");
         private readonly int hash;
         private readonly bool limitedToName;
 
