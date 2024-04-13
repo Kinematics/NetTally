@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NetTally.Global
 {
     public class ConfigInfo
     {
-        [SetsRequiredMembers]
         public ConfigInfo()
         {
             UserQuests = new();
@@ -18,8 +16,8 @@ namespace NetTally.Global
             GlobalSettings = globalSettings;
         }
 
-        public required GlobalSettings GlobalSettings { get; init; }
+        public GlobalSettings GlobalSettings { get; init; }
 
-        public required UserQuests UserQuests { get; init; }
+        public UserQuests UserQuests { get; init; }
     }
 }
