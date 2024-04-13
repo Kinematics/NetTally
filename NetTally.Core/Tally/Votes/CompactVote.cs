@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NetTally.Extensions;
-using NetTally.Forums;
-using NetTally.Utility;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
+    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
     // Individual dictionary element from VoteStorage:
     using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
 
     /// <summary>
     /// A compact vote allows multiple votes to be displayed as a collective when

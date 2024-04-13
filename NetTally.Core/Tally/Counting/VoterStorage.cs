@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NetTally.Forums;
-using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 
 namespace NetTally.Votes
 {
+    using FilteredVoterStorage = IEnumerable<KeyValuePair<Origin, VoteLineBlock>>;
+    using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
     // Simplified generic references
     using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
-    using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
-    using FilteredVoterStorage = IEnumerable<KeyValuePair<Origin, VoteLineBlock>>;
 
 
     /// <summary>
@@ -247,7 +244,7 @@ namespace NetTally.Votes
                 return (0, 0, 0);
 
             double average = (double)accum / count;
-            int simpleScore = (int) Math.Round(average, 0, MidpointRounding.AwayFromZero);
+            int simpleScore = (int)Math.Round(average, 0, MidpointRounding.AwayFromZero);
 
             return (simpleScore, average, lowerBound);
         }

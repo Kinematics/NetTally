@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using NetTally.Collections;
-using NetTally.Forums;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
@@ -263,7 +262,7 @@ namespace NetTally.VoteCounting
         /// <param name="task">The new task to use.</param>
         /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
         bool ReplaceTask(VoteLineBlock vote, string task);
-        
+
         /// <summary>
         /// Replace the current list of tasks with the provided list.
         /// </summary>

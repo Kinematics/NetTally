@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using NetTally.Extensions;
+using NetTally.Tally.Components;
 using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
 

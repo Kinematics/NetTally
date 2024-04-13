@@ -3,8 +3,8 @@ using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Utility.Comparers;
-using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Tally.Components;
 
 namespace NetTally.Tests.Votes
 {

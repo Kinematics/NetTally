@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 
 namespace NetTally.Comparers
 {

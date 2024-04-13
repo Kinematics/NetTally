@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums.ForumAdapters;
 using NetTally.Global;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
 

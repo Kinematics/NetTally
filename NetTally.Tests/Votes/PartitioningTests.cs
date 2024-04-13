@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Tests.Votes
 {
@@ -14,7 +14,7 @@ namespace NetTally.Tests.Votes
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
+        static Tallyer tally = null!;
         static Quest quest = null!;
         static readonly Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
@@ -23,7 +23,7 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            tally = serviceProvider.GetRequiredService<Tally>();
+            tally = serviceProvider.GetRequiredService<Tallyer>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
 

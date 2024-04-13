@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Comparers;
 using NetTally.Global;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.Votes;
 

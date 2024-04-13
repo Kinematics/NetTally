@@ -10,9 +10,9 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
 using NetTally.Collections;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.ViewModels;
-using NetTally.Votes;
 
 namespace NetTally.Avalonia.Views
 {

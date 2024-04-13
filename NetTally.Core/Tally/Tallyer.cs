@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Forums;
 using NetTally.Output;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting
@@ -17,16 +17,16 @@ namespace NetTally.VoteCounting
     /// Class that links together the various pieces of the tally system.
     /// Call this to run a tally.
     /// </summary>
-    public partial class Tally : ObservableObject
+    public partial class Tallyer : ObservableObject
     {
         #region Construction
         private readonly ForumReader forumReader;
         private readonly ITextResultsProvider textResultsProvider;
-        private readonly ILogger<Tally> logger;
+        private readonly ILogger<Tallyer> logger;
 
-        public Tally(ForumReader forumReader,
+        public Tallyer(ForumReader forumReader,
                      ITextResultsProvider textResultsProvider,
-                     ILogger<Tally> logger)
+                     ILogger<Tallyer> logger)
         {
             this.forumReader = forumReader;
             this.textResultsProvider = textResultsProvider;
@@ -88,7 +88,7 @@ namespace NetTally.VoteCounting
             {
                 ConstructVotesFromPosts(quest);
             }
-                
+
             UpdateOutput(quest);
         }
 

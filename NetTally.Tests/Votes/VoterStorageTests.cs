@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Votes;
-using System;
 
 namespace NetTally.Tests.Votes
 {

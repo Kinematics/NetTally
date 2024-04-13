@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Votes;
-using System;
 
 namespace NetTally.Tests.Tallying
 {

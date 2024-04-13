@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using NetTally.Web;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {

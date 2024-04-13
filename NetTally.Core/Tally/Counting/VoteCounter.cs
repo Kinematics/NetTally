@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Extensions;
-using NetTally.Forums;
 using NetTally.Options;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
-using System.Diagnostics.CodeAnalysis;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
@@ -207,7 +206,7 @@ namespace NetTally.VoteCounting
 
                 if (planOrigin.Source != Origin.Empty && planOrigin.Source == currentOrigin.Source &&
                     planOrigin.ID > currentOrigin.ID &&
-                    plan.Lines.Count > 1 && 
+                    plan.Lines.Count > 1 &&
                     ReferencePlans.TryGetValue(currentOrigin, out VoteLineBlock? currentPlan) &&
                     plan != currentPlan)
                 {
@@ -403,7 +402,7 @@ namespace NetTally.VoteCounting
             if (!HasVoter(post.Origin.Author.Name))
                 return false;
 
-            return Posts.Any(p => 
+            return Posts.Any(p =>
                                p.Processed
                             && p.Origin.ID > post.Origin.ID
                             && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
@@ -868,7 +867,7 @@ namespace NetTally.VoteCounting
             // Adjust so that we're always pointing at an actual vote.
             // If the vote isn't found in VoteStorage, just use the one provided.
             vote = VoteStorage.GetVoteMatching(vote) ?? vote;
-            
+
             // Remove the version of the vote we're starting with.
             VoteStorage.Remove(vote);
 

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,10 +12,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.Comparers;
 using NetTally.Navigation;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.ViewModels;
-using NetTally.Votes;
 
 namespace NetTally.Views
 {
@@ -417,7 +415,7 @@ namespace NetTally.Views
 
                 if (newTask is null)
                     return;
-               
+
                 var selectedVote = GetSelectedVoteInContext(sender);
 
                 if (selectedVote is not null)

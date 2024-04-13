@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NetTally.Tally.Components;
 using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
 

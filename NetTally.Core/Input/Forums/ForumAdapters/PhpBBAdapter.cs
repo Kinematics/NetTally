@@ -8,9 +8,9 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Options;
-using NetTally.Web;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {
@@ -213,7 +213,7 @@ namespace NetTally.Forums.ForumAdapters
             }
             catch (Exception e)
             {
-                logger.LogError(e, 
+                logger.LogError(e,
                     "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{displayName})",
                     author, id, number, quest.DisplayName);
             }

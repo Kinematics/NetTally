@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NetTally.Extensions;
-using NetTally.Forums;
-using NetTally.Votes;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {

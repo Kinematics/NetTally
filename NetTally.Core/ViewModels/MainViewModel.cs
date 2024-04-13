@@ -19,14 +19,14 @@ namespace NetTally.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly IQuestsInfoMod questsInfo;
-        private readonly Tally tally;
+        private readonly Tallyer tally;
         private readonly ICache<string> pageCache;
         private readonly CheckForNewRelease2 checkForNewRelease;
         private readonly ILogger<MainViewModel> logger;
 
         public MainViewModel(
             IQuestsInfoMod questsInfo,
-            Tally tally,
+            Tallyer tally,
             ICache<string> cache,
             CheckForNewRelease2 checkForNewRelease,
             ILogger<MainViewModel> logger)
@@ -227,11 +227,11 @@ namespace NetTally.ViewModels
 
         private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Tally.TallyResults))
+            if (e.PropertyName == nameof(Tallyer.TallyResults))
             {
                 OnPropertyChanged(nameof(Output));
             }
-            else if (e.PropertyName == nameof(Tally.HasTallyResults))
+            else if (e.PropertyName == nameof(Tallyer.HasTallyResults))
             {
                 OnPropertyChanged(nameof(HasOutput));
             }

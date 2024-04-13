@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 
 namespace NetTally.Avalonia.Converters
 {

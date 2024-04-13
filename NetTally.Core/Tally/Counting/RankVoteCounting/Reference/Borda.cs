@@ -5,6 +5,7 @@ using System.Text;
 using NetTally.Utility;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Tally.Components;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {

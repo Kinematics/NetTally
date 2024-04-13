@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 
 namespace NetTally.Votes

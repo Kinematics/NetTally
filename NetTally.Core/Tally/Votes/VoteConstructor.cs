@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NetTally.Forums;
+using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
-using NetTally.VoteCounting;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Votes
 {

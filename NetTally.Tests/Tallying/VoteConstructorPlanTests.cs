@@ -2,11 +2,10 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
 using NetTally.VoteCounting;
+using NetTally.Votes;
 
 #nullable disable
 

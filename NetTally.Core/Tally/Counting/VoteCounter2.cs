@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using NetTally.Collections;
 using NetTally.Extensions;
 using NetTally.Global;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Votes;
 

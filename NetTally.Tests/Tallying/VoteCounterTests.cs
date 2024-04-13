@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
+using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
-using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Tests.Tallying
 {
@@ -20,7 +16,7 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static Tally tally = null!;
+        static Tallyer tally = null!;
         static Quest quest = null!;
         static IAgnostic agnostic = null!;
         static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
@@ -35,7 +31,7 @@ namespace NetTally.Tests.Tallying
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            tally = serviceProvider.GetRequiredService<Tally>();
+            tally = serviceProvider.GetRequiredService<Tallyer>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
 
@@ -361,7 +357,7 @@ namespace NetTally.Tests.Tallying
 
             List<Post> posts = new() { post1, post2 };
             quest.VoteCounter.AddPosts(posts);
-            var plans = Tally.PreprocessPosts(quest);
+            var plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -369,7 +365,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3 };
             quest.VoteCounter.AddPosts(posts);
-            plans = Tally.PreprocessPosts(quest);
+            plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
@@ -377,7 +373,7 @@ namespace NetTally.Tests.Tallying
             quest.VoteCounter.Reset();
             posts = new List<Post>() { post1, post2, post3, post4 };
             quest.VoteCounter.AddPosts(posts);
-            plans = Tally.PreprocessPosts(quest);
+            plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);

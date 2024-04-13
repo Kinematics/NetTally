@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NetTally.Tests.Votes
 {
@@ -19,7 +18,7 @@ namespace NetTally.Tests.Votes
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
+        static Tallyer tally = null!;
         static Quest quest = null!;
         static IAgnostic agnostic = null!;
 
@@ -28,7 +27,7 @@ namespace NetTally.Tests.Votes
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            tally = serviceProvider.GetRequiredService<Tally>();
+            tally = serviceProvider.GetRequiredService<Tallyer>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
@@ -481,7 +480,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -521,7 +520,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -561,7 +560,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -603,7 +602,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -643,7 +642,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 
@@ -689,7 +688,7 @@ namespace NetTally.Tests.Votes
 
             quest.VoteCounter.AddPosts(posts);
 
-            Tally.PreprocessPosts(quest);
+            Tallyer.PreprocessPosts(quest);
 
             var results1 = VoteConstructor.ProcessPostGetVotes(post1, quest);
 

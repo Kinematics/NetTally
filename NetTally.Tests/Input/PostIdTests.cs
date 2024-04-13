@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 
 namespace NetTally.Tests.Forums
 {

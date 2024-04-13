@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using NetTally.Forums;
+using NetTally.Tally.Components;
 using NetTally.Votes;
-using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {

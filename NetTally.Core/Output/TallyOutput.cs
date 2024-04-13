@@ -5,24 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NetTally.Forums;
-using NetTally.Options;
+using NetTally.Global;
 using NetTally.SystemInfo;
+using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
-using Microsoft.Extensions.Options;
-using NetTally.Global;
 
 namespace NetTally.Output
 {
     // List of VoterStorage elements:
     using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
     // Individual dictionary element from VoterStorage:
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
     // Grouping of VoteStorage elements by task:
     using VotesGroupedByTask = IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>;
     // Individual dictionary element from VoteStorage:
@@ -148,7 +146,7 @@ namespace NetTally.Output
                 AddTotalVoters();
             }
         }
-        
+
         private void BuildGlobal()
         {
             var voteGroupings = GetVoteGroupings();
@@ -367,7 +365,7 @@ namespace NetTally.Output
                 return groupByTask;
             }
         }
-        
+
         private void ConstructOutput(VoteStorage votes, MarkerType marker)
         {
             if (votes.Count == 0)
@@ -870,7 +868,7 @@ namespace NetTally.Output
 
                 foreach (var voter in didNotRankOption)
                 {
-                    AddVoter(voter, vote:null, MarkerType.Rank);
+                    AddVoter(voter, vote: null, MarkerType.Rank);
                 }
             }
         }

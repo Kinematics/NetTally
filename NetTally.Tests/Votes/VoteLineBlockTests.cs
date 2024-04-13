@@ -15,7 +15,7 @@ namespace NetTally.Tests.Votes
         static IServiceProvider serviceProvider = null!;
         static IVoteCounter voteCounter = null!;
         static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
+        static Tallyer tally = null!;
         static Quest quest = null!;
 
 
@@ -25,7 +25,7 @@ namespace NetTally.Tests.Votes
             serviceProvider = TestStartup.ConfigureServices();
 
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-            tally = serviceProvider.GetRequiredService<Tally>();
+            tally = serviceProvider.GetRequiredService<Tallyer>();
             voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
 

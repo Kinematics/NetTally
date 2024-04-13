@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NetTally.Forums;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {
@@ -68,7 +66,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
                         // corresponding table entry.
                         if ((choice != otherChoice) && (choice.MarkerValue <= otherChoice.MarkerValue))
                         {
-                            data[choiceIndexes[choice], choiceIndexes[otherChoice]] += 
+                            data[choiceIndexes[choice], choiceIndexes[otherChoice]] +=
                                 otherChoice.MarkerValue - choice.MarkerValue;
                         }
                     }

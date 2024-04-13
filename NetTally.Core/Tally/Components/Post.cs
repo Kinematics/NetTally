@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Tally.Components;
 
 namespace NetTally.Tally.Components
 {

@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Options;
-using NetTally.Web;
+using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {

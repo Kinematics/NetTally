@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
-using System;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Tally.Components;
 
 namespace NetTally.Tests.Forums
 {
@@ -335,7 +335,7 @@ But might include something else...
             string postText =
 @"Considering:
 ❰[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
-            
+
             Post post = new(origin, postText);
 
             Assert.IsFalse(post.HasVote);
@@ -347,7 +347,7 @@ But might include something else...
             string postText =
 @"Considering:
 ❰⦂[X] Plan Triplemancer⦂-[X] Aeromancy (40%)⦂-[X] Hydromancy (30%)⦂-[X] Pyromancy (30%)❱";
-            
+
             Post post = new(origin, postText);
 
             Assert.IsFalse(post.HasVote);
@@ -362,7 +362,7 @@ But might include something else...
 -[X] Aeromancy (40%)
 -[X] Pyromancy (25%)
 -[X] Pyromantic Divination (35%)";
-            
+
             Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
@@ -376,7 +376,7 @@ But might include something else...
             string postText =
 @"Considering:
 [X] ❰Earth, Water,❱ Fire";
-           
+
             Post post = new(origin, postText);
 
             Assert.IsTrue(post.HasVote);
