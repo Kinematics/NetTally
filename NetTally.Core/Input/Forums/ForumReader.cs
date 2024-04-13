@@ -129,7 +129,7 @@ namespace NetTally.Forums
         {
             logger.LogDebug("Reading quest {questDisplayName} with ForumReader.", quest.DisplayName);
 
-            IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, pageProvider, token).ConfigureAwait(false);
+            IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, token).ConfigureAwait(false);
 
             logger.LogDebug("Forum adapter created for {questDisplayName}.", quest.DisplayName);
 

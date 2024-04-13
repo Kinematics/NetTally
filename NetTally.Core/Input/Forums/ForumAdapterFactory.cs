@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetTally.Forums.ForumAdapters;
 using NetTally.Options;
-using NetTally.Web;
 using NetTally.Types.Enums;
 
 namespace NetTally.Forums
@@ -12,11 +11,15 @@ namespace NetTally.Forums
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    public class ForumAdapterFactory(IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory) : IDisposable
+    public class ForumAdapterFactory(
+        IGeneralInputOptions inputOptions,
+        ILoggerFactory loggerFactory,
+        ForumIdentifier forumIdentifier) : IDisposable
     {
-        readonly IGeneralInputOptions inputOptions = inputOptions;
-        readonly ILoggerFactory loggerFactory = loggerFactory;
-        readonly SemaphoreSlim ss = new(1);
+        private readonly IGeneralInputOptions inputOptions = inputOptions;
+        private readonly ILoggerFactory loggerFactory = loggerFactory;
+        private readonly ForumIdentifier forumIdentifier = forumIdentifier;
+        private readonly SemaphoreSlim ss = new(1);
 
         #region Disposal
         bool disposed = false;
@@ -49,7 +52,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
         /// <param name="token">A cancellation token for if we need to make a web request.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async Task<IForumAdapter> CreateForumAdapterAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<IForumAdapter> CreateForumAdapterAsync(Quest quest, CancellationToken token)
         {
             if (quest.ThreadUri == Quest.InvalidThreadUri)
                 throw new InvalidOperationException("Quest does not have a valid thread specified.");
@@ -60,7 +63,7 @@ namespace NetTally.Forums
 
                 try
                 {
-                    quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, token);
+                    quest.ForumType = await forumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token);
                 }
                 finally
                 {

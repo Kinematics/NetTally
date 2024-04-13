@@ -39,6 +39,7 @@ namespace NetTally
             services.AddTransient<IPageProvider, WebPageProvider>();
             services.AddTransient<ForumReader>();
             services.AddSingleton<ForumAdapterFactory>();
+            services.AddSingleton<ForumIdentifier>();
 
             services.AddSingleton<VoteConstructor>();
             services.AddSingleton<RankVoteCounterFactory>();

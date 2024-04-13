@@ -12,9 +12,11 @@ namespace NetTally.Forums
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.
     /// </summary>
-    static class ForumIdentifier
+    public class ForumIdentifier(IPageProvider pageProvider)
     {
-        static readonly Dictionary<string, ForumType> forumTypes = [];
+        // Keep a record of forum types that have been found, for each host.
+        private readonly Dictionary<string, ForumType> forumTypes = [];
+        private readonly IPageProvider pageProvider = pageProvider;
 
         /// <summary>
         /// Public function to check for identifiable forums from a provided web page.
@@ -22,14 +24,14 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public static async Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ForumType> IdentifyForumTypeAsync(Uri? uri, CancellationToken token)
         {
             if (uri == null)
                 return ForumType.Unknown;
 
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                var doc = await GetDocumentAsync(uri, pageProvider, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
 
                 if (doc == null)
                 {
@@ -96,7 +98,7 @@ namespace NetTally.Forums
         /// <param name="uri">The URI to load.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
-        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, IPageProvider pageProvider, CancellationToken token)
+        private async Task<HtmlDocument?> GetDocumentAsync(Uri uri, CancellationToken token)
         {
             HtmlDocument? page = null;
 
