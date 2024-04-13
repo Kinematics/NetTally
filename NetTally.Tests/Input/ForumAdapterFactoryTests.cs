@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Forums.ForumAdapters;
-using NetTally.Web;
 
 namespace NetTally.Tests.Forums
 {
@@ -14,16 +13,12 @@ namespace NetTally.Tests.Forums
     [Ignore]
     public class ForumAdapterFactoryTests
     {
-        static IServiceProvider serviceProvider = null!;
-        static IPageProvider pageProvider = null!;
         static ForumAdapterFactory forumAdapterFactory = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            serviceProvider = TestStartup.ConfigureServices();
-
-            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+            IServiceProvider serviceProvider = TestStartup.ConfigureServices();
             forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
         }
 
