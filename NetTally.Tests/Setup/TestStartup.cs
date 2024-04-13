@@ -21,6 +21,7 @@ namespace NetTally.Tests
                         services.Configure<GlobalSettings>(context.Configuration.GetSection(nameof(GlobalSettings)));
                         services.Configure<UserQuests>(context.Configuration.GetSection(nameof(UserQuests)));
                         services.AddSingleton<IClock, StaticClock>();
+                        services.AddSingleton<ConfigInfo>(new ConfigInfo());
                     })
                     .ConfigureLogging((context, builder) =>
                     {
