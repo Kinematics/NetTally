@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace NetTally.Types.Components
+namespace NetTally.Tally.Components
 {
     /// <summary>
     /// A record for a post ID value.

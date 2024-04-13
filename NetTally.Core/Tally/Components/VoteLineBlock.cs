@@ -2,11 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NetTally.Utility;
-using NetTally.Utility.Comparers;
 using NetTally.Types.Enums;
+using NetTally.Utility.Comparers;
 
-namespace NetTally.Votes
+namespace NetTally.Tally.Components
 {
     public class VoteLineBlock : IEnumerable<VoteLine>, IEquatable<VoteLineBlock>, IComparable<VoteLineBlock>, IComparable
     {
@@ -299,8 +298,8 @@ namespace NetTally.Votes
 
                     // Lines do not compare markers for equality, but blocks do.
                     // MarkerType of None matches any other marker.
-                    if (result == 0 && (left.MarkerType != MarkerType.None && first.MarkerType != MarkerType.None)
-                        && (left.MarkerType != MarkerType.Plan && first.MarkerType != MarkerType.Plan))
+                    if (result == 0 && left.MarkerType != MarkerType.None && first.MarkerType != MarkerType.None
+                        && left.MarkerType != MarkerType.Plan && first.MarkerType != MarkerType.Plan)
                     {
                         result = left.MarkerType.CompareTo(first.MarkerType);
                     }

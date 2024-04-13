@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally.Types.Components
+namespace NetTally.Tally.Components
 {
     public record Author
     {

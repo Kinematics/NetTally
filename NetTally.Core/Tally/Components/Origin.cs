@@ -3,7 +3,7 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Types.Enums;
 
-namespace NetTally.Types.Components
+namespace NetTally.Tally.Components
 {
     public class Origin : IComparable, IComparable<Origin>, IEquatable<Origin>
     {

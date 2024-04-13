@@ -2,8 +2,9 @@
 using System.Text.RegularExpressions;
 using NetTally.Utility.Comparers;
 using NetTally.Types.Enums;
+using NetTally.Votes;
 
-namespace NetTally.Votes
+namespace NetTally.Tally.Components
 {
     /// <summary>
     /// Immutable class storing data on a vote line.

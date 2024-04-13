@@ -4,8 +4,9 @@ using System.Text.RegularExpressions;
 using NetTally.Utility;
 using NetTally.Votes;
 using NetTally.Types.Enums;
+using NetTally.Tally.Components;
 
-namespace NetTally.Types.Components
+namespace NetTally.Tally.Components
 {
     /// <summary>
     /// Class to hold relevent post information when read from the forum.
