@@ -5,30 +5,26 @@ namespace NetTally.Cache
     /// <summary>
     /// Class to save an object with an associated timestamp and expiration.
     /// Typical use would be to cache loaded web pages.
-    /// TODO: Create unit test
     /// </summary>
-    public class CacheObject<T> where T : class
+    public class CacheObject<T>(T store, DateTimeOffset expires, DateTimeOffset timestamp)
+        : IEquatable<CacheObject<T>>, IEquatable<T>
+        where T : class
     {
-        public T Store { get; }
-        public DateTime Timestamp { get; }
-        public DateTime Expires { get; }
+        public T Store { get; } = store;
+        public DateTimeOffset Timestamp { get; } = timestamp;
+        public DateTimeOffset Expires { get; } = expires;
 
         public CacheObject(T store)
-            : this(store, CacheInfo.DefaultExpiration, DateTime.Now)
-        {
-        }
+            : this(store, CacheInfo.DefaultExpiration, CacheInfo.TimeProvider.GetLocalNow())
+        { }
 
-        public CacheObject(T store, DateTime expires)
-            : this(store, expires, DateTime.Now)
-        {
-        }
+        public CacheObject(T store, DateTimeOffset expires)
+            : this(store, expires, CacheInfo.TimeProvider.GetLocalNow())
+        { }
 
-        public CacheObject(T store, DateTime expires, DateTime timestamp)
-        {
-            Store = store;
-            Expires = expires;
-            Timestamp = timestamp;
-        }
+        public CacheObject(T store, TimeSpan expiresIn)
+            : this(store, CacheInfo.TimeProvider.GetLocalNow().Add(expiresIn), CacheInfo.TimeProvider.GetLocalNow())
+        { }
 
         public override int GetHashCode()
         {
@@ -37,23 +33,37 @@ namespace NetTally.Cache
 
         public override bool Equals(object? obj)
         {
-            if (obj is CacheObject<T> cObj)
+            if (obj is CacheObject<T> cacheObject)
             {
-                if (ReferenceEquals(this, cObj))
-                    return true;
-                else if (Store.Equals(cObj.Store))
-                    return true;
-                else
-                    return false;
+                return Equals(cacheObject);
             }
             else if (obj is T objStore)
             {
-                return Store.Equals(objStore);
+                return Equals(objStore);
             }
             else
             {
                 return false;
             }
+        }
+
+        public bool Equals(CacheObject<T>? other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (other is null)
+                return false;
+
+            return Store == other.Store;
+        }
+
+        public bool Equals(T? other)
+        {
+            if (other is null)
+                return false;
+
+            return Store == other;
         }
     }
 }
