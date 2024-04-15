@@ -12,9 +12,8 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The quest the vote counter is set to track.
         /// </summary>
-        Quest Quest { get; }
+        Quest Quest { get; set; }
 
-        void SetQuest(Quest quest);
         /// <summary>
         /// The titles of the quest threads that have been tallied.
         /// </summary>

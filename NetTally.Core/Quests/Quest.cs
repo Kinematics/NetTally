@@ -33,7 +33,7 @@ namespace NetTally
                     value != null)
                 {
                     voteCounter = value;
-                    voteCounter.SetQuest(this);
+                    voteCounter.Quest = this;
                 }
             }
         }
