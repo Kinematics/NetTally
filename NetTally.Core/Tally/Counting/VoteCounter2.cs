@@ -45,7 +45,6 @@ namespace NetTally.VoteCounting
         // Private
 
         readonly List<Post> postsList = [];
-        bool voteCounterIsTallying = false;
 
         Stack<UndoAction> UndoBuffer { get; } = new();
         MergeRecords UserMerges { get; } = new();
@@ -98,8 +97,6 @@ namespace NetTally.VoteCounting
         /// Reset user-defined tasks and user merges if the specified
         /// quest name is different than the one the vote counter has.
         /// </summary>
-        /// <param name="forQuestName">The quest name that may have changed.</param>
-        public void ResetUserDefinedTasks(string questName) { }
         public void ResetUserDefinedTasks()
         {
             UserDefinedTasks.Clear();

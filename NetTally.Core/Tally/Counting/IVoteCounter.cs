@@ -49,8 +49,6 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Reset user-defined tasks if the provided quest name is different than the current quest name.
         /// </summary>
-        /// <param name="forQuestName">The name of the quest the tally is about to be run for.</param>
-        void ResetUserDefinedTasks(string forQuestName);
         void ResetUserDefinedTasks();
         /// <summary>
         /// Clear any user merge information we've retained, so that it doesn't get used to auto-merge.
