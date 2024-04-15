@@ -69,11 +69,6 @@ namespace NetTally.VoteCounting
         public List<string> Titles { get; } = [];
 
         /// <summary>
-        /// Track whether a tally was cancelled.
-        /// </summary>
-        public bool TallyWasCanceled { get; set; }
-
-        /// <summary>
         /// Check whether there are any stored undo actions.
         /// </summary>
         public bool HasUndoActions => UndoBuffer.Count > 0;

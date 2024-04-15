@@ -62,9 +62,6 @@ namespace NetTally.Output
 
             rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
-            if (voteCounter.TallyWasCanceled)
-                return CancelledString;
-
             sb.Clear();
 
             BuildGlobal();

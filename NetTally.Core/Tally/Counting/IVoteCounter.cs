@@ -26,11 +26,6 @@ namespace NetTally.VoteCounting
         void SetThreadTitles(IEnumerable<string> titles);
 
         /// <summary>
-        /// Track whether a tally was cancelled.
-        /// </summary>
-        bool TallyWasCanceled { get; set; }
-
-        /// <summary>
         /// A collection structure to store votes and the voters who voted for them.
         /// Also stores the specific variant that each voter used.
         /// </summary>
