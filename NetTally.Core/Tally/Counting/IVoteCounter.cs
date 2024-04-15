@@ -31,11 +31,6 @@ namespace NetTally.VoteCounting
         VoteStorage VoteStorage { get; }
 
         /// <summary>
-        /// Record any posts that make references to future posts, and thus can't be processed
-        /// in the original post order.
-        /// </summary>
-        HashSet<Post> FutureReferences { get; }
-        /// <summary>
         /// The list of tasks that have been recorded for the tally, whether drawn from
         /// votes as they are tallied, or manually entered by the user.
         /// </summary>

@@ -15,6 +15,11 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
+    /// <summary>
+    /// Class for managing and tracking votes and voters for a quest.
+    /// </summary>
+    /// <param name="globalOptions">Global program options.</param>
+    /// <param name="logger">Class logger.</param>
     public class VoteCounter2(
         IOptions<GlobalSettings> globalOptions,
         ILogger<VoteCounter2> logger) : IVoteCounter
@@ -29,10 +34,6 @@ namespace NetTally.VoteCounting
         /// The overall collection of voters and supporters.
         /// </summary>
         public VoteStorage VoteStorage { get; } = [];
-        /// <summary>
-        /// The list of posts that reference future posts, preventing immediate tallying.
-        /// </summary>
-        public HashSet<Post> FutureReferences { get; } = [];
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
@@ -80,7 +81,6 @@ namespace NetTally.VoteCounting
             VoteStorage.Clear();
             ReferenceOrigins.Clear();
             ReferencePlans.Clear();
-            FutureReferences.Clear();
             UndoBuffer.Clear();
 
             VoteDefinedTasks.Clear();
