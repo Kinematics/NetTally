@@ -34,7 +34,6 @@ namespace NetTally
             services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
             services.AddSingleton<Tallyer>();
-            services.AddTransient<IVoteCounter, VoteCounter>();
             services.AddTransient<IVoteCounter, VoteCounter2>();
             services.AddTransient<IPageProvider, WebPageProvider>();
             services.AddTransient<ForumReader>();

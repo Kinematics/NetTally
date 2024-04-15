@@ -14,7 +14,7 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger) : IVoteCounter
+    public class VoteCounter(IGlobalOptions globalOptions, ILogger<VoteCounter> logger)
     {
         readonly ILogger<VoteCounter> logger = logger;
         readonly IGlobalOptions globalOptions = globalOptions;
@@ -688,13 +688,13 @@ namespace NetTally.VoteCounting
 
             UserMerges.RemoveLastMergeRecord(Quest.PartitionMode, undoAction.ActionType);
 
-            if (undoAction.Undo(this))
-            {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
-                OnPropertyChanged(nameof(HasUndoActions));
-                return true;
-            }
+            //if (undoAction.Undo(this))
+            //{
+            //    OnPropertyChanged("Votes");
+            //    OnPropertyChanged("Voters");
+            //    OnPropertyChanged(nameof(HasUndoActions));
+            //    return true;
+            //}
 
             return false;
         }
