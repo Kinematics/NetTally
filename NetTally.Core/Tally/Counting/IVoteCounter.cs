@@ -66,7 +66,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Request that the currently stored posts be cleared.
         /// </summary>
-        void ClearPosts();
+        void ResetPosts();
 
         /// <summary>
         /// Store a plan's information to allow it to be looked up by plan name or post ID.

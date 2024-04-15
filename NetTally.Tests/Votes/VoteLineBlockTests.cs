@@ -35,7 +35,7 @@ namespace NetTally.Tests.Votes
             quest = new Quest();
 
             voteCounter.Reset();
-            voteCounter.ClearPosts();
+            voteCounter.ResetPosts();
         }
         #endregion Setup
 

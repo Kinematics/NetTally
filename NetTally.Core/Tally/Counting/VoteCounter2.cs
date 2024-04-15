@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Collections;
-using NetTally.Extensions;
 using NetTally.Global;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
@@ -28,33 +27,34 @@ namespace NetTally.VoteCounting
         private readonly ILogger<VoteCounter2> logger = logger;
 
         #region Data Collections
-        // Public
+        readonly List<Post> postsList = [];
 
-        /// <summary>
-        /// The overall collection of voters and supporters.
-        /// </summary>
-        public VoteStorage VoteStorage { get; } = [];
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
         public IReadOnlyList<Post> Posts => postsList;
 
-        public bool HasPosts => postsList.Count > 0;
-
-        public bool HasVotes => VoteStorage.Count > 0;
-
-        // Private
-
-        readonly List<Post> postsList = [];
-
-        Stack<UndoAction> UndoBuffer { get; } = new();
-        MergeRecords UserMerges { get; } = new();
+        /// <summary>
+        /// The overall collection of voters and supporters.
+        /// </summary>
+        public VoteStorage VoteStorage { get; } = [];
 
         VoterStorage ReferencePlans { get; } = [];
+
         HashSet<Origin> ReferenceOrigins { get; } = [];
+
+        Stack<UndoAction> UndoBuffer { get; } = new();
+
+        MergeRecords UserMerges { get; } = new();
         #endregion
 
-        #region General Tally Properties
+        #region State
+        public bool HasPosts => postsList.Count > 0;
+        public bool HasVotes => VoteStorage.Count > 0;
+        public bool HasUndoActions => UndoBuffer.Count > 0;
+        #endregion State
+
+        #region Quest Information
         /// <summary>
         /// The quest the vote counter is set to track.
         /// </summary>
@@ -65,12 +65,7 @@ namespace NetTally.VoteCounting
         /// The titles of the quest threads that have been tallied.
         /// </summary>
         public List<string> Titles { get; } = [];
-
-        /// <summary>
-        /// Check whether there are any stored undo actions.
-        /// </summary>
-        public bool HasUndoActions => UndoBuffer.Count > 0;
-        #endregion
+        #endregion Quest Information
 
         #region Reset various storage
         /// <summary>
@@ -86,9 +81,6 @@ namespace NetTally.VoteCounting
             VoteDefinedTasks.Clear();
             OrderedVoteTaskList.Clear();
             TaskList.Clear();
-
-            OnPropertyChanged("VoteCounter");
-            OnPropertyChanged("Tasks");
 
             logger.LogDebug("Vote counter was reset.");
         }
@@ -113,17 +105,15 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// Set the quest thread titles.
+        /// Request that the currently stored posts be cleared.
         /// </summary>
-        /// <param name="titles">A list of titles to use.</param>
-        public void SetThreadTitles(IEnumerable<string> titles)
+        public void ResetPosts()
         {
-            Titles.Clear();
-            Titles.AddRange(titles);
+            postsList.Clear();
         }
-        #endregion
+        #endregion Reset various storage
 
-        #region Handling Posts
+        #region Load posts and titles
         /// <summary>
         /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
         /// </summary>
@@ -137,13 +127,17 @@ namespace NetTally.VoteCounting
         }
 
         /// <summary>
-        /// Request that the currently stored posts be cleared.
+        /// Set the quest thread titles.
         /// </summary>
-        public void ClearPosts()
+        /// <param name="titles">A list of titles to use.</param>
+        public void SetThreadTitles(IEnumerable<string> titles)
         {
-            postsList.Clear();
+            ArgumentNullException.ThrowIfNull(titles);
+
+            Titles.Clear();
+            Titles.AddRange(titles);
         }
-        #endregion
+        #endregion Load posts and titles
 
         #region Plan and Voter References
         /// <summary>
@@ -301,10 +295,27 @@ namespace NetTally.VoteCounting
             {
                 return postsList.Where(p => author == p.Origin &&
                                             (maxPostId == 0 || p.Origin.ID < maxPostId))
-                                .MaxObject(p => p.Origin.ID);
+                                .MaxBy(p => p.Origin.ID);
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines whether the author of the provided post has made a newer vote submission.
+        /// </summary>
+        /// <param name="post">The post being checked.</param>
+        /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
+        public bool HasNewerVote(Post post)
+        {
+            if (!HasVoter(post.Origin.Author.Name))
+                return false;
+
+            return Posts.Any(p =>
+                               p.Processed
+                            && p.Origin.ID > post.Origin.ID
+                            && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
+                            );
         }
 
         /// <summary>
@@ -351,25 +362,6 @@ namespace NetTally.VoteCounting
         /// <param name="vote">The vote to check on.</param>
         /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
         public IEnumerable<Origin> GetVotersFor(VoteLineBlock vote) => VoteStorage.GetVotersFor(vote);
-        #endregion
-
-        #region Query if counter Has ...
-        /// <summary>
-        /// Determines whether the author of the provided post has made a newer vote submission.
-        /// </summary>
-        /// <param name="post">The post being checked.</param>
-        /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
-        public bool HasNewerVote(Post post)
-        {
-            if (!HasVoter(post.Origin.Author.Name))
-                return false;
-
-            return Posts.Any(p =>
-                               p.Processed
-                            && p.Origin.ID > post.Origin.ID
-                            && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
-                            );
-        }
         #endregion
 
         #region Adding / Modifying / Deleting Votes
@@ -616,8 +608,6 @@ namespace NetTally.VoteCounting
 
             if (removed)
             {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
                 OnPropertyChanged(nameof(HasUndoActions));
             }
             else
@@ -643,8 +633,6 @@ namespace NetTally.VoteCounting
 
             if (undoAction.Undo(this))
             {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
                 OnPropertyChanged(nameof(HasUndoActions));
                 return true;
             }
