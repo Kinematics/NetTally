@@ -262,8 +262,10 @@ namespace NetTally.ViewModels
                     SelectedToVote is not null &&
                     SelectedFromVote != SelectedToVote)
             {
-                quest.VoteCounter.Merge(SelectedFromVote, SelectedToVote);
-                AllVotesCollection.Remove(SelectedFromVote);
+                if (quest.VoteCounter.Merge(SelectedFromVote, SelectedToVote))
+                {
+                    AllVotesCollection.Remove(SelectedFromVote);
+                }
             }
         }
 
@@ -279,9 +281,11 @@ namespace NetTally.ViewModels
             if (VotersFrom.Count > 0 &&
                 SelectedToVoter is not null)
             {
-                quest.VoteCounter.Join([.. VotersFrom], SelectedToVoter);
-                UpdateVotesCollection();
-                UpdateVotersCollection();
+                if (quest.VoteCounter.Join([.. VotersFrom], SelectedToVoter))
+                {
+                    UpdateVotesCollection();
+                    UpdateVotersCollection();
+                }
             }
         }
 
@@ -299,8 +303,10 @@ namespace NetTally.ViewModels
                 SelectedToVote is not null &&
                 SelectedFromVote == SelectedToVote)
             {
-                quest.VoteCounter.Delete(SelectedFromVote);
-                AllVotesCollection.Remove(SelectedFromVote);
+                if (quest.VoteCounter.Delete(SelectedFromVote))
+                {
+                    AllVotesCollection.Remove(SelectedFromVote);
+                }
             }
         }
 
@@ -312,9 +318,11 @@ namespace NetTally.ViewModels
         [RelayCommand(CanExecute = nameof(CanUndo))]
         private void Undo()
         {
-            quest.VoteCounter.Undo();
-            UpdateVotesCollection();
-            UpdateVotersCollection();
+            if (quest.VoteCounter.Undo())
+            {
+                UpdateVotesCollection();
+                UpdateVotersCollection();
+            }
         }
 
         [RelayCommand]
@@ -327,15 +335,5 @@ namespace NetTally.ViewModels
             }
         }
         #endregion Commands
-
-        //[ObservableProperty]
-        //[NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        //[Obsolete]
-        //private List<Origin> fromVoters = [];
-
-        //[ObservableProperty]
-        //[NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        //[Obsolete]
-        //private Origin? toVoter;
     }
 }
