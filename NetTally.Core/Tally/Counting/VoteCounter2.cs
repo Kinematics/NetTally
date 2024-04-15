@@ -130,9 +130,10 @@ namespace NetTally.VoteCounting
         /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
         public void AddPosts(IEnumerable<Post> posts)
         {
+            ArgumentNullException.ThrowIfNull(posts);
+
             postsList.Clear();
-            if (posts != null)
-                postsList.AddRange(posts);
+            postsList.AddRange(posts);
         }
 
         /// <summary>
