@@ -14,7 +14,7 @@ namespace NetTally.VoteCounting.RankVotes
     /// </summary>
     public class Baldwin : InstantRunoffBase
     {
-        protected override bool leastPreferredChecksFullVotes { get; } = true;
+        protected override bool LeastPreferredChecksFullVotes { get; } = true;
 
         /// <summary>
         /// Gets the least preferred choice.

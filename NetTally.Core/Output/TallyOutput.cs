@@ -32,8 +32,6 @@ namespace NetTally.Output
         IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
         #region Constructor and private fields
-        const string CancelledString = "Cancelled!";
-
         private readonly GlobalSettings globalSettings = globalSettings.Value;
         private readonly RankVoteCounterFactory rankVoteCounterFactory = rankVoteCounterFactory;
         private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
@@ -75,38 +73,6 @@ namespace NetTally.Output
         /// General construction.  Add the header and any vote output.
         /// Surround by spoiler tags if requested by the display mode.
         /// </summary>
-        /// <param name="token">Cancellation token so that processing can be cancelled.</param>
-        private void BuildGlobal(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var voteGroupings = GetVoteGroupings();
-
-            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || globalSettings.GlobalSpoilers))
-            {
-                AddHeader(token);
-
-                ConstructOutput(voteGroupings[MarkerType.Rank], MarkerType.Rank, token);
-                if (voteGroupings[MarkerType.Rank].Count > 0)
-                {
-                    AddDoubleLineBreak();
-                }
-                ConstructOutput(voteGroupings[MarkerType.Score], MarkerType.Score, token);
-                if (voteGroupings[MarkerType.Score].Count > 0)
-                {
-                    AddDoubleLineBreak();
-                }
-                ConstructOutput(voteGroupings[MarkerType.Approval], MarkerType.Approval, token);
-                if (voteGroupings[MarkerType.Approval].Count > 0)
-                {
-                    AddDoubleLineBreak();
-                }
-                ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote, token);
-
-                AddTotalVoters();
-            }
-        }
-
         private void BuildGlobal()
         {
             var voteGroupings = GetVoteGroupings();
@@ -185,13 +151,6 @@ namespace NetTally.Output
         /// Add the header indicating the title of the thread that was tallied,
         /// and the marker that this is a tally result (along with the program version number).
         /// </summary>
-        private void AddHeader(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            AddHeader();
-        }
-
         private void AddHeader()
         {
             sb.Append("[b]Vote Tally");
@@ -254,78 +213,6 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
-        /// <param name="token">Cancellation token.</param>
-        private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
-        {
-            if (votes.Count == 0)
-            {
-                return;
-            }
-
-
-            var groupByTask = GetVotesGroupedByTask(votes);
-
-            bool firstTask = true;
-
-            foreach (var task in groupByTask)
-            {
-                token.ThrowIfCancellationRequested();
-
-                if (task.Any())
-                {
-                    if (!firstTask)
-                    {
-                        AddLineBreak();
-                    }
-
-                    firstTask = false;
-
-                    AddTaskLabel(task.Key);
-
-                    IEnumerable<CompactVote> compactTask = [];
-
-                    if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                        compactTask = CompactVote.GetCompactVotes(task);
-
-                    switch (marker)
-                    {
-                        case MarkerType.Vote:
-                            ConstructNormalOutput(task, compactTask);
-                            break;
-                        case MarkerType.Score:
-                            ConstructScoredOutput(task, compactTask);
-                            break;
-                        case MarkerType.Approval:
-                            ConstructApprovedOutput(task, compactTask);
-                            break;
-                        case MarkerType.Rank:
-                            var allVoters = GetAllVotersInTask(task);
-                            ConstructRankedOutput(task, compactTask, allVoters);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(marker), $"Unknown marker type: {marker}");
-                    }
-
-                    sb.AppendLine();
-                }
-            }
-
-            /// <summary>
-            /// Function to wrap the logic of grouping votes by task.
-            /// </summary>
-            /// <param name="votes">The original vote set.</param>
-            /// <returns>Returns the votes grouped by task.</returns>
-            IEnumerable<VotesGroupedByTask>
-                GetVotesGroupedByTask(VoteStorage votes)
-            {
-                var groupByTask = votes.GroupBy(a => a.Key.Task, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Key);
-
-                groupByTask = groupByTask.OrderBy(v => voteCounter.TaskList.IndexOf(v.Key));
-
-                return groupByTask;
-            }
-        }
-
         private void ConstructOutput(VoteStorage votes, MarkerType marker)
         {
             if (votes.Count == 0)

@@ -16,7 +16,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
     /// </summary>
     public class InstantRunoffBase : IRankVoteCounter2
     {
-        protected virtual bool leastPreferredChecksFullVotes { get; } = false;
+        protected virtual bool LeastPreferredChecksFullVotes { get; } = false;
 
         /// <summary>
         /// Rank the votes provided, returning a list of each vote's
@@ -80,7 +80,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
                 VoteLineBlock leastPreferredChoice;
 
                 // If not, eliminate the least preferred option and try again.
-                if (leastPreferredChecksFullVotes)
+                if (LeastPreferredChecksFullVotes)
                 {
                     leastPreferredChoice = GetLeastPreferredChoice(workingVotes);
                 }
