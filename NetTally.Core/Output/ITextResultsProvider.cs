@@ -11,9 +11,7 @@ namespace NetTally.Output
         /// Public function to generate the full output for the tally.
         /// </summary>
         /// <param name="quest">The quest to generate a tally output for.</param>
-        /// <param name="token">Cancellation token so that processing can be cancelled.</param>
         /// <returns>Returns the full string to be displayed.</returns>
-        Task<string> BuildOutputAsync(Quest quest, CancellationToken token);
         string BuildOutput(Quest quest);
     }
 }

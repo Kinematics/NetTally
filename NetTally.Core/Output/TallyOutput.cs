@@ -32,7 +32,7 @@ namespace NetTally.Output
         IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
         #region Constructor and private fields
-        const string cancelled = "Cancelled!";
+        const string CancelledString = "Cancelled!";
 
         private readonly GlobalSettings globalSettings = globalSettings.Value;
         private readonly RankVoteCounterFactory rankVoteCounterFactory = rankVoteCounterFactory;
@@ -47,40 +47,10 @@ namespace NetTally.Output
 
         #region Public ITextResultsProvider functions
         /// <summary>
-        /// Public function to initiate generating output for the information
-        /// in the current Vote Counter.
+        /// Public function to generate output for the VoteCounter results.
         /// </summary>
-        /// <param name="displayMode"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public async Task<string> BuildOutputAsync(Quest quest, CancellationToken token)
-        {
-            this.quest = quest;
-            voteCounter = quest.VoteCounter;
-            displayMode = quest.DisplayMode;
-
-            var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
-            LineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
-
-            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
-
-            if (voteCounter.TallyWasCanceled)
-                return cancelled;
-
-            sb.Clear();
-
-            try
-            {
-                await Task.Run(() => BuildGlobal(token), token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                return cancelled;
-            }
-
-            return sb.ToString();
-        }
-
+        /// <param name="quest">The quest we're building the output for.</param>
+        /// <returns>The full quest tally results string.</returns>
         public string BuildOutput(Quest quest)
         {
             this.quest = quest;
@@ -93,7 +63,7 @@ namespace NetTally.Output
             rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
             if (voteCounter.TallyWasCanceled)
-                return cancelled;
+                return CancelledString;
 
             sb.Clear();
 
