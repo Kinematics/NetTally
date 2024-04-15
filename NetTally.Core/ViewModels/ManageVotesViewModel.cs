@@ -312,7 +312,7 @@ namespace NetTally.ViewModels
 
         private bool CanUndo()
         {
-            return quest.VoteCounter.HasUndoActions;
+            return HasUndoActions;
         }
 
         [RelayCommand(CanExecute = nameof(CanUndo))]
