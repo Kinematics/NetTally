@@ -32,10 +32,8 @@ namespace NetTally.Extensions
         /// <returns>Returns the object that has the lowest 'value'.</returns>
         public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-            if (transform == null)
-                throw new ArgumentNullException(nameof(transform));
+            ArgumentNullException.ThrowIfNull(self);
+            ArgumentNullException.ThrowIfNull(transform);
 
             T min = default;
             U _min = default;
@@ -83,10 +81,8 @@ namespace NetTally.Extensions
         /// <returns>Returns the object that has the lowest 'value'.</returns>
         public static U MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold, IComparer<U> comparer) where U : IComparable<U>
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-            if (transform == null)
-                throw new ArgumentNullException(nameof(transform));
+            ArgumentNullException.ThrowIfNull(self);
+            ArgumentNullException.ThrowIfNull(transform);
             if (!self.Any())
                 throw new ArgumentException("Empty list");
 
@@ -142,10 +138,8 @@ namespace NetTally.Extensions
         /// <returns>Returns the object that has the highest 'value'.</returns>
         public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-            if (transform == null)
-                throw new ArgumentNullException(nameof(transform));
+            ArgumentNullException.ThrowIfNull(self);
+            ArgumentNullException.ThrowIfNull(transform);
 
             T max = default;
             U _max = default;
@@ -209,13 +203,11 @@ namespace NetTally.Extensions
         /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
         public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-            if (transform == null)
-                throw new ArgumentNullException(nameof(transform));
+            ArgumentNullException.ThrowIfNull(self);
+            ArgumentNullException.ThrowIfNull(transform);
 
 
-            List<T> result = new List<T>();
+            List<T> result = [];
             U min = default;
             bool first = true;
 
@@ -284,13 +276,11 @@ namespace NetTally.Extensions
         /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
         public static IEnumerable<T> WithMax<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
         {
-            if (self == null)
-                throw new ArgumentNullException(nameof(self));
-            if (transform == null)
-                throw new ArgumentNullException(nameof(transform));
+            ArgumentNullException.ThrowIfNull(self);
+            ArgumentNullException.ThrowIfNull(transform);
 
 
-            List<T> result = new List<T>();
+            List<T> result = [];
             U max = default;
             bool first = true;
 
@@ -345,13 +335,11 @@ namespace NetTally.Extensions
         public static IEnumerable<U> TraverseList<T, U>(this IEnumerable<T> items,
             Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Func<U, bool> filter)
         {
-            if (childSelector == null)
-                throw new ArgumentNullException(nameof(childSelector));
-            if (nodeSelector == null)
-                throw new ArgumentNullException(nameof(nodeSelector));
+            ArgumentNullException.ThrowIfNull(childSelector);
+            ArgumentNullException.ThrowIfNull(nodeSelector);
 
             var list = new LinkedList<T>(items);
-            while (list.Any())
+            while (list.Count != 0)
             {
                 var next = list.First();
                 list.RemoveFirst();
