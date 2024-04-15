@@ -16,19 +16,16 @@ namespace NetTally.ViewModels
 {
     public partial class ManageVotesViewModel : ObservableObject
     {
-        private readonly VoteConstructor voteConstructor;
         private readonly ILogger<ManageVotesViewModel> logger;
         private readonly Quest quest;
 
         public ManageVotesViewModel(
             IQuestsInfo questsInfo,
-            VoteConstructor voteConstructor,
             ILogger<ManageVotesViewModel> logger)
         {
             ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
 
             quest = questsInfo.SelectedQuest;
-            this.voteConstructor = voteConstructor;
             this.logger = logger;
 
             UpdateVotesCollection();
