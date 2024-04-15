@@ -91,12 +91,6 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
         bool AddReferenceVoter(Origin voter);
-        /// <summary>
-        /// Add a post to a store of future references made.
-        /// </summary>
-        /// <param name="post">The post to store.</param>
-        /// <returns>Returns true if the post was added, or false if it already exists.</returns>
-        bool AddFutureReference(Post post);
 
         /// <summary>
         /// Get canonical version of the provided plan name.

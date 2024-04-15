@@ -204,16 +204,6 @@ namespace NetTally.VoteCounting
         {
             return ReferenceOrigins.Add(voter);
         }
-
-        /// <summary>
-        /// Add a post to a store of future references made.
-        /// </summary>
-        /// <param name="post">The post to store.</param>
-        /// <returns>Returns true if the post was added, or false if it already exists.</returns>
-        public bool AddFutureReference(Post post)
-        {
-            return FutureReferences.Add(post);
-        }
         #endregion
 
         #region Get Reference Data using strings
