@@ -416,8 +416,6 @@ namespace NetTally.VoteCounting
 
             if (merged)
             {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
                 OnPropertyChanged(nameof(HasUndoActions));
             }
             else
@@ -500,8 +498,6 @@ namespace NetTally.VoteCounting
 
             if (merged)
             {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
                 OnPropertyChanged(nameof(HasUndoActions));
             }
             else
@@ -553,8 +549,6 @@ namespace NetTally.VoteCounting
 
             if (joined)
             {
-                OnPropertyChanged("Votes");
-                OnPropertyChanged("Voters");
                 OnPropertyChanged(nameof(HasUndoActions));
             }
             else
