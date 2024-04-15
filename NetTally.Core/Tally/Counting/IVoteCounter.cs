@@ -26,10 +26,6 @@ namespace NetTally.VoteCounting
         void SetThreadTitles(IEnumerable<string> titles);
 
         /// <summary>
-        /// Track whether the vote counter is currently being used for a tally operation.
-        /// </summary>
-        bool VoteCounterIsTallying { get; set; }
-        /// <summary>
         /// Track whether a tally was cancelled.
         /// </summary>
         bool TallyWasCanceled { get; set; }

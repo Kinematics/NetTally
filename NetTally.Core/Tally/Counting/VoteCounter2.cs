@@ -15,7 +15,8 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    public class VoteCounter2(IOptions<GlobalSettings> globalOptions,
+    public class VoteCounter2(
+        IOptions<GlobalSettings> globalOptions,
         ILogger<VoteCounter2> logger) : IVoteCounter
     {
         private readonly GlobalSettings globalSettings = globalOptions.Value;
@@ -66,24 +67,6 @@ namespace NetTally.VoteCounting
         /// The titles of the quest threads that have been tallied.
         /// </summary>
         public List<string> Titles { get; } = [];
-
-        /// <summary>
-        /// Flag whether the tally is currently running.
-        /// </summary>
-        public bool VoteCounterIsTallying
-        {
-            get { return voteCounterIsTallying; }
-            set
-            {
-                if (voteCounterIsTallying != value)
-                {
-                    voteCounterIsTallying = value;
-                    OnPropertyChanged("Votes");
-                    OnPropertyChanged("Voters");
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         /// <summary>
         /// Track whether a tally was cancelled.
