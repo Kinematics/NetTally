@@ -15,18 +15,18 @@ namespace NetTally.Input.Utility
     public partial class Filter
     {
         #region Class Fields
-        public static readonly Filter Empty = new(emptyRegex);
+        public static readonly Filter Empty = new(EmptyRegex());
         public static readonly Filter DefaultThreadmarkFilter =
             new(StringData.OmakeFilter, injectString: null);
 
         readonly Regex filterRegex;
-        static readonly Regex emptyRegex = EmptyRegex();
-        static readonly Regex escapeChars = EscapeCharsRegex();
-        static readonly Regex splat = SplatRegex();
-        static readonly Regex preWord = PreWordRegex();
-        static readonly Regex postWord = PostWordRegex();
-        static readonly Regex jsRegex = JsRegex();
-        static readonly Regex alwaysFalse = AlwaysFalseRegex();
+        readonly Regex emptyRegex = EmptyRegex();
+        readonly Regex escapeChars = EscapeCharsRegex();
+        readonly Regex splat = SplatRegex();
+        readonly Regex preWord = PreWordRegex();
+        readonly Regex postWord = PostWordRegex();
+        readonly Regex jsRegex = JsRegex();
+        readonly Regex alwaysFalse = AlwaysFalseRegex();
 
         private static readonly char[] commaSeparator = [','];
         #endregion
@@ -135,7 +135,7 @@ namespace NetTally.Input.Utility
         /// <param name="jsRegexString">The regex portion of the string, if found.</param>
         /// <returns>Returns true (and sets jsRegexString to the regex contents) if it determined
         /// that the provided string was formatted as a javascript regex. Otherwise false and null.</returns>
-        private static bool IsJSRegex(string filterString, out string? jsRegexString)
+        private bool IsJSRegex(string filterString, out string? jsRegexString)
         {
             jsRegexString = null;
 
