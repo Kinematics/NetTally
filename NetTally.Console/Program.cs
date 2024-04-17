@@ -6,6 +6,7 @@ using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
+using NetTally.Data;
 using NetTally.ViewModels;
 
 namespace NetTally.CLI
@@ -36,6 +37,7 @@ namespace NetTally.CLI
 
             // Build the IServiceProvider and set our reference to it
             serviceProvider = serviceCollection.BuildServiceProvider();
+            CoreApp.ServiceProvider = serviceProvider;
 
             // Get a logger for debugging.
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();

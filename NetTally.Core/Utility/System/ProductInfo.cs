@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NetTally.Data;
+using NetTally.Input.Utility;
 
 namespace NetTally.SystemInfo
 {
@@ -76,7 +80,9 @@ namespace NetTally.SystemInfo
             }
             catch (Exception e)
             {
-                Logger2.LogError(e, "Attempt to define the name and version of the program failed.");
+                var loggerFactory = CoreApp.ServiceProvider?.GetRequiredService<ILoggerFactory>();
+                var logger = loggerFactory?.CreateLogger<Filter>();
+                logger?.LogError(e, "Attempt to define the name and version of the program failed.");
             }
         }
     }

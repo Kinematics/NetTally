@@ -30,6 +30,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
 using NetTally.Collections;
+using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
 using NetTally.Navigation;
@@ -57,6 +58,7 @@ namespace NetTally
 
             // Create host.
             host = CreateHost();
+            CoreApp.ServiceProvider = host.Services;
 
             // Create logger for the app.
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
