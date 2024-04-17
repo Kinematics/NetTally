@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NetTally.Data;
 using NetTally.VoteCounting;
 
 namespace NetTally.Global
@@ -108,7 +109,7 @@ namespace NetTally.Global
         /// <returns>Returns a new quest.</returns>
         public Quest CreateQuest()
         {
-            if (Quests.FirstOrDefault(q => q.ThreadName == Quest.NewThreadEntry) is not Quest quest)
+            if (Quests.FirstOrDefault(q => q.ThreadName == StringData.NewThreadEntry) is not Quest quest)
             {
                 quest = new Quest
                 {

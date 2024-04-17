@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Data;
 using NetTally.Global;
 using NetTally.Types.Enums;
 using NetTally.Utility;
@@ -296,7 +297,7 @@ namespace NetTally.ViewModels
             if (string.IsNullOrWhiteSpace(url))
                 return;
 
-            if (ThreadName != Quest.NewThreadEntry)
+            if (ThreadName != StringData.NewThreadEntry)
                 return;
 
             if (Uri.IsWellFormedUriString(url, UriKind.Absolute))

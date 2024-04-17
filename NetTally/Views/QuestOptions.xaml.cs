@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
+using NetTally.Data;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
@@ -35,7 +36,7 @@ namespace NetTally.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (questOptionsViewModel.ThreadName == Quest.NewThreadEntry)
+            if (questOptionsViewModel.ThreadName == StringData.NewThreadEntry)
             {
                 QuestUrlBox.Focus();
             }

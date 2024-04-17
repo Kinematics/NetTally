@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
+using NetTally.Data;
 using NetTally.Input.Utility;
 using NetTally.Types.Enums;
 using NetTally.Utility;
@@ -40,10 +41,7 @@ namespace NetTally
         #endregion Vote Counter
 
         #region Static class data
-        public const string OmakeFilter = @"\bomake\b";
-        public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
-        public const string NewThreadDisplayName = "~Placeholder~";
-        public static readonly Uri InvalidThreadUri = new(NewThreadEntry);
+        public static readonly Uri InvalidThreadUri = new(StringData.NewThreadEntry);
 
         [GeneratedRegex("(?<range>(?<r1>\\d+)\\s*-\\s*(?<r2>\\d+))|(?<num>\\d+)", RegexOptions.None, 50)]
         private static partial Regex postFilterRegex();
@@ -53,7 +51,7 @@ namespace NetTally
         public Guid QuestId { get; init; } = Guid.NewGuid();
 
         [ObservableProperty]
-        string threadName = NewThreadEntry;
+        string threadName = StringData.NewThreadEntry;
 
         partial void OnThreadNameChanged(string? oldValue, string newValue)
         {
@@ -73,7 +71,7 @@ namespace NetTally
 
 
         [ObservableProperty]
-        string displayName = NewThreadDisplayName;
+        string displayName = StringData.NewThreadDisplayName;
 
         /// <summary>
         /// Ensure the display name is not null, nor has unsafe characters.
@@ -161,11 +159,11 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
-        public Filter ThreadmarkFilter { get; private set; } = new Filter("", OmakeFilter);
+        public Filter ThreadmarkFilter { get; private set; } = new Filter("", StringData.OmakeFilter);
 
         partial void OnCustomThreadmarkFiltersChanged(string value)
         {
-            ThreadmarkFilter = new Filter(value, OmakeFilter);
+            ThreadmarkFilter = new Filter(value, StringData.OmakeFilter);
         }
 
         /// <summary>

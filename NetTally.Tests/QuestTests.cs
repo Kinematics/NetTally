@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Data;
 using NetTally.Forums;
 using NetTally.Types.Enums;
 using NetTally.VoteCounting;
@@ -91,9 +92,9 @@ namespace NetTally.Tests.QuestTests
         [TestMethod]
         public void IQuest_Construction_State()
         {
-            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadName);
-            Assert.AreEqual(Quest.NewThreadDisplayName, Quest.DisplayName);
-            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
+            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(StringData.NewThreadDisplayName, Quest.DisplayName);
+            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
 
             Assert.AreEqual(0, Quest.PostsPerPage);
             Assert.AreEqual(1, Quest.StartPost);
@@ -137,7 +138,7 @@ namespace NetTally.Tests.QuestTests
                 Assert.Fail("Unexpected exception caught:\n" + e.Message);
             }
 
-            Assert.AreEqual(Quest.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
             VerifyNoNotification();
         }
 
