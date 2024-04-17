@@ -6,17 +6,19 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Web;
 using NetTally.Types.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace NetTally.Forums
 {
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.
     /// </summary>
-    public class ForumIdentifier(IPageProvider pageProvider)
+    public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier> logger)
     {
         // Keep a record of forum types that have been found, for each host.
         private readonly Dictionary<string, ForumType> forumTypes = [];
         private readonly IPageProvider pageProvider = pageProvider;
+        private readonly ILogger<ForumIdentifier> logger = logger;
 
         /// <summary>
         /// Public function to check for identifiable forums from a provided web page.
@@ -116,7 +118,7 @@ namespace NetTally.Forums
             }
             catch (Exception e)
             {
-                Logger2.LogError(e, "Attempt to query site to determine forum adapter failed.");
+                logger.LogError(e, "Attempt to query site to determine forum adapter failed.");
             }
 
             return page;
