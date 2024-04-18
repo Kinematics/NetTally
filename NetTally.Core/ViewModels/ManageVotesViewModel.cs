@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Comparers;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.Votes;

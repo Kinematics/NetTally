@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NetTally.Forums;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.SystemInfo;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;

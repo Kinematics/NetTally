@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using NetTally.Data;
 using NetTally.VoteCounting;
 
-namespace NetTally.Global
+namespace NetTally.Configure
 {
     /// <summary>
     /// Class to store the list of quests a user has added, as well

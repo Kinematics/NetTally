@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
 using NetTally.Extensions;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Types.Enums;
 
 namespace NetTally.ViewModels

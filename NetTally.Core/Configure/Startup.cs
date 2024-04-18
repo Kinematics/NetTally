@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
 using NetTally.Forums;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;

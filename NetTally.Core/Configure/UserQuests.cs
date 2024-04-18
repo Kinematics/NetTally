@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NetTally.Global
+namespace NetTally.Configure
 {
     public class UserQuests
     {

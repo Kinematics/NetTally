@@ -11,7 +11,7 @@ using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
 using Microsoft.Extensions.Options;
-using NetTally.Global;
+using NetTally.Configure;
 
 namespace NetTally.Forums.ForumAdapters
 {

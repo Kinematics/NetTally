@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Collections;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Votes;

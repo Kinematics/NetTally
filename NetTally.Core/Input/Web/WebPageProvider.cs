@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Cache;
 using NetTally.Extensions;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.SystemInfo;
 using NetTally.Types.Enums;
 

@@ -6,7 +6,7 @@ using NetTally.Forums.ForumAdapters;
 using NetTally.Configure.Legacy;
 using NetTally.Types.Enums;
 using Microsoft.Extensions.Options;
-using NetTally.Global;
+using NetTally.Configure;
 
 namespace NetTally.Forums
 {

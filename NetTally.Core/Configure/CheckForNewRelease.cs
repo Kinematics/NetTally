@@ -11,7 +11,7 @@ using NetTally.SystemInfo;
 using NetTally.Types.Enums;
 using NetTally.Web;
 
-namespace NetTally.Global
+namespace NetTally.Configure
 {
     public partial class CheckForNewRelease : ObservableObject, IDisposable
     {

@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Data;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Types.Enums;
 using NetTally.Utility;
 

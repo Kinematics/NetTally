@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace NetTally.Global
+namespace NetTally.Configure
 {
     /// <summary>
     /// Read-only interface to quest info content.

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Data;
 
 namespace NetTally.Tests

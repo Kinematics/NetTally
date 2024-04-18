@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Avalonia.Config.Xml;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Quests;
 using NetTally.SystemInfo;
 

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Types.Enums;
 
-namespace NetTally.Global
+namespace NetTally.Configure
 {
     public partial class GlobalSettings : ObservableObject
     {

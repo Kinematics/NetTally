@@ -32,7 +32,7 @@ using NetTally.Collections;
 using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.Navigation;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;

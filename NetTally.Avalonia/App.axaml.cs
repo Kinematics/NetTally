@@ -16,7 +16,7 @@ using NetTally.Collections;
 using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
-using NetTally.Global;
+using NetTally.Configure;
 using NetTally.SystemInfo;
 
 namespace NetTally.Avalonia
