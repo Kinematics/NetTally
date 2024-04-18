@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
-using NetTally.Extensions;
 using NetTally.Configure.Legacy;
-using NetTally.Output;
 using NetTally.Types.Enums;
 
 namespace NetTally

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -14,10 +13,10 @@ using Microsoft.Extensions.Logging.Debug;
 using NetTally.Avalonia.Config.Json;
 using NetTally.Avalonia.Config.Xml;
 using NetTally.Collections;
+using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
-using NetTally.Configure.Legacy;
 using NetTally.SystemInfo;
 
 namespace NetTally.Avalonia
