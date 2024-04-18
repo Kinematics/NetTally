@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally;
+using NetTally.Tests;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
@@ -13,6 +15,8 @@ namespace NTTests.Utility
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
+            IServiceProvider serviceProvider = TestStartup.ConfigureServices();
+
             using (new RegionProfiler("warmup"))
             {
                 Assert.AreEqual("resume", "resume".RemoveDiacritics());
