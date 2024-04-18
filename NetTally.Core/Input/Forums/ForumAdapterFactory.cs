@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetTally.Forums.ForumAdapters;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.Types.Enums;
 
 namespace NetTally.Forums

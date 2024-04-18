@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Collections;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 
 namespace NetTally.Avalonia.Config.Xml
 {

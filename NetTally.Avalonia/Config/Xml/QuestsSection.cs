@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.Types.Enums;
 
 namespace NetTally.Avalonia.Config.Xml

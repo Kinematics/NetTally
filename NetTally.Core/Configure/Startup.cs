@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Global;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;

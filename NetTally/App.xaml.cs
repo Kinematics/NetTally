@@ -34,7 +34,7 @@ using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Global;
 using NetTally.Navigation;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
 using NetTally.Views;

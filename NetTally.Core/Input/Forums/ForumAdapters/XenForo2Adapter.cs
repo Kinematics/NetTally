@@ -11,7 +11,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Input.Utility;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;

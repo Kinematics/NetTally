@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
-using NetTally.Output;
-using NetTally.VoteCounting;
 using NetTally.Types.Enums;
 
-namespace NetTally.Options
+namespace NetTally.Configure.Legacy
 {
     public class GlobalOptionsConfig : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
     {

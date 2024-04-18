@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;

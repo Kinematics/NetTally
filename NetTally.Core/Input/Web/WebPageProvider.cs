@@ -9,7 +9,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Cache;
 using NetTally.Extensions;
-using NetTally.Options;
+using NetTally.Configure.Legacy;
 using NetTally.SystemInfo;
 using NetTally.Types.Enums;
 

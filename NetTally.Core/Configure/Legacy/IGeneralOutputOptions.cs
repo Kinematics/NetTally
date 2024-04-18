@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using NetTally.Output;
-using NetTally.VoteCounting;
+﻿using System.ComponentModel;
 using NetTally.Types.Enums;
 
-namespace NetTally.Options
+namespace NetTally.Configure.Legacy
 {
     public interface IGeneralOutputOptions : INotifyPropertyChanged
     {
