@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Extensions;
-using NetTally.Configure.Legacy;
+using NetTally.Global;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
@@ -16,10 +17,10 @@ using NetTally.Web;
 namespace NetTally.Forums.ForumAdapters
 {
     public partial class VBulletin4Adapter(
-        IGeneralInputOptions inputOptions,
+        IOptions<GlobalSettings> options,
         ILogger<VBulletin4Adapter> logger) : IForumAdapter
     {
-        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<VBulletin4Adapter> logger = logger;
 
         #region IForumAdapter2 interface
@@ -198,7 +199,7 @@ namespace NetTally.Forums.ForumAdapters
             }
             catch (Exception e)
             {
-                logger.LogError(e, 
+                logger.LogError(e,
                     "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
                     author, id, number, quest.DisplayName);
             }

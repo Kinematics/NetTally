@@ -7,18 +7,20 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
-using NetTally.Configure.Legacy;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
+using Microsoft.Extensions.Options;
+using NetTally.Global;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public partial class PhpBBAdapter(IGeneralInputOptions inputOptions, ILogger<PhpBBAdapter> logger)
-        : IForumAdapter
+    public partial class PhpBBAdapter(
+        IOptions<GlobalSettings> options,
+        ILogger<PhpBBAdapter> logger) : IForumAdapter
     {
         #region Constructor
-        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<PhpBBAdapter> logger = logger;
         #endregion
 

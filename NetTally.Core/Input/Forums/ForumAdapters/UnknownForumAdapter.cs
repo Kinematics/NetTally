@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
-using NetTally.Configure.Legacy;
+using Microsoft.Extensions.Options;
+using NetTally.Global;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
@@ -13,11 +13,11 @@ using NetTally.Web;
 namespace NetTally.Forums.ForumAdapters
 {
     class UnknownForumAdapter(
-        IGeneralInputOptions inputOptions,
+        IOptions<GlobalSettings> options,
         ILogger<UnknownForumAdapter> logger) : IForumAdapter
     {
         #region Constructor
-        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<UnknownForumAdapter> logger = logger;
         #endregion
 

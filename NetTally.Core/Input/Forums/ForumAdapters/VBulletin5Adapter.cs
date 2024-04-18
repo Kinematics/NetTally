@@ -7,18 +7,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Extensions;
-using NetTally.Configure.Legacy;
+using NetTally.Global;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
 
 namespace NetTally.Forums.ForumAdapters
 {
-    public partial class VBulletin5Adapter(IGeneralInputOptions inputOptions, ILogger<VBulletin5Adapter> logger)
-        : IForumAdapter
+    public partial class VBulletin5Adapter(
+        IOptions<GlobalSettings> options,
+        ILogger<VBulletin5Adapter> logger) : IForumAdapter
     {
-        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<VBulletin5Adapter> logger = logger;
 
         #region IForumAdapter2 interface

@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Extensions;
+using NetTally.Global;
 using NetTally.Input.Utility;
-using NetTally.Configure.Legacy;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
 using NetTally.Web;
@@ -18,10 +19,10 @@ using NetTally.Web;
 namespace NetTally.Forums.ForumAdapters
 {
     public partial class XenForo1Adapter(
-        IGeneralInputOptions inputOptions,
+        IOptions<GlobalSettings> options,
         ILogger<XenForo1Adapter> logger) : IForumAdapter
     {
-        readonly IGeneralInputOptions inputOptions = inputOptions;
+        readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<XenForo1Adapter> logger = logger;
 
         #region Static data
@@ -465,7 +466,7 @@ namespace NetTally.Forums.ForumAdapters
             }
             catch (Exception e)
             {
-                logger.LogError(e, 
+                logger.LogError(e,
                     "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
                     author, id, number, quest.DisplayName);
             }

@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using NetTally.Forums.ForumAdapters;
 using NetTally.Configure.Legacy;
 using NetTally.Types.Enums;
+using Microsoft.Extensions.Options;
+using NetTally.Global;
 
 namespace NetTally.Forums
 {
@@ -12,11 +14,11 @@ namespace NetTally.Forums
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
     public class ForumAdapterFactory(
-        IGeneralInputOptions inputOptions,
+        IOptions<GlobalSettings> options,
         ILoggerFactory loggerFactory,
         ForumIdentifier forumIdentifier) : IDisposable
     {
-        private readonly IGeneralInputOptions inputOptions = inputOptions;
+        private readonly IOptions<GlobalSettings> inputOptions = options;
         private readonly ILoggerFactory loggerFactory = loggerFactory;
         private readonly ForumIdentifier forumIdentifier = forumIdentifier;
         private readonly SemaphoreSlim ss = new(1);
