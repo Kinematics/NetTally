@@ -13,12 +13,12 @@ using NetTally.Web;
 
 namespace NetTally
 {
-    public partial class CheckForNewRelease2 : ObservableObject, IDisposable
+    public partial class CheckForNewRelease : ObservableObject, IDisposable
     {
         const string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
 
         readonly IPageProvider pageProvider;
-        readonly ILogger<CheckForNewRelease2> logger;
+        readonly ILogger<CheckForNewRelease> logger;
 
         readonly Timer timer;
         readonly TimeSpan initialDelay = TimeSpan.FromSeconds(15);
@@ -26,7 +26,7 @@ namespace NetTally
 
         const int frameworkVersion = 2;
 
-        public CheckForNewRelease2(IPageProvider provider, ILogger<CheckForNewRelease2> logger)
+        public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
         {
             pageProvider = provider;
             this.logger = logger;

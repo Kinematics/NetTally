@@ -21,14 +21,14 @@ namespace NetTally.ViewModels
         private readonly IQuestsInfoMod questsInfo;
         private readonly Tallyer tally;
         private readonly ICache<string> pageCache;
-        private readonly CheckForNewRelease2 checkForNewRelease;
+        private readonly CheckForNewRelease checkForNewRelease;
         private readonly ILogger<MainViewModel> logger;
 
         public MainViewModel(
             IQuestsInfoMod questsInfo,
             Tallyer tally,
             ICache<string> cache,
-            CheckForNewRelease2 checkForNewRelease,
+            CheckForNewRelease checkForNewRelease,
             ILogger<MainViewModel> logger)
         {
             this.logger = logger;
