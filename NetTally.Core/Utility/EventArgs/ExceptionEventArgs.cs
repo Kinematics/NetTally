@@ -5,15 +5,9 @@ namespace NetTally.CustomEventArgs
     /// <summary>
     /// Custom EventArgs class to pass an exception, and mark whether it was handled.
     /// </summary>
-    public class ExceptionEventArgs : EventArgs
+    public class ExceptionEventArgs(Exception exception) : EventArgs
     {
-        public Exception Exception { get; }
-        public bool Handled { get; set; }
-
-        public ExceptionEventArgs(Exception exception)
-        {
-            Exception = exception;
-            Handled = false;
-        }
+        public Exception Exception { get; } = exception;
+        public bool Handled { get; set; } = false;
     }
 }

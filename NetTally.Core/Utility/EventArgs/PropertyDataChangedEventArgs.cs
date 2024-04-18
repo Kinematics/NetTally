@@ -9,13 +9,9 @@ namespace NetTally.CustomEventArgs
     /// </summary>
     /// <typeparam name="T">The data type being passed.</typeparam>
     /// <seealso cref="System.ComponentModel.PropertyChangedEventArgs" />
-    public class PropertyDataChangedEventArgs<T> : PropertyChangedEventArgs
+    public class PropertyDataChangedEventArgs<T>(string propertyName, T propertyData)
+        : PropertyChangedEventArgs(propertyName)
     {
-        public T PropertyData { get; }
-
-        public PropertyDataChangedEventArgs(string propertyName, T propertyData) : base(propertyName)
-        {
-            PropertyData = propertyData;
-        }
+        public T PropertyData { get; } = propertyData;
     }
 }

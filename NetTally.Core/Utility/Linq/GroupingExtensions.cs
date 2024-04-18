@@ -43,7 +43,7 @@ namespace NetTally.Extensions
             TKey lastKey = default;
             bool haveKey = false;
 
-            List<TSource> list = new List<TSource>();
+            List<TSource> list = [];
 
             foreach (TSource s in source)
             {
@@ -58,7 +58,7 @@ namespace NetTally.Extensions
                     else
                     {
                         yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
-                        list = new List<TSource> { s };
+                        list = [s];
                         lastKey = k;
                     }
                 }
@@ -97,7 +97,7 @@ namespace NetTally.Extensions
             TKey lastKey = default;
             bool haveKey = false;
 
-            List<TSource> list = new List<TSource>();
+            List<TSource> list = [];
 
             foreach (TSource s in source)
             {
@@ -107,7 +107,7 @@ namespace NetTally.Extensions
                     {
                         yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
                         lastKey = keySelector(s);
-                        list = new List<TSource> { s };
+                        list = [s];
                     }
                     else
                     {
@@ -152,7 +152,7 @@ namespace NetTally.Extensions
             bool haveKey = false;
             TSource lastKeySource = default;
 
-            List<TSource> list = new List<TSource>();
+            List<TSource> list = [];
 
             foreach (TSource s in source)
             {
@@ -165,7 +165,7 @@ namespace NetTally.Extensions
                     else
                     {
                         yield return new GroupOfAdjacent<TSource, TKey>(list, lastKey);
-                        list = new List<TSource> { s };
+                        list = [s];
                         lastKey = keySelector(s);
                         lastKeySource = s;
                     }

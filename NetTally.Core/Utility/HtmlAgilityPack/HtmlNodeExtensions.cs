@@ -10,31 +10,6 @@ namespace NetTally.Extensions
     /// </summary>
     static class HtmlNodeEx
     {
-        static readonly char[] classSeparators = new[] { ' ' };
-        
-        /// <summary>
-        /// Determines whether the specified HTML node has the named class.
-        /// Allows for multiple classes in the class attribute, separated by spaces.
-        /// </summary>
-        /// <param name="node">The HTML node.</param>
-        /// <param name="class">The class name to check for.</param>
-        /// <returns>
-        ///   <c>true</c> if the node has the specified class; otherwise, <c>false</c>.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// node
-        /// or
-        /// class
-        /// </exception>
-        [Obsolete("HAP library has implementation of this function.")]
-        public static bool HasClass(this HtmlNode node, string @class)
-        {
-            if (string.IsNullOrEmpty(@class))
-                throw new ArgumentNullException(nameof(@class));
-
-            return node.GetAttributeValue("class", "").Split(classSeparators, StringSplitOptions.RemoveEmptyEntries).Contains(@class);
-        }
-
         /// <summary>
         /// Get the single HTML node result for searching for a direct child element
         /// that has the specified class attribute.
@@ -74,7 +49,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for. If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetChildWithClass(this HtmlNode node, string @class) => node.GetChildWithClass(null, @class);
+        public static HtmlNode? GetChildWithClass(this HtmlNode node, string @class) =>
+            node.GetChildWithClass(null, @class);
 
         /// <summary>
         /// Gets all HTML child nodes matching an optional element type and specified class.
@@ -114,7 +90,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns a list with all found elements.</returns>
-        public static IEnumerable<HtmlNode> GetChildrenWithClass(this HtmlNode node, string @class) => node.GetChildrenWithClass(null, @class);
+        public static IEnumerable<HtmlNode> GetChildrenWithClass(this HtmlNode node, string @class) =>
+            node.GetChildrenWithClass(null, @class);
 
         /// <summary>
         /// Get the single HTML node result for searching for any descendant element
@@ -155,7 +132,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns the element with the specified class, if found.  Otherwise, null.</returns>
-        public static HtmlNode? GetDescendantWithClass(this HtmlNode node, string @class) => node.GetDescendantWithClass(null, @class);
+        public static HtmlNode? GetDescendantWithClass(this HtmlNode node, string @class) =>
+            node.GetDescendantWithClass(null, @class);
 
         /// <summary>
         /// Gets all descendent nodes matching an optional element type and specified class.
@@ -195,7 +173,8 @@ namespace NetTally.Extensions
         /// <param name="@class">The name of the class to search for.  If this is null or empty,
         /// searches for elements without any classes at all.</param>
         /// <returns>Returns a list with all found elements.</returns>
-        public static IEnumerable<HtmlNode> GetDescendantsWithClass(this HtmlNode node, string @class) => node.GetDescendantsWithClass(null, @class);
+        public static IEnumerable<HtmlNode> GetDescendantsWithClass(this HtmlNode node, string @class) =>
+            node.GetDescendantsWithClass(null, @class);
 
     }
 }

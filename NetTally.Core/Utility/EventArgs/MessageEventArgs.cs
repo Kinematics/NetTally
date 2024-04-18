@@ -5,13 +5,8 @@ namespace NetTally.CustomEventArgs
     /// <summary>
     /// Custom EventArgs class to pass a message string.
     /// </summary>
-    public class MessageEventArgs : EventArgs
+    public class MessageEventArgs(string message) : EventArgs
     {
-        public string Message { get; }
-
-        public MessageEventArgs(string message)
-        {
-            Message = message;
-        }
+        public string Message { get; } = message;
     }
 }
