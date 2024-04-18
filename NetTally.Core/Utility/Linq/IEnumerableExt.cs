@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable disable
-
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -385,7 +383,6 @@ namespace NetTally.Extensions
 
             return ((double)pass / (pass + fail) >= threshold);
         }
-#nullable enable
 
 
         public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)

@@ -23,9 +23,14 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         {
             var lowestRankings = voterPreferences.GroupBy(v => v.Value.Last());
 
-            var leastPreferred = lowestRankings.MaxObject(r => r.Count()).Key;
+            var leastPreferred = lowestRankings.MaxBy(r => r.Count());
 
-            return leastPreferred;
+            if (leastPreferred == null)
+            {
+                return VoteLineBlock.Empty;
+            }
+
+            return leastPreferred.Key;
         }
     }
 }

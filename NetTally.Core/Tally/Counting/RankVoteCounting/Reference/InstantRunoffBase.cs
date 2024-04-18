@@ -7,8 +7,6 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Implement ranking votes using any instant runoff method.
     /// Each round, the least preferred choice is removed, until
@@ -102,11 +100,17 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
         /// <returns>Returns a collection of Choice/Count objects.</returns>
-        private static (VoteLineBlock vote, int count) GetMostPreferredVote(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
+        private static (VoteLineBlock vote, int count) GetMostPreferredVote(
+            VotesByVoter voterPreferences)
         {
             var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
 
-            var mostPreferred = highestRankings.MaxObject(r => r.Count());
+            var mostPreferred = highestRankings.MaxBy(r => r.Count());
+
+            if (mostPreferred == null)
+            {
+                return (VoteLineBlock.Empty, 0);
+            }    
 
             return (mostPreferred.Key, mostPreferred.Count());
         }
@@ -117,7 +121,8 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="voterPreferences">This version takes the voter preferences collection.</param>
         /// <returns>Returns the vote that is least preferred.</returns>
-        protected virtual VoteLineBlock GetLeastPreferredChoice(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
+        protected virtual VoteLineBlock GetLeastPreferredChoice(
+            VotesByVoter voterPreferences)
         {
             throw new NotImplementedException();
         }

@@ -18,13 +18,19 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="localRankings">The vote rankings.</param>
         /// <returns>Returns the vote string for the least preferred vote.</returns>
-        protected override VoteLineBlock GetLeastPreferredChoice(Dictionary<Origin, List<VoteLineBlock>> voterPreferences)
+        protected override VoteLineBlock GetLeastPreferredChoice(
+            VotesByVoter voterPreferences)
         {
             var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
 
-            var leastPreferred = highestRankings.MinObject(r => r.Count()).Key;
+            var leastPreferred = highestRankings.MinBy(r => r.Count());
 
-            return leastPreferred;
+            if (leastPreferred == null)
+            {
+                return VoteLineBlock.Empty;
+            }
+
+            return leastPreferred.Key;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace NetTally
 {
     public static class ConfigPrefs
     {
-        public static bool Strict = false;
+        public static bool Strict { get; set; } = false;
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ namespace NetTally
             }
 
             // If nothing was loaded, just provide default values.
-            quests = new QuestCollection();
+            quests = [];
             currentQuest = null;
         }
         #endregion
