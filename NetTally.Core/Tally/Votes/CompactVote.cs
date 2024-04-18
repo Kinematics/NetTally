@@ -6,10 +6,6 @@ using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
-    // Individual dictionary element from VoteStorage:
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// A compact vote allows multiple votes to be displayed as a collective when
     /// the lines of each vote match up with each other.
