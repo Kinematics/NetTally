@@ -27,7 +27,6 @@ namespace NetTally
             services.AddSingleton<IClock, SystemClock>();
             services.AddSingleton<IHash, NormalHash>();
             services.AddSingleton<IAgnostic, Agnostic>();
-            services.AddSingleton<CheckForNewRelease>();
             services.AddSingleton<CheckForNewRelease2>();
 
             services.AddTransient<HttpClientHandler, HttpClientHandler>();
