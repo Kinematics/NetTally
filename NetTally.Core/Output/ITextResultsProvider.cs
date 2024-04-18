@@ -1,9 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using NetTally.VoteCounting;
-using NetTally.Types.Enums;
-
-namespace NetTally.Output
+﻿namespace NetTally.Output
 {
     public interface ITextResultsProvider
     {
