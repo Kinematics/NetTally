@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
 using NetTally.Forums;
 using NetTally.Global;
-using NetTally.Configure.Legacy;
 using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
@@ -19,10 +18,6 @@ namespace NetTally
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IGlobalOptions>(GlobalOptionsConfig.Instance);
-            services.AddSingleton<IGeneralInputOptions>(GlobalOptionsConfig.Instance);
-            services.AddSingleton<IGeneralOutputOptions>(GlobalOptionsConfig.Instance);
-
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();
             services.AddSingleton<IHash, NormalHash>();
@@ -48,7 +43,7 @@ namespace NetTally
             services.AddTransient<TasksViewModel>();
             services.AddTransient<GlobalOptionsViewModel>();
 
-            
+
             services.AddSingleton<QuestsInfo>();
 
             services.AddSingleton<IQuestsInfo>(x => x.GetRequiredService<QuestsInfo>());
