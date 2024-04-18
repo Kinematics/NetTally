@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Data;
 using NetTally.Input.Utility;
+using NetTally.Quests;
 using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.VoteCounting;
@@ -48,7 +49,7 @@ namespace NetTally
         #endregion
 
         #region Quest Identification
-        public Guid QuestId { get; init; } = Guid.NewGuid();
+        public QuestId QuestId { get; init; } = QuestId.NewQuestId();
 
         [ObservableProperty]
         string threadName = StringData.NewThreadEntry;
@@ -297,7 +298,7 @@ namespace NetTally
         /// A collection of the IDs of any quests that should be tallied together
         /// with this one.
         /// </summary>
-        public ObservableCollection<Guid> LinkedQuestIds = [];
+        public ObservableCollection<QuestId> LinkedQuestIds = [];
 
         /// <summary>
         /// Determine whether this quest is linked to the provided quest.

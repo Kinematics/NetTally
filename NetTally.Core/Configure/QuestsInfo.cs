@@ -113,7 +113,6 @@ namespace NetTally.Configure
             {
                 quest = new Quest
                 {
-                    QuestId = Guid.NewGuid(),
                     VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
                     CheckForLastThreadmark = true
                 };
