@@ -12,7 +12,7 @@ namespace NetTally.Utility.Filtering
     public class RegexFilter : IItemFilter<string>
     {
         protected readonly FilterType filterType;
-        protected readonly List<RegexPattern> patterns = new List<RegexPattern>();
+        protected readonly List<RegexPattern> patterns = [];
 
         /// <summary>
         /// Construct a new regex filter using the provided regex objects.
@@ -33,7 +33,6 @@ namespace NetTally.Utility.Filtering
             this.filterType = filterType;
         }
 
-
         #region Factories used to construct varying types of list filters.
         public static RegexFilter Allow(RegexPattern pattern, params RegexPattern[] patterns)
         {
@@ -42,6 +41,7 @@ namespace NetTally.Utility.Filtering
 
             return new RegexFilter(FilterType.Allow, all);
         }
+
         public static RegexFilter Block(RegexPattern pattern, params RegexPattern[] patterns)
         {
             var all = new List<RegexPattern> { pattern };
@@ -67,8 +67,8 @@ namespace NetTally.Utility.Filtering
             return new RegexFilter(FilterType.Block, all.Select(p => new RegexPattern(p)));
         }
 
-        public static readonly RegexFilter AllowAll = new(FilterType.Block, Enumerable.Empty<RegexPattern>());
-        public static readonly RegexFilter BlockAll = new(FilterType.Allow, Enumerable.Empty<RegexPattern>());
+        public static readonly RegexFilter AllowAll = new(FilterType.Block, []);
+        public static readonly RegexFilter BlockAll = new(FilterType.Allow, []);
         #endregion
 
 
@@ -83,6 +83,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => patterns.Any(a => a.IsMatch(item)),
                 FilterType.Block => !patterns.Any(a => a.IsMatch(item)),
+                FilterType.Unset => true,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }
@@ -93,6 +94,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => !patterns.Any(a => a.IsMatch(item)),
                 FilterType.Block => patterns.Any(a => a.IsMatch(item)),
+                FilterType.Unset => false,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }

@@ -26,7 +26,6 @@ namespace NetTally.Utility.Filtering
         public static readonly PredicateFilter<T> BlockAll = new((a) => true, FilterType.Block);
         #endregion
 
-
         /// <summary>
         /// Determines whether the filter allows the item provided to pass through the filter.
         /// </summary>
@@ -38,6 +37,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => predicate(item),
                 FilterType.Block => !predicate(item),
+                FilterType.Unset => true,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }
@@ -53,6 +53,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => !predicate(item),
                 FilterType.Block => predicate(item),
+                FilterType.Unset => false,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }

@@ -49,7 +49,7 @@ namespace NetTally.Utility.Filtering
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
 
-        private (Regex, bool) CreateRegexFromPattern(string pattern)
+        private static (Regex, bool) CreateRegexFromPattern(string pattern)
         {
             pattern = pattern.RemoveUnsafeCharacters().Trim();
 
