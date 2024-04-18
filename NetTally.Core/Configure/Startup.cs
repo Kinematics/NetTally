@@ -19,9 +19,9 @@ namespace NetTally
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IGlobalOptions>(AdvancedOptions.Instance);
-            services.AddSingleton<IGeneralInputOptions>(AdvancedOptions.Instance);
-            services.AddSingleton<IGeneralOutputOptions>(AdvancedOptions.Instance);
+            services.AddSingleton<IGlobalOptions>(GlobalOptionsConfig.Instance);
+            services.AddSingleton<IGeneralInputOptions>(GlobalOptionsConfig.Instance);
+            services.AddSingleton<IGeneralOutputOptions>(GlobalOptionsConfig.Instance);
 
             services.AddSingleton<ICache<string>, PageCache>();
             services.AddSingleton<IClock, SystemClock>();

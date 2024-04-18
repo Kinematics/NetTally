@@ -10,14 +10,14 @@ using NetTally.Types.Enums;
 
 namespace NetTally.Options
 {
-    public class AdvancedOptions : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
+    public class GlobalOptionsConfig : INotifyPropertyChanged, IGeneralInputOptions, IGeneralOutputOptions, IGlobalOptions
     {
         #region Lazy singleton creation
-        static readonly Lazy<AdvancedOptions> lazy = new(() => new AdvancedOptions());
+        static readonly Lazy<GlobalOptionsConfig> lazy = new(() => new GlobalOptionsConfig());
 
-        public static AdvancedOptions Instance => lazy.Value;
+        public static GlobalOptionsConfig Instance => lazy.Value;
 
-        AdvancedOptions()
+        GlobalOptionsConfig()
         {
         }
         #endregion

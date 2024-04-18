@@ -20,7 +20,7 @@ namespace NetTally.Avalonia.Config.Xml
         public static bool Load(
             [NotNullWhen(true)] out QuestCollection? quests,
             out string? currentQuest,
-            AdvancedOptions? options)
+            GlobalOptionsConfig? options)
         {
             List<Configuration> configs = NetTallyConfigHelper.GetConfigsToLoadFrom();
 
@@ -44,7 +44,7 @@ namespace NetTally.Avalonia.Config.Xml
             List<Configuration> configs,
             out QuestCollection? quests,
             out string? currentQuest,
-            AdvancedOptions? options)
+            GlobalOptionsConfig? options)
         {
             if (configs.Count > 0)
             {

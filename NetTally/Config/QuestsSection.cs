@@ -190,7 +190,7 @@ namespace NetTally
         /// <param name="quests">The collection of saved quests.</param>
         /// <param name="currentQuest">The currently selected quest.</param>
         /// <param name="options">The program configuration options.</param>
-        public void Load(out QuestCollection quests, out string currentQuest, AdvancedOptions? options)
+        public void Load(out QuestCollection quests, out string currentQuest, GlobalOptionsConfig? options)
         {
             currentQuest = CurrentQuest;
             quests = [];
@@ -273,7 +273,7 @@ namespace NetTally
         /// <param name="quests">The collection of saved quests.</param>
         /// <param name="currentQuest">The currently selected quest.</param>
         /// <param name="options">The program configuration options.</param>
-        public void Save(QuestCollection quests, string currentQuest, AdvancedOptions options)
+        public void Save(QuestCollection quests, string currentQuest, GlobalOptionsConfig options)
         {
             ArgumentNullException.ThrowIfNull(quests);
 

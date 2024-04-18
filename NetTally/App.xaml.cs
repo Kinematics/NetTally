@@ -199,17 +199,17 @@ namespace NetTally
         /// <returns>Returns any legacy configuration.</returns>
         private static ConfigInfo LoadLegacyConfig()
         {
-            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, AdvancedOptions.Instance);
+            NetTallyConfig.Load(out QuestCollection quests, out string? currentQuest, GlobalOptionsConfig.Instance);
 
             GlobalSettings gb = new()
             {
-                DisplayMode = AdvancedOptions.Instance.DisplayMode,
-                DisplayPlansWithNoVotes = AdvancedOptions.Instance.DisplayPlansWithNoVotes,
-                DisableWebProxy = AdvancedOptions.Instance.DisableWebProxy,
-                GlobalSpoilers = AdvancedOptions.Instance.GlobalSpoilers,
-                RankVoteCounterMethod = AdvancedOptions.Instance.RankVoteCounterMethod,
-                AllowUsersToUpdatePlans = AdvancedOptions.Instance.AllowUsersToUpdatePlans,
-                TrackPostAuthorsUniquely = AdvancedOptions.Instance.TrackPostAuthorsUniquely
+                DisplayMode = GlobalOptionsConfig.Instance.DisplayMode,
+                DisplayPlansWithNoVotes = GlobalOptionsConfig.Instance.DisplayPlansWithNoVotes,
+                DisableWebProxy = GlobalOptionsConfig.Instance.DisableWebProxy,
+                GlobalSpoilers = GlobalOptionsConfig.Instance.GlobalSpoilers,
+                RankVoteCounterMethod = GlobalOptionsConfig.Instance.RankVoteCounterMethod,
+                AllowUsersToUpdatePlans = GlobalOptionsConfig.Instance.AllowUsersToUpdatePlans,
+                TrackPostAuthorsUniquely = GlobalOptionsConfig.Instance.TrackPostAuthorsUniquely
             };
 
             ConfigInfo config = new([.. quests], currentQuest, gb);
@@ -326,7 +326,7 @@ namespace NetTally
         #region Log Filters
         private static bool FileLoggingFilter(string? category, LogLevel logLevel)
         {
-            if (AdvancedOptions.Instance.DebugMode)
+            if (GlobalOptionsConfig.Instance.DebugMode)
                 return logLevel >= LogLevel.Debug;
 
             return logLevel >= LogLevel.Warning;
@@ -334,7 +334,7 @@ namespace NetTally
 
         private static bool DebugLoggingFilter(string? category, LogLevel logLevel)
         {
-            if (AdvancedOptions.Instance.DebugMode)
+            if (GlobalOptionsConfig.Instance.DebugMode)
                 return true;
 
             return logLevel >= LogLevel.Debug;
