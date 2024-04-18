@@ -168,8 +168,7 @@ namespace NetTally.Tally.Components
 
         #region IEnumerable, IComparable, and IEquatable interface implementations.
 
-#nullable disable
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj switch
             {
@@ -186,22 +185,22 @@ namespace NetTally.Tally.Components
         /// </summary>
         /// <param name="lines">The lines to compare to the current block.</param>
         /// <returns>Returns true if the lines and the vote block match up.</returns>
-        public bool Equals(IEnumerable<VoteLine> lines)
+        public bool Equals(IEnumerable<VoteLine>? lines)
         {
             return Compare(this, lines) == 0;
         }
 
-        public bool Equals(VoteLineBlock other)
+        public bool Equals(VoteLineBlock? other)
         {
             return Compare(this, other) == 0;
         }
 
-        public int CompareTo(VoteLineBlock other)
+        public int CompareTo(VoteLineBlock? other)
         {
             return Compare(this, other);
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             return obj switch
             {
@@ -212,7 +211,7 @@ namespace NetTally.Tally.Components
             };
         }
 
-        public static int Compare(VoteLineBlock left, VoteLineBlock right)
+        public static int Compare(VoteLineBlock? left, VoteLineBlock? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -261,7 +260,7 @@ namespace NetTally.Tally.Components
             return result;
         }
 
-        public static int Compare(VoteLineBlock left, IEnumerable<VoteLine> right)
+        public static int Compare(VoteLineBlock? left, IEnumerable<VoteLine>? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -314,12 +313,12 @@ namespace NetTally.Tally.Components
             return result;
         }
 
-        public static bool operator >(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) == 1;
-        public static bool operator <(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) == -1;
-        public static bool operator >=(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) >= 0;
-        public static bool operator <=(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) <= 0;
-        public static bool operator ==(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) == 0;
-        public static bool operator !=(VoteLineBlock first, VoteLineBlock second) => Compare(first, second) != 0;
+        public static bool operator >(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) == 1;
+        public static bool operator <(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) == -1;
+        public static bool operator >=(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) >= 0;
+        public static bool operator <=(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) <= 0;
+        public static bool operator ==(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) == 0;
+        public static bool operator !=(VoteLineBlock? first, VoteLineBlock? second) => Compare(first, second) != 0;
 
         private int ComputeHash()
         {
@@ -357,7 +356,6 @@ namespace NetTally.Tally.Components
         }
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<VoteLine>)this).GetEnumerator();
-#nullable enable
         #endregion
     }
 }

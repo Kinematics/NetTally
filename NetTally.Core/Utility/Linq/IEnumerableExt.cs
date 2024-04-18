@@ -9,7 +9,6 @@ namespace NetTally.Extensions
     /// </summary>
     static class IEnumerableExt
     {
-#nullable disable
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.
         /// </summary>
@@ -17,7 +16,8 @@ namespace NetTally.Extensions
         /// <param name="self">The list.</param>
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
-        public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> => MinObject(self, transform, null);
+        public static T? MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
+            MinObject(self, transform, null);
 
         /// <summary>
         /// Extension method to get the object with the minimum value from an enumerable list.
@@ -28,13 +28,16 @@ namespace NetTally.Extensions
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is less than another.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
-        public static T MinObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        public static T? MinObject<T, U>(
+            this IEnumerable<T> self,
+            Func<T, U> transform,
+            IComparer<U>? comparer) where U : IComparable<U>
         {
             ArgumentNullException.ThrowIfNull(self);
             ArgumentNullException.ThrowIfNull(transform);
 
-            T min = default;
-            U _min = default;
+            T? min = default;
+            U? _min = default;
             bool first = true;
 
             foreach (T item in self)
@@ -66,7 +69,7 @@ namespace NetTally.Extensions
         }
 
 
-        public static U MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold) where U : IComparable<U> =>
+        public static U? MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold) where U : IComparable<U> =>
             MinAboveThreshold(self, transform, threshold, null);
 
         /// <summary>
@@ -77,14 +80,18 @@ namespace NetTally.Extensions
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is less than another.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
-        public static U MinAboveThreshold<T, U>(this IEnumerable<T> self, Func<T, U> transform, U threshold, IComparer<U> comparer) where U : IComparable<U>
+        public static U? MinAboveThreshold<T, U>(
+            this IEnumerable<T> self,
+            Func<T, U> transform,
+            U threshold,
+            IComparer<U>? comparer) where U : IComparable<U>
         {
             ArgumentNullException.ThrowIfNull(self);
             ArgumentNullException.ThrowIfNull(transform);
             if (!self.Any())
                 throw new ArgumentException("Empty list");
 
-            U _min = default;
+            U? _min = default;
             bool first = true;
             int compareResult;
             int thresholdResult;
@@ -123,7 +130,8 @@ namespace NetTally.Extensions
         /// <param name="self">The list.</param>
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <returns>Returns the object that has the lowest 'value'.</returns>
-        public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> => MaxObject(self, transform, null);
+        public static T? MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
+            MaxObject(self, transform, null);
 
         /// <summary>
         /// Extension method to get the object with the maximum value from an enumerable list.
@@ -134,13 +142,16 @@ namespace NetTally.Extensions
         /// <param name="transform">Transform each T object to a U object for the sake of comparison.</param>
         /// <param name="comparer">Optional comparer object that can determine if one object is greater than another.</param>
         /// <returns>Returns the object that has the highest 'value'.</returns>
-        public static T MaxObject<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        public static T? MaxObject<T, U>(
+            this IEnumerable<T> self,
+            Func<T, U> transform,
+            IComparer<U>? comparer) where U : IComparable<U>
         {
             ArgumentNullException.ThrowIfNull(self);
             ArgumentNullException.ThrowIfNull(transform);
 
-            T max = default;
-            U _max = default;
+            T? max = default;
+            U? _max = default;
             bool first = true;
 
             foreach (T item in self)
@@ -199,14 +210,17 @@ namespace NetTally.Extensions
         /// <param name="self">The enumeration being filtered.</param>
         /// <param name="transform">The transform function.</param>
         /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
-        public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        public static IEnumerable<T> WithMin<T, U>(
+            this IEnumerable<T> self,
+            Func<T, U> transform,
+            IComparer<U>? comparer) where U : IComparable<U>
         {
             ArgumentNullException.ThrowIfNull(self);
             ArgumentNullException.ThrowIfNull(transform);
 
 
             List<T> result = [];
-            U min = default;
+            U min = default!;
             bool first = true;
 
             foreach (T item in self)
@@ -272,14 +286,17 @@ namespace NetTally.Extensions
         /// <param name="self">The enumeration being filtered.</param>
         /// <param name="transform">The transform function.</param>
         /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
-        public static IEnumerable<T> WithMax<T, U>(this IEnumerable<T> self, Func<T, U> transform, IComparer<U> comparer) where U : IComparable<U>
+        public static IEnumerable<T> WithMax<T, U>(
+            this IEnumerable<T> self,
+            Func<T, U> transform,
+            IComparer<U>? comparer) where U : IComparable<U>
         {
             ArgumentNullException.ThrowIfNull(self);
             ArgumentNullException.ThrowIfNull(transform);
 
 
             List<T> result = [];
-            U max = default;
+            U max = default!;
             bool first = true;
 
             foreach (T item in self)
@@ -413,6 +430,5 @@ namespace NetTally.Extensions
 
             return true;
         }
-
     }
 }

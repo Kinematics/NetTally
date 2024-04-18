@@ -232,8 +232,7 @@ namespace NetTally.Votes
 
 
         #region Equality and Comparison
-#nullable disable
-        public static int Compare(CompactVote left, CompactVote right)
+        public static int Compare(CompactVote? left, CompactVote? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -245,10 +244,10 @@ namespace NetTally.Votes
             return left.CurrentLine.CompareTo(right.CurrentLine);
         }
 
-        public int CompareTo(CompactVote other) => Compare(this, other);
-        public int CompareTo(object obj) => Compare(this, obj as CompactVote);
-        public bool Equals(CompactVote other) => Compare(this, other) == 0;
-        public override bool Equals(object obj) => Compare(this, obj as CompactVote) == 0;
+        public int CompareTo(CompactVote? other) => Compare(this, other);
+        public int CompareTo(object? obj) => Compare(this, obj as CompactVote);
+        public bool Equals(CompactVote? other) => Compare(this, other) == 0;
+        public override bool Equals(object? obj) => Compare(this, obj as CompactVote) == 0;
 
         public override int GetHashCode() => base.GetHashCode();
 
@@ -258,7 +257,6 @@ namespace NetTally.Votes
         public static bool operator <=(CompactVote first, CompactVote second) => Compare(first, second) <= 0;
         public static bool operator ==(CompactVote first, CompactVote second) => Compare(first, second) == 0;
         public static bool operator !=(CompactVote first, CompactVote second) => Compare(first, second) != 0;
-#nullable enable
         #endregion Equality and Comparison
     }
 }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable disable
-
 namespace NetTally.Extensions
 {
     /// <summary>
@@ -11,7 +9,6 @@ namespace NetTally.Extensions
     /// </summary>
     static class GroupingExtensions
     {
-
         // Group an enumerable list in various ways, in a single pass of reading the enumerable:
         //
         // 1) Group adjacent elements when the key each element generates is the same as a prior key.
@@ -40,7 +37,7 @@ namespace NetTally.Extensions
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector) where TKey : IEquatable<TKey>
         {
-            TKey lastKey = default;
+            TKey lastKey = default!;
             bool haveKey = false;
 
             List<TSource> list = [];
@@ -94,7 +91,7 @@ namespace NetTally.Extensions
             Func<TSource, TKey> defaultKey,
             Func<TSource, TKey> keySelector)
         {
-            TKey lastKey = default;
+            TKey lastKey = default!;
             bool haveKey = false;
 
             List<TSource> list = [];
@@ -148,9 +145,9 @@ namespace NetTally.Extensions
             Func<TSource, TSource, bool> sourceMatches
             )
         {
-            TKey lastKey = default;
+            TKey lastKey = default!;
             bool haveKey = false;
-            TSource lastKeySource = default;
+            TSource lastKeySource = default!;
 
             List<TSource> list = [];
 

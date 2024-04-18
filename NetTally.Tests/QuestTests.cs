@@ -264,9 +264,7 @@ namespace NetTally.Tests.QuestTests
         public void IQuest_DisplayName_ResetNull()
         {
             Quest.DisplayName = "My Quest";
-#nullable disable
-            Quest.DisplayName = null;
-#nullable enable
+            Quest.DisplayName = null!;
             Assert.AreEqual("", Quest.DisplayName);
             VerifyNotification("DisplayName");
         }

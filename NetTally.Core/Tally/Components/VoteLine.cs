@@ -343,7 +343,6 @@ namespace NetTally.Tally.Components
         #endregion
 
         #region IComparable and IEquatable interface implementations.
-#nullable disable
         /// <summary>
         /// Compare two VoteLines with each other.  
         /// Task and Content are compared agnostically. Prefix depth matters.  Marker does not matter.
@@ -352,7 +351,7 @@ namespace NetTally.Tally.Components
         /// <param name="left">A VoteLine to compare.</param>
         /// <param name="right">A VoteLine to compare.</param>
         /// <returns>Returns how the two vote lines compare to each other.</returns>
-        public static int Compare(VoteLine left, VoteLine right)
+        public static int Compare(VoteLine? left, VoteLine? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -378,22 +377,22 @@ namespace NetTally.Tally.Components
             }
         }
 
-        public int CompareTo(VoteLine other)
+        public int CompareTo(VoteLine? other)
         {
             return Compare(this, other);
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             return Compare(this, obj as VoteLine);
         }
 
-        public bool Equals(VoteLine other)
+        public bool Equals(VoteLine? other)
         {
             return Compare(this, other) == 0;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Compare(this, obj as VoteLine) == 0;
         }
@@ -403,13 +402,12 @@ namespace NetTally.Tally.Components
             return _hash;
         }
 
-        public static bool operator >(VoteLine first, VoteLine second) => Compare(first, second) == 1;
-        public static bool operator <(VoteLine first, VoteLine second) => Compare(first, second) == -1;
-        public static bool operator >=(VoteLine first, VoteLine second) => Compare(first, second) >= 0;
-        public static bool operator <=(VoteLine first, VoteLine second) => Compare(first, second) <= 0;
-        public static bool operator ==(VoteLine first, VoteLine second) => Compare(first, second) == 0;
-        public static bool operator !=(VoteLine first, VoteLine second) => Compare(first, second) != 0;
-#nullable enable
+        public static bool operator >(VoteLine? first, VoteLine? second) => Compare(first, second) == 1;
+        public static bool operator <(VoteLine? first, VoteLine? second) => Compare(first, second) == -1;
+        public static bool operator >=(VoteLine? first, VoteLine? second) => Compare(first, second) >= 0;
+        public static bool operator <=(VoteLine? first, VoteLine? second) => Compare(first, second) <= 0;
+        public static bool operator ==(VoteLine? first, VoteLine? second) => Compare(first, second) == 0;
+        public static bool operator !=(VoteLine? first, VoteLine? second) => Compare(first, second) != 0;
         #endregion
 
 
