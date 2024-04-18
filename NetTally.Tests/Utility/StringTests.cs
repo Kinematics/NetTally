@@ -209,6 +209,7 @@ and then another";
             Assert.AreEqual("and then another", lines[1]);
         }
 
+        [TestMethod]
         public void Split_simple()
         {
             string input =

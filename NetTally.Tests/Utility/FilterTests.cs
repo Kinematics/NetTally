@@ -92,8 +92,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Regex_explicit()
         {
-            Regex r = new Regex(@"stuff|omake");
-            Filter filter = new Filter(r);
+            Regex r = new(@"stuff|omake");
+            Filter filter = new(r);
             Assert.IsFalse(filter.IsEmpty);
             Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.Match(""));
@@ -106,7 +106,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Regex_implicit()
         {
-            Filter filter = new Filter("/stuff|omake/", null);
+            Filter filter = new("/stuff|omake/", null);
             Assert.IsFalse(filter.IsEmpty);
             Assert.IsFalse(filter.IsAlwaysFalse);
             Assert.IsFalse(filter.Match(""));
@@ -120,7 +120,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void DefaultOmakeFilter_Simple()
         {
-            Filter filter = new Filter("", StringData.OmakeFilter);
+            Filter filter = new("", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuff (omake)"));
@@ -130,7 +130,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void DefaultOmakeFilter_Full()
         {
-            Filter filter = new Filter("", StringData.OmakeFilter);
+            Filter filter = new("", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuff (omake)"));
@@ -140,7 +140,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void OmakeStuffFilter_Simple()
         {
-            Filter filter = new Filter("stuff", StringData.OmakeFilter);
+            Filter filter = new("stuff", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
@@ -150,7 +150,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void OmakeStuffFilter_Full()
         {
-            Filter filter = new Filter("/stuff/", StringData.OmakeFilter);
+            Filter filter = new("/stuff/", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing (omake)"));
@@ -160,7 +160,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void MultiValueFilter_Simple()
         {
-            Filter filter = new Filter("stuff, stuffing", StringData.OmakeFilter);
+            Filter filter = new("stuff, stuffing", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -171,7 +171,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void MultiValueFilter_Full()
         {
-            Filter filter = new Filter("/stuff|stuffing/", StringData.OmakeFilter);
+            Filter filter = new("/stuff|stuffing/", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -182,7 +182,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void GlobFilter_Simple()
         {
-            Filter filter = new Filter("stuff*", StringData.OmakeFilter);
+            Filter filter = new("stuff*", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -195,7 +195,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void GlobFilter2_Simple()
         {
-            Filter filter = new Filter("stuff* day", StringData.OmakeFilter);
+            Filter filter = new("stuff* day", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuffing"));
@@ -210,7 +210,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void ParenFilter_Simple()
         {
-            Filter filter = new Filter("(info)", StringData.OmakeFilter);
+            Filter filter = new("(info)", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsFalse(filter.Match("lots of stuffing"));
@@ -223,7 +223,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void InfoFilter_Simple()
         {
-            Filter filter = new Filter("info", StringData.OmakeFilter);
+            Filter filter = new("info", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of info"));
@@ -237,7 +237,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void RegexFilter_Full()
         {
-            Filter filter = new Filter("/stuff(ing)?/", StringData.OmakeFilter);
+            Filter filter = new("/stuff(ing)?/", StringData.OmakeFilter);
             Assert.IsFalse(filter.Match(""));
             Assert.IsTrue(filter.Match("stuff"));
             Assert.IsTrue(filter.Match("lots of stuffing"));
@@ -248,7 +248,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void MultiValueFilter_Simple_inverted()
         {
-            Filter filter = new Filter("!stuff, stuffing", StringData.OmakeFilter);
+            Filter filter = new("!stuff, stuffing", StringData.OmakeFilter);
             Assert.IsTrue(filter.IsInverted);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
@@ -260,7 +260,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void MultiValueFilter_Full_inverted()
         {
-            Filter filter = new Filter("!/stuff|stuffing/", StringData.OmakeFilter);
+            Filter filter = new("!/stuff|stuffing/", StringData.OmakeFilter);
             Assert.IsTrue(filter.IsInverted);
             Assert.IsTrue(filter.Match(""));
             Assert.IsFalse(filter.Match("stuff"));
