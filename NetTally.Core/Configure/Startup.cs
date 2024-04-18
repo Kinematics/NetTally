@@ -1,15 +1,14 @@
 ﻿using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Cache;
-using NetTally.Forums;
 using NetTally.Configure;
+using NetTally.Forums;
 using NetTally.Output;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
-using NetTally.Votes;
 using NetTally.Web;
 
 namespace NetTally

@@ -9,7 +9,6 @@ using NetTally.Data;
 using NetTally.Forums;
 using NetTally.Types.Enums;
 using NetTally.VoteCounting;
-using NetTally.Web;
 
 namespace NetTally.Tests.QuestTests
 {
