@@ -19,6 +19,7 @@ namespace NetTally.Global
         [ObservableProperty]
         BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
         [ObservableProperty]
+        [property: JsonIgnore]
         bool trackPostAuthorsUniquely = false;
 
         [ObservableProperty]
