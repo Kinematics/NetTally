@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Cache;
 using NetTally.Extensions;
-using NetTally.Configure.Legacy;
+using NetTally.Global;
 using NetTally.SystemInfo;
 using NetTally.Types.Enums;
 
@@ -25,16 +26,19 @@ namespace NetTally.Web
         readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
         readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
 
-        readonly IGeneralInputOptions inputOptions;
+        readonly GlobalSettings inputOptions;
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler,
-            ICache<string> pageCache, IClock clock,
-            IGeneralInputOptions inputOptions, ILogger<WebPageProvider> logger)
+        public WebPageProvider(
+            HttpClientHandler handler,
+            ICache<string> pageCache,
+            IClock clock,
+            IOptions<GlobalSettings> options,
+            ILogger<WebPageProvider> logger)
             : base(handler, pageCache, clock)
         {
-            this.inputOptions = inputOptions;
+            this.inputOptions = options.Value;
             this.logger = logger;
 
             SetupHandler();
