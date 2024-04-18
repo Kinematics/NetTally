@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
 using NetTally.Utility.Comparers;
 using NetTally.Global;
+using NetTally.Data;
 
 namespace NetTally.Tests
 {
@@ -31,6 +32,7 @@ namespace NetTally.Tests
 
             var hash = host.Services.GetRequiredService<IHash>();
             Agnostic.Init(hash);
+            CoreApp.ServiceProvider = host.Services;
 
             return host.Services;
         }
