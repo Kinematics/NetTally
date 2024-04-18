@@ -19,12 +19,12 @@ namespace NetTally.VoteCounting
     /// </summary>
     /// <param name="globalOptions">Global program options.</param>
     /// <param name="logger">Class logger.</param>
-    public class VoteCounter2(
+    public class VoteCounter(
         IOptions<GlobalSettings> globalOptions,
-        ILogger<VoteCounter2> logger) : IVoteCounter
+        ILogger<VoteCounter> logger) : IVoteCounter
     {
         private readonly GlobalSettings globalSettings = globalOptions.Value;
-        private readonly ILogger<VoteCounter2> logger = logger;
+        private readonly ILogger<VoteCounter> logger = logger;
 
         #region Data Collections
         readonly List<Post> postsList = [];
