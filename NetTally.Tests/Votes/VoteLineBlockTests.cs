@@ -14,7 +14,6 @@ namespace NetTally.Tests.Votes
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static IVoteCounter voteCounter = null!;
-        static VoteConstructor voteConstructor = null!;
         static Tallyer tally = null!;
         static Quest quest = null!;
 
@@ -26,7 +25,6 @@ namespace NetTally.Tests.Votes
 
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             tally = serviceProvider.GetRequiredService<Tallyer>();
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
 
         [TestInitialize]

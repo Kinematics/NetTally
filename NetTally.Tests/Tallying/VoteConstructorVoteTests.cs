@@ -15,7 +15,6 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static VoteConstructor voteConstructor = null!;
         static IVoteCounter voteCounter = null!;
         static Quest quest = null!;
 
@@ -23,8 +22,6 @@ namespace NetTally.Tests.Tallying
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
         }
 

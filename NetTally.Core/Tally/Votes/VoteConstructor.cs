@@ -12,12 +12,8 @@ namespace NetTally.Votes
     /// <summary>
     /// Class that can handle constructing votes from the parsed text of a post.
     /// </summary>
-    public class VoteConstructor
+    public static class VoteConstructor
     {
-        public VoteConstructor()
-        {
-        }
-
         #region Public functions
         /// <summary>
         /// Get plans from the provided post during the preprocessing phase.

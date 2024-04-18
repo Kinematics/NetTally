@@ -7,24 +7,19 @@ using NetTally.Types.Enums;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
-#nullable disable
-
 namespace NetTally.Tests.Tallying
 {
     [TestClass]
     public class VoteConstructorPlanTests
     {
-        static IServiceProvider serviceProvider;
-        static VoteConstructor voteConstructor;
-        static Quest sampleQuest;
+        static IServiceProvider serviceProvider = null!;
+        static Quest sampleQuest = null!;
         static readonly Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
 
             sampleQuest = new Quest
             {

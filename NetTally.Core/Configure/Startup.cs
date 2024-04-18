@@ -33,7 +33,6 @@ namespace NetTally
             services.AddSingleton<ForumAdapterFactory>();
             services.AddSingleton<ForumIdentifier>();
 
-            services.AddSingleton<VoteConstructor>();
             services.AddSingleton<RankVoteCounterFactory>();
             services.AddSingleton<ITextResultsProvider, TallyOutput>();
 

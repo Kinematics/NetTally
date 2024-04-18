@@ -10,7 +10,6 @@ namespace NetTally.Tests.Tallying
     public class RankedRIRTests
     {
         static IServiceProvider serviceProvider = null!;
-        static VoteConstructor voteConstructor = null!;
         static Quest sampleQuest = null!;
         static readonly Origin origin = new("User1", "1", 1, new Uri("http://www.example.com/"), "http://www.example.com");
 
@@ -18,8 +17,6 @@ namespace NetTally.Tests.Tallying
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
 
             sampleQuest = new Quest();
         }
