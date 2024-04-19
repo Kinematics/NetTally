@@ -221,12 +221,10 @@ and then another";
             Assert.AreEqual("Saying one thing", lines[0]);
         }
 
-#nullable disable
-
         [TestMethod]
         public void Split_null_1()
         {
-            string input = null;
+            string input = null!;
             var lines = input.GetStringLines();
 
             Assert.IsNotNull(lines);
@@ -236,13 +234,11 @@ and then another";
         [TestMethod]
         public void Split_null_2()
         {
-            var lines = Strings.GetStringLines(null);
+            var lines = Strings.GetStringLines(null!);
 
             Assert.IsNotNull(lines);
             Assert.AreEqual(0, lines.Count);
         }
-
-#nullable enable
 
         [TestMethod]
         public void Split_empty()
