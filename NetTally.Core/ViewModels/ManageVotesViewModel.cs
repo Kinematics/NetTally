@@ -46,14 +46,14 @@ namespace NetTally.ViewModels
         /// </summary>
         public IEnumerable<VoteLineBlock> VotesFrom => AllVotesCollection
             .Where(FilterFromVote)
-            .OrderBy(v => v, new CustomVoteComparer());
+            .OrderBy(v => v, new VoteBlockComparer());
 
         /// <summary>
         /// Get the votes for the To side of the window.
         /// </summary>
         public IEnumerable<VoteLineBlock> VotesTo => AllVotesCollection
             .Where(FilterToVote)
-            .OrderBy(v => v, new CustomVoteComparer());
+            .OrderBy(v => v, new VoteBlockComparer());
 
         /// <summary>
         /// Get the voters associated with the currently selected From vote (if any).

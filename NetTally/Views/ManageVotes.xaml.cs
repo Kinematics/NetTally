@@ -70,7 +70,7 @@ namespace NetTally.Views
             VoteView1.GroupDescriptions.Add(groupDescription);
             VoteView2.GroupDescriptions.Add(groupDescription);
 
-            IComparer voteCompare = new CustomVoteComparer();
+            IComparer voteCompare = new VoteBlockComparer();
             VoteView1.CustomSort = voteCompare;
             VoteView2.CustomSort = voteCompare;
 
