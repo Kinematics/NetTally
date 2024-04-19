@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using NetTally.Tally.Components;
 
@@ -13,19 +12,7 @@ namespace NetTally.Comparers
     {
         public int Compare(object? x, object? y)
         {
-            if (x is VoteLineBlock xv && y is VoteLineBlock yv)
-            {
-                int result = xv.Category.CompareTo(yv.Category);
-
-                if (result == 0)
-                    return xv.CompareTo(yv);
-                else
-                    return result;
-            }
-            else
-            {
-                throw new ArgumentException("Parameters are not known types.");
-            }
+            return Compare(x as VoteLineBlock, y as VoteLineBlock);
         }
 
         public int Compare(VoteLineBlock? x, VoteLineBlock? y)
