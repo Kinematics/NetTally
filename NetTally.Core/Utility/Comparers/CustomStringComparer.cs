@@ -46,7 +46,6 @@ namespace NetTally.Utility.Comparers
         /// <param name="str">The string to get the hash code for.</param>
         /// <returns></returns>
         public override int GetHashCode(string str) => Info.GetHashCode(str, Options);
-            //HashFunction(str, Info, Options);
 
         int IComparer.Compare(object? x, object? y)
         {
