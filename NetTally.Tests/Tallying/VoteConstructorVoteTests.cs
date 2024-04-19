@@ -19,7 +19,7 @@ namespace NetTally.Tests.Tallying
         static Quest quest = null!;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();

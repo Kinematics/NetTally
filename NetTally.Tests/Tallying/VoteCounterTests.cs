@@ -26,7 +26,7 @@ namespace NetTally.Tests.Tallying
 
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
 
@@ -73,7 +73,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -109,7 +109,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -146,7 +146,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -192,7 +192,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -244,7 +244,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -281,7 +281,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3 };
+            List<Post> posts = [post1, post2, post3];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -315,7 +315,7 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -356,7 +356,7 @@ namespace NetTally.Tests.Tallying
             Post post3 = new(origin3, postText2);
             Post post4 = new(origin1a, postText2);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
             quest.VoteCounter.AddPosts(posts);
             var plans = Tallyer.PreprocessPosts(quest);
 
@@ -364,7 +364,7 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
             quest.VoteCounter.Reset();
-            posts = new List<Post>() { post1, post2, post3 };
+            posts = [post1, post2, post3];
             quest.VoteCounter.AddPosts(posts);
             plans = Tallyer.PreprocessPosts(quest);
 
@@ -372,7 +372,7 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
             quest.VoteCounter.Reset();
-            posts = new List<Post>() { post1, post2, post3, post4 };
+            posts = [post1, post2, post3, post4];
             quest.VoteCounter.AddPosts(posts);
             plans = Tallyer.PreprocessPosts(quest);
 
@@ -401,7 +401,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -436,7 +436,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -471,7 +471,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -506,7 +506,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
             quest.VoteCounter.AddPosts(posts);
 
             tally.UpdateTally(quest);
@@ -541,7 +541,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3 };
+            List<Post> posts = [post1, post2, post3];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -581,7 +581,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post3.HasVote);
             Assert.IsTrue(post4.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3, post4 };
+            List<Post> posts = [post1, post2, post3, post4];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -615,7 +615,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);
@@ -649,7 +649,7 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
             quest.VoteCounter.AddPosts(posts);

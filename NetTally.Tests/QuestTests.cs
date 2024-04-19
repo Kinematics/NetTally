@@ -31,7 +31,7 @@ namespace NetTally.Tests.QuestTests
 
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
             forumIdentifier = serviceProvider.GetRequiredService<ForumIdentifier>();
@@ -78,12 +78,6 @@ namespace NetTally.Tests.QuestTests
         {
             Assert.IsTrue(notified);
             Assert.IsTrue(propertiesRaised.Contains(property));
-        }
-
-        void VerifyNotification(List<string> properties)
-        {
-            Assert.IsTrue(notified);
-            CollectionAssert.IsSubsetOf(properties, propertiesRaised);
         }
         #endregion
 

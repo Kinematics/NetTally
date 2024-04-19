@@ -1,32 +1,16 @@
-﻿using System;
-using System.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Utility.Comparers;
-using NetTally.Types.Enums;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Components;
+using NetTally.Types.Enums;
 
 namespace NetTally.Tests.Votes
 {
     [TestClass]
     public class VoteLineTests
     {
-        static IServiceProvider serviceProvider = null!;
-
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
-            serviceProvider = TestStartup.ConfigureServices();
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            Quest quest = new()
-            {
-                CaseIsSignificant = false,
-                WhitespaceAndPunctuationIsSignificant = false
-            };
+            TestStartup.ConfigureServices();
         }
 
         [TestMethod]

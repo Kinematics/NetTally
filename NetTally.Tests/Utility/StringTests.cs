@@ -13,9 +13,9 @@ namespace NTTests.Utility
     public class StringTests
     {
         [ClassInitialize]
-        public static void Initialize(TestContext context)
+        public static void Initialize(TestContext _)
         {
-            IServiceProvider serviceProvider = TestStartup.ConfigureServices();
+            TestStartup.ConfigureServices();
 
             using (new RegionProfiler("warmup"))
             {
@@ -352,7 +352,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_01_space()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("Kinematics ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -362,7 +362,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_02_extra_chars()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("Kinematicss", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -372,7 +372,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_03_diacritical()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -382,7 +382,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_04_diacritical()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -392,7 +392,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_05_fraction_form()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("Ranma 1/2 ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -402,7 +402,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_05a_fraction_not_ignored()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("Ranma", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -412,7 +412,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_06_punctuation()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("[bank]", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -422,7 +422,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_07_capitalization()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("BANK", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -432,7 +432,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_08_extra_letter()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("bahnk", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -442,7 +442,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_09_spacing()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("ban k", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -452,7 +452,7 @@ and then another";
         [TestMethod]
         public void AgnosticHash_10_extra_number()
         {
-            IHash hash = new NormalHash();
+            var hash = new NormalHash();
             int result1 = hash.HashFunction("runover", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
             int result2 = hash.HashFunction("run over 1", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 

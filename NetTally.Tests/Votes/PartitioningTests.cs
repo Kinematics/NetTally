@@ -13,16 +13,13 @@ namespace NetTally.Tests.Votes
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static Tallyer tally = null!;
         static Quest quest = null!;
         static readonly Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            tally = serviceProvider.GetRequiredService<Tallyer>();
         }
 
         [TestInitialize]
