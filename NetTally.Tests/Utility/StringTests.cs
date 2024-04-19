@@ -104,9 +104,7 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_make_null()
         {
-#nullable disable
-            string planName = Strings.MakePlanName(null);
-#nullable enable
+            string planName = Strings.MakePlanName(null!);
 
             Assert.AreEqual("", planName);
         }
@@ -158,9 +156,7 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_test_null()
         {
-#nullable disable
-            Assert.IsFalse(Strings.IsPlanName(null));
-#nullable enable
+            Assert.IsFalse(Strings.IsPlanName(null!));
         }
         #endregion
 
@@ -292,11 +288,9 @@ and then another";
         [TestMethod]
         public void FirstLine_null()
         {
-#nullable disable
-            string input = null;
+            string input = null!;
 
             var line = input.GetFirstLine();
-#nullable enable
 
             Assert.IsNotNull(line);
             Assert.AreEqual("", line);

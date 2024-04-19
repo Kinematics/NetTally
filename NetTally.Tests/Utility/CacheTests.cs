@@ -38,19 +38,17 @@ namespace NetTally.Tests.Utility
             Assert.IsTrue(resourceContent!.Length < 250000);
         }
 
-#nullable disable
-
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cache_null_key()
         {
-            cache.Add(null, null, CacheInfo.DefaultExpiration);
+            cache.Add(null!, null!, CacheInfo.DefaultExpiration);
         }
 
         [TestMethod]
         public void Cache_null_data()
         {
-            string data = null;
+            string data = null!;
 
             cache.Add("null data", data, CacheInfo.DefaultExpiration);
             var (found, content) = cache.Get("null data");
@@ -58,8 +56,6 @@ namespace NetTally.Tests.Utility
             Assert.IsTrue(found);
             Assert.AreEqual("", content);
         }
-
-#nullable enable
 
         [TestMethod]
         public void Cache_page_data()
