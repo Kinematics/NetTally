@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using NetTally.Comparers;
+﻿using System.ComponentModel;
 
 namespace NetTally.Utility.Comparers
 {

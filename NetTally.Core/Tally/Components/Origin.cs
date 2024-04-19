@@ -87,7 +87,7 @@ namespace NetTally.Tally.Components
         #endregion
 
         #region Comparisons and Equality
-        private int ComputeHash() => Agnostic.InsensitiveComparer.GetHashCode(Author);
+        private int ComputeHash() => Agnostic.CaseInsensitiveComparer.GetHashCode(Author);
         public override int GetHashCode() => hash;
         public override string ToString()
         {
@@ -116,7 +116,7 @@ namespace NetTally.Tally.Components
 
             if (result == 0)
             {
-                result = Agnostic.StringComparer.Compare(first.Author.Name, second.Author.Name);
+                result = Agnostic.CaseInsensitiveComparer.Compare(first.Author.Name, second.Author.Name);
             }
 
             return result;

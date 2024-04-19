@@ -360,20 +360,20 @@ namespace NetTally.Tally.Components
             if (right is null)
                 return 1;
 
-            if (Agnostic.StringComparer.Equals(left.CleanContent, right.CleanContent))
+            if (Agnostic.CurrentStringComparer.Equals(left.CleanContent, right.CleanContent))
             {
-                if (Agnostic.StringComparer.Equals(left.Task, right.Task))
+                if (Agnostic.CaseInsensitiveComparer.Equals(left.Task, right.Task))
                 {
                     return 0 - left.Depth.CompareTo(right.Depth);
                 }
                 else
                 {
-                    return Agnostic.StringComparer.Compare(left.Task, right.Task);
+                    return Agnostic.CaseInsensitiveComparer.Compare(left.Task, right.Task);
                 }
             }
             else
             {
-                return Agnostic.StringComparer.Compare(left.CleanContent, right.CleanContent);
+                return Agnostic.CurrentStringComparer.Compare(left.CleanContent, right.CleanContent);
             }
         }
 

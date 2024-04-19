@@ -182,12 +182,12 @@ namespace NetTally.Votes
             if (a.Count == 0 || b.Count == 0)
                 return (false, false);
 
-            bool task = Agnostic.StringComparer.Equals(a.First().Task, b.First().Task);
+            bool task = Agnostic.CaseInsensitiveComparer.Equals(a.First().Task, b.First().Task);
 
             if (a.Count != b.Count)
                 return (false, task);
 
-            return (a.SequenceEquals(b, item => item.CleanContent, Agnostic.StringComparer), task);
+            return (a.SequenceEquals(b, item => item.CleanContent, Agnostic.CurrentStringComparer), task);
         }
     }
 }

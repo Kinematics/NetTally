@@ -220,7 +220,7 @@ namespace NetTally.Tally.Components
             if (right is null)
                 return 1;
 
-            int result = Agnostic.StringComparer.Compare(left.Task, right.Task);
+            int result = Agnostic.CaseInsensitiveComparer.Compare(left.Task, right.Task);
 
             if (result == 0)
             {
@@ -228,18 +228,18 @@ namespace NetTally.Tally.Components
 
                 var first = zip.First();
 
-                result = Agnostic.StringComparer.Compare(first.a.CleanContent, first.b.CleanContent);
+                result = Agnostic.CurrentStringComparer.Compare(first.a.CleanContent, first.b.CleanContent);
 
                 if (result == 0)
                 {
                     foreach (var z in zip.Skip(1))
                     {
-                        result = Agnostic.StringComparer.Compare(z.a.Task, z.b.Task);
+                        result = Agnostic.CaseInsensitiveComparer.Compare(z.a.Task, z.b.Task);
 
                         if (result != 0)
                             return result;
 
-                        result = Agnostic.StringComparer.Compare(z.a.CleanContent, z.b.CleanContent);
+                        result = Agnostic.CurrentStringComparer.Compare(z.a.CleanContent, z.b.CleanContent);
 
                         if (result != 0)
                             return result;
@@ -277,22 +277,22 @@ namespace NetTally.Tally.Components
             var firstz = zip.First();
             var first = zip.First().b;
 
-            int result = Agnostic.StringComparer.Compare(left.Task, first.Task);
+            int result = Agnostic.CaseInsensitiveComparer.Compare(left.Task, first.Task);
 
             if (result == 0)
             {
-                result = Agnostic.StringComparer.Compare(firstz.a.CleanContent, firstz.b.CleanContent);
+                result = Agnostic.CurrentStringComparer.Compare(firstz.a.CleanContent, firstz.b.CleanContent);
 
                 if (result == 0)
                 {
                     foreach (var z in zip.Skip(1))
                     {
-                        result = Agnostic.StringComparer.Compare(z.a.Task, z.b.Task);
+                        result = Agnostic.CaseInsensitiveComparer.Compare(z.a.Task, z.b.Task);
 
                         if (result != 0)
                             return result;
 
-                        result = Agnostic.StringComparer.Compare(z.a.CleanContent, z.b.CleanContent);
+                        result = Agnostic.CurrentStringComparer.Compare(z.a.CleanContent, z.b.CleanContent);
 
                         if (result != 0)
                             return result;

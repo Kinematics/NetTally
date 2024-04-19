@@ -19,7 +19,6 @@ namespace NetTally.Tests.Votes
         static IServiceProvider serviceProvider = null!;
         static Tallyer tally = null!;
         static Quest quest = null!;
-        static IAgnostic agnostic = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -27,7 +26,6 @@ namespace NetTally.Tests.Votes
             serviceProvider = TestStartup.ConfigureServices();
 
             tally = serviceProvider.GetRequiredService<Tallyer>();
-            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
 
         [TestInitialize]
@@ -36,8 +34,6 @@ namespace NetTally.Tests.Votes
             quest = new Quest();
             IVoteCounter voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
             quest.VoteCounter = voteCounter;
-
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestCleanup]
@@ -45,7 +41,6 @@ namespace NetTally.Tests.Votes
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 

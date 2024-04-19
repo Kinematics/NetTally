@@ -12,16 +12,11 @@ namespace NetTally.Tests.Votes
     public class VoteLineTests
     {
         static IServiceProvider serviceProvider = null!;
-        static IAgnostic agnostic = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             serviceProvider = TestStartup.ConfigureServices();
-            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
-
-            Quest quest = new();
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestCleanup]
@@ -32,7 +27,6 @@ namespace NetTally.Tests.Votes
                 CaseIsSignificant = false,
                 WhitespaceAndPunctuationIsSignificant = false
             };
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestMethod]

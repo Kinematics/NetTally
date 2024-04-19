@@ -178,9 +178,6 @@ namespace NetTally.Avalonia
 
         public override void OnFrameworkInitializationCompleted()
         {
-            // Initialize the Comparers
-            Utility.Comparers.Agnostic.Init(Services.GetRequiredService<Utility.Comparers.IHash>());
-
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Line below is needed to remove Avalonia data validation.

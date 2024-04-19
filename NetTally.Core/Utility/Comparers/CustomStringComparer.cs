@@ -9,38 +9,33 @@ namespace NetTally.Utility.Comparers
     /// A class to allow creation of custom string comparers, by specifying
     /// CompareInfo and CompareOptions during construction.
     /// </summary>
-    public class CustomStringComparer : StringComparer, IComparer, IEqualityComparer, IComparer<string>, IEqualityComparer<string>
+    /// <remarks>
+    /// Constructs a comparer using the specified CompareOptions.
+    /// </remarks>
+    /// <param name="info">CompareInfo to use.</param>
+    /// <param name="options">CompareOptions to use.</param>
+    /// <param name="hashFunction">Hash function to use.</param>
+    public class CustomStringComparer(
+        CompareInfo info,
+        CompareOptions options,
+        Func<string, CompareInfo, CompareOptions, int> hashFunction)
+        : StringComparer, IComparer, IComparer<string>,
+          IEqualityComparer, IEqualityComparer<string>
     {
-        public CompareInfo Info { get; }
-        public CompareOptions Options { get; }
-        public Func<string, CompareInfo, CompareOptions, int> HashFunction { get; }
+        public CompareInfo Info { get; } = info;
+        public CompareOptions Options { get; } = options;
+        public Func<string, CompareInfo, CompareOptions, int> HashFunction { get; } = hashFunction;
 
-        /// <summary>
-        /// Constructs a comparer using the specified CompareOptions.
-        /// </summary>
-        /// <param name="info">CompareInfo to use.</param>
-        /// <param name="options">CompareOptions to use.</param>
-        public CustomStringComparer(CompareInfo info, CompareOptions options, Func<string, CompareInfo, CompareOptions, int> hashFunction)
-        {
-            Info = info;
-            Options = options;
-            HashFunction = hashFunction;
-        }
-
-        /// <summary>
-        /// Compares strings with the CompareOptions specified in the constructor.
-        /// Implements the generic IComparer interface.
-        /// </summary>
-        /// <param name="x">The first string.</param>
-        /// <param name="y">The second string.</param>
-        /// <returns>Returns -1 if the first string is less than the second;
-        /// 1 if the first is greater than the second; and 0 if they are equal.</returns>
         public override int Compare(string? x, string? y)
         {
             if (ReferenceEquals(x, y)) return 0;
 
             return Info.Compare(x, y, Options);
         }
+
+        public override bool Equals(string? x, string? y) =>
+            Compare(x, y) == 0;
+
 
         /// <summary>
         /// The hash code represents a number that either guarantees that two
@@ -50,21 +45,17 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <param name="str">The string to get the hash code for.</param>
         /// <returns></returns>
-        public override int GetHashCode(string str) => HashFunction(str, Info, Options);
-
-        public override bool Equals(string? x, string? y) => Compare(x, y) == 0;
+        public override int GetHashCode(string str) => Info.GetHashCode(str, Options);
+            //HashFunction(str, Info, Options);
 
         int IComparer.Compare(object? x, object? y)
         {
             if (ReferenceEquals(x, y))
                 return 0;
 
-            string? xs = x as string;
-            string? ys = y as string;
-
-            if (xs is null)
+            if (x is not string xs)
                 return -1;
-            if (ys is null)
+            if (y is not string ys)
                 return 1;
             
             return Compare(xs, ys);
@@ -75,8 +66,8 @@ namespace NetTally.Utility.Comparers
             if (ReferenceEquals(x, y))
                 return true;
 
-            if (x is string xx && y is string yy)
-                return Compare(xx, yy) == 0;
+            if (x is string xs && y is string ys)
+                return Compare(xs, ys) == 0;
 
             return false;
         }

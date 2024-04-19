@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Tally.Components;
 using NetTally.Types.Enums;
-using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 
 namespace NetTally.Tests.Tallying
@@ -17,8 +16,8 @@ namespace NetTally.Tests.Tallying
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static Tallyer tally = null!;
+        static QuestsInfo questsInfo = null!;
         static Quest quest = null!;
-        static IAgnostic agnostic = null!;
         static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin2 = new("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");
@@ -31,8 +30,9 @@ namespace NetTally.Tests.Tallying
         {
             serviceProvider = TestStartup.ConfigureServices();
 
+            questsInfo = serviceProvider.GetRequiredService<QuestsInfo>();
+
             tally = serviceProvider.GetRequiredService<Tallyer>();
-            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
         }
 
         [TestInitialize]
@@ -42,6 +42,8 @@ namespace NetTally.Tests.Tallying
             {
                 VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
             };
+
+            questsInfo.SelectedQuest = quest;
         }
 
         [TestCleanup]
@@ -49,7 +51,6 @@ namespace NetTally.Tests.Tallying
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 
@@ -607,7 +608,6 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new(origin1, text1);
             Post post2 = new(origin2, text2);
@@ -642,7 +642,6 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new(origin1, text1);
             Post post2 = new(origin2, text2);

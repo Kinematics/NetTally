@@ -72,8 +72,6 @@ namespace NetTally
                 // Start the app
                 await host.StartAsync();
 
-                InitializeStartup();
-
                 logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
 
                 // Request the navigation service and create our main window.
@@ -96,13 +94,6 @@ namespace NetTally
                 // Wait up to 5 seconds before forcing a shutdown.
                 await host.StopAsync(TimeSpan.FromSeconds(5));
             }
-        }
-
-        private void InitializeStartup()
-        {
-            // Initialize string comparer system.
-            var hash = host.Services.GetRequiredService<IHash>();
-            Agnostic.Init(hash);
         }
         #endregion Startup and Shutdown
 

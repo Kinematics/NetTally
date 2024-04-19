@@ -30,8 +30,6 @@ namespace NetTally.Tests
                     })
                     .Build();
 
-            var hash = host.Services.GetRequiredService<IHash>();
-            Agnostic.Init(hash);
             CoreApp.ServiceProvider = host.Services;
 
             return host.Services;

@@ -402,7 +402,7 @@ namespace NetTally.Votes
             // A named vote that is named after a user is only valid if it matches the post author's name.
             if (quest.VoteCounter.HasVoter(planName))
             {
-                if (!Agnostic.StringComparer.Equals(planName, postAuthor))
+                if (!Agnostic.CaseInsensitiveComparer.Equals(planName, postAuthor))
                 {
                     return false;
                 }

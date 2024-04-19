@@ -1,119 +1,130 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
+using NetTally.Configure;
+using NetTally.Data;
 
 namespace NetTally.Utility.Comparers
 {
-    public class Agnostic : IAgnostic
+    /// <summary>
+    /// Enum for the different combinations of comparison patterns.
+    /// </summary>
+    public enum AgnosticPattern
     {
-        #region Fields and properties
-        static StringComparer StringComparerNoCaseSymbol { get; set; } = StringComparer.InvariantCultureIgnoreCase;
+        Unknown,
+        NoCaseSymbol,
+        NoCaseNoSymbol,
+        CaseSymbol,
+        CaseNoSymbol
+    }
 
-        static StringComparer StringComparerNoCaseNoSymbol { get; set; } = StringComparer.InvariantCultureIgnoreCase;
+    /// <summary>
+    /// Class that provides access to variable string comparers depending on
+    /// quest preferences.
+    /// </summary>
+    public static class Agnostic
+    {
+        static StringComparer stringComparerNoCaseSymbol = StringComparer.InvariantCultureIgnoreCase;
 
-        static StringComparer StringComparerCaseSymbol { get; set; } = StringComparer.InvariantCulture;
+        static StringComparer stringComparerNoCaseNoSymbol = StringComparer.InvariantCultureIgnoreCase;
 
-        static StringComparer StringComparerCaseNoSymbol { get; set; } = StringComparer.InvariantCulture;
-        #endregion
+        static StringComparer stringComparerCaseSymbol = StringComparer.InvariantCulture;
 
-        #region Constructor
+        static StringComparer stringComparerCaseNoSymbol = StringComparer.InvariantCulture;
+
+        static QuestsInfo questsInfo = null!;
+
         /// <summary>
-        /// Basic class initialization.
+        /// Get the current string comparer for the currently selected quest.
         /// </summary>
-        public static void Init(IHash hash)
+        public static StringComparer CurrentStringComparer
         {
-            // Case insensitive, whitespace/symbol sensitive
-            StringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-                CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hash.HashFunction);
-
-            // Case insensitive, whitespace/symbol insensitive
-            StringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-                CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hash.HashFunction);
-
-            // Case sensitive, whitespace/symbol sensitive.
-            StringComparerCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-                CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hash.HashFunction);
-
-            // Case sensitive, whitespace/symbol insensitive.
-            StringComparerCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
-                CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hash.HashFunction);
-
-            // Default is fully insensitive
-            StringComparer = StringComparerNoCaseNoSymbol;
-        }
-        #endregion
-
-        #region Public Interface
-        /// <summary>
-        /// A string comparer object that allows comparison between strings that
-        /// can ignore lots of annoying user-entered variances.
-        /// </summary>
-        public static StringComparer StringComparer { get; private set; } = StringComparer.InvariantCultureIgnoreCase;
-
-        /// <summary>
-        /// Gets a string comparer object that ignores case and symbols.
-        /// </summary>
-        public static StringComparer InsensitiveComparer => StringComparerNoCaseNoSymbol;
-
-        /// <summary>
-        /// Gets a string comparer object based on the sensitivity settings of the currently selected quest.
-        /// </value>
-        public static StringComparer QuestSensitiveStringComparer(Quest quest)
-        {
-            return
-                quest switch
-                {
-                    null => StringComparer,
-                    _ => quest.WhitespaceAndPunctuationIsSignificant switch
-                    {
-                        true => quest.CaseIsSignificant switch
-                        {
-                            true => StringComparerCaseSymbol,
-                            false => StringComparerNoCaseSymbol
-                        },
-                        false => quest.CaseIsSignificant switch
-                        {
-                            true => StringComparerCaseNoSymbol,
-                            false => StringComparerNoCaseNoSymbol
-                        }
-                    }
-                };
-        }
-
-        /// <summary>
-        /// Handles the PropertyChanged event of the Main View Model, watching for changes in the
-        /// options of the currently selected quest.
-        /// If whitespace handling changes, update the current comparer.
-        /// </summary>
-        /// <param name="mainViewModel">The view model that allows us to check the current quest's options.</param>
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        public void ComparisonPropertyChanged(Quest quest, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName is not null)
+            get
             {
-                if (e.PropertyName.EndsWith("WhitespaceAndPunctuationIsSignificant") ||
-                    e.PropertyName.EndsWith("CaseIsSignificant"))
+                if (questsInfo == null)
                 {
-                    if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == false)
-                    {
-                        StringComparer = StringComparerNoCaseSymbol;
-                    }
-                    else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == false)
-                    {
-                        StringComparer = StringComparerNoCaseNoSymbol;
-                    }
-                    else if (quest.WhitespaceAndPunctuationIsSignificant == true && quest.CaseIsSignificant == true)
-                    {
-                        StringComparer = StringComparerCaseSymbol;
-                    }
-                    else if (quest.WhitespaceAndPunctuationIsSignificant == false && quest.CaseIsSignificant == true)
-                    {
-                        StringComparer = StringComparerCaseNoSymbol;
-                    }
+                    InitDependencies();
                 }
+
+                var agnosticPattern = GetCurrentQuestComparisonPattern(questsInfo!.SelectedQuest);
+
+                return agnosticPattern switch
+                {
+                    AgnosticPattern.Unknown => stringComparerNoCaseNoSymbol,
+                    AgnosticPattern.NoCaseSymbol => stringComparerNoCaseSymbol,
+                    AgnosticPattern.NoCaseNoSymbol => stringComparerNoCaseNoSymbol,
+                    AgnosticPattern.CaseSymbol => stringComparerCaseSymbol,
+                    AgnosticPattern.CaseNoSymbol => stringComparerCaseNoSymbol,
+                    _ => throw new NotImplementedException()
+                };
             }
         }
 
-        #endregion Public Interface
+        /// <summary>
+        /// Get a case-insensitive string comparer.
+        /// </summary>
+        public static StringComparer CaseInsensitiveComparer => stringComparerNoCaseSymbol;
+
+        /// <summary>
+        /// Get a string comparer that ignores both case and symbols.
+        /// </summary>
+        public static StringComparer InsensitiveComparer => stringComparerNoCaseNoSymbol;
+
+        /// <summary>
+        /// Get the agnostic pattern for the given quest, based on
+        /// settings for case and whitespace significance.
+        /// </summary>
+        /// <param name="quest"></param>
+        /// <returns>An <see cref="AgnosticPattern"/> that matches the quest provided.</returns>
+        private static AgnosticPattern GetCurrentQuestComparisonPattern(Quest? quest)
+        {
+            if (quest == null)
+            {
+                return AgnosticPattern.Unknown;
+            }
+
+            return quest.CaseIsSignificant switch
+            {
+                true => quest.WhitespaceAndPunctuationIsSignificant switch
+                {
+                    true => AgnosticPattern.CaseSymbol,
+                    false => AgnosticPattern.CaseNoSymbol
+                },
+                false => quest.WhitespaceAndPunctuationIsSignificant switch
+                {
+                    true => AgnosticPattern.NoCaseSymbol,
+                    false => AgnosticPattern.NoCaseNoSymbol
+                }
+            };
+        }
+
+        /// <summary>
+        /// Initialize string comparers and dependency injection information.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        private static void InitDependencies()
+        {
+            var serviceProvider = CoreApp.ServiceProvider ??
+                throw new NullReferenceException("Application service provider has not yet been initialized.");
+
+            questsInfo = serviceProvider.GetRequiredService<QuestsInfo>();
+            IHash hashFunction = serviceProvider.GetRequiredService<IHash>();
+
+            stringComparerNoCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction.HashFunction);
+
+            // Case insensitive, whitespace/symbol insensitive
+            stringComparerNoCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction.HashFunction);
+
+            // Case sensitive, whitespace/symbol sensitive.
+            stringComparerCaseSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction.HashFunction);
+
+            // Case sensitive, whitespace/symbol insensitive.
+            stringComparerCaseNoSymbol = new CustomStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+                CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth, hashFunction.HashFunction);
+        }
     }
 }
