@@ -15,7 +15,7 @@ namespace NetTally.Utility.Comparers
     /// <param name="info">CompareInfo to use.</param>
     /// <param name="options">CompareOptions to use.</param>
     /// <param name="hashFunction">Hash function to use.</param>
-    public class CustomStringComparer(
+    public class AgnosticStringComparer(
         CompareInfo info,
         CompareOptions options,
         Func<string, CompareInfo, CompareOptions, int> hashFunction)
