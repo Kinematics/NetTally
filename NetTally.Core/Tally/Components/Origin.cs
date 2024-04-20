@@ -2,6 +2,7 @@
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Types.Enums;
+using NetTally.Data;
 
 namespace NetTally.Tally.Components
 {
@@ -18,52 +19,27 @@ namespace NetTally.Tally.Components
         public Origin Source { get; }
 
         public static readonly Origin Empty = new("-", "0", 0,
-            DateTime.MinValue, new Uri("http://www.example.com/"), "http://www.example.com/");
+            DateTime.MinValue, new Uri(StringData.ExampleHostString), StringData.ExampleHostString);
 
-        private static readonly Uri exampleUri = new("http://www.example.com/");
+        private static readonly Uri exampleUri = new(StringData.ExampleHostString);
         private readonly int hash;
         private readonly bool limitedToName;
 
         public Origin(string author, string postID, int postNumber, Uri thread, string permalink)
-        {
-            Author = new Author(author);
-            AuthorType = IdentityType.User;
-            ID = new PostId(postID);
-            ThreadPostNumber = postNumber;
-            Timestamp = DateTime.MinValue;
-            Thread = thread;
-            Permalink = permalink;
-            Source = Empty;
-            hash = ComputeHash();
-        }
+            : this(author, IdentityType.User, new PostId(postID),
+                  postNumber, DateTime.MinValue, thread, permalink, Empty)
+        { }
 
         public Origin(string author, string postID, int postNumber, DateTime timestamp, Uri thread, string permalink)
-        {
-            Author = new Author(author);
-            AuthorType = IdentityType.User;
-            ID = new PostId(postID);
-            ThreadPostNumber = postNumber;
-            Timestamp = timestamp;
-            Thread = thread;
-            Permalink = permalink;
-            Source = Empty;
-            hash = ComputeHash();
-        }
+            : this(author, IdentityType.User, new PostId(postID),
+                  postNumber, timestamp, thread, permalink, Empty)
+        { }
 
         public Origin(string author, IdentityType identityType)
+            : this(author, identityType, PostId.Zero, 0, DateTime.MinValue,
+                  exampleUri, string.Empty, Empty)
         {
-            Author = new Author(author);
-            AuthorType = identityType;
             limitedToName = true;
-
-            ID = PostId.Zero;
-            ThreadPostNumber = 0;
-            Timestamp = DateTime.MinValue;
-            Thread = exampleUri;
-            Permalink = "";
-            Source = Empty;
-
-            hash = ComputeHash();
         }
 
         private Origin(string author, IdentityType identityType, PostId postId, int postNumber, DateTime timestamp,
@@ -89,6 +65,7 @@ namespace NetTally.Tally.Components
         #region Comparisons and Equality
         private int ComputeHash() => Agnostic.CaseInsensitiveComparer.GetHashCode(Author);
         public override int GetHashCode() => hash;
+
         public override string ToString()
         {
             if (AuthorType == IdentityType.Plan)
@@ -96,7 +73,6 @@ namespace NetTally.Tally.Components
             else
                 return Author.Name;
         }
-
 
         public static int Compare(Origin? first, Origin? second)
         {
