@@ -10,8 +10,14 @@ namespace NetTally.Utility.Comparers
     /// Class that provides access to variable string comparers depending on
     /// quest preferences.
     /// </summary>
-    public static class Agnostic
+    public class Agnostic
     {
+        public Agnostic(QuestsInfo info, IHash hash)
+        {
+            questsInfo = info;
+            InitDependencies(hash);
+        }
+
         /// <summary>
         /// Enum for the different combinations of comparison patterns.
         /// </summary>
@@ -41,11 +47,6 @@ namespace NetTally.Utility.Comparers
         {
             get
             {
-                if (questsInfo == null)
-                {
-                    InitDependencies();
-                }
-
                 var agnosticPattern = GetCurrentQuestComparisonPattern(questsInfo!.SelectedQuest);
 
                 return agnosticPattern switch
@@ -63,34 +64,12 @@ namespace NetTally.Utility.Comparers
         /// <summary>
         /// Get a case-insensitive string comparer.
         /// </summary>
-        public static AgnosticStringComparer CaseInsensitiveComparer
-        {
-            get
-            {
-                if (stringComparerNoCaseSymbol == null)
-                {
-                    InitDependencies();
-                }
-
-                return stringComparerNoCaseSymbol!;
-            }
-        }
+        public static AgnosticStringComparer CaseInsensitiveComparer => stringComparerNoCaseSymbol;
 
         /// <summary>
         /// Get a string comparer that ignores both case and symbols.
         /// </summary>
-        public static AgnosticStringComparer InsensitiveComparer
-        {
-            get
-            {
-                if (stringComparerNoCaseNoSymbol == null)
-                {
-                    InitDependencies();
-                }
-
-                return stringComparerNoCaseNoSymbol!;
-            }
-        }
+        public static AgnosticStringComparer InsensitiveComparer => stringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Get the agnostic pattern for the given quest, based on
@@ -125,14 +104,8 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        private static void InitDependencies()
+        private void InitDependencies(IHash hashFunction)
         {
-            var serviceProvider = CoreApp.ServiceProvider ??
-                throw new NullReferenceException("Application service provider has not yet been initialized.");
-
-            questsInfo = serviceProvider.GetRequiredService<QuestsInfo>();
-            IHash hashFunction = serviceProvider.GetRequiredService<IHash>();
-
             stringComparerNoCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
                 hashFunction.HashFunction);
