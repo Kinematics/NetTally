@@ -8,6 +8,12 @@ namespace NetTally.Tests.Forums
     [TestClass]
     public class OriginTests
     {
+        [ClassInitialize]
+        public static void ClassInit(TestContext _)
+        {
+            TestStartup.ConfigureServices();
+        }
+
         [TestMethod]
         public void Construct_BadID()
         {

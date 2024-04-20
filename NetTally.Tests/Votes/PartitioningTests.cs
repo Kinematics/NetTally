@@ -14,12 +14,13 @@ namespace NetTally.Tests.Votes
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static Quest quest = null!;
-        static readonly Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+        static Origin origin = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
+            origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
         }
 
         [TestInitialize]
