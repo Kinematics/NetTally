@@ -29,13 +29,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
 using NetTally.Collections;
+using NetTally.Configure;
 using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
-using NetTally.Configure;
 using NetTally.Navigation;
 using NetTally.SystemInfo;
-using NetTally.Utility.Comparers;
 using NetTally.Views;
 
 namespace NetTally
@@ -57,7 +56,7 @@ namespace NetTally
 
             // Create host.
             host = CreateHost();
-            CoreApp.ServiceProvider = host.Services;
+            CoreApp.SetServiceProvider(host.Services);
 
             // Create logger for the app.
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();

@@ -37,7 +37,7 @@ namespace NetTally.CLI
 
             // Build the IServiceProvider and set our reference to it
             serviceProvider = serviceCollection.BuildServiceProvider();
-            CoreApp.ServiceProvider = serviceProvider;
+            CoreApp.SetServiceProvider(serviceProvider);
 
             // Get a logger for debugging.
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();

@@ -13,10 +13,10 @@ using Microsoft.Extensions.Logging.Debug;
 using NetTally.Avalonia.Config.Json;
 using NetTally.Avalonia.Config.Xml;
 using NetTally.Collections;
+using NetTally.Configure;
 using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
-using NetTally.Configure;
 using NetTally.SystemInfo;
 
 namespace NetTally.Avalonia
@@ -31,7 +31,7 @@ namespace NetTally.Avalonia
         public App()
         {
             host = CreateHost();
-            CoreApp.ServiceProvider = host.Services;
+            CoreApp.SetServiceProvider(host.Services);
 
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             logger = loggerFactory.CreateLogger<App>();

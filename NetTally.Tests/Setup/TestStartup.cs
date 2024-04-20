@@ -30,7 +30,7 @@ namespace NetTally.Tests
                     })
                     .Build();
 
-            CoreApp.ServiceProvider = host.Services;
+            CoreApp.SetServiceProvider(host.Services);
 
             return host.Services;
         }
