@@ -9,15 +9,11 @@ namespace NetTally.Tests.Utility
     [TestClass]
     public class CacheTests
     {
-        static ICache<string> cache = PageCache.Instance;
+        static PageCache cache = PageCache.Instance;
         static string? resourceContent = string.Empty;
 
         [ClassInitialize]
-#if NETCOREAPP
-        public static async Task Initialize(TestContext context)
-#else
-        public static async void Initialize(TestContext context)
-#endif
+        public static async Task Initialize(TestContext _)
         {
             resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
 
@@ -70,8 +66,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_expired_data()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
+            DateTime clockTime = new(2017, 7, 1, 12, 0, 0);
+            DateTime expireTime = new(2017, 7, 1, 11, 59, 0);
 
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
@@ -85,8 +81,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_unexpired_data()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 12, 1, 0);
+            DateTime clockTime = new(2017, 7, 1, 12, 0, 0);
+            DateTime expireTime = new(2017, 7, 1, 12, 1, 0);
 
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);
@@ -101,8 +97,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_expired_data_invalidate()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
+            DateTime clockTime = new(2017, 7, 1, 12, 0, 0);
+            DateTime expireTime = new(2017, 7, 1, 11, 59, 0);
 
             var clock = new StaticClock(clockTime);
             cache.SetClock(clock);

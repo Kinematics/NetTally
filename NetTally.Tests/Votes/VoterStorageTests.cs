@@ -10,14 +10,13 @@ namespace NetTally.Tests.Votes
     public class VoterStorageTests
     {
         #region Setup
-        static IServiceProvider serviceProvider = null!;
         static VoteLineBlock vote = VoteLineBlock.Empty;
         static readonly VoterStorage voterStorage = [];
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
-            serviceProvider = TestStartup.ConfigureServices();
+            TestStartup.ConfigureServices();
 
             VoteLine voteLine = new("", "X", "", "A sample vote line", MarkerType.Vote, 100);
             vote = new VoteLineBlock(voteLine);
