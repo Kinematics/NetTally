@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,10 @@ namespace NetTally.Avalonia.Views
 
             // Initialize the window.
             InitializeComponent();
+
+            StartPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
+            EndPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
+
             DataContext = mainViewModel;
 
             mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
@@ -191,6 +196,23 @@ namespace NetTally.Avalonia.Views
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Error handling quest options");
+            }
+        }
+
+        private void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                tb.SelectAll();
+            }
+        }
+
+        private void TextBox_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is TextBox tb && !tb.IsKeyboardFocusWithin)
+            {
+                tb.Focus();
+                e.Handled = true;
             }
         }
         #endregion

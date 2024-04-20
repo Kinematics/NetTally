@@ -19,12 +19,14 @@
           Margin="0 5">
         <TextBlock Classes="Label" Text="Quest Name"
                    Grid.Row="0" Grid.Column="0" />
-        <TextBox   Name="QuestName" Text="{Binding DisplayName}" GotFocus="TextBox_GotFocus"
-                   Grid.Row="0" Grid.Column="1" Margin="0 0 0 2" />
+        <TextBox   Name="QuestName" Grid.Row="0" Grid.Column="1" Margin="0 0 0 2"
+				   Text="{Binding DisplayName}" GotFocus="TextBox_GotFocus"
+				   PointerPressed="TextBox_PointerPressed"/>
         <TextBlock Classes="Label" Text="Thread Url"
                    Grid.Row="1" Grid.Column="0"/>
-        <TextBox   Name="ThreadUrl" Text="{Binding ThreadName}" GotFocus="TextBox_GotFocus"
-                   Grid.Row="1" Grid.Column="1"/>
+        <TextBox   Name="ThreadUrl" Grid.Row="1" Grid.Column="1"
+				   Text="{Binding ThreadName}" GotFocus="TextBox_GotFocus"
+				   PointerPressed="TextBox_PointerPressed"/>
     </Grid>
 
     <StackPanel Classes="CommandFooter" DockPanel.Dock="Bottom" Margin="0 5 0 0">

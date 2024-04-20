@@ -86,7 +86,8 @@
 	  
     <TextBox Name="StartPost" Height="30" Width="60" Margin="140,45,0,0"
              HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
-             Text="{Binding SelectedQuest.StartPost}">
+             Text="{Binding SelectedQuest.StartPost}" GotFocus="TextBox_GotFocus"
+			 PointerPressed="TextBox_PointerPressed">
       <TextBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />
@@ -101,9 +102,10 @@
         </ToolTip.Tip>
     </TextBox>
     
-    <TextBox Name="EndPost" Text="{Binding SelectedQuest.EndPost}"
-             Width="60" Height="30" Margin="205,45,0,0"
-             HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">
+    <TextBox Name="EndPost" Width="60" Height="30" Margin="205,45,0,0"
+             HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
+			 Text="{Binding SelectedQuest.EndPost}" GotFocus="TextBox_GotFocus"
+			 PointerPressed="TextBox_PointerPressed">
       <TextBox.IsEnabled>
         <MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
           <Binding Path="!TallyIsRunning" Mode="OneWay" />

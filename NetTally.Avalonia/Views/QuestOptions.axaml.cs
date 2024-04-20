@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.ViewModels;
 
@@ -29,6 +31,10 @@ namespace NetTally.Avalonia.Views
             questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
 
             InitializeComponent();
+
+            QuestName.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
+            ThreadUrl.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
+
             DataContext = questOptionsViewModel;
 
 #if DEBUG
@@ -47,6 +53,15 @@ namespace NetTally.Avalonia.Views
             if (sender is TextBox tb)
             {
                 tb.SelectAll();
+            }
+        }
+
+        private void TextBox_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is TextBox tb && !tb.IsKeyboardFocusWithin)
+            {
+                tb.Focus();
+                e.Handled = true;
             }
         }
 
