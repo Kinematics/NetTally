@@ -36,15 +36,6 @@ namespace NetTally.Utility.Comparers
         public override bool Equals(string? x, string? y) =>
             Compare(x, y) == 0;
 
-
-        /// <summary>
-        /// The hash code represents a number that either guarantees that two
-        /// strings are different, or allows that two strings -might- be the same.
-        /// Create a hash value that creates the minimal comparison possible, to
-        /// see if two strings are different.
-        /// </summary>
-        /// <param name="str">The string to get the hash code for.</param>
-        /// <returns></returns>
         public override int GetHashCode(string str) => Info.GetHashCode(str, Options);
 
         int IComparer.Compare(object? x, object? y)

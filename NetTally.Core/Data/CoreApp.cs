@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using NetTally.Tally.Components;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Data;

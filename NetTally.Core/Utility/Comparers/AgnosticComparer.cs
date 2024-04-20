@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
 using NetTally.Configure;
-using NetTally.Data;
 
 namespace NetTally.Utility.Comparers
 {
@@ -47,7 +45,7 @@ namespace NetTally.Utility.Comparers
         {
             get
             {
-                var agnosticPattern = GetCurrentQuestComparisonPattern(questsInfo!.SelectedQuest);
+                var agnosticPattern = GetCurrentQuestComparisonPattern(questsInfo.SelectedQuest);
 
                 return agnosticPattern switch
                 {
@@ -104,7 +102,7 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        private void InitDependencies(IHash hashFunction)
+        private static void InitDependencies(IHash hashFunction)
         {
             stringComparerNoCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
