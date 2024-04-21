@@ -9,7 +9,8 @@
         Icon="/Assets/CheckVoteWin.ico" Title="NetTally.Avalonia"
 		d:DesignWidth="800" d:DesignHeight="450"
 		Width="1024" Height="600" MinWidth="1024" MinHeight="600">
-	<Grid>
+
+<Grid>
     <Button Name="AddQuestButton" Content="New"
             Width="60" Height="30" Margin="10,45,0,0"
             HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -219,23 +220,30 @@
         </StackPanel>
       </ToolTip.Tip>
     </Button>
-    <Button Name="CopyToClipboardButton" Content="Copy to Clipboard" 
-            Width="117" Height="30" Margin="0,66,10,0"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Click="CopyToClipboardButton_Click" 
-            IsEnabled="{Binding HasOutput}">
-      <ToolTip.Tip>
-        <StackPanel>
-          <TextBlock FontWeight="Bold">Copy To Clipboard</TextBlock>
-          <TextBlock>Copy the entirety of the tally results to the clipboard.</TextBlock>
-        </StackPanel>
-      </ToolTip.Tip>
-  </Button>
+		<Button Name="CopyToClipboardButton" Content="Copy to Clipboard"
+				Width="117" Height="30" Margin="0,66,10,0"
+				HorizontalAlignment="Right" VerticalAlignment="Top"
+				Click="CopyToClipboardButton_Click"
+				IsEnabled="{Binding HasOutput}">
+			<ToolTip.Tip>
+				<StackPanel>
+					<TextBlock FontWeight="Bold">Copy To Clipboard</TextBlock>
+					<TextBlock>Copy the entirety of the tally results to the clipboard.</TextBlock>
+				</StackPanel>
+			</ToolTip.Tip>
+		</Button>
 
-    <TextBox Name="ResultsWindow" Text="{Binding Path=Output, Mode=OneWay}"
+		<TextBox Name="ResultsWindow" Text="{Binding Path=Output, Mode=OneWay}"
              Margin="10,107,10,30" FontSize="13.333"
-             TextWrapping="Wrap" IsReadOnly="True"/>
+             TextWrapping="Wrap" IsReadOnly="True" />
 
-  </Grid>
+		<Button Name="WikiLinkButton" Click="OpenWikiHelpPage" Classes="hyperlink" Content="Wiki Help"
+				Margin="10,0,0,3" Height="22" Width="125"
+				VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+
+		<Button Name="NewReleaseButton" Click="OpenNewReleasePage" Classes="hyperlink" Content="New Release Available"
+				Margin="140,0,0,3" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+				IsVisible="{Binding HasNewRelease}" />
+	</Grid>
 
 </Window>

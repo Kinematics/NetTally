@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -214,6 +216,34 @@ namespace NetTally.Avalonia.Views
                 tb.Focus();
                 e.Handled = true;
             }
+        }
+
+        const string WikiHelp = "https://github.com/Kinematics/NetTally/wiki";
+        const string NewReleasePage = "https://github.com/Kinematics/NetTally/releases/latest";
+
+        /// <summary>
+        /// Open a browser to view the wiki URL.
+        /// </summary>
+        public void OpenWikiHelpPage(object? sender, RoutedEventArgs e)
+        {
+            OpenHyperlink(WikiHelp);
+        }
+
+        /// <summary>
+        /// Open a browser to view the new release page URL.
+        /// </summary>
+        public void OpenNewReleasePage(object? sender, RoutedEventArgs e)
+        {
+            OpenHyperlink(NewReleasePage);
+        }
+
+        private static void OpenHyperlink(string hyperlink)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {hyperlink}") { CreateNoWindow = true });
+            }
+
         }
         #endregion
 

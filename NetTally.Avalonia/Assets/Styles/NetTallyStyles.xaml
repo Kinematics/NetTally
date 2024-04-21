@@ -25,7 +25,22 @@
 	<Style Selector="TextBlock.SubCheck, TextBox.SubCheck">
 		<Setter Property="Margin" Value="20,0,0,3"/>
 	</Style>
-
+	<Style Selector="Button.hyperlink">
+		<Setter Property="Cursor" Value="Hand" />
+		<Setter Property="Template">
+			<ControlTemplate>
+				<TextBlock Text="{TemplateBinding Content}" Foreground="Blue" TextDecorations="Underline">
+					<TextBlock.Styles>
+						<Style Selector="TextBlock:pointerover">
+							<Setter Property="Foreground" Value="MediumBlue"/>
+						</Style>
+					</TextBlock.Styles>
+				</TextBlock>
+			</ControlTemplate>
+		</Setter>
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="BorderThickness" Value="0"/>
+	</Style>
 	<Style Selector="StackPanel.OptionList">
         <Setter Property="Spacing" Value="2"/>
     </Style>
