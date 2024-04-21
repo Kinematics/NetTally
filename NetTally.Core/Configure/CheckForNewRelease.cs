@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,15 +17,25 @@ namespace NetTally.Configure
     public partial class CheckForNewRelease : ObservableObject, IDisposable
     {
         const string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
+        const string githubLatestPage = "https://github.com/Kinematics/NetTally/releases/latest";
 
         readonly IPageProvider pageProvider;
         readonly ILogger<CheckForNewRelease> logger;
 
         readonly Timer timer;
-        readonly TimeSpan initialDelay = TimeSpan.FromSeconds(15);
+        readonly TimeSpan initialDelay = TimeSpan.FromSeconds(10);
         readonly TimeSpan periodDelay = TimeSpan.FromDays(1);
 
         const int frameworkVersion = 2;
+
+        [ObservableProperty]
+        bool hasNewRelease = false;
+
+        Regex TagVersionRegex = ReleasesTagRegex();
+
+        [GeneratedRegex(@"releases/tag/(?<tag>.+)$")]
+        private static partial Regex ReleasesTagRegex();
+
 
         public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
         {
@@ -77,29 +88,23 @@ namespace NetTally.Configure
         }
         #endregion Timer
 
-
-        [ObservableProperty]
-        bool hasNewRelease = false;
-
         #region Private version checking methods
         /// <summary>
         /// Check to see if there's a newer release than the currently running version.
-        /// If a newer version is found, the NewRelease property is set to true.
-        /// If no newer version is found, it sets up a request to re-run this function in 2 days time.
         /// </summary>
-        /// <returns>Returns nothing.  Just runs async.</returns>
+        /// <returns><c>True</c> if there is a newer version available. Otherwise <c>false</c>.</returns>
         private async Task<bool> DoVersionCheckAsync()
         {
             Version currentVersion = ProductInfo.FileVersion;
 
+            // If we can't load the program version, we can't do the check.
             if (currentVersion == null)
                 return false;
 
             Version latestVersion = await GetLatestVersionAsync();
 
-            return latestVersion.CompareTo(currentVersion) > 0;
+            return latestVersion > currentVersion;
         }
-
 
         /// <summary>
         /// Get the latest version we can find that matches the provided
@@ -110,6 +115,16 @@ namespace NetTally.Configure
         /// <returns>Returns the latest version we can find.</returns>
         private async Task<Version> GetLatestVersionAsync()
         {
+            // Try to load the URL that should just return a redirection
+            // with the latest version tag first.
+            Version? redirectVersion = await GetLatestRedirectVersion();
+
+            if (redirectVersion is not null)
+            {
+                return redirectVersion;
+            }
+
+            // Otherwise load the entire releases page and filter that.
             var versions = await GetReleaseVersionsAsync();
 
             Func<Version, bool> testForMajor;
@@ -124,6 +139,38 @@ namespace NetTally.Configure
 
             return latestVersion;
         }
+
+        /// <summary>
+        /// Load the "latest" release page headers and see if it redirects
+        /// to a tagged page. If so, and that tag can be parsed as a version,
+        /// return that version value.
+        /// </summary>
+        /// <returns>The latest version tag, if found. Otherwise <c>null</c>.</returns>
+        private async Task<Version?> GetLatestRedirectVersion()
+        {
+            string redirectURL = await pageProvider.GetRedirectUrlAsync(
+                githubLatestPage,
+                "Latest release page",
+                CachingMode.BypassCache,
+                ShouldCache.No,
+                SuppressNotifications.Yes,
+                default);
+
+            // Example redirect: https://github.com/Kinematics/NetTally/releases/tag/4.0.2
+
+            Match m = TagVersionRegex.Match(redirectURL);
+            if (m.Success)
+            {
+                string tag = m.Groups["tag"].Value;
+                if (Version.TryParse(tag, out Version? result))
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Get all the release versions we can find on the Github page.
