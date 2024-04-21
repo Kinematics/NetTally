@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -90,7 +89,7 @@ namespace NetTally.Avalonia.Views
                 {
                     uri = clipboard;
                 }
-                 
+
                 var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
 
                 // If the QuestOptions dialog was canceled, remove the quest we just added.
@@ -241,7 +240,8 @@ namespace NetTally.Avalonia.Views
         {
             if (OperatingSystem.IsWindows())
             {
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {hyperlink}") { CreateNoWindow = true });
+                Process.Start(new ProcessStartInfo("cmd",
+                    $"/c start {hyperlink}") { CreateNoWindow = true });
             }
 
         }
@@ -251,7 +251,7 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public MainWindow() 
+        public MainWindow()
         {
             //throw new InvalidOperationException("The default constructor should not be called");
         }

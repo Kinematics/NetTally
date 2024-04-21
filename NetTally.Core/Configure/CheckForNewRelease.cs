@@ -31,7 +31,7 @@ namespace NetTally.Configure
         [ObservableProperty]
         bool hasNewRelease = false;
 
-        Regex TagVersionRegex = ReleasesTagRegex();
+        readonly Regex TagVersionRegex = ReleasesTagRegex();
 
         [GeneratedRegex(@"releases/tag/(?<tag>.+)$")]
         private static partial Regex ReleasesTagRegex();
