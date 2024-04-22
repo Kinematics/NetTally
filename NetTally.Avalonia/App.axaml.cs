@@ -1,39 +1,24 @@
 ﻿using System;
-using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Debug;
-using NetTally.Avalonia.Config.Json;
-using NetTally.Avalonia.Config.Xml;
-using NetTally.Collections;
-using NetTally.Configure;
-using NetTally.Configure.Legacy;
-using NetTally.Data;
-using NetTally.Debugging.FileLogger;
-using NetTally.SystemInfo;
+using NetTally.Systems;
 
 namespace NetTally.Avalonia
 {
     public class App : Application
     {
-        private readonly IHost host;
         private readonly ILogger<App> logger;
-        public IServiceProvider Services => host.Services;
-
 
         public App()
         {
-            host = CreateHost();
-            CoreApp.SetServiceProvider(host.Services);
+            AppX.Initialize(SetupUIServices);
 
-            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
             logger = loggerFactory.CreateLogger<App>();
 
             // Create handlers for unhandled exceptions
@@ -42,88 +27,13 @@ namespace NetTally.Avalonia
             logger.LogDebug("Application constructor completed.");
         }
 
-
-        #region Hosting Setup
-        /// <summary>
-        /// Creates and configures the IHost for the application using the default builder.
-        /// </summary>
-        /// <returns>Returns an IHost that can run the application.</returns>
-        private static IHost CreateHost()
-        {
-            var builder = Host.CreateApplicationBuilder();
-
-            // Load legacy config, if available.
-            builder.Services.AddSingleton(LoadLegacyConfig() ?? new ConfigInfo());
-
-            ConfigureConfiguration(builder.Configuration);
-            ConfigureOptions(builder.Services);
-            ConfigureLogging(builder.Logging);
-            ConfigureServices(builder.Services);
-
-            return builder.Build();
-        }
-
-        /// <summary>
-        /// Handle setting up configuration files for the program to load configuration
-        /// data from.
-        /// </summary>
-        /// <param name="configuration">The configuration manager of the Host.</param>
-        private static void ConfigureConfiguration(ConfigurationManager configuration)
-        {
-            foreach (var path in JsonConfiguration.GetConfigurationPaths())
-            {
-                try
-                {
-                    configuration.AddJsonFile(path, optional: true);
-                }
-                catch (InvalidDataException)
-                {
-                    // Invalid config file. Ignore and keep processing.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Configure the options that can be loaded from configuration files.
-        /// Bind them to defined classes.
-        /// </summary>
-        /// <param name="services">The services collection of the Host.</param>
-        private static void ConfigureOptions(IServiceCollection services)
-        {
-            services.AddOptions<GlobalSettings>().BindConfiguration(nameof(GlobalSettings));
-            services.AddOptions<UserQuests>().BindConfiguration(nameof(UserQuests));
-        }
-
-        /// <summary>
-        /// Configure the logging details for the program to use.
-        /// </summary>
-        /// <param name="logging">The logging builder of the Host.</param>
-        private static void ConfigureLogging(ILoggingBuilder logging)
-        {
-            logging
-                .AddDebug()
-                .AddFile(options =>
-                {
-                    options.LogDirectory = GetLoggingPath();
-                    options.Periodicity = PeriodicityOptions.Daily;
-                    options.RetainedFileCountLimit = 7;
-                })
-                .AddFilter<DebugLoggerProvider>(DebugLoggingFilter)
-                .AddFilter<FileLoggerProvider>(FileLoggingFilter);
-        }
-
-        /// <summary>
-        /// Add all the services that the Host will manage while running the application.
-        /// </summary>
-        /// <param name="services">The service collection of the Host.</param>
-        private static void ConfigureServices(IServiceCollection services)
+        #region Hosting/DI setup
+        private void SetupUIServices(IServiceCollection services)
         {
             // Get the services provided by the core library.
             Startup.ConfigureServices(services);
 
             services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
-
-            services.AddTransient<JsonConfiguration>();
 
             // Then add services known by the current assembly,
             // or override services provided by the core library.
@@ -138,34 +48,7 @@ namespace NetTally.Avalonia
             services.AddTransient<Views.ManageVotes>();
             services.AddTransient<Views.ReorderTasks>();
         }
-
-        /// <summary>
-        /// Load legacy XML user configuration data, to be used in migration to json config files.
-        /// </summary>
-        /// <returns>Returns any legacy configuration.</returns>
-        private static ConfigInfo? LoadLegacyConfig()
-        {
-            if (LegacyNetTallyConfig.Load(out QuestCollection? quests, out string? currentQuest, GlobalOptionsConfig.Instance))
-            {
-                GlobalSettings gb = new()
-                {
-                    DisplayMode = GlobalOptionsConfig.Instance.DisplayMode,
-                    DisplayPlansWithNoVotes = GlobalOptionsConfig.Instance.DisplayPlansWithNoVotes,
-                    DisableWebProxy = GlobalOptionsConfig.Instance.DisableWebProxy,
-                    GlobalSpoilers = GlobalOptionsConfig.Instance.GlobalSpoilers,
-                    RankVoteCounterMethod = GlobalOptionsConfig.Instance.RankVoteCounterMethod,
-                    AllowUsersToUpdatePlans = GlobalOptionsConfig.Instance.AllowUsersToUpdatePlans,
-                    TrackPostAuthorsUniquely = GlobalOptionsConfig.Instance.TrackPostAuthorsUniquely
-                };
-
-                ConfigInfo config = new([.. quests], currentQuest, gb);
-
-                return config;
-            }
-
-            return null;
-        }
-        #endregion Hosting Setup
+        #endregion Hosting/DI setup
 
         #region Avalonia
         /// <summary>
@@ -187,7 +70,7 @@ namespace NetTally.Avalonia
                 // Add event handler for when the program exits.
                 desktop.Exit += Desktop_Exit;
 
-                Views.MainWindow mainWindow = Services.GetRequiredService<Views.MainWindow>();
+                Views.MainWindow mainWindow = AppX.Services.GetRequiredService<Views.MainWindow>();
 
                 desktop.MainWindow = mainWindow;
                 desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -199,74 +82,11 @@ namespace NetTally.Avalonia
         private void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
         {
             // Save settings on exit.
-            JsonConfiguration jsonConfiguration = host.Services.GetRequiredService<JsonConfiguration>();
-            jsonConfiguration.SaveJsonConfiguration();
+            AppX.SaveConfiguration();
 
             logger.LogDebug("Application exit.");
         }
         #endregion Avalonia
-
-        #region Logging
-        /// <summary>
-        /// Get the directory path to save logs to.
-        /// </summary>
-        /// <returns>Returns a path to save logs to.</returns>
-        private static string GetLoggingPath()
-        {
-            if (OperatingSystem.IsWindows())
-            {
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-
-                if (Directory.Exists(path))
-                {
-                    try
-                    {
-                        path = Path.Combine(path, ProductInfo.Name, "Logs");
-                        Directory.CreateDirectory(path);
-
-                        return path;
-                    }
-                    catch (Exception)
-                    {
-                        // If attempt to use the common app data path fails, fall back on the simple "Logs" path.
-                        return "Logs";
-                    }
-                }
-            }
-
-            return "Logs";
-        }
-
-        /// <summary>
-        /// Filter function for handling logs that get sent to the file logger.
-        /// Will normally log warnings, but will log debug levels if DebugMode is on.
-        /// </summary>
-        /// <param name="category">The log category.</param>
-        /// <param name="logLevel">The log level.</param>
-        /// <returns>True if the event should be logged, or false if not.</returns>
-        private static bool FileLoggingFilter(string? category, LogLevel logLevel)
-        {
-            if (GlobalOptionsConfig.Instance.DebugMode)
-                return logLevel >= LogLevel.Debug;
-
-            return logLevel >= LogLevel.Warning;
-        }
-
-        /// <summary>
-        /// Filter function for handling logs that get sent to the debug logger.
-        /// Will normally log debug, but will log anything if DebugMode is on.
-        /// </summary>
-        /// <param name="category">The log category.</param>
-        /// <param name="logLevel">The log level.</param>
-        /// <returns>True if the event should be logged, or false if not.</returns>
-        private static bool DebugLoggingFilter(string? category, LogLevel logLevel)
-        {
-            if (GlobalOptionsConfig.Instance.DebugMode)
-                return true;
-
-            return logLevel >= LogLevel.Debug;
-        }
-        #endregion Log Filters
 
         #region Error Handling
         /// <summary>

@@ -35,6 +35,12 @@ public static class AppX
         _ = Services.GetRequiredService<Agnostic>();
     }
 
+    public static void SaveConfiguration()
+    {
+        JsonConfiguration jsonConfiguration = Services.GetRequiredService<JsonConfiguration>();
+        jsonConfiguration.SaveJsonConfiguration();
+    }
+
     #region Hosting Setup
     /// <summary>
     /// Creates and configures the IHost for the application using the default builder.
