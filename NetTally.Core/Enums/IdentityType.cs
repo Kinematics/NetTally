@@ -1,11 +1,10 @@
-﻿namespace NetTally.Enums
+﻿namespace NetTally.Enums;
+
+/// <summary>
+/// The type of entity used as the origin for a vote.
+/// </summary>
+public enum IdentityType
 {
-    /// <summary>
-    /// The type of entity used as the origin for a vote.
-    /// </summary>
-    public enum IdentityType
-    {
-        Plan,
-        User,
-    }
+    Plan,
+    User,
 }

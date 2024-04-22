@@ -1,11 +1,10 @@
-﻿namespace NetTally.Enums
+﻿namespace NetTally.Enums;
+
+/// <summary>
+/// Enum for type of ordering to use when sorting vote tasks.
+/// </summary>
+public enum TasksOrdering
 {
-    /// <summary>
-    /// Enum for type of ordering to use when sorting vote tasks.
-    /// </summary>
-    public enum TasksOrdering
-    {
-        AsTallied,
-        Alphabetical,
-    }
+    AsTallied,
+    Alphabetical,
 }

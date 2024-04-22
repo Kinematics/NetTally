@@ -1,11 +1,10 @@
-﻿namespace NetTally.Enums
+﻿namespace NetTally.Enums;
+
+/// <summary>
+/// Flag whether to suppress notifications when loading pages.
+/// </summary>
+public enum SuppressNotifications
 {
-    /// <summary>
-    /// Flag whether to suppress notifications when loading pages.
-    /// </summary>
-    public enum SuppressNotifications
-    {
-        No,
-        Yes
-    }
+    No,
+    Yes
 }

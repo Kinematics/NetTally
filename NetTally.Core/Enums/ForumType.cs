@@ -1,17 +1,16 @@
-﻿namespace NetTally.Enums
+﻿namespace NetTally.Enums;
+
+/// <summary>
+/// The type of forum being read.
+/// </summary>
+public enum ForumType
 {
-    /// <summary>
-    /// The type of forum being read.
-    /// </summary>
-    public enum ForumType
-    {
-        Unknown,
-        XenForo1,
-        XenForo2,
-        vBulletin3,
-        vBulletin4,
-        vBulletin5,
-        phpBB,
-        NodeBB
-    }
+    Unknown,
+    XenForo1,
+    XenForo2,
+    vBulletin3,
+    vBulletin4,
+    vBulletin5,
+    phpBB,
+    NodeBB
 }

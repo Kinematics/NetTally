@@ -1,11 +1,10 @@
-﻿namespace NetTally.Enums
+﻿namespace NetTally.Enums;
+
+/// <summary>
+/// The type of page being loaded.
+/// </summary>
+public enum PageType
 {
-    /// <summary>
-    /// The type of page being loaded.
-    /// </summary>
-    public enum PageType
-    {
-        Thread,
-        Threadmarks,
-    }
+    Thread,
+    Threadmarks,
 }
