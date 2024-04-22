@@ -1,8 +1,8 @@
 ﻿using System;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
-using NetTally.Types.Enums;
 using NetTally.Data;
+using NetTally.Enums;
 
 namespace NetTally.Tally.Components
 {
@@ -19,9 +19,9 @@ namespace NetTally.Tally.Components
         public Origin Source { get; }
 
         public static readonly Origin Empty = new("-", "0", 0,
-            DateTime.MinValue, new Uri(StringData.ExampleHostString), StringData.ExampleHostString);
+            DateTime.MinValue, new Uri(StringData.ExampleHostUrl), StringData.ExampleHostUrl);
 
-        private static readonly Uri exampleUri = new(StringData.ExampleHostString);
+        private static readonly Uri exampleUri = new(StringData.ExampleHostUrl);
         private readonly int hash;
         private readonly bool limitedToName;
 

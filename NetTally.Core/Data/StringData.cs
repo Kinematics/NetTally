@@ -5,5 +5,5 @@ public class StringData
     public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
     public const string NewThreadDisplayName = "~Placeholder~";
 
-    public const string ExampleHostString = "http://www.example.com/";
+    public const string ExampleHostUrl = "http://www.example.com/";
 }

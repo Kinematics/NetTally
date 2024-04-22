@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using NetTally.Enums;
 using NetTally.Extensions;
 using NetTally.SystemInfo;
-using NetTally.Types.Enums;
 using NetTally.Web;
 
-namespace NetTally.Configure
+namespace NetTally.Data
 {
     public partial class CheckForNewRelease : ObservableObject, IDisposable
     {

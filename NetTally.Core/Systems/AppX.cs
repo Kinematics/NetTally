@@ -10,6 +10,7 @@ using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Configure.Legacy;
+using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Forums;
 using NetTally.Output;

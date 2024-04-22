@@ -9,9 +9,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Cache;
-using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Types.Enums;
+using NetTally.Data;
+using NetTally.Enums;
+using NetTally.Extensions;
 using NetTally.VoteCounting;
 
 namespace NetTally.ViewModels
@@ -137,12 +138,12 @@ namespace NetTally.ViewModels
             bool hadZeroQuests = Quests.Count == 0;
 
             SelectedQuest = questsInfo.CreateQuest();
-            
+
             if (hadZeroQuests)
                 OnPropertyChanged(nameof(HasQuests));
-                
+
             OnPropertyChanged(nameof(AddQuestCommand));
-            
+
             logger.LogInformation("Added new quest");
         }
 
