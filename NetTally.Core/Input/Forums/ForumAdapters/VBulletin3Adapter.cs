@@ -10,8 +10,8 @@ using Microsoft.Extensions.Options;
 using NetTally.Extensions;
 using NetTally.Configure;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.Web;
+using NetTally.Enums;
 
 namespace NetTally.Forums.ForumAdapters
 {

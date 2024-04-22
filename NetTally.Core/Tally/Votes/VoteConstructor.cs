@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 

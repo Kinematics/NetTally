@@ -8,8 +8,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Data;
 using NetTally.Configure;
-using NetTally.Types.Enums;
 using NetTally.Utility;
+using NetTally.Enums;
 
 namespace NetTally.ViewModels
 {

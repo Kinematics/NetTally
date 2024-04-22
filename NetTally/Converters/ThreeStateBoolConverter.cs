@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Converters
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Configure.Legacy
 {

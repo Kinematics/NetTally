@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetTally.Forums.ForumAdapters;
 using NetTally.Configure.Legacy;
-using NetTally.Types.Enums;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Enums;
 
 namespace NetTally.Forums
 {

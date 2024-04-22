@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 
 namespace NetTally.Tests.Forums
 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference

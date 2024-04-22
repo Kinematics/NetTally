@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace NetTally.Types.Enums
+namespace NetTally.Enums
 {
     /// <summary>
     /// Enum for determining which type of rank vote calculation method to use.

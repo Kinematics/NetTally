@@ -8,10 +8,10 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Extensions;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.Web;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Enums;
 
 namespace NetTally.Forums.ForumAdapters
 {

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Types.Enums
+﻿namespace NetTally.Enums
 {
     /// <summary>
     /// Potential status types for page loads.

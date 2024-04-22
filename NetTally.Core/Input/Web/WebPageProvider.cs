@@ -12,7 +12,7 @@ using NetTally.Cache;
 using NetTally.Extensions;
 using NetTally.Configure;
 using NetTally.SystemInfo;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Web
 {

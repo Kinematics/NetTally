@@ -1,4 +1,4 @@
-﻿namespace NetTally.Types.Enums
+﻿namespace NetTally.Enums
 {
     /// <summary>
     /// Flag whether a requested page should be cached.

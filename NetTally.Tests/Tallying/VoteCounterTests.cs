@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.VoteCounting;
 
 namespace NetTally.Tests.Tallying

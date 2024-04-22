@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Data;
+using NetTally.Enums;
 using NetTally.Input.Utility;
 using NetTally.Quests;
-using NetTally.Types.Enums;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 

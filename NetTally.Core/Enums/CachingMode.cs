@@ -1,4 +1,4 @@
-﻿namespace NetTally.Types.Enums
+﻿namespace NetTally.Enums
 {
     /// <summary>
     /// Enum for whether to use the cache when loading a web page.

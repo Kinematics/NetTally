@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace NetTally.Types.Enums
+namespace NetTally.Enums
 {
     /// <summary>
     /// Enum for various partitioning modes to use for breaking votes up into components.

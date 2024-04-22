@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Collections;
 using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Types.Enums;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting

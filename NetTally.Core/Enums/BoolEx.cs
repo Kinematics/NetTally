@@ -1,4 +1,4 @@
-﻿namespace NetTally.Types.Enums
+﻿namespace NetTally.Enums
 {
     /// <summary>
     /// Enum to extend bool to include an unknown state.

@@ -4,7 +4,7 @@ using System.Configuration;
 using System.Linq;
 using NetTally.Collections;
 using NetTally.Configure.Legacy;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Systems.Config.Xml
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Configure
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Configure.Legacy
 {

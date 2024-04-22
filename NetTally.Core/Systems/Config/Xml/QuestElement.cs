@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 using System.Linq;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.Systems.Config.Xml
 {

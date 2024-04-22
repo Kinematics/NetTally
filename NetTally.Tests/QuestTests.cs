@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Data;
+using NetTally.Enums;
 using NetTally.Forums;
-using NetTally.Types.Enums;
 using NetTally.VoteCounting;
 
 namespace NetTally.Tests.QuestTests

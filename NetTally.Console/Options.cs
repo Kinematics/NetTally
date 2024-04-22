@@ -3,7 +3,7 @@ using NetTally.Votes;
 using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
-using NetTally.Types.Enums;
+using NetTally.Enums;
 
 namespace NetTally.CLI
 {
