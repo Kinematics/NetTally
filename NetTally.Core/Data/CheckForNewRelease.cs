@@ -33,7 +33,7 @@ namespace NetTally.Data
 
         readonly Regex TagVersionRegex = ReleasesTagRegex();
 
-        [GeneratedRegex(@"releases/tag/(?<tag>.+)$")]
+        [GeneratedRegex(@"releases/tag/v?(?<tag>.+)$")]
         private static partial Regex ReleasesTagRegex();
 
 
