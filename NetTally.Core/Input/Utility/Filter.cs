@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Data;
+using NetTally.Systems;
 using NetTally.Utility;
 
 namespace NetTally.Input.Utility
@@ -90,10 +91,7 @@ namespace NetTally.Input.Utility
         {
             filterString ??= string.Empty;
 
-            var loggerFactory = CoreApp.ServiceProvider?.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory?.CreateLogger<Filter>();
-
-            filterRegex = CreateRegex(filterString, injectString, logger);
+            filterRegex = CreateRegex(filterString, injectString);
         }
         #endregion
 
@@ -105,7 +103,7 @@ namespace NetTally.Input.Utility
         /// <param name="injectString">Default filter string for the filter.</param>
         /// <returns>Returns a <see cref="Regex"/> based on the properties of the provided
         /// strings.</returns>
-        private Regex CreateRegex(string filterString, string? injectString, ILogger<Filter>? logger)
+        private Regex CreateRegex(string filterString, string? injectString)
         {
             string userString = filterString.RemoveUnsafeCharacters().Trim();
 
@@ -122,7 +120,7 @@ namespace NetTally.Input.Utility
             }
             else
             {
-                return CreateSimpleRegex(userString, injectString, logger);
+                return CreateSimpleRegex(userString, injectString);
             }
         }
 
@@ -182,7 +180,7 @@ namespace NetTally.Input.Utility
         /// <param name="simpleString">The user-defined filter string.</param>
         /// <param name="injectString">The default, program-provided string to filter on.</param>
         /// <returns>Returns a regex constructed from the strings.</returns>
-        private Regex CreateSimpleRegex(string simpleString, string? injectString, ILogger<Filter>? logger)
+        private Regex CreateSimpleRegex(string simpleString, string? injectString)
         {
             if (string.IsNullOrEmpty(simpleString) && string.IsNullOrEmpty(injectString))
             {
@@ -229,7 +227,12 @@ namespace NetTally.Input.Utility
             }
             catch (ArgumentException e)
             {
-                logger?.LogError(e, "Failed to create regex using string: [{pattern}]", sb);
+                if (AppX.Host is not null)
+                {
+                    var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory?.CreateLogger<Filter>();
+                    logger?.LogError(e, "Failed to create regex using string: [{pattern}]", sb);
+                }
             }
 
             // If the attempt to create the regex to be returned failed, bail and
