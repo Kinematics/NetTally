@@ -6,7 +6,6 @@ using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
-using NetTally.Data;
 using NetTally.Systems;
 using NetTally.ViewModels;
 

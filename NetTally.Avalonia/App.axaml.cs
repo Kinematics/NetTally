@@ -30,9 +30,6 @@ namespace NetTally.Avalonia
         #region Hosting/DI setup
         private void SetupUIServices(IServiceCollection services)
         {
-            // Get the services provided by the core library.
-            Startup.ConfigureServices(services);
-
             services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
 
             // Then add services known by the current assembly,
