@@ -28,5 +28,6 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
 	</ItemGroup>
 </Project>
