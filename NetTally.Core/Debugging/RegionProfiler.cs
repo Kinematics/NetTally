@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Data;
+using NetTally.Systems;
 
 namespace NetTally
 {
@@ -45,7 +46,7 @@ namespace NetTally
             bool accumulate = false)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(regionName);
-            ArgumentNullException.ThrowIfNull(CoreApp.ServiceProvider);
+            ArgumentNullException.ThrowIfNull(AppX.Services);
 
             this.regionName = regionName;
             this.minimumTime = minimumTime ?? TimeSpan.Zero;
@@ -56,7 +57,7 @@ namespace NetTally
             if (!accumulator.ContainsKey(regionName))
                 accumulator[regionName] = 0.0;
 
-            ILoggerFactory loggerFactory = CoreApp.ServiceProvider.GetRequiredService<ILoggerFactory>();
+            ILoggerFactory loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
             logger = loggerFactory.CreateLogger($"RegionProfiler:{regionName}");
 
             if (!accumulate)

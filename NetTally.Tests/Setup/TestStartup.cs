@@ -1,38 +1,21 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using NetTally.SystemInfo;
-using NetTally.Utility.Comparers;
-using NetTally.Configure;
-using NetTally.Data;
+using NetTally.Systems;
 
 namespace NetTally.Tests
 {
     public static class TestStartup
     {
-        static IHost? host;
-
         public static IServiceProvider ConfigureServices()
         {
-            host = Host.CreateDefaultBuilder()
-                    .ConfigureServices((context, services) =>
-                    {
-                        Startup.ConfigureServices(services);
-                        services.Configure<GlobalSettings>(context.Configuration.GetSection(nameof(GlobalSettings)));
-                        services.Configure<UserQuests>(context.Configuration.GetSection(nameof(UserQuests)));
-                        services.AddSingleton<IClock, StaticClock>();
-                        services.AddSingleton(new ConfigInfo());
-                    })
-                    .ConfigureLogging((context, builder) =>
-                    {
-                        builder.AddDebug();
-                    })
-                    .Build();
+            AppX.Initialize(AddTestServices);
+            return AppX.Services;
+        }
 
-            CoreApp.SetServiceProvider(host.Services);
-
-            return host.Services;
+        private static void AddTestServices(IServiceCollection services)
+        {
+            services.AddSingleton<IClock, StaticClock>();
         }
     }
 }

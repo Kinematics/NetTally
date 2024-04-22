@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
 using NetTally.Data;
+using NetTally.Systems;
 using NetTally.ViewModels;
 
 namespace NetTally.CLI
@@ -16,7 +17,6 @@ namespace NetTally.CLI
         #region Variables
         static bool verbose;
 
-        static IServiceProvider serviceProvider;
         static ILogger<Program> logger;
         static MainViewModel mainViewModel;
         static GlobalOptionsViewModel globalOptionsViewModel;
@@ -29,23 +29,15 @@ namespace NetTally.CLI
         /// <param name="args">Arguments passed to the application.</param>
         static async Task Main(string[] args)
         {
-            // Create a service collection and configure our dependencies
-            var serviceCollection = new ServiceCollection();
-
-            // Get the services provided by the core library.
-            Startup.ConfigureServices(serviceCollection);
-
-            // Build the IServiceProvider and set our reference to it
-            serviceProvider = serviceCollection.BuildServiceProvider();
-            CoreApp.SetServiceProvider(serviceProvider);
+            AppX.Initialize(_ => { });
 
             // Get a logger for debugging.
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
             logger = loggerFactory.CreateLogger<Program>();
             logger.LogDebug("Services defined, starting console app!");
 
-            mainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
-            globalOptionsViewModel = serviceProvider.GetService<GlobalOptionsViewModel>();
+            mainViewModel = AppX.Services.GetRequiredService<MainViewModel>();
+            globalOptionsViewModel = AppX.Services.GetService<GlobalOptionsViewModel>();
 
             mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
             logger.LogTrace("Watching events from the main view model.");
