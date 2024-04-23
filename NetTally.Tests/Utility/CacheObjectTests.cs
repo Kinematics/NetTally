@@ -4,7 +4,7 @@ using Microsoft.Extensions.Time.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Cache;
 
-namespace NTTests.Utility
+namespace NetTally.Tests.Utility
 {
     [TestClass]
     public class CacheObjectTests

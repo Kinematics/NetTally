@@ -1,13 +1,7 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
-using NetTally.Tests;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Utility;
-using NetTally.Utility.Comparers;
 
-namespace NTTests.Utility
+namespace NetTally.Tests.Utility
 {
     [TestClass]
     public class StringTests
