@@ -367,14 +367,15 @@ namespace NetTally.VoteCounting
         #region Adding / Modifying / Deleting Votes
 
         /// <summary>
-        /// Add a collection of votes to the vote counter.
+        /// Add a collection of votes by a given voter to the vote counter.
         /// </summary>
         /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
         /// <param name="voter">The voter for this vote.</param>
-        /// <param name="postID">The post ID for this vote.</param>
-        /// <param name="voteType">The type of vote being added.</param>
-        public void AddVotes(IEnumerable<VoteLineBlock> votePartitions, Origin voter)
+        public void AddVotes(IEnumerable<VoteLineBlock>? votePartitions, Origin voter)
         {
+            if (votePartitions == null)
+                return;
+
             if (!votePartitions.Any())
                 return;
 

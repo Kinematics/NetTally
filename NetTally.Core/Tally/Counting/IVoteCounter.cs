@@ -167,11 +167,9 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Function to add the provided votes to the current vote stores.
         /// </summary>
-        /// <param name="voteParts">The vote blocks to be added.</param>
+        /// <param name="votePartitions">The vote blocks to be added.</param>
         /// <param name="voter">The voter.</param>
-        /// <param name="postID">The ID of the vote post.</param>
-        /// <param name="voteType">The type of vote.</param>
-        void AddVotes(IEnumerable<VoteLineBlock> voteParts, Origin voter);
+        void AddVotes(IEnumerable<VoteLineBlock>? votePartitions, Origin voter);
         /// <summary>
         /// Merge the vote supporters from one vote into another.
         /// </summary>
