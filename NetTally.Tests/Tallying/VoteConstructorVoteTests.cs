@@ -15,14 +15,12 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
         static Quest quest = null!;
 
         [ClassInitialize]
         public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
         }
 
         [TestInitialize]
@@ -30,7 +28,7 @@ namespace NetTally.Tests.Tallying
         {
             quest = new Quest
             {
-                VoteCounter = voteCounter
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
             };
         }
         #endregion
@@ -169,12 +167,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost1();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -183,12 +181,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost2();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -197,12 +195,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost3();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(3, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(3, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -211,12 +209,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost1();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -225,12 +223,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost2();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -239,12 +237,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost3();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -253,12 +251,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost1();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -267,12 +265,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost2();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -281,12 +279,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost3();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(3, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(3, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -297,12 +295,12 @@ But might include something else...
             quest.CustomTaskFilters = "Action";
             Post post = GetPost3();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -313,12 +311,12 @@ But might include something else...
             quest.CustomTaskFilters = "Action";
             Post post = GetPost3();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -326,12 +324,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan1();
 
-            var (outName, results) = VoteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines[0].CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -339,12 +337,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan2();
 
-            var (outName, results) = VoteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines[0].CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -352,12 +350,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan3();
 
-            var (outName, results) = VoteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan Sound of Music", results.Lines[0].CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan Sound of Music", votes.Lines[0].CleanContent);
         }
         #endregion
 
@@ -368,12 +366,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost4();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(7, results!.Count);
-            Assert.AreEqual("", results[0].Task);
-            Assert.AreEqual(1, results[0].Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(7, votes.Count);
+            Assert.AreEqual("", votes[0].Task);
+            Assert.AreEqual(1, votes[0].Lines.Count);
         }
 
         [TestMethod]
@@ -382,14 +380,14 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost4();
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(3, results!.Count);
-            Assert.AreEqual("", results.First().Task);
-            Assert.AreEqual(1, results[0].Lines.Count);
-            Assert.AreEqual(1, results[1].Lines.Count);
-            Assert.AreEqual(5, results[2].Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(3, votes.Count);
+            Assert.AreEqual("", votes.First().Task);
+            Assert.AreEqual(1, votes[0].Lines.Count);
+            Assert.AreEqual(1, votes[1].Lines.Count);
+            Assert.AreEqual(5, votes[2].Lines.Count);
         }
 
         [TestMethod]
@@ -400,12 +398,10 @@ But might include something else...
 
             Assert.IsFalse(post.HasVote);
 
-            var results = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            if (results != null)
-                Assert.AreEqual(0, results.Count);
-
-            Assert.AreNotEqual(null, results);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(0, votes.Count);
         }
         #endregion
     }
