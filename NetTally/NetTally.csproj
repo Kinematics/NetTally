@@ -20,6 +20,7 @@
 	<PropertyGroup>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/Kinematics/NetTally</RepositoryUrl>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>embedded</DebugType>
