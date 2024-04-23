@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -37,9 +36,6 @@ namespace NetTally.VoteCounting
         #endregion
 
         #region Current Properties
-        [ObservableProperty]
-        bool tallyIsRunning;
-
         /// <summary>
         /// The string containing the current tally progress or results.
         /// Creates a notification event if the contents change.
@@ -47,7 +43,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         [ObservableProperty]
         private string tallyResults = string.Empty;
-        
+
         [ObservableProperty]
         private bool hasTallyResults = false;
 
@@ -137,8 +133,9 @@ namespace NetTally.VoteCounting
                 quest.VoteCounter.AddReferenceVoter(post.Origin);
             }
 
-            List<(bool asBlocks, Func<IEnumerable<VoteLine>,
-                (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
+            List<(bool asBlocks,
+                  Func<IEnumerable<VoteLine>,
+                       (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses =
                 [
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                     (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
@@ -177,17 +174,16 @@ namespace NetTally.VoteCounting
                 {
                     var plans = VoteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
 
-                    foreach (var plan in plans)
+                    foreach (var (planName, planContent) in plans)
                     {
                         // Convert "Base/Proposed Plan" to "Plan" before saving.
                         // Set to an undefined marker.
-                        (string normalPlanName, VoteLineBlock normalPlanContents) = VoteConstructor.NormalizePlan(plan.Key, plan.Value);
+                        (string normalPlanName, VoteLineBlock normalPlanContents) =
+                            VoteConstructor.NormalizePlan(planName, planContent);
 
                         var planOrigin = post.Origin.GetPlanOrigin(normalPlanName);
 
-                        bool added = quest.VoteCounter.AddReferencePlan(planOrigin, normalPlanContents);
-
-                        if (added)
+                        if (quest.VoteCounter.AddReferencePlan(planOrigin, normalPlanContents))
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
