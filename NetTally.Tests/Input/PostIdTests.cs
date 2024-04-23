@@ -8,33 +8,40 @@ namespace NetTally.Tests.Forums
     public class PostIdTests
     {
         #region Setup
-        static IServiceProvider? serviceProvider;
-
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            serviceProvider = TestStartup.ConfigureServices();
-        }
-
-        [TestInitialize]
-        public void Initialize()
-        {
+            TestStartup.ConfigureServices();
         }
         #endregion
 
         #region Bad construction
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Construct_Null()
+        public void BadConstruct_Null()
         {
             _ = new PostId(null!);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void Construct_Empty()
+        public void BadConstruct_Empty()
         {
             _ = new PostId("");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void BadConstruct_Whitespace()
+        {
+            _ = new PostId("   ");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void BadConstruct_Negative()
+        {
+            _ = new PostId(-101);
         }
         #endregion
 
@@ -44,6 +51,16 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new("1");
             Assert.AreEqual(1, id.Value);
+            Assert.AreEqual("1", id.Text);
+            Assert.IsTrue(id == 1);
+        }
+
+        [TestMethod]
+        public void Construct_One_Number()
+        {
+            PostId id = new(1);
+            Assert.AreEqual(1, id.Value);
+            Assert.AreEqual("1", id.Text);
             Assert.IsTrue(id == 1);
         }
 
@@ -84,7 +101,8 @@ namespace NetTally.Tests.Forums
         {
             PostId id = new("270A8C7");
             Assert.AreEqual(0, id.Value);
-            Assert.IsTrue(id == 0);
+            //Assert.AreEqual(40937671, id.Value);
+            Assert.IsTrue(id == "270A8C7");
         }
         #endregion
 

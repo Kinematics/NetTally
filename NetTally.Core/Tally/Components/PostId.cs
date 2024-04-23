@@ -15,16 +15,20 @@ namespace NetTally.Tally.Components
 
         public PostId(string postId)
         {
-            ArgumentNullException.ThrowIfNull(postId);
             ArgumentException.ThrowIfNullOrWhiteSpace(postId);
 
             Text = postId;
 
-            if (long.TryParse(postId, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long postIdValue)
-                && postIdValue > 0)
+            if (long.TryParse(postId, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long postIdValue))
             {
-                Value = postIdValue;
+                if (postIdValue > 0)
+                    Value = postIdValue;
             }
+            //else if (long.TryParse(postId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out long postIdHexValue))
+            //{
+            //    if (postIdHexValue > 0)
+            //        Value = postIdHexValue;
+            //}
         }
 
         public PostId(long postId)
@@ -52,13 +56,7 @@ namespace NetTally.Tally.Components
 
         public int CompareTo(PostId? other)
         {
-            if (other is null)
-                return 1;
-
-            if (Value == 0 && other.Value == 0)
-                return Text.CompareTo(other.Text);
-
-            return Value.CompareTo(other.Value);
+            return Compare(this, other);
         }
 
         public int CompareTo(long other)
