@@ -169,7 +169,7 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="votePartitions">The vote blocks to be added.</param>
         /// <param name="voter">The voter.</param>
-        void AddVotes(IEnumerable<VoteLineBlock>? votePartitions, Origin voter);
+        void AddVotes(List<VoteLineBlock> votePartitions, Origin voter);
         /// <summary>
         /// Merge the vote supporters from one vote into another.
         /// </summary>

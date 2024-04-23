@@ -371,12 +371,9 @@ namespace NetTally.VoteCounting
         /// </summary>
         /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
         /// <param name="voter">The voter for this vote.</param>
-        public void AddVotes(IEnumerable<VoteLineBlock>? votePartitions, Origin voter)
+        public void AddVotes(List<VoteLineBlock> votePartitions, Origin voter)
         {
-            if (votePartitions == null)
-                return;
-
-            if (!votePartitions.Any())
+            if (votePartitions.Count == 0)
                 return;
 
             // Remove the voter from any existing votes

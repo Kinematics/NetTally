@@ -93,10 +93,17 @@ namespace NetTally.Votes
             return null;
         }
 
+        /// <summary>
+        /// Get votes from the provided post during the processing phase.
+        /// </summary>
+        /// <param name="post">The post being processed.</param>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="votes">Returns any votes from the post if the post was processed.</param>
+        /// <returns><c>True</c> if the post was processed, or <c>false</c> if it was not.</returns>
         public static bool TryProcessPostGetVotes(Post post, Quest quest,
-            out List<VoteLineBlock>? votes)
+            out List<VoteLineBlock> votes)
         {
-            votes = null;
+            votes = [];
 
             if (!post.Processed)
             {
@@ -120,7 +127,7 @@ namespace NetTally.Votes
                         var results = PartitionPost(post, quest.PartitionMode);
 
                         // Apply task filtering.
-                        votes = results.Where(p => DoesTaskFilterPass(p, quest)).ToList();
+                        votes.AddRange(results.Where(p => DoesTaskFilterPass(p, quest)));
 
                         post.Processed = true;
                     }
