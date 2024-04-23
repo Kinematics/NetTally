@@ -53,7 +53,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
-        IReadOnlyList<Post> Posts { get; }
+        List<Post> Posts { get; }
         /// <summary>
         /// Whether the quest has any recorded posts.
         /// </summary>

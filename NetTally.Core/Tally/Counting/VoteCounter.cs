@@ -32,7 +32,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
-        public IReadOnlyList<Post> Posts => postsList;
+        public List<Post> Posts => postsList;
 
         /// <summary>
         /// The overall collection of voters and supporters.
