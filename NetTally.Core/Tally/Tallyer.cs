@@ -206,47 +206,51 @@ namespace NetTally.VoteCounting
 
         private static void ProcessPosts(Quest quest)
         {
-            var unprocessed = quest.VoteCounter.Posts;
-
-            // Loop as long as there are any more to process.
-            while (unprocessed.Any())
-            {
-                bool processedAny = false;
-
-                foreach (var post in unprocessed)
-                {
-                    var filteredResults = VoteConstructor.ProcessPostGetVotes(post, quest);
-
-                    if (post.Processed)
-                        processedAny = true;
-
-                    if (filteredResults != null)
-                    {
-                        // Add those to the vote counter.
-                        quest.VoteCounter.AddVotes(filteredResults, post.Origin);
-                    }
-                }
-
-                if (processedAny)
-                {
-                    // As long as some got processed, remove those from the unprocessed list
-                    // and let the loop run again.
-                    unprocessed = unprocessed.Where(p => !p.Processed).ToList();
-                }
-                else
-                {
-                    // If none got processed (and there must be at least some waiting on processing),
-                    // Set the ForceProcess flag on them to avoid pending FutureReference waits.
-                    foreach (var post in unprocessed)
-                    {
-                        post.ForceProcess = true;
-                    }
-                }
-            }
+            RunProcessing(quest, quest.VoteCounter.Posts);
 
             quest.VoteCounter.AddUserDefinedTasksToTaskList();
 
             quest.VoteCounter.RunMergeActions();
+
+
+            static void RunProcessing(Quest quest, List<Post> postsToProcess)
+            {
+                // Loop as long as there are any more to process.
+                while (postsToProcess.Count != 0)
+                {
+                    if (TryProcessPosts(quest, postsToProcess, out var unprocessed))
+                    {
+                        // If any posts were processed, replace the list with any
+                        // remaining posts that are unprocessed.
+                        postsToProcess = unprocessed;
+                    }
+                    else
+                    {
+                        // If none got processed, set the ForceProcess flag on them
+                        // to avoid pending FutureReference waits.
+                        postsToProcess.ForEach(p => p.ForceProcess = true);
+                    }
+                }
+            }
+
+            static bool TryProcessPosts(Quest quest, List<Post> postsToProcess, out List<Post> unprocessed)
+            {
+                unprocessed = [];
+
+                foreach (var post in postsToProcess)
+                {
+                    if (VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes))
+                    {
+                        quest.VoteCounter.AddVotes(votes, post.Origin);
+                    }
+                    else
+                    {
+                        unprocessed.Add(post);
+                    }
+                }
+
+                return unprocessed.Count < postsToProcess.Count;
+            }
         }
         #endregion
 
