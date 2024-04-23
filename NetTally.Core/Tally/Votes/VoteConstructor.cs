@@ -55,49 +55,6 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post being processed.</param>
         /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns a list of all vote partitions from this post.
-        /// May return null if nothing was processed.</returns>
-        public static List<VoteLineBlock>? ProcessPostGetVotes(Post post, Quest quest)
-        {
-            if (post.Processed)
-                return null;
-
-            if (!post.WorkingVoteComplete)
-                ConfigureWorkingVote(post, quest);
-
-            // If the working vote configuration is complete, process the post.
-            if (post.WorkingVoteComplete)
-            {
-                // If a newer vote has been registered in the vote counter, that means
-                // that this post was a prior future reference that got overridden later.
-                // If so, don't process it now, but allow the post to be marked as
-                // processed so that it doesn't try to re-submit it later.
-                if (quest.VoteCounter.HasNewerVote(post))
-                {
-                    post.Processed = true;
-                }
-                else
-                {
-                    // Get the results of partitioning the post.
-                    var results = PartitionPost(post, quest.PartitionMode);
-
-                    // Apply task filtering.
-                    var filteredResults = results.Where(p => DoesTaskFilterPass(p, quest)).ToList();
-
-                    post.Processed = true;
-                    return filteredResults;
-                }
-
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get votes from the provided post during the processing phase.
-        /// </summary>
-        /// <param name="post">The post being processed.</param>
-        /// <param name="quest">The quest being tallied.</param>
         /// <param name="votes">Returns any votes from the post if the post was processed.</param>
         /// <returns><c>True</c> if the post was processed, or <c>false</c> if it was not.</returns>
         public static bool TryProcessPostGetVotes(Post post, Quest quest,
