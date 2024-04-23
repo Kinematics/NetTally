@@ -53,251 +53,235 @@ namespace NetTally.Tests.Votes
         [TestMethod]
         public void SingleLine_Partitioning_None()
         {
-            string postText = oneLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, oneLine);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("[] Run Lola Run!", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void SingleLine_Partition_ByLine()
         {
-            string postText = oneLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, oneLine);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[] Run Lola Run!", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void SingleLine_Partition_ByBlock()
         {
-            string postText = oneLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, oneLine);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[] Run Lola Run!", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void SingleLine_Partition_ByLineTask()
         {
-            string postText = oneLineTask;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, oneLineTask);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void TwoLine_Partitioning_None()
         {
-            string postText = twoLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoLine);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!\n[] National Geographic", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[] Run Lola Run!\n[] National Geographic", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void TwoLine_Partition_ByLine()
         {
-            string postText = twoLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoLine);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("[] National Geographic", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("[] National Geographic", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void TwoLine_Partition_ByBlock()
         {
-            string postText = twoLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoLine);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("[] National Geographic", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("[] National Geographic", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void TwoLine_Partition_ByLineTask()
         {
-            string postText = twoLineTask;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoLineTask);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("[] National Geographic", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("[] National Geographic", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void ChildLine_Partitioning_None()
         {
-            string postText = childLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, childLine);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void ChildLine_Partition_ByLine()
         {
-            string postText = childLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, childLine);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("-[] National Geographic", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("-[] National Geographic", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void ChildLine_Partition_ByBlock()
         {
-            string postText = childLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, childLine);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void ChildLine_Partition_ByLineTask()
         {
-            string postText = childLine;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, childLine);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("-[][Movie] National Geographic", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("-[][Movie] National Geographic", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void TwoChunk_Partitioning_None()
         {
-            string postText = twoChunk;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoChunk);
             quest.PartitionMode = PartitionMode.None;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(1, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic\n[] Gunbuster", result[0].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(1, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic\n[] Gunbuster", votes[0].ToComparableString());
         }
 
         [TestMethod]
         public void TwoChunk_Partition_ByLine()
         {
-            string postText = twoChunk;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoChunk);
             quest.PartitionMode = PartitionMode.ByLine;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(3, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("-[] National Geographic", result[1].ToComparableString());
-            Assert.AreEqual("[] Gunbuster", result[2].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(3, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("-[] National Geographic", votes[1].ToComparableString());
+            Assert.AreEqual("[] Gunbuster", votes[2].ToComparableString());
         }
 
         [TestMethod]
         public void TwoChunk_Partition_ByBlock()
         {
-            string postText = twoChunk;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoChunk);
             quest.PartitionMode = PartitionMode.ByBlock;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(2, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", result[0].ToComparableString());
-            Assert.AreEqual("[] Gunbuster", result[1].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(2, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!\n-[] National Geographic", votes[0].ToComparableString());
+            Assert.AreEqual("[] Gunbuster", votes[1].ToComparableString());
         }
 
         [TestMethod]
         public void TwoChunk_Partition_ByLineTask()
         {
-            string postText = twoChunk;
-
-            Post post = new(origin, postText);
+            Post post = new(origin, twoChunk);
             quest.PartitionMode = PartitionMode.ByLineTask;
 
-            var result = VoteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, result);
-            Assert.AreEqual(3, result!.Count);
-            Assert.AreEqual("[][Movie] Run Lola Run!", result[0].ToComparableString());
-            Assert.AreEqual("-[][Movie] National Geographic", result[1].ToComparableString());
-            Assert.AreEqual("[] Gunbuster", result[2].ToComparableString());
+            Assert.IsTrue(processed);
+            Assert.AreNotEqual(null, votes);
+            Assert.AreEqual(3, votes!.Count);
+            Assert.AreEqual("[][Movie] Run Lola Run!", votes[0].ToComparableString());
+            Assert.AreEqual("-[][Movie] National Geographic", votes[1].ToComparableString());
+            Assert.AreEqual("[] Gunbuster", votes[2].ToComparableString());
         }
     }
 }

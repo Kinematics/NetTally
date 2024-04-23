@@ -9,7 +9,7 @@ namespace NetTally.Tests.Forums
     {
         #region Setup
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             TestStartup.ConfigureServices();
         }
