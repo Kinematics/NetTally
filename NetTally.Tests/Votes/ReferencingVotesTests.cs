@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components;
-using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 using NetTally.Votes;
 
@@ -28,9 +26,10 @@ namespace NetTally.Tests.Votes
         [TestInitialize]
         public void Initialize()
         {
-            quest = new Quest();
-            IVoteCounter voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-            quest.VoteCounter = voteCounter;
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
 
         [TestCleanup]
@@ -53,6 +52,11 @@ namespace NetTally.Tests.Votes
         readonly static string twoChunkPlan = @"[X][Movie] Plan Run Lola Run!
 -[X] National Geographic
 [X] Gunbuster";
+        readonly static string proposeBiking =
+@"[X] Proposed plan: Mountain biking
+-[x] Camelback Mountain
+-[x] Grand Canyon";
+        readonly static string scoreBiking = @"[75%] Plan Mountain biking";
 
         readonly static string refKinematics = @"[X] Kinematics";
         readonly static string refAtreya = @"[X] Atreya";
@@ -101,10 +105,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematics;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematics);
 
             List<Post> posts = [post1, post2];
 
@@ -141,10 +143,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematicsPercent;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematicsPercent);
 
             List<Post> posts = [post1, post2];
 
@@ -181,10 +181,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematicsApprove;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematicsApprove);
 
             List<Post> posts = [post1, post2];
 
@@ -221,10 +219,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreya;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreya);
 
             List<Post> posts = [post1, post2];
 
@@ -261,10 +257,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreyaPercent;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreyaPercent);
 
             List<Post> posts = [post1, post2];
 
@@ -301,10 +295,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreyaApprove;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreyaApprove);
 
             List<Post> posts = [post1, post2];
 
@@ -341,10 +333,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberly;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(twoLine);
+            Post post2 = GetPostFromKimberly(refKimberly);
 
             List<Post> posts = [post1, post2];
 
@@ -381,10 +371,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = true;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberly;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromKinematics1(voteText2);
+            Post post1 = GetPostFromKimberly(twoLine);
+            Post post2 = GetPostFromKinematics1(refKimberly);
 
             List<Post> posts = [post1, post2];
 
@@ -421,10 +409,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberlyPercent;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKinematics1(voteText2);
+            Post post1 = GetPostFromAtreya(twoLine);
+            Post post2 = GetPostFromKinematics1(refKimberlyPercent);
 
             List<Post> posts = [post1, post2];
 
@@ -461,10 +447,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = refKimberlyApprove;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(refKimberlyApprove);
 
             List<Post> posts = [post1, post2];
 
@@ -501,10 +485,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = explicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(explicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
             List<Post> posts = [post1, post2];
 
@@ -541,10 +523,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = twoChunkPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromKinematics2(voteText2);
+            Post post1 = GetPostFromKimberly(twoChunkPlan);
+            Post post2 = GetPostFromKinematics2(oneLine);
 
             List<Post> posts = [post1, post2];
 
@@ -583,10 +563,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.None;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
             List<Post> posts = [post1, post2];
 
@@ -623,10 +601,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
             List<Post> posts = [post1, post2];
 
@@ -664,15 +640,8 @@ namespace NetTally.Tests.Votes
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
 
-            string voteText1 =
-@"[X] Proposed plan: Mountain biking
--[x] Camelback Mountain
--[x] Grand Canyon";
-
-            string voteText2 = @"[75%] Plan Mountain biking";
-
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromKinematics2(voteText2);
+            Post post1 = GetPostFromKinematics1(proposeBiking);
+            Post post2 = GetPostFromKinematics2(scoreBiking);
 
             List<Post> posts = [post1, post2];
 
