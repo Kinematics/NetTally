@@ -13,6 +13,7 @@ public class AuthorTests
         string? name = null;
 
         Author author = new(name!);
+        Assert.AreEqual(name, author.Name);
     }
 
     [TestMethod]
@@ -22,6 +23,7 @@ public class AuthorTests
         string name = "";
 
         Author author = new(name);
+        Assert.AreEqual(name, author.Name);
     }
 
     [TestMethod]
@@ -31,6 +33,7 @@ public class AuthorTests
         string name = "   ";
 
         Author author = new(name);
+        Assert.AreEqual(name, author.Name);
     }
 
     [TestMethod]
@@ -46,9 +49,10 @@ public class AuthorTests
     public void Construct_Name_Trimmed()
     {
         string name = "Kinematics  ";
+        string trimmedName = "Kinematics";
 
         Author author = new(name);
-        Assert.AreEqual(name.Trim(), author.Name);
+        Assert.AreEqual(trimmedName, author.Name);
     }
 
     [TestMethod]
@@ -67,5 +71,29 @@ public class AuthorTests
 
         Author author = new(name);
         Assert.AreEqual("KinematicsΩ", author.Name);
+    }
+
+    [TestMethod]
+    public void Compare_Name_Normal_Same()
+    {
+        string name1 = "Kinematics";
+        Author author1 = new(name1);
+
+        string name2 = "Kinematics";
+        Author author2 = new(name2);
+
+        Assert.AreEqual(author1, author2);
+    }
+
+    [TestMethod]
+    public void Compare_Name_Case_Diff()
+    {
+        string name1 = "Kinematics";
+        Author author1 = new(name1);
+
+        string name2 = "kinematics";
+        Author author2 = new(name2);
+
+        Assert.AreNotEqual(author1, author2);
     }
 }
