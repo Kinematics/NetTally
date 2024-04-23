@@ -49,9 +49,13 @@ namespace NetTally
             logger = loggerFactory.CreateLogger<App>();
         }
 
+        /// <summary>
+        /// Register UI views and navigation service.
+        /// </summary>
+        /// <param name="services">The DI service collection being built at startup.</param>
         private void SetupUIServices(IServiceCollection services)
         {
-            // Add IoCNavigationService for the application.
+            // Add NavigationService for the application.
             services.AddSingleton<WPFNavigationService>();
 
             // Register all the Windows of the applications.

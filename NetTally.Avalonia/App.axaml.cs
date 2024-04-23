@@ -7,6 +7,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Systems;
+using NetTally.Avalonia.Views;
 
 namespace NetTally.Avalonia
 {
@@ -28,22 +29,21 @@ namespace NetTally.Avalonia
         }
 
         #region Hosting/DI setup
+        /// <summary>
+        /// Register UI views and navigation service.
+        /// </summary>
+        /// <param name="services">The DI service collection being built at startup.</param>
         private void SetupUIServices(IServiceCollection services)
         {
-            services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
-
-            // Then add services known by the current assembly,
-            // or override services provided by the core library.
-
-            // Add IoCNavigationService for the application.
+            // Add NavigationService for the application.
             services.AddSingleton<Navigation.AvaloniaNavigationService>();
 
             // Register all the windows that the applications can display.
-            services.AddTransient<Views.MainWindow>();
-            services.AddTransient<Views.GlobalOptions>();
-            services.AddTransient<Views.QuestOptions>();
-            services.AddTransient<Views.ManageVotes>();
-            services.AddTransient<Views.ReorderTasks>();
+            services.AddTransient<MainWindow>();
+            services.AddTransient<GlobalOptions>();
+            services.AddTransient<QuestOptions>();
+            services.AddTransient<ManageVotes>();
+            services.AddTransient<ReorderTasks>();
         }
         #endregion Hosting/DI setup
 
