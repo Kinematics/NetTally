@@ -93,6 +93,43 @@ namespace NetTally.Votes
             return null;
         }
 
+        public static bool TryProcessPostGetVotes(Post post, Quest quest,
+            out List<VoteLineBlock>? votes)
+        {
+            votes = null;
+
+            if (!post.Processed)
+            {
+                if (!post.WorkingVoteComplete)
+                    ConfigureWorkingVote(post, quest);
+
+                // If the working vote configuration is complete, process the post.
+                if (post.WorkingVoteComplete)
+                {
+                    // If a newer vote has been registered in the vote counter, that means
+                    // that this post was a prior future reference that got overridden later.
+                    // If so, don't process it now, but allow the post to be marked as
+                    // processed so that it doesn't try to re-submit it later.
+                    if (quest.VoteCounter.HasNewerVote(post))
+                    {
+                        post.Processed = true;
+                    }
+                    else
+                    {
+                        // Get the results of partitioning the post.
+                        var results = PartitionPost(post, quest.PartitionMode);
+
+                        // Apply task filtering.
+                        votes = results.Where(p => DoesTaskFilterPass(p, quest)).ToList();
+
+                        post.Processed = true;
+                    }
+                }
+            }
+
+            return post.Processed;
+        }
+
         /// <summary>
         /// Given a plan block, if the plan is a base/proposed plan, rename it as just a "Plan".
         /// Convert the marker for all lines to None.
