@@ -10,7 +10,7 @@ using NetTally.Enums;
 using NetTally.Forums;
 using NetTally.VoteCounting;
 
-namespace NetTally.Tests.QuestTests
+namespace NetTally.Tests.Tallying
 {
     /// <summary>
     /// Class that tests the implementation of the Quest class against the IQuest interface.
