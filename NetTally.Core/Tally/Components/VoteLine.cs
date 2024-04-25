@@ -12,12 +12,33 @@ namespace NetTally.Tally.Components
     public partial class VoteLine : IComparable, IComparable<VoteLine>, IEquatable<VoteLine>
     {
         #region Construction and public properties
+        /// <summary>
+        /// Any leading dashes indicating the vote line is a child of previous lines.
+        /// </summary>
         public string Prefix { get; }
+        /// <summary>
+        /// The vote marker used for this vote line.
+        /// </summary>
         public string Marker { get; }
+        /// <summary>
+        /// The task assigned to this vote line.
+        /// </summary>
         public string Task { get; }
+        /// <summary>
+        /// The vote line text.
+        /// </summary>
         public string Content { get; }
+        /// <summary>
+        /// The vote line text without any BBCode decoration.
+        /// </summary>
         public string CleanContent { get; }
+        /// <summary>
+        /// The type of marker used for this vote line.
+        /// </summary>
         public MarkerType MarkerType { get; }
+        /// <summary>
+        /// The value of the marker (such as 99 for 99%).
+        /// </summary>
         public int MarkerValue { get; }
 
         private readonly int _hash;
@@ -101,11 +122,6 @@ namespace NetTally.Tally.Components
 
         /// <summary>
         /// Creates a copy of this vote line, but with the specified marker information.
-        /// TODO: Obsolete comments
-        /// If the <paramref name="ifSameType"/> value is specified, but the markers are
-        /// different, keep the original value.
-        /// If this uses a MarkerType of None, then it will always update
-        /// with the new values.
         /// </summary>
         /// <param name="marker">The marker to substitute.</param>
         /// <param name="markerType">The marker type to substitute.</param>

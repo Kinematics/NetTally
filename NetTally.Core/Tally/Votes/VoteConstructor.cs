@@ -170,7 +170,10 @@ namespace NetTally.Votes
 
             // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
             // Keep everything else, flattening the blocks back into a simple list of vote lines.
-            var validVoteLines = VoteBlocks.GetBlocks(post.VoteLines).Where(b => !IsProposedPlan(b)).SelectMany(a => a).ToList();
+            var validVoteLines = VoteBlocks
+                .GetBlocks(post.VoteLines)
+                .Where(b => !IsProposedPlan(b))
+                .SelectMany(a => a).ToList();
 
             for (int i = 0; i < validVoteLines.Count; i++)
             {
