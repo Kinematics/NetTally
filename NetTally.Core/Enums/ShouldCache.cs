@@ -5,6 +5,6 @@
 /// </summary>
 public enum ShouldCache
 {
+    No,
     Yes,
-    No
 }

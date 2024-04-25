@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
+using NetTally.Systems;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -47,7 +48,7 @@ namespace NetTally.Avalonia.Views
 
             mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
-            Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
+            Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
         }
 
         protected override void OnLoaded(RoutedEventArgs e)

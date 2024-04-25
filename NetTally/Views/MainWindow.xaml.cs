@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
-using NetTally.SystemInfo;
+using NetTally.Systems;
 using NetTally.ViewModels;
 
 namespace NetTally.Views

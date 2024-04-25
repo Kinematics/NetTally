@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using NetTally.SystemInfo;
 
 namespace NetTally.Systems.Config.Xml
 {

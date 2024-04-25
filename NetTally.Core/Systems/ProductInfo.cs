@@ -4,9 +4,8 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Input.Utility;
-using NetTally.Systems;
 
-namespace NetTally.SystemInfo
+namespace NetTally.Systems
 {
     /// <summary>
     /// Class to access program name and version attribute information.

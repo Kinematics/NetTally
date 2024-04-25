@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using NetTally.SystemInfo;
 
 namespace NetTally.Cache
 {
@@ -29,7 +27,7 @@ namespace NetTally.Cache
         /// <param name="key">The identifier for the cached object.</param>
         /// <param name="content">The object to cache.</param>
         void Add(string key, T content, DateTimeOffset expires);
-        
+
         /// <summary>
         /// Try to get a cached object.
         /// </summary>
