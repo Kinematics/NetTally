@@ -118,11 +118,11 @@ public static class AppX
     private static void ConfigureServices(IServiceCollection services, Action<IServiceCollection> servicesCallback)
     {
         // Get the services provided by the core library.
-        services.AddSingleton<ICache<string>, PageCache>();
-        services.AddSingleton<IClock, SystemClock>();
+        services.AddSingleton<PageCache>();
         services.AddSingleton<Agnostic>();
         services.AddSingleton<IHash, NormalHash>();
         services.AddSingleton<CheckForNewRelease>();
+        services.AddSingleton(TimeProvider.System);
 
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 

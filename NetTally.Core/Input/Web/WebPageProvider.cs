@@ -9,22 +9,20 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Cache;
-using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.SystemInfo;
 using NetTally.Enums;
+using NetTally.Extensions;
 
 namespace NetTally.Web
 {
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        readonly HttpClient httpClient;
-        readonly ILogger<WebPageProvider> logger;
-
+        private readonly HttpClient httpClient;
+        private readonly ILogger<WebPageProvider> logger;
+        private readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
+        private readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
         const int retryLimit = 3;
-        readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
-        readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
 
         readonly GlobalSettings inputOptions;
         #endregion
@@ -32,15 +30,14 @@ namespace NetTally.Web
         #region Construction, Setup, Disposal
         public WebPageProvider(
             HttpClientHandler handler,
-            ICache<string> pageCache,
-            IClock clock,
+            PageCache pageCache,
             IOptions<GlobalSettings> options,
-            ILogger<WebPageProvider> logger)
-            : base(handler, pageCache, clock)
+            ILogger<WebPageProvider> logger,
+            TimeProvider timeProvider)
+            : base(handler, pageCache, timeProvider)
         {
             this.inputOptions = options.Value;
             this.logger = logger;
-
             SetupHandler();
             httpClient = SetupClient();
         }
@@ -283,7 +280,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
@@ -427,7 +424,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);

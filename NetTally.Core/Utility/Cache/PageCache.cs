@@ -16,16 +16,10 @@ namespace NetTally.Cache
     /// </summary>
     public sealed class PageCache : ICache<string>, IDisposable
     {
-        #region Lazy singleton creation
-        static readonly Lazy<PageCache> lazy = new(() => new PageCache());
-        public static PageCache Instance => lazy.Value;
-        #endregion
-
         #region Constructor
-        public PageCache(IClock? clock = null)
+        public PageCache(TimeProvider timeProvider)
         {
-            if (clock != null)
-                SetClock(clock);
+            TimeProvider = timeProvider;
         }
         #endregion
 
@@ -64,10 +58,9 @@ namespace NetTally.Cache
 
         Dictionary<string, CacheObject<byte[]>> GzPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(maxCacheEntries);
 
-        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
+        readonly int defaultExpirationInMinutes = 60;
 
-        IClock Clock { get; set; } = new SystemClock();
-
+        public TimeProvider TimeProvider { get; set; } = TimeProvider.System;
         #endregion
 
         #region Public interface
@@ -93,31 +86,19 @@ namespace NetTally.Cache
         }
 
         /// <summary>
-        /// Set the clock that will be used by the cache to determine when an etry expires.
-        /// </summary>
-        /// <param name="clock">The clock interface that will be used to determine timestamps.</param>
-        public void SetClock(IClock? clock)
-        {
-            using (cacheLock.ReaderLock())
-            {
-                Clock = clock ?? new SystemClock();
-            }
-        }
-
-        /// <summary>
         /// Add a web document to the cache.
         /// </summary>
         /// <param name="key">The URL the document was retrieved from.</param>
         /// <param name="content">The HTML document text to cache.</param>
-        public void Add(string key, string content, DateTime expires)
+        public void Add(string key, string content, DateTimeOffset expires)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            var now = Clock.Now;
+            var now = TimeProvider.GetUtcNow();
 
             if (expires == CacheInfo.DefaultExpiration)
-                expires = now.Add(defaultExpirationDelay);
+                expires = now.AddMinutes(defaultExpirationInMinutes);
 
             byte[] zipped = Compress(content);
 
@@ -141,7 +122,7 @@ namespace NetTally.Cache
             {
                 if (GzPageCache.TryGetValue(key, out CacheObject<byte[]>? gzCache))
                 {
-                    if (gzCache.Expires > Clock.Now)
+                    if (gzCache.Expires > TimeProvider.GetUtcNow())
                     {
                         string content = Decompress(gzCache.Store);
 
@@ -159,7 +140,7 @@ namespace NetTally.Cache
         /// </summary>
         public void InvalidateCache()
         {
-            var time = Clock.Now;
+            var time = TimeProvider.GetUtcNow();
 
             using (cacheLock.WriterLock())
             {

@@ -28,7 +28,8 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="key">The identifier for the cached object.</param>
         /// <param name="content">The object to cache.</param>
-        void Add(string key, T content, DateTime expires);
+        void Add(string key, T content, DateTimeOffset expires);
+        
         /// <summary>
         /// Try to get a cached object.
         /// </summary>
@@ -37,11 +38,6 @@ namespace NetTally.Cache
         /// found, and cached object if available.</returns>
         (bool found, T content) Get(string key);
 
-        /// <summary>
-        /// Set the clock that will be used by the cache to determine when an etry expires.
-        /// </summary>
-        /// <param name="clock">The clock interface that will be used to determine timestamps.</param>
-        void SetClock(IClock? clock);
         /// <summary>
         /// If our cache count is higher than our limit, then remove all expired entries,
         /// and a minimum number of pages to bring our count back down to the limit.

@@ -9,7 +9,10 @@ using NetTally.SystemInfo;
 
 namespace NetTally.Web
 {
-    public abstract class PageProviderBase : IDisposable
+    public abstract class PageProviderBase(
+        HttpClientHandler handler,
+        PageCache pageCache,
+        TimeProvider timeProvider) : IDisposable
     {
         #region Fields
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
@@ -17,24 +20,13 @@ namespace NetTally.Web
         // loading SB and SV pages.
         protected const int maxSimultaneousConnections = 4;
         protected readonly SemaphoreSlim ss = new(maxSimultaneousConnections);
+        protected readonly TimeProvider timeProvider = timeProvider;
         #endregion
 
         #region Properties
-        protected HttpClientHandler ClientHandler { get; }
-        protected IClock Clock { get; }
-        protected ICache<string> Cache { get; }
+        protected HttpClientHandler ClientHandler { get; } = handler;
+        protected PageCache Cache { get; } = pageCache;
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
-        #endregion
-
-        #region Constructors
-        protected PageProviderBase(HttpClientHandler handler, ICache<string> pageCache, IClock clock)
-        {
-            ClientHandler = handler;
-            Cache = pageCache;
-            Clock = clock;
-
-            Cache.SetClock(Clock);
-        }
         #endregion
 
         #region Disposal
