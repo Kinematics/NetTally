@@ -12,7 +12,7 @@ namespace NetTally.Tests.Utility
         static FakeTimeProvider fake = null!;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        public static void ClassInitialize(TestContext _)
         {
             fake = new FakeTimeProvider();
             CacheInfo.TimeProvider = fake;

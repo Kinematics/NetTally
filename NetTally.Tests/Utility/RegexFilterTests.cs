@@ -36,7 +36,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_Omake()
         {
-            RegexPattern omake = new RegexPattern("omake");
+            RegexPattern omake = new("omake");
 
             RegexFilter filter = RegexFilter.Block(omake);
 
@@ -50,7 +50,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_Pattern_1()
         {
-            RegexPattern pattern = new RegexPattern(@"/\w+\d+/");
+            RegexPattern pattern = new(@"/\w+\d+/");
 
             RegexFilter filter = RegexFilter.Block(pattern);
 
@@ -65,7 +65,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_Pattern_2()
         {
-            RegexPattern pattern = new RegexPattern(@"/\w+\d+|goo/");
+            RegexPattern pattern = new(@"/\w+\d+|goo/");
 
             RegexFilter filter = RegexFilter.Block(pattern);
 
@@ -80,8 +80,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_MultiPattern_1()
         {
-            RegexPattern pattern = new RegexPattern(@"stuff");
-            RegexPattern omake = new RegexPattern("omake");
+            RegexPattern pattern = new(@"stuff");
+            RegexPattern omake = new("omake");
 
             RegexFilter filter = RegexFilter.Block(pattern, omake);
 
@@ -96,8 +96,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Allow_MultiPattern_1()
         {
-            RegexPattern pattern = new RegexPattern(@"stuff");
-            RegexPattern omake = new RegexPattern("omake");
+            RegexPattern pattern = new(@"stuff");
+            RegexPattern omake = new("omake");
 
             RegexFilter filter = RegexFilter.Allow(pattern, omake);
 
@@ -112,8 +112,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_MultiPattern_2()
         {
-            RegexPattern pattern = new RegexPattern(@"/stuff/");
-            RegexPattern omake = new RegexPattern("omake");
+            RegexPattern pattern = new(@"/stuff/");
+            RegexPattern omake = new("omake");
 
             RegexFilter filter = RegexFilter.Block(pattern, omake);
 
@@ -128,8 +128,8 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Allow_MultiPattern_2()
         {
-            RegexPattern pattern = new RegexPattern(@"/stuff/");
-            RegexPattern omake = new RegexPattern("omake");
+            RegexPattern pattern = new(@"/stuff/");
+            RegexPattern omake = new("omake");
 
             RegexFilter filter = RegexFilter.Allow(pattern, omake);
 
