@@ -408,24 +408,13 @@ namespace NetTally.Forums.ForumAdapters
                 else
                 {
                     // threadmarkList was null.  There is no .threadmarkList node, so check for undecorated ul that contains .threadmarkItem list items.
-                    listOfThreadmarks = threadmarksDiv?.Descendants("ul").FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
+                    listOfThreadmarks = threadmarksDiv?.Descendants("ul")
+                        .FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
                 }
 
-                if (listOfThreadmarks != null)
-                {
-                    Func<HtmlNode, bool> filterLambda = (n) => n != null &&
-                        ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
-                        (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(n.InnerText)));
-
-                    Func<HtmlNode, HtmlNode> nodeSelector = (n) => n.Element("a");
-
-                    Func<HtmlNode, IEnumerable<HtmlNode>> childSelector =
-                        (i) => i.Element("ul")?.Elements("li") ?? [];
-
-                    var results = listOfThreadmarks.Elements("li").TraverseList(childSelector, nodeSelector, filterLambda);
-
-                    return results;
-                }
+                return listOfThreadmarks?.Elements("li")
+                    .TraverseList(childSelector, nodeSelector, filterLambda)
+                    ?? [];
             }
             catch (ArgumentNullException e)
             {
@@ -433,6 +422,15 @@ namespace NetTally.Forums.ForumAdapters
             }
 
             return [];
+
+            // Local functions
+            bool filterLambda(HtmlNode n) => n != null &&
+                ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
+                (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(n.InnerText)));
+
+            static IEnumerable<HtmlNode> childSelector(HtmlNode i) => i.Element("ul")?.Elements("li") ?? [];
+
+            static HtmlNode nodeSelector(HtmlNode n) => n.Element("a");
         }
         #endregion Get ThreadInfoRange information
 
