@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.Data;
 using NetTally.Input.Utility;
 using NetTally.Systems;
 
