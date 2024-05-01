@@ -3,10 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
-        Height="617.588" Width="926" MinWidth="857" Closing="Window_Closing" MinHeight="200"
-        Icon="/Assets/CheckVoteWin.ico" KeyUp="Window_KeyUp">
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
+        Height="620" Width="934" MinWidth="934" MinHeight="200"
+        KeyDown="Window_KeyDown"
+        Icon="/Assets/CheckVoteWin.ico">
 
     <Window.Resources>
         <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
@@ -18,7 +21,8 @@
     </Window.Resources>
 
     <Grid>
-        <Button x:Name="addQuestButton" Content="New" HorizontalAlignment="Left" Height="30" Margin="10,45,0,0" VerticalAlignment="Top" Width="60"
+        <Button x:Name="AddQuestButton" Content="New" Margin="10,45,0,0"
+                Height="30" Width="60" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Command="{Binding Path=AddQuestCommand}">
             <Button.ToolTip>
                 <ToolTip>
@@ -29,7 +33,8 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="removeQuestButton" Content="Del" HorizontalAlignment="Left" Height="30" Margin="75,45,0,0" VerticalAlignment="Top" Width="60"
+        <Button x:Name="RemoveQuestButton" Content="Del" Margin="75,45,0,0"
+                Height="30" Width="60" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Command="{Binding Path=RemoveQuestCommand}">
             <Button.ToolTip>
                 <ToolTip>
@@ -40,12 +45,13 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <ComboBox x:Name="questList" Height="30" Margin="10,10,320,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" Padding="8,2,4,4"
-                  ItemsSource="{Binding Path=QuestList}" SelectedItem="{Binding Path=SelectedQuest}">
+        <ComboBox x:Name="QuestList" Margin="10,10,320,0" Padding="8,2,4,4"
+                  Height="30" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="13.333" 
+                  ItemsSource="{Binding Path=Quests}" SelectedItem="{Binding Path=SelectedQuest}">
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                     <Binding Path="HasQuests" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                 </MultiBinding>
             </ComboBox.IsEnabled>
             <ComboBox.ItemContainerStyle>
@@ -68,38 +74,12 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <TextBox x:Name="editQuestName" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap" VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
-                 Text="{Binding Path=SelectedQuest.DisplayName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestName_KeyUp" GotFocus="textEntry_GotFocus"
-                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4" PreviewLostKeyboardFocus="editQuest_PreviewLostKeyboardFocus">
-            <TextBox.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Edit Quest Name</TextBlock>
-                        <TextBlock>Edit the displayed name of the current quest.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </TextBox.ToolTip>
-        </TextBox>
-        <TextBox x:Name="editQuestThread" Height="30" Margin="10,10,320,0" TextWrapping="NoWrap"  VerticalAlignment="Top" Visibility="Hidden" FontSize="13.333" 
-                 Text="{Binding Path=SelectedQuest.ThreadName, UpdateSourceTrigger=Explicit}" KeyUp="editQuestThread_KeyUp" GotFocus="textEntry_GotFocus"
-                 PreviewMouseDown="textEntry_PreviewMouseDown" Padding="2,4,70,4" PreviewLostKeyboardFocus="editQuest_PreviewLostKeyboardFocus">
-            <TextBox.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Edit Quest URL</TextBlock>
-                        <TextBlock>Edit the thread URL of the current quest.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </TextBox.ToolTip>
-        </TextBox>
-        <Canvas x:Name="editDescriptorCanvas" Height="30" Margin="10,10,320,0" VerticalAlignment="Top" Visibility="Hidden">
-            <TextBlock x:Name="editDescriptor" FontSize="18" Foreground="BlueViolet" Text="Quest Name" Canvas.Top="3" Canvas.Right="4"/>
-        </Canvas>
-        <Button x:Name="questOptionsButton" Content="Quest Options" Margin="0,10,227,0" VerticalAlignment="Top" Height="30"
-                Click="questOptionsButton_Click" HorizontalAlignment="Right" Width="88">
+        <Button x:Name="QuestOptionsButton" Content="Quest Options" Margin="0,10,227,0"
+                Height="30" Width="88" HorizontalAlignment="Right" VerticalAlignment="Top"
+                Click="QuestOptionsButton_Click">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
@@ -112,28 +92,27 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-
-        <Button x:Name="editNameButton" Content="Edit Name" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="125" Click="editNameButton_Click">
-            <Button.IsEnabled>
-                <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
-                    <Binding Path="IsQuestSelected" Mode="OneWay" />
-                </MultiBinding>
-            </Button.IsEnabled>
+        <Button x:Name="GlobalOptionsButton" Content="Global Options" Margin="0,45,227,0"
+                Height="30" Width="88" HorizontalAlignment="Right" VerticalAlignment="Top"
+                IsEnabled="{Binding Path=TallyIsNotRunning, Mode=OneWay}"
+                Click="GlobalOptionsButton_Click">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
-                        <TextBlock FontWeight="Bold">Edit Quest Name/URL</TextBlock>
-                        <TextBlock>Edit the name and URL of the currently selected quest.</TextBlock>
+                        <TextBlock FontWeight="Bold">Global Options</TextBlock>
+                        <TextBlock>Set certain global application options.</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <TextBox x:Name="startPost" HorizontalAlignment="Left" Height="30" Margin="140,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=SelectedQuest.StartPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+
+        <TextBox x:Name="StartPost" Margin="140,45,0,0"
+                 Height="30" Width="84" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
+                 Text="{Binding Path=SelectedQuest.StartPost, ValidatesOnExceptions=True}"
+                 GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </TextBox.IsEnabled>
@@ -146,11 +125,13 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <TextBox x:Name="endPost" HorizontalAlignment="Left" Height="30" Margin="229,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"
-                 Text="{Binding Path=SelectedQuest.EndPost, ValidatesOnExceptions=True}" GotFocus="textEntry_GotFocus" PreviewMouseDown="textEntry_PreviewMouseDown" MaxLines="1">
+        <TextBox x:Name="EndPost" Margin="229,45,0,0"
+                 Height="30" Width="84" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"
+                 Text="{Binding Path=SelectedQuest.EndPost, ValidatesOnExceptions=True}"
+                 GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </TextBox.IsEnabled>
@@ -163,11 +144,12 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <CheckBox x:Name="tryLastThreadmark" HorizontalAlignment="Left" Margin="140,80,0,0" VerticalAlignment="Top"
-                  RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding Path=SelectedQuest.CheckForLastThreadmark}">
+        <CheckBox x:Name="TryLastThreadmark" Content="Tally From Last Threadmark" Margin="140,80,0,0"
+                  HorizontalAlignment="Left" VerticalAlignment="Top"
+                  IsChecked="{Binding Path=SelectedQuest.CheckForLastThreadmark}">
             <CheckBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </CheckBox.IsEnabled>
@@ -180,12 +162,13 @@
                 </ToolTip>
             </CheckBox.ToolTip>
         </CheckBox>
-        <ComboBox x:Name="partitionMode" Margin="318,45,0,0" VerticalAlignment="Top" Height="30" HorizontalAlignment="Left" Width="145" Padding="8,2,4,3"
-                  ItemsSource="{Binding Path=PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={StaticResource PartitionModeConverter}}"
-                  VerticalContentAlignment="Center">
+        <ComboBox x:Name="partitionMode" Margin="318,45,0,0" Padding="8,2,4,3"
+                  Height="30" Width="145" VerticalAlignment="Top" HorizontalAlignment="Left" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=PartitionModes}"
+                  SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={StaticResource PartitionModeConverter}}">
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </ComboBox.IsEnabled>
@@ -204,41 +187,13 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-        <Button x:Name="globalOptionsButton" Content="Global Options..." HorizontalAlignment="Left" Margin="318,80,0,0" Width="145" Click="globalOptionsButton_Click"
-                IsEnabled="{Binding Path=TallyIsRunning, Converter={StaticResource BoolConverter}, ConverterParameter=Invert, Mode=OneWay}"
-                Height="22" VerticalAlignment="Top">
-            <Button.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Advanced Options</TextBlock>
-                        <TextBlock>Open the window to configure certain advanced parsing options.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </Button.ToolTip>
-        </Button>
-        <Button x:Name="openManageVotesWindow" Content="Manage Votes..." Margin="468,45,0,0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Width="145"
-                Click="openManageVotesWindow_Click">
-            <Button.IsEnabled>
-                <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
-                    <Binding Path="IsQuestSelected" Mode="OneWay" />
-                </MultiBinding>
-            </Button.IsEnabled>
-            <Button.ToolTip>
-                <ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
-                        <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
-                    </StackPanel>
-                </ToolTip>
-            </Button.ToolTip>
-        </Button>
-        <ComboBox x:Name="displayMode" Margin="468,80,0,0" VerticalAlignment="Top" Height="22"
-                  ItemsSource="{Binding Path=DisplayModes}" SelectedIndex="{Binding Path=Options.DisplayMode, Converter={StaticResource DisplayModeConverter}}"
-                  HorizontalAlignment="Left" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center">
+        <ComboBox x:Name="displayMode" Margin="468,45,320,0" Padding="8,2,4,3"
+                  Height="30" Width="130" VerticalAlignment="Top" HorizontalAlignment="Left" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=DisplayModes}"
+                  SelectedIndex="{Binding Path=SelectedQuest.DisplayMode, Converter={StaticResource DisplayModeConverter}}">
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </ComboBox.IsEnabled>
@@ -257,8 +212,26 @@
                 </ToolTip>
             </ComboBox.ToolTip>
         </ComboBox>
-
-        <Button x:Name="clearTallyCacheButton" Height="47" Margin="0,10,173,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="49"
+        <Button x:Name="OpenManageVotesWindow" Content="Manage Votes..." Margin="318,81,0,0"
+                Height="22" Width="145" VerticalAlignment="Top" HorizontalAlignment="Left"
+                Click="OpenManageVotesWindow_Click">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
+                    <Binding Path="TallyIsNotRunning" Mode="OneWay" />
+                    <Binding Path="IsQuestSelected" Mode="OneWay" />
+                </MultiBinding>
+            </Button.IsEnabled>
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Manage Votes</TextBlock>
+                        <TextBlock>Open the window to handle certain vote management tasks, such as merging and deleting.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="ClearTallyCacheButton" Margin="0,10,173,0"
+                Height="47" Width="49" VerticalAlignment="Top" HorizontalAlignment="Right"
                 Command="{Binding Path=ClearTallyCacheCommand}">
             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Clear Cache</TextBlock>
             <Button.ToolTip>
@@ -270,12 +243,13 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="tallyButton" Content="Tally" Height="47" Margin="0,10,10,0" VerticalAlignment="Top" Width="158" HorizontalAlignment="Right"
+        <Button x:Name="TallyButton" Content="Tally" Margin="0,10,10,0"
+                Height="47" Width="158" VerticalAlignment="Top" HorizontalAlignment="Right"
                 Command="{Binding Path=RunTallyCommand}">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding ElementName="startPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
-                    <Binding ElementName="endPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding ElementName="StartPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
+                    <Binding ElementName="EndPost" Path="(Validation.HasError)" Converter="{StaticResource BoolConverter}" ConverterParameter="Invert" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
             <Button.ToolTip>
@@ -287,8 +261,10 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="cancelTally" Content="Cancel" Height="30" Margin="0,66,128,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="94"
-                ToolTipService.ShowOnDisabled="True" Command="{Binding Path=CancelTallyCommand}">
+        <Button x:Name="CancelTallyButton" Content="Cancel" Margin="0,66,128,0"
+                Height="30" Width="94" VerticalAlignment="Top" HorizontalAlignment="Right"
+                ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=RunTallyCancelCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -298,28 +274,32 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="copyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0" HorizontalAlignment="Right" Width="113"
-                Click="copyToClipboardButton_Click" Height="30" VerticalAlignment="Top" IsEnabled="{Binding Path=HasOutput}">
+        <Button x:Name="CopyToClipboardButton" Content="Copy to Clipboard" Margin="0,66,10,0"
+                Height="30" Width="113" VerticalAlignment="Top" HorizontalAlignment="Right"
+                Click="CopyToClipboardButton_Click" IsEnabled="{Binding Path=HasOutput}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Bold">Copy To Clipboard</TextBlock>
-                        <TextBlock>Copy the entirety of the tally results to the clipboard.</TextBlock>
+                        <TextBlock>Copy the entirety of the tally results to the clipboard. (Ctrl-C)</TextBlock>
                     </StackPanel>
                 </ToolTip>
             </Button.ToolTip>
         </Button>
 
-        <TextBox x:Name="resultsWindow" Margin="10,107,10,30" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
+        <TextBox x:Name="ResultsWindow" Margin="10,107,10,30"
+                 TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" FontSize="13.333"
                  Text="{Binding Path=Output, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock x:Name="wikiLink" HorizontalAlignment="Left" Margin="10,0,0,3" TextWrapping="Wrap" Width="125" Height="22" VerticalAlignment="Bottom">
+        <TextBlock x:Name="wikiLink" Margin="10,0,0,3" TextWrapping="Wrap"
+                   Height="22" Width="125" VerticalAlignment="Bottom" HorizontalAlignment="Left">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/wiki" RequestNavigate="Hyperlink_RequestNavigate">
                 Wiki Help
             </Hyperlink>
         </TextBlock>
-        <TextBlock x:Name="newRelease" HorizontalAlignment="Left" Margin="140,0,0,3" TextWrapping="Wrap" Height="22" VerticalAlignment="Bottom"
-                   Visibility="{Binding Path=NewRelease, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+        <TextBlock x:Name="NewReleaseLink" Margin="140,0,0,3" TextWrapping="Wrap"
+                   Height="22" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Visibility="{Binding Path=HasNewRelease, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <Hyperlink NavigateUri="https://github.com/Kinematics/NetTally/releases/latest" RequestNavigate="Hyperlink_RequestNavigate">
                 A newer version is available
             </Hyperlink>

@@ -4,37 +4,29 @@ using System.Text;
 using System.Threading;
 using NetTally.Cache;
 using NetTally.CustomEventArgs;
-using NetTally.SystemInfo;
-using NetTally.Types.Enums;
+using NetTally.Enums;
+using NetTally.Systems;
 
 namespace NetTally.Web
 {
-    public abstract class PageProviderBase : IDisposable
+    public abstract class PageProviderBase(
+        HttpClientHandler handler,
+        PageCache pageCache,
+        TimeProvider timeProvider) : IDisposable
     {
         #region Fields
         // Maximum number of simultaneous connections allowed, to guard against hammering the server.
         // Setting it to 5 or higher causes it to hang for several seconds on the last page when
         // loading SB and SV pages.
         protected const int maxSimultaneousConnections = 4;
-        protected readonly SemaphoreSlim ss = new SemaphoreSlim(maxSimultaneousConnections);
+        protected readonly SemaphoreSlim ss = new(maxSimultaneousConnections);
+        protected readonly TimeProvider timeProvider = timeProvider;
         #endregion
 
         #region Properties
-        protected HttpClientHandler ClientHandler { get; }
-        protected IClock Clock { get; }
-        protected ICache<string> Cache { get; }
+        protected HttpClientHandler ClientHandler { get; } = handler;
+        protected PageCache Cache { get; } = pageCache;
         protected string UserAgent { get; } = $"{ProductInfo.Name} ({ProductInfo.Version})";
-        #endregion
-
-        #region Constructors
-        protected PageProviderBase(HttpClientHandler handler, ICache<string> pageCache, IClock clock)
-        {
-            ClientHandler = handler;
-            Cache = pageCache;
-            Clock = clock;
-
-            Cache.SetClock(Clock);
-        }
         #endregion
 
         #region Disposal
@@ -153,7 +145,7 @@ namespace NetTally.Web
             if (string.IsNullOrEmpty(shortDescrip))
                 return;
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             switch (status)
             {
@@ -177,7 +169,7 @@ namespace NetTally.Web
                     return;
             }
 
-            sb.Append("\n");
+            sb.Append('\n');
             OnStatusChanged(sb.ToString());
         }
         #endregion

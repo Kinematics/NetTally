@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Utility.Comparers;
+using NetTally.Configure;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 using NetTally.VoteCounting;
-using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Tests.Tallying
 {
@@ -20,11 +15,9 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
-        static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
-        static IQuest quest = null!;
-        static IAgnostic agnostic = null!;
+        static Tallyer tally = null!;
+        static QuestsInfo questsInfo = null!;
+        static Quest quest = null!;
         static readonly Origin origin1 = new("Brogatar", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin1a = new("Brogatar", "123476", 110, new Uri("http://www.example.com/"), "http://www.example.com");
         static readonly Origin origin2 = new("Madfish", "123460", 101, new Uri("http://www.example.com/"), "http://www.example.com");
@@ -33,23 +26,24 @@ namespace NetTally.Tests.Tallying
 
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
 
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-            tally = serviceProvider.GetRequiredService<Tally>();
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
-            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
+            questsInfo = serviceProvider.GetRequiredService<QuestsInfo>();
+
+            tally = serviceProvider.GetRequiredService<Tallyer>();
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            quest = new Quest();
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
 
-            voteCounter?.Reset();
-            voteCounter?.ClearPosts();
+            questsInfo.SelectedQuest = quest;
         }
 
         [TestCleanup]
@@ -57,13 +51,12 @@ namespace NetTally.Tests.Tallying
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 
         #region Basics
         [TestMethod]
-        public async Task Check_Tally_Adds_Normal()
+        public void Check_Tally_Adds_Normal()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -80,25 +73,26 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
 
         [TestMethod]
-        public async Task Check_Reset()
+        public void Check_Reset()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -115,26 +109,27 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            voteCounter.Reset();
+            quest.VoteCounter.Reset();
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(0, allVotes.Count);
         }
 
-        public async Task Check_Tally_Adds_Plan()
+        public static void Check_Tally_Adds_Plan()
         {
             string postText1 =
 @"[X] Plan Experiment
@@ -151,27 +146,28 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
             Assert.AreEqual(3, allVotes[1].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
-            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
-            var vote1 = voteCounter.VoteStorage.GetVotesBy(origin1);
+            var vote1 = quest.VoteCounter.VoteStorage.GetVotesBy(origin1);
 
             Assert.AreEqual(1, vote1.Count);
 
-            var voters1 = voteCounter.GetVotersFor(vote1[0]);
+            var voters1 = quest.VoteCounter.GetVotersFor(vote1[0]);
 
             Assert.AreEqual(2, voters1.Count());
         }
@@ -179,7 +175,7 @@ namespace NetTally.Tests.Tallying
 
         #region Replacements
         [TestMethod]
-        public async Task Reprocess_Doesnt_Stack_Lines()
+        public void Reprocess_Doesnt_Stack_Lines()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -196,13 +192,14 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
@@ -210,9 +207,9 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.ByLine;
 
-            await tally.TallyPosts(CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(4, allVotes.Count);
             Assert.AreEqual(1, allVotes[0].Lines.Count);
@@ -222,9 +219,9 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.None;
 
-            await tally.TallyPosts(CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
@@ -232,7 +229,7 @@ namespace NetTally.Tests.Tallying
         }
 
         [TestMethod]
-        public async Task Check_Tally_Adds_Reference()
+        public void Check_Tally_Adds_Reference()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -247,24 +244,25 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
 
         [TestMethod]
-        public async Task Check_Tally_Replacement_Vote()
+        public void Check_Tally_Replacement_Vote()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -283,24 +281,25 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3 };
+            List<Post> posts = [post1, post2, post3];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
-        public async Task Check_User_Proxy_Only_Proposed_Plan()
+        public void Check_User_Proxy_Only_Proposed_Plan()
         {
             string postText1 =
 @"[X] Proposed Plan: Experiment
@@ -316,26 +315,27 @@ namespace NetTally.Tests.Tallying
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
-            Assert.AreEqual(0, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+            Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
-            Assert.IsTrue(voteCounter.HasPlan("Experiment"));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
         }
 
         [TestMethod]
-        public async Task Check_Original_User_Can_Replace_Plan()
+        public void Check_Original_User_Can_Replace_Plan()
         {
             string postText1 =
 @"[X] Plan: Experiment
@@ -350,32 +350,31 @@ namespace NetTally.Tests.Tallying
 
             quest.PartitionMode = PartitionMode.None;
             quest.AllowUsersToUpdatePlans = true;
-            voteCounter.Quest = quest;
 
             Post post1 = new(origin1, postText1);
             Post post2 = new(origin2, postText2);
             Post post3 = new(origin3, postText2);
             Post post4 = new(origin1a, postText2);
 
-            List<Post> posts = new() { post1, post2 };
-            voteCounter.AddPosts(posts);
-            var plans = await tally.PreprocessPosts(default);
+            List<Post> posts = [post1, post2];
+            quest.VoteCounter.AddPosts(posts);
+            var plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
-            voteCounter.Reset();
-            posts = new List<Post>() { post1, post2, post3 };
-            voteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(default);
+            quest.VoteCounter.Reset();
+            posts = [post1, post2, post3];
+            quest.VoteCounter.AddPosts(posts);
+            plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Add this to your list of experiments for today.", plans.First().Value.Lines[1].Content);
 
-            voteCounter.Reset();
-            posts = new List<Post>() { post1, post2, post3, post4 };
-            voteCounter.AddPosts(posts);
-            plans = await tally.PreprocessPosts(default);
+            quest.VoteCounter.Reset();
+            posts = [post1, post2, post3, post4];
+            quest.VoteCounter.AddPosts(posts);
+            plans = Tallyer.PreprocessPosts(quest);
 
             Assert.AreEqual(1, plans.Count);
             Assert.AreEqual("Alchemy structure", plans.First().Value.Lines[1].Content);
@@ -385,7 +384,7 @@ namespace NetTally.Tests.Tallying
 
         #region Callouts as proxies
         [TestMethod]
-        public async Task Check_Callout_Links_With_At_As_Plan()
+        public void Check_Callout_Links_With_At_As_Plan()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -402,24 +401,25 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_Without_At_As_Plan()
+        public void Check_Callout_Links_Without_At_As_Plan()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -436,24 +436,25 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_With_At()
+        public void Check_Callout_Links_With_At()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -470,24 +471,25 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
 
         [TestMethod]
-        public async Task Check_Callout_Links_Without_At()
+        public void Check_Callout_Links_Without_At()
         {
             string postText1 =
 @"[X] Add this to your list of experiments for today.
@@ -504,26 +506,25 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
+            quest.VoteCounter.AddPosts(posts);
 
-            quest.PartitionMode = PartitionMode.None;
+            tally.UpdateTally(quest);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
-
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
             Assert.AreEqual(3, allVotes[0].Lines.Count);
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin3.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin3.Author.Name));
         }
         #endregion Callouts as proxies
 
         #region Future references
         [TestMethod]
-        public async Task Check_Future_Reference_Handling_Normal()
+        public void Check_Future_Reference_Handling_Normal()
         {
             string postText1 =
 @"[X] Brogatar's First post";
@@ -540,25 +541,26 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post2.HasVote);
             Assert.IsTrue(post3.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3 };
+            List<Post> posts = [post1, post2, post3];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
 
-            Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
             Assert.AreEqual("[] Brogatar's Second post", allVotes[0].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
 
         [TestMethod]
-        public async Task Check_Future_Reference_Handling_Preempted()
+        public void Check_Future_Reference_Handling_Preempted()
         {
             string postText1 =
 @"[X] Brogatar's First post";
@@ -579,33 +581,33 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post3.HasVote);
             Assert.IsTrue(post4.HasVote);
 
-            List<Post> posts = new() { post1, post2, post3, post4 };
+            List<Post> posts = [post1, post2, post3, post4];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
-            Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[0]));
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(allVotes[1]));
 
             Assert.AreEqual("[] Changed my mind", allVotes[0].ToString());
             Assert.AreEqual("[] Brogatar's Second post", allVotes[1].ToString());
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
         }
         #endregion Future references
 
         #region Test general vote matching
-        public async Task Test_Votes_Match(string text1, string text2)
+        public static void Test_Votes_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new(origin1, text1);
             Post post2 = new(origin2, text2);
@@ -613,33 +615,33 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(1, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
-            var voters = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+            var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
 
             Assert.AreEqual(2, voters.Count);
             Assert.IsTrue(voters.Contains(origin1));
             Assert.IsTrue(voters.Contains(origin2));
         }
 
-        public async Task Test_Votes_Dont_Match(string text1, string text2)
+        public static void Test_Votes_Dont_Match(string text1, string text2)
         {
             Assert.IsFalse(string.IsNullOrEmpty(text1));
             Assert.IsFalse(string.IsNullOrEmpty(text2));
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
 
             Post post1 = new(origin1, text1);
             Post post2 = new(origin2, text2);
@@ -647,196 +649,197 @@ Wouldn't be applied to my proposed plan because it got turned into a member link
             Assert.IsTrue(post1.HasVote);
             Assert.IsTrue(post2.HasVote);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
             quest.PartitionMode = PartitionMode.None;
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.TallyPosts(posts, quest, CancellationToken.None);
+            tally.UpdateTally(quest);
 
-            List<VoteLineBlock> allVotes = voteCounter.VoteStorage.GetAllVotes().ToList();
+            List<VoteLineBlock> allVotes = quest.VoteCounter.VoteStorage.GetAllVotes().ToList();
 
             Assert.AreEqual(2, allVotes.Count);
 
 
-            Assert.IsTrue(voteCounter.HasVoter(origin1.Author.Name));
-            Assert.IsTrue(voteCounter.HasVoter(origin2.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+            Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
             var vote1 = allVotes[0];
-            var voters1 = voteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+            var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
             var vote2 = allVotes[1];
-            var voters2 = voteCounter.VoteStorage.GetVotersFor(vote2).ToList();
+            var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2).ToList();
 
             Assert.AreEqual(1, voters1.Count);
             Assert.AreEqual(1, voters2.Count);
         }
 
         [TestMethod]
-        public async Task Check_Match_Same()
+        public void Check_Match_Same()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic test";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_BBCode()
+        public void Check_Match_BBCode()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 『b』test『/b』";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_No_Case()
+        public void Check_Match_No_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic TEST";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Case()
+        public void Check_Match_Yes_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic TEST";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Punc()
+        public void Check_Match_No_Punc()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Punc()
+        public void Check_Match_Yes_Punc()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Space()
+        public void Check_Match_No_Space()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'Test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space()
+        public void Check_Match_Yes_Space()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic  Test";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_No_Space_And_Case()
+        public void Check_Match_No_Space_And_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'Test'";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space_And_Case()
+        public void Check_Match_Yes_Space_And_Case()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic 'test'";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Yes_Space_And_Case_2()
+        public void Check_Match_Yes_Space_And_Case_2()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic Test";
             quest.CaseIsSignificant = true;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Dont_Match(text1, text2);
+            Test_Votes_Dont_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Apostrophe()
+        public void Check_Match_Apostrophe()
         {
             string text1 = "[x] Basic don't";
             string text2 = "[x] Basic don’t";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Quote()
+        public void Check_Match_Quote()
         {
             string text1 = "[x] Basic test";
             string text2 = "[x] Basic “test”";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
 
         [TestMethod]
-        public async Task Check_Match_Apostrophe_2()
+        public void Check_Match_Apostrophe_2()
         {
             string text1 = "[x] Basic don't";
             string text2 = "[x] Basic don’t";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
 
         [TestMethod]
-        public async Task Check_Match_Quote_2()
+        public void Check_Match_Quote_2()
         {
             string text1 = @"[x] Basic ""test""";
             string text2 = "[x] Basic “test”";
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = true;
 
-            await Test_Votes_Match(text1, text2);
+            Test_Votes_Match(text1, text2);
         }
         #endregion Test general vote matching
     }

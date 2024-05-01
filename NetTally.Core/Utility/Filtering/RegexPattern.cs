@@ -34,22 +34,24 @@ namespace NetTally.Utility.Filtering
         }
 
         #region Construction of a regex pattern
-        static readonly Regex jsRegex = new Regex(@"^(?<invert>!)?/(?<regex>.+)/(?<options>[ugi]{0,3})$",
+        static readonly Regex jsRegex = new(@"^(?<invert>!)?/(?<regex>.+)/(?<options>[ugi]{0,3})$",
             RegexOptions.Compiled, TimeSpan.FromMilliseconds(150));
-        static readonly Regex escapeChars = new Regex(@"([.?(){}^$\[\]])",
+        static readonly Regex escapeChars = new(@"([.?(){}^$\[\]])",
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
-        static readonly Regex splat = new Regex(@"\*",
+        static readonly Regex splat = new(@"\*",
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
-        static readonly Regex preWord = new Regex(@"^\w",
+        static readonly Regex preWord = new(@"^\w",
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
-        static readonly Regex postWord = new Regex(@"\w$",
+        static readonly Regex postWord = new(@"\w$",
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
+        
+        private static readonly char[] separator = [','];
 
-        private (Regex, bool) CreateRegexFromPattern(string pattern)
+        private static (Regex, bool) CreateRegexFromPattern(string pattern)
         {
             pattern = pattern.RemoveUnsafeCharacters().Trim();
 
@@ -76,7 +78,7 @@ namespace NetTally.Utility.Filtering
                     pattern = pattern[1..];
                 }
 
-                string[] patterns = pattern.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] patterns = pattern.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
                 string correctedPatterns = patterns
                                           .Select(p => p.Trim())

@@ -20,26 +20,19 @@ namespace NetTally.Extensions
         /// <returns>Returns the awaited task, if it completed in less than the timeout period.</returns>
         public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout, CancellationToken token)
         {
-            using (CancellationTokenSource timeoutTokenSource = new CancellationTokenSource(timeout))
-            {
-                using (CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token))
-                {
-                    var completedTask = await Task.WhenAny(task, Task.Delay(timeout, linkedTokenSource.Token));
+            using CancellationTokenSource timeoutTokenSource = new(timeout);
+            using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token);
+            
+            var completedTask = await Task.WhenAny(task, Task.Delay(timeout, linkedTokenSource.Token));
 
-                    if (completedTask == task)
-                    {
-                        return await task;  // Very important in order to propagate exceptions
-                    }
-                    else if (token.IsCancellationRequested)
-                    {
-                        throw new OperationCanceledException(token);
-                    }
-                    else
-                    {
-                        throw new TimeoutException("The operation has timed out.");
-                    }
-                }
+            if (completedTask == task)
+            {
+                return await task;  // Very important in order to propagate exceptions
             }
+
+            token.ThrowIfCancellationRequested();
+
+            throw new TimeoutException("The operation has timed out.");
         }
     }
 }

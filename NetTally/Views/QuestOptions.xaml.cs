@@ -1,124 +1,90 @@
 ﻿using System;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
+using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Navigation;
+using NetTally.Data;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
 {
     /// <summary>
-    /// Interaction logic for quest options window.
+    /// Interaction logic for QuestOptions2.xaml
     /// </summary>
-    public partial class QuestOptions : Window, IActivable
+    public partial class QuestOptions : Window
     {
-        #region Setup and construction
-        readonly ILogger<QuestOptions> logger;
-        readonly ViewModel viewModel;
+        private readonly QuestOptionsViewModel questOptionsViewModel;
+        private readonly ILogger<QuestOptions> logger;
+        private readonly string clipboardUrl;
 
-        public QuestOptions(ViewModel model, ILogger<QuestOptions> logger)
+        public QuestOptions(
+            QuestOptionsViewModel questOptionsViewModel,
+            ILogger<QuestOptions> logger,
+            string url = "")
         {
-            viewModel = model;
+            this.questOptionsViewModel = questOptionsViewModel;
             this.logger = logger;
+            this.clipboardUrl = url;
 
-            DataContext = model;
+            this.questOptionsViewModel.PropertyChanged += QuestOptionsViewModel_PropertyChanged;
+            questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
 
             InitializeComponent();
+            DataContext = this.questOptionsViewModel;
+        }
 
-            linkedQuests.SelectionChanged += LinkedQuests_SelectionChanged;
-            availableQuests.SelectionChanged += AvailableQuests_SelectionChanged;
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (questOptionsViewModel.ThreadName == StringData.NewThreadEntry)
+            {
+                QuestUrlBox.Focus();
+            }
         }
 
         protected override void OnClosed(EventArgs e)
         {
+            questOptionsViewModel.PropertyChanged -= QuestOptionsViewModel_PropertyChanged;
             base.OnClosed(e);
-
-            linkedQuests.SelectionChanged -= LinkedQuests_SelectionChanged;
-            availableQuests.SelectionChanged -= AvailableQuests_SelectionChanged;
         }
 
-        public Task ActivateAsync(object? parameter)
+        private void TextEntry_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (parameter is Window owner)
+            if (sender is TextBox tb)
             {
-                this.Owner = owner;
+                tb.SelectAll();
             }
-
-            return Task.CompletedTask;
         }
-        #endregion
 
-        #region Event Handlers
-        /// <summary>
-        /// Notify the view model when the available quests' selection changes,
-        /// so that it can initiate a CanExecute call on commands.
-        /// </summary>
-        private void AvailableQuests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TextEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            PropertyChangedEventArgs args = new PropertyChangedEventArgs(nameof(availableQuests));
-            viewModel.ExternalPropertyChanged(this, args);
+            if (sender is TextBox tb)
+            {
+                if (!tb.IsKeyboardFocusWithin)
+                {
+                    tb.Focus();
+                    e.Handled = true;
+                }
+            }
         }
 
-        /// <summary>
-        /// Notify the view model when the list of linked quests' selection changes,
-        /// so that it can initiate a CanExecute call on commands.
-        /// </summary>
-        private void LinkedQuests_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void QuestOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            PropertyChangedEventArgs args = new PropertyChangedEventArgs(nameof(linkedQuests));
-            viewModel.ExternalPropertyChanged(this, args);
+            if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
+            {
+                logger.LogDebug("Quest options were saved.");
+                DialogResult = true;
+                Close();
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.ResetCommand))
+            {
+                questOptionsViewModel.SetQuestThreadFromClipboard(clipboardUrl);
+            }
+            else if (e.PropertyName == nameof(questOptionsViewModel.CancelCommand))
+            {
+                DialogResult = false;
+                Close();
+            }
         }
-        #endregion
-
-        #region Window element event handlers
-        private void resetFiltersButton_Click(object sender, RoutedEventArgs e)
-        {
-            customPostFilters.Clear();
-            var bindingExpression = BindingOperations.GetBindingExpression(customPostFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customTaskFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customTaskFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customThreadmarkFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customThreadmarkFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-            customUsernameFilters.Clear();
-            bindingExpression = BindingOperations.GetBindingExpression(customUsernameFilters, TextBox.TextProperty);
-            bindingExpression.UpdateSource();
-
-
-            useCustomPostFilters.IsChecked = false;
-            useCustomTaskFilters.IsChecked = false;
-            useCustomThreadmarkFilters.IsChecked = false;
-            useCustomUsernameFilters.IsChecked = false;
-
-            logger.LogDebug("Quest filters have been reset.");
-        }
-
-        private void resetOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            forbidVoteLabelPlanNames.IsChecked = false;
-            whitespaceAndPunctuationIsSignificant.IsChecked = false;
-            caseIsSignificant.IsChecked = false;
-            disableProxyVotes.IsChecked = false;
-            forcePinnedProxyVotes.IsChecked = false;
-            ignoreSpoilers.IsChecked = false;
-            trimExtendedText.IsChecked = false;
-
-            logger.LogDebug("Quest options have been reset.");
-        }
-
-        private void closeButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-        #endregion
     }
 }

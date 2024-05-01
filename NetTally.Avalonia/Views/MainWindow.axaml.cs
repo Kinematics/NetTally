@@ -1,21 +1,24 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.ComponentModel;
-using System.Configuration;
-using System.Runtime.ExceptionServices;
+using System.Diagnostics;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NetTally.Avalonia.Navigation;
+using NetTally.Systems;
+using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
 {
-    public class MainWindow : Window
+    public partial class MainWindow : Window
     {
         #region Fields and Properties
-        private ViewModels.ViewModel ViewModel { get; }
-        private Navigation.AvaloniaNavigationService NavigationService { get; }
-        private ILogger<MainWindow> Logger { get; }
+        private readonly MainViewModel mainViewModel;
+        private readonly AvaloniaNavigationService navigationService;
+        private readonly ILogger<MainWindow> logger;
+        private readonly IHostEnvironment hostEnvironment;
         #endregion
 
         #region Startup/shutdown events
@@ -25,135 +28,38 @@ namespace NetTally.Avalonia.Views
         /// Set up the data context links with the local variables.
         /// </summary>
         public MainWindow(
-            ViewModels.ViewModel model,
-            Navigation.AvaloniaNavigationService navigationService, 
-            ILogger<MainWindow> logger)
+            MainViewModel viewModel,
+            AvaloniaNavigationService navigationService,
+            ILogger<MainWindow> logger,
+            IHostEnvironment hostEnvironment)
         {
-            // Initialize the readonly properties.
-            this.ViewModel = model;
-            this.NavigationService = navigationService;
-            this.Logger = logger;
+            mainViewModel = viewModel;
+            this.navigationService = navigationService;
+            this.logger = logger;
+            this.hostEnvironment = hostEnvironment;
 
-            try
-            {
-                // Set up an event handler for any otherwise unhandled exceptions in the code.
-                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-                AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+            // Initialize the window.
+            InitializeComponent();
 
-                // Initialize the window.
-                AvaloniaXamlLoader.Load(this);
+            StartPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
+            EndPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
 
-                // Set the title.
-                Title = $"{SystemInfo.ProductInfo.Name} - {SystemInfo.ProductInfo.Version}";
+            DataContext = mainViewModel;
 
-                // Load configuration data
-                Collections.QuestCollection? quests = null;
-                string? currentQuest = null;
+            mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
-                try
-                {
-                    this.Logger.LogDebug("Loading configuration.");
-                    Config.NetTallyConfig.Load(out quests, out currentQuest, Options.AdvancedOptions.Instance);
-                    this.Logger.LogInformation("Configuration loaded.");
-                }
-                catch (ConfigurationErrorsException e)
-                {
-                    this.Logger.LogError(e, "Failure during configuration.");
-                    WarningDialog.Show("Error in configuration. Current configuration ignored.", "Error in configuration");
-                }
-
-                // Complete the platform setup.
-                this.PlatformSetup(quests, currentQuest);
-            }
-            catch (Exception e)
-            {
-                this.Logger.LogError(e, "Failure during program startup.");
-                WarningDialog.Show("Unable to start the program.", "Failure on startup");
-                this.Close();
-            }
+            Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
         }
 
-        /// <summary>
-        /// Set up the program with various platform-specific configurations.
-        /// </summary>
-        /// <param name="quests">The program's config data.</param>
-        private void PlatformSetup(Collections.QuestCollection? quests, string? currentQuest)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            try
-            {
-                System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-                System.Net.ServicePointManager.Expect100Continue = true;
-                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+            base.OnLoaded(e);
 
-                ViewModel.InitializeQuests(quests, currentQuest);
+            if (hostEnvironment.IsDevelopment())
+                return;
 
-                DataContext = ViewModel;
-                ViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-                ViewModel.ExceptionRaised += MainViewModel_ExceptionRaised;
-
-                ViewModel.CheckForNewRelease();
-            }
-            catch (InvalidOperationException e)
-            {
-                Logger.LogError(e, "Invalid operation during platform setup.");
-            }
-        }
-
-        /// <summary>
-        /// Saves the configuration.
-        /// </summary>
-        private void SaveConfig()
-        {
-            try
-            {
-                string selectedQuest = ViewModel.SelectedQuest?.ThreadName ?? "";
-
-                Config.NetTallyConfig.Save(ViewModel.QuestList, selectedQuest, Options.AdvancedOptions.Instance);
-
-                Logger.LogDebug("Configuration saved.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex, "Failed to save configuration.");
-                WarningDialog.Show("The program failed to save configuration data.", "Failed to save configuration");
-            }
-        }
-
-        /// <summary>
-        /// Handles the FirstChanceException event of the Current Domain.
-        /// Logs all first chance exceptions when debug mode is on, for debug builds.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="FirstChanceExceptionEventArgs"/> instance containing the event data.</param>
-        private void CurrentDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
-        {
-            if (Options.AdvancedOptions.Instance.DebugMode)
-                Logger.LogWarning(e.Exception, "First chance exception warning.");
-        }
-
-        /// <summary>
-        /// Unhandled exception handler.  If an unhandled exception crashes the program, save
-        /// the stack trace to a log file.
-        /// </summary>
-        /// <param name="sender">The AppDomain.</param>
-        /// <param name="e">The details of the unhandled exception.</param>
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Exception ex = (Exception)e.ExceptionObject;
-            Logger.LogCritical(ex, "Unhandled exception");
-            WarningDialog.Show("The program failed to handle an exception.", "Unhandled exception");
-        }
-
-        /// <summary>
-        /// Raises the <see cref="Window" />.Closed event.
-        /// Removes event listeners on close, to prevent memory leaks.
-        /// </summary>
-        /// <param name="e">Event data.</param>
-        protected override void OnClosed(EventArgs e)
-        {
-            this.SaveConfig();
-
-            base.OnClosed(e);
+            if (!Design.IsDesignMode)
+                mainViewModel.CheckForNewRelease();
         }
         #endregion
 
@@ -161,16 +67,43 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// Handles the PropertyChanged event of the MainViewModel control.
         /// </summary>
-        /// <remarks>
-        /// This should probably move to a seperate config class?
-        /// </remarks>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private async void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
-            
-            this.SaveConfig();
+            logger.LogDebug("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
+
+            // If a new quest was added, load the QuestOptions dialog to
+            // allow setting the URL and display name.
+            if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
+            {
+                string? clipboard = null;
+
+                // If we have a URL in the clipboard, make use of that as
+                // the default new URL for the quest.
+                if (Clipboard is not null)
+                    clipboard = await Clipboard.GetTextAsync();
+
+                string? uri = string.Empty;
+
+                if (Uri.IsWellFormedUriString(clipboard, UriKind.Absolute))
+                {
+                    uri = clipboard;
+                }
+
+                var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
+
+                // If the QuestOptions dialog was canceled, remove the quest we just added.
+                // Otherwise, update the position of the quest.
+                if (!result.HasValue || result.Value == false)
+                {
+                    mainViewModel.RemoveQuestCommand.Execute(null);
+                }
+                else
+                {
+                    mainViewModel.RepositionQuest();
+                }
+            }
         }
 
         /// <summary>
@@ -195,82 +128,134 @@ namespace NetTally.Avalonia.Views
 
             WarningDialog.Show(exmsg, "Error");
 
-            if (!(ex.Data.Contains("Application")))
-                Logger.LogError(ex, "Exception bubbled up from the view model.");
+            if (!ex.Data.Contains("Application"))
+                logger.LogError(ex, "Exception bubbled up from the view model.");
 
             e.Handled = true;
         }
         #endregion
 
         #region UI Events
-
-        public async void AddQuestButton_Click(object sender, RoutedEventArgs e)
-        {
-            // should IQuest go into the IoC and we get this via that instead?
-            var newQuest = new Quest();
-            var result = await this.NavigationService.ShowDialogAsync<Views.QuestOptions>(this, newQuest, this.ViewModel.QuestList);
-
-            if (result is true)
-            {
-                this.ViewModel.AddQuestQuiet(newQuest);
-                this.ViewModel.SelectedQuest = newQuest;
-            }
-        }
-
         /// <summary>
-        /// Event to cause the program to copy the current contents of the the tally
-        /// results (ie: what's shown in the main text window) to the clipboard.
+        /// Copy the current contents of the the tally results (ie: what's shown in the main text window) to the clipboard.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void copyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        public async void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Application.Current is not null &&
-                Application.Current.Clipboard is not null)
+            try
             {
-                Application.Current.Clipboard.SetTextAsync(ViewModel.Output);
+                if (Clipboard is not null)
+                {
+                    await Clipboard.SetTextAsync(mainViewModel.Output);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error copying to clipboard");
             }
         }
 
         /// <summary>
         /// Open the window for handling merging votes.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         public async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
         {
-            await this.NavigationService.ShowDialogAsync<ManageVotes>(this);
+            try
+            {
+                await navigationService.ShowDialogAsync<ManageVotes>(this);
 
-            ViewModel.UpdateOutput();
+                mainViewModel.UpdateOutput();
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error managing votes");
+            }
         }
 
         /// <summary>
         /// Opens the global options window.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await this.NavigationService.ShowDialogAsync<GlobalOptions>(this, this.ViewModel.Options);
+        public async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<GlobalOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling global options");
+            }
+        }
 
         /// <summary>
         /// Opens the quest options window.
         /// </summary>
-        /// <remarks>
-        /// Refactor this into a function taking a parameter instead?
-        /// </remarks>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e) => 
-            await NavigationService.ShowDialogAsync<Views.QuestOptions>(this,
-                                                                        this.ViewModel.SelectedQuest ?? throw new ArgumentNullException("Selected Quest is null."),
-                                                                        this.ViewModel.QuestList);
+        public async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<QuestOptions>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error handling quest options");
+            }
+        }
+
+        private void TextBox_GotFocus(object? sender, GotFocusEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                tb.SelectAll();
+            }
+        }
+
+        private void TextBox_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is TextBox tb && !tb.IsKeyboardFocusWithin)
+            {
+                tb.Focus();
+                e.Handled = true;
+            }
+        }
+
+        const string WikiHelp = "https://github.com/Kinematics/NetTally/wiki";
+        const string NewReleasePage = "https://github.com/Kinematics/NetTally/releases/latest";
+
+        /// <summary>
+        /// Open a browser to view the wiki URL.
+        /// </summary>
+        public void OpenWikiHelpPage(object? sender, RoutedEventArgs e)
+        {
+            OpenHyperlink(WikiHelp);
+        }
+
+        /// <summary>
+        /// Open a browser to view the new release page URL.
+        /// </summary>
+        public void OpenNewReleasePage(object? sender, RoutedEventArgs e)
+        {
+            OpenHyperlink(NewReleasePage);
+        }
+
+        private static void OpenHyperlink(string hyperlink)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                Process.Start(new ProcessStartInfo("cmd",
+                    $"/c start {hyperlink}") { CreateNoWindow = true });
+            }
+
+        }
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public MainWindow() { throw new InvalidOperationException("The default constructor should not be called"); }
+        public MainWindow()
+        {
+            //throw new InvalidOperationException("The default constructor should not be called");
+        }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NetTally.Votes;
+using NetTally.Tally.Components;
 
 namespace NetTally.Converters
 {
@@ -43,13 +43,13 @@ namespace NetTally.Converters
             }
         }
 
-        private object CompareStringValues(object[] values)
+        private static object CompareStringValues(object[] values)
         {
             string first = values[0].ToString() ?? "";
 
             return values.All(v => v is string vv && vv == first);
         }
-        private object CompareVoteLineBlockValues(object[] values, bool inverted)
+        private static object CompareVoteLineBlockValues(object[] values, bool inverted)
         {
             if (!values.All(v => v is VoteLineBlock))
                 return false;

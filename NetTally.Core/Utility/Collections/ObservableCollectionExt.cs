@@ -19,7 +19,7 @@ namespace NetTally.Collections
     public class ObservableCollectionExt<T> : ObservableCollection<T>
     {
         #region Constructor
-        private SynchronizationContext? _synchronizationContext = SynchronizationContext.Current;
+        private readonly SynchronizationContext? _synchronizationContext = SynchronizationContext.Current;
 
         public ObservableCollectionExt()
         {
@@ -39,10 +39,10 @@ namespace NetTally.Collections
                 // Execute the CollectionChanged event on the current thread
                 RaiseCollectionChanged(e);
             }
-            else if (_synchronizationContext is not null)
+            else
             {
                 // Raises the CollectionChanged event on the creator thread
-                _synchronizationContext.Send(RaiseCollectionChanged, e);
+                _synchronizationContext?.Send(RaiseCollectionChanged, e);
             }
         }
 
@@ -62,10 +62,10 @@ namespace NetTally.Collections
                 // Execute the PropertyChanged event on the current thread
                 RaisePropertyChanged(e);
             }
-            else if (_synchronizationContext is not null)
+            else
             {
                 // Raises the PropertyChanged event on the creator thread
-                _synchronizationContext.Send(RaisePropertyChanged, e);
+                _synchronizationContext?.Send(RaisePropertyChanged, e);
             }
         }
 
@@ -151,7 +151,7 @@ namespace NetTally.Collections
 
             CheckReentrancy();
 
-            var originalItems = Items.ToList();
+            //var originalItems = Items.ToList();
 
             Items.Clear();
 
@@ -175,7 +175,7 @@ namespace NetTally.Collections
         {
             CheckReentrancy();
 
-            var originalItems = Items.ToList();
+            //var originalItems = Items.ToList();
 
             if (Items is List<T> itemsList)
             {
@@ -183,7 +183,7 @@ namespace NetTally.Collections
             }
             else if (Items != null)
             {
-                List<T> list = new List<T>(Items);
+                List<T> list = new(Items);
                 list.Sort();
 
                 Items.Clear();

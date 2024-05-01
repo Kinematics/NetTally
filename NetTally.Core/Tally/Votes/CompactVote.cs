@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NetTally.Extensions;
-using NetTally.Forums;
-using NetTally.Utility;
-using NetTally.Types.Components;
+using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
-    // Individual dictionary element from VoteStorage:
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
-
     /// <summary>
     /// A compact vote allows multiple votes to be displayed as a collective when
     /// the lines of each vote match up with each other.
@@ -28,12 +21,12 @@ namespace NetTally.Votes
         public static IEnumerable<CompactVote> GetCompactVotes(IEnumerable<VoteStorageEntry> votes)
         {
             if (votes == null || !votes.Any())
-                return Enumerable.Empty<CompactVote>();
+                return [];
 
             // Group votes by first vote line, as that's the basis for further consolidation.
-            var groupedVotes = votes.GroupBy(v => v.Key.Lines.First());
+            var groupedVotes = votes.GroupBy(v => v.Key.Lines[0]);
 
-            List<CompactVote> compactVotes = new List<CompactVote>();
+            List<CompactVote> compactVotes = [];
 
             foreach (var group in groupedVotes)
             {
@@ -53,7 +46,9 @@ namespace NetTally.Votes
         /// <param name="votes">Votes that were part of the parent CompactVote.</param>
         /// <param name="parent">The parent of the CompactVote being created.</param>
         /// <returns>Returns a compact vote built on the child line provided.</returns>
-        private CompactVote RecursiveCreation(VoteLine childLine, IEnumerable<VoteStorageEntry> votes,
+        private static CompactVote RecursiveCreation(
+            VoteLine childLine,
+            IEnumerable<VoteStorageEntry> votes,
             CompactVote parent)
         {
             // Get the children for the next layer of the tree.
@@ -75,9 +70,9 @@ namespace NetTally.Votes
         private static IEnumerable<VoteLine> GetChildLinesOfLine(VoteLine key,
             IEnumerable<VoteStorageEntry> voteGroup, bool topLevel = false)
         {
-            List<VoteStorageEntry> voteGroupList = new List<VoteStorageEntry>(voteGroup);
-            List<VoteLine> holding = new List<VoteLine>();
-            List<VoteLine> tempHolding = new List<VoteLine>();
+            List<VoteStorageEntry> voteGroupList = new(voteGroup);
+            List<VoteLine> holding = [];
+            List<VoteLine> tempHolding = [];
 
             foreach (var (vote, voteSupport) in voteGroupList)
             {
@@ -133,8 +128,8 @@ namespace NetTally.Votes
         #region Properties
         CompactVote? Parent { get; }
         public VoteLine CurrentLine { get; }
-        public List<CompactVote> Children { get; } = new List<CompactVote>();
-        public List<VoterStorageEntry> Voters { get; } = new List<VoterStorageEntry>();
+        public List<CompactVote> Children { get; } = [];
+        public List<VoterStorageEntry> Voters { get; } = [];
         public int VoterCount { get; }
         #endregion
 
@@ -160,7 +155,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToString();
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -178,7 +173,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToComparableString();
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToComparableString()).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -198,7 +193,7 @@ namespace NetTally.Votes
         {
             string result = CurrentLine.ToOverrideString(displayMarker, displayTask);
 
-            if (Children.Any())
+            if (Children.Count != 0)
             {
                 string aggregate = Children.Select(s => s.ToOverrideString(displayMarker, displayTask)).Aggregate((a, b) => $"{a}\n{b}");
 
@@ -233,8 +228,7 @@ namespace NetTally.Votes
 
 
         #region Equality and Comparison
-#nullable disable
-        public static int Compare(CompactVote left, CompactVote right)
+        public static int Compare(CompactVote? left, CompactVote? right)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -246,10 +240,10 @@ namespace NetTally.Votes
             return left.CurrentLine.CompareTo(right.CurrentLine);
         }
 
-        public int CompareTo(CompactVote other) => Compare(this, other);
-        public int CompareTo(object obj) => Compare(this, obj as CompactVote);
-        public bool Equals(CompactVote other) => Compare(this, other) == 0;
-        public override bool Equals(object obj) => Compare(this, obj as CompactVote) == 0;
+        public int CompareTo(CompactVote? other) => Compare(this, other);
+        public int CompareTo(object? obj) => Compare(this, obj as CompactVote);
+        public bool Equals(CompactVote? other) => Compare(this, other) == 0;
+        public override bool Equals(object? obj) => Compare(this, obj as CompactVote) == 0;
 
         public override int GetHashCode() => base.GetHashCode();
 
@@ -259,7 +253,6 @@ namespace NetTally.Votes
         public static bool operator <=(CompactVote first, CompactVote second) => Compare(first, second) <= 0;
         public static bool operator ==(CompactVote first, CompactVote second) => Compare(first, second) == 0;
         public static bool operator !=(CompactVote first, CompactVote second) => Compare(first, second) != 0;
-#nullable enable
         #endregion Equality and Comparison
     }
 }

@@ -28,7 +28,7 @@ namespace NetTally.Tests.Votes
         public void Initialize()
         {
             voteCounter.Reset();
-            voteCounter.ClearPosts();
+            voteCounter.ResetPosts();
         }
         #endregion
     }

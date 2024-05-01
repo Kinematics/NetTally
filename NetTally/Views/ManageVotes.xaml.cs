@@ -4,106 +4,93 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.Comparers;
-using NetTally.Forums;
 using NetTally.Navigation;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.ViewModels;
-using NetTally.Votes;
-using NetTally.Types.Components;
 
 namespace NetTally.Views
 {
     /// <summary>
-    /// Interaction logic for MergeVotesWindow.xaml
+    /// Interaction logic for ManageVotes2.xaml
     /// </summary>
-    public partial class ManageVotes : Window, INotifyPropertyChanged, IActivable
+    [ObservableObject]
+    public partial class ManageVotes : Window
     {
-        #region Constructor and variables
-        public ListCollectionView VoteView1 { get; } = new ListCollectionView(Array.Empty<string>());
-        public ListCollectionView VoteView2 { get; } = new ListCollectionView(Array.Empty<string>());
-
-        public ListCollectionView VoterView1 { get; } = new ListCollectionView(Array.Empty<string>());
-        public ListCollectionView VoterView2 { get; } = new ListCollectionView(Array.Empty<string>());
-
-        object? lastSelected2 = null;
-        int lastPosition1 = -1;
-        int lastPosition2 = -1;
-
-        readonly List<MenuItem> ContextMenuCommands = new List<MenuItem>();
-        readonly List<MenuItem> ContextMenuTasks = new List<MenuItem>();
-
-        readonly ViewModel mainViewModel;
-
-        ListBox? newTaskBox = null;
-
-        string filter1String = "";
-        string filter2String = "";
-
+        private readonly ManageVotesViewModel manageVotesViewModel;
+        private readonly WPFNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
-        private readonly IoCNavigationService navigationService;
 
-        public Task ActivateAsync(object? parameter)
+        public ListCollectionView VoteView1 { get; }
+        public ListCollectionView VoteView2 { get; }
+        public ListCollectionView VoterView1 { get; }
+        public ListCollectionView VoterView2 { get; }
+
+
+        public ManageVotes(
+            ManageVotesViewModel manageVotesViewModel,
+            WPFNavigationService navigationService,
+            ILogger<ManageVotes> logger)
         {
-            if (parameter is Window owner)
-            {
-                this.Owner = owner;
-            }
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="mainViewModel">The primary view model of the program.</param>
-        public ManageVotes(ViewModel mainViewModel, IoCNavigationService navigationService, ILogger<ManageVotes> logger)
-        {
-            this.mainViewModel = mainViewModel;
+            this.manageVotesViewModel = manageVotesViewModel;
             this.navigationService = navigationService;
             this.logger = logger;
 
             InitializeComponent();
 
-            this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+            VoteView1 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
+            VoteView2 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
 
-            // Create filtered, sortable views into the collection for display in the window.
-            VoteView1 = new ListCollectionView(this.mainViewModel.AllVotesCollection);
-            VoteView2 = new ListCollectionView(this.mainViewModel.AllVotesCollection);
+            VoterView1 = new ListCollectionView(manageVotesViewModel.AllVotersCollection);
+            VoterView2 = new ListCollectionView(manageVotesViewModel.AllVotersCollection);
 
-            PropertyGroupDescription groupDescription = new PropertyGroupDescription("Category");
+            // Setup sorting/filtering/etc for views
+            SetupViews();
+
+            // Populate the context menu with known tasks.
+            CreateContextMenuCommands();
+            InitKnownTasks();
+            UpdateContextMenu();
+
+            DataContext = manageVotesViewModel;
+        }
+
+        private void SetupViews()
+        {
+            // ** Votes **
+
+            PropertyGroupDescription groupDescription = new("Category");
             VoteView1.GroupDescriptions.Add(groupDescription);
             VoteView2.GroupDescriptions.Add(groupDescription);
 
-            if (VoteView1.CanSort && VoteView2.CanSort)
-            {
-                IComparer voteCompare = new CustomVoteSort();
-                VoteView1.CustomSort = voteCompare;
-                VoteView2.CustomSort = voteCompare;
-            }
+            IComparer voteCompare = new VoteBlockComparer();
+            VoteView1.CustomSort = voteCompare;
+            VoteView2.CustomSort = voteCompare;
 
-            if (VoteView1.CanFilter && VoteView2.CanFilter)
-            {
-                VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
-                VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
-            }
+            VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
+            VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
 
             // Initialize starting selected positions
             VoteView1.MoveCurrentToPosition(-1);
             VoteView2.MoveCurrentToFirst();
 
+            VoteView1.CurrentChanged += (sender, e) =>
+            {
+                manageVotesViewModel.SelectedFromVote = VoteView1.CurrentItem as VoteLineBlock;
+            };
+            VoteView2.CurrentChanged += (sender, e) =>
+            {
+                manageVotesViewModel.SelectedToVote = VoteView2.CurrentItem as VoteLineBlock;
+            };
 
-            // Create filtered views for display in the window.
-            VoterView1 = new ListCollectionView(this.mainViewModel.AllVotersCollection);
-            VoterView2 = new ListCollectionView(this.mainViewModel.AllVotersCollection);
+            // ** Voters **
 
             VoterView1.CustomSort = Comparer.Default;
             VoterView2.CustomSort = Comparer.Default;
@@ -111,103 +98,45 @@ namespace NetTally.Views
             VoterView1.Filter = (a) => FilterVoters(VoteView1, a as Origin);
             VoterView2.Filter = (a) => FilterVoters(VoteView2, a as Origin);
 
+            //VoterView1.CurrentChanged += (sender, e) =>
+            //{
+            //    manageVotesViewModel.FromVoters = VoterView1.SourceCollection.OfType<Origin>().ToList();
+            //};
+            VoterView2.CurrentChanged += (sender, e) =>
+            {
+                manageVotesViewModel.SelectedToVoter = VoterView2.CurrentItem as Origin;
+            };
+
             // Update the voters to match the votes.
             VoterView1.Refresh();
             VoterView2.Refresh();
 
-            // Populate the context menu with known tasks.
-            CreateContextMenuCommands();
-            InitKnownTasks();
-            UpdateContextMenu();
-
-            // Set the data context for binding.
-            DataContext = this;
-
-            Filter1String = "";
-            Filter2String = "";
+            logger.LogDebug("Views set up.");
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Window.Closed" /> event.
-        /// Removes event listeners on close, to prevent memory leaks.
-        /// </summary>
-        /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
-        protected override void OnClosed(EventArgs e)
-        {
-            mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
-
-            base.OnClosed(e);
-        }
-        #endregion
-
-        #region INotifyPropertyChanged implementation
-        /// <summary>
-        /// Event for INotifyPropertyChanged.
-        /// </summary>
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        /// <summary>
-        /// Function to raise events when a property has been changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
 
         #region Filtering
-        /// <summary>
-        /// Property for holding the string used to filter the 'from' votes.
-        /// </summary>
-        public string Filter1String
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsFilter1Empty))]
+        string filter1String = "";
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsFilter2Empty))]
+        string filter2String = "";
+
+        partial void OnFilter1StringChanged(string value)
         {
-            get
-            {
-                return filter1String;
-            }
-            set
-            {
-                filter1String = value.RemoveUnsafeCharacters();
-                OnPropertyChanged();
-
-                IsFilter1Empty = string.IsNullOrEmpty(filter1String);
-                OnPropertyChanged(nameof(IsFilter1Empty));
-
-                VoteView1.Refresh();
-            }
+            VoteView1.Refresh();
         }
 
-        /// <summary>
-        /// Property for holding the string used to filter the 'to' votes.
-        /// </summary>
-        public string Filter2String
+        partial void OnFilter2StringChanged(string value)
         {
-            get
-            {
-                return filter2String;
-            }
-            set
-            {
-                filter2String = value.RemoveUnsafeCharacters();
-                OnPropertyChanged();
-
-                IsFilter2Empty = string.IsNullOrEmpty(filter2String);
-                OnPropertyChanged(nameof(IsFilter2Empty));
-
-                VoteView2.Refresh();
-            }
+            VoteView2.Refresh();
         }
 
-        /// <summary>
-        /// Bool property for UI for if the first filter string is empty.
-        /// </summary>
-        public bool IsFilter1Empty { get; set; }
+        public bool IsFilter1Empty => string.IsNullOrEmpty(Filter1String);
+        public bool IsFilter2Empty => string.IsNullOrEmpty(Filter2String);
 
-        /// <summary>
-        /// Bool property for UI for if the second filter string is empty.
-        /// </summary>
-        public bool IsFilter2Empty { get; set; }
 
         /// <summary>
         /// Filter to be used by the vote display to determine which votes should be
@@ -225,12 +154,17 @@ namespace NetTally.Views
             if (string.IsNullOrEmpty(filterString))
                 return true;
 
-            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
+            if (CultureInfo.InvariantCulture.CompareInfo
+                .IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
                 return true;
 
-            var voters = mainViewModel.GetVoterListForVote(vote);
+            var voters = manageVotesViewModel.GetVotersForVote(vote).ToList();
 
-            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo.IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
+            if (voters.Count == 0)
+                return false;
+
+            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo
+                .IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
         }
 
         /// <summary>
@@ -251,7 +185,7 @@ namespace NetTally.Views
 
             if (voteView.CurrentItem is VoteLineBlock currentVote)
             {
-                var voters = mainViewModel.GetVoterListForVote(currentVote);
+                var voters = manageVotesViewModel.GetVotersForVote(currentVote);
                 return voters.Contains(voter);
             }
 
@@ -261,13 +195,14 @@ namespace NetTally.Views
         #endregion
 
         #region Window events
+
         /// <summary>
         /// Update enabled state of merge button, and current list of voters, based on current vote selection
         /// for the list of votes to be merged from.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void votesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void VotesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             VoterView1.Refresh();
         }
@@ -278,86 +213,9 @@ namespace NetTally.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void votesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void VotesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             VoterView2.Refresh();
-        }
-
-        /// <summary>
-        /// Handler for the button to merge two vote items together.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void merge_Click(object sender, RoutedEventArgs e)
-        {
-            if (VoteView1.CurrentItem is VoteLineBlock fromVote && VoteView2.CurrentItem is VoteLineBlock toVote)
-            {
-                MergeVotes(fromVote, toVote);
-            }
-        }
-
-        /// <summary>
-        /// Handler for the button to join voters.
-        /// All voters from the from list are adjusted to support all votes supported by the
-        /// voter selected in the to list.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void join_Click(object sender, RoutedEventArgs e)
-        {
-            if (VoteView1.Count == 0)
-                return;
-
-            if (VoterView2.CurrentItem == null)
-                return;
-
-            List<Origin> fromVoters = votersFromListBox.Items.SourceCollection.OfType<Origin>().ToList();
-            Origin? joinVoter = VoterView2.CurrentItem as Origin;
-
-            if (joinVoter == null)
-                return;
-
-            try
-            {
-                mainViewModel.JoinVoters(fromVoters, joinVoter);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <summary>
-        /// Delete the vote that has been selected in both list boxes.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void delete_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                lastPosition1 = VoteView1.CurrentPosition;
-                lastPosition2 = VoteView2.CurrentPosition;
-
-                if (VoteView1.CurrentItem is VoteLineBlock currentVote)
-                {
-                    mainViewModel.DeleteVote(currentVote);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <summary>
-        /// Calls Undo on the vote counter to undo the most recent vote modification action.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void undo_Click(object sender, RoutedEventArgs e)
-        {
-            UndoLastAction();
         }
 
         /// <summary>
@@ -370,69 +228,245 @@ namespace NetTally.Views
         {
             if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
-                UndoLastAction();
+                if (manageVotesViewModel.UndoCommand.CanExecute(this))
+                    manageVotesViewModel.UndoCommand.Execute(this);
+
                 e.Handled = true;
             }
         }
         #endregion
 
-        #region Binding Properties
+        #region Context Menu Setup
+        MenuItem newTask = default!;
+        MenuItem clearTask = default!;
+        MenuItem reorderTasks = default!;
+        MenuItem partitionChildren = default!;
+        private readonly Separator separator = new();
+        private readonly List<MenuItem> ContextMenuTasks = [];
+        VoteLineBlock? selectedVoteForNewTask;
+
         /// <summary>
-        /// Binding for the Undo button on the window.
+        /// Create the command menu items for the context menu.
         /// </summary>
-        public bool HasUndoActions => mainViewModel.HasUndoActions;
+        private void CreateContextMenuCommands()
+        {
+            newTask = new()
+            {
+                Header = "New Task...",
+                ToolTip = "Create a new task value.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
+            };
+            newTask.Click += NewTask_Click;
+
+            clearTask = new()
+            {
+                Header = "Clear Task",
+                ToolTip = "Clear the task from the currently selected vote.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
+            };
+            clearTask.Click += ClearTask_Click;
+
+            reorderTasks = new()
+            {
+                Header = "Re-Order Tasks",
+                ToolTip = "Modify the order in which the tasks appear in the output.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
+            };
+            reorderTasks.Click += ReorderTasksAsync_Click;
+
+            partitionChildren = new()
+            {
+                Header = "Partition Children",
+                ToolTip = "Split child vote lines into their own vote blocks.",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
+            };
+            partitionChildren.Click += PartitionChildren_Click;
+
+            InitKnownTasks();
+            UpdateContextMenu();
+        }
+
+        /// <summary>
+        /// Populate the ContextMenuTasks list from known tasks on window load.
+        /// </summary>
+        private void InitKnownTasks()
+        {
+            var sortedTasks = manageVotesViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var task in sortedTasks)
+                ContextMenuTasks.Add(CreateContextMenuItem(task));
+        }
+
+        /// <summary>
+        /// Function to create a MenuItem object for the context menu containing the provided header value.
+        /// </summary>
+        /// <param name="name">The name of the menu item.</param>
+        /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
+        private MenuItem CreateContextMenuItem(string name)
+        {
+            MenuItem mi = new()
+            {
+                Header = name,
+                ToolTip = $"Change the task for the selected item to '{name}'",
+                Tag = "NamedTask"
+            };
+            mi.Click += ModifyTask_Click;
+
+            return mi;
+        }
+
+        /// <summary>
+        /// Given a new task name, create a new menu item and refresh the context menu.
+        /// </summary>
+        /// <param name="task">The name of a new task.</param>
+        private void AddTaskToContextMenu(string task)
+        {
+            if (string.IsNullOrEmpty(task))
+                return;
+
+            if (ContextMenuTasks.Any(t => string.Equals(t.Header.ToString(), task, StringComparison.Ordinal)))
+                return;
+
+            ContextMenuTasks.Add(CreateContextMenuItem(task));
+
+            UpdateContextMenu();
+        }
+
+        /// <summary>
+        /// Recreate the context menu when new menu items are added.
+        /// Also disables the Re-Order Tasks menu item if there are no known tasks.
+        /// </summary>
+        private void UpdateContextMenu()
+        {
+            var pMenu = (ContextMenu)Resources["TaskContextMenu"];
+
+            if (pMenu is null)
+                return;
+
+            pMenu.Items.Clear();
+
+            pMenu.Items.Add(newTask);
+            pMenu.Items.Add(clearTask);
+            pMenu.Items.Add(reorderTasks);
+            pMenu.Items.Add(partitionChildren);
+            pMenu.Items.Add(separator);
+
+            foreach (var task in ContextMenuTasks.OrderBy(m => m.Header))
+            {
+                pMenu.Items.Add(task);
+            }
+        }
         #endregion
 
         #region Context Menu events
         private void TaskContextMenu_Opened(object sender, RoutedEventArgs e)
         {
-            if (!(sender is ContextMenu cm))
+            if (sender is not ContextMenu cm)
                 return;
 
-            if (!(cm.PlacementTarget is ListBox listBox))
+            if (cm.PlacementTarget is not ListBox listBox)
+            {
+                e.Handled = true;
                 return;
-
-            if (listBox.SelectedItem is VoteLineBlock selectedVote)
-            {
-                // Only enable the Parition Children context menu item if it's a valid action for the vote.
-                bool enabled = HasChildLines(selectedVote);
-
-                if (Resources["TaskContextMenu"] is ContextMenu pMenu)
-                {
-                    foreach (object? item in pMenu.Items)
-                    {
-                        if (item is MenuItem mItem)
-                        {
-                            if (string.Equals(mItem.Header.ToString(), "Partition Children", StringComparison.Ordinal))
-                            {
-                                mItem.IsEnabled = enabled;
-                            }
-                        }
-                    }
-                }
             }
+
+            if (listBox.SelectedItem is not VoteLineBlock selectedVote)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // Only enable the Parition Children context menu item if it's a valid action for the vote.
+            partitionChildren.IsEnabled = HasChildLines(selectedVote);
+
+            // Only clear a task if the vote has one.
+            clearTask.IsEnabled = !string.IsNullOrEmpty(selectedVote.Task);
+
+            // Only enable Reorder Tasks if we have tasks to reorder
+            reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;
         }
 
-        private bool HasChildLines(VoteLineBlock vote)
+        private void NewTask_Click(object sender, RoutedEventArgs e)
         {
-            return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
-        }
-
-        private void newTask_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    newTaskBox = cm.PlacementTarget as ListBox;
-                }
-            }
+            selectedVoteForNewTask = GetSelectedVoteInContext(sender);
 
             // Show the custom input box, and put focus on the text box.
             InputBox.Visibility = Visibility.Visible;
             InputTextBox.Focus();
         }
 
+        private void ClearTask_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedVote = GetSelectedVoteInContext(sender);
+
+            if (selectedVote is not null)
+                ModifyTask(selectedVote, string.Empty);
+        }
+
+        private void ModifyTask_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi)
+            {
+                string? newTask = mi.Header.ToString();
+
+                if (newTask is null)
+                    return;
+
+                var selectedVote = GetSelectedVoteInContext(sender);
+
+                if (selectedVote is not null)
+                    ModifyTask(selectedVote, newTask);
+            }
+        }
+
+        private async void ReorderTasksAsync_Click(object sender, RoutedEventArgs e)
+        {
+            await navigationService.ShowDialogAsync<ReorderTasks>(this);
+        }
+
+        private void PartitionChildren_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedVote = GetSelectedVoteInContext(sender);
+
+            if (selectedVote is not null)
+                manageVotesViewModel.PartitionChildren(selectedVote);
+        }
+
+        private void ModifyTask(VoteLineBlock selectedVote, string newTask)
+        {
+            manageVotesViewModel.ReplaceTask(selectedVote, newTask);
+        }
+
+        private static bool HasChildLines(VoteLineBlock vote)
+        {
+            return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
+        }
+
+        private static VoteLineBlock? GetSelectedVoteInContext(object? sender)
+        {
+            if (sender is MenuItem mi)
+            {
+                if (mi.Parent is ContextMenu cm)
+                {
+                    if (cm.PlacementTarget is ListBox listBox)
+                    {
+                        if (listBox.SelectedItem is VoteLineBlock selectedVote)
+                        {
+                            return selectedVote;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+        #endregion
+
+        #region New Task Overlay
         private void YesButton_Click(object sender, RoutedEventArgs e)
         {
             AcceptInput();
@@ -458,59 +492,6 @@ namespace NetTally.Views
             }
         }
 
-        private void modifyTask_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    if (cm.PlacementTarget is ListBox box)
-                    {
-                        if (box.SelectedItem is VoteLineBlock selectedVote)
-                        {
-                            string newTask = mi.Header.ToString() ?? "";
-
-                            if (!string.IsNullOrEmpty(newTask))
-                            {
-                                if (string.Equals(newTask, "Clear Task", StringComparison.Ordinal))
-                                    mainViewModel.ReplaceTask(selectedVote, "");
-                                else
-                                    mainViewModel.ReplaceTask(selectedVote, newTask);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private async void reorderTasks_ClickAsync(object sender, RoutedEventArgs e)
-        {
-            await navigationService.ShowDialogAsync<ReorderTasks>(this);
-
-            mainViewModel.UpdateOutput();
-        }
-
-        private void partitionChildren_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    if (cm.PlacementTarget is ListBox box)
-                    {
-                        if (box.SelectedItem is VoteLineBlock selectedVote)
-                        {
-                            PartitionChildren(selectedVote);
-
-                            mainViewModel.UpdateOutput();
-                        }
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Window Action Functions
         /// <summary>
         /// Process acceptance of the new task text.
         /// </summary>
@@ -522,19 +503,14 @@ namespace NetTally.Views
             string newTask = InputTextBox.Text.RemoveUnsafeCharacters().Trim();
 
             // Clear InputBox.
-            InputTextBox.Text = String.Empty;
+            InputTextBox.Text = string.Empty;
 
             // Do something with the Input
             AddTaskToContextMenu(newTask);
-            mainViewModel.AddUserDefinedTask(newTask);
+            manageVotesViewModel.AddUserDefinedTask(newTask);
 
-            // Update the selected item of the list box
-            if (newTaskBox?.SelectedItem is VoteLineBlock selectedVote)
-            {
-                mainViewModel.ReplaceTask(selectedVote, newTask);
-            }
-
-            newTaskBox = null;
+            if (selectedVoteForNewTask is not null)
+                manageVotesViewModel.ReplaceTask(selectedVoteForNewTask, newTask);
         }
 
         /// <summary>
@@ -547,231 +523,7 @@ namespace NetTally.Views
 
             // Clear InputBox.
             InputTextBox.Text = string.Empty;
-
-            newTaskBox = null;
         }
-
-        /// <summary>
-        /// Undoes the last action.
-        /// </summary>
-        private void UndoLastAction()
-        {
-            try
-            {
-                mainViewModel.UndoVoteModification();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region Watched Events        
-        /// <summary>
-        /// Watch for notifications from the main view model about changes in the vote backend.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            logger.LogTrace("Received notification of property change from MainViewModel: {PropertyName}.",
-                e.PropertyName);
-
-            if (string.Equals(e.PropertyName, nameof(mainViewModel.AllVotesCollection), StringComparison.Ordinal))
-            {
-                UpdateVoteCollections();
-            }
-            else if (string.Equals(e.PropertyName, nameof(mainViewModel.AllVotersCollection), StringComparison.Ordinal))
-            {
-                UpdateVoterCollections();
-            }
-            else if (!string.IsNullOrEmpty(e.PropertyName))
-            {
-                OnPropertyChanged(e.PropertyName);
-            }
-        }
-        #endregion
-
-        #region Utility functions
-        /// <summary>
-        /// Shorthand call to run both collection updates.
-        /// </summary>
-        private void UpdateVoteCollections()
-        {
-            VoteView1.Refresh();
-            VoteView2.Refresh();
-
-            if (lastPosition1 > VoteView1.Count)
-                VoteView1.MoveCurrentToLast();
-            else
-                VoteView1.MoveCurrentToPosition(lastPosition1);
-
-            if (lastPosition2 < 0)
-                VoteView2.MoveCurrentTo(lastSelected2 ?? "");
-            else if (lastPosition2 > VoteView2.Count)
-                VoteView2.MoveCurrentToLast();
-            else
-                VoteView2.MoveCurrentToPosition(lastPosition2);
-
-            // Retain the new position.
-            lastPosition1 = VoteView1.CurrentPosition;
-            lastPosition2 = VoteView2.CurrentPosition;
-        }
-
-        private void UpdateVoterCollections()
-        {
-            VoterView1.Refresh();
-            VoterView2.Refresh();
-        }
-
-        /// <summary>
-        /// Handle busywork for merging votes together and updating the VotesCollection.
-        /// </summary>
-        /// <param name="fromVote">The vote being merged.</param>
-        /// <param name="toVote">The vote being merged into.</param>
-        private void MergeVotes(VoteLineBlock fromVote, VoteLineBlock toVote)
-        {
-            try
-            {
-                lastPosition1 = VoteView1.CurrentPosition;
-                lastPosition2 = -1;
-                lastSelected2 = VoteView2.CurrentItem ?? lastSelected2;
-                mainViewModel.MergeVotes(fromVote, toVote);
-            }
-            catch (ArgumentException ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void PartitionChildren(VoteLineBlock vote)
-        {
-            try
-            {
-                lastPosition1 = VoteView1.CurrentPosition;
-                lastPosition2 = VoteView2.CurrentPosition;
-
-                mainViewModel.PartitionChildren(vote);
-            }
-            catch (ArgumentException ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        #endregion
-
-        #region Context Menu Utility
-        /// <summary>
-        /// Create the basic command menu items for the context menu.
-        /// </summary>
-        private void CreateContextMenuCommands()
-        {
-            MenuItem newTask = new MenuItem();
-            newTask.Header = "New Task...";
-            newTask.Click += newTask_Click;
-            newTask.ToolTip = "Create a new task value.";
-
-            MenuItem clearTask = new MenuItem();
-            clearTask.Header = "Clear Task";
-            clearTask.Click += modifyTask_Click;
-            clearTask.ToolTip = "Clear the task from the currently selected vote.";
-
-            MenuItem reorderTasks = new MenuItem();
-            reorderTasks.Header = "Re-Order Tasks";
-            reorderTasks.Click += reorderTasks_ClickAsync;
-            reorderTasks.ToolTip = "Modify the order in which the tasks appear in the output.";
-
-            MenuItem partitionChildren = new MenuItem();
-            partitionChildren.Header = "Partition Children";
-            partitionChildren.Click += partitionChildren_Click;
-            partitionChildren.ToolTip = "Split child vote lines into their own vote blocks.";
-
-            ContextMenuCommands.Add(newTask);
-            ContextMenuCommands.Add(clearTask);
-            ContextMenuCommands.Add(reorderTasks);
-            ContextMenuCommands.Add(partitionChildren);
-        }
-
-        /// <summary>
-        /// Populate the ContextMenuTasks list from known tasks on window load.
-        /// </summary>
-        private void InitKnownTasks()
-        {
-            foreach (var task in mainViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
-                ContextMenuTasks.Add(CreateContextMenuItem(task));
-        }
-
-        /// <summary>
-        /// Function to create a MenuItem object for the context menu containing the provided header value.
-        /// </summary>
-        /// <param name="name">The name of the menu item.</param>
-        /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
-        private MenuItem CreateContextMenuItem(string name)
-        {
-            MenuItem mi = new MenuItem();
-            mi.Header = name;
-            mi.Click += modifyTask_Click;
-            mi.ToolTip = $"Change the task for the selected item to '{mi.Header}'";
-            mi.Tag = "NamedTask";
-
-            return mi;
-        }
-
-        /// <summary>
-        /// Recreate the context menu when new menu items are added.
-        /// Also disables the Re-Order Tasks menu item if there are no known tasks.
-        /// </summary>
-        private void UpdateContextMenu()
-        {
-            var pMenu = (ContextMenu)this.Resources["TaskContextMenu"];
-            if (pMenu != null)
-            {
-                pMenu.Items.Clear();
-
-                foreach (var header in ContextMenuCommands)
-                {
-                    switch (header.Header.ToString())
-                    {
-                        case "Re-Order Tasks":
-                            header.IsEnabled = mainViewModel.TaskList.Any();
-                            break;
-                        case "Partition Children":
-                            pMenu.Items.Add(new Separator());
-                            break;
-                    }
-
-                    pMenu.Items.Add(header);
-                }
-
-                pMenu.Items.Add(new Separator());
-
-                foreach (var task in ContextMenuTasks.OrderBy(m => m.Header))
-                {
-                    pMenu.Items.Add(task);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Given a new task name, create a new menu item and refresh the context menu.
-        /// </summary>
-        /// <param name="task">The name of a new task.</param>
-        private void AddTaskToContextMenu(string task)
-        {
-            if (string.IsNullOrEmpty(task))
-                return;
-
-            if (ContextMenuTasks.Any(t => string.Equals(t.Header.ToString(), task, StringComparison.Ordinal)))
-                return;
-
-            ContextMenuTasks.Add(CreateContextMenuItem(task));
-
-            UpdateContextMenu();
-        }
-
-
         #endregion
 
     }

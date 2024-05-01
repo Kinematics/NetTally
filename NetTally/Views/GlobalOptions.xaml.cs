@@ -1,57 +1,45 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using Microsoft.Extensions.Logging;
-using NetTally.Navigation;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
 {
     /// <summary>
-    /// Interaction logic for the global options window.
+    /// Interaction logic for GlobalOptions.xaml
     /// </summary>
-    public partial class GlobalOptions : Window, IActivable
+    public partial class GlobalOptions : Window
     {
-        #region Setup and construction
-        readonly ILogger<GlobalOptions> logger;
+        private readonly GlobalOptionsViewModel globalOptionsViewModel;
+        private readonly ILogger<GlobalOptions> logger;
 
-        public GlobalOptions(ViewModel model, ILogger<GlobalOptions> logger)
+        public GlobalOptions(
+            GlobalOptionsViewModel globalOptionsViewModel,
+            ILogger<GlobalOptions> logger)
         {
+            this.globalOptionsViewModel = globalOptionsViewModel;
             this.logger = logger;
 
+            this.globalOptionsViewModel.PropertyChanged += GlobalOptionsViewModel_PropertyChanged;
+
             InitializeComponent();
-
-            DataContext = model;
+            DataContext = globalOptionsViewModel;
         }
 
-        public Task ActivateAsync(object? parameter)
+        private void GlobalOptionsViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (parameter is Window owner)
+            if (e.PropertyName == nameof(globalOptionsViewModel.SaveCommand))
             {
-                this.Owner = owner;
+                logger.LogDebug("Global options were saved.");
+                Close();
             }
-
-            return Task.CompletedTask;
         }
-        #endregion
 
-        #region Window element event handlers
-        private void closeButton_Click(object sender, RoutedEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            Close();
+            globalOptionsViewModel.PropertyChanged -= GlobalOptionsViewModel_PropertyChanged;
+            base.OnClosed(e);
         }
-
-        private void resetAllButton_Click(object sender, RoutedEventArgs e)
-        {
-            rankedVoteAlgorithm.SelectedIndex = 0;
-            allowUsersToUpdatePlans.IsChecked = null;
-            trackPostAuthorsUniquely.IsChecked = false;
-            globalSpoilers.IsChecked = false;
-            displayPlansWithNoVotes.IsChecked = false;
-            debugMode.IsChecked = false;
-            disableWebProxy.IsChecked = false;
-
-            logger.LogDebug("Global options have been reset.");
-        }
-        #endregion
     }
 }

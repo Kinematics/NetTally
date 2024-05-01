@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NetTally.Votes;
-using NetTally.Types.Enums;
+using NetTally.Tally.Components;
+using NetTally.Enums;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {

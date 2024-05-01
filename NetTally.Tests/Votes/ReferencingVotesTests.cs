@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
-using NetTally.Types.Enums;
-using NetTally.Utility.Comparers;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 using NetTally.VoteCounting;
 using NetTally.Votes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NetTally.Tests.Votes
 {
@@ -18,33 +15,21 @@ namespace NetTally.Tests.Votes
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static IVoteCounter voteCounter = null!;
-        static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
-        static IQuest quest = null!;
-        static IAgnostic agnostic = null!;
+        static Quest quest = null!;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-            tally = serviceProvider.GetRequiredService<Tally>();
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
-            agnostic = serviceProvider.GetRequiredService<IAgnostic>();
-
-            IQuest quest = new Quest();
-            agnostic.ComparisonPropertyChanged(quest, new System.ComponentModel.PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
 
         [TestInitialize]
         public void Initialize()
         {
-            quest = new Quest();
-
-            voteCounter.Reset();
-            voteCounter.ClearPosts();
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
 
         [TestCleanup]
@@ -52,7 +37,6 @@ namespace NetTally.Tests.Votes
         {
             quest.CaseIsSignificant = false;
             quest.WhitespaceAndPunctuationIsSignificant = false;
-            agnostic.ComparisonPropertyChanged(quest, new PropertyChangedEventArgs(nameof(quest.CaseIsSignificant)));
         }
         #endregion
 
@@ -68,6 +52,11 @@ namespace NetTally.Tests.Votes
         readonly static string twoChunkPlan = @"[X][Movie] Plan Run Lola Run!
 -[X] National Geographic
 [X] Gunbuster";
+        readonly static string proposeBiking =
+@"[X] Proposed plan: Mountain biking
+-[x] Camelback Mountain
+-[x] Grand Canyon";
+        readonly static string scoreBiking = @"[75%] Plan Mountain biking";
 
         readonly static string refKinematics = @"[X] Kinematics";
         readonly static string refAtreya = @"[X] Atreya";
@@ -81,28 +70,28 @@ namespace NetTally.Tests.Votes
         #endregion
 
         #region Generate user posts
-        Post GetPostFromKinematics1(string postText)
+        static Post GetPostFromKinematics1(string postText)
         {
             Origin origin = new("Kinematics", "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromAtreya(string postText)
+        static Post GetPostFromAtreya(string postText)
         {
             Origin origin = new("Atreya", "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromKimberly(string postText)
+        static Post GetPostFromKimberly(string postText)
         {
             Origin origin = new("Kimberly", "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
 
             return new Post(origin, postText);
         }
 
-        Post GetPostFromKinematics2(string postText)
+        static Post GetPostFromKinematics2(string postText)
         {
             Origin origin = new("Kinematics", "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
 
@@ -110,45 +99,52 @@ namespace NetTally.Tests.Votes
         }
         #endregion
 
+
+
+        private static void Verify_VotesBothSupport(Post post1, Post post2)
+        {
+            List<Post> posts = [post1, post2];
+
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
+
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
+
+            Assert.IsTrue(processed);
+
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
+
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
+
+            Assert.IsTrue(processed);
+
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
+
+            Assert.IsTrue(votes1.Count > 0);
+            Assert.IsTrue(votes2.Count > 0);
+            Assert.IsTrue(votes1[0].Lines.Count > 0);
+            Assert.IsTrue(votes2[0].Lines.Count > 0);
+
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
+        }
+
+        private static VoteLine? GetFirstLine(VoteLineBlock block)
+        {
+            return block.Lines.FirstOrDefault();
+        }
+
+
         [TestMethod]
         public void Simple_Reference()
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematics;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematics);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
@@ -156,40 +152,11 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematicsPercent;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematicsPercent);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
@@ -197,40 +164,11 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLine;
-            string voteText2 = refKinematicsApprove;
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKinematics1(oneLine);
+            Post post2 = GetPostFromAtreya(refKinematicsApprove);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
@@ -238,40 +176,11 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreya;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreya);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
@@ -279,40 +188,11 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreyaPercent;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreyaPercent);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
@@ -320,425 +200,322 @@ namespace NetTally.Tests.Votes
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = oneLineTask;
-            string voteText2 = refAtreyaApprove;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(oneLineTask);
+            Post post2 = GetPostFromKimberly(refAtreyaApprove);
 
-            List<Post> posts = new() { post1, post2 };
-
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
-
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
-
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
-
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
-
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
-
-                    voteCounter.AddVotes(results2, post2.Origin);
-
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
-
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Verify_VotesBothSupport(post1, post2);
         }
 
         [TestMethod]
-        public void Fail_Self_Reference()
+        public void Reference_Self_NotAllowed()
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberly;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKimberly(voteText2);
+            Post post1 = GetPostFromAtreya(twoLine);
+            Post post2 = GetPostFromKimberly(refKimberly);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            Assert.IsFalse(processed);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            Assert.AreEqual(0, votes2.Count);
 
-                Assert.IsTrue(results2 == null);
-            }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public void Fail_No_Proxy()
+        public void Reference_Proxy_Disabled()
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = true;
-            voteCounter.Quest = quest;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberly;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromKinematics1(voteText2);
+            Post post1 = GetPostFromKimberly(twoLine);
+            Post post2 = GetPostFromKinematics1(refKimberly);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    voteCounter.AddVotes(results2, post2.Origin);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    Assert.IsFalse(results1[0].Lines[0] == results2[0].Lines[0]);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            Assert.AreNotEqual(votes1.Count, votes2.Count);
 
-                Assert.IsFalse(results2 == null);
-            }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public void Non_Self_Reference()
+        public void Reference_DoesNotExist()
         {
             quest.PartitionMode = PartitionMode.ByLine;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = twoLine;
-            string voteText2 = refKimberlyPercent;
-            Post post1 = GetPostFromAtreya(voteText1);
-            Post post2 = GetPostFromKinematics1(voteText2);
+            Post post1 = GetPostFromAtreya(twoLine);
+            Post post2 = GetPostFromKinematics1(refKimberlyPercent);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
-            voteCounter.AddReferenceVoter(post1.Origin);
-            voteCounter.AddReferenceVoter(post2.Origin);
+            quest.VoteCounter.AddPosts(posts);
+            quest.VoteCounter.AddReferenceVoter(post1.Origin);
+            quest.VoteCounter.AddReferenceVoter(post2.Origin);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    Assert.IsFalse(results1[0].Lines[0] == results2[0].Lines[0]);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            Assert.AreNotEqual(votes1.Count, votes2.Count);
 
-                Assert.IsFalse(results2 == null);
-            }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_Name_RefAsync()
+        public void Implicit_Plan_Name_Ref()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = refKimberlyApprove;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(refKimberlyApprove);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            Tallyer.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0].Lines[0] == results2[0].Lines[0]);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-                Assert.IsFalse(results2 == null);
-            }
+            Assert.AreEqual(votes1.Count, votes2.Count);
+            Assert.AreEqual(GetFirstLine(votes1[0]), GetFirstLine(votes2[0]));
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
+
         [TestMethod]
-        public async Task Explicit_Plan_RefAsync()
+        public void Explicit_Plan_Ref()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = explicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(explicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
+            Tallyer.PreprocessPosts(quest);
 
-            await tally.PreprocessPosts(default);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            Assert.IsTrue(processed);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0] == results2[0]);
+            Assert.IsTrue(processed);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            Assert.IsTrue(votes1.Count > 0);
+            Assert.IsTrue(votes2.Count > 0);
+            Assert.IsTrue(votes1[0].Lines.Count > 0);
+            Assert.IsTrue(votes2[0].Lines.Count > 0);
 
-                Assert.IsFalse(results2 == null);
-            }
-
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public async Task Explicit_Plan_TwoChunk_RefAsync()
+        public void Explicit_Plan_TwoChunk_Ref()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = twoChunkPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromKinematics2(voteText2);
+            Post post1 = GetPostFromKimberly(twoChunkPlan);
+            Post post2 = GetPostFromKinematics2(oneLine);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            Tallyer.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    voteCounter.AddVotes(results2, post2.Origin);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    Assert.IsTrue(results1[0] == results2[0]);
-                    Assert.AreEqual(2, results1.Count);
-                    Assert.AreEqual(1, results2.Count);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-                Assert.IsFalse(results2 == null);
-            }
+            Assert.IsTrue(votes1.Count > 0);
+            Assert.IsTrue(votes2.Count > 0);
+            Assert.IsTrue(votes1[0].Lines.Count > 0);
+            Assert.IsTrue(votes2[0].Lines.Count > 0);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_RefAsync()
+        public void Implicit_Plan_Ref()
         {
             quest.PartitionMode = PartitionMode.None;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            Tallyer.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0] == results2[0]);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-                Assert.IsFalse(results2 == null);
-            }
+            Assert.IsTrue(votes1.Count > 0);
+            Assert.IsTrue(votes2.Count > 0);
+            Assert.IsTrue(votes1[0].Lines.Count > 0);
+            Assert.IsTrue(votes2[0].Lines.Count > 0);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
         [TestMethod]
-        public async Task Implicit_Plan_Block_RefAsync()
+        public void Implicit_Plan_Block_Ref()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 = implicitPlan;
-            string voteText2 = oneLine;
-            Post post1 = GetPostFromKimberly(voteText1);
-            Post post2 = GetPostFromAtreya(voteText2);
+            Post post1 = GetPostFromKimberly(implicitPlan);
+            Post post2 = GetPostFromAtreya(oneLine);
 
-            List<Post> posts = new() { post1, post2 };
+            List<Post> posts = [post1, post2];
 
-            voteCounter.AddPosts(posts);
+            quest.VoteCounter.AddPosts(posts);
 
-            await tally.PreprocessPosts(default);
+            Tallyer.PreprocessPosts(quest);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            if (results1 != null)
-            {
-                voteCounter.AddVotes(results1, post1.Origin);
+            Assert.IsTrue(processed);
 
-                var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-                if (results2 != null)
-                {
-                    Assert.IsTrue(results1[0] == results2[0]);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-                    voteCounter.AddVotes(results2, post2.Origin);
+            Assert.IsTrue(processed);
 
-                    Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportCountFor(results1[0]));
-                }
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-                Assert.IsFalse(results2 == null);
-            }
+            Assert.IsTrue(votes1.Count > 0);
+            Assert.IsTrue(votes2.Count > 0);
+            Assert.IsTrue(votes1[0].Lines.Count > 0);
+            Assert.IsTrue(votes2[0].Lines.Count > 0);
 
-            Assert.IsFalse(results1 == null);
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes1[0]));
         }
 
 
         [TestMethod]
-        public async Task Cross_Marker_Reference_PlanAsync()
+        public void Cross_Marker_Reference_Plan()
         {
             quest.PartitionMode = PartitionMode.ByBlock;
             quest.DisableProxyVotes = false;
-            voteCounter.Quest = quest;
 
-            string voteText1 =
-@"[X] Proposed plan: Mountain biking
--[x] Camelback Mountain
--[x] Grand Canyon";
+            Post post1 = GetPostFromKinematics1(proposeBiking);
+            Post post2 = GetPostFromKinematics2(scoreBiking);
 
-            string voteText2 = @"[75%] Plan Mountain biking";
+            List<Post> posts = [post1, post2];
 
-            Post post1 = GetPostFromKinematics1(voteText1);
-            Post post2 = GetPostFromKinematics2(voteText2);
+            quest.VoteCounter.AddPosts(posts);
 
-            List<Post> posts = new() { post1, post2 };
+            Tallyer.PreprocessPosts(quest);
 
-            voteCounter.AddPosts(posts);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post1, quest, out var votes1);
 
-            await tally.PreprocessPosts(default);
+            Assert.IsTrue(processed);
 
-            var results1 = voteConstructor.ProcessPostGetVotes(post1, quest);
+            quest.VoteCounter.AddVotes(votes1, post1.Origin);
 
-            Assert.IsFalse(results1 == null);
+            processed = VoteConstructor.TryProcessPostGetVotes(post2, quest, out var votes2);
 
-            if (results1 == null)
-                return;
+            Assert.IsTrue(processed);
 
-            Assert.AreEqual(0, results1.Count);
+            quest.VoteCounter.AddVotes(votes2, post2.Origin);
 
-            var results2 = voteConstructor.ProcessPostGetVotes(post2, quest);
 
-            if (results2 != null)
-            {
-                Assert.AreEqual(1, results2.Count);
+            Assert.AreEqual(0, votes1.Count);
+            Assert.AreEqual(1, votes2.Count);
 
-                voteCounter.AddVotes(results2, post2.Origin);
-                Assert.AreEqual(1, voteCounter.VoteStorage.GetSupportCountFor(results2[0]));
-                Assert.AreEqual(2, voteCounter.VoteStorage.GetSupportersFor(results2[0])?.Count ?? 0);
-                Assert.AreEqual(1, voteCounter.VoteStorage.GetVotesBy(post2.Origin).Count);
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetSupportCountFor(votes2[0]));
+            Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetSupportersFor(votes2[0])?.Count ?? 0);
+            Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetVotesBy(post2.Origin).Count);
 
-                var allVotes = voteCounter.GetAllVotes();
-                Assert.AreEqual(1, allVotes.Count());
+            var allVotes = quest.VoteCounter.GetAllVotes();
+            Assert.AreEqual(1, allVotes.Count());
 
-                Assert.AreEqual(MarkerType.Score, allVotes.First().Category);
-            }
-
-            Assert.IsFalse(results2 == null);
+            Assert.AreEqual(MarkerType.Score, allVotes.First().Category);
         }
-
-
     }
 }

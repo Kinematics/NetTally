@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NetTally.Forums;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
@@ -49,7 +48,7 @@ namespace NetTally.Votes
             {
                 var referenceVote = vote.WithMarker("", MarkerType.None, 0);
 
-                localVoters = new VoterStorage();
+                localVoters = [];
 
                 Add(referenceVote, localVoters);
             }
@@ -187,7 +186,7 @@ namespace NetTally.Votes
                 return supporters.Select(a => a.Key);
             }
 
-            return Enumerable.Empty<Origin>();
+            return [];
         }
 
         /// <summary>

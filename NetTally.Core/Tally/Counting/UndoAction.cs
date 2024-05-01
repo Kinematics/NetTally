@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using NetTally.Forums;
+using NetTally.Tally.Components;
 using NetTally.Votes;
-using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {
@@ -46,7 +45,7 @@ namespace NetTally.VoteCounting
             // Remove pass - Remove all current votes or supporters that are not
             // in the archived version of the vote repository.
 
-            HashSet<VoteLineBlock> voteRemovals = new HashSet<VoteLineBlock>();
+            HashSet<VoteLineBlock> voteRemovals = [];
 
             foreach (var (currentVote, currentSupporters) in currentVotes)
             {
@@ -56,7 +55,7 @@ namespace NetTally.VoteCounting
                 }
                 else
                 {
-                    HashSet<Origin> voterRemovals = new HashSet<Origin>();
+                    HashSet<Origin> voterRemovals = [];
 
                     foreach (var (currentSupporter, _) in currentSupporters)
                     {

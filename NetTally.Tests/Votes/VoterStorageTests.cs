@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
-using NetTally.Types.Enums;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 using NetTally.Votes;
-using System;
 
 namespace NetTally.Tests.Votes
 {
@@ -10,16 +10,15 @@ namespace NetTally.Tests.Votes
     public class VoterStorageTests
     {
         #region Setup
-        static IServiceProvider serviceProvider = null!;
         static VoteLineBlock vote = VoteLineBlock.Empty;
-        static readonly VoterStorage voterStorage = new VoterStorage();
+        static readonly VoterStorage voterStorage = [];
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
-            serviceProvider = TestStartup.ConfigureServices();
+            TestStartup.ConfigureServices();
 
-            VoteLine voteLine = new VoteLine("", "X", "", "A sample vote line", MarkerType.Vote, 100);
+            VoteLine voteLine = new("", "X", "", "A sample vote line", MarkerType.Vote, 100);
             vote = new VoteLineBlock(voteLine);
         }
 
@@ -34,7 +33,7 @@ namespace NetTally.Tests.Votes
         public void Store_One_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
 
@@ -48,7 +47,7 @@ namespace NetTally.Tests.Votes
         public void Store_Same_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
             voterStorage.Add(origin, vote);
@@ -62,7 +61,7 @@ namespace NetTally.Tests.Votes
         public void Store_Same_Vote_Index()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
             voterStorage[origin] = vote;
@@ -76,7 +75,7 @@ namespace NetTally.Tests.Votes
         public void Try_Store_One_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             Assert.IsTrue(voterStorage.TryAdd(origin, vote));
 
@@ -89,7 +88,7 @@ namespace NetTally.Tests.Votes
         public void Try_Store_Same_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             Assert.IsTrue(voterStorage.TryAdd(origin, vote));
             Assert.IsFalse(voterStorage.TryAdd(origin, vote));
@@ -103,7 +102,7 @@ namespace NetTally.Tests.Votes
         public void Remove_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
             Assert.IsTrue(voterStorage.Remove(origin));
@@ -118,7 +117,7 @@ namespace NetTally.Tests.Votes
         public void Remove_And_Get_Vote()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
             Assert.IsTrue(voterStorage.Remove(origin, out var removedVote));
@@ -133,7 +132,7 @@ namespace NetTally.Tests.Votes
         public void Check_Voter()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(origin, vote);
 
@@ -146,7 +145,7 @@ namespace NetTally.Tests.Votes
         public void Check_Plan()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
             string planname = "Zoom";
             var planOrigin = origin.GetPlanOrigin(planname);
 
@@ -164,8 +163,8 @@ namespace NetTally.Tests.Votes
         public void Check_Voter_Simple()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
-            Origin simpleOrigin = new Origin(username, IdentityType.User);
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin simpleOrigin = new(username, IdentityType.User);
 
             voterStorage.Add(origin, vote);
 
@@ -178,10 +177,10 @@ namespace NetTally.Tests.Votes
         public void Check_Plan_Simple()
         {
             string username = "Kinematics";
-            Origin origin = new Origin(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new(username, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
             string planname = "Zoom";
             var planOrigin = origin.GetPlanOrigin(planname);
-            Origin simpleOrigin = new Origin(planname, IdentityType.Plan);
+            Origin simpleOrigin = new(planname, IdentityType.Plan);
 
             voterStorage.Add(planOrigin, vote);
 
@@ -194,17 +193,17 @@ namespace NetTally.Tests.Votes
         public void Check_Complex_1()
         {
             string user1 = "Kinematics";
-            Origin origin1 = new Origin(user1, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin1 = new(user1, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
             string planname = "Zoom";
             var planOrigin = origin1.GetPlanOrigin(planname);
             string user2 = "Atreya";
-            Origin origin2 = new Origin(user2, "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin2 = new(user2, "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
             string user3 = "Kimberly";
-            Origin origin3 = new Origin(user3, "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin3 = new(user3, "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
             string user4 = "Biigoh";
-            Origin origin4 = new Origin(user4, "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin4 = new(user4, "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
             string user5 = "Muramasa";
-            Origin origin5 = new Origin(user5, "123460", 104, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin5 = new(user5, "123460", 104, new Uri("http://www.example.com/"), "http://www.example.com");
 
             voterStorage.Add(planOrigin, vote);
             voterStorage.Add(origin1, vote);
@@ -226,18 +225,18 @@ namespace NetTally.Tests.Votes
         public void Check_Complex_2()
         {
             string user1 = "Kinematics";
-            Origin origin1 = new Origin(user1, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin1 = new(user1, "123456", 100, new Uri("http://www.example.com/"), "http://www.example.com");
             string planname = "Zoom";
             var planOrigin = origin1.GetPlanOrigin(planname);
             string user2 = "Atreya";
-            Origin origin2 = new Origin(user2, "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin2 = new(user2, "123457", 101, new Uri("http://www.example.com/"), "http://www.example.com");
             string user3 = "Kimberly";
-            Origin origin3 = new Origin(user3, "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin3 = new(user3, "123458", 102, new Uri("http://www.example.com/"), "http://www.example.com");
             string user4 = "Biigoh";
-            Origin origin4 = new Origin(user4, "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin4 = new(user4, "123459", 103, new Uri("http://www.example.com/"), "http://www.example.com");
             string user5 = "Muramasa";
-            Origin origin5 = new Origin(user5, "123460", 104, new Uri("http://www.example.com/"), "http://www.example.com");
-            Origin simpleOrigin = new Origin(user4, IdentityType.User);
+            Origin origin5 = new(user5, "123460", 104, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin simpleOrigin = new(user4, IdentityType.User);
 
             voterStorage.Add(planOrigin, vote);
             voterStorage.Add(origin1, vote);

@@ -4,15 +4,27 @@ using System.Text.RegularExpressions;
 
 namespace NetTally.Votes
 {
-    public static class VoteString
+    public static partial class VoteString
     {
         #region BBCode regexes
         // Regex for any opening or closing BBCode tag.
-        static readonly Regex allBBCodeRegex = new Regex(@"(『(?:/)?(?:b|i|u|color)(?(?<=『color)=[^』]+)』)");
+        [GeneratedRegex(@"(『(?:/)?(?:b|i|u|color)(?(?<=『color)=[^』]+)』)")]
+        private static partial Regex AllBBCodeRegex();
+
         // Regex for any opening BBCode tag.
-        static readonly Regex openBBCodeRegex = new Regex(@"^『(b|i|u|color)(?(?<=『color)=[^』]+)』");
+        [GeneratedRegex(@"^『(b|i|u|color)(?(?<=『color)=[^』]+)』")]
+        private static partial Regex OpenBBCodeRegex();
+
         // Regex for any closing BBCode tag.
-        static readonly Regex closeBBCodeRegex = new Regex(@"^『/(b|i|u|color)』");
+        [GeneratedRegex(@"^『/(b|i|u|color)』")]
+        private static partial Regex CloseBBCodeRegex();
+
+        // Regex for any opening or closing BBCode tag.
+        static readonly Regex allBBCodeRegex = AllBBCodeRegex();
+        // Regex for any opening BBCode tag.
+        static readonly Regex openBBCodeRegex = OpenBBCodeRegex();
+        // Regex for any closing BBCode tag.
+        static readonly Regex closeBBCodeRegex = CloseBBCodeRegex();
         #endregion
 
         #region Cleanup functions
@@ -47,11 +59,11 @@ namespace NetTally.Votes
             }
 
             // Rebuild the result
-            StringBuilder sb = new StringBuilder(line.Length);
+            StringBuilder sb = new(line.Length);
             string tag;
 
             // A lookup table for how many times each tag is found.
-            Dictionary<string, int> countTags = new Dictionary<string, int> { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
+            Dictionary<string, int> countTags = new() { ["b"] = 0, ["i"] = 0, ["u"] = 0, ["color"] = 0 };
 
             for (int i = 0; i < lineSplit.Length; i++)
             {

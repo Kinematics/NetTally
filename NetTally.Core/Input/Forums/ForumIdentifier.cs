@@ -5,18 +5,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Web;
-using NetTally.Types.Enums;
+using Microsoft.Extensions.Logging;
+using NetTally.Enums;
 
 namespace NetTally.Forums
 {
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.
     /// </summary>
-    static class ForumIdentifier
+    public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier> logger)
     {
-        static readonly Dictionary<string, ForumType> forumTypes = new Dictionary<string, ForumType>
-        {
-        };
+        // Keep a record of forum types that have been found, for each host.
+        private readonly Dictionary<string, ForumType> forumTypes = [];
+        private readonly IPageProvider pageProvider = pageProvider;
+        private readonly ILogger<ForumIdentifier> logger = logger;
 
         /// <summary>
         /// Public function to check for identifiable forums from a provided web page.
@@ -24,18 +26,18 @@ namespace NetTally.Forums
         /// <param name="uri">The URI being checked.  Cache the host so we don't have to verify again.</param>
         /// <param name="token">Cancellation token for loading page.</param>
         /// <returns>Returns the forum type that was identified, if any.</returns>
-        public static async Task<ForumType> IdentifyForumTypeAsync(Uri? uri, IPageProvider pageProvider, CancellationToken token)
+        public async Task<ForumType> IdentifyForumTypeAsync(Uri? uri, CancellationToken token)
         {
             if (uri == null)
                 return ForumType.Unknown;
 
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                var doc = await GetDocumentAsync(uri, pageProvider, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
 
                 if (doc == null)
                 {
-                    ArgumentException e = new ArgumentException($"Unable to load forum URL:  {uri.AbsoluteUri}");
+                    ArgumentException e = new($"Unable to load forum URL:  {uri.AbsoluteUri}");
                     e.Data["Notify"] = true;
                     throw e;
                 }
@@ -98,7 +100,7 @@ namespace NetTally.Forums
         /// <param name="uri">The URI to load.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the requested page, if found. Otherwise, null.</returns>
-        private async static Task<HtmlDocument?> GetDocumentAsync(Uri uri, IPageProvider pageProvider, CancellationToken token)
+        private async Task<HtmlDocument?> GetDocumentAsync(Uri uri, CancellationToken token)
         {
             HtmlDocument? page = null;
 
@@ -116,12 +118,13 @@ namespace NetTally.Forums
             }
             catch (Exception e)
             {
-                Logger2.LogError(e, "Attempt to query site to determine forum adapter failed.");
+                logger.LogError(e, "Attempt to query site to determine forum adapter failed.");
             }
 
             return page;
         }
 
+        #region Identify various forums
         /// <summary>
         /// Determine if a web page is from a XenForo forum.
         /// </summary>
@@ -228,5 +231,6 @@ namespace NetTally.Forums
             // There is currently no known means of identifying NodeBB forums.
             return false;
         }
+        #endregion Identify various forums
     }
 }

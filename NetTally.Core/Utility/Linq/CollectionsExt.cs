@@ -19,17 +19,14 @@ namespace NetTally.Extensions
         /// <param name="secondIndex">The second index value being swapped.</param>
         public static void Swap<T>(this IList<T> list, int firstIndex, int secondIndex)
         {
-            if (list == null)
-                throw new ArgumentNullException(nameof(list));
+            ArgumentNullException.ThrowIfNull(list);
 
             if (firstIndex == secondIndex)
                 return;
             if (firstIndex < 0 || firstIndex >= list.Count || secondIndex < 0 || secondIndex >= list.Count)
                 return;
 
-            T temp = list[firstIndex];
-            list[firstIndex] = list[secondIndex];
-            list[secondIndex] = temp;
+            (list[secondIndex], list[firstIndex]) = (list[firstIndex], list[secondIndex]);
         }
 
         /// <summary>
@@ -37,10 +34,12 @@ namespace NetTally.Extensions
         /// </summary>
         /// <typeparam name="T">The type of object held in the collection.</typeparam>
         /// <param name="collection">The collection to be sorted.</param>
-        public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
+        public static void Sort<T>(this ObservableCollection<T> collection,
+            bool descending = false) where T : IComparable
         {
-            var sorted = collection.OrderBy(x => x).ToList();
-            for (int i = 0; i < sorted.Count(); i++)
+            var sorted = descending ? [.. collection.OrderDescending()] : collection.Order().ToList();
+
+            for (int i = 0; i < sorted.Count; i++)
             {
                 int src = collection.IndexOf(sorted[i]);
                 if (src != i)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NetTally.Tally.Components;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting

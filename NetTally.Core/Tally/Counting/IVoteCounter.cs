@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using NetTally.Collections;
-using NetTally.Forums;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.VoteCounting
 {
@@ -13,7 +12,8 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The quest the vote counter is set to track.
         /// </summary>
-        IQuest? Quest { get; set; }
+        Quest Quest { get; set; }
+
         /// <summary>
         /// The titles of the quest threads that have been tallied.
         /// </summary>
@@ -25,25 +25,11 @@ namespace NetTally.VoteCounting
         void SetThreadTitles(IEnumerable<string> titles);
 
         /// <summary>
-        /// Track whether the vote counter is currently being used for a tally operation.
-        /// </summary>
-        bool VoteCounterIsTallying { get; set; }
-        /// <summary>
-        /// Track whether a tally was cancelled.
-        /// </summary>
-        bool TallyWasCanceled { get; set; }
-
-        /// <summary>
         /// A collection structure to store votes and the voters who voted for them.
         /// Also stores the specific variant that each voter used.
         /// </summary>
         VoteStorage VoteStorage { get; }
 
-        /// <summary>
-        /// Record any posts that make references to future posts, and thus can't be processed
-        /// in the original post order.
-        /// </summary>
-        HashSet<Post> FutureReferences { get; }
         /// <summary>
         /// The list of tasks that have been recorded for the tally, whether drawn from
         /// votes as they are tallied, or manually entered by the user.
@@ -58,8 +44,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Reset user-defined tasks if the provided quest name is different than the current quest name.
         /// </summary>
-        /// <param name="forQuestName">The name of the quest the tally is about to be run for.</param>
-        void ResetUserDefinedTasks(string forQuestName);
+        void ResetUserDefinedTasks();
         /// <summary>
         /// Clear any user merge information we've retained, so that it doesn't get used to auto-merge.
         /// </summary>
@@ -68,7 +53,11 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// The list of posts collected from the quest. Read-only.
         /// </summary>
-        IReadOnlyList<Post> Posts { get; }
+        List<Post> Posts { get; }
+        /// <summary>
+        /// Whether the quest has any recorded posts.
+        /// </summary>
+        bool HasPosts { get; }
         /// <summary>
         /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
         /// </summary>
@@ -77,7 +66,7 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Request that the currently stored posts be cleared.
         /// </summary>
-        void ClearPosts();
+        void ResetPosts();
 
         /// <summary>
         /// Store a plan's information to allow it to be looked up by plan name or post ID.
@@ -97,12 +86,6 @@ namespace NetTally.VoteCounting
         /// <param name="postID">The ID of their vote post.</param>
         /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
         bool AddReferenceVoter(Origin voter);
-        /// <summary>
-        /// Add a post to a store of future references made.
-        /// </summary>
-        /// <param name="post">The post to store.</param>
-        /// <returns>Returns true if the post was added, or false if it already exists.</returns>
-        bool AddFutureReference(Post post);
 
         /// <summary>
         /// Get canonical version of the provided plan name.
@@ -171,6 +154,7 @@ namespace NetTally.VoteCounting
         /// <returns>Returns a count of the registered reference voters.</returns>
         int GetTotalVoterCount();
 
+        bool HasVotes { get; }
 
         /// <summary>
         /// Determines if there is a more recent vote made by the author of the provided post.
@@ -183,11 +167,9 @@ namespace NetTally.VoteCounting
         /// <summary>
         /// Function to add the provided votes to the current vote stores.
         /// </summary>
-        /// <param name="voteParts">The vote blocks to be added.</param>
+        /// <param name="votePartitions">The vote blocks to be added.</param>
         /// <param name="voter">The voter.</param>
-        /// <param name="postID">The ID of the vote post.</param>
-        /// <param name="voteType">The type of vote.</param>
-        void AddVotes(IEnumerable<VoteLineBlock> voteParts, Origin voter);
+        void AddVotes(List<VoteLineBlock> votePartitions, Origin voter);
         /// <summary>
         /// Merge the vote supporters from one vote into another.
         /// </summary>
@@ -255,5 +237,11 @@ namespace NetTally.VoteCounting
         /// <param name="task">The new task to use.</param>
         /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
         bool ReplaceTask(VoteLineBlock vote, string task);
+
+        /// <summary>
+        /// Replace the current list of tasks with the provided list.
+        /// </summary>
+        /// <param name="tasks"></param>
+        void ReplaceTasks(IEnumerable<string> tasks);
     }
 }

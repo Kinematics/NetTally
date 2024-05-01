@@ -8,7 +8,7 @@ namespace NetTally.Utility.Filtering
     /// An item filter that determines whether an object is allowed by
     /// checking against either a whitelist or a blacklist.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of items the list filters.</typeparam>
     public class ListFilter<T> : IItemFilter<T>
     {
         protected readonly FilterType filterType;
@@ -30,8 +30,8 @@ namespace NetTally.Utility.Filtering
         public static ListFilter<T> Whitelist(IEnumerable<T> list) => new(list, FilterType.Allow);
         public static ListFilter<T> Blacklist(IEnumerable<T> list) => new(list, FilterType.Block);
 
-        public static readonly ListFilter<T> AllowAll = new(Enumerable.Empty<T>(), FilterType.Block);
-        public static readonly ListFilter<T> BlockAll = new(Enumerable.Empty<T>(), FilterType.Allow);
+        public static readonly ListFilter<T> AllowAll = new([], FilterType.Unset);
+        public static readonly ListFilter<T> BlockAll = new([], FilterType.Allow);
         #endregion
 
 
@@ -46,6 +46,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => filterList.Contains(item),
                 FilterType.Block => !filterList.Contains(item),
+                FilterType.Unset => true,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }
@@ -61,6 +62,7 @@ namespace NetTally.Utility.Filtering
             {
                 FilterType.Allow => !filterList.Contains(item),
                 FilterType.Block => filterList.Contains(item),
+                FilterType.Unset => false,
                 _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
             };
         }

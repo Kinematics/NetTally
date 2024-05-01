@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:GlobalOptionsViewModel}"
         Title="Global Options" Height="370" Width="640" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
 
@@ -29,7 +31,7 @@
         <ComboBox x:Name="rankedVoteAlgorithm" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" 
                   Margin="33,35,0,0" Height="30" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=RankVoteCountingModes}"
-                  SelectedIndex="{Binding Path=Options.RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
+                  SelectedIndex="{Binding Path=RankVoteCounterMethod, Converter={StaticResource RankCountingModeConverter}}">
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -39,26 +41,28 @@
         </ComboBox>
         <CheckBox x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0"
-                  IsChecked="{Binding Path=Options.AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
-        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
-                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
-                  IsChecked="{Binding Path=Options.TrackPostAuthorsUniquely}"/>
+                  IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
 
         <Label x:Name="labelOutput" Content="Output" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,117,0,0"/>
         <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers"
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,145,0,0"
-                  IsChecked="{Binding Path=Options.GlobalSpoilers}"/>
+                  IsChecked="{Binding Path=GlobalSpoilers}"/>
         <CheckBox x:Name="displayPlansWithNoVotes" Content="Display Plans With No Votes"
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,165,0,0"
-                  IsChecked="{Binding Path=Options.DisplayPlansWithNoVotes}"/>
+                  IsChecked="{Binding Path=DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelMisc" Content="Misc" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
+        <Label x:Name="labelNetworking" Content="Networking" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
         <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,218,0,0"
-                  IsChecked="{Binding Path=Options.DisableWebProxy}" />
+                  IsChecked="{Binding Path=DisableWebProxy}" />
+
+        <Label x:Name="labelDebugging" Content="Debugging" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
+        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
+                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
         <CheckBox x:Name="debugMode" Content="Debug Mode"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,238,0,0"
-                  IsChecked="{Binding Path=Options.DebugMode}" />
+                  IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=rankedVoteAlgorithm, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -68,7 +72,7 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Rated Instant Runoff (default) - A system that uses Wilson scoring to determine the top two options, and then does a runoff between those two."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Baldwin - An improved version of the method used in earlier versions of NetTally.  This is an instant runoff method, like Coombs."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Schulze - A Condorcet method that may be used to verify Condorcet ranking order. Uses the Schulze algorithm."/>
-            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of options.  Uses Wilson's Bournelli limit method."/>
+            <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="Wilson - A scoring mechanism that may be used to compare the scoring order of   Uses Wilson's Bournelli limit method."/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=allowUsersToUpdatePlans, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Allow Users to Update Plans"/>
@@ -107,8 +111,8 @@
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This only takes effect after the next program restart."/>
         </StackPanel>
 
-        <Button x:Name="resetAllButton" Content="Reset All" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10" Width="100" Height="32"
-                HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="resetAllButton_Click">
+        <Button x:Name="ResetAllButton" Content="Reset All" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10" Width="100" Height="32"
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Command="{Binding ResetCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -118,8 +122,8 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button x:Name="closeButton" Content="Close" Grid.Column="1" Grid.Row="2" Margin="0,0,10,10" Width="100" Height="32"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True" Click="closeButton_Click">
+        <Button x:Name="CloseButton" Content="Close" Grid.Column="1" Grid.Row="2" Margin="0,0,10,10" Width="100" Height="32"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True" Command="{Binding SaveCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

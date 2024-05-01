@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Cache;
-using NetTally.SystemInfo;
 
 namespace NetTally.Tests.Utility
 {
     [TestClass]
     public class CacheTests
     {
-        static ICache<string> cache = PageCache.Instance;
-        static string? resourceContent = string.Empty;
+        static PageCache cache = null!;
+        static string resourceContent = string.Empty;
+        static readonly FakeTimeProvider fakeTimeProvider = new();
 
         [ClassInitialize]
-#if NETCOREAPP
-        public static async Task Initialize(TestContext context)
-#else
-        public static async void Initialize(TestContext context)
-#endif
+        public static async Task Initialize(TestContext _)
         {
-            resourceContent = await LoadResource.Read("Resources/RenascenceSV.html");
+            resourceContent = await LoadResource.Read("Resources/RenascenceSV.html") ?? string.Empty;
 
-            cache = PageCache.Instance;
+            var serviceProvider = TestStartup.ConfigureServices(fakeTimeProvider);
+
+            cache = serviceProvider.GetRequiredService<PageCache>();
         }
 
         [TestInitialize]
@@ -34,23 +34,21 @@ namespace NetTally.Tests.Utility
         public void ContentLoaded()
         {
             Assert.IsFalse(string.IsNullOrEmpty(resourceContent));
-            Assert.IsTrue(resourceContent!.Length > 200000);
-            Assert.IsTrue(resourceContent!.Length < 250000);
+            Assert.IsTrue(resourceContent.Length > 200000);
+            Assert.IsTrue(resourceContent.Length < 250000);
         }
-
-#nullable disable
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cache_null_key()
         {
-            cache.Add(null, null, CacheInfo.DefaultExpiration);
+            cache.Add(null!, null!, CacheInfo.DefaultExpiration);
         }
 
         [TestMethod]
         public void Cache_null_data()
         {
-            string data = null;
+            string data = null!;
 
             cache.Add("null data", data, CacheInfo.DefaultExpiration);
             var (found, content) = cache.Get("null data");
@@ -59,12 +57,10 @@ namespace NetTally.Tests.Utility
             Assert.AreEqual("", content);
         }
 
-#nullable enable
-
         [TestMethod]
         public void Cache_page_data()
         {
-            cache.Add("page data", resourceContent!, CacheInfo.DefaultExpiration);
+            cache.Add("page data", resourceContent, CacheInfo.DefaultExpiration);
             var (found, content) = cache.Get("page data");
 
             Assert.IsTrue(found);
@@ -74,13 +70,12 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_expired_data()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
+            DateTimeOffset clockTime = new(2017, 7, 1, 12, 0, 0, TimeSpan.Zero);
+            DateTimeOffset expireTime = new(2017, 7, 1, 11, 59, 0, TimeSpan.Zero);
 
-            var clock = new StaticClock(clockTime);
-            cache.SetClock(clock);
+            fakeTimeProvider.SetUtcNow(clockTime);
 
-            cache.Add("page data", resourceContent!, expireTime);
+            cache.Add("page data", resourceContent, expireTime);
             var (found, _) = cache.Get("page data");
 
             Assert.IsFalse(found);
@@ -89,13 +84,12 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_unexpired_data()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 12, 1, 0);
+            DateTimeOffset clockTime = new(2017, 7, 1, 12, 0, 0, TimeSpan.Zero);
+            DateTimeOffset expireTime = new(2017, 7, 1, 12, 1, 0, TimeSpan.Zero);
 
-            var clock = new StaticClock(clockTime);
-            cache.SetClock(clock);
+            fakeTimeProvider.SetUtcNow(clockTime);
 
-            cache.Add("page data", resourceContent!, expireTime);
+            cache.Add("page data", resourceContent, expireTime);
             var (found, content) = cache.Get("page data");
 
             Assert.IsTrue(found);
@@ -105,11 +99,10 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Cache_expired_data_invalidate()
         {
-            DateTime clockTime = new DateTime(2017, 7, 1, 12, 0, 0);
-            DateTime expireTime = new DateTime(2017, 7, 1, 11, 59, 0);
+            DateTimeOffset clockTime = new(2017, 7, 1, 12, 0, 0, TimeSpan.Zero);
+            DateTimeOffset expireTime = new(2017, 7, 1, 11, 59, 0, TimeSpan.Zero);
 
-            var clock = new StaticClock(clockTime);
-            cache.SetClock(clock);
+            fakeTimeProvider.SetUtcNow(clockTime);
 
             int storeCount = cache.MaxCacheEntries + 2;
             for (int i = 0; i < storeCount; i++)

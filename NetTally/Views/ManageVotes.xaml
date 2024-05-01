@@ -3,10 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:converters="clr-namespace:NetTally.Converters"
         mc:Ignorable="d"
+        xmlns:converters="clr-namespace:NetTally.Converters"
+        xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ManageVotesViewModel}"
         Title="Manage Votes" Height="669.837" Width="862" MinWidth="828" MinHeight="445"
-        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False" KeyDown="Window_KeyDown">
+        WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False" KeyDown="Window_KeyDown"
+        Name="window">
+    
     <Window.Resources>
         <converters:BoolConverter x:Key="BoolConverter"></converters:BoolConverter>
         <converters:MultiBoolOrConverter x:Key="MultiBoolOrConverter"></converters:MultiBoolOrConverter>
@@ -33,10 +37,11 @@
 
         <!-- Grid 0,0 : From Votes -->
 
-        <Label Grid.Column="0" Grid.Row="0" x:Name="label1" Content="Votes (Merge From)" Margin="10,10,0,0" VerticalAlignment="Top" Width="116" HorizontalAlignment="Left"/>
+        <Label Grid.Column="0" Grid.Row="0" x:Name="label1" Content="Votes (Merge From)"
+               Margin="10,10,0,0" Width="116" VerticalAlignment="Top" HorizontalAlignment="Left"/>
 
         <TextBox Grid.Column="0" Grid.Row="0" x:Name="filterVotes1" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Text="{Binding Path=Filter1String, UpdateSourceTrigger=PropertyChanged}">
+                 Text="{Binding ElementName=window, Path=Filter1String, UpdateSourceTrigger=PropertyChanged}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -46,11 +51,14 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <Label Grid.Column="0" Grid.Row="0" x:Name="filterLabel1" Content="Filter Votes" HorizontalAlignment="Left" Margin="148,7,0,0" VerticalAlignment="Top" Opacity="0.5"
-               Visibility="{Binding Path=IsFilter1Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+        
+        <Label Grid.Column="0" Grid.Row="0" x:Name="filterLabel1" Content="Filter Votes"
+               Margin="148,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding ElementName=window, Path=IsFilter1Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
 
-        <ListBox Grid.Column="0" Grid.Row="0" x:Name="votesFromListBox" Margin="10,36,10,10"
-                 ItemsSource="{Binding VoteView1}" IsSynchronizedWithCurrentItem="True" SelectionChanged="votesFromListBox_SelectionChanged"
+        <ListBox Grid.Column="0" Grid.Row="0" x:Name="VotesFromListBox" Margin="10,36,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoteView1}" IsSynchronizedWithCurrentItem="True"
+                 SelectionChanged="VotesFromListBox_SelectionChanged"
                  ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -77,10 +85,11 @@
 
         <!-- Grid 2,0 : To Votes -->
 
-        <Label Grid.Column="2" Grid.Row="0" x:Name="label2" Content="Votes (Merge To)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Label Grid.Column="2" Grid.Row="0" x:Name="label2" Content="Votes (Merge To)"
+               Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
         <TextBox Grid.Column="2" Grid.Row="0" x:Name="filterVotes2" Height="23" Margin="148,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Text="{Binding Path=Filter2String, UpdateSourceTrigger=PropertyChanged}">
+                 Text="{Binding ElementName=window, Path=Filter2String, UpdateSourceTrigger=PropertyChanged}">
             <TextBox.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -90,11 +99,12 @@
                 </ToolTip>
             </TextBox.ToolTip>
         </TextBox>
-        <Label Grid.Column="2" Grid.Row="0" x:Name="filterLabel2" Content="Filter Votes" HorizontalAlignment="Left" Margin="148,7,0,0" VerticalAlignment="Top" Opacity="0.5"
-               Visibility="{Binding Path=IsFilter2Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
+        <Label Grid.Column="2" Grid.Row="0" x:Name="filterLabel2" Content="Filter Votes"
+               Margin="148,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Opacity="0.5"
+               Visibility="{Binding ElementName=window, Path=IsFilter2Empty, Converter={StaticResource BoolToVisConverter} }" IsHitTestVisible="False" />
 
-        <ListBox Grid.Column="2" Grid.Row="0" x:Name="votesToListBox" Margin="10,36,10,10"
-                 ItemsSource="{Binding VoteView2}" SelectionChanged="votesToListBox_SelectionChanged"
+        <ListBox Grid.Column="2" Grid.Row="0" x:Name="VotesToListBox" Margin="10,36,10,10"
+                 ItemsSource="{Binding ElementName=window, Path=VoteView2}" SelectionChanged="VotesToListBox_SelectionChanged"
                  ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -123,7 +133,7 @@
         <Label Grid.Column="0" Grid.Row="1" x:Name="label3" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
         <ListBox Grid.Column="0" Grid.Row="1" x:Name="votersFromListBox" Margin="10,31,10,10"
-                 ItemsSource="{Binding VoterView1}" IsSynchronizedWithCurrentItem="True">
+                 ItemsSource="{Binding ElementName=window, Path=VoterView1}" IsSynchronizedWithCurrentItem="True">
         </ListBox>
 
         <!-- Grid 2,1 : To Voters -->
@@ -131,19 +141,21 @@
         <Label Grid.Column="2" Grid.Row="1" x:Name="label4" Content="Voters" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
 
         <ListBox Grid.Column="2" Grid.Row="1" x:Name="votersToListBox" Margin="10,31,10,10"
-                 ItemsSource="{Binding VoterView2}">
+                 ItemsSource="{Binding ElementName=window, Path=VoterView2}">
         </ListBox>
 
         <!-- Grid 1,0 : Vote Controls -->
 
-        <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="Merge ⇒" Click="merge_Click" Margin="10,47,10,0" Height="35" 
-                VerticalAlignment="Top" FontSize="13.333" ToolTipService.ShowOnDisabled="True">
-            <Button.IsEnabled>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="merge" Content="Merge ⇒"
+                Margin="10,47,10,0" Height="35" 
+                VerticalAlignment="Top" FontSize="13.333" ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=MergeCommand}">
+            <!--<Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="InvertVoteLineBlock">
                     <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
                     <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
                 </MultiBinding>
-            </Button.IsEnabled>
+            </Button.IsEnabled>-->
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -153,14 +165,16 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⊘ Delete" Click="delete_Click" Margin="10,196,10,0" Height="35"
-                 VerticalAlignment="Top" FontSize="13.333" RenderTransformOrigin="0.507,0.1" ToolTipService.ShowOnDisabled="True" >
-            <Button.IsEnabled>
+        <Button Grid.Column="1" Grid.Row="0" x:Name="delete" Content="⊘ Delete"
+                Margin="10,196,10,0" Height="35" VerticalAlignment="Top" FontSize="13.333" RenderTransformOrigin="0.507,0.1"
+                ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=DeleteCommand}">
+            <!--<Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiStringCompareConverter}" Mode="OneWay" ConverterParameter="VoteLineBlock">
                     <Binding ElementName="votesFromListBox" Path="SelectedItem" Mode="OneWay" />
                     <Binding ElementName="votesToListBox" Path="SelectedItem" Mode="OneWay" />
                 </MultiBinding>
-            </Button.IsEnabled>
+            </Button.IsEnabled>-->
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -172,8 +186,8 @@
         </Button>
 
         <Button Grid.Column="1" Grid.Row="0" x:Name="undo" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
-                Click="undo_Click" ToolTipService.ShowOnDisabled="True"
-                IsEnabled="{Binding Path=HasUndoActions, Mode=OneWay}">
+                ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=UndoCommand}" >
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -188,8 +202,8 @@
         <!-- Grid 1,1 : Voter Controls -->
 
         <Button Grid.Column="1" Grid.Row="1" x:Name="joinVoters" Content="Join ⇒" Height="35" Margin="10,35,10,0" VerticalAlignment="Top"
-                FontSize="13.333" Click="join_Click" ToolTipService.ShowOnDisabled="True"
-                IsEnabled="{Binding ElementName=votersFromListBox, Path=HasItems}">
+                FontSize="13.333" ToolTipService.ShowOnDisabled="True"
+                Command="{Binding Path=JoinCommand}">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

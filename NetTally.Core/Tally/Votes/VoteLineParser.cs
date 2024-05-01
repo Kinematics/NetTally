@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetTally.Types.Enums;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
@@ -33,15 +34,15 @@ namespace NetTally.Votes
         const char closeStrike = '❱';
         const char strikeNewline = '⦂';
 
-        static readonly char[] apostraphes = new char[] { '‘', '’' };
-        static readonly char[] quotations = new char[] { '“', '〃', '”' };
+        static readonly char[] apostraphes = ['‘', '’'];
+        static readonly char[] quotations = ['“', '〃', '”'];
 
         // Prefix chars: dash, en-dash, em-dash
-        static readonly char[] prefixChars = new char[] { '-', '–', '—' };
+        static readonly char[] prefixChars = ['-', '–', '—'];
         // Marker chars: X, check, numeric rank, rank marker, score marker, approval/disapproval
-        static readonly char[] markerChars = new char[] { 'x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '✗', '✘', 'Х', '☒', '☑', '+', '-' };
+        static readonly char[] markerChars = ['x', 'X', '#', '%', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '✓', '✔', '✗', '✘', 'Х', '☒', '☑', '+', '-'];
         // Newline chars
-        static readonly char[] newlineChars = new char[] { '\r', '\n' };
+        static readonly char[] newlineChars = ['\r', '\n'];
 
         /// <summary>
         /// Takes a line of text and attempts to parse it, looking for a valid vote line.
@@ -49,22 +50,21 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="line">A line of text to parse.</param>
         /// <returns>Returns a VoteLine if the provided text is a valid vote.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "State machine")]
         public static VoteLine? ParseLine(ReadOnlySpan<char> line)
         {
             if (line.Length == 0)
                 return null;
 
-            StringBuilder prefixSB = new StringBuilder();
-            StringBuilder markerSB = new StringBuilder();
-            StringBuilder taskSB = new StringBuilder();
-            StringBuilder contentSB = new StringBuilder();
-            StringBuilder tempContent = new StringBuilder();
+            StringBuilder prefixSB = new();
+            StringBuilder markerSB = new();
+            StringBuilder taskSB = new();
+            StringBuilder contentSB = new();
+            StringBuilder tempContent = new();
 
             MarkerType markerType = MarkerType.None;
             int markerValue = 0;
 
-            Stack<TokenState> state = new Stack<TokenState>();
+            Stack<TokenState> state = new();
             TokenState currentState = TokenState.None;
 
             for (int c = 0; c < line.Length; c++)
@@ -305,12 +305,12 @@ namespace NetTally.Votes
             if (input.Length == 0)
                 return "";
 
-            StringBuilder contentSB = new StringBuilder();
+            StringBuilder contentSB = new();
             bool bufferOn = true;
             int startBuffer = 0;
 
             // Use a stripped down version of the parsing state machine.
-            Stack<TokenState> state = new Stack<TokenState>();
+            Stack<TokenState> state = new();
             TokenState currentState = TokenState.None;
 
             for (int c = 0; c < input.Length; c++)
@@ -346,14 +346,14 @@ namespace NetTally.Votes
 
             if (bufferOn)
             {
-                contentSB.Append(input.Slice(startBuffer));
+                contentSB.Append(input[startBuffer..]);
             }
 
             return contentSB.ToString();
         }
 
 
-        static readonly Regex markerRegex = new Regex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$",
+        static readonly Regex markerRegex = new(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$",
             RegexOptions.None, TimeSpan.FromSeconds(1));
 
         /// <summary>

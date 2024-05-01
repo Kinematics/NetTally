@@ -7,36 +7,37 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Cache;
+using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Extensions;
-using NetTally.Options;
-using NetTally.SystemInfo;
-using NetTally.Types.Enums;
 
 namespace NetTally.Web
 {
     public class WebPageProvider : PageProviderBase, IPageProvider
     {
         #region Fields
-        readonly HttpClient httpClient;
-        readonly ILogger<WebPageProvider> logger;
-
+        private readonly HttpClient httpClient;
+        private readonly ILogger<WebPageProvider> logger;
+        private readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
+        private readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
         const int retryLimit = 3;
-        readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
-        readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
 
-        readonly IGeneralInputOptions inputOptions;
+        readonly GlobalSettings inputOptions;
         #endregion
 
         #region Construction, Setup, Disposal
-        public WebPageProvider(HttpClientHandler handler,
-            ICache<string> pageCache, IClock clock,
-            IGeneralInputOptions inputOptions, ILogger<WebPageProvider> logger)
-            : base(handler, pageCache, clock)
+        public WebPageProvider(
+            HttpClientHandler handler,
+            PageCache pageCache,
+            IOptions<GlobalSettings> options,
+            ILogger<WebPageProvider> logger,
+            TimeProvider timeProvider)
+            : base(handler, pageCache, timeProvider)
         {
-            this.inputOptions = inputOptions;
+            this.inputOptions = options.Value;
             this.logger = logger;
-
             SetupHandler();
             httpClient = SetupClient();
         }
@@ -48,8 +49,7 @@ namespace NetTally.Web
 
             if (itIsSafeToAlsoFreeManagedObjects)
             {
-                if (httpClient != null)
-                    httpClient.Dispose();
+                httpClient?.Dispose();
             }
 
             base.Dispose(itIsSafeToAlsoFreeManagedObjects);
@@ -74,9 +74,10 @@ namespace NetTally.Web
             // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
             ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
 
-            HttpClient client = new(ClientHandler);
-
-            client.Timeout = timeout;
+            HttpClient client = new(ClientHandler)
+            {
+                Timeout = timeout
+            };
             client.DefaultRequestHeaders.Add("Accept", "text/html");
             client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
             client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
@@ -198,8 +199,7 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentException">url</exception>
         private static (Uri uri, string url) GetVerifiedUrl(string url)
         {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentNullException(nameof(url));
+            ArgumentException.ThrowIfNullOrEmpty(url);
 
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
                 throw new ArgumentException($"Url is not valid: {url}", nameof(url));
@@ -280,7 +280,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
@@ -314,31 +314,30 @@ namespace NetTally.Web
                         getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
                         logger.LogDebug("Get URI {uri} task ID: {Id}", uri, getResponseTask.Id);
 
-                        using (var response = await getResponseTask.ConfigureAwait(false))
+                        using var response = await getResponseTask.ConfigureAwait(false);
+
+                        if (response.IsSuccessStatusCode)
                         {
-                            if (response.IsSuccessStatusCode)
-                            {
-                                result = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+                            result = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
 
-                                // Get expires value
-                                // Cannot get Expires value until we move to .NET Standard 2.0.
+                            // Get expires value
+                            // Cannot get Expires value until we move to .NET Standard 2.0.
 
-                                // If we get a successful result, we're done.
-                                break;
-                            }
-                            else if (PageLoadFailed(response))
+                            // If we get a successful result, we're done.
+                            break;
+                        }
+                        else if (PageLoadFailed(response))
+                        {
+                            NotifyStatusChange(PageRequestStatusType.Failed, url,
+                                GetFailureMessage(response, shortDescrip, url), null, suppressNotifications);
+                            return null;
+                        }
+                        else if (PageWasMoved(response))
+                        {
+                            if (response.Content.Headers.ContentLocation is Uri contentLocation)
                             {
-                                NotifyStatusChange(PageRequestStatusType.Failed, url,
-                                    GetFailureMessage(response, shortDescrip, url), null, suppressNotifications);
-                                return null;
-                            }
-                            else if (PageWasMoved(response))
-                            {
-                                if (response.Content.Headers.ContentLocation is Uri contentLocation)
-                                {
-                                    url = contentLocation.AbsoluteUri;
-                                    uri = new Uri(url);
-                                }
+                                url = contentLocation.AbsoluteUri;
+                                uri = new Uri(url);
                             }
                         }
                     }
@@ -416,7 +415,7 @@ namespace NetTally.Web
         /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
         private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string? shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
         {
-            var (uri, url2) = GetVerifiedUrl(url);
+            var (uri, _) = GetVerifiedUrl(url);
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
@@ -425,7 +424,7 @@ namespace NetTally.Web
 
             try
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri);
+                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
                 if (cookie != null)
                 {
                     ClientHandler.CookieContainer.Add(uri, cookie);
@@ -457,12 +456,12 @@ namespace NetTally.Web
                     try
                     {
                         using HttpRequestMessage request = new(HttpMethod.Head, uri);
+
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
-                        using (HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false))
-                        {
-                            return response.RequestMessage?.RequestUri;
-                        }
+                        using HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false);
+
+                        return response.RequestMessage?.RequestUri;
                     }
                     catch (HttpRequestException e)
                     {
@@ -508,7 +507,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="response">The response.</param>
         /// <returns>Returns true if it's a failure response code.</returns>
-        private bool PageLoadFailed(HttpResponseMessage response)
+        private static bool PageLoadFailed(HttpResponseMessage response)
         {
             return ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600);
         }
@@ -518,7 +517,7 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="response">The response.</param>
         /// <returns>Returns true if the page was moved.</returns>
-        private bool PageWasMoved(HttpResponseMessage response)
+        private static bool PageWasMoved(HttpResponseMessage response)
         {
             return (response.StatusCode == HttpStatusCode.Moved ||
                     response.StatusCode == HttpStatusCode.MovedPermanently ||

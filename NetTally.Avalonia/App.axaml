@@ -3,8 +3,8 @@
              xmlns:local="clr-namespace:NetTally.Avalonia"
              x:Class="NetTally.Avalonia.App">
     <Application.Styles>
-        <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>
-        <StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseLight.xaml"/>
+		<!--<FluentTheme />-->
+		<SimpleTheme/>
         <StyleInclude Source="/Assets/Styles/NetTallyStyles.xaml" />
     </Application.Styles>
 </Application>

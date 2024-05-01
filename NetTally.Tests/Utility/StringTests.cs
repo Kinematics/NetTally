@@ -1,18 +1,16 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Utility;
-using NetTally.Utility.Comparers;
 
-namespace NTTests.Utility
+namespace NetTally.Tests.Utility
 {
     [TestClass]
     public class StringTests
     {
         [ClassInitialize]
-        public static void Initialize(TestContext context)
+        public static void Initialize(TestContext _)
         {
+            TestStartup.ConfigureServices();
+
             using (new RegionProfiler("warmup"))
             {
                 Assert.AreEqual("resume", "resume".RemoveDiacritics());
@@ -100,9 +98,7 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_make_null()
         {
-#nullable disable
-            string planName = Strings.MakePlanName(null);
-#nullable enable
+            string planName = Strings.MakePlanName(null!);
 
             Assert.AreEqual("", planName);
         }
@@ -154,9 +150,7 @@ namespace NTTests.Utility
         [TestMethod]
         public void PlanName_test_null()
         {
-#nullable disable
-            Assert.IsFalse(Strings.IsPlanName(null));
-#nullable enable
+            Assert.IsFalse(Strings.IsPlanName(null!));
         }
         #endregion
 
@@ -205,6 +199,7 @@ and then another";
             Assert.AreEqual("and then another", lines[1]);
         }
 
+        [TestMethod]
         public void Split_simple()
         {
             string input =
@@ -216,12 +211,10 @@ and then another";
             Assert.AreEqual("Saying one thing", lines[0]);
         }
 
-#nullable disable
-
         [TestMethod]
         public void Split_null_1()
         {
-            string input = null;
+            string input = null!;
             var lines = input.GetStringLines();
 
             Assert.IsNotNull(lines);
@@ -231,13 +224,11 @@ and then another";
         [TestMethod]
         public void Split_null_2()
         {
-            var lines = Strings.GetStringLines(null);
+            var lines = Strings.GetStringLines(null!);
 
             Assert.IsNotNull(lines);
             Assert.AreEqual(0, lines.Count);
         }
-
-#nullable enable
 
         [TestMethod]
         public void Split_empty()
@@ -291,11 +282,9 @@ and then another";
         [TestMethod]
         public void FirstLine_null()
         {
-#nullable disable
-            string input = null;
+            string input = null!;
 
             var line = input.GetFirstLine();
-#nullable enable
 
             Assert.IsNotNull(line);
             Assert.AreEqual("", line);
@@ -342,119 +331,5 @@ and then another";
             Assert.AreEqual("Kinematics walks down the road.", safe);
         }
         #endregion
-
-        #region Agnostic hash comparisons
-        [TestMethod]
-        public void AgnosticHash_01_space()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("Kinematics ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_02_extra_chars()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("Kinematics", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("Kinematicss", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreNotEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_03_diacritical()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_04_diacritical()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("resume", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("resumé", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_05_fraction_form()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("Ranma 1/2 ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_05a_fraction_not_ignored()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("Ranma ½", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("Ranma", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreNotEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_06_punctuation()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("[bank]", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_07_capitalization()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("BANK", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_08_extra_letter()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("bahnk", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreNotEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_09_spacing()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("ban k", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("bank ", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreEqual(result1, result2);
-        }
-
-        [TestMethod]
-        public void AgnosticHash_10_extra_number()
-        {
-            IHash hash = new NormalHash();
-            int result1 = hash.HashFunction("runover", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-            int result2 = hash.HashFunction("run over 1", CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
-
-            Assert.AreNotEqual(result1, result2);
-        }
-
-        #endregion
-
     }
 }

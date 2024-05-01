@@ -3,95 +3,64 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Forums;
-using NetTally.Options;
-using NetTally.SystemInfo;
+using NetTally.Systems;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
 using NetTally.Votes;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Output
 {
     // List of VoterStorage elements:
     using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
     // Individual dictionary element from VoterStorage:
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
     // Grouping of VoteStorage elements by task:
     using VotesGroupedByTask = IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>;
     // Individual dictionary element from VoteStorage:
     using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
 
-    public class TallyOutput : ITextResultsProvider
+    public class TallyOutput(
+        RankVoteCounterFactory rankVoteCounterFactory,
+        ForumAdapterFactory forumAdapterFactory,
+        IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
         #region Constructor and private fields
-        readonly IVoteCounter voteCounter;
-        readonly IGeneralOutputOptions outputOptions;
-        readonly IRankVoteCounter2 rankVoteCounter;
-        readonly IForumAdapter2 forumAdapter;
+        private readonly GlobalSettings globalSettings = globalSettings.Value;
+        private readonly RankVoteCounterFactory rankVoteCounterFactory = rankVoteCounterFactory;
+        private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
+        private readonly StringBuilder sb = new();
 
-        DisplayMode displayMode;
-        IQuest quest;
-
-        StringBuilder sb = new();
-        const string cancelled = "Cancelled!";
-
-        public TallyOutput(
-            IVoteCounter counter,
-            RankVoteCounterFactory rankVoteCounterFactory,
-            ForumAdapterFactory forumAdapterFactory,
-            IGeneralOutputOptions options)
-        {
-            voteCounter = counter;
-            outputOptions = options;
-
-            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(options.RankVoteCounterMethod);
-
-            if (voteCounter.Quest != null)
-            {
-                quest = voteCounter.Quest;
-                forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
-            }
-            else
-            {
-                quest = new Quest();
-                forumAdapter = forumAdapterFactory.CreateForumAdapter(ForumType.Unknown, Quest.InvalidThreadUri);
-            }
-        }
+        private Quest quest = null!;
+        private DisplayMode displayMode;
+        private IVoteCounter voteCounter = null!;
+        private IRankVoteCounter2 rankVoteCounter = null!;
         #endregion
 
         #region Public ITextResultsProvider functions
         /// <summary>
-        /// Public function to initiate generating output for the information
-        /// in the current Vote Counter.
+        /// Public function to generate output for the VoteCounter results.
         /// </summary>
-        /// <param name="displayMode"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public async Task<string> BuildOutputAsync(DisplayMode displayMode, CancellationToken token)
+        /// <param name="quest">The quest we're building the output for.</param>
+        /// <returns>The full quest tally results string.</returns>
+        public string BuildOutput(Quest quest)
         {
-            if (voteCounter.Quest == null)
-                return string.Empty;
-            if (voteCounter.TallyWasCanceled)
-                return cancelled;
+            this.quest = quest;
+            voteCounter = quest.VoteCounter;
+            displayMode = quest.DisplayMode;
 
-            quest = voteCounter.Quest;
-            this.displayMode = displayMode;
+            var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
+            LineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
 
-            sb = new StringBuilder();
+            rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
-            try
-            {
-                await Task.Run(() => BuildGlobal(token), token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                return cancelled;
-            }
+            sb.Clear();
+
+            BuildGlobal();
 
             return sb.ToString();
         }
@@ -102,33 +71,30 @@ namespace NetTally.Output
         /// General construction.  Add the header and any vote output.
         /// Surround by spoiler tags if requested by the display mode.
         /// </summary>
-        /// <param name="token">Cancellation token so that processing can be cancelled.</param>
-        private void BuildGlobal(CancellationToken token)
+        private void BuildGlobal()
         {
-            token.ThrowIfCancellationRequested();
-
             var voteGroupings = GetVoteGroupings();
 
-            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || outputOptions.GlobalSpoilers))
+            using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || globalSettings.GlobalSpoilers))
             {
-                AddHeader(token);
+                AddHeader();
 
-                ConstructOutput(voteGroupings[MarkerType.Rank], MarkerType.Rank, token);
+                ConstructOutput(voteGroupings[MarkerType.Rank], MarkerType.Rank);
                 if (voteGroupings[MarkerType.Rank].Count > 0)
                 {
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Score], MarkerType.Score, token);
+                ConstructOutput(voteGroupings[MarkerType.Score], MarkerType.Score);
                 if (voteGroupings[MarkerType.Score].Count > 0)
                 {
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Approval], MarkerType.Approval, token);
+                ConstructOutput(voteGroupings[MarkerType.Approval], MarkerType.Approval);
                 if (voteGroupings[MarkerType.Approval].Count > 0)
                 {
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote, token);
+                ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote);
 
                 AddTotalVoters();
             }
@@ -146,13 +112,13 @@ namespace NetTally.Output
             Dictionary<MarkerType, VoteStorage> group =
                 new()
                 {
-                    [MarkerType.Rank] = new VoteStorage(),
-                    [MarkerType.Score] = new VoteStorage(),
-                    [MarkerType.Approval] = new VoteStorage(),
-                    [MarkerType.Vote] = new VoteStorage()
+                    [MarkerType.Rank] = [],
+                    [MarkerType.Score] = [],
+                    [MarkerType.Approval] = [],
+                    [MarkerType.Vote] = []
                 };
 
-            MarkerType[] markers = { MarkerType.Rank, MarkerType.Score, MarkerType.Approval };
+            MarkerType[] markers = [MarkerType.Rank, MarkerType.Score, MarkerType.Approval];
 
             var allVotes = voteCounter.VoteStorage.GetAllVotes();
 
@@ -183,15 +149,10 @@ namespace NetTally.Output
         /// Add the header indicating the title of the thread that was tallied,
         /// and the marker that this is a tally result (along with the program version number).
         /// </summary>
-        private void AddHeader(CancellationToken token)
+        private void AddHeader()
         {
-            token.ThrowIfCancellationRequested();
-
-            if (voteCounter.Quest is null)
-                return;
-
             sb.Append("[b]Vote Tally");
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
                 sb.Append(" (DEBUG)");
             sb.Append("[/b] : ");
 
@@ -206,14 +167,14 @@ namespace NetTally.Output
             sb.Append(ProductInfo.Version);
             sb.AppendLine("[/color]");
 
-            if (voteCounter.Quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
+            if (quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
             {
                 sb.Append("[color=transparent]Username Filters: ");
                 sb.Append(quest.CustomUsernameFilters);
                 sb.AppendLine("[/color]");
             }
 
-            if (voteCounter.Quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
+            if (quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
             {
                 sb.Append("[color=transparent]Post Filters: ");
                 sb.Append(quest.CustomPostFilters);
@@ -250,14 +211,12 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
-        /// <param name="token">Cancellation token.</param>
-        private void ConstructOutput(VoteStorage votes, MarkerType marker, CancellationToken token)
+        private void ConstructOutput(VoteStorage votes, MarkerType marker)
         {
             if (votes.Count == 0)
             {
                 return;
             }
-
 
             var groupByTask = GetVotesGroupedByTask(votes);
 
@@ -265,8 +224,6 @@ namespace NetTally.Output
 
             foreach (var task in groupByTask)
             {
-                token.ThrowIfCancellationRequested();
-
                 if (task.Any())
                 {
                     if (!firstTask)
@@ -278,7 +235,7 @@ namespace NetTally.Output
 
                     AddTaskLabel(task.Key);
 
-                    IEnumerable<CompactVote> compactTask = Enumerable.Empty<CompactVote>();
+                    IEnumerable<CompactVote> compactTask = [];
 
                     if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                         compactTask = CompactVote.GetCompactVotes(task);
@@ -299,7 +256,7 @@ namespace NetTally.Output
                             ConstructRankedOutput(task, compactTask, allVoters);
                             break;
                         default:
-                            throw new ArgumentOutOfRangeException($"Unknown marker type: {marker}", nameof(marker));
+                            throw new ArgumentOutOfRangeException(nameof(marker), $"Unknown marker type: {marker}");
                     }
 
                     sb.AppendLine();
@@ -322,7 +279,7 @@ namespace NetTally.Output
             }
         }
 
-        private static IList<Origin> GetAllVotersInTask(VotesGroupedByTask task)
+        private static List<Origin> GetAllVotersInTask(VotesGroupedByTask task)
         {
             return task
                 .SelectMany(t => t.Value)
@@ -543,12 +500,12 @@ namespace NetTally.Output
         /// Gets the line break text from the quest's forum adapter, since some
         /// can show hard rules, and some need to just use manual text.
         /// </summary>
-        public string LineBreak => forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+        private string LineBreak { get; set; } = string.Empty;
 
         /// <summary>
         /// Get the double line break.  There are no alternate versions right now.
         /// </summary>
-        public static string DoubleLineBreak => "<==========================================================>";
+        private static string DoubleLineBreak => "<==========================================================>";
 
         /// <summary>
         /// Add a label for the specified task.
@@ -605,7 +562,7 @@ namespace NetTally.Output
 
             sb.Append("[b]Score: ");
             sb.Append(score.score).Append('%');
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
                   .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
@@ -625,7 +582,7 @@ namespace NetTally.Output
 
             sb.Append("[b]Ranking: ");
             sb.Append('#').Append(ranking.rank);
-            if (outputOptions.DebugMode)
+            if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
                   .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)
@@ -756,7 +713,7 @@ namespace NetTally.Output
 
                 foreach (var voter in didNotRankOption)
                 {
-                    AddVoter(voter, vote:null, MarkerType.Rank);
+                    AddVoter(voter, vote: null, MarkerType.Rank);
                 }
             }
         }

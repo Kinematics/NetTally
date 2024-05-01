@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NetTally.Data;
+using NetTally.Systems;
 using NetTally.Utility;
 
 namespace NetTally.Input.Utility
@@ -9,39 +13,70 @@ namespace NetTally.Input.Utility
     /// Class to handle user-defined filters, to be used against text input.
     /// Example cases are for filtering threadmarks and tasks.
     /// </summary>
-    public class Filter
+    public partial class Filter
     {
         #region Class Fields
+        public static readonly Filter Empty = new(EmptyRegex());
+        public static readonly Filter DefaultThreadmarkFilter =
+            new(StringData.OmakeFilter, injectString: null);
+
         readonly Regex filterRegex;
+        readonly Regex emptyRegex = EmptyRegex();
+        readonly Regex escapeChars = EscapeCharsRegex();
+        readonly Regex splat = SplatRegex();
+        readonly Regex preWord = PreWordRegex();
+        readonly Regex postWord = PostWordRegex();
+        readonly Regex jsRegex = JsRegex();
+        readonly Regex alwaysFalse = AlwaysFalseRegex();
 
-        static readonly Regex EmptyRegex = new Regex("^$");
-        public static readonly Filter Empty = new Filter(EmptyRegex);
+        private static readonly char[] commaSeparator = [','];
+        #endregion
 
-        static readonly Regex escapeChars = new Regex(@"([.?(){}^$\[\]])");
-        static readonly Regex splat = new Regex(@"\*");
-        static readonly Regex preWord = new Regex(@"^\w");
-        static readonly Regex postWord = new Regex(@"\w$");
-
-        static readonly Regex jsRegex = new Regex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$");
-
+        #region Generated Regexes
+        /// <summary>
+        /// A regex that contains nothing.
+        /// </summary>
+        [GeneratedRegex("^$")]
+        private static partial Regex EmptyRegex();
+        /// <summary>
+        /// A regex for finding characters that a regex would use for syntax.
+        /// </summary>
+        [GeneratedRegex(@"([.?(){}^$\[\]])")]
+        private static partial Regex EscapeCharsRegex();
+        /// <summary>
+        /// A regex for finding the 'repeat' symbol of a regex.
+        /// </summary>
+        [GeneratedRegex(@"\*")]
+        private static partial Regex SplatRegex();
+        /// <summary>
+        /// A regex for a word character at the start of the line.
+        /// </summary>
+        [GeneratedRegex(@"^\w")]
+        private static partial Regex PreWordRegex();
+        /// <summary>
+        /// A regex for a word character at the end of the line.
+        /// </summary>
+        [GeneratedRegex(@"\w$")]
+        private static partial Regex PostWordRegex();
+        /// <summary>
+        /// A regex for the syntactic pattern of specifying a regex in javascript.
+        /// </summary>
+        [GeneratedRegex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$")]
+        private static partial Regex JsRegex();
         /// <summary>
         /// A pure false regex, in as simple a form as possible.  From the start of the line,
         /// require a negative lookahead for a value that is followed by that value.
         /// </summary>
-        static readonly Regex alwaysFalse = new Regex(@"^(?!x)x");
-        #endregion
-
-        #region Public Static
-        const string OmakeFilter = @"\bomake\b";
-        public static readonly Filter DefaultThreadmarkFilter = new Filter(OmakeFilter, injectString:null);
-        #endregion
+        [GeneratedRegex(@"^(?!x)x")]
+        private static partial Regex AlwaysFalseRegex();
+        #endregion Generated Regexes
 
         #region Constructors
         /// <summary>
         /// Create a filter using an explicit regex.
         /// </summary>
         /// <param name="regex">An explicit regex to use for filtering.
-        /// If null is passed, use the alwaysFalse regex.</param>
+        /// If null is passed, use the AlwaysFalse regex.</param>
         public Filter(Regex? regex)
         {
             filterRegex = regex ?? alwaysFalse;
@@ -55,6 +90,7 @@ namespace NetTally.Input.Utility
         public Filter(string? filterString, string? injectString)
         {
             filterString ??= string.Empty;
+
             filterRegex = CreateRegex(filterString, injectString);
         }
         #endregion
@@ -75,7 +111,7 @@ namespace NetTally.Input.Utility
             if (!string.IsNullOrEmpty(userString) && userString[0] == '!')
             {
                 IsInverted = true;
-                userString = userString.Substring(1).Trim();
+                userString = userString[1..].Trim();
             }
 
             if (IsJSRegex(userString, out string? jsRegexString))
@@ -120,7 +156,7 @@ namespace NetTally.Input.Utility
         /// <param name="injectString">An optional additonal value to insert into the regex.</param>
         /// <returns>Returns a regex that combines the user-provided string with the injected string.</returns>
         /// <exception cref="ArgumentNullException"/>
-        private Regex CreateDefinedRegex(string jsRegexString, string? injectString)
+        private static Regex CreateDefinedRegex(string jsRegexString, string? injectString)
         {
             if (string.IsNullOrEmpty(jsRegexString))
                 throw new ArgumentNullException(nameof(jsRegexString));
@@ -131,7 +167,8 @@ namespace NetTally.Input.Utility
             }
             else
             {
-                return new Regex($"{jsRegexString}|{injectString}", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
+                return new Regex($"{jsRegexString}|{injectString}",
+                    RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
             }
         }
 
@@ -147,14 +184,14 @@ namespace NetTally.Input.Utility
         {
             if (string.IsNullOrEmpty(simpleString) && string.IsNullOrEmpty(injectString))
             {
-                return EmptyRegex;
+                return emptyRegex;
             }
 
             string safeGlobString = simpleString.RemoveUnsafeCharacters();
 
-            var splits = safeGlobString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var splits = safeGlobString.Split(commaSeparator, StringSplitOptions.RemoveEmptyEntries);
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             string bar = "";
 
             // Convert comma-separated entries to |'d regex options.
@@ -186,11 +223,16 @@ namespace NetTally.Input.Utility
 
             try
             {
-                return new Regex($@"{sb.ToString()}", RegexOptions.IgnoreCase);
+                return new Regex($@"{sb}", RegexOptions.IgnoreCase);
             }
             catch (ArgumentException e)
             {
-                Logger2.LogError(e, $"Failed to create regex using string: [{sb.ToString()}]");
+                if (AppX.Host is not null)
+                {
+                    var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory?.CreateLogger<Filter>();
+                    logger?.LogError(e, "Failed to create regex using string: [{pattern}]", sb);
+                }
             }
 
             // If the attempt to create the regex to be returned failed, bail and
@@ -211,7 +253,7 @@ namespace NetTally.Input.Utility
         /// <summary>
         /// Gets a value indicating whether this instance is uses the empty string regex.
         /// </summary>
-        public bool IsEmpty => filterRegex == EmptyRegex;
+        public bool IsEmpty => filterRegex == emptyRegex;
 
         /// <summary>
         /// Gets a value indicating whether this instance is uses a null regex.

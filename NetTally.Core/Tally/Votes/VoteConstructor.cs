@@ -2,31 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NetTally.Forums;
+using NetTally.Enums;
+using NetTally.Tally.Components;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
-using NetTally.VoteCounting;
-using NetTally.Types.Enums;
-using NetTally.Types.Components;
 
 namespace NetTally.Votes
 {
     /// <summary>
     /// Class that can handle constructing votes from the parsed text of a post.
     /// </summary>
-    public class VoteConstructor
+    public static class VoteConstructor
     {
-        readonly IVoteCounter voteCounter;
-
-        /// <summary>
-        /// <see cref="VoteConstructor"/> class has a dependency on <see cref="IVoteCounter"/>.
-        /// </summary>
-        /// <param name="voteCounter">The vote counter to store locally and use within this class.</param>
-        public VoteConstructor(IVoteCounter voteCounter)
-        {
-            this.voteCounter = voteCounter;
-        }
-
         #region Public functions
         /// <summary>
         /// Get plans from the provided post during the preprocessing phase.
@@ -38,14 +25,14 @@ namespace NetTally.Votes
         /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
         /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
         /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
-        public Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, IQuest quest,
+        public static Dictionary<string, VoteLineBlock> PreprocessPostGetPlans(Post post, Quest quest,
             bool asBlocks, Func<IEnumerable<VoteLine>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
         {
-            Dictionary<string, VoteLineBlock> plans = new Dictionary<string, VoteLineBlock>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, VoteLineBlock> plans = new(StringComparer.OrdinalIgnoreCase);
 
             // Either split the vote into blocks, or encapsulate the vote into an enumerable
             // so that it can be treated the same way.
-            var blocks = asBlocks ? VoteBlocks.GetBlocks(post.VoteLines) : new List<VoteLineBlock>() { new VoteLineBlock(post.VoteLines) };
+            var blocks = asBlocks ? VoteBlocks.GetBlocks(post.VoteLines) : [new(post.VoteLines)];
 
             foreach (var block in blocks)
             {
@@ -53,7 +40,7 @@ namespace NetTally.Votes
 
                 if (isPlan &&
                     !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                    IsValidPlanName(planName, post.Origin.Author.Name) &&
+                    IsValidPlanName(planName, post.Origin.Author.Name, quest) &&
                     DoesTaskFilterPass(block, quest))
                 {
                     plans[planName] = block;
@@ -68,42 +55,43 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post being processed.</param>
         /// <param name="quest">The quest being tallied.</param>
-        /// <returns>Returns a list of all vote partitions from this post.
-        /// May return null if nothing was processed.</returns>
-        public List<VoteLineBlock>? ProcessPostGetVotes(Post post, IQuest quest)
+        /// <param name="votes">Returns any votes from the post if the post was processed.</param>
+        /// <returns><c>True</c> if the post was processed, or <c>false</c> if it was not.</returns>
+        public static bool TryProcessPostGetVotes(Post post, Quest quest,
+            out List<VoteLineBlock> votes)
         {
-            if (post.Processed)
-                return null;
+            votes = [];
 
-            if (!post.WorkingVoteComplete)
-                ConfigureWorkingVote(post, quest);
-
-            // If the working vote configuration is complete, process the post.
-            if (post.WorkingVoteComplete)
+            if (!post.Processed)
             {
-                // If a newer vote has been registered in the vote counter, that means
-                // that this post was a prior future reference that got overridden later.
-                // If so, don't process it now, but allow the post to be marked as
-                // processed so that it doesn't try to re-submit it later.
-                if (voteCounter.HasNewerVote(post))
+                if (!post.WorkingVoteComplete)
+                    ConfigureWorkingVote(post, quest);
+
+                // If the working vote configuration is complete, process the post.
+                if (post.WorkingVoteComplete)
                 {
-                    post.Processed = true;
+                    // If a newer vote has been registered in the vote counter, that means
+                    // that this post was a prior future reference that got overridden later.
+                    // If so, don't process it now, but allow the post to be marked as
+                    // processed so that it doesn't try to re-submit it later.
+                    if (quest.VoteCounter.HasNewerVote(post))
+                    {
+                        post.Processed = true;
+                    }
+                    else
+                    {
+                        // Get the results of partitioning the post.
+                        var results = PartitionPost(post, quest.PartitionMode);
+
+                        // Apply task filtering.
+                        votes.AddRange(results.Where(p => DoesTaskFilterPass(p, quest)));
+
+                        post.Processed = true;
+                    }
                 }
-                else
-                {
-                    // Get the results of partitioning the post.
-                    var results = PartitionPost(post, quest.PartitionMode);
-
-                    // Apply task filtering.
-                    var filteredResults = results.Where(p => DoesTaskFilterPass(p, quest)).ToList();
-
-                    post.Processed = true;
-                    return filteredResults;
-                }
-
             }
 
-            return null;
+            return post.Processed;
         }
 
         /// <summary>
@@ -112,7 +100,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="plan">The plan to examine.</param>
         /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-        public (string name, VoteLineBlock contents) NormalizePlan(string keyName, VoteLineBlock keyContents)
+        public static (string name, VoteLineBlock contents) NormalizePlan(string keyName, VoteLineBlock keyContents)
         {
             VoteLine firstLine = keyContents.First();
 
@@ -131,8 +119,7 @@ namespace NetTally.Votes
             {
                 firstLine = firstLine.WithMarker("", MarkerType.None, 0);
 
-                List<VoteLine> voteLines = new List<VoteLine>() { firstLine };
-                voteLines.AddRange(keyContents.Skip(1));
+                List<VoteLine> voteLines = [firstLine, .. keyContents.Skip(1)];
 
                 var returnPlan = new VoteLineBlock(voteLines).WithMarker(Strings.PlanNameMarker, MarkerType.Plan, 0);
 
@@ -149,7 +136,7 @@ namespace NetTally.Votes
         /// <param name="block">The block defining the plan.</param>
         /// <param name="partitionMode">The current partitioning mode.</param>
         /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
-        public List<VoteLineBlock> PartitionPlan(VoteLineBlock block, PartitionMode partitionMode)
+        public static List<VoteLineBlock> PartitionPlan(VoteLineBlock block, PartitionMode partitionMode)
         {
             return Partition(block, partitionMode, asPlan: true);
         }
@@ -160,7 +147,7 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="vote">The vote to partition.</param>
         /// <returns>Returns true if successfully completed.</returns>
-        public List<VoteLineBlock> PartitionChildren(VoteLineBlock vote)
+        public static List<VoteLineBlock> PartitionChildren(VoteLineBlock vote)
         {
             // Break vote block into child blocks and return them.
             return Partition(vote, PartitionMode.ByBlockAll);
@@ -174,17 +161,19 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the working vote to configure.</param>
         /// <param name="quest">The quest being tallied.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
-        public void ConfigureWorkingVote(Post post, IQuest quest)
+        public static void ConfigureWorkingVote(Post post, Quest quest)
         {
             if (post.WorkingVoteComplete)
                 return;
 
-            List<(VoteLine? line, VoteLineBlock? block)> workingVote = new();
+            List<(VoteLine? line, VoteLineBlock? block)> workingVote = [];
 
             // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
             // Keep everything else, flattening the blocks back into a simple list of vote lines.
-            var validVoteLines = VoteBlocks.GetBlocks(post.VoteLines).Where(b => !IsProposedPlan(b)).SelectMany(a => a).ToList();
+            var validVoteLines = VoteBlocks
+                .GetBlocks(post.VoteLines)
+                .Where(b => !IsProposedPlan(b))
+                .SelectMany(a => a).ToList();
 
             for (int i = 0; i < validVoteLines.Count; i++)
             {
@@ -197,7 +186,7 @@ namespace NetTally.Votes
                     if (isPlan)
                     {
                         // We can rely on GetReference returning a valid plan name.
-                        var refPlan = voteCounter.GetReferencePlan(refName);
+                        var refPlan = quest.VoteCounter.GetReferencePlan(refName);
 
                         // If there is no available reference plan, just add the line and continue.
                         if (refPlan == null)
@@ -226,7 +215,7 @@ namespace NetTally.Votes
 
                         // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
 
-                        var voteBlocks = voteCounter.GetVotesBy(refName);
+                        var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                         foreach (var voteBlock in voteBlocks)
                         {
@@ -238,7 +227,7 @@ namespace NetTally.Votes
                     {
                         PostId postSearchLimit = isPinnedUser ? post.Origin.ID : PostId.Zero;
 
-                        Post? refUserPost = voteCounter.GetLastPostByAuthor(refName, postSearchLimit);
+                        Post? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
                         // If we can't find the reference post, just treat this as a normal line.
                         if (refUserPost == null)
@@ -254,7 +243,7 @@ namespace NetTally.Votes
                         // Otherwise save the reference vote.
                         else
                         {
-                            var voteBlocks = voteCounter.GetVotesBy(refName);
+                            var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                             if (voteBlocks.Count > 0)
                             {
@@ -294,7 +283,7 @@ namespace NetTally.Votes
 
                 if (isProposedPlan)
                 {
-                    Origin? planOrigin = voteCounter.GetPlanOriginByName(proposedPlanName);
+                    Origin? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                     if (planOrigin == null)
                         return false;
@@ -326,7 +315,7 @@ namespace NetTally.Votes
 
         // A regex to extract potential references from a vote line.
         static readonly Regex referenceNameRegex =
-            new Regex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)",
+            new(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)",
                 RegexOptions.IgnoreCase,
                 TimeSpan.FromSeconds(1));
 
@@ -338,8 +327,8 @@ namespace NetTally.Votes
         /// <param name="voteLine">The vote line to examine.</param>
         /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
         /// <returns>Returns a tuple with the discovered information.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "Minimal overage")]
-        private (bool isReference, bool isPlan, bool isPinnedUser, Origin refName) GetReference(VoteLine voteLine, IQuest quest)
+        private static (bool isReference, bool isPlan, bool isPinnedUser, Origin refName)
+            GetReference(VoteLine voteLine, Quest quest)
         {
             // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
             if (voteLine.CleanContent.Length > 100)
@@ -353,7 +342,7 @@ namespace NetTally.Votes
 
                 if (string.Equals(label, "^") || string.Equals(label, "↑"))
                 {
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
@@ -362,20 +351,20 @@ namespace NetTally.Votes
                 else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                       || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
                 {
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
                 }
                 else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
                 {
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     if (refPlan != null)
                         return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                     // Check user names second
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     // Force pinning if requested.
@@ -385,13 +374,13 @@ namespace NetTally.Votes
                 else // Any unlabeled lines
                 {
                     // Check user names first
-                    Origin? refUser = voteCounter.GetVoterOriginByName(refName);
+                    Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                     // Check to make sure the quest hasn't disabled user proxy votes.
                     if (refUser != null && quest.DisableProxyVotes == false)
                         return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
-                    Origin? refPlan = voteCounter.GetPlanOriginByName(refName);
+                    Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                     // Check to make sure the quest doesn't forbid non-labeled plan references.
                     if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
@@ -412,12 +401,12 @@ namespace NetTally.Votes
         /// <param name="planName">The name of the plan.</param>
         /// <param name="postAuthor">The post's author.</param>
         /// <returns>Returns true if the plan name is deemed valid.</returns>
-        private bool IsValidPlanName(string planName, string postAuthor)
+        private static bool IsValidPlanName(string planName, string postAuthor, Quest quest)
         {
             // A named vote that is named after a user is only valid if it matches the post author's name.
-            if (voteCounter.HasVoter(planName))
+            if (quest.VoteCounter.HasVoter(planName))
             {
-                if (!Agnostic.StringComparer.Equals(planName, postAuthor))
+                if (!Agnostic.CaseInsensitiveComparer.Equals(planName, postAuthor))
                 {
                     return false;
                 }
@@ -434,7 +423,7 @@ namespace NetTally.Votes
         /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
         /// <param name="quest">The quest being tallied.</param>
         /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-        private bool DoesTaskFilterPass(VoteLineBlock block, IQuest quest)
+        private static bool DoesTaskFilterPass(VoteLineBlock block, Quest quest)
         {
             // Always allow if no filters are active.
             if (!quest.UseCustomTaskFilters)
@@ -455,10 +444,9 @@ namespace NetTally.Votes
         /// <param name="block">The block to partition.</param>
         /// <param name="partitionMode">The partitioning mode.</param>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>")]
-        private List<VoteLineBlock> Partition(VoteLineBlock block, PartitionMode partitionMode, bool asPlan = false)
+        private static List<VoteLineBlock> Partition(VoteLineBlock block, PartitionMode partitionMode, bool asPlan = false)
         {
-            List<VoteLineBlock> partitions = new List<VoteLineBlock>();
+            List<VoteLineBlock> partitions = [];
 
             // If we're not partitioning, we have no work to do.
             if (partitionMode == PartitionMode.None)
@@ -518,7 +506,7 @@ namespace NetTally.Votes
                 }
 
                 // Failed partition mode checks.
-                throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
             }
             // A non-content block is anything else, like an implicit plan.
             else
@@ -553,7 +541,7 @@ namespace NetTally.Votes
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException($"Unknown partition mode: {partitionMode}", nameof(partitionMode));
+                    throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
                 }
             }
         }
@@ -564,7 +552,7 @@ namespace NetTally.Votes
         /// <param name="post">The post whose vote is being partitioned.</param>
         /// <param name="partitionMode">The partition mode to use.</param>
         /// <returns>Returns the partitions that are to be counted.</returns>
-        private List<VoteLineBlock> PartitionPost(Post post, PartitionMode partitionMode)
+        private static List<VoteLineBlock> PartitionPost(Post post, PartitionMode partitionMode)
         {
             List<VoteLineBlock> results = partitionMode switch
             {
@@ -585,9 +573,9 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post whose vote is being partitioned.</param>
         /// <returns>Returns the partitions that are to be counted.</returns>
-        private List<VoteLineBlock> PartitionPostByNone(Post post)
+        private static List<VoteLineBlock> PartitionPostByNone(Post post)
         {
-            List<VoteLine> working = new List<VoteLine>();
+            List<VoteLine> working = [];
 
             foreach (var (line, block) in post.WorkingVote)
             {
@@ -601,11 +589,11 @@ namespace NetTally.Votes
                 }
             }
 
-            List<VoteLineBlock> results = new List<VoteLineBlock>();
+            List<VoteLineBlock> results = [];
 
             if (working.Count > 0)
             {
-                VoteLineBlock workingBlock = new VoteLineBlock(working);
+                VoteLineBlock workingBlock = new(working);
 
                 results.Add(workingBlock);
             }
@@ -619,9 +607,9 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the vote to be partitioned.</param>
         /// <returns>Returns a list of vote blocks.</returns>
-        private List<VoteLineBlock> PartitionPostByLine(Post post)
+        private static List<VoteLineBlock> PartitionPostByLine(Post post)
         {
-            List<VoteLineBlock> working = new List<VoteLineBlock>();
+            List<VoteLineBlock> working = [];
 
             foreach (var (line, block) in post.WorkingVote)
             {
@@ -645,12 +633,12 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the vote to be partitioned.</param>
         /// <returns>Returns a list of vote blocks.</returns>
-        private List<VoteLineBlock> PartitionPostByLineTask(Post post)
+        private static List<VoteLineBlock> PartitionPostByLineTask(Post post)
         {
-            List<VoteLineBlock> working = new List<VoteLineBlock>();
+            List<VoteLineBlock> working = [];
 
             (int depth, string task) currentTask = (0, "");
-            Stack<(int depth, string task)> taskStack = new Stack<(int depth, string task)>();
+            Stack<(int depth, string task)> taskStack = new();
 
             foreach (var (line, block) in post.WorkingVote)
             {
@@ -679,10 +667,10 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="post">The post with the vote to be partitioned.</param>
         /// <returns>Returns a list of vote blocks.</returns>
-        private List<VoteLineBlock> PartitionPostByBlock(Post post)
+        private static List<VoteLineBlock> PartitionPostByBlock(Post post)
         {
-            List<VoteLineBlock> working = new List<VoteLineBlock>();
-            List<VoteLine> tempList = new List<VoteLine>();
+            List<VoteLineBlock> working = [];
+            List<VoteLine> tempList = [];
 
             foreach (var (line, block) in post.WorkingVote)
             {
@@ -722,7 +710,7 @@ namespace NetTally.Votes
             return working;
         }
 
-        private VoteLineBlock CascadeLineTask(VoteLine line,
+        private static VoteLineBlock CascadeLineTask(VoteLine line,
             ref (int depth, string task) currentTask,
             ref Stack<(int depth, string task)> taskStack)
         {

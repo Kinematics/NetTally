@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Extensions;
+using NetTally.Tally.Components;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Votes
 {
-    public static class VoteBlocks
+    public static partial class VoteBlocks
     {
         public static IEnumerable<VoteLineBlock> GetBlocks(IEnumerable<VoteLine> lines)
         {
@@ -35,7 +36,11 @@ namespace NetTally.Votes
             return false;
         }
 
-
+        /// <summary>
+        /// An explicit plan has subsequent lines nested beneath the plan name line.
+        /// </summary>
+        /// <param name="block">The block of vote lines</param>
+        /// <returns></returns>
         public static (bool isPlan, bool isImplicit, string planName)
             IsBlockAnExplicitPlan(IEnumerable<VoteLine> block)
         {
@@ -52,6 +57,12 @@ namespace NetTally.Votes
             return (isPlan, false, planName);
         }
 
+        /// <summary>
+        /// An implicit plan has the plan name on the first line, and subsequent lines
+        /// are considered part of the plan, even without being nested.
+        /// </summary>
+        /// <param name="block">The block of vote lines</param>
+        /// <returns></returns>
         public static (bool isPlan, bool isImplicit, string planName)
             IsBlockAnImplicitPlan(IEnumerable<VoteLine> block)
         {
@@ -60,8 +71,11 @@ namespace NetTally.Votes
                 var firstLine = block.First();
                 var secondLine = block.Skip(1).First();
                 var (lineStatus, planName) = CheckIfPlan(firstLine);
+                var (lineStatus2, _) = CheckIfPlan(secondLine);
 
-                if (lineStatus == LineStatus.Plan && secondLine.Depth == 0)
+                if (lineStatus == LineStatus.Plan &&
+                    lineStatus2 != LineStatus.Plan &&
+                    secondLine.Depth == 0)
                 {
                     return (true, true, planName);
                 }
@@ -123,11 +137,16 @@ namespace NetTally.Votes
 
 
         // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-        static readonly Regex basePlanRegex = new Regex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex BasePlanRegex();
+
         // Check for a plan reference. "Plan: Dwarf Raid"
-        static readonly Regex anyPlanRegex = new Regex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex AnyPlanRegex();
+
         // Check for a plan reference, alternate format. "Arkatekt's Plan"
-        static readonly Regex altPlanRegex = new Regex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex AltPlanRegex();
 
         public enum LineStatus
         {
@@ -140,15 +159,15 @@ namespace NetTally.Votes
         {
             Match m;
 
-            m = basePlanRegex.Match(line.CleanContent);
+            m = BasePlanRegex().Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.Proposed, m.Groups["planname"].Value.Trim());
 
-            m = anyPlanRegex.Match(line.CleanContent);
+            m = AnyPlanRegex().Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
 
-            m = altPlanRegex.Match(line.CleanContent);
+            m = AltPlanRegex().Match(line.CleanContent);
             if (m.Success)
                 return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
 
@@ -163,12 +182,12 @@ namespace NetTally.Votes
             if (a.Count == 0 || b.Count == 0)
                 return (false, false);
 
-            bool task = Agnostic.StringComparer.Equals(a.First().Task, b.First().Task);
+            bool task = Agnostic.CaseInsensitiveComparer.Equals(a.First().Task, b.First().Task);
 
             if (a.Count != b.Count)
                 return (false, task);
 
-            return (a.SequenceEquals(b, item => item.CleanContent, Agnostic.StringComparer), task);
+            return (a.SequenceEquals(b, item => item.CleanContent, Agnostic.CurrentStringComparer), task);
         }
     }
 }

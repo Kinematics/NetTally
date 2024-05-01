@@ -20,10 +20,10 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
-using NetTally.SystemInfo;
-using NetTally.Utility.Comparers;
+using NetTally.Systems;
 using NetTally.Views;
 
 namespace NetTally
@@ -33,50 +33,76 @@ namespace NetTally
     /// </summary>
     public partial class App : Application
     {
-        private IServiceProvider? serviceProvider;
-        public IServiceProvider ServiceProvider => serviceProvider ?? throw new InvalidOperationException("No service provider set.");
+        private readonly ILogger<App> logger;
 
-        protected override void OnStartup(StartupEventArgs e)
+        public App()
         {
-            // Create a service collection and configure our dependencies
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
+            // Initialize host
+            AppX.Initialize(SetupUIServices);
 
-            // Build the IServiceProvider and set our reference to it
-            serviceProvider = serviceCollection.BuildServiceProvider();
+            // Create handlers for unhandled exceptions
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            var hash = serviceProvider.GetRequiredService<IHash>();
-            Agnostic.Init(hash);
-
-            var loggerFactory = ServiceProvider.GetService<ILoggerFactory>();
-            if (loggerFactory != null)
-            {
-                var logger = loggerFactory.CreateLogger<App>();
-                logger.LogInformation("Services defined. Starting application. Version: {ProductInfo.Version}", ProductInfo.Version);
-            }
-
-            // Request the navigation service and create our main window.
-            var navigationService = ServiceProvider.GetRequiredService<IoCNavigationService>();
-            _ = navigationService.ShowAsync<MainWindow>();
+            // Create logger for the app.
+            var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
+            logger = loggerFactory.CreateLogger<App>();
         }
 
-        private void ConfigureServices(IServiceCollection services)
+        /// <summary>
+        /// Register UI views and navigation service.
+        /// </summary>
+        /// <param name="services">The DI service collection being built at startup.</param>
+        private void SetupUIServices(IServiceCollection services)
         {
-            // Get the services provided by the core library.
-            NetTally.Startup.ConfigureServices(services);
+            // Add NavigationService for the application.
+            services.AddSingleton<WPFNavigationService>();
 
-            // Then add services known by the current assembly,
-            // or override services provided by the core library.
-
-            // Add IoCNavigationService for the application.
-            services.AddSingleton<IoCNavigationService>();
-
-            // Register all the Windows of the applications via the service provider.
+            // Register all the Windows of the applications.
             services.AddTransient<MainWindow>();
             services.AddTransient<GlobalOptions>();
             services.AddTransient<QuestOptions>();
             services.AddTransient<ManageVotes>();
             services.AddTransient<ReorderTasks>();
         }
+
+        #region Startup and Shutdown
+        private async void Application_Startup(object sender, StartupEventArgs e)
+        {
+            try
+            {
+                // Start the app
+                await AppX.Host.StartAsync();
+
+                logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
+
+                // Request the navigation service and create our main window.
+                var navigationService = AppX.Services.GetRequiredService<WPFNavigationService>();
+                await navigationService.ShowAsync<MainWindow>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex, "Error during application startup");
+            }
+        }
+
+        private async void Application_Exit(object sender, ExitEventArgs e)
+        {
+            using (AppX.Host)
+            {
+                // Save user config
+                AppX.SaveConfiguration();
+
+                // Wait up to 5 seconds before forcing a shutdown.
+                await AppX.Host.StopAsync(TimeSpan.FromSeconds(5));
+            }
+        }
+        #endregion Startup and Shutdown
+
+        #region Error Handling
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            logger.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
+        }
+        #endregion Error Handling
     }
 }

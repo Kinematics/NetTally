@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.VoteCounting;
-using NetTally.Votes;
 
 namespace NetTally.Tests.Votes
 {
@@ -14,19 +11,14 @@ namespace NetTally.Tests.Votes
         #region Setup
         static IServiceProvider serviceProvider = null!;
         static IVoteCounter voteCounter = null!;
-        static VoteConstructor voteConstructor = null!;
-        static Tally tally = null!;
-        static IQuest quest = null!;
-
+        static Quest quest = null!;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
 
             voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-            tally = serviceProvider.GetRequiredService<Tally>();
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
         }
 
         [TestInitialize]
@@ -35,7 +27,7 @@ namespace NetTally.Tests.Votes
             quest = new Quest();
 
             voteCounter.Reset();
-            voteCounter.ClearPosts();
+            voteCounter.ResetPosts();
         }
         #endregion Setup
 

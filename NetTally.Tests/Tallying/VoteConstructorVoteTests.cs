@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Types.Components;
-using NetTally.Types.Enums;
-using NetTally.VoteCounting;
-using NetTally.Votes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Enums;
+using NetTally.Tally.Components;
+using NetTally.VoteCounting;
+using NetTally.Votes;
 
 namespace NetTally.Tests.Tallying
 {
@@ -15,31 +15,28 @@ namespace NetTally.Tests.Tallying
     {
         #region Setup
         static IServiceProvider serviceProvider = null!;
-        static VoteConstructor voteConstructor = null!;
-        static IVoteCounter voteCounter = null!;
-        static IQuest quest = null!;
+        static Quest quest = null!;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
-
-            voteConstructor = serviceProvider.GetRequiredService<VoteConstructor>();
-            voteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
         }
 
         [TestInitialize]
         public void TestInit()
         {
-            quest = new Quest();
-            voteCounter.Quest = quest;
+            quest = new Quest
+            {
+                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
+            };
         }
         #endregion
 
         #region Sample Posts
-        Post GetPost1()
+        static Post GetPost1()
         {
-            Origin origin = new Origin("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Kinematics", "123456", 10, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"Tentative vote idea:
 [x][Action] Go to the warehouse~
@@ -47,44 +44,44 @@ namespace NetTally.Tests.Tallying
 But might include something else...
 [x] Loot the boxes";
 
-            Post post = new Post(origin, postText);
-            voteConstructor.ConfigureWorkingVote(post, quest);
+            Post post = new(origin, postText);
+            VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost2()
+        static Post GetPost2()
         {
-            Origin origin = new Origin("Karma1", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Karma1", "123457", 11, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I agree.
 [x][Action] Go to the warehouse~
 [x] Loot the boxes";
 
-            Post post = new Post(origin, postText);
-            voteConstructor.ConfigureWorkingVote(post, quest);
+            Post post = new(origin, postText);
+            VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost3()
+        static Post GetPost3()
         {
-            Origin origin = new Origin("Quincy", "123458", 12, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Quincy", "123458", 12, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"I have a better idea.
 [x][Action] Go to the docks
 -[x] With the motorcycle
 [x] And catch them in the act.";
 
-            Post post = new Post(origin, postText);
-            voteConstructor.ConfigureWorkingVote(post, quest);
+            Post post = new(origin, postText);
+            VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost4()
+        static Post GetPost4()
         {
-            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"[x] Text Nagisa's uncle about her visiting today. Establish a specific time. (Keep in mind Sayaka's hospital visit.)
 [x] Telepathy Oriko and Kirika. They probably need to pick up some groceries at this point. It should be fine if you go with them. And of course, you can cleanse their gems too.
@@ -94,15 +91,15 @@ But might include something else...
 -[x] Take both of them food shopping (or whoever wants to go.)
 -[x] Light conversation. No need for serious precog questions right now.";
 
-            Post post = new Post(origin, postText);
-            voteConstructor.ConfigureWorkingVote(post, quest);
+            Post post = new(origin, postText);
+            VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        Post GetPost5()
+        static Post GetPost5()
         {
-            Origin origin = new Origin("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
+            Origin origin = new("Muramasa", "9321568", 8816, new Uri("http://www.example.com/"), "http://www.example.com");
             string postText =
 @"『b』Vote Tally『/b』
 『color=transparent』##### NetTally 1.0『/color』
@@ -114,50 +111,50 @@ But might include something else...
 -[x] Take both of them food shopping (or whoever wants to go.)
 -[x] Light conversation. No need for serious precog questions right now.";
 
-            Post post = new Post(origin, postText);
-            voteConstructor.ConfigureWorkingVote(post, quest);
+            Post post = new(origin, postText);
+            VoteConstructor.ConfigureWorkingVote(post, quest);
 
             return post;
         }
 
-        (string name, VoteLineBlock block) GetBasePlan1()
+        static (string name, VoteLineBlock block) GetBasePlan1()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
 
-        (string name, VoteLineBlock block) GetBasePlan2()
+        static (string name, VoteLineBlock block) GetBasePlan2()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Proposed Plan: Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Proposed Plan: Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
 
-        (string name, VoteLineBlock block) GetBasePlan3()
+        static (string name, VoteLineBlock block) GetBasePlan3()
         {
-            VoteLine line1 = new VoteLine("", "X", "", "Plan Sound of Music", MarkerType.Vote, 100);
-            VoteLine line2 = new VoteLine("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-            VoteLine line3 = new VoteLine("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-            VoteLine line4 = new VoteLine("-", "X", "", "Return home", MarkerType.Vote, 100);
+            VoteLine line1 = new("", "X", "", "Plan Sound of Music", MarkerType.Vote, 100);
+            VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
+            VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
+            VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
 
-            List<VoteLine> lines = new List<VoteLine>() { line1, line2, line3, line4 };
+            List<VoteLine> lines = [line1, line2, line3, line4];
 
-            VoteLineBlock block = new VoteLineBlock(lines);
+            VoteLineBlock block = new(lines);
 
             return ("Sound of Music", block);
         }
@@ -170,12 +167,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost1();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -184,12 +181,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost2();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -198,12 +195,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.None;
             Post post = GetPost3();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(3, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(3, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -212,12 +209,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost1();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -226,12 +223,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost2();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -240,12 +237,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost3();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(2, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(2, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -254,12 +251,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost1();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -268,12 +265,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost2();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -282,12 +279,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost3();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(3, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(3, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -298,12 +295,12 @@ But might include something else...
             quest.CustomTaskFilters = "Action";
             Post post = GetPost3();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(1, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(1, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -314,12 +311,12 @@ But might include something else...
             quest.CustomTaskFilters = "Action";
             Post post = GetPost3();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(2, results!.Count);
-            Assert.AreEqual("Action", results.First().Task);
-            Assert.AreEqual(1, results!.First().Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(2, votes.Count);
+            Assert.AreEqual("Action", votes.First().Task);
+            Assert.AreEqual(1, votes.First().Lines.Count);
         }
 
         [TestMethod]
@@ -327,12 +324,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan1();
 
-            var (outName, results) = voteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -340,12 +337,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan2();
 
-            var (outName, results) = voteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan: Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
         }
 
         [TestMethod]
@@ -353,12 +350,12 @@ But might include something else...
         {
             var (name, block) = GetBasePlan3();
 
-            var (outName, results) = voteConstructor.NormalizePlan(name, block);
+            var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
 
             Assert.AreEqual(name, outName);
-            Assert.AreEqual("", results.Task);
-            Assert.AreEqual(4, results.Lines.Count);
-            Assert.AreEqual("Plan Sound of Music", results.Lines.First().CleanContent);
+            Assert.AreEqual("", votes.Task);
+            Assert.AreEqual(4, votes.Lines.Count);
+            Assert.AreEqual("Plan Sound of Music", votes.Lines[0].CleanContent);
         }
         #endregion
 
@@ -369,12 +366,12 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByLine;
             Post post = GetPost4();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(7, results!.Count);
-            Assert.AreEqual("", results[0].Task);
-            Assert.AreEqual(1, results[0].Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(7, votes.Count);
+            Assert.AreEqual("", votes[0].Task);
+            Assert.AreEqual(1, votes[0].Lines.Count);
         }
 
         [TestMethod]
@@ -383,14 +380,14 @@ But might include something else...
             quest.PartitionMode = PartitionMode.ByBlock;
             Post post = GetPost4();
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            Assert.AreNotEqual(null, results);
-            Assert.AreEqual(3, results!.Count);
-            Assert.AreEqual("", results.First().Task);
-            Assert.AreEqual(1, results[0].Lines.Count);
-            Assert.AreEqual(1, results[1].Lines.Count);
-            Assert.AreEqual(5, results[2].Lines.Count);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(3, votes.Count);
+            Assert.AreEqual("", votes.First().Task);
+            Assert.AreEqual(1, votes[0].Lines.Count);
+            Assert.AreEqual(1, votes[1].Lines.Count);
+            Assert.AreEqual(5, votes[2].Lines.Count);
         }
 
         [TestMethod]
@@ -401,12 +398,10 @@ But might include something else...
 
             Assert.IsFalse(post.HasVote);
 
-            var results = voteConstructor.ProcessPostGetVotes(post, quest);
+            var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
 
-            if (results != null)
-                Assert.AreEqual(0, results.Count);
-
-            Assert.AreNotEqual(null, results);
+            Assert.IsTrue(processed);
+            Assert.AreEqual(0, votes.Count);
         }
         #endregion
     }

@@ -4,8 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using NetTally.SystemInfo;
 using Nito.AsyncEx;
 
 namespace NetTally.Cache
@@ -14,21 +12,8 @@ namespace NetTally.Cache
     /// Class to handle caching web content.
     /// Uses compression on cached web pages.
     /// </summary>
-    public sealed class PageCache : ICache<string>, IDisposable
+    public sealed class PageCache(TimeProvider timeProvider) : ICache<string>, IDisposable
     {
-        #region Lazy singleton creation
-        static readonly Lazy<PageCache> lazy = new Lazy<PageCache>(() => new PageCache());
-        public static PageCache Instance => lazy.Value;
-        #endregion
-
-        #region Constructor
-        public PageCache(IClock? clock = null)
-        {
-            if (clock != null)
-                SetClock(clock);
-        }
-        #endregion
-
         #region Disposal
         ~PageCache()
         {
@@ -58,16 +43,15 @@ namespace NetTally.Cache
         #region Local fields
         bool _disposed;
 
-        readonly AsyncReaderWriterLock cacheLock = new AsyncReaderWriterLock();
+        readonly AsyncReaderWriterLock cacheLock = new();
 
         const int maxCacheEntries = 100;
 
-        Dictionary<string, CacheObject<byte[]>> gzPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(maxCacheEntries);
+        const int defaultExpirationInMinutes = 60;
 
-        readonly TimeSpan defaultExpirationDelay = TimeSpan.FromMinutes(60);
+        Dictionary<string, CacheObject<byte[]>> GzPageCache { get; } = new Dictionary<string, CacheObject<byte[]>>(maxCacheEntries);
 
-        IClock Clock { get; set; } = new SystemClock();
-
+        readonly TimeProvider timeProvider = timeProvider;
         #endregion
 
         #region Public interface
@@ -79,7 +63,7 @@ namespace NetTally.Cache
         /// <summary>
         /// The current number of entries held by the cache.
         /// </summary>
-        public int Count => gzPageCache.Count;
+        public int Count => GzPageCache.Count;
 
         /// <summary>
         /// Clear the current cache.
@@ -88,19 +72,7 @@ namespace NetTally.Cache
         {
             using (cacheLock.WriterLock())
             {
-                gzPageCache.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Set the clock that will be used by the cache to determine when an etry expires.
-        /// </summary>
-        /// <param name="clock">The clock interface that will be used to determine timestamps.</param>
-        public void SetClock(IClock? clock)
-        {
-            using (cacheLock.ReaderLock())
-            {
-                Clock = clock ?? new SystemClock();
+                GzPageCache.Clear();
             }
         }
 
@@ -109,15 +81,15 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="key">The URL the document was retrieved from.</param>
         /// <param name="content">The HTML document text to cache.</param>
-        public void Add(string key, string content, DateTime expires)
+        public void Add(string key, string content, DateTimeOffset expires)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            var now = Clock.Now;
+            var now = timeProvider.GetUtcNow();
 
             if (expires == CacheInfo.DefaultExpiration)
-                expires = now.Add(defaultExpirationDelay);
+                expires = now.AddMinutes(defaultExpirationInMinutes);
 
             byte[] zipped = Compress(content);
 
@@ -125,7 +97,7 @@ namespace NetTally.Cache
 
             using (cacheLock.WriterLock())
             {
-                gzPageCache[key] = toGZCache;
+                GzPageCache[key] = toGZCache;
             }
         }
 
@@ -137,13 +109,11 @@ namespace NetTally.Cache
         /// found, and cached document if available.</returns>
         public (bool found, string content) Get(string key)
         {
-            CacheObject<byte[]>? gzCache;
-
             using (cacheLock.ReaderLock())
             {
-                if (gzPageCache.TryGetValue(key, out gzCache))
+                if (GzPageCache.TryGetValue(key, out CacheObject<byte[]>? gzCache))
                 {
-                    if (gzCache.Expires > Clock.Now)
+                    if (gzCache.Expires > timeProvider.GetUtcNow())
                     {
                         string content = Decompress(gzCache.Store);
 
@@ -161,21 +131,21 @@ namespace NetTally.Cache
         /// </summary>
         public void InvalidateCache()
         {
-            var time = Clock.Now;
+            var time = timeProvider.GetUtcNow();
 
             using (cacheLock.WriterLock())
             {
-                if (gzPageCache.Count > MaxCacheEntries)
+                if (GzPageCache.Count > MaxCacheEntries)
                 {
-                    int toRemove = gzPageCache.Count - MaxCacheEntries;
+                    int toRemove = GzPageCache.Count - MaxCacheEntries;
 
-                    var orderedCache = gzPageCache.OrderBy(p => p.Value.Expires);
+                    var orderedCache = GzPageCache.OrderBy(p => p.Value.Expires);
 
                     var pagesToRemove = orderedCache.Where((page, index) => index < toRemove || page.Value.Expires < time).ToList();
 
                     foreach (var page in pagesToRemove)
                     {
-                        gzPageCache.Remove(page.Key);
+                        GzPageCache.Remove(page.Key);
                     }
                 }
             }
@@ -188,21 +158,19 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <returns>Returns the string compressed into a GZipped byte array.</returns>
-        private byte[] Compress(string input)
+        private static byte[] Compress(string input)
         {
             if (input == null)
-                return new byte[0];
+                return [];
 
-            using (MemoryStream ms = new MemoryStream())
+            using MemoryStream ms = new();
+            using (GZipStream zs = new(ms, CompressionMode.Compress, true))
             {
-                using (GZipStream zs = new GZipStream(ms, CompressionMode.Compress, true))
-                {
-                    byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-                    zs.Write(inputBytes, 0, inputBytes.Length);
-                }
-
-                return ms.ToArray();
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                zs.Write(inputBytes, 0, inputBytes.Length);
             }
+
+            return ms.ToArray();
         }
 
         /// <summary>
@@ -210,65 +178,19 @@ namespace NetTally.Cache
         /// </summary>
         /// <param name="input">The input byte array.</param>
         /// <returns>Returns the uncompressed string.</returns>
-        private string Decompress(byte[] input)
+        private static string Decompress(byte[] input)
         {
             if (input == null)
                 return string.Empty;
 
-            using (MemoryStream mso = new MemoryStream())
+            using MemoryStream mso = new();
+            using (MemoryStream ms = new(input))
+            using (GZipStream zs = new(ms, CompressionMode.Decompress, true))
             {
-                using (MemoryStream ms = new MemoryStream(input))
-                using (GZipStream zs = new GZipStream(ms, CompressionMode.Decompress, true))
-                {
-                    zs.CopyTo(mso);
-                }
-
-                return Encoding.UTF8.GetString(mso.ToArray());
+                zs.CopyTo(mso);
             }
-        }
 
-        /// <summary>
-        /// Compresses the string.
-        /// </summary>
-        /// <param name="input">The input string.</param>
-        /// <returns>Returns the string compressed into a GZipped byte array.</returns>
-        private async Task<byte[]> CompressAsync(string input)
-        {
-            if (input == null)
-                return new byte[0];
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (GZipStream zs = new GZipStream(ms, CompressionMode.Compress, true))
-                {
-                    byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-                    await zs.WriteAsync(inputBytes, 0, inputBytes.Length).ConfigureAwait(false);
-                }
-
-                return ms.ToArray();
-            }
-        }
-
-        /// <summary>
-        /// Gets the uncompressed string.
-        /// </summary>
-        /// <param name="input">The input byte array.</param>
-        /// <returns>Returns the uncompressed string.</returns>
-        private async Task<string> DecompressAsync(byte[] input)
-        {
-            if (input == null)
-                return string.Empty;
-
-            using (MemoryStream mso = new MemoryStream())
-            {
-                using (MemoryStream ms = new MemoryStream(input))
-                using (GZipStream zs = new GZipStream(ms, CompressionMode.Decompress, true))
-                {
-                    await zs.CopyToAsync(mso).ConfigureAwait(false);
-                }
-
-                return Encoding.UTF8.GetString(mso.ToArray());
-            }
+            return Encoding.UTF8.GetString(mso.ToArray());
         }
         #endregion
     }

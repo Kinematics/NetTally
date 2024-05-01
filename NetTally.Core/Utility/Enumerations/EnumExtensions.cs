@@ -58,24 +58,15 @@ namespace NetTally.Extensions
         }
 
         /// <summary>
-        /// Create a list of enums containing each of the enumerated values.
-        /// </summary>
-        /// <typeparam name="T">The enum type to create a list for.</typeparam>
-        /// <returns>Returns an IEnumerable list of enum values.</returns>
-        public static IEnumerable<T> EnumToList<T>() where T : struct, Enum
-        {
-            return Enum.GetValues(typeof(T)).OfType<T>();
-        }
-
-        /// <summary>
         /// Create a list of the descriptions of each enum value of a given type.
         /// </summary>
         /// <typeparam name="T">The enum type to create a list for.</typeparam>
         /// <returns>Returns a list of string descriptions for an enum type.</returns>
         public static IEnumerable<string> EnumDescriptionsList<T>() where T : struct, Enum
         {
-            var enumDescrips = from Enum e in EnumToList<T>()
-                               select e.GetDescription();
+            T[] enums = Enum.GetValues<T>();
+
+            var enumDescrips = enums.Select(e => e.GetDescription());
 
             return enumDescrips;
         }

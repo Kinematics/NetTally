@@ -2,27 +2,26 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetTally.Forums.Adapters2;
-using NetTally.Options;
-using NetTally.Web;
-using NetTally.Types.Enums;
+using NetTally.Forums.ForumAdapters;
+using NetTally.Configure.Legacy;
+using Microsoft.Extensions.Options;
+using NetTally.Configure;
+using NetTally.Enums;
 
 namespace NetTally.Forums
 {
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
-    public class ForumAdapterFactory : IDisposable
+    public class ForumAdapterFactory(
+        IOptions<GlobalSettings> options,
+        ILoggerFactory loggerFactory,
+        ForumIdentifier forumIdentifier) : IDisposable
     {
-        readonly IGeneralInputOptions inputOptions;
-        readonly ILoggerFactory loggerFactory;
-        readonly SemaphoreSlim ss = new SemaphoreSlim(1);
-
-        public ForumAdapterFactory(IGeneralInputOptions inputOptions, ILoggerFactory loggerFactory)
-        {
-            this.inputOptions = inputOptions;
-            this.loggerFactory = loggerFactory;
-        }
+        private readonly IOptions<GlobalSettings> inputOptions = options;
+        private readonly ILoggerFactory loggerFactory = loggerFactory;
+        private readonly ForumIdentifier forumIdentifier = forumIdentifier;
+        private readonly SemaphoreSlim ss = new(1);
 
         #region Disposal
         bool disposed = false;
@@ -55,7 +54,7 @@ namespace NetTally.Forums
         /// <param name="pageProvider">A page provider for requesting a page from the web site, if needed.</param>
         /// <param name="token">A cancellation token for if we need to make a web request.</param>
         /// <returns>Returns a forum adapter for the quest.</returns>
-        public async Task<IForumAdapter2> CreateForumAdapterAsync(IQuest quest, IPageProvider pageProvider, CancellationToken token)
+        public async Task<IForumAdapter> CreateForumAdapterAsync(Quest quest, CancellationToken token)
         {
             if (quest.ThreadUri == Quest.InvalidThreadUri)
                 throw new InvalidOperationException("Quest does not have a valid thread specified.");
@@ -66,7 +65,7 @@ namespace NetTally.Forums
 
                 try
                 {
-                    quest.ForumType = await ForumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, pageProvider, token);
+                    quest.ForumType = await forumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token);
                 }
                 finally
                 {
@@ -82,29 +81,20 @@ namespace NetTally.Forums
         /// </summary>
         /// <param name="forumType">The type of forum being requested.</param>
         /// <returns>Returns a forum adapter matching the requested forum type.</returns>
-        public IForumAdapter2 CreateForumAdapter(ForumType forumType, Uri uri)
+        public IForumAdapter CreateForumAdapter(ForumType forumType, Uri uri)
         {
-            switch (forumType)
+            return forumType switch
             {
-                case ForumType.XenForo1:
-                    return new XenForo1Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter2>());
-                case ForumType.XenForo2:
-                    return new XenForo2Adapter2(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter2>());
-                case ForumType.vBulletin3:
-                    return new VBulletin3Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter2>());
-                case ForumType.vBulletin4:
-                    return new VBulletin4Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter2>());
-                case ForumType.vBulletin5:
-                    return new VBulletin5Adapter2(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter2>());
-                case ForumType.phpBB:
-                    return new PhpBBAdapter2(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter2>());
-                //case ForumType.NodeBB:
-                //    return new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>());
-                case ForumType.Unknown:
-                    return new UnknownForumAdapter2(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter2>());
-                default:
-                    throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType));
-            }
+                ForumType.XenForo1 => new XenForo1Adapter(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter>()),
+                ForumType.XenForo2 => new XenForo2Adapter(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter>()),
+                ForumType.vBulletin3 => new VBulletin3Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter>()),
+                ForumType.vBulletin4 => new VBulletin4Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter>()),
+                ForumType.vBulletin5 => new VBulletin5Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter>()),
+                ForumType.phpBB => new PhpBBAdapter(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter>()),
+                //ForumType.NodeBB => new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>()),
+                ForumType.Unknown => new UnknownForumAdapter(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter>()),
+                _ => throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType)),
+            };
         }
     }
 }

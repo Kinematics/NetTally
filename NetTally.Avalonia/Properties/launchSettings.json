@@ -10,6 +10,12 @@
         "LIBGL_ALWAYS_INDIRECT": "1"
       },
       "distributionName": "Ubuntu-22.04"
+    },
+    "Avalonia Dev": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }
