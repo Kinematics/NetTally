@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Vote;
 /// <summary>
@@ -56,11 +55,6 @@ public static class VoteBlock
     {
         var lines = blocks.SelectMany(x => x.Lines);
         return Create(lines);
-    }
-
-    public static VoteBlockType? Create(VoteLineType line)
-    {
-        return Create([line]);
     }
 
     public static VoteBlockType Clone(VoteBlockType block)
