@@ -155,6 +155,20 @@ public class MarkerTests
     }
 
     [TestMethod]
+    public void Construct_Invalid_MixRankScore()
+    {
+        var marker = Marker.Create("#19%");
+        Assert.IsNull(marker);
+    }
+
+    [TestMethod]
+    public void Construct_Invalid_OverflowValue()
+    {
+        var marker = Marker.Create("#1999");
+        Assert.IsNull(marker);
+    }
+
+    [TestMethod]
     public void Construct_Approval_Up()
     {
         var marker = Marker.Create("+");

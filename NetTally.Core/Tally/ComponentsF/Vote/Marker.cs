@@ -41,6 +41,12 @@ public static partial class Marker
                 {
                     markerType = MarkerType.Vote;
                 }
+                else if (m.Groups["rank"].Success &&
+                         m.Groups["score"].Success)
+                {
+                    // Can't have #19%
+                    return null;
+                }
                 else if (m.Groups["rank"].Success)
                 {
                     markerType = MarkerType.Rank;
@@ -51,7 +57,8 @@ public static partial class Marker
                 }
                 else if (m.Groups["value"].Success)
                 {
-                    markerType = MarkerType.Rank; // Default value type if no # or % used.
+                    // Default type if we have a value, but no # or % was used.
+                    markerType = MarkerType.Rank;
                 }
                 else if (m.Groups["approval"].Success)
                 {
@@ -59,7 +66,8 @@ public static partial class Marker
                 }
                 else
                 {
-                    markerType = MarkerType.None;
+                    // Shouldn't be possible to get here, but if we do, it's invalid.
+                    return null;
                 }
 
                 if (markerType == MarkerType.Vote)
