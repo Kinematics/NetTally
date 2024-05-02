@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Data;
 using NetTally.Enums;
-using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Posts;
 public sealed record OriginType(
@@ -92,8 +91,8 @@ public class OriginComparer : IEqualityComparer<OriginType>
     public static readonly Uri ExampleUri = new(StringData.ExampleHostUrl);
 
     private static readonly OriginComparer originComparer = new();
-
     public static bool AreEqual(OriginType? a, OriginType? b) => originComparer.Equals(a, b);
+    public static int GetHashCodeFor(OriginType x) => originComparer.GetHashCode(x);
 
     public bool Equals(OriginType? x, OriginType? y)
     {
@@ -118,6 +117,6 @@ public class OriginComparer : IEqualityComparer<OriginType>
 
     public int GetHashCode([DisallowNull] OriginType obj)
     {
-        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Author.Name);
+        return AuthorComparer.GetHashCodeFor(obj.Author);
     }
 }
