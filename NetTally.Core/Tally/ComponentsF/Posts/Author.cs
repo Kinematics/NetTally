@@ -37,6 +37,7 @@ public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorTyp
 
     public static bool AreEqual(AuthorType? x, AuthorType? y) => authorComparer.Equals(x, y);
     public static int CompareWith(AuthorType? x, AuthorType? y) => authorComparer.Compare(x, y);
+    public static int GetHashCodeFor(AuthorType x) => authorComparer.GetHashCode(x);
 
     public int Compare(AuthorType? x, AuthorType? y)
     {
