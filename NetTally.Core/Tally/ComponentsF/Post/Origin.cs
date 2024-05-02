@@ -1,0 +1,123 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using NetTally.Data;
+using NetTally.Enums;
+using NetTally.Utility.Comparers;
+
+namespace NetTally.Tally.ComponentsF.Post;
+public sealed record OriginType(
+    IdentityType Category,
+    AuthorType Author,
+    Uri Thread,
+    Uri Permalink,
+    PostIdType PostId,
+    int ThreadPostNumber,
+    DateTimeOffset Timestamp,
+    OriginType? Source);
+
+public static class Origin
+{
+    static readonly Uri ExampleUri = OriginComparer.ExampleUri;
+
+    public static OriginType None { get; } = new OriginType(
+        IdentityType.User,
+        Author.None,
+        ExampleUri,
+        ExampleUri,
+        PostId.Zero,
+        0,
+        DateTimeOffset.MinValue,
+        null);
+
+    public static OriginType? Create(
+        IdentityType category,
+        AuthorType author,
+        Uri thread,
+        Uri permalink,
+        PostIdType postId,
+        int postNumber,
+        DateTimeOffset timestamp,
+        OriginType source)
+    {
+        if (author == Author.None)
+            return null;
+
+        if (postNumber < 1)
+            postNumber = 0;
+
+        return new OriginType(category, author,
+            thread, permalink, postId, postNumber, timestamp, source);
+    }
+
+    public static OriginType? CreateOriginForName(
+        IdentityType category,
+        AuthorType author)
+    {
+        return Create(category, author, ExampleUri, ExampleUri, PostId.Zero,
+            0, DateTimeOffset.MinValue, None);
+    }
+
+    public static OriginType? CreateUser(
+        AuthorType author,
+        Uri thread,
+        Uri permalink,
+        PostIdType postId,
+        int postNumber,
+        DateTimeOffset timestamp)
+    {
+        return Create(IdentityType.User, author, thread, permalink, postId, postNumber, timestamp, None);
+    }
+
+    public static OriginType? GetPlanOrigin(OriginType origin, AuthorType plan)
+    {
+        if (origin.Category != IdentityType.User)
+        {
+            return null;
+        }
+
+        if (plan == Author.None)
+        {
+            return null;
+        }
+
+        return Create(IdentityType.Plan, plan,
+            origin.Thread, origin.Permalink, origin.PostId, origin.ThreadPostNumber,
+            origin.Timestamp, origin);
+    }
+}
+
+public class OriginComparer : IEqualityComparer<OriginType>
+{
+    public static readonly Uri ExampleUri = new(StringData.ExampleHostUrl);
+
+    private static readonly OriginComparer originComparer = new();
+
+    public static bool AreEqual(OriginType? a, OriginType? b) => originComparer.Equals(a, b);
+
+    public bool Equals(OriginType? x, OriginType? y)
+    {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
+        if (x.Category != y.Category)
+            return false;
+
+        if (!AuthorComparer.AreEqual(x.Author, y.Author))
+            return false;
+
+        if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
+            y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
+        {
+            if (x.Thread != y.Thread || x.PostId != y.PostId)
+                return false;
+        }
+
+        return true;
+    }
+
+    public int GetHashCode([DisallowNull] OriginType obj)
+    {
+        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Author.Name);
+    }
+}
