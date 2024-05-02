@@ -11,13 +11,12 @@ namespace NetTally.Tests.Forums
     public class PostTextTests
     {
         #region Setup
-        static IServiceProvider serviceProvider = null!;
         static readonly Uri exampleUri = new("http://www.example.com/");
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
-            serviceProvider = TestStartup.ConfigureServices();
+            TestStartup.ConfigureServices();
         }
 
         [TestInitialize]
