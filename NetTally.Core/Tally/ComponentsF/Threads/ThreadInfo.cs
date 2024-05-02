@@ -1,6 +1,6 @@
-﻿using NetTally.Tally.ComponentsF.Post;
+﻿using NetTally.Tally.ComponentsF.Posts;
 
-namespace NetTally.Tally.ComponentsF.Thread;
+namespace NetTally.Tally.ComponentsF.Threads;
 
 public record ThreadInfoType(string Title, AuthorType Author, int Pages);
 

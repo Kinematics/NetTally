@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetTally.Tally.ComponentsF.Thread;
+namespace NetTally.Tally.ComponentsF.Threads;
 
 /// <summary>
 /// Class to store info about where to start tallying a thread, and possibly

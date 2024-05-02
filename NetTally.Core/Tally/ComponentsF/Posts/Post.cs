@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.ComponentsF.Post;
+﻿namespace NetTally.Tally.ComponentsF.Posts;
 public record PostType(OriginType Origin, string Text);
 
 public static class Post

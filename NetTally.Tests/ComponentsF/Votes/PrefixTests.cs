@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.ComponentsF.Vote;
+using NetTally.Tally.ComponentsF.Votes;
 
-namespace NetTally.Tests.ComponentsF.Vote;
+namespace NetTally.Tests.ComponentsF.Votes;
 [TestClass]
 public class PrefixTests
 {

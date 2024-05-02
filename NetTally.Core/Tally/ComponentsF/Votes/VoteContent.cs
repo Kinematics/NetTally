@@ -5,7 +5,7 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Votes;
 
-namespace NetTally.Tally.ComponentsF.Vote;
+namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
 /// Data type for vote content.
 /// </summary>

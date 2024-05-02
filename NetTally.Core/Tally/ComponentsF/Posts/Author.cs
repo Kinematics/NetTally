@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Tally.ComponentsF.Post;
+namespace NetTally.Tally.ComponentsF.Posts;
 /// <summary>
 /// Data type to store Author information.
 /// </summary>

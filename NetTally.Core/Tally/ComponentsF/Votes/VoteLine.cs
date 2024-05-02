@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace NetTally.Tally.ComponentsF.Vote;
+namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
 /// Data type for vote lines.
 /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace NetTally.Tally.ComponentsF.Post;
+namespace NetTally.Tally.ComponentsF.Posts;
 public record PostIdType(long Id);
 
 public static class PostId

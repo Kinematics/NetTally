@@ -5,7 +5,7 @@ using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Tally.ComponentsF.Post;
+namespace NetTally.Tally.ComponentsF.Posts;
 public sealed record OriginType(
     IdentityType Category,
     AuthorType Author,

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using NetTally.Enums;
 
-namespace NetTally.Tally.ComponentsF.Vote;
+namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
 /// Data type to store marker information.
 /// </summary>

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Tally.ComponentsF.Vote;
+namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
 /// Data type to store a vote task.
 /// </summary>
