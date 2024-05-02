@@ -26,7 +26,7 @@ public static class Prefix
         if (indent.All(c => c == '-'))
             return new PrefixType(indent);
 
-        int depth = Regex.Count(indent, "-");
+        int depth = Regex.Count(indent, "[-–—]");
 
         string prefix = new('-', depth);
 
