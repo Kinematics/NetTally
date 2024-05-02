@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Hosting;
 using NetTally.Enums;
 using NetTally.Utility;
 using NetTally.Votes;
