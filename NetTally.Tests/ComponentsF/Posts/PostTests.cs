@@ -31,12 +31,16 @@ public class PostTests
     [TestMethod]
     public void Compare_Same()
     {
-        var origin = Origin.None;
-        var post1 = Post.Create(origin, "Some text");
-        var post2 = Post.Create(origin, "Some text");
+        var author1 = Author.Create("Kinematics");
+        Assert.IsNotNull(author1);
+        var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
+        Assert.IsNotNull(origin1);
+        var post1 = Post.Create(origin1, "Some text");
+        var post2 = Post.Create(origin1, "Some text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
-        Assert.AreEqual(post1, post2);
+
+        Assert.AreEqual(post1, post2, new PostComparer());
     }
 
     [TestMethod]
