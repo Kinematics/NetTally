@@ -74,10 +74,7 @@ public static class VoteLine
 /// </summary>
 public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteLineType>
 {
-    static readonly VoteLineComparer voteLineComparer = new();
-    public static int CompareWith(VoteLineType? x, VoteLineType? y) => voteLineComparer.Compare(x, y);
-    public static bool AreEqual(VoteLineType? x, VoteLineType? y) => voteLineComparer.Equals(x, y);
-    public static int GetHashCodeFor(VoteLineType x) => voteLineComparer.GetHashCode(x);
+    public static VoteLineComparer Instance { get; } = new();
 
     public int Compare(VoteLineType? x, VoteLineType? y)
     {
@@ -85,11 +82,11 @@ public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteL
         if (x is null) return -1;
         if (y is null) return 1;
 
-        int compare = VoteTaskComparer.CompareWith(x.Task, y.Task);
+        int compare = VoteTaskComparer.Instance.Compare(x.Task, y.Task);
 
         if (compare != 0) return compare;
 
-        return VoteContentComparer.CompareWith(x.Content, y.Content);
+        return VoteContentComparer.Instance.Compare(x.Content, y.Content);
     }
 
     public bool Equals(VoteLineType? x, VoteLineType? y)
@@ -99,6 +96,6 @@ public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteL
 
     public int GetHashCode([DisallowNull] VoteLineType obj)
     {
-        return VoteContentComparer.GetHashCodeFor(obj.Content);
+        return VoteContentComparer.Instance.GetHashCode(obj.Content);
     }
 }

@@ -111,9 +111,7 @@ public static partial class Marker
 /// </summary>
 public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerData>
 {
-    static readonly MarkerComparer markerComparer = new();
-    public static bool AreEqual(MarkerData? a, MarkerData? b) => markerComparer.Equals(a, b);
-    public static int CompareWith(MarkerData? a, MarkerData? b) => markerComparer.Compare(a, b);
+    public static MarkerComparer Instance { get; } = new();
 
     public int Compare(MarkerData? x, MarkerData? y)
     {

@@ -66,7 +66,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("Kinematics");
 
-        Assert.IsTrue(VoteTaskComparer.AreEqual(task1, task2));
+        Assert.IsTrue(VoteTaskComparer.Instance.Equals(task1, task2));
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("kinematics");
 
-        Assert.IsTrue(VoteTaskComparer.AreEqual(task1, task2));
+        Assert.IsTrue(VoteTaskComparer.Instance.Equals(task1, task2));
     }
 
     [TestMethod]
@@ -84,7 +84,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("KINEMATICS");
 
-        Assert.IsTrue(VoteTaskComparer.AreEqual(task1, task2));
+        Assert.IsTrue(VoteTaskComparer.Instance.Equals(task1, task2));
     }
 
     [TestMethod]
@@ -93,7 +93,7 @@ public class TaskTests
         var task1 = VoteTask.Create("KinematicsΩ");
         var task2 = VoteTask.Create("KINEMATICSΩ");
 
-        Assert.IsTrue(VoteTaskComparer.AreEqual(task1, task2));
+        Assert.IsTrue(VoteTaskComparer.Instance.Equals(task1, task2));
     }
 
     [TestMethod]
@@ -102,7 +102,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematicsω");
         var task2 = VoteTask.Create("KINEMATICSΩ");
 
-        Assert.IsTrue(VoteTaskComparer.AreEqual(task1, task2));
+        Assert.IsTrue(VoteTaskComparer.Instance.Equals(task1, task2));
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("Ubrey");
 
-        Assert.AreEqual(-1, VoteTaskComparer.CompareWith(task1, task2));
+        Assert.AreEqual(-1, VoteTaskComparer.Instance.Compare(task1, task2));
     }
 
     [TestMethod]
@@ -120,7 +120,7 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("Aubrey");
 
-        Assert.AreEqual(1, VoteTaskComparer.CompareWith(task1, task2));
+        Assert.AreEqual(1, VoteTaskComparer.Instance.Compare(task1, task2));
     }
 
     [TestMethod]
@@ -129,6 +129,6 @@ public class TaskTests
         var task1 = VoteTask.Create("Kinematics");
         var task2 = VoteTask.Create("kinematics");
 
-        Assert.AreEqual(0, VoteTaskComparer.CompareWith(task1, task2));
+        Assert.AreEqual(0, VoteTaskComparer.Instance.Compare(task1, task2));
     }
 }

@@ -33,11 +33,7 @@ public static class Author
 /// </summary>
 public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorType>
 {
-    private static readonly AuthorComparer authorComparer = new();
-
-    public static bool AreEqual(AuthorType? x, AuthorType? y) => authorComparer.Equals(x, y);
-    public static int CompareWith(AuthorType? x, AuthorType? y) => authorComparer.Compare(x, y);
-    public static int GetHashCodeFor(AuthorType x) => authorComparer.GetHashCode(x);
+    public static AuthorComparer Instance { get; } = new();
 
     public int Compare(AuthorType? x, AuthorType? y)
     {

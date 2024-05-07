@@ -89,10 +89,7 @@ public static class Origin
 public class OriginComparer : IEqualityComparer<OriginType>
 {
     public static readonly Uri ExampleUri = new(StringData.ExampleHostUrl);
-
-    private static readonly OriginComparer originComparer = new();
-    public static bool AreEqual(OriginType? a, OriginType? b) => originComparer.Equals(a, b);
-    public static int GetHashCodeFor(OriginType x) => originComparer.GetHashCode(x);
+    public static OriginComparer Instance { get; } = new();
 
     public bool Equals(OriginType? x, OriginType? y)
     {
@@ -102,7 +99,7 @@ public class OriginComparer : IEqualityComparer<OriginType>
         if (x.Category != y.Category)
             return false;
 
-        if (!AuthorComparer.AreEqual(x.Author, y.Author))
+        if (!AuthorComparer.Instance.Equals(x.Author, y.Author))
             return false;
 
         if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
@@ -117,6 +114,6 @@ public class OriginComparer : IEqualityComparer<OriginType>
 
     public int GetHashCode([DisallowNull] OriginType obj)
     {
-        return AuthorComparer.GetHashCodeFor(obj.Author);
+        return AuthorComparer.Instance.GetHashCode(obj.Author);
     }
 }

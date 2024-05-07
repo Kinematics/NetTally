@@ -14,7 +14,7 @@ public record PrefixType(string Indent)
 /// <summary>
 /// Static class for creating and modifying <see cref="PrefixType"/> objects.
 /// </summary>
-public static class Prefix
+public static partial class Prefix
 {
     public static PrefixType Empty { get; } = new PrefixType("");
 
@@ -26,7 +26,7 @@ public static class Prefix
         if (indent.All(c => c == '-'))
             return new PrefixType(indent);
 
-        int depth = Regex.Count(indent, "[-–—]");
+        int depth = IndentCharsRegex().Count(indent);
 
         string prefix = new('-', depth);
 
@@ -40,4 +40,7 @@ public static class Prefix
 
         return Empty;
     }
+
+    [GeneratedRegex("[-–—]")]
+    private static partial Regex IndentCharsRegex();
 }

@@ -24,16 +24,18 @@ public static class Post
 
 public class PostComparer : IEqualityComparer<PostType>
 {
+    public static PostComparer Instance { get; } = new();
+
     public bool Equals(PostType? x, PostType? y)
     {
         if (x == null || y == null) return false;
 
-        return OriginComparer.AreEqual(x.Origin, y.Origin) &&
+        return OriginComparer.Instance.Equals(x.Origin, y.Origin) &&
             Agnostic.InsensitiveComparer.Equals(x.Text, y.Text);
     }
 
     public int GetHashCode([DisallowNull] PostType obj)
     {
-        return OriginComparer.GetHashCodeFor(obj.Origin);
+        return OriginComparer.Instance.GetHashCode(obj.Origin);
     }
 }

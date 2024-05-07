@@ -153,10 +153,7 @@ public static partial class VoteContent
 /// </summary>
 public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer<VoteContentType>
 {
-    static readonly VoteContentComparer voteContentComparer = new();
-    public static bool AreEqual(VoteContentType? x, VoteContentType? y) => voteContentComparer.Equals(x, y);
-    public static int CompareWith(VoteContentType? x, VoteContentType? y) => voteContentComparer.Compare(x, y);
-    public static int GetHashCodeFor(VoteContentType x) => voteContentComparer.GetHashCode(x);
+    public static VoteContentComparer Instance { get; } = new();
 
     public int Compare(VoteContentType? x, VoteContentType? y)
     {

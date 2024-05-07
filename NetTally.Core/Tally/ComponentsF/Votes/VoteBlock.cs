@@ -78,11 +78,7 @@ public static class VoteBlock
 /// </summary>
 public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<VoteBlockType>
 {
-    static readonly VoteBlockComparer voteBlockComparer = new();
-    public static int CompareWith(VoteBlockType? x, VoteBlockType? y) =>
-        voteBlockComparer.Compare(x, y);
-    public static bool AreEqual(VoteBlockType? x, VoteBlockType? y) =>
-        voteBlockComparer.Equals(x, y);
+    public static VoteBlockComparer Instance { get; } = new();
 
     public int Compare(VoteBlockType? x, VoteBlockType? y)
     {
@@ -90,19 +86,19 @@ public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<Vot
         if (x is null) return -1;
         if (y is null) return 1;
 
-        int compare = VoteTaskComparer.CompareWith(x.Task, y.Task);
+        int compare = VoteTaskComparer.Instance.Compare(x.Task, y.Task);
 
         if (compare != 0) return compare;
 
         var zip = x.Lines.Zip(y, (a, b) => (X: a, Y: b));
 
-        var matches = zip.Select(z => VoteLineComparer.CompareWith(z.X, z.Y));
+        var matches = zip.Select(z => VoteLineComparer.Instance.Compare(z.X, z.Y));
 
         if (matches.All(m => m == 0))
         {
             if (x.Lines.Count == y.Lines.Count)
             {
-                //return MarkerComparer.CompareWith(x.Marker, y.Marker);
+                //return MarkerComparer.Instance.Compare(x.Marker, y.Marker);
                 return 0;
             }
             else
@@ -123,6 +119,6 @@ public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<Vot
 
     public int GetHashCode([DisallowNull] VoteBlockType obj)
     {
-        return VoteLineComparer.GetHashCodeFor(obj.Lines[0]);
+        return VoteLineComparer.Instance.GetHashCode(obj.Lines[0]);
     }
 }

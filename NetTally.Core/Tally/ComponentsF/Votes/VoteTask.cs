@@ -33,9 +33,7 @@ public static class VoteTask
 /// </summary>
 public class VoteTaskComparer : IEqualityComparer<VoteTaskType>, IComparer<VoteTaskType>
 {
-    static readonly VoteTaskComparer voteTaskComparer = new();
-    public static bool AreEqual(VoteTaskType? x, VoteTaskType? y) => voteTaskComparer.Equals(x, y);
-    public static int CompareWith(VoteTaskType? x, VoteTaskType? y) => voteTaskComparer.Compare(x, y);
+    public static VoteTaskComparer Instance { get; } = new();
 
     public int Compare(VoteTaskType? x, VoteTaskType? y)
     {
