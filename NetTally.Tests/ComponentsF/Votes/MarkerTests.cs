@@ -237,7 +237,7 @@ public class MarkerTests
         var marker = Marker.Create("95%");
         Assert.IsNotNull(marker);
 
-        Assert.AreEqual(marker, Marker.Empty, new MarkerComparer());
+        Assert.AreEqual(marker, Marker.Empty, MarkerComparer.Instance);
         Assert.IsTrue(MarkerComparer.Instance.Equals(marker, Marker.Empty));
     }
 
@@ -249,7 +249,7 @@ public class MarkerTests
         Assert.IsNotNull(marker1);
         Assert.IsNotNull(marker2);
 
-        Assert.AreEqual(marker1, marker2, new MarkerComparer());
+        Assert.AreEqual(marker1, marker2, MarkerComparer.Instance);
     }
 
     [TestMethod]
@@ -260,7 +260,7 @@ public class MarkerTests
         Assert.IsNotNull(marker1);
         Assert.IsNotNull(marker2);
 
-        Assert.AreEqual(marker1, marker2, new MarkerComparer());
+        Assert.AreEqual(marker1, marker2, MarkerComparer.Instance);
     }
 
     [TestMethod]
@@ -271,7 +271,7 @@ public class MarkerTests
         Assert.IsNotNull(marker1);
         Assert.IsNotNull(marker2);
 
-        Assert.AreEqual(marker1, marker2, new MarkerComparer());
+        Assert.AreEqual(marker1, marker2, MarkerComparer.Instance);
     }
 
     [TestMethod]

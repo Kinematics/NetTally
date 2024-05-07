@@ -40,7 +40,7 @@ public class PostTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.AreEqual(post1, post2, new PostComparer());
+        Assert.AreEqual(post1, post2, PostComparer.Instance);
     }
 
     [TestMethod]
@@ -93,13 +93,13 @@ public class PostTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreEqual(origin1, origin2, new OriginComparer());
+        Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
 
         var post1 = Post.Create(origin1, "Some text");
         var post2 = Post.Create(origin2, "Some text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.AreEqual(post1, post2, new PostComparer());
+        Assert.AreEqual(post1, post2, PostComparer.Instance);
     }
 }

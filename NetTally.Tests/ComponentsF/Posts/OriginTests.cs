@@ -49,12 +49,12 @@ public class OriginTests
 
         Assert.IsNotNull(origin);
         Assert.AreEqual(IdentityType.User, origin.Category);
-        Assert.AreEqual(author, origin.Author, new AuthorComparer());
+        Assert.AreEqual(author, origin.Author, AuthorComparer.Instance);
         Assert.AreEqual(thread, origin.Thread);
         Assert.AreEqual(permalink, origin.Permalink);
         Assert.AreEqual(postId, origin.PostId);
         Assert.AreEqual(postNumber, origin.ThreadPostNumber);
-        Assert.AreEqual(Origin.None, origin.Source, new OriginComparer());
+        Assert.AreEqual(Origin.None, origin.Source, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -71,12 +71,12 @@ public class OriginTests
 
         Assert.IsNotNull(origin);
         Assert.AreEqual(IdentityType.User, origin.Category);
-        Assert.AreEqual(author, origin.Author, new AuthorComparer());
+        Assert.AreEqual(author, origin.Author, AuthorComparer.Instance);
         Assert.AreEqual(thread, origin.Thread);
         Assert.AreEqual(permalink, origin.Permalink);
         Assert.AreEqual(postId, origin.PostId);
         Assert.AreEqual(0, origin.ThreadPostNumber);
-        Assert.AreEqual(Origin.None, origin.Source, new OriginComparer());
+        Assert.AreEqual(Origin.None, origin.Source, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -92,12 +92,12 @@ public class OriginTests
         var origin = Origin.CreateOriginForName(IdentityType.User, author);
         Assert.IsNotNull(origin);
         Assert.AreEqual(IdentityType.User, origin.Category);
-        Assert.AreEqual(author, origin.Author, new AuthorComparer());
+        Assert.AreEqual(author, origin.Author, AuthorComparer.Instance);
         Assert.AreEqual(OriginComparer.ExampleUri, origin.Thread);
         Assert.AreEqual(OriginComparer.ExampleUri, origin.Permalink);
         Assert.AreEqual(PostId.Zero, origin.PostId);
         Assert.AreEqual(0, origin.ThreadPostNumber);
-        Assert.AreEqual(Origin.None, origin.Source, new OriginComparer());
+        Assert.AreEqual(Origin.None, origin.Source, OriginComparer.Instance);
     }
 
 
@@ -109,7 +109,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreEqual(origin1, origin2, new OriginComparer());
+        Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -121,7 +121,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -133,7 +133,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreEqual(origin1, origin2, new OriginComparer());
+        Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -146,7 +146,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -159,8 +159,8 @@ public class OriginTests
         var origin2 = Origin.GetPlanOrigin(origin1, plan);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
-        Assert.AreEqual(origin1, origin2.Source, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
+        Assert.AreEqual(origin1, origin2.Source, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -175,7 +175,7 @@ public class OriginTests
         var origin3 = Origin.GetPlanOrigin(origin1, plan);
         Assert.IsNotNull(origin3);
 
-        Assert.AreEqual(origin2, origin3, new OriginComparer());
+        Assert.AreEqual(origin2, origin3, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -191,7 +191,7 @@ public class OriginTests
         var origin3 = Origin.GetPlanOrigin(origin1, plan2);
         Assert.IsNotNull(origin3);
 
-        Assert.AreNotEqual(origin2, origin3, new OriginComparer());
+        Assert.AreNotEqual(origin2, origin3, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -202,7 +202,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreEqual(origin1, origin2, new OriginComparer());
+        Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -215,7 +215,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreEqual(origin1, origin2, new OriginComparer());
+        Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -228,7 +228,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -239,7 +239,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -255,7 +255,7 @@ public class OriginTests
         var origin3 = Origin.CreateOriginForName(IdentityType.Plan, plan1);
         Assert.IsNotNull(origin3);
 
-        Assert.AreEqual(origin2, origin3, new OriginComparer());
+        Assert.AreEqual(origin2, origin3, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -272,7 +272,7 @@ public class OriginTests
         var origin3 = Origin.CreateOriginForName(IdentityType.Plan, plan2);
         Assert.IsNotNull(origin3);
 
-        Assert.AreNotEqual(origin2, origin3, new OriginComparer());
+        Assert.AreNotEqual(origin2, origin3, OriginComparer.Instance);
     }
 
     [TestMethod]
@@ -288,7 +288,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        Assert.AreNotEqual(origin1, origin2, new OriginComparer());
+        Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
     }
 
 }
