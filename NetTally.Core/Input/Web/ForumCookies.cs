@@ -24,13 +24,7 @@ namespace NetTally.Web
                 case "questionablequesting.com":
                 case "forum.questionablequesting.com":
                     // Cookie for vote tally account on QQ, to allow reading the NSFW forums.
-                    cookie = new Cookie("xf_user", "2940%2C3f6f04f8921e0b26f3cd6c6399af3a04d3520769", "/", uri.Host)
-                    {
-                        Expires = (timeProvider.GetUtcNow() + TimeSpan.FromDays(30)).DateTime
-                    };
-                    break;
-                case "xf2.questionablequesting.com":
-                    cookie = new Cookie("xf_user", "2940%2CZKfOlFI_iQ5kQXU3FVeg4GzE2Y-wS0-V7y3fsvI6", "/", uri.Host)
+                    cookie = new Cookie("xf_user", "2940%2CtxRVjJeJAfio90zmk8tmgxxhnowMExrFaBRUXKlL", "/", uri.Host)
                     {
                         Expires = (timeProvider.GetUtcNow() + TimeSpan.FromDays(30)).DateTime
                     };
