@@ -233,7 +233,7 @@ namespace NetTally.Output
 
                     firstTask = false;
 
-                    AddTaskLabel(task.Key);
+                    AddTaskInfo(task);
 
                     IEnumerable<CompactVote> compactTask = [];
 
@@ -507,6 +507,18 @@ namespace NetTally.Output
         /// </summary>
         private static string DoubleLineBreak => "<==========================================================>";
 
+        private void AddTaskInfo(VotesGroupedByTask task)
+        {
+            string taskName = task.Key;
+
+            if (taskName.Length > 0)
+            {
+                AddTaskLabel(taskName);
+                AddTaskVoterCount(task);
+            }
+            sb.AppendLine();
+        }
+
         /// <summary>
         /// Add a label for the specified task.
         /// </summary>
@@ -518,8 +530,16 @@ namespace NetTally.Output
                 sb.Append("[b]Task: ");
                 sb.Append(taskName);
                 sb.AppendLine("[/b]");
-                sb.AppendLine();
             }
+        }
+
+        private void AddTaskVoterCount(VotesGroupedByTask task)
+        {
+            var voters = GetAllVotersInTask(task);
+
+            sb.Append("— Voters: ");
+            sb.Append(voters.Count);
+            sb.AppendLine();
         }
 
         /// <summary>

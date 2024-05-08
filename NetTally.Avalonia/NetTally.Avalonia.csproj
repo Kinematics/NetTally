@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>5.0.0</VersionPrefix>
+		<VersionPrefix>5.0.1</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyName>NetTally</AssemblyName>

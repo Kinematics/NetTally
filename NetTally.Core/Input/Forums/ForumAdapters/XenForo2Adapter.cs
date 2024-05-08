@@ -48,11 +48,7 @@ namespace NetTally.Forums.ForumAdapters
         /// <returns>Returns the string to use for a line break event when outputting the tally.</returns>
         public string GetDefaultLineBreak(Uri uri)
         {
-            return uri.Host switch
-            {
-                "forums.spacebattles.com" => "———————————————————————————————————————————————————————",
-                _ => "[hr]——————————————————————————————————————————————[/hr]"
-            };
+            return "[hr]";
         }
 
         /// <summary>
