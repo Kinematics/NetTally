@@ -1,119 +1,72 @@
-﻿using System;
+﻿using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Tally.ComponentsF.Threads;
 
-/// <summary>
-/// Class to store info about where to start tallying a thread, and possibly
-/// how many pages are in the thread based on initial scans.
-/// </summary>
-public class ThreadRangeInfo
+public enum ThreadRangeRangeType
 {
-    public bool ByNumber { get; }
-    public int Number { get; }
-    public int Page { get; }
-    public int ID { get; }
-    public int Pages { get; }
+    ByPostNumber,
+    ByPostId
+}
 
-    public static readonly ThreadRangeInfo Empty = new(false, 0, 0, 0, 0);
-
-    /// <summary>
-    /// Constructor for thread range info.
-    /// Only specifies whether the range is specified by post number, and what that post number is.
-    /// </summary>
-    /// <param name="byNumber">Whether the range is specified by post number.</param>
-    /// <param name="number">The post number that begins the range.</param>
-    public ThreadRangeInfo(bool byNumber, int number)
-        : this(byNumber, number, 0, 0, 0) { }
-
-    /// <summary>
-    /// Constructor for thread range info.
-    /// Specifies whether the start data is by post number or post ID.
-    /// Specifies the starting post number, if applicable.
-    /// Specifies the page number the post is located on (or 0 if unknown).
-    /// Specifies the ID of the starting post (or -1 if unknown).
-    /// </summary>
-    /// <param name="byNumber">Whether the starting post is specified by post number.</param>
-    /// <param name="number">The post number that begins the range, if applicable.  0, if not.</param>
-    /// <param name="page">The page the starting post is located on.  0, if not known.</param>
-    /// <param name="id">The ID of the starting post.  -1 if not known.</param>
-    public ThreadRangeInfo(bool byNumber, int number, int page, int id)
-        : this(byNumber, number, page, id, 0) { }
-
-    /// <summary>
-    /// Constructor for thread range info.
-    /// Specifies whether the start data is by post number or post ID.
-    /// Specifies the starting post number, if applicable.
-    /// Specifies the page number the post is located on (or 0 if unknown).
-    /// Specifies the ID of the starting post (or 0 if unknown).
-    /// Specifies the number of pages in the thread.
-    /// </summary>
-    /// <param name="byNumber">Whether the starting post is specified by post number.</param>
-    /// <param name="number">The post number that begins the range, if applicable.  0, if not.</param>
-    /// <param name="page">The page the starting post is located on.  0, if not known.</param>
-    /// <param name="id">The ID of the starting post.  0 if not known.</param>
-    /// <param name="pages">The number of pages in the thread.</param>
-    /// <exception cref="ArgumentOutOfRangeException">If any parameter is out of range (negative).</exception>
-    public ThreadRangeInfo(bool byNumber, int number, int page, int id, int pages)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(number);
-        ArgumentOutOfRangeException.ThrowIfNegative(page);
-        ArgumentOutOfRangeException.ThrowIfNegative(id);
-        ArgumentOutOfRangeException.ThrowIfNegative(pages);
-
-        ByNumber = byNumber;
-        Number = number;
-        Page = page;
-        ID = id;
-        Pages = pages;
-    }
-
-    /// <summary>
-    /// Get the starting page for tallying for the provided quest, using either
-    /// the explicitly determined page number, or the calculated page number 
-    /// based on the starting post and the quest's post per page.
-    /// </summary>
-    /// <param name="quest">The quest this info is for.</param>
-    /// <returns>Returns the page number to start tallying.</returns>
-    public int GetStartPage(Quest quest)
-    {
-        if (ByNumber)
-        {
-            return GetPageNumberOfPost(Number, quest.PostsPerPage);
-        }
-
-        return Page;
-    }
-
-    /// <summary>
-    /// Utility function to get the page number of a post in a thread,  based on
-    /// quest info available.
-    /// </summary>
-    /// <param name="postNumber">The post number being queried. Must be at least 1.</param>
-    /// <param name="quest">The quest that the post number came from.</param>
-    /// <returns>Returns the page number that the post should be on.</returns>
-    public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(postNumber, 1);
-        ArgumentOutOfRangeException.ThrowIfLessThan(postsPerPage, 1);
-
-        int pageNumber = ((postNumber - 1) / postsPerPage) + 1;
-
-        return pageNumber;
-    }
-
-    /// <summary>
-    /// Gets whether this thread range info must be the result of a threadmark search.
-    /// A threadmark search will set either or both of the Page and ID values.
-    /// If both of those are 0, this is not a threadmark search result.
-    /// </summary>
-    public bool IsThreadmarkSearchResult => !(Page == 0 && ID == 0);
-
-    /// <summary>
-    /// String representation of ThreadRangeInfo.
-    /// </summary>
-    /// <returns></returns>
+/// <summary>
+/// Data type for thread range information.
+/// </summary>
+/// <param name="RangeType">What type of range is recorded.</param>
+/// <param name="StartPostNumber">The starting post number (if by post number)</param>
+/// <param name="PageNumber">The page number the post ID is on (if by post id)</param>
+/// <param name="PostId">The starting post ID (if by post id)</param>
+/// <param name="PageCount"></param>
+public record ThreadRangeType(
+    ThreadRangeRangeType RangeType,
+    int StartPostNumber,
+    PostIdType PostId,
+    int PageNumber,
+    int PageCount)
+{
     public override string ToString()
     {
-        return $"{ByNumber}:{Number}, {Page}/{Pages}, {ID}";
+        if (RangeType == ThreadRangeRangeType.ByPostNumber)
+            return $"{RangeType}: Post #{StartPostNumber}, Pages: {PageCount}";
+        else
+            return $"{RangeType}: ID #{PostId.Id} on Page {PageNumber}, Pages: {PageCount}";
+    }
+}
+
+
+public static class ThreadRange
+{
+    public static ThreadRangeType Empty { get; } = new ThreadRangeType(ThreadRangeRangeType.ByPostId,
+        0, PostId.Zero, 0, 0);
+    public static ThreadRangeType StartOfThread { get; } = new ThreadRangeType(ThreadRangeRangeType.ByPostNumber,
+        1, PostId.Zero, 0, 0);
+
+    public static ThreadRangeType CreateRangeByPost(int startPostNumber = 0, int pageCount = 0)
+    {
+        if (startPostNumber < 1)
+            return StartOfThread;
+
+        return new ThreadRangeType(ThreadRangeRangeType.ByPostNumber, startPostNumber, PostId.Zero, 0, pageCount);
+    }
+
+    public static ThreadRangeType CreateRangeFromPostId(PostIdType postId, int page, int pageCount = 0)
+    {
+        if (page < 1)
+            page = 1;
+
+        return new ThreadRangeType(ThreadRangeRangeType.ByPostId, 0, postId, page, pageCount);
+    }
+
+
+    public static int GetStartPage(ThreadRangeType threadRange, Quest quest)
+    {
+        if (threadRange.RangeType == ThreadRangeRangeType.ByPostId)
+            return threadRange.PageNumber;
+
+        return GetPageNumberOfPost(threadRange.StartPostNumber, quest.PostsPerPage);
+    }
+
+    public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
+    {
+        return ((postNumber - 1) / postsPerPage) + 1;
     }
 }
