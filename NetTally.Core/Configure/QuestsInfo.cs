@@ -146,7 +146,7 @@ namespace NetTally.Configure
 
             if (newIndex >= Quests.Count)
                 newIndex = Quests.Count - 1;
-            
+
             if (index == newIndex)
                 return;
 
