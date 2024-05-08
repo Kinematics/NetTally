@@ -144,6 +144,12 @@ namespace NetTally.Configure
                     break;
             }
 
+            if (newIndex >= Quests.Count)
+                newIndex = Quests.Count - 1;
+            
+            if (index == newIndex)
+                return;
+
             Quests.Move(index, newIndex);
 
             logger.LogDebug("Moved quest {name} from position {start} to position {end}.", quest.DisplayName, index, newIndex);
