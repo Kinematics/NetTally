@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Posts;
 public record PostIdType(long Id);
@@ -30,6 +33,30 @@ public static class PostId
         }
 
         return null;
+    }
+}
+
+public class PostIdComparer : IEqualityComparer<PostIdType>, IComparer<PostIdType>
+{
+    public static PostIdComparer Instance { get; } = new();
+
+    public int Compare(PostIdType? x, PostIdType? y)
+    {
+        if (ReferenceEquals(x, y)) return 0;
+        if (x is null) return -1;
+        if (y is null) return 1;
+
+        return x.Id.CompareTo(y.Id);
+    }
+
+    public bool Equals(PostIdType? x, PostIdType? y)
+    {
+        return Compare(x, y) == 0;
+    }
+
+    public int GetHashCode([DisallowNull] PostIdType obj)
+    {
+        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Id);
     }
 }
 
