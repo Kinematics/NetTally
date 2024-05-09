@@ -21,7 +21,7 @@ public class ForumReaderF(
     IServiceProvider serviceProvider,
     ForumAdapterFactory forumAdapterFactory,
     IQuestsInfo questsInfo,
-    ILogger<ForumReaderF> logger)
+    ILogger<ForumReaderF> logger) : IForumReader
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly ILogger<ForumReaderF> logger = logger;
