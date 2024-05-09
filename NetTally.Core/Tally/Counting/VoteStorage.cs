@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NetTally.Enums;
 using NetTally.Tally.Components;
@@ -22,8 +23,9 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="copyFrom">The VoteStorage instance to copy from.</param>
         public VoteStorage(VoteStorage copyFrom)
-            : base(copyFrom)
-        { }
+        {
+            CopyFrom(copyFrom);
+        }
 
         /// <summary>
         /// Constructor that allows copying from the base dictionary class
@@ -32,7 +34,17 @@ namespace NetTally.Votes
         /// <param name="copyFrom">The Dictionary instance to copy from.</param>
         public VoteStorage(Dictionary<VoteLineBlock, VoterStorage> copyFrom)
             : base(copyFrom)
-        { }
+        {
+            CopyFrom(copyFrom);
+        }
+
+        private void CopyFrom(Dictionary<VoteLineBlock, VoterStorage> copyFrom)
+        {
+            foreach (var entry in copyFrom)
+            {
+                Add(entry.Key, new VoterStorage(entry.Value));
+            }
+        }
         #endregion
 
         #region Add/Remove votes
