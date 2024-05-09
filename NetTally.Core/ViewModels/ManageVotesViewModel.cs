@@ -203,16 +203,27 @@ namespace NetTally.ViewModels
         #endregion Observable Filter Properties
 
         #region Collection Updates
+        private void NotifyVotesChanged()
+        {
+            OnPropertyChanged(nameof(AllVotesCollection));
+            OnPropertyChanged(nameof(VotesFrom));
+            OnPropertyChanged(nameof(VotesTo));
+        }
+
+        private void NotifyVotersChanged()
+        {
+            OnPropertyChanged(nameof(AllVotersCollection));
+            OnPropertyChanged(nameof(VotersFrom));
+            OnPropertyChanged(nameof(VotersTo));
+        }
+
         /// <summary>
         /// Update the observable collection of votes.
         /// </summary>
         private void UpdateVotesCollection()
         {
             AllVotesCollection.Replace(quest.VoteCounter.GetAllVotes());
-
-            OnPropertyChanged(nameof(AllVotesCollection));
-            OnPropertyChanged(nameof(VotesFrom));
-            OnPropertyChanged(nameof(VotesTo));
+            NotifyVotesChanged();
         }
 
         /// <summary>
@@ -221,10 +232,13 @@ namespace NetTally.ViewModels
         private void UpdateVotersCollection()
         {
             AllVotersCollection.Replace(quest.VoteCounter.GetAllVoters());
+            NotifyVotersChanged();
+        }
 
-            OnPropertyChanged(nameof(AllVotersCollection));
-            OnPropertyChanged(nameof(VotersFrom));
-            OnPropertyChanged(nameof(VotersTo));
+        private void NotifyUndoChanged()
+        {
+            OnPropertyChanged(nameof(HasUndoActions));
+            UndoCommand.NotifyCanExecuteChanged();
         }
         #endregion Collection Updates
 
@@ -247,7 +261,6 @@ namespace NetTally.ViewModels
         }
 
 
-
         private bool CanMerge()
         {
             return (SelectedFromVote is not null &&
@@ -265,6 +278,8 @@ namespace NetTally.ViewModels
                 if (quest.VoteCounter.Merge(SelectedFromVote, SelectedToVote))
                 {
                     AllVotesCollection.Remove(SelectedFromVote);
+                    NotifyVotesChanged();
+                    NotifyUndoChanged();
                 }
             }
         }
@@ -285,6 +300,7 @@ namespace NetTally.ViewModels
                 {
                     UpdateVotesCollection();
                     UpdateVotersCollection();
+                    NotifyUndoChanged();
                 }
             }
         }
@@ -306,6 +322,8 @@ namespace NetTally.ViewModels
                 if (quest.VoteCounter.Delete(SelectedFromVote))
                 {
                     AllVotesCollection.Remove(SelectedFromVote);
+                    NotifyVotesChanged();
+                    NotifyUndoChanged();
                 }
             }
         }
@@ -322,6 +340,7 @@ namespace NetTally.ViewModels
             {
                 UpdateVotesCollection();
                 UpdateVotersCollection();
+                NotifyUndoChanged();
             }
         }
 
