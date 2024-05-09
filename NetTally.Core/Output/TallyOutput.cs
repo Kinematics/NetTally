@@ -16,14 +16,6 @@ using NetTally.Votes;
 
 namespace NetTally.Output
 {
-    // List of VoterStorage elements:
-    using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
-    // Individual dictionary element from VoterStorage:
-    // Grouping of VoteStorage elements by task:
-    using VotesGroupedByTask = IGrouping<string, KeyValuePair<VoteLineBlock, VoterStorage>>;
-    // Individual dictionary element from VoteStorage:
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     public class TallyOutput(
         RankVoteCounterFactory rankVoteCounterFactory,
         ForumAdapterFactory forumAdapterFactory,
