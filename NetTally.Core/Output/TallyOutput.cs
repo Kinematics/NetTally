@@ -196,6 +196,8 @@ namespace NetTally.Output
                 if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                     sb.AppendLine();
 
+                AddLineBreak();
+
                 sb.Append("Total No. of Voters: ");
                 sb.Append(voterCount);
                 sb.AppendLine();
