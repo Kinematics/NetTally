@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.CustomEventArgs;
+using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Forums;
 using NetTally.Forums.ForumAdapters;
@@ -36,6 +37,12 @@ public class ForumReaderF(
         }
     }
 
+    private void SendNotificationMessage(string message)
+    {
+        var e = new MessageEventArgs(message);
+        StatusChanged?.Invoke(this, e);
+    }
+
     /// <summary>
     /// Event handler hook for status messages.
     /// </summary>
@@ -52,7 +59,7 @@ public class ForumReaderF(
     public async Task<(List<string> Titles, List<PostType> Posts)>
         ReadQuestAsync(Quest quest, CancellationToken cancellationToken)
     {
-        List<Quest> questsToRead = [quest, ..questsInfo.GetLinkedQuests(quest)];
+        List<Quest> questsToRead = [quest, .. questsInfo.GetLinkedQuests(quest)];
 
         logger.LogDebug("Reading quest {questName} with any linked quests. Total quests: {total}",
             quest.DisplayName, questsToRead.Count);
@@ -65,6 +72,11 @@ public class ForumReaderF(
         var allTitles = results.Select(q => q.Title).ToList();
         var allPosts = results.SelectMany(q => q.Posts).ToList();
 
+        if (allTitles.Any(t => t == StringData.Error))
+        {
+            return ([StringData.Error], []);
+        }
+
         return (allTitles, allPosts);
     }
 
@@ -74,30 +86,29 @@ public class ForumReaderF(
     /// <param name="quest">The quest to read.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)> GetPostsFromQuestAsync(
-        Quest quest, CancellationToken token)
+    private async Task<(string Title, List<PostType> Posts)>
+        GetPostsFromQuestAsync(Quest quest, CancellationToken token)
     {
-        logger.LogDebug("Reading posts from quest {questDisplayName} with ForumReader.", quest.DisplayName);
+        logger.LogDebug("Reading posts from quest {questDisplayName} with ForumReader.",
+            quest.DisplayName);
 
-        var pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+        using var pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
 
         try
         {
             pageProvider.StatusChanged += PageProvider_StatusChanged;
 
-            IForumAdapter adapter = await GetForumAdapter(quest, token).ConfigureAwait(false);
+            IForumAdapter adapter = await GetForumAdapter(quest, token)
+                .ConfigureAwait(false);
 
-            return await GetPostsAsync(quest, pageProvider, adapter, token).ConfigureAwait(false);
+            return await GetPostsAsync(quest, pageProvider, adapter, token)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error loading quest from page provider for quest {questName}.", quest.DisplayName);
-            return ("Error", []);
-        }
-        finally
-        {
-            pageProvider.StatusChanged -= PageProvider_StatusChanged;
-            pageProvider.Dispose();
+            logger.LogError(e, "Error loading quest from page provider for quest {questName}.",
+                quest.DisplayName);
+            return (StringData.Error, []);
         }
     }
 
@@ -123,7 +134,7 @@ public class ForumReaderF(
 
         if (threadData == null)
         {
-            return ("Error", []);
+            return (StringData.Error, []);
         }
 
         var (rangeInfo, threadInfo) = threadData.Value;
@@ -131,13 +142,21 @@ public class ForumReaderF(
         logger.LogDebug("Range info acquired for {questDisplayName}. ({rangeInfo})",
             quest.DisplayName, rangeInfo);
 
-        List<HtmlDocument> pages =
+        List<HtmlDocument?> pagesN =
             await ReadPagesFromQuestAsync(quest, rangeInfo, pageProvider, adapter, token)
             .ConfigureAwait(false);
 
-        logger.LogDebug("Got {Count} pages loading {questDisplayName}.", pages.Count, quest.DisplayName);
+        logger.LogDebug("Got {Count} pages loading {questDisplayName}.", pagesN.Count, quest.DisplayName);
 
-        var posts = GetPostsFromPages(pages, rangeInfo, threadInfo, adapter, quest);
+        if (pagesN.Any(p => p == null))
+        {
+            SendNotificationMessage("Unable to load all pages.");
+            return (StringData.Error, []);
+        }
+
+        var pages = pagesN.Select(p => p!).ToList();
+
+        var posts = GetPostsFromPages(quest, pages, rangeInfo, threadInfo, adapter);
 
         logger.LogDebug("Got {Count} posts for quest {questDisplayName}.", posts.Count, quest.DisplayName);
 
@@ -155,16 +174,16 @@ public class ForumReaderF(
     /// <param name="quest">The quest being read.</param>
     /// <returns>A list of valid posts found.</returns>
     private List<PostType> GetPostsFromPages(
+        Quest quest,
         List<HtmlDocument> pages,
         ThreadRangeType rangeInfo,
         ThreadInfoType threadInfo,
-        IForumAdapter adapter,
-        Quest quest)
+        IForumAdapter adapter)
     {
         int startPage = ThreadRange.GetStartPage(rangeInfo, quest);
 
         var posts = pages
-            .SelectMany((p,i) => adapter.GetPostsF(p, quest, startPage+i))
+            .SelectMany((p, i) => adapter.GetPostsF(p, quest, startPage + i))
             .Where(p => KeepPost(p, quest, rangeInfo, threadInfo))
             .DistinctBy(p => p.Origin, OriginComparer.Instance) // remove sticky posts
             .OrderBy(p => p.Origin.ThreadPostNumber)
@@ -265,13 +284,23 @@ public class ForumReaderF(
     #endregion Forum Adapter Setup
 
     #region Page Loading
+    /// <summary>
+    /// Get information about the thread being read.
+    /// </summary>
+    /// <param name="quest">The quest</param>
+    /// <param name="pageProvider">The page provider to read web pages.</param>
+    /// <param name="adapter">The forum adapter for the quest.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>A tuple of range information about the thread, and
+    /// title and author information about the thread.</returns>
     private static async Task<(ThreadRangeType, ThreadInfoType)?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
         CancellationToken token)
     {
-        var page = await GetQuestInfoPageAsync(quest, pageProvider, adapter, token);
+        string infoPageUrl = adapter.GetUrlForPage(quest, 1);
+        var page = await GetQuestInfoPageAsync(infoPageUrl, pageProvider, token);
 
         if (page == null)
             return null;
@@ -282,17 +311,21 @@ public class ForumReaderF(
         return (range, thread);
     }
 
+    /// <summary>
+    /// Loads a specific page that will be used to gather information about the thread.
+    /// </summary>
+    /// <param name="pageUrl">The URL to load.</param>
+    /// <param name="pageProvider">The page provider to read web pages.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>The requested page, or null if reading failed.</returns>
     private static async Task<HtmlDocument?> GetQuestInfoPageAsync(
-        Quest quest,
+        string pageUrl,
         IPageProvider pageProvider,
-        IForumAdapter adapter,
         CancellationToken token)
     {
-        string firstPageUrl = adapter.GetUrlForPage(quest, 1);
-
         // Make sure to bypass the cache, since it may have changed since the last load.
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
-            firstPageUrl, $"Info Page",
+            pageUrl, "Info Page",
             CachingMode.BypassCache, ShouldCache.Yes,
             SuppressNotifications.Yes, token)
             .ConfigureAwait(false);
@@ -300,7 +333,17 @@ public class ForumReaderF(
         return page;
     }
 
-    private static async Task<List<HtmlDocument>> ReadPagesFromQuestAsync(
+    /// <summary>
+    /// Read all the relevant pages from the quest, based on the provided
+    /// thread range information.
+    /// </summary>
+    /// <param name="quest">The quest</param>
+    /// <param name="threadRange">Thread range data</param>
+    /// <param name="pageProvider">The page provider to read web pages.</param>
+    /// <param name="adapter">The forum adapter for the quest.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>A list of all loaded documents.</returns>
+    private static async Task<List<HtmlDocument?>> ReadPagesFromQuestAsync(
         Quest quest,
         ThreadRangeType threadRange,
         IPageProvider pageProvider,
@@ -330,7 +373,6 @@ public class ForumReaderF(
         var finished = await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return finished.Where(d => d != null)
-            .Select(d => d!)
             .ToList();
     }
     #endregion Page Loading
