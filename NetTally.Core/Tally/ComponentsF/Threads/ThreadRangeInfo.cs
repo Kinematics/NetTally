@@ -1,4 +1,5 @@
-﻿using NetTally.Tally.ComponentsF.Posts;
+﻿using System;
+using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Tally.ComponentsF.Threads;
 
@@ -63,6 +64,31 @@ public static class ThreadRange
             return threadRange.PageNumber;
 
         return GetPageNumberOfPost(threadRange.StartPostNumber, quest.PostsPerPage);
+    }
+
+    public static int GetEndPage(ThreadRangeType threadRange, Quest quest)
+    {
+        // ByPostId means we got the starting point from the threadmark,
+        // and will therefore be reading to the end of the thread.
+        // Otherwise it's by post number, and we need to check the Quest.
+        if (threadRange.RangeType == ThreadRangeRangeType.ByPostId || quest.ReadToEndOfThread)
+        {
+            if (threadRange.PageCount > 0)
+            {
+                return threadRange.PageCount;
+            }
+        }
+
+        // If we get here, we're using ByPostNumber, and there is a specific end post.
+        int endPostPage = GetPageNumberOfPost(quest.EndPost, quest.PostsPerPage);
+
+        // Make sure we don't go past the end of the thread, if we know the number of pages.
+        if (threadRange.PageCount > 0)
+        {
+            endPostPage = Math.Min(endPostPage, threadRange.PageCount);
+        }
+
+        return endPostPage;
     }
 
     public static int GetPageNumberOfPost(int postNumber, int postsPerPage)
