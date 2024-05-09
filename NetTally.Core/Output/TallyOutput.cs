@@ -517,8 +517,8 @@ namespace NetTally.Output
             {
                 AddTaskLabel(taskName);
                 AddTaskVoterCount(task);
+                sb.AppendLine();
             }
-            sb.AppendLine();
         }
 
         /// <summary>
@@ -800,6 +800,7 @@ namespace NetTally.Output
                 sb.AppendLine();
 
             sb.AppendLine(LineBreak);
+            sb.AppendLine();
             sb.AppendLine();
         }
 
