@@ -7,12 +7,6 @@ using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
-    using FilteredVoterStorage = IEnumerable<KeyValuePair<Origin, VoteLineBlock>>;
-    using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
-    // Simplified generic references
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
-
-
     /// <summary>
     /// Used in conjunction with <seealso cref="VoteStorage"/>, for
     /// keeping track of voters and their associated votes.
@@ -33,8 +27,9 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="copyFrom">The VoterStorage instance to copy from.</param>
         public VoterStorage(VoterStorage copyFrom)
-            : base(copyFrom)
-        { }
+        {
+            CopyFrom(copyFrom);
+        }
 
         /// <summary>
         /// Constructor that allows copying from the base dictionary class
@@ -42,8 +37,17 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="copyFrom">The Dictionary instance to copy from.</param>
         public VoterStorage(Dictionary<Origin, VoteLineBlock> copyFrom)
-            : base(copyFrom)
-        { }
+        {
+            CopyFrom(copyFrom);
+        }
+
+        private void CopyFrom(Dictionary<Origin, VoteLineBlock> copyFrom)
+        {
+            foreach (var entry in copyFrom)
+            {
+                Add(entry.Key, entry.Value);
+            }
+        }
         #endregion Constructors
 
         #region Properties

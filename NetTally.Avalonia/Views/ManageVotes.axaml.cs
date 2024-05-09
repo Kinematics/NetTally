@@ -63,7 +63,7 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         /// <param name="propertyName">The name of the property that was modified.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         #endregion
 
         #region Context Menu Events
