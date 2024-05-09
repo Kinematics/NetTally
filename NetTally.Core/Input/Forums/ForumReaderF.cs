@@ -74,7 +74,7 @@ public class ForumReaderF(
 
         if (allTitles.Any(t => t == StringData.Error))
         {
-            return ([StringData.Error], []);
+            throw new Exception("Unable to load all pages.");
         }
 
         return (allTitles, allPosts);
@@ -150,7 +150,6 @@ public class ForumReaderF(
 
         if (pagesN.Any(p => p == null))
         {
-            SendNotificationMessage("Unable to load all pages.");
             return (StringData.Error, []);
         }
 
