@@ -30,14 +30,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>A deep copy of the current <see cref="VoterStorage"/> object.</returns>
     public VoterStorage Copy()
     {
-        var copy = new VoterStorage();
-
-        foreach (var (origin, vote) in this)
-        {
-            copy.Add(origin, vote);
-        }
-
-        return copy;
+        return CopyFrom(this);
     }
 
     /// <summary>
