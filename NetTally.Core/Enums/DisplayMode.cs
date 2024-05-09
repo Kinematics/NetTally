@@ -18,5 +18,7 @@ public enum DisplayMode
     [Description("Compact")]
     Compact,
     [Description("Compact, No Voters")]
-    CompactNoVoters
+    CompactNoVoters,
+    [Description("Voter Summary")]
+    VoterSummary
 }

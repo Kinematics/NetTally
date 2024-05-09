@@ -21,7 +21,7 @@ namespace NetTally.Output
         ForumAdapterFactory forumAdapterFactory,
         IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
-        #region Constructor and private fields
+        #region Private fields
         private readonly GlobalSettings globalSettings = globalSettings.Value;
         private readonly RankVoteCounterFactory rankVoteCounterFactory = rankVoteCounterFactory;
         private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
@@ -31,9 +31,22 @@ namespace NetTally.Output
         private DisplayMode displayMode;
         private IVoteCounter voteCounter = null!;
         private IRankVoteCounter2 rankVoteCounter = null!;
+
+        /// <summary>
+        /// Gets the line break text from the quest's forum adapter, since some
+        /// can show hard rules, and some need to just use manual text.
+        /// </summary>
+        private string lineBreak = string.Empty;
+
+        /// <summary>
+        /// Get the double line break.  There are no alternate versions right now.
+        /// </summary>
+        private readonly string doubleLineBreak = "<==========================================================>";
+
+        const string NoTask = "【NONE】";
         #endregion
 
-        #region Public ITextResultsProvider functions
+        #region Public functions
         /// <summary>
         /// Public function to generate output for the VoteCounter results.
         /// </summary>
@@ -41,29 +54,33 @@ namespace NetTally.Output
         /// <returns>The full quest tally results string.</returns>
         public string BuildOutput(Quest quest)
         {
+            InitializeBuild(quest);
+
+            return BuildGlobal();
+        }
+        #endregion
+
+        #region Setup for generating output
+
+        private void InitializeBuild(Quest quest)
+        {
             this.quest = quest;
             voteCounter = quest.VoteCounter;
             displayMode = quest.DisplayMode;
 
             var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
-            LineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+            lineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
 
             rankVoteCounter = rankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
             sb.Clear();
-
-            BuildGlobal();
-
-            return sb.ToString();
         }
-        #endregion
 
-        #region Setup for generating output
         /// <summary>
         /// General construction.  Add the header and any vote output.
         /// Surround by spoiler tags if requested by the display mode.
         /// </summary>
-        private void BuildGlobal()
+        private string BuildGlobal()
         {
             var voteGroupings = GetVoteGroupings();
 
@@ -90,6 +107,8 @@ namespace NetTally.Output
 
                 AddTotalVoters();
             }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -229,6 +248,12 @@ namespace NetTally.Output
 
                     AddTaskInfo(task);
 
+                    if (displayMode == DisplayMode.VoterSummary)
+                    {
+                        ConstructVoterSummary(task);
+                        continue;
+                    }
+
                     IEnumerable<CompactVote> compactTask = [];
 
                     if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
@@ -282,6 +307,23 @@ namespace NetTally.Output
                 .Where(v => v.AuthorType == IdentityType.User)
                 .OrderBy(v => v)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Display all voters for a task in a summary fashion.
+        /// </summary>
+        /// <param name="task">The task being displayed.</param>
+        private void ConstructVoterSummary(VotesGroupedByTask task)
+        {
+            var voters = GetAllVotersInTask(task);
+
+            foreach (var voter in voters)
+            {
+                AddVoter(voter);
+            }
+
+            sb.AppendLine();
+            sb.AppendLine();
         }
 
         /// <summary>
@@ -490,27 +532,13 @@ namespace NetTally.Output
         #endregion
 
         #region Components for handling individual additions to the display.
-        /// <summary>
-        /// Gets the line break text from the quest's forum adapter, since some
-        /// can show hard rules, and some need to just use manual text.
-        /// </summary>
-        private string LineBreak { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Get the double line break.  There are no alternate versions right now.
-        /// </summary>
-        private static string DoubleLineBreak => "<==========================================================>";
-
         private void AddTaskInfo(VotesGroupedByTask task)
         {
-            string taskName = task.Key;
+            string taskName = task.Key == "" ? NoTask : task.Key;
 
-            if (taskName.Length > 0)
-            {
-                AddTaskLabel(taskName);
-                AddTaskVoterCount(task);
-                sb.AppendLine();
-            }
+            AddTaskLabel(taskName);
+            AddTaskVoterCount(task);
+            sb.AppendLine();
         }
 
         /// <summary>
@@ -579,7 +607,7 @@ namespace NetTally.Output
             if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
-                  .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
+                  .AppendFormat(CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
                   .Append(')');
             }
             sb.AppendLine("[/b]");
@@ -599,7 +627,7 @@ namespace NetTally.Output
             if (globalSettings.DebugMode)
             {
                 sb.Append(" (")
-                  .AppendFormat(System.Globalization.CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)
+                  .AppendFormat(CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)
                   .Append(')');
             }
             sb.AppendLine("[/b]");
@@ -769,6 +797,25 @@ namespace NetTally.Output
             sb.AppendLine();
         }
 
+        private void AddVoter(Origin voter)
+        {
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("[b]");
+
+            sb.Append("[]");
+
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("Plan: ");
+
+            sb.Append("[url=\"");
+            sb.Append(voter.Permalink);
+            sb.Append("\"]");
+            sb.Append(voter.Author.Name);
+            sb.Append("[/url]");
+
+            if (voter.AuthorType == IdentityType.Plan) sb.Append("[/b]");
+
+            sb.AppendLine();
+        }
+
         /// <summary>
         /// Add a line showing the number of voters.
         /// </summary>
@@ -791,7 +838,7 @@ namespace NetTally.Output
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine();
 
-            sb.AppendLine(LineBreak);
+            sb.AppendLine(lineBreak);
             sb.AppendLine();
             sb.AppendLine();
         }
@@ -801,7 +848,7 @@ namespace NetTally.Output
         /// </summary>
         private void AddDoubleLineBreak()
         {
-            sb.AppendLine(DoubleLineBreak);
+            sb.AppendLine(doubleLineBreak);
             sb.AppendLine();
         }
         #endregion
