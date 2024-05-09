@@ -8,7 +8,7 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting;
 
-public interface IVoteCounter2 : INotifyPropertyChanged
+public interface IVoteCounterF : INotifyPropertyChanged
 {
     /// <summary>
     /// The quest the vote counter is set to track.
