@@ -22,7 +22,7 @@ namespace NetTally.Input.Forums.Reading
     public class ForumReader(IServiceProvider provider,
         ForumAdapterFactory factory,
         IQuestsInfo questsInfo,
-        ILogger<ForumReader> logger) : IForumReader
+        ILogger<ForumReader> logger)
     {
         #region Constructor
         private readonly IServiceProvider serviceProvider = provider;
