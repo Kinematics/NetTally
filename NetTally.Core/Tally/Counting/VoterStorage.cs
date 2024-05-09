@@ -7,12 +7,6 @@ using NetTally.Tally.Components;
 
 namespace NetTally.Votes
 {
-    using FilteredVoterStorage = IEnumerable<KeyValuePair<Origin, VoteLineBlock>>;
-    using OrderedVoterStorage = List<KeyValuePair<Origin, VoteLineBlock>>;
-    // Simplified generic references
-    using VoterStorageEntry = KeyValuePair<Origin, VoteLineBlock>;
-
-
     /// <summary>
     /// Used in conjunction with <seealso cref="VoteStorage"/>, for
     /// keeping track of voters and their associated votes.

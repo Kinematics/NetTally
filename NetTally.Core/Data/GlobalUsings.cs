@@ -25,3 +25,6 @@ global using VotesGroupedByTask = System.Linq.IGrouping<
     string, System.Collections.Generic.KeyValuePair<
         NetTally.Tally.Components.VoteLineBlock, NetTally.Votes.VoterStorage>>;
 
+global using FilteredVoterStorage = System.Collections.Generic.IEnumerable<
+    System.Collections.Generic.KeyValuePair<
+        NetTally.Tally.Components.Origin, NetTally.Tally.Components.VoteLineBlock>>;
