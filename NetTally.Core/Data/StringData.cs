@@ -6,4 +6,6 @@ public class StringData
     public const string NewThreadDisplayName = "~Placeholder~";
 
     public const string ExampleHostUrl = "http://www.example.com/";
+
+    public const string Error = "Error";
 }
