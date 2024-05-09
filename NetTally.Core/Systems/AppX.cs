@@ -13,6 +13,7 @@ using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Forums;
+using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Systems.Config.Json;
 using NetTally.Systems.Config.Xml;

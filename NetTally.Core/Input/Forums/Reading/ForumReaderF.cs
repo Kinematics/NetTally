@@ -16,7 +16,7 @@ using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
 using NetTally.Web;
 
-namespace NetTally.Input.Forums;
+namespace NetTally.Input.Forums.Reading;
 public class ForumReaderF(
     IServiceProvider serviceProvider,
     ForumAdapterFactory forumAdapterFactory,
@@ -361,7 +361,7 @@ public class ForumReaderF(
         for (int pageNum = firstPage; pageNum <= lastPage; pageNum++)
         {
             var pageUrl = adapter.GetUrlForPage(quest, pageNum);
-            var shouldCache = (pageNum == lastPage) ? ShouldCache.No : ShouldCache.Yes;
+            var shouldCache = pageNum == lastPage ? ShouldCache.No : ShouldCache.Yes;
 
             tasks.Add(pageProvider.GetHtmlDocumentAsync(
                               pageUrl, $"Page {pageNum}",

@@ -12,8 +12,9 @@ using NetTally.Configure;
 using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
+using NetTally.Forums;
 
-namespace NetTally.Forums
+namespace NetTally.Input.Forums.Reading
 {
     /// <summary>
     /// Class for handling reading forum posts from a quest's forum.
@@ -308,7 +309,7 @@ namespace NetTally.Forums
             for (int pageNum = firstPageNumber + 1; pageNum <= lastPageNumber; pageNum++)
             {
                 var pageUrl = adapter.GetUrlForPage(quest, pageNum);
-                var shouldCache = (pageNum == lastPageNumber) ? ShouldCache.No : ShouldCache.Yes;
+                var shouldCache = pageNum == lastPageNumber ? ShouldCache.No : ShouldCache.Yes;
 
                 yield return pageProvider.GetHtmlDocumentAsync(
                                   pageUrl, $"Page {pageNum}",
@@ -380,9 +381,9 @@ namespace NetTally.Forums
             // hit any filters the quest has set up.  Then do a grouping to get distinct results.
             var filtered = from post in postsList
                            where post.HasVote
-                                && (PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo))
-                                && ((quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author.Name))
-                                    || (!quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author.Name, threadInfo.Author, StringComparison.Ordinal)))
+                                && PostIsAfterStart(post, rangeInfo) && PostIsBeforeEnd(post, quest, rangeInfo)
+                                && (quest.UseCustomUsernameFilters && !quest.UsernameFilter.Match(post.Origin.Author.Name)
+                                    || !quest.UseCustomUsernameFilters && !string.Equals(post.Origin.Author.Name, threadInfo.Author, StringComparison.Ordinal))
                                 && (!quest.UseCustomPostFilters
                                     || !(quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber)
                                     || quest.PostsToFilter.Contains(post.Origin.ID.Value)))
@@ -402,7 +403,7 @@ namespace NetTally.Forums
         /// <returns>Returns true if the post comes after the start of the tally.</returns>
         private static bool PostIsAfterStart(Post post, ThreadRangeInfo rangeInfo)
         {
-            return (rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number) || (!rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID);
+            return rangeInfo.ByNumber && post.Origin.ThreadPostNumber >= rangeInfo.Number || !rangeInfo.ByNumber && post.Origin.ID > rangeInfo.ID;
         }
 
         /// <summary>
@@ -414,7 +415,7 @@ namespace NetTally.Forums
         /// <returns>Returns true if the post comes before the end of the tally.</returns>
         private static bool PostIsBeforeEnd(Post post, Quest quest, ThreadRangeInfo rangeInfo)
         {
-            return (quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost);
+            return quest.ReadToEndOfThread || rangeInfo.IsThreadmarkSearchResult || post.Origin.ThreadPostNumber <= quest.EndPost;
         }
         #endregion
     }
