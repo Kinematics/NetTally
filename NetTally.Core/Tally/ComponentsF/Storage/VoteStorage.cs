@@ -9,7 +9,7 @@ namespace NetTally.Tally.ComponentsF.Storage;
 
 public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
 {
-    const double categoryThreshold = 0.83;
+    const double CategoryThreshold = 0.83;
     bool dirty = false;
 
     #region Constructors
@@ -17,33 +17,40 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// Default constructor
     /// </summary>
     public VoteStorage()
+        : base(VoteBlockComparer.Instance)
     { }
 
     /// <summary>
-    /// Constructor that allows copying from an existing instance.
+    /// Create a deep copy of the current <see cref="VoteStorage"/> object.
     /// </summary>
-    /// <param name="copyFrom">The VoteStorage instance to copy from.</param>
-    public VoteStorage(VoteStorage copyFrom)
+    /// <returns>A deep copy of the current <see cref="VoteStorage"/> object.</returns>
+    public VoteStorage Copy()
     {
-        CopyFrom(copyFrom);
+        var copy = new VoteStorage();
+
+        foreach (var (vote, storage) in this)
+        {
+            copy.Add(vote, storage.Copy());
+        }
+
+        return copy;
     }
 
     /// <summary>
-    /// Constructor that allows copying from the base dictionary class
-    /// that VoteStorage is based on.
+    /// Creates a deep copy of the provided <see cref="VoteStorage"/> object.
     /// </summary>
-    /// <param name="copyFrom">The Dictionary instance to copy from.</param>
-    public VoteStorage(Dictionary<VoteBlockType, VoterStorage> copyFrom)
+    /// <param name="copyFrom">The <see cref="VoteStorage"/> object to copy.</param>
+    /// <returns>A deep copy of the provided <see cref="VoteStorage"/> object.</returns>
+    public static VoteStorage CopyFrom(Dictionary<VoteBlockType, VoterStorage> copyFrom)
     {
-        CopyFrom(copyFrom);
-    }
+        var copy = new VoteStorage();
 
-    private void CopyFrom(Dictionary<VoteBlockType, VoterStorage> copyFrom)
-    {
-        foreach (var entry in copyFrom)
+        foreach (var (vote, storage) in copyFrom)
         {
-            Add(entry.Key, new VoterStorage(entry.Value));
+            copy.Add(vote, storage.Copy());
         }
+
+        return copy;
     }
     #endregion
 
@@ -165,7 +172,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
 
             foreach (var supporterMarker in supporterMarkers)
             {
-                if (((double)supporterMarker.Count() / total) >= categoryThreshold)
+                if (((double)supporterMarker.Count() / total) >= CategoryThreshold)
                 {
                     return supporterMarker.Key;
                 }
