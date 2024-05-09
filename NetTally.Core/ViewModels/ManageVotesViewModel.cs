@@ -119,14 +119,20 @@ namespace NetTally.ViewModels
         /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(VotesFrom))]
+        [NotifyPropertyChangedFor(nameof(VoteFromFilterEmpty))]
         private string voteFromFilter = string.Empty;
+
+        public bool VoteFromFilterEmpty => VoteFromFilter == string.Empty;
 
         /// <summary>
         /// The filter to be applied to To votes.
         /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(VotesTo))]
+        [NotifyPropertyChangedFor(nameof(VoteToFilterEmpty))]
         private string voteToFilter = string.Empty;
+
+        public bool VoteToFilterEmpty => VoteToFilter == string.Empty;
 
         /// <summary>
         /// Ensure that no unsafe values are entered into the filter.
@@ -279,6 +285,8 @@ namespace NetTally.ViewModels
                 {
                     AllVotesCollection.Remove(SelectedFromVote);
                     NotifyVotesChanged();
+                    OnSelectedToVoteChanged(SelectedToVote);
+                    NotifyVotersChanged();
                     NotifyUndoChanged();
                 }
             }
@@ -299,6 +307,7 @@ namespace NetTally.ViewModels
                 if (quest.VoteCounter.Join([.. VotersFrom], SelectedToVoter))
                 {
                     UpdateVotesCollection();
+                    OnSelectedToVoteChanged(SelectedToVote);
                     UpdateVotersCollection();
                     NotifyUndoChanged();
                 }
@@ -339,6 +348,8 @@ namespace NetTally.ViewModels
             if (quest.VoteCounter.Undo())
             {
                 UpdateVotesCollection();
+                OnSelectedFromVoteChanged(SelectedFromVote);
+                OnSelectedToVoteChanged(SelectedToVote);
                 UpdateVotersCollection();
                 NotifyUndoChanged();
             }
