@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
-using NetTally.Comparers;
 using NetTally.Navigation;
 using NetTally.Tally.Components;
 using NetTally.Utility;
@@ -28,12 +23,6 @@ namespace NetTally.Views
         private readonly WPFNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
-        public ListCollectionView VoteView1 { get; }
-        public ListCollectionView VoteView2 { get; }
-        public ListCollectionView VoterView1 { get; }
-        public ListCollectionView VoterView2 { get; }
-
-
         public ManageVotes(
             ManageVotesViewModel manageVotesViewModel,
             WPFNavigationService navigationService,
@@ -45,15 +34,6 @@ namespace NetTally.Views
 
             InitializeComponent();
 
-            VoteView1 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
-            VoteView2 = new ListCollectionView(manageVotesViewModel.AllVotesCollection);
-
-            VoterView1 = new ListCollectionView(manageVotesViewModel.AllVotersCollection);
-            VoterView2 = new ListCollectionView(manageVotesViewModel.AllVotersCollection);
-
-            // Setup sorting/filtering/etc for views
-            SetupViews();
-
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
             InitKnownTasks();
@@ -62,162 +42,7 @@ namespace NetTally.Views
             DataContext = manageVotesViewModel;
         }
 
-        private void SetupViews()
-        {
-            // ** Votes **
-
-            PropertyGroupDescription groupDescription = new("Category");
-            VoteView1.GroupDescriptions.Add(groupDescription);
-            VoteView2.GroupDescriptions.Add(groupDescription);
-
-            IComparer voteCompare = new VoteBlockComparer();
-            VoteView1.CustomSort = voteCompare;
-            VoteView2.CustomSort = voteCompare;
-
-            VoteView1.Filter = (a) => FilterVotes(Filter1String, a as VoteLineBlock);
-            VoteView2.Filter = (a) => FilterVotes(Filter2String, a as VoteLineBlock);
-
-            // Initialize starting selected positions
-            VoteView1.MoveCurrentToPosition(-1);
-            VoteView2.MoveCurrentToFirst();
-
-            VoteView1.CurrentChanged += (sender, e) =>
-            {
-                manageVotesViewModel.SelectedFromVote = VoteView1.CurrentItem as VoteLineBlock;
-            };
-            VoteView2.CurrentChanged += (sender, e) =>
-            {
-                manageVotesViewModel.SelectedToVote = VoteView2.CurrentItem as VoteLineBlock;
-            };
-
-            // ** Voters **
-
-            VoterView1.CustomSort = Comparer.Default;
-            VoterView2.CustomSort = Comparer.Default;
-
-            VoterView1.Filter = (a) => FilterVoters(VoteView1, a as Origin);
-            VoterView2.Filter = (a) => FilterVoters(VoteView2, a as Origin);
-
-            //VoterView1.CurrentChanged += (sender, e) =>
-            //{
-            //    manageVotesViewModel.FromVoters = VoterView1.SourceCollection.OfType<Origin>().ToList();
-            //};
-            VoterView2.CurrentChanged += (sender, e) =>
-            {
-                manageVotesViewModel.SelectedToVoter = VoterView2.CurrentItem as Origin;
-            };
-
-            // Update the voters to match the votes.
-            VoterView1.Refresh();
-            VoterView2.Refresh();
-
-            logger.LogDebug("Views set up.");
-        }
-
-
-        #region Filtering
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsFilter1Empty))]
-        string filter1String = "";
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsFilter2Empty))]
-        string filter2String = "";
-
-        partial void OnFilter1StringChanged(string value)
-        {
-            VoteView1.Refresh();
-        }
-
-        partial void OnFilter2StringChanged(string value)
-        {
-            VoteView2.Refresh();
-        }
-
-        public bool IsFilter1Empty => string.IsNullOrEmpty(Filter1String);
-        public bool IsFilter2Empty => string.IsNullOrEmpty(Filter2String);
-
-
-        /// <summary>
-        /// Filter to be used by the vote display to determine which votes should be
-        /// shown in the list box.
-        /// </summary>
-        /// <param name="voteView">The view being filtered.</param>
-        /// <param name="filterString">The filter string being used.</param>
-        /// <param name="vote">The vote being checked by the filter delegate.</param>
-        /// <returns>Returns true if the vote should be displayed, or false if it should be hidden.</returns>
-        bool FilterVotes(string filterString, VoteLineBlock? vote)
-        {
-            if (vote == null)
-                return false;
-
-            if (string.IsNullOrEmpty(filterString))
-                return true;
-
-            if (CultureInfo.InvariantCulture.CompareInfo
-                .IndexOf(vote.ToComparableString(), filterString, CompareOptions.IgnoreCase) >= 0)
-                return true;
-
-            var voters = manageVotesViewModel.GetVotersForVote(vote).ToList();
-
-            if (voters.Count == 0)
-                return false;
-
-            return voters.Any(voter => CultureInfo.InvariantCulture.CompareInfo
-                .IndexOf(voter.Author.Name, filterString, CompareOptions.IgnoreCase) >= 0);
-        }
-
-        /// <summary>
-        /// Filter to be used by a collection view to determine which voters should
-        /// be displayed in the voter list box, for each vote that is selected.
-        /// </summary>
-        /// <param name="voteView">The view of the main vote box.</param>
-        /// <param name="voter">The name of the voter being checked.</param>
-        /// <returns>Returns true if that voter supports the currently selected
-        /// vote in the vote view.</returns>
-        private bool FilterVoters(ICollectionView voteView, Origin? voter)
-        {
-            if (voter == null)
-                return false;
-
-            if (voteView.IsEmpty)
-                return false;
-
-            if (voteView.CurrentItem is VoteLineBlock currentVote)
-            {
-                var voters = manageVotesViewModel.GetVotersForVote(currentVote);
-                return voters.Contains(voter);
-            }
-
-            return false;
-        }
-
-        #endregion
-
         #region Window events
-
-        /// <summary>
-        /// Update enabled state of merge button, and current list of voters, based on current vote selection
-        /// for the list of votes to be merged from.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void VotesFromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            VoterView1.Refresh();
-        }
-
-        /// <summary>
-        /// Update enabled state of merge button, and current list of voters, based on current vote selection
-        /// for the list of votes to be merged to.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void VotesToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            VoterView2.Refresh();
-        }
-
         /// <summary>
         /// Handles the KeyDown event of the Window control.
         /// Ctrl-Z acts as a call to Undo.
