@@ -47,10 +47,7 @@ namespace NetTally.Forums.ForumAdapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         ThreadInfo GetThreadInfo(HtmlDocument page);
-        Tally.ComponentsF.Threads.ThreadInfoType GetThreadInfoF(HtmlDocument page);
         Tally.ComponentsF.Threads.ThreadInfoType GetThreadInfoF(Quest quest, HtmlDocument page);
-        Task<Tally.ComponentsF.Threads.ThreadInfoType> GetQuestThreadInfoAsyncF(
-            Quest quest, IPageProvider pageProvider, CancellationToken token);
 
         /// <summary>
         /// Gets the range of post numbers to tally, for the given quest.
@@ -61,7 +58,6 @@ namespace NetTally.Forums.ForumAdapters
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
         Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token);
-        Task<Tally.ComponentsF.Threads.ThreadRangeType> GetQuestRangeInfoAsyncF(Quest quest, IPageProvider pageProvider, CancellationToken token);
         Tally.ComponentsF.Threads.ThreadRangeType GetQuestRangeInfoF(Quest quest, HtmlDocument page);
 
         /// <summary>
