@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using NetTally.Enums;
 
 namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
@@ -13,6 +14,8 @@ namespace NetTally.Tally.ComponentsF.Votes;
 public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTaskType Task)
     : IEnumerable<VoteLineType>
 {
+    public MarkerType Category { get; set; } = MarkerType.None;
+
     public IEnumerator<VoteLineType> GetEnumerator()
     {
         if (Lines.Count == 0)
