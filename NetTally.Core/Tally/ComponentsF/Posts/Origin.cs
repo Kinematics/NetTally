@@ -13,7 +13,11 @@ public sealed record OriginType(
     PostIdType PostId,
     int ThreadPostNumber,
     DateTimeOffset Timestamp,
-    OriginType? Source);
+    OriginType? Source)
+{
+    public bool IsUser => Category == IdentityType.User;
+    public bool IsPlan => Category == IdentityType.Plan;
+}
 
 public static class Origin
 {
@@ -86,30 +90,46 @@ public static class Origin
     }
 }
 
-public class OriginComparer : IEqualityComparer<OriginType>
+public class OriginComparer : IEqualityComparer<OriginType>, IComparer<OriginType>
 {
     public static readonly Uri ExampleUri = new(StringData.ExampleHostUrl);
     public static OriginComparer Instance { get; } = new();
+
+    public int Compare(OriginType? x, OriginType? y)
+    {
+        if (ReferenceEquals(x, y)) return 0;
+        if (x is null) return -1;
+        if (y is null) return 1;
+
+        int result = x.Category.CompareTo(y.Category);
+
+        if (result != 0) return result;
+
+        result = AuthorComparer.Instance.Compare(x.Author, y.Author);
+
+        if (result != 0) return result;
+
+        if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
+            y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
+        {
+            result = x.Thread.AbsoluteUri.CompareTo(y.Thread.AbsoluteUri);
+
+            if (result != 0) return result;
+
+            result = PostIdComparer.Instance.Compare(x.PostId, y.PostId);
+            
+            if (result != 0) return result;
+        }
+
+        return 0;
+    }
 
     public bool Equals(OriginType? x, OriginType? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
 
-        if (x.Category != y.Category)
-            return false;
-
-        if (!AuthorComparer.Instance.Equals(x.Author, y.Author))
-            return false;
-
-        if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
-            y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
-        {
-            if (x.Thread != y.Thread || x.PostId != y.PostId)
-                return false;
-        }
-
-        return true;
+        return Compare(x, y) == 0;
     }
 
     public int GetHashCode([DisallowNull] OriginType obj)
