@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
@@ -50,100 +49,6 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     }
     #endregion Constructors
 
-    #region Properties
-    /// <summary>
-    /// Special lookup for the origin keys stored in the VoterStorage dictionary.
-    /// </summary>
-    readonly HashSet<OriginType> NameLookup = [];
-    #endregion Properties
-
-    #region Reset
-    public void Reset()
-    {
-        this.Clear();
-        NameLookup.Clear();
-    }
-    #endregion
-
-    #region Override Add/Remove functions
-    /// <summary>
-    /// Define the indexer to allow client code to use [] notation. 
-    /// </summary>
-    /// <param name="index">The index into the storage array.</param>
-    /// <returns>Returns the element found at the given index.</returns>
-    public new VoteBlockType this[OriginType index]
-    {
-        get
-        {
-            return base[index];
-        }
-        set
-        {
-            NameLookup.Add(index);
-            base[index] = value;
-        }
-    }
-
-    /// <summary>
-    /// Adds the specified key and value to the storage.
-    /// </summary>
-    /// <param name="key">Lookup key.</param>
-    /// <param name="value">Stored value.</param>
-    public new void Add(OriginType key, VoteBlockType value)
-    {
-        NameLookup.Add(key);
-        base.Add(key, value);
-    }
-
-    /// <summary>
-    /// Tries to add the specified key and value to the storage.
-    /// </summary>
-    /// <param name="key">Lookup key.</param>
-    /// <param name="value">Stored value.</param>
-    /// <returns>Returns true if successfully added. Returns false if the key already exists.</returns>
-    public new bool TryAdd(OriginType key, VoteBlockType value)
-    {
-        if (NameLookup.Add(key))
-        {
-            return base.TryAdd(key, value);
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Remove the specified key from storage.
-    /// </summary>
-    /// <param name="key">The lookup key.</param>
-    /// <returns>Returns true if the key was found in the collection.</returns>
-    public new bool Remove(OriginType key)
-    {
-        NameLookup.Remove(key);
-        return base.Remove(key);
-    }
-
-    /// <summary>
-    /// Removes the specified key from storage.
-    /// Returns the corresponding value as an out parameter.
-    /// </summary>
-    /// <param name="key">The lookup key.</param>
-    /// <param name="value">The value associated with the key.</param>
-    /// <returns>Returns true if the key was found in the collection.</returns>
-    public new bool Remove(OriginType key, [NotNullWhen(true)] out VoteBlockType? value)
-    {
-        NameLookup.Remove(key);
-
-        if (base.Remove(key, out VoteBlockType? removed))
-        {
-            value = removed;
-            return true;
-        }
-
-        value = null;
-        return false;
-    }
-    #endregion Override Add/Remove functions
-
     #region Queries - Has XX?
     /// <summary>
     /// Check whether a given origin matches any voters stored in this lookup.
@@ -152,7 +57,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the origin exists in this lookup.</returns>
     public bool HasIdentity(OriginType origin)
     {
-        return NameLookup.Contains(origin);
+        return ContainsKey(origin);
     }
 
     /// <summary>
@@ -162,7 +67,9 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the plan name can be found in this lookup.</returns>
     public bool HasPlan(string planName)
     {
-        return NameLookup.Contains(new OriginType(planName, IdentityType.Plan));
+        var author = Author.Create(planName);
+        var origin = Origin.CreateOriginForName(IdentityType.Plan, author);
+        return origin != null && ContainsKey(origin);
     }
 
     /// <summary>
@@ -172,27 +79,20 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the voter name can be found in this lookup.</returns>
     public bool HasVoter(string voterName)
     {
-        return NameLookup.Contains(new OriginType(voterName, IdentityType.User));
+        var author = Author.Create(voterName);
+        var origin = Origin.CreateOriginForName(IdentityType.User, author);
+        return origin != null && ContainsKey(origin);
     }
     #endregion Queries - Has XX?
 
     #region Queries - Counts
-    /// <summary>
-    /// Get the total number of vote supporters.
-    /// </summary>
-    /// <returns></returns>
-    public int GetTotalCount()
-    {
-        return Count;
-    }
-
     /// <summary>
     /// Get the total number of users who are vote supporters.
     /// </summary>
     /// <returns></returns>
     public int GetUserCount()
     {
-        return this.Count(s => s.Key.AuthorType == IdentityType.User);
+        return this.Count(s => s.Key.IsUser);
     }
 
     /// <summary>
@@ -212,16 +112,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns></returns>
     public int GetSupportCount()
     {
-        return this.Count(s =>
-            s.Key.AuthorType == IdentityType.User &&
-            s.Value.MarkerType switch
-            {
-                MarkerType.Vote => true,
-                MarkerType.Score => s.Value.MarkerValue > 50,
-                MarkerType.Approval => s.Value.MarkerValue > 50,
-                _ => false
-            }
-        );
+        return this.Count(s => s.Key.IsUser && MarkerComparer.IsPositive(s.Value.Marker));
     }
 
     /// <summary>
@@ -236,12 +127,13 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
         int count = 0;
         int accum = 0;
 
-        var (rating, lowerBound) = VoteCounting.RankVotes.Reference.RankingCalculations.GetLowerWilsonScore(users, a => a.Value.MarkerValue);
+        var (rating, lowerBound) = VoteCounting.RankVotes.Reference
+            .RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.MarkerValue);
 
         foreach (var (userOrigin, userVote) in users)
         {
             count++;
-            accum += userVote.MarkerValue;
+            accum += userVote.Marker.MarkerValue;
         }
 
         if (count == 0)
@@ -270,7 +162,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
         // Sum up the positive and negative results.
         foreach (var (userOrigin, userVote) in users)
         {
-            if (userVote.MarkerValue > 50)
+            if (userVote.Marker.MarkerValue > 50)
                 positive++;
             else
                 negative++;
@@ -288,29 +180,25 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="voters">The voters being ordered.</param>
     /// <returns>Returns an ordered list of the voters.</returns>
-    public OrderedVoterStorage GetOrderedVoterList()
+    public OrderedVoterStorageF GetOrderedVoterList()
     {
-        var voterList = new OrderedVoterStorage();
-
-        if (Count == 0)
+        // If 0 or 1 voters, nothing to sort
+        if (Count < 2)
         {
-            return voterList;
+            return [.. this];
         }
 
-        if (Count == 1)
-        {
-            voterList.AddRange(this);
-            return voterList;
-        }
+        VoterStorageEntryF? firstEntry = GetFirstVoter();
 
-        var (firstVoter, firstVote) = GetFirstVoter();
+        if (firstEntry == null)
+            return [];
 
-        var orderRemaining = this.Where(v => v.Key != firstVoter)
-            .OrderByDescending(v => v.Value.MarkerValue)
-            .ThenBy(v => v.Key);
+        var orderRemaining = this
+            .Where(v => !OriginComparer.Instance.Equals(v.Key, firstEntry.Value.Key))
+            .OrderByDescending(v => v.Value.Marker.MarkerValue)
+            .ThenBy(v => v.Key, OriginComparer.Instance);
 
-        voterList.Add(new VoterStorageEntry(firstVoter, firstVote));
-        voterList.AddRange(orderRemaining);
+        OrderedVoterStorageF voterList = [firstEntry.Value, .. orderRemaining];
 
         return voterList;
     }
@@ -322,37 +210,33 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="voters">The voters being ordered.</param>
     /// <returns>Returns an ordered list of the voters.</returns>
-    public OrderedVoterStorage GetOrderedRankedVoterList()
+    public OrderedVoterStorageF GetOrderedRankedVoterList()
     {
-        var result = new OrderedVoterStorage();
-
         var ranksOnly = this
-            .Where(v => v.Value.MarkerType == MarkerType.Rank)
-            .OrderBy(v => v.Value.MarkerValue)
-            .ThenBy(v => v.Key);
+            .Where(v => v.Value.Marker.MarkerType == MarkerType.Rank)
+            .OrderBy(v => v.Value.Marker.MarkerValue)
+            .ThenBy(v => v.Key, OriginComparer.Instance);
         var others = this
-            .Where(v => v.Value.MarkerType != MarkerType.Rank)
-            .OrderBy(v => v.Key);
+            .Where(v => v.Value.Marker.MarkerType != MarkerType.Rank)
+            .OrderBy(v => v.Key, OriginComparer.Instance);
 
-        result.AddRange(ranksOnly);
-        result.AddRange(others);
+        OrderedVoterStorageF result = [.. ranksOnly, .. others];
 
         return result;
     }
     #endregion Queries - Ordered Results
 
     #region Queries - General
+    static readonly List<MarkerType> nonRankMarkerTypes = [MarkerType.Vote, MarkerType.Score, MarkerType.Approval];
+
     /// <summary>
     /// Get users from storage that used non-rank voting.
     /// </summary>
     /// <returns></returns>
-    public FilteredVoterStorage GetNonRankUsers()
+    public FilteredVoterStorageF GetNonRankUsers()
     {
-        return this.Where(s => (s.Key.AuthorType == IdentityType.User) &&
-                               ((s.Value.MarkerType == MarkerType.Vote) ||
-                                (s.Value.MarkerType == MarkerType.Score) ||
-                                (s.Value.MarkerType == MarkerType.Approval))
-                         );
+        return this.Where(s => s.Key.IsUser &&
+                               nonRankMarkerTypes.Contains(s.Value.Marker.MarkerType));
     }
     #endregion
 
@@ -363,36 +247,22 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="voters">The VoterStorage collection of voters.</param>
     /// <returns>Returns the earliest VoterStorageEntry found.</returns>
-    private (OriginType voter, VoteLineBlock vote) GetFirstVoter()
+    //private (OriginType voter, VoteBlockType vote) GetFirstVoter()
+    private VoterStorageEntryF? GetFirstVoter()
     {
-        if (!this.Any())
-            throw new InvalidOperationException("No voters to process");
+        if (Count == 0)
+            return null;
 
-        OriginType firstVoter = this.First().Key;
+        var entries = this.Where(v => v.Key.IsPlan);
 
-        foreach (var (voterOrigin, voterVote) in this)
+        if (!entries.Any())
         {
-            // Plans have priority in determining first voter.
-            if (voterOrigin.AuthorType == IdentityType.Plan)
-            {
-                if (firstVoter.AuthorType != IdentityType.Plan)
-                {
-                    firstVoter = voterOrigin;
-                }
-                else if (voterOrigin.ID < firstVoter.ID)
-                {
-                    firstVoter = voterOrigin;
-                }
-            }
-            // If the firstVoter is already a plan, don't overwrite with a user.
-            // Otherwise update if the new vote is earlier than the existing one.
-            else if (firstVoter.AuthorType != IdentityType.Plan && voterOrigin.ID < firstVoter.ID)
-            {
-                firstVoter = voterOrigin;
-            }
+            entries = this;
         }
 
-        return (firstVoter, this[firstVoter]);
+        var sorted = entries.OrderBy(v => v.Key.PostId, PostIdComparer.Instance);
+
+        return sorted.FirstOrDefault();
     }
     #endregion Support functions
 }
@@ -519,9 +389,9 @@ public static class VoterStorageExtensions
     /// </summary>
     /// <param name="voters">The voters being ordered.</param>
     /// <returns>Returns an ordered list of the voters.</returns>
-    public static OrderedVoterStorage GetOrderedVoterListEx(this IEnumerable<VoterStorageEntry> storageValues)
+    public static OrderedVoterStorageF GetOrderedVoterListEx(this FilteredVoterStorageF storageValues)
     {
-        var voterList = new OrderedVoterStorage();
+        var voterList = new OrderedVoterStorageF();
 
         if (!storageValues.Any())
         {
@@ -532,7 +402,7 @@ public static class VoterStorageExtensions
 
         var orderRemaining = storageValues.Where(v => v.Key != firstVoter).OrderBy(v => v.Key);
 
-        voterList.Add(new VoterStorageEntry(firstVoter, firstVote));
+        voterList.Add(new VoterStorageEntryF(firstVoter, firstVote));
         voterList.AddRange(orderRemaining);
 
         return voterList;
