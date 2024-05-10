@@ -51,7 +51,7 @@ global using OrderedVoterStorageF = System.Collections.Generic.List<
         NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
 
 // List of VoterStorage elements:
-global using FilteredVoterStorageF = System.Collections.Generic.IEnumerable<
+global using CollectedVoterStorageF = System.Collections.Generic.IEnumerable<
     System.Collections.Generic.KeyValuePair<
         NetTally.Tally.ComponentsF.Posts.OriginType,
         NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
