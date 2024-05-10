@@ -144,11 +144,11 @@ public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerDat
         return obj.MarkerValue.GetHashCode();
     }
 
-    public static bool IsPositive(MarkerData marker)
+    public static bool? IsPositive(MarkerData marker)
     {
         return marker.MarkerType switch
         {
-            MarkerType.Rank => false,
+            MarkerType.Rank => null,
             MarkerType.Vote => true,
             _ => marker.MarkerValue > 50
         };

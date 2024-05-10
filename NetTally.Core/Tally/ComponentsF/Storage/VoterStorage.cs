@@ -112,7 +112,13 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns></returns>
     public int GetSupportCount()
     {
-        return this.Count(s => s.Key.IsUser && MarkerComparer.IsPositive(s.Value.Marker));
+        return this.Count(s =>
+        {
+            if (s.Key.IsPlan)
+                return false;
+            var pos = MarkerComparer.IsPositive(s.Value.Marker);
+            return pos.HasValue && pos.Value;
+        });
     }
 
     /// <summary>
