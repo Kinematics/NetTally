@@ -24,29 +24,13 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     { }
 
     /// <summary>
-    /// Create a deep copy of the current <see cref="VoterStorage"/> object.
+    /// Constructor that takes a provided collection of voter storage elements.
     /// </summary>
-    /// <returns>A deep copy of the current <see cref="VoterStorage"/> object.</returns>
-    public VoterStorage Copy()
-    {
-        return CopyFrom(this);
-    }
-
-    /// <summary>
-    /// Create a deep copy of the provided <see cref="VoterStorage"/> object.
-    /// </summary>
-    /// <returns>A deep copy of the provided <see cref="VoterStorage"/> object.</returns>
-    public static VoterStorage CopyFrom(Dictionary<OriginType, VoteBlockType> copyFrom)
-    {
-        var copy = new VoterStorage();
-
-        foreach (var (origin, vote) in copyFrom)
-        {
-            copy.Add(origin, vote);
-        }
-
-        return copy;
-    }
+    /// <param name="collectedVoterStorage">Voter storage elements to initialize
+    /// the <see cref="VoterStorage"/> object with.</param>
+    public VoterStorage(CollectedVoterStorageF collectedVoterStorage)
+        : base(collectedVoterStorage, OriginComparer.Instance)
+    { }
     #endregion Constructors
 
     #region Queries - Has XX?
@@ -89,7 +73,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <summary>
     /// Get the total number of users who are vote supporters.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The number of users in storage.</returns>
     public int GetUserCount()
     {
         return this.Count(s => s.Key.IsUser);
@@ -99,7 +83,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// Get the total number of users supporting the vote who
     /// used standard, score, or approval votes.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The number of users making non-rank votes.</returns>
     public int GetNonRankUserCount()
     {
         return GetNonRankUsers().Count();
@@ -109,16 +93,11 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// Get the total number of positively supporting users in this vote.
     /// Approval +'s and Scores above 50 count for support.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The number of users who expressed positive support.</returns>
     public int GetSupportCount()
     {
-        return this.Count(s =>
-        {
-            if (s.Key.IsPlan)
-                return false;
-            var pos = MarkerComparer.IsPositive(s.Value.Marker);
-            return pos.HasValue && pos.Value;
-        });
+        return this.Count(s => s.Key.IsUser &&
+                          MarkerComparer.IsPositive(s.Value.Marker).GetValueOrDefault());
     }
 
     /// <summary>
@@ -239,7 +218,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// Get users from storage that used non-rank voting.
     /// </summary>
     /// <returns></returns>
-    public FilteredVoterStorageF GetNonRankUsers()
+    public CollectedVoterStorageF GetNonRankUsers()
     {
         return this.Where(s => s.Key.IsUser &&
                                nonRankMarkerTypes.Contains(s.Value.Marker.MarkerType));
@@ -274,230 +253,35 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
 }
 
 /// <summary>
-/// Extension methods that allow use of the VoterStorage methods on arbitrary
-/// IEnumerables of VoterStorageEntries.
+/// Static class for an extension methods on voter storage data.
 /// </summary>
-public static class VoterStorageExtensions
+public static class VoterStorageCreate
 {
-    #region Queries - Counts
     /// <summary>
-    /// Get the total number of vote supporters.
+    /// Extension method that can take an enumerable of voter storage
+    /// key/value pairs and turn it into a <see cref="VoterStorage"/> object.
     /// </summary>
-    /// <returns></returns>
-    public static int GetTotalCount(this IEnumerable<VoterStorageEntry> storageValues)
+    /// <param name="collectedVoterStorage">An enumeration of key/value pairs of voter storage info.</param>
+    /// <returns>A <see cref="VoterStorage"/> object.</returns>
+    public static VoterStorage AsVoterStorage(this CollectedVoterStorageF collectedVoterStorage)
     {
-        if (storageValues is List<VoterStorageEntry> storageValuesList)
-            return storageValuesList.Count;
-
-        return storageValues.Count();
+        return new VoterStorage(collectedVoterStorage);
     }
 
     /// <summary>
-    /// Get the total number of users who are vote supporters.
+    /// Create a deep copy of the provided <see cref="VoterStorage"/> object.
     /// </summary>
-    /// <returns></returns>
-    public static int GetUserCount(this IEnumerable<VoterStorageEntry> storageValues)
+    /// <returns>A deep copy of the provided <see cref="VoterStorage"/> object.</returns>
+    public static VoterStorage Copy(this CollectedVoterStorageF copyFrom)
     {
-        return storageValues.Count(s => s.Key.AuthorType == IdentityType.User);
-    }
+        var copy = new VoterStorage();
 
-    /// <summary>
-    /// Get the total number of users supporting the vote who
-    /// used standard, score, or approval votes.
-    /// </summary>
-    /// <returns></returns>
-    public static int GetNonRankUserCount(this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        return storageValues.GetNonRankUsers().Count();
-    }
-
-    /// <summary>
-    /// Get the total number of positively supporting users in this vote.
-    /// Approval +'s and Scores above 50 count for support.
-    /// </summary>
-    /// <returns></returns>
-    public static int GetSupportCount(this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        return storageValues.Count(s =>
-            s.Key.AuthorType == IdentityType.User &&
-            s.Value.MarkerType switch
-            {
-                MarkerType.Vote => true,
-                MarkerType.Score => s.Value.MarkerValue > 50,
-                MarkerType.Approval => s.Value.MarkerValue > 50,
-                _ => false
-            }
-        );
-    }
-
-    /// <summary>
-    /// Gets the overall score for this vote.
-    /// </summary>
-    /// <returns>Returns a triplet of the score (int rounded version of the average),
-    /// the average, and the lower 95% statistical margin.</returns>
-    public static (int score, double average, double lowerMargin) GetScore(
-        this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        var users = storageValues.GetNonRankUsers();
-
-        int count = 0;
-        int accum = 0;
-
-        var (rating, lowerBound) = VoteCounting.RankVotes.Reference.RankingCalculations.GetLowerWilsonScore(users, a => a.Value.MarkerValue);
-
-        foreach (var (userOrigin, userVote) in users)
+        foreach (var (origin, vote) in copyFrom)
         {
-            count++;
-            accum += userVote.MarkerValue;
+            copy.Add(origin, vote);
         }
 
-        if (count == 0)
-            return (0, 0, 0);
-
-        double average = (double)accum / count;
-        int simpleScore = (int)Math.Round(average, 0, MidpointRounding.AwayFromZero);
-
-        return (simpleScore, average, lowerBound);
+        return copy;
     }
-
-    /// <summary>
-    /// Get the overall approval for this vote.
-    /// </summary>
-    /// <returns>Returns the positive and negative results of how
-    /// users voted for this vote.  A value above 50 is positive,
-    /// while 50 and lower is negative.</returns>
-    public static (int positive, int negative) GetApproval(this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        var users = storageValues.GetNonRankUsers();
-
-        int positive = 0;
-        int negative = 0;
-
-        // Standard votes have a value of 100, Approval+ have a value of 80, and Scores are variable.
-        // Sum up the positive and negative results.
-        foreach (var (userOrigin, userVote) in users)
-        {
-            if (userVote.MarkerValue > 50)
-                positive++;
-            else
-                negative++;
-        }
-
-        return (positive, negative);
-    }
-    #endregion Queries - Counts
-
-    #region Queries - Ordered Results
-    /// <summary>
-    /// Gets an ordered version of the provided voters.
-    /// The first voter was the first voter to support the vote, and
-    /// the rest of the voters are alphabatized.
-    /// </summary>
-    /// <param name="voters">The voters being ordered.</param>
-    /// <returns>Returns an ordered list of the voters.</returns>
-    public static OrderedVoterStorageF GetOrderedVoterListEx(this FilteredVoterStorageF storageValues)
-    {
-        var voterList = new OrderedVoterStorageF();
-
-        if (!storageValues.Any())
-        {
-            return voterList;
-        }
-
-        var (firstVoter, firstVote) = storageValues.GetFirstVoter();
-
-        var orderRemaining = storageValues.Where(v => v.Key != firstVoter).OrderBy(v => v.Key);
-
-        voterList.Add(new VoterStorageEntryF(firstVoter, firstVote));
-        voterList.AddRange(orderRemaining);
-
-        return voterList;
-    }
-
-    /// <summary>
-    /// Gets an ordered version of the provided voters.
-    /// The list is ordered by the rank value each voter used, then alphabetically.
-    /// Any non-rank votes are added at the end.
-    /// </summary>
-    /// <param name="voters">The voters being ordered.</param>
-    /// <returns>Returns an ordered list of the voters.</returns>
-    public static OrderedVoterStorage GetOrderedRankedVoterList(
-        this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        var result = new OrderedVoterStorage();
-
-        var ranksOnly = storageValues
-            .Where(v => v.Value.MarkerType == MarkerType.Rank)
-            .OrderBy(v => v.Value.MarkerValue)
-            .ThenBy(v => v.Key);
-        var others = storageValues
-            .Where(v => v.Value.MarkerType != MarkerType.Rank)
-            .OrderBy(v => v.Key);
-
-        result.AddRange(ranksOnly);
-        result.AddRange(others);
-
-        return result;
-    }
-    #endregion Queries - Ordered Results
-
-    #region Queries - General
-    /// <summary>
-    /// Get users from storage that used non-rank voting.
-    /// </summary>
-    /// <returns></returns>
-    public static FilteredVoterStorage GetNonRankUsers(this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        return storageValues.Where(s => (s.Key.AuthorType == IdentityType.User) &&
-                                        ((s.Value.MarkerType == MarkerType.Vote) ||
-                                         (s.Value.MarkerType == MarkerType.Score) ||
-                                         (s.Value.MarkerType == MarkerType.Approval))
-                                  );
-    }
-    #endregion
-
-    #region Support functions
-    /// <summary>
-    /// Get the first voter from the provided list of VoterStorage entries.
-    /// Plans always have priority over users.
-    /// </summary>
-    /// <param name="voters">The VoterStorage collection of voters.</param>
-    /// <returns>Returns the earliest VoterStorageEntry found.</returns>
-    private static (OriginType voter, VoteBlockType vote) GetFirstVoter(
-        this IEnumerable<VoterStorageEntry> storageValues)
-    {
-        if (!storageValues.Any())
-            throw new InvalidOperationException("No voters to process");
-
-        var (firstVoter, firstVote) = storageValues.First();
-
-        foreach (var (voterOrigin, voterVote) in storageValues)
-        {
-            // Plans have priority in determining first voter.
-            if (voterOrigin.AuthorType == IdentityType.Plan)
-            {
-                if (firstVoter.AuthorType != IdentityType.Plan)
-                {
-                    firstVoter = voterOrigin;
-                    firstVote = voterVote;
-                }
-                else if (voterOrigin.ID < firstVoter.ID)
-                {
-                    firstVoter = voterOrigin;
-                    firstVote = voterVote;
-                }
-            }
-            // If the firstVoter is already a plan, don't overwrite with a user.
-            // Otherwise update if the new vote is earlier than the existing one.
-            else if (firstVoter.AuthorType != IdentityType.Plan && voterOrigin.ID < firstVoter.ID)
-            {
-                firstVoter = voterOrigin;
-                firstVote = voterVote;
-            }
-        }
-
-        return (firstVoter, firstVote);
-    }
-    #endregion Support functions
-
 }
+
