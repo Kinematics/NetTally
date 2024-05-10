@@ -11,7 +11,8 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Votes;
+using NetTally.Tally.ComponentsF.Storage;
+using System.Xml.Linq;
 
 namespace NetTally.VoteCounting;
 
@@ -28,12 +29,11 @@ public class VoteCounterF(
     private readonly ILogger<VoteCounter> logger = logger;
 
     #region Data Collections
-    readonly List<PostType> postsList = [];
-
     /// <summary>
     /// The list of posts collected from the quest. Read-only.
     /// </summary>
-    public List<PostType> Posts => postsList;
+    private List<PostType> RawPosts { get; } = [];
+    public List<PostToProcess> Posts { get; } = [];
 
     /// <summary>
     /// The overall collection of voters and supporters.
@@ -42,7 +42,7 @@ public class VoteCounterF(
 
     VoterStorage ReferencePlans { get; } = [];
 
-    HashSet<OriginType> ReferenceOrigins { get; } = [];
+    HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginComparer.Instance);
 
     Stack<UndoAction> UndoBuffer { get; } = new();
 
@@ -50,7 +50,7 @@ public class VoteCounterF(
     #endregion
 
     #region State
-    public bool HasPosts => postsList.Count > 0;
+    public bool HasPosts => RawPosts.Count > 0;
     public bool HasVotes => VoteStorage.Count > 0;
     public bool HasUndoActions => UndoBuffer.Count > 0;
     #endregion State
@@ -110,7 +110,8 @@ public class VoteCounterF(
     /// </summary>
     public void ResetPosts()
     {
-        postsList.Clear();
+        RawPosts.Clear();
+        Posts.Clear();
     }
     #endregion Reset various storage
 
@@ -121,10 +122,10 @@ public class VoteCounterF(
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
     public void AddPosts(IEnumerable<PostType> posts)
     {
-        ArgumentNullException.ThrowIfNull(posts);
-
-        postsList.Clear();
-        postsList.AddRange(posts);
+        RawPosts.Clear();
+        RawPosts.AddRange(posts);
+        Posts.Clear();
+        Posts.AddRange(posts.Select(p => new PostToProcess(p)));
     }
 
     /// <summary>
@@ -133,8 +134,6 @@ public class VoteCounterF(
     /// <param name="titles">A list of titles to use.</param>
     public void SetThreadTitles(IEnumerable<string> titles)
     {
-        ArgumentNullException.ThrowIfNull(titles);
-
         Titles.Clear();
         Titles.AddRange(titles);
     }
@@ -149,19 +148,16 @@ public class VoteCounterF(
     /// <param name="postID">The post ID the plan was defined in.</param>
     /// <param name="plan">The the vote line block that defines the plan.</param>
     /// <returns>Returns true if it was added, or false if it already exists.</returns>
-    public bool AddReferencePlan(OriginType planOrigin, VoteBlockType plan)
+    public bool AddReferencePlan(OriginType updateOrigin, VoteBlockType plan)
     {
         // If it doesn't exist, we can just add it.
-        if (ReferenceOrigins.Add(planOrigin))
+        if (ReferenceOrigins.Add(updateOrigin))
         {
-            ReferencePlans.Add(planOrigin, plan);
+            ReferencePlans.Add(updateOrigin, plan);
             return true;
         }
-        else if (
-                  (globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
-                   globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans) &&
-                  ReferenceOrigins.TryGetValue(planOrigin, out OriginType? currentOrigin)
-                )
+        else if (CanUpdatePlans() &&
+                 ReferenceOrigins.TryGetValue(updateOrigin, out OriginType? currentOrigin))
         {
             // Author can replace existing version of a plan he wrote on conditions:
             // - Options allow plan replacement
@@ -171,20 +167,27 @@ public class VoteCounterF(
             // - New plan is more than one line (ie: not simply re-voting for the existing version)
             // - Content of the plan is different
 
-            if (planOrigin.Source != OriginType.Empty && planOrigin.Source == currentOrigin.Source &&
-                planOrigin.ID > currentOrigin.ID &&
+            if (updateOrigin.Source != Origin.None &&
+                OriginComparer.Instance.Equals(updateOrigin.Source, currentOrigin.Source) &&
+                PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
                 plan.Lines.Count > 1 &&
                 ReferencePlans.TryGetValue(currentOrigin, out VoteBlockType? currentPlan) &&
-                plan != currentPlan)
+                !VoteBlockComparer.Instance.Equals(plan, currentPlan))
             {
                 ReferenceOrigins.Remove(currentOrigin);
-                ReferenceOrigins.Add(planOrigin);
-                ReferencePlans[planOrigin] = plan;
+                ReferenceOrigins.Add(updateOrigin);
+                ReferencePlans[updateOrigin] = plan;
                 return true;
             }
         }
 
         return false;
+    }
+
+    private bool CanUpdatePlans()
+    {
+        return globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
+              (globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans);
     }
 
     /// <summary>
@@ -195,53 +198,13 @@ public class VoteCounterF(
     /// <param name="voterName">The proper name of the voter.</param>
     /// <param name="postID">The ID of their vote post.</param>
     /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-    public bool AddReferenceVoter(Origin voter)
+    public bool AddReferenceVoter(OriginType voter)
     {
         return ReferenceOrigins.Add(voter);
     }
     #endregion
 
     #region Get Reference Data using strings
-    /// <summary>
-    /// Get canonical version of the provided plan name.
-    /// </summary>
-    /// <param name="planName">The name of the plan being checked for.</param>
-    /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    public OriginType? GetPlanOriginByName(string? planName)
-    {
-        if (string.IsNullOrEmpty(planName))
-            return null;
-
-        OriginType test = new(planName, IdentityType.Plan);
-
-        if (ReferenceOrigins.TryGetValue(test, out OriginType? actual))
-        {
-            return actual;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Get canonical version of the provided voter name.
-    /// </summary>
-    /// <param name="voterName">The name of the voter being checked for.</param>
-    /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    public OriginType? GetVoterOriginByName(string? voterName)
-    {
-        if (string.IsNullOrEmpty(voterName))
-            return null;
-
-        OriginType test = new(voterName, IdentityType.User);
-
-        if (ReferenceOrigins.TryGetValue(test, out OriginType? actual))
-        {
-            return actual;
-        }
-
-        return null;
-    }
-
     /// <summary>
     /// Determine if the requested plan name exists in the current list of plans.
     /// Applies the plan name marker character to the provided plan name, if it
@@ -254,6 +217,11 @@ public class VoteCounterF(
         return GetPlanOriginByName(planName) != null;
     }
 
+    public bool HasPlan(AuthorType planAuthor)
+    {
+        return GetOriginByAuthor(planAuthor, IdentityType.Plan) != null;
+    }
+
     /// <summary>
     /// Determines if the specified voter is in the list of all possible voters for the tally.
     /// </summary>
@@ -264,6 +232,60 @@ public class VoteCounterF(
         return GetVoterOriginByName(voterName) != null;
     }
 
+    public bool HasVoter(AuthorType planAuthor)
+    {
+        return GetOriginByAuthor(planAuthor, IdentityType.User) != null;
+    }
+
+    /// <summary>
+    /// Get canonical version of the provided plan name.
+    /// </summary>
+    /// <param name="planName">The name of the plan being checked for.</param>
+    /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
+    public OriginType? GetPlanOriginByName(string? planName)
+    {
+        if (string.IsNullOrEmpty(planName))
+            return null;
+
+        var author = Author.Create(planName);
+
+        return GetOriginByAuthor(author, IdentityType.Plan);
+    }
+
+    /// <summary>
+    /// Get canonical version of the provided voter name.
+    /// </summary>
+    /// <param name="voterName">The name of the voter being checked for.</param>
+    /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
+    public OriginType? GetVoterOriginByName(string? voterName)
+    {
+        if (string.IsNullOrEmpty(voterName))
+            return null;
+
+        var author = Author.Create(voterName);
+
+        return GetOriginByAuthor(author, IdentityType.User);
+    }
+
+    private OriginType? GetOriginByAuthor(AuthorType author, IdentityType identityType)
+    {
+        var namedOrigin = Origin.CreateOriginForName(identityType, author);
+
+        if (namedOrigin == null)
+            return null;
+
+        return GetReferenceOrigin(namedOrigin);
+    }
+
+    private OriginType? GetReferenceOrigin(OriginType namedOrigin)
+    {
+        if (ReferenceOrigins.TryGetValue(namedOrigin, out OriginType? actualOrigin))
+        {
+            return actualOrigin;
+        }
+
+        return null;
+    }
     #endregion
 
     #region Get Reference Data
@@ -273,11 +295,11 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="voterName">The name of the voter to check for.</param>
     /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-    public PostId? GetLatestVoterPostId(OriginType voter)
+    public PostIdType? GetLatestVoterPostId(OriginType voter)
     {
         if (ReferenceOrigins.TryGetValue(voter, out OriginType? actual))
         {
-            return actual.ID;
+            return actual.PostId;
         }
 
         return null;
@@ -290,13 +312,17 @@ public class VoteCounterF(
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    public PostType? GetLastPostByAuthor(OriginType author, PostIdType maxPostId)
+    public PostToProcess? GetLastPostByAuthor(OriginType author, PostIdType maxPostId)
     {
-        if (ReferenceOrigins.TryGetValue(author, out OriginType? actual))
+        var actualOrigin = GetReferenceOrigin(author);
+
+        if (actualOrigin != null)
         {
-            return postsList.Where(p => author == p.Origin &&
-                                        (maxPostId == 0 || p.Origin.ID < maxPostId))
-                            .MaxBy(p => p.Origin.ID);
+            return Posts
+                .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Author, p.Origin.Author) &&
+                            (maxPostId == PostId.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
+                .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
+
         }
 
         return null;
@@ -307,16 +333,15 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="post">The post being checked.</param>
     /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
-    public bool HasNewerVote(PostType post)
+    public bool HasNewerVote(PostToProcess post)
     {
-        if (!HasVoter(post.Origin.Author.Name))
+        if (!HasVoter(post.Origin.Author))
             return false;
 
         return Posts.Any(p =>
                            p.Processed
-                        && p.Origin.ID > post.Origin.ID
-                        && string.Equals(p.Origin.Author.Name, post.Origin.Author.Name, StringComparison.Ordinal)
-                        );
+                           && PostIdComparer.Instance.Compare(p.Origin.PostId, post.Origin.PostId) > 1
+                           && AuthorComparer.Instance.Equals(p.Origin.Author, post.Origin.Author));
     }
 
     /// <summary>
@@ -334,7 +359,7 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    public List<VoteBlockType> GetVotesBy(OriginType voter) => VoteStorage.GetVotesBy(voter);
+    public IEnumerable<VoteBlockType> GetVotesBy(OriginType voter) => VoteStorage.GetVotesBy(voter);
 
     /// <summary>
     /// Gets a count of the known voters.
@@ -342,7 +367,7 @@ public class VoteCounterF(
     /// <returns>Returns a count of the registered reference voters.</returns>
     public int GetTotalVoterCount()
     {
-        return ReferenceOrigins.Count(o => o.AuthorType == IdentityType.User);
+        return ReferenceOrigins.Count(o => o.IsUser);
     }
 
     /// <summary>
@@ -378,7 +403,7 @@ public class VoteCounterF(
             return;
 
         // Remove the voter from any existing votes
-        VoteStorage.RemoveVoterFromVotes(voter);
+        VoteStorage.RemoveSupporterFromAllVotes(voter);
 
         // Add/update all segments of the provided vote
         foreach (var partition in votePartitions)
@@ -527,7 +552,7 @@ public class VoteCounterF(
     /// <param name="voters">The voters that will support the new voter.</param>
     /// <param name="voterToJoin">The voter to join.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Join(List<Origin> voters, Origin voterToJoin)
+    public bool Join(List<OriginType> voters, OriginType voterToJoin)
     {
         bool joined = false;
 
@@ -555,7 +580,7 @@ public class VoteCounterF(
         /// <param name="joiningVoter">The voter being moved to a new voting support set.</param>
         /// <param name="voterToJoin">The voter being joined.</param>
         /// <returns>Returns true if the join was completed.</returns>
-        bool JoinImpl(Origin joiningVoter, Origin voterToJoin)
+        bool JoinImpl(OriginType joiningVoter, OriginType voterToJoin)
         {
             var source = GetVotesBy(joiningVoter);
             var dest = GetVotesBy(voterToJoin);
@@ -674,11 +699,11 @@ public class VoteCounterF(
     #endregion
 
     #region Task properties
-    HashSet<string> VoteDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
-    HashSet<string> UserDefinedTasks { get; } = new(StringComparer.OrdinalIgnoreCase);
-    List<string> OrderedVoteTaskList { get; } = [];
-    List<string> OrderedUserTaskList { get; } = [];
-    public ObservableCollectionExt<string> TaskList { get; } = [];
+    HashSet<VoteTaskType> VoteDefinedTasks { get; } = new(VoteTaskComparer.Instance);
+    HashSet<VoteTaskType> UserDefinedTasks { get; } = new(VoteTaskComparer.Instance);
+    List<VoteTaskType> OrderedVoteTaskList { get; } = [];
+    List<VoteTaskType> OrderedUserTaskList { get; } = [];
+    public ObservableCollectionExt<VoteTaskType> TaskList { get; } = [];
 
 
     /// <summary>
@@ -686,11 +711,8 @@ public class VoteCounterF(
     /// to the ordered task lists.
     /// </summary>
     /// <param name="task">The new task to add to the knowledge base.</param>
-    private void AddPotentialVoteTask(string task)
+    private void AddPotentialVoteTask(VoteTaskType task)
     {
-        if (string.IsNullOrEmpty(task))
-            return;
-
         if (!UserDefinedTasks.Contains(task))
         {
             if (VoteDefinedTasks.Add(task))
@@ -707,11 +729,8 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="task">The task to add.</param>
     /// <returns>Returns true if the task was added to the knowledge base.</returns>
-    public bool AddUserDefinedTask(string task)
+    public bool AddUserDefinedTask(VoteTaskType task)
     {
-        if (string.IsNullOrEmpty(task))
-            return false;
-
         if (UserDefinedTasks.Add(task))
         {
             OrderedUserTaskList.Add(task);
@@ -753,7 +772,7 @@ public class VoteCounterF(
         OnPropertyChanged("Tasks");
     }
 
-    public void ReplaceTasks(IEnumerable<string> tasks)
+    public void ReplaceTasks(IEnumerable<VoteTaskType> tasks)
     {
         TaskList.Replace(tasks);
     }
@@ -764,9 +783,9 @@ public class VoteCounterF(
     /// <param name="vote">The vote to update the task on.</param>
     /// <param name="task">The new task label.</param>
     /// <returns>Returns true if the task was updated.</returns>
-    public bool ReplaceTask(VoteBlockType vote, string task)
+    public bool ReplaceTask(VoteBlockType vote, VoteTaskType task)
     {
-        if (StringComparer.OrdinalIgnoreCase.Equals(vote.Task, task))
+        if (VoteTaskComparer.Instance.Equals(vote.Task, task))
         {
             return false;
         }

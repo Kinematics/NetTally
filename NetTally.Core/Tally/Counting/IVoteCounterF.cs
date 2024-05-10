@@ -4,7 +4,7 @@ using NetTally.Collections;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Votes;
+using NetTally.Tally.ComponentsF.Storage;
 
 namespace NetTally.VoteCounting;
 
@@ -54,7 +54,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <summary>
     /// The list of posts collected from the quest. Read-only.
     /// </summary>
-    List<PostType> Posts { get; }
+    List<PostToProcess> Posts { get; }
     /// <summary>
     /// Whether the quest has any recorded posts.
     /// </summary>
