@@ -33,8 +33,7 @@ namespace NetTally.VoteCounting
     /// </summary>
     public class MergeRecords
     {
-        readonly Dictionary<PartitionMode, List<MergeData>> MergeLookup
-            = new Dictionary<PartitionMode, List<MergeData>>();
+        readonly Dictionary<PartitionMode, List<MergeData>> MergeLookup = [];
 
         /// <summary>
         /// Gets the list of merges for the specified partition mode.
