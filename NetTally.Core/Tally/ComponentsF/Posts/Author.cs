@@ -46,6 +46,9 @@ public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorTyp
 
     public bool Equals(AuthorType? x, AuthorType? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

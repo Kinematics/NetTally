@@ -51,6 +51,9 @@ public class PostIdComparer : IEqualityComparer<PostIdType>, IComparer<PostIdTyp
 
     public bool Equals(PostIdType? x, PostIdType? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

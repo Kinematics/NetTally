@@ -166,6 +166,9 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
 
     public bool Equals(VoteContentType? x, VoteContentType? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

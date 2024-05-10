@@ -91,6 +91,9 @@ public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteL
 
     public bool Equals(VoteLineType? x, VoteLineType? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

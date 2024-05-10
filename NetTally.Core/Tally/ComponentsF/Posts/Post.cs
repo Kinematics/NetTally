@@ -28,7 +28,8 @@ public class PostComparer : IEqualityComparer<PostType>
 
     public bool Equals(PostType? x, PostType? y)
     {
-        if (x == null || y == null) return false;
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
 
         return OriginComparer.Instance.Equals(x.Origin, y.Origin) &&
             Agnostic.InsensitiveComparer.Equals(x.Text, y.Text);

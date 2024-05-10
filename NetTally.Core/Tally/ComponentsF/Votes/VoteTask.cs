@@ -46,6 +46,9 @@ public class VoteTaskComparer : IEqualityComparer<VoteTaskType>, IComparer<VoteT
 
     public bool Equals(VoteTaskType? x, VoteTaskType? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

@@ -136,6 +136,9 @@ public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerDat
 
     public bool Equals(MarkerData? x, MarkerData? y)
     {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
         return Compare(x, y) == 0;
     }
 

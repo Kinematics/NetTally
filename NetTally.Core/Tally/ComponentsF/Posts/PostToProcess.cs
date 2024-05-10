@@ -37,5 +37,4 @@ public class PostToProcess(PostType post)
         WorkingVoteComplete = false;
         WorkingVote.Clear();
     }
-
 }
