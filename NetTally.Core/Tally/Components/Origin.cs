@@ -36,7 +36,7 @@ namespace NetTally.Tally.Components
         { }
 
         public Origin(string author, IdentityType identityType)
-            : this(author, identityType, PostId.Zero, 0, DateTime.MinValue,
+            : this(author, identityType, PostId.Zero, 0, DateTimeOffset.MinValue,
                   exampleUri, string.Empty, Empty)
         {
             limitedToName = true;
