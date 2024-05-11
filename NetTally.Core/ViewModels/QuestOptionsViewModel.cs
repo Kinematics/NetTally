@@ -37,6 +37,8 @@ namespace NetTally.ViewModels
 
         public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
+        public List<ForumType> ValidForums { get; } = Enum.GetValues<ForumType>().ToList();
+
         public ObservableCollection<Quest> AvailableQuests { get; }
 
         public ObservableCollection<Quest> LinkedQuests { get; } = [];

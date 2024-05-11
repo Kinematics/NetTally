@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:NetTally"
         xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
         d:DataContext="{d:DesignInstance Type=viewmodels:QuestOptionsViewModel}"
-        Title="Quest Options" Height="520" Width="640" ShowInTaskbar="False" ResizeMode="NoResize"
+        Title="Quest Options" Height="540" Width="640" ShowInTaskbar="False" ResizeMode="NoResize"
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico">
 
@@ -173,11 +173,11 @@
                     <TextBlock x:Name="describePostsPerPage" Margin="86,17,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
                                Text="Set the number of posts per thread page. A value of 0 will reset to the default for the forum." />
 
-                    <Label x:Name="labelFormatting" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"
+                    <Label x:Name="labelFormatting" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"
                            Content="Rules for handling votes in this quest:" FontSize="14" />
 
                     <CheckBox Grid.Column="0" x:Name="whitespaceAndPunctuationIsSignificant" Content="Whitespace &amp; Punctuation is Significant"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,95,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,84,0,0"
                               IsChecked="{Binding Path=WhitespaceAndPunctuationIsSignificant}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -190,7 +190,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox Grid.Column="0" x:Name="caseIsSignificant" Content="Case is Significant"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,115,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,104,0,0"
                               IsChecked="{Binding CaseIsSignificant}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -203,7 +203,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="forcePlanReferencesToBeLabeled" Content="Force Plan References to be Labeled"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,135,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,124,0,0"
                               IsChecked="{Binding Path=ForcePlanReferencesToBeLabeled}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -216,7 +216,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="forbidVoteLabelPlanNames" Content="Forbid Vote Label Plan Names"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,155,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,144,0,0"
                               IsChecked="{Binding Path=ForbidVoteLabelPlanNames}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -229,7 +229,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="allowUsersToUpdatePlans" Content="Allow users to update their own plans in later posts"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,175,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,164,0,0"
                               IsChecked="{Binding Path=AllowUsersToUpdatePlans}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -242,7 +242,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="disableProxyVotes" Content="Disable User Proxy Votes"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,195,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,184,0,0"
                               IsChecked="{Binding Path=DisableProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -255,7 +255,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox x:Name="forcePinnedProxyVotes" Content="Force Pinned Proxy Votes"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,215,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,204,0,0"
                               IsChecked="{Binding Path=ForcePinnedProxyVotes}">
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -268,7 +268,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox Grid.Column="0" x:Name="ignoreSpoilers" Content="Ignore Spoilers"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,235,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,224,0,0"
                               IsChecked="{Binding Path=IgnoreSpoilers}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -281,7 +281,7 @@
                         </CheckBox.ToolTip>
                     </CheckBox>
                     <CheckBox Grid.Column="0" x:Name="trimExtendedText" Content="Trim Extended Vote Descriptions"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,255,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,244,0,0"
                               IsChecked="{Binding Path=TrimExtendedText}" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -296,7 +296,7 @@
                     </CheckBox>
 
                     <CheckBox Grid.Column="0" x:Name="useRSSThreadmarks" Content="Use RSS Threadmarks"
-                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,290,0,0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,275,0,0"
                               IsChecked="{Binding Path=UseRSSThreadmarks, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" >
                         <CheckBox.ToolTip>
                             <ToolTip>
@@ -308,6 +308,28 @@
                             </ToolTip>
                         </CheckBox.ToolTip>
                     </CheckBox>
+
+
+                    <ComboBox x:Name="ForumType" Margin="10,300,0,0" VerticalAlignment="Top" Height="30"  HorizontalAlignment="Left" Width="100"
+                              ItemsSource="{Binding Path=ValidForums}" SelectedItem="{Binding Path=ForumType}" 
+                              VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold">Forum Type</TextBlock>
+                                    <TextBlock>Specify the type of forum used for this thread.</TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </ComboBox.ToolTip>
+                    </ComboBox>
+                    <TextBlock x:Name="DescribeForumType" Margin="120,305,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                               Text="If set to Unknown, the program will attempt to auto-detect the forum type." />
 
                     <Button x:Name="ResetButton2" Content="Reset" Margin="10,0,0,10"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75"
