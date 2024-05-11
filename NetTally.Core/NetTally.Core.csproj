@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 	<PropertyGroup>
-		<VersionPrefix>5.0.3</VersionPrefix>
+		<VersionPrefix>5.0.4</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup Label="Configuration">
 		<RootNamespace>NetTally</RootNamespace>
