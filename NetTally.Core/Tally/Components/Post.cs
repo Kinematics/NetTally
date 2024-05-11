@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Hosting;
 using NetTally.Enums;
 using NetTally.Utility;
 using NetTally.Votes;
@@ -24,10 +23,9 @@ namespace NetTally.Tally.Components
         public Post(Origin origin, string text)
         {
             ArgumentNullException.ThrowIfNull(origin);
-            ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
             Origin = origin;
-            Text = text;
+            Text = text ?? "";
             VoteLines = GetPostAnalysisResults(Text);
         }
 
