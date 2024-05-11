@@ -332,7 +332,8 @@ namespace NetTally.ViewModels
         }
 
 
-        [GeneratedRegex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(\?[^#]*)?(#[^/]*)?(unread)?$", RegexOptions.None, 50)]
+        [GeneratedRegex(@"^(?<base>.+?)(?:&?page[-=]?\d+)?(?:&p=?\d+)?(?:(?<!showthread\.php)\?[^#]*)?(?:#[^/]*)?(?:unread)?$",
+            RegexOptions.None, 50)]
         private static partial Regex PageNumberRegex();
 
         private static string CleanupThreadName(string url)
@@ -346,7 +347,7 @@ namespace NetTally.ViewModels
             return url;
         }
 
-        [GeneratedRegex(@"(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
+        [GeneratedRegex(@"(?:showthread\.php\?)?(?:t=)?(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
         private static partial Regex DisplayNameRegex();
 
         private static string GetDisplayNameFromUrl(string url)
