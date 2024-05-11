@@ -6,11 +6,12 @@
 public enum ForumType
 {
     Unknown,
-    XenForo1,
-    XenForo2,
-    vBulletin3,
-    vBulletin4,
-    vBulletin5,
-    phpBB,
-    NodeBB
+    XenForo1 = 1,
+    XenForo2 = 2,
+    vBulletin3 = 10,
+    vBulletin4 = 11,
+    vBulletin5 = 12,
+    vBulletin6 = 13,
+    phpBB = 20,
+    NodeBB = 30
 }
