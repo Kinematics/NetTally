@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using NetTally.Tally.Components;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Vote counter interface for ranked votes.
     /// </summary>
