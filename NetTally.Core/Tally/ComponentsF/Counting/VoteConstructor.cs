@@ -108,23 +108,32 @@ public static class VoteConstructor
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
         // Proposed needs to be converted to an unadorned plan name.
-        if (planType == VoteBlocks.PlanStatus.Proposed)
+        if (planType == PlanStatus.Proposed)
         {
-            string content = $"Plan: {planName}";
-            firstLine = firstLine.WithContent(content);
+            string normalName = $"Plan: {planName}";
+            var content = VoteContent.Create(normalName);
+
+            if (content != null)
+            {
+                firstLine = firstLine with { Content = content } ;
+            }
         }
 
         // All vote lines in a plan should have MarkerType of None.
         // This allows them to be part of any comparison, and easily mesh with various output.
-        if (planType != VoteBlocks.PlanStatus.None)
+        if (planType != PlanStatus.None)
         {
-            firstLine = firstLine.WithMarker("", MarkerType.None, 0);
+            firstLine = firstLine with { Marker = Marker.Empty } ;
 
             List<VoteLineType> voteLines = [firstLine, .. keyContents.Skip(1)];
 
-            var returnPlan = new VoteBlockType(voteLines).WithMarker(Strings.PlanNameMarker, MarkerType.Plan, 0);
-
-            return (planName, returnPlan);
+            var returnPlan = VoteBlock.Create(voteLines);
+            
+            if (returnPlan != null)
+            {
+                returnPlan = returnPlan with { Marker = Marker.PlanMarker };
+                return (planName, returnPlan);
+            }
         }
 
         // If it's not a plan, how did we get here?
@@ -204,7 +213,7 @@ public static class VoteConstructor
                     {
                         i += refPlan.Lines.Count - 1; // compensate for the i++ increment
                     }
-                    else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Depth > 0)
+                    else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Prefix.Depth > 0)
                     {
                         // If a block references a plan, but does not match the original plan in full (eg: missing lines),
                         // don't treat the initial line as a plan reference and then leave junk lines, but just add the
@@ -284,12 +293,12 @@ public static class VoteConstructor
 
             if (isProposedPlan)
             {
-                OriginType? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
+                OriginType? planOrigin = quest.VoteCounterF.GetPlanOriginByName(proposedPlanName);
 
                 if (planOrigin == null)
                     return false;
 
-                return planOrigin.ID == post.Origin.ID;
+                return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
             }
 
             return false;
@@ -328,14 +337,14 @@ public static class VoteConstructor
     /// <param name="voteLine">The vote line to examine.</param>
     /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
     /// <returns>Returns a tuple with the discovered information.</returns>
-    private static (bool isReference, bool isPlan, bool isPinnedUser, Origin refName)
+    private static (bool isReference, bool isPlan, bool isPinnedUser, OriginType refName)
         GetReference(VoteLineType voteLine, Quest quest)
     {
         // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
-        if (voteLine.CleanContent.Length > 100)
+        if (voteLine.Content.CleanContent.Length > 100)
             goto noReference;
 
-        Match m = referenceNameRegex.Match(voteLine.CleanContent);
+        Match m = referenceNameRegex.Match(voteLine.Content.CleanContent);
         if (m.Success)
         {
             string label = m.Groups["label"].Value;
@@ -343,7 +352,7 @@ public static class VoteConstructor
 
             if (string.Equals(label, "^") || string.Equals(label, "↑"))
             {
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
@@ -352,20 +361,20 @@ public static class VoteConstructor
             else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                   || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
             {
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
             {
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                 // Check user names second
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 // Force pinning if requested.
@@ -375,13 +384,13 @@ public static class VoteConstructor
             else // Any unlabeled lines
             {
                 // Check user names first
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
                     return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
 
                 // Check to make sure the quest doesn't forbid non-labeled plan references.
                 if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
@@ -390,7 +399,7 @@ public static class VoteConstructor
         }
 
     noReference:
-        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.Empty);
+        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.None);
     }
     #endregion
 
@@ -430,10 +439,7 @@ public static class VoteConstructor
         if (!quest.UseCustomTaskFilters)
             return true;
 
-        if (string.IsNullOrEmpty(block.Task))
-            return false;
-
-        return quest.TaskFilter?.Match(block.Task) ?? false;
+        return quest.TaskFilter.Match(block.Task.Name);
     }
     #endregion
 
@@ -472,8 +478,8 @@ public static class VoteConstructor
                 int minDepth = int.MaxValue;
                 foreach (var line in block.Skip(1))
                 {
-                    if (line.Depth < minDepth)
-                        minDepth = line.Depth;
+                    if (line.Prefix.Depth < minDepth)
+                        minDepth = line.Prefix.Depth;
                 }
 
                 foreach (var line in block.Skip(1))
@@ -497,8 +503,8 @@ public static class VoteConstructor
                 int minDepth = int.MaxValue;
                 foreach (var line in block.Skip(1))
                 {
-                    if (line.Depth < minDepth)
-                        minDepth = line.Depth;
+                    if (line.Prefix.Depth < minDepth)
+                        minDepth = line.Prefix.Depth;
                 }
 
                 // Maybe: Apply main task to sub blocks.
@@ -594,9 +600,10 @@ public static class VoteConstructor
 
         if (working.Count > 0)
         {
-            VoteBlockType workingBlock = new(working);
+            var workingBlock = VoteBlock.Create(working);
 
-            results.Add(workingBlock);
+            if (workingBlock != null)
+                results.Add(workingBlock);
         }
 
         return results;
@@ -616,7 +623,12 @@ public static class VoteConstructor
         {
             if (line != null)
             {
-                working.Add(new VoteBlockType(line));
+                var vb = VoteBlock.Create([line]);
+
+                if (vb != null)
+                {
+                    working.Add(vb);
+                }
             }
             else if (block != null)
             {
@@ -678,7 +690,7 @@ public static class VoteConstructor
             if (line != null)
             {
                 // Start a new block if we reach a new 0-depth line.
-                if (line.Depth == 0 && tempList.Count > 0)
+                if (line.Prefix.Depth == 0 && tempList.Count > 0)
                 {
                     working.Add(new VoteBlockType(tempList));
                     tempList.Clear();
@@ -716,7 +728,7 @@ public static class VoteConstructor
         ref Stack<(int depth, string task)> taskStack)
     {
         // If we have no task, and the line has no task, do nothing.
-        if (line.Task.Length == 0 && currentTask.task.Length == 0)
+        if (line.Task.Name.Length == 0 && currentTask.task.Length == 0)
         {
             return new VoteBlockType(line);
         }
@@ -725,9 +737,9 @@ public static class VoteConstructor
         // our current task is appropriate to the line level.
         // Once we've done that, we'll be back to checking if the line is equal or greater
         // depth than the current task.
-        if (line.Depth < currentTask.depth)
+        if (line.Prefix.Depth < currentTask.depth)
         {
-            while (currentTask.depth > line.Depth && taskStack.Count > 0)
+            while (currentTask.depth > line.Prefix.Depth && taskStack.Count > 0)
             {
                 currentTask = taskStack.Pop();
             }
@@ -744,7 +756,7 @@ public static class VoteConstructor
         if (line.Depth > currentTask.depth)
         {
             // If the new line has no task, just propogate the current task and move on.
-            if (line.Task.Length == 0)
+            if (!line.HasTask)
             {
                 return new VoteBlockType(line.WithTask(currentTask.task));
             }
