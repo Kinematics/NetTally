@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using NetTally.Enums;
+using NetTally.Utility;
 
 namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
@@ -18,6 +19,8 @@ public record MarkerData(MarkerType MarkerType, int MarkerValue, string MarkerSy
 public static partial class Marker
 {
     public static MarkerData Empty { get; } = new MarkerData(MarkerType.None, 0, "");
+    public static MarkerData PlanMarker { get; } = new MarkerData(MarkerType.Plan, 0, Strings.PlanNameMarker);
+
 
     static readonly Regex markerRegex = MarkerRegex();
 
