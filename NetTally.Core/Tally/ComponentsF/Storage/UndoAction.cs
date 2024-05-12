@@ -2,7 +2,6 @@
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.VoteCounting;
 
 namespace NetTally.Tally.ComponentsF.Storage;
 

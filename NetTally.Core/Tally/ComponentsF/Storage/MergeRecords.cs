@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Enums;
+using NetTally.Tally.ComponentsF.Votes;
 
 namespace NetTally.Tally.ComponentsF.Storage;
 
