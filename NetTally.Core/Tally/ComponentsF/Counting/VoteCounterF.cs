@@ -492,7 +492,7 @@ public class VoteCounterF(
         {
             if (!toSupport.ContainsKey(supporterName))
             {
-                var newVote = toVote.WithMarker(oldVote.Marker, oldVote.MarkerType, oldVote.MarkerValue);
+                var newVote = toVote with { Marker = oldVote.Marker };
                 toSupport.Add(supporterName, newVote);
                 merged = true;
             }
@@ -843,41 +843,29 @@ public class VoteCounterF(
         VoteStorage.Remove(vote);
 
         var originalTask = vote.Task;
-        vote.Task = task;
+        var replacementVote = vote with { Task = task };
 
         // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
-        if (VoteStorage.ContainsKey(vote))
+        if (VoteStorage.TryGetValue(replacementVote, out var toSupport))
         {
-            if (VoteStorage.TryGetValue(vote, out var toSupport))
+            var updatedSupporters = 
+                supporters.Select(s => new VoterStorageEntryF(s.Key, s.Value with { Task = task }));
+
+            foreach (var sup in updatedSupporters)
             {
-                foreach (var (supporterName, supporterVote) in supporters)
+                if (!toSupport.ContainsKey(sup.Key))
                 {
-                    if (!toSupport.ContainsKey(supporterName))
-                    {
-                        supporterVote.Task = task;
-                        toSupport.Add(supporterName, supporterVote);
-                    }
+                    toSupport.Add(sup.Key, sup.Value);
                 }
-            }
-            else
-            {
-                // Undo the attempt if we couldn't get the conflicting vote data
-                vote.Task = originalTask;
-
-                VoteStorage.Add(vote, supporters);
-
-                return false;
             }
         }
         // If there's no conflict, update the tasks in the supporter votes and add the revised vote.
         else
         {
-            foreach (var (_, supporterVote) in supporters)
-            {
-                supporterVote.Task = task;
-            }
+            var updatedSupporters = new VoterStorage(
+                supporters.Select(s => new VoterStorageEntryF(s.Key, s.Value with { Task = task })));
 
-            VoteStorage.Add(vote, supporters);
+            VoteStorage.Add(replacementVote, updatedSupporters);
         }
 
         return true;
