@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
-using NetTally.Tally.Components;
+using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Input.Forums.Reading;
-public interface IForumReader
+public interface IForumReaderF
 {
-    Task<(List<string> Titles, List<Post> Posts)>
+    Task<(List<string> Titles, List<PostType> Posts)>
         ReadQuestAsync(Quest quest, CancellationToken cancellationToken);
 
     public event EventHandler<MessageEventArgs>? StatusChanged;
