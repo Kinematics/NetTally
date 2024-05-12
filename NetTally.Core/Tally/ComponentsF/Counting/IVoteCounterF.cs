@@ -5,8 +5,9 @@ using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Tally.ComponentsF.Storage;
+using NetTally.VoteCounting;
 
-namespace NetTally.VoteCounting.Func;
+namespace NetTally.Tally.ComponentsF.Counting;
 
 public interface IVoteCounterF : INotifyPropertyChanged
 {

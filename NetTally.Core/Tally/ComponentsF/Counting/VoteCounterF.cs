@@ -12,8 +12,9 @@ using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Tally.ComponentsF.Storage;
+using NetTally.VoteCounting;
 
-namespace NetTally.VoteCounting.Func;
+namespace NetTally.Tally.ComponentsF.Counting;
 
 /// <summary>
 /// Class for managing and tracking votes and voters for a quest.
@@ -43,7 +44,7 @@ public class VoteCounterF(
 
     HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginComparer.Instance);
 
-    Stack<NetTally.Tally.ComponentsF.Storage.UndoAction> UndoBuffer { get; } = new();
+    Stack<Storage.UndoAction> UndoBuffer { get; } = new();
 
     MergeRecords UserMerges { get; } = new();
     #endregion
@@ -186,7 +187,7 @@ public class VoteCounterF(
     private bool CanUpdatePlans()
     {
         return globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
-              (globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans);
+              globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans;
     }
 
     /// <summary>
@@ -789,7 +790,7 @@ public class VoteCounterF(
             return false;
         }
 
-        UndoBuffer.Push(new NetTally.Tally.ComponentsF.Storage.UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
+        UndoBuffer.Push(new Storage.UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
         VoteBlockType originalVote = VoteBlock.Clone(vote);
 
         if (ReplaceTaskImplWrapper(vote, task))
