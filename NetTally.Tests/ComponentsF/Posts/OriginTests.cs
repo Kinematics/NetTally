@@ -156,7 +156,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         AuthorType plan = Author.Create("Nightlife");
-        var origin2 = Origin.GetPlanOrigin(origin1, plan);
+        var origin2 = Origin.CreatePlanOrigin(origin1, plan);
         Assert.IsNotNull(origin2);
 
         Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
@@ -170,9 +170,9 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         AuthorType plan = Author.Create("Nightlife");
-        var origin2 = Origin.GetPlanOrigin(origin1, plan);
+        var origin2 = Origin.CreatePlanOrigin(origin1, plan);
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.GetPlanOrigin(origin1, plan);
+        var origin3 = Origin.CreatePlanOrigin(origin1, plan);
         Assert.IsNotNull(origin3);
 
         Assert.AreEqual(origin2, origin3, OriginComparer.Instance);
@@ -186,9 +186,9 @@ public class OriginTests
 
         AuthorType plan1 = Author.Create("Nightlife");
         AuthorType plan2 = Author.Create("Beach Trip");
-        var origin2 = Origin.GetPlanOrigin(origin1, plan1);
+        var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.GetPlanOrigin(origin1, plan2);
+        var origin3 = Origin.CreatePlanOrigin(origin1, plan2);
         Assert.IsNotNull(origin3);
 
         Assert.AreNotEqual(origin2, origin3, OriginComparer.Instance);
@@ -249,7 +249,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         AuthorType plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.GetPlanOrigin(origin1, plan1);
+        var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
 
         var origin3 = Origin.CreateOriginForName(IdentityType.Plan, plan1);
@@ -265,7 +265,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         AuthorType plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.GetPlanOrigin(origin1, plan1);
+        var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
 
         AuthorType plan2 = Author.Create("Nightlife~!");
