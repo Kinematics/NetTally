@@ -9,6 +9,7 @@ using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Input.Utility;
 using NetTally.Quests;
+using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 
@@ -36,6 +37,23 @@ namespace NetTally
                 {
                     voteCounter = value;
                     voteCounter.Quest = this;
+                }
+            }
+        }
+
+        private IVoteCounterF voteCounterF = null!;
+
+        [JsonIgnore]
+        public IVoteCounterF VoteCounterF
+        {
+            get { return voteCounterF; }
+            set
+            {
+                if (voteCounterF == null &&
+                    value != null)
+                {
+                    voteCounterF = value;
+                    voteCounterF.Quest = this;
                 }
             }
         }
