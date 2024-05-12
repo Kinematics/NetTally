@@ -50,7 +50,7 @@ public static partial class VoteBlocks
         var firstLine = block.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
-        if (lineStatus == LineStatus.Plan || lineStatus == LineStatus.Proposed)
+        if (lineStatus == PlanStatus.Plan || lineStatus == PlanStatus.Proposed)
         {
             var remainder = block.Skip(1);
             isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
@@ -76,8 +76,8 @@ public static partial class VoteBlocks
             var (lineStatus, planName) = CheckIfPlan(firstLine);
             var (lineStatus2, _) = CheckIfPlan(secondLine);
 
-            if (lineStatus == LineStatus.Plan &&
-                lineStatus2 != LineStatus.Plan &&
+            if (lineStatus == PlanStatus.Plan &&
+                lineStatus2 != PlanStatus.Plan &&
                 secondLine.Prefix.Depth == 0)
             {
                 return (true, true, planName);
@@ -96,7 +96,7 @@ public static partial class VoteBlocks
         {
             var (lineStatus, planName) = CheckIfPlan(firstBlock.First());
 
-            if (lineStatus == LineStatus.Plan)
+            if (lineStatus == PlanStatus.Plan)
             {
                 return (true, true, planName);
             }
@@ -112,7 +112,7 @@ public static partial class VoteBlocks
         var firstLine = block.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
-        if (lineStatus == LineStatus.Proposed)
+        if (lineStatus == PlanStatus.Proposed)
         {
             var remainder = block.Skip(1);
             isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
@@ -129,7 +129,7 @@ public static partial class VoteBlocks
         var firstLine = block.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
-        if (lineStatus == LineStatus.Plan && block.Count() == 1)
+        if (lineStatus == PlanStatus.Plan && block.Count() == 1)
         {
             // Make sure a fully realized version of this plan name doesn't already exist.
 
@@ -152,30 +152,23 @@ public static partial class VoteBlocks
     [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex AltPlanRegex();
 
-    public enum LineStatus
-    {
-        None,
-        Plan,
-        Proposed
-    }
-
-    public static (LineStatus status, string name) CheckIfPlan(VoteLineType line)
+    public static (PlanStatus status, string name) CheckIfPlan(VoteLineType line)
     {
         Match m;
 
         m = BasePlanRegex().Match(line.Content.CleanContent);
         if (m.Success)
-            return (LineStatus.Proposed, m.Groups["planname"].Value.Trim());
+            return (PlanStatus.Proposed, m.Groups["planname"].Value.Trim());
 
         m = AnyPlanRegex().Match(line.Content.CleanContent);
         if (m.Success)
-            return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
+            return (PlanStatus.Plan, m.Groups["planname"].Value.Trim());
 
         m = AltPlanRegex().Match(line.Content.CleanContent);
         if (m.Success)
-            return (LineStatus.Plan, m.Groups["planname"].Value.Trim());
+            return (PlanStatus.Plan, m.Groups["planname"].Value.Trim());
 
-        return (LineStatus.None, string.Empty);
+        return (PlanStatus.None, string.Empty);
     }
 
     public static (bool content, bool task) AreEquivalent(List<VoteLineType> a, List<VoteLineType> b)
