@@ -37,6 +37,8 @@ namespace NetTally.ViewModels
 
         public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
+        public List<ForumType> ValidForums { get; } = Enum.GetValues<ForumType>().ToList();
+
         public ObservableCollection<Quest> AvailableQuests { get; }
 
         public ObservableCollection<Quest> LinkedQuests { get; } = [];
@@ -330,7 +332,8 @@ namespace NetTally.ViewModels
         }
 
 
-        [GeneratedRegex(@"^(?<base>.+?)(&?page[-=]?\d+)?(&p=?\d+)?(\?[^#]*)?(#[^/]*)?(unread)?$", RegexOptions.None, 50)]
+        [GeneratedRegex(@"^(?<base>.+?)(?:&?page[-=]?\d+)?(?:&p=?\d+)?(?:(?<!showthread\.php)\?[^#]*)?(?:#[^/]*)?(?:unread)?$",
+            RegexOptions.None, 50)]
         private static partial Regex PageNumberRegex();
 
         private static string CleanupThreadName(string url)
@@ -344,7 +347,7 @@ namespace NetTally.ViewModels
             return url;
         }
 
-        [GeneratedRegex(@"(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
+        [GeneratedRegex(@"(?:showthread\.php\?)?(?:t=)?(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
         private static partial Regex DisplayNameRegex();
 
         private static string GetDisplayNameFromUrl(string url)

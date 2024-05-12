@@ -15,6 +15,6 @@ namespace NetTally.Cache
         /// <summary>
         /// Value to use for 'expires' when you want an automatic selection of the expiration time for the cached item.
         /// </summary>
-        public static readonly DateTime DefaultExpiration = DateTime.MinValue;
+        public static readonly DateTimeOffset DefaultExpiration = DateTimeOffset.MinValue;
     }
 }

@@ -204,7 +204,14 @@
                   </StackPanel>
                 </ToolTip.Tip>
               </CheckBox>
+            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,3,0,0">
+                <ComboBox Name="ForumType" Margin="0,0,0,0" Width="100"
+		                ItemsSource="{Binding ValidForums}" SelectedItem="{Binding ForumType}"
+		                ToolTip.Tip="Specify the type of forum used for this thread." />
+                <TextBlock Classes="Description" Margin="0,3,0,0"
+			                Text="If set to Unknown, the program will attempt to auto-detect the forum type." />
             </StackPanel>
+			</StackPanel>
           </HeaderedContentControl>
         </StackPanel>
       </TabItem>

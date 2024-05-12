@@ -33,7 +33,6 @@ namespace NetTally.Votes
         /// </summary>
         /// <param name="copyFrom">The Dictionary instance to copy from.</param>
         public VoteStorage(Dictionary<VoteLineBlock, VoterStorage> copyFrom)
-            : base(copyFrom)
         {
             CopyFrom(copyFrom);
         }

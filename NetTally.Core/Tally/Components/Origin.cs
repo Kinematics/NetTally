@@ -13,13 +13,13 @@ namespace NetTally.Tally.Components
         public IdentityType AuthorType { get; }
         public PostId ID { get; }
         public int ThreadPostNumber { get; }
-        public DateTime Timestamp { get; }
+        public DateTimeOffset Timestamp { get; }
         public Uri Thread { get; }
         public string Permalink { get; }
         public Origin Source { get; }
 
         public static readonly Origin Empty = new("-", "0", 0,
-            DateTime.MinValue, new Uri(StringData.ExampleHostUrl), StringData.ExampleHostUrl);
+            DateTimeOffset.MinValue, new Uri(StringData.ExampleHostUrl), StringData.ExampleHostUrl);
 
         private static readonly Uri exampleUri = new(StringData.ExampleHostUrl);
         private readonly int hash;
@@ -27,22 +27,22 @@ namespace NetTally.Tally.Components
 
         public Origin(string author, string postID, int postNumber, Uri thread, string permalink)
             : this(author, IdentityType.User, new PostId(postID),
-                  postNumber, DateTime.MinValue, thread, permalink, Empty)
+                  postNumber, DateTimeOffset.MinValue, thread, permalink, Empty)
         { }
 
-        public Origin(string author, string postID, int postNumber, DateTime timestamp, Uri thread, string permalink)
+        public Origin(string author, string postID, int postNumber, DateTimeOffset timestamp, Uri thread, string permalink)
             : this(author, IdentityType.User, new PostId(postID),
                   postNumber, timestamp, thread, permalink, Empty)
         { }
 
         public Origin(string author, IdentityType identityType)
-            : this(author, identityType, PostId.Zero, 0, DateTime.MinValue,
+            : this(author, identityType, PostId.Zero, 0, DateTimeOffset.MinValue,
                   exampleUri, string.Empty, Empty)
         {
             limitedToName = true;
         }
 
-        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, DateTime timestamp,
+        private Origin(string author, IdentityType identityType, PostId postId, int postNumber, DateTimeOffset timestamp,
             Uri thread, string permalink, Origin source)
         {
             Author = new Author(author);

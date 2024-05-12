@@ -271,7 +271,7 @@ namespace NetTally.Web
         {
             string? result = null;
             int tries = 0;
-            DateTime expires = CacheInfo.DefaultExpiration;
+            DateTimeOffset expires = CacheInfo.DefaultExpiration;
 
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
