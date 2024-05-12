@@ -73,11 +73,7 @@ namespace NetTally.VoteCounting
 
         public void UpdateTally(Quest quest)
         {
-            if (quest.VoteCounter.HasPosts)
-            {
-                ConstructVotesFromPosts(quest);
-            }
-
+            ConstructVotesFromPosts(quest);
             UpdateOutput(quest);
         }
 
