@@ -6,7 +6,7 @@ using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Tally.ComponentsF.Storage;
 
-namespace NetTally.VoteCounting;
+namespace NetTally.VoteCounting.Func;
 
 public interface IVoteCounterF : INotifyPropertyChanged
 {
@@ -35,7 +35,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// The list of tasks that have been recorded for the tally, whether drawn from
     /// votes as they are tallied, or manually entered by the user.
     /// </summary>
-    ObservableCollectionExt<string> TaskList { get; }
+    ObservableCollectionExt<VoteTaskType> TaskList { get; }
 
 
     /// <summary>
@@ -120,7 +120,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    PostType? GetLastPostByAuthor(OriginType author, PostIdType maxPostId);
+    PostToProcess? GetLastPostByAuthor(OriginType author, PostIdType maxPostId);
     /// <summary>
     /// Get the reference plan corresponding to the provided plan name.
     /// </summary>
@@ -132,7 +132,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    List<VoteBlockType> GetVotesBy(OriginType voter);
+    IEnumerable<VoteBlockType> GetVotesBy(OriginType voter);
     /// <summary>
     /// Get a collection of all the votes that currently have supporters.
     /// </summary>
@@ -162,7 +162,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="post">The post made by some author.</param>
     /// <returns>Returns true if there is a more recent post made by the author of the post.</returns>
-    bool HasNewerVote(PostType post);
+    bool HasNewerVote(PostToProcess post);
 
 
     /// <summary>
@@ -219,7 +219,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="task">The task to add.</param>
     /// <returns>Returns true if the task was added, or false if it already exists.</returns>
-    bool AddUserDefinedTask(string task);
+    bool AddUserDefinedTask(VoteTaskType task);
     /// <summary>
     /// Request an update of the current task list to include any user-defined tasks.
     /// Run because the task list is cleared before each running of the tally.
@@ -237,11 +237,11 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <param name="vote">The vote whose task is being changed.</param>
     /// <param name="task">The new task to use.</param>
     /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
-    bool ReplaceTask(VoteBlockType vote, string task);
+    bool ReplaceTask(VoteBlockType vote, VoteTaskType task);
 
     /// <summary>
     /// Replace the current list of tasks with the provided list.
     /// </summary>
     /// <param name="tasks"></param>
-    void ReplaceTasks(IEnumerable<string> tasks);
+    void ReplaceTasks(IEnumerable<VoteTaskType> tasks);
 }

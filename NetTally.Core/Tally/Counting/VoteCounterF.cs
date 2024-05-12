@@ -12,9 +12,8 @@ using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Tally.ComponentsF.Storage;
-using System.Xml.Linq;
 
-namespace NetTally.VoteCounting;
+namespace NetTally.VoteCounting.Func;
 
 /// <summary>
 /// Class for managing and tracking votes and voters for a quest.
@@ -44,7 +43,7 @@ public class VoteCounterF(
 
     HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginComparer.Instance);
 
-    Stack<UndoAction> UndoBuffer { get; } = new();
+    Stack<NetTally.Tally.ComponentsF.Storage.UndoAction> UndoBuffer { get; } = new();
 
     MergeRecords UserMerges { get; } = new();
     #endregion
@@ -790,8 +789,8 @@ public class VoteCounterF(
             return false;
         }
 
-        UndoBuffer.Push(new UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
-        VoteBlockType originalVote = vote.Clone();
+        UndoBuffer.Push(new NetTally.Tally.ComponentsF.Storage.UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
+        VoteBlockType originalVote = VoteBlock.Clone(vote);
 
         if (ReplaceTaskImplWrapper(vote, task))
         {
@@ -812,7 +811,7 @@ public class VoteCounterF(
     /// <param name="vote">The vote being modified.</param>
     /// <param name="task">The new task to apply to the vote.</param>
     /// <returns>Returns true if the task replacement was successfully completed.</returns>
-    private bool ReplaceTaskImplWrapper(VoteBlockType vote, string task)
+    private bool ReplaceTaskImplWrapper(VoteBlockType vote, VoteTaskType task)
     {
         if (!VoteStorage.TryGetValue(vote, out var supporters))
         {
@@ -827,7 +826,7 @@ public class VoteCounterF(
         // Remove the version of the vote we're starting with.
         VoteStorage.Remove(vote);
 
-        string originalTask = vote.Task;
+        var originalTask = vote.Task;
         vote.Task = task;
 
         // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
