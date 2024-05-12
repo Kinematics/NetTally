@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
@@ -10,9 +9,8 @@ using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Tally.ComponentsF.Storage;
-using NetTally.VoteCounting;
+using NetTally.Tally.ComponentsF.Votes;
 
 namespace NetTally.Tally.ComponentsF.Counting;
 
@@ -23,28 +21,28 @@ namespace NetTally.Tally.ComponentsF.Counting;
 /// <param name="logger">Class logger.</param>
 public class VoteCounterF(
     IOptions<GlobalSettings> globalOptions,
-    ILogger<VoteCounter> logger) : IVoteCounterF
+    ILogger<VoteCounterF> logger) : IVoteCounterF
 {
     private readonly GlobalSettings globalSettings = globalOptions.Value;
-    private readonly ILogger<VoteCounter> logger = logger;
+    private readonly ILogger<VoteCounterF> logger = logger;
 
     #region Data Collections
     /// <summary>
     /// The list of posts collected from the quest. Read-only.
     /// </summary>
-    private List<PostType> RawPosts { get; } = [];
     public List<PostToProcess> Posts { get; } = [];
+    List<PostType> RawPosts { get; } = [];
 
     /// <summary>
     /// The overall collection of voters and supporters.
     /// </summary>
-    public VoteStorage VoteStorage { get; } = [];
+    VoteStorage VoteStorage { get; } = [];
 
     VoterStorage ReferencePlans { get; } = [];
 
     HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginComparer.Instance);
 
-    Stack<Storage.UndoAction> UndoBuffer { get; } = new();
+    Stack<UndoAction> UndoBuffer { get; } = new();
 
     MergeRecords UserMerges { get; } = new();
     #endregion
@@ -59,8 +57,7 @@ public class VoteCounterF(
     /// <summary>
     /// The quest the vote counter is set to track.
     /// </summary>
-    [AllowNull]
-    public Quest Quest { get; set; } = null;
+    public Quest? Quest { get; set; } = null;
 
     /// <summary>
     /// The titles of the quest threads that have been tallied.
@@ -186,6 +183,9 @@ public class VoteCounterF(
 
     private bool CanUpdatePlans()
     {
+        if (Quest == null)
+            return false;
+
         return globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
               globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans;
     }
@@ -425,6 +425,9 @@ public class VoteCounterF(
     /// <returns>Returns true if successfully completed.</returns>
     public bool Merge(VoteBlockType fromVote, VoteBlockType toVote)
     {
+        if (Quest == null)
+            return false;
+
         UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest.PartitionMode);
 
@@ -507,6 +510,9 @@ public class VoteCounterF(
     /// <returns>Returns true if successfully completed.</returns>
     public bool Split(VoteBlockType fromVote, List<VoteBlockType> toVotes)
     {
+        if (Quest == null)
+            return false;
+
         UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest.PartitionMode);
 
@@ -585,7 +591,7 @@ public class VoteCounterF(
             var source = GetVotesBy(joiningVoter);
             var dest = GetVotesBy(voterToJoin);
 
-            if (source.Count == 0 || dest.Count == 0)
+            if (!source.Any() || !dest.Any())
                 return false;
 
             bool joined = false;
@@ -595,7 +601,7 @@ public class VoteCounterF(
             {
                 if (!VoteStorage.DoesVoterSupportVote(voterToJoin, vote))
                 {
-                    VoteStorage.RemoveSupporterFromVote(vote, joiningVoter);
+                    VoteStorage.RemoveSupporterFromVote(joiningVoter, vote);
                 }
             }
 
@@ -648,6 +654,9 @@ public class VoteCounterF(
     /// <returns>Returns true if it performed an undo action.  Otherwise, false.</returns>
     public bool Undo()
     {
+        if (Quest == null)
+            return false;
+
         if (!HasUndoActions)
             return false;
 
@@ -669,6 +678,9 @@ public class VoteCounterF(
     /// </summary>
     public void RunMergeActions()
     {
+        if (Quest == null)
+            return;
+
         var recordedMerges = UserMerges.GetMergeRecordList(Quest.PartitionMode);
 
         foreach (var mergeData in recordedMerges)
@@ -785,12 +797,15 @@ public class VoteCounterF(
     /// <returns>Returns true if the task was updated.</returns>
     public bool ReplaceTask(VoteBlockType vote, VoteTaskType task)
     {
+        if (Quest == null)
+            return false;
+
         if (VoteTaskComparer.Instance.Equals(vote.Task, task))
         {
             return false;
         }
 
-        UndoBuffer.Push(new Storage.UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
+        UndoBuffer.Push(new UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
         VoteBlockType originalVote = VoteBlock.Clone(vote);
 
         if (ReplaceTaskImplWrapper(vote, task))
@@ -885,4 +900,143 @@ public class VoteCounterF(
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
     #endregion
+
+    #region Process Posts into Votes
+    public void ConstructVotesFromPosts()
+    {
+        if (Quest == null)
+            return;
+
+        if (HasPosts)
+        {
+            Reset();
+
+            PreprocessPosts(Quest);
+            ProcessPosts(Quest);
+        }
+    }
+
+    private void PreprocessPosts(Quest quest)
+    {
+        foreach (var post in Posts)
+        {
+            // Reset the processed state of all the posts.
+            post.Reset();
+            // Record all origins
+            // TODO: See if origins overwrite if same user appears twice
+            AddReferenceVoter(post.Origin);
+        }
+
+        List<(bool asBlocks,
+              Func<IEnumerable<VoteLineType>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)>
+            planProcesses =
+            [
+                (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+                (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+                (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+                (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+            ];
+
+        // Run the above series of preprocessing functions to extract plans from the post list.
+        PreprocessPlans(quest, planProcesses);
+    }
+
+    /// <summary>
+    /// Run the logic for the sequence of processing phases for plan examination and extraction.
+    /// </summary>
+    /// <param name="posts">The posts being examined for plans.</param>
+    /// <param name="quest">The quest being tallied.</param>
+    /// <param name="planProcesses">The list of functions to run on the posts.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
+    private void PreprocessPlans(
+        Quest quest,
+        List<(bool asBlocks, Func<IEnumerable<VoteLineType>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses)
+    {
+        Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
+
+        foreach (var (asBlocks, isPlanFunction) in planProcesses)
+        {
+            foreach (var post in Posts)
+            {
+                var plans = VoteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
+
+                foreach (var (planName, planContent) in plans)
+                {
+                    // Convert "Base/Proposed Plan" to "Plan" before saving.
+                    // Set to an undefined marker.
+                    (string normalPlanName, VoteBlockType normalPlanContents) =
+                        VoteConstructor.NormalizePlan(planName, planContent);
+
+                    var planAuthor = Author.Create(normalPlanName);
+                    var planOrigin = Origin.CreatePlanOrigin(post.Origin, planAuthor);
+
+                    if (planOrigin != null)
+                    {
+                        if (AddReferencePlan(planOrigin, normalPlanContents))
+                        {
+                            // Each new plan that gets added also needs to be run through partitioning,
+                            // and have those results added as votes.
+                            var planPartitions = VoteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
+
+                            AddVotes(planPartitions, planOrigin);
+
+                            allPlans[normalPlanName] = normalPlanContents;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void ProcessPosts(Quest quest)
+    {
+        RunProcessing(quest, Posts);
+
+        AddUserDefinedTasksToTaskList();
+
+        RunMergeActions();
+
+
+        void RunProcessing(Quest quest, List<PostToProcess> postsToProcess)
+        {
+            // Loop as long as there are any more to process.
+            while (postsToProcess.Count != 0)
+            {
+                if (TryProcessPosts(quest, postsToProcess, out var unprocessed))
+                {
+                    // If any posts were processed, replace the list with any
+                    // remaining posts that are unprocessed.
+                    postsToProcess = unprocessed;
+                }
+                else
+                {
+                    // If none got processed, set the ForceProcess flag on them
+                    // to avoid pending FutureReference waits.
+                    postsToProcess.ForEach(p => p.ForceProcess = true);
+                }
+            }
+        }
+
+        bool TryProcessPosts(Quest quest, List<PostToProcess> postsToProcess, out List<PostToProcess> unprocessed)
+        {
+            unprocessed = [];
+
+            foreach (var post in postsToProcess)
+            {
+                if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes))
+                {
+                    AddVotes(votes, post.Origin);
+                }
+                else
+                {
+                    unprocessed.Add(post);
+                }
+            }
+
+            return unprocessed.Count < postsToProcess.Count;
+        }
+    }
+    #endregion Process Posts into Votes
+
 }

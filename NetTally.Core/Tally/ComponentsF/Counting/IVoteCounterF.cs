@@ -4,7 +4,6 @@ using NetTally.Collections;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Tally.ComponentsF.Storage;
 using NetTally.VoteCounting;
 
 namespace NetTally.Tally.ComponentsF.Counting;
@@ -14,7 +13,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <summary>
     /// The quest the vote counter is set to track.
     /// </summary>
-    Quest Quest { get; set; }
+    Quest Quest { set; }
 
     /// <summary>
     /// The titles of the quest threads that have been tallied.
@@ -25,12 +24,6 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="titles">A list of titles to use.</param>
     void SetThreadTitles(IEnumerable<string> titles);
-
-    /// <summary>
-    /// A collection structure to store votes and the voters who voted for them.
-    /// Also stores the specific variant that each voter used.
-    /// </summary>
-    VoteStorage VoteStorage { get; }
 
     /// <summary>
     /// The list of tasks that have been recorded for the tally, whether drawn from
@@ -53,10 +46,6 @@ public interface IVoteCounterF : INotifyPropertyChanged
     void ResetUserMerges();
 
     /// <summary>
-    /// The list of posts collected from the quest. Read-only.
-    /// </summary>
-    List<PostToProcess> Posts { get; }
-    /// <summary>
     /// Whether the quest has any recorded posts.
     /// </summary>
     bool HasPosts { get; }
@@ -65,10 +54,8 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
     void AddPosts(IEnumerable<PostType> posts);
-    /// <summary>
-    /// Request that the currently stored posts be cleared.
-    /// </summary>
-    void ResetPosts();
+
+    void ConstructVotesFromPosts();
 
     /// <summary>
     /// Store a plan's information to allow it to be looked up by plan name or post ID.
