@@ -66,6 +66,16 @@ public static class Origin
         Uri thread,
         Uri permalink,
         PostIdType postId,
+        int postNumber)
+    {
+        return Create(IdentityType.User, author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue, None);
+    }
+
+    public static OriginType? CreateUser(
+        AuthorType author,
+        Uri thread,
+        Uri permalink,
+        PostIdType postId,
         int postNumber,
         DateTimeOffset timestamp)
     {
