@@ -5,7 +5,7 @@ using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
 
-namespace NetTally.Forums.ForumAdaptersF
+namespace NetTally.Input.Forums.ForumAdaptersF
 {
     public interface IForumAdapter
     {
