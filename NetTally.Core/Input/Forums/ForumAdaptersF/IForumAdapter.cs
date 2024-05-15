@@ -44,7 +44,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        ThreadInfoType GetThreadInfo(Quest quest, HtmlDocument page);
+        ThreadInfoType GetThreadInfo(HtmlDocument page);
 
         /// <summary>
         /// Gets the range of post numbers to tally, for the given quest.

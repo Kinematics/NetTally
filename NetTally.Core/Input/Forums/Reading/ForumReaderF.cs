@@ -10,7 +10,7 @@ using NetTally.Configure;
 using NetTally.CustomEventArgs;
 using NetTally.Data;
 using NetTally.Enums;
-using NetTally.Forums.ForumAdaptersF;
+using NetTally.Input.Forums.ForumAdaptersF;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
 using NetTally.Web;
@@ -181,7 +181,7 @@ public class ForumReaderF(
         int startPage = ThreadRange.GetStartPage(rangeInfo, quest);
 
         var posts = pages
-            .SelectMany((p, i) => adapter.GetPostsF(p, quest, startPage + i))
+            .SelectMany((p, i) => adapter.GetPosts(p, quest, startPage + i))
             .Where(p => KeepPost(p, quest, rangeInfo, threadInfo))
             .DistinctBy(p => p.Origin, OriginComparer.Instance) // remove sticky posts
             .OrderBy(p => p.Origin.ThreadPostNumber)
@@ -303,8 +303,8 @@ public class ForumReaderF(
         if (page == null)
             return null;
 
-        ThreadRangeType range = adapter.GetQuestRangeInfoF(quest, page);
-        ThreadInfoType thread = adapter.GetThreadInfoF(quest, page);
+        ThreadRangeType range = adapter.GetQuestRangeInfo(quest, page);
+        ThreadInfoType thread = adapter.GetThreadInfo(page);
 
         return (range, thread);
     }
