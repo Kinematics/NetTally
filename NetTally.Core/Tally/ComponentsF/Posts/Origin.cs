@@ -72,6 +72,19 @@ public static class Origin
         return Create(IdentityType.User, author, thread, permalink, postId, postNumber, timestamp, None);
     }
 
+    public static OriginType? CreatePlanOrigin(OriginType origin, string? planName)
+    {
+        if (planName == null)
+            return null;
+
+        var author = Author.Create(planName);
+
+        if (author == null)
+            return null;
+
+        return CreatePlanOrigin(origin, author);
+    }
+
     public static OriginType? CreatePlanOrigin(OriginType origin, AuthorType plan)
     {
         if (origin.Category != IdentityType.User)
