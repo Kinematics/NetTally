@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Counting;
@@ -27,7 +26,7 @@ public static class VoteConstructor
     /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
     public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(PostToProcess post, Quest quest,
-        bool asBlocks, Func<IEnumerable<VoteLineType>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)
+        bool asBlocks, Func<List<VoteLineType>, PlanDescriptor> isPlanFunction)
     {
         Dictionary<string, VoteBlockType> plans = new(StringComparer.OrdinalIgnoreCase);
 
@@ -37,7 +36,7 @@ public static class VoteConstructor
 
         foreach (var block in blocks)
         {
-            var (isPlan, isImplicit, planName) = isPlanFunction(block);
+            var (isPlan, isImplicit, planName) = isPlanFunction(block.Lines);
 
             if (isPlan &&
                 !(isImplicit && quest.ForbidVoteLabelPlanNames) &&

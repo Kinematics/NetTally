@@ -42,16 +42,16 @@ public static partial class VoteBlocks
         return blocksOfLines;
     }
 
-    public static bool IsThisAContentBlock(IEnumerable<VoteLineType> lines)
+    public static bool IsThisAContentBlock(List<VoteLineType> lines)
     {
-        if (!lines.Any())
+        if (lines.Count == 0)
             return false;
 
-        if (lines.First().Prefix.Depth != 0)
+        if (lines[0].Prefix.Depth != 0)
             return false;
 
-        var remainder = lines.Skip(1);
-        if (!remainder.Any())
+        var remainder = lines[1..];
+        if (remainder.Count == 0)
             return false;
 
         if (remainder.All(a => a.Prefix.Depth > 0))
@@ -65,21 +65,23 @@ public static partial class VoteBlocks
     /// </summary>
     /// <param name="lines">The block of vote lines</param>
     /// <returns></returns>
-    public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAnExplicitPlan(IEnumerable<VoteLineType> lines)
+    public static PlanDescriptor IsBlockAnExplicitPlan(List<VoteLineType> lines)
     {
-        bool isPlan = false;
-        var firstLine = lines.First();
-        var (lineStatus, planName) = CheckIfPlan(firstLine);
+        if (lines.Count == 0)
+            return PlanDescriptor.None;
 
-        if (lineStatus == PlanStatus.Plan || lineStatus == PlanStatus.Proposed)
+        bool isPlan = false;
+        var firstLine = lines[0];
+        (PlanStatus PlanStatus, string PlanName) = CheckIfPlan(firstLine);
+
+        if (PlanStatus == PlanStatus.Plan || PlanStatus == PlanStatus.Proposed)
         {
-            var remainder = lines.Skip(1);
-            isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
+            var remainder = lines[1..];
+            isPlan = firstLine.Prefix.Depth == 0 && remainder.Count != 0 &&
                      remainder.All(a => a.Prefix.Depth > 0);
         }
 
-        return (isPlan, false, planName);
+        return new(isPlan, false, PlanName);
     }
 
     /// <summary>
@@ -88,13 +90,12 @@ public static partial class VoteBlocks
     /// </summary>
     /// <param name="lines">The block of vote lines</param>
     /// <returns></returns>
-    public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAnImplicitPlan(IEnumerable<VoteLineType> lines)
+    public static PlanDescriptor IsBlockAnImplicitPlan(List<VoteLineType> lines)
     {
-        if (lines.Count() > 1)
+        if (lines.Count > 1)
         {
-            var firstLine = lines.First();
-            var secondLine = lines.Skip(1).First();
+            var firstLine = lines[0];
+            var secondLine = lines[1];
             var (lineStatus, planName) = CheckIfPlan(firstLine);
             var (lineStatus2, _) = CheckIfPlan(secondLine);
 
@@ -102,15 +103,14 @@ public static partial class VoteBlocks
                 lineStatus2 != PlanStatus.Plan &&
                 secondLine.Prefix.Depth == 0)
             {
-                return (true, true, planName);
+                return new(true, true, planName);
             }
         }
 
-        return (false, false, "");
+        return PlanDescriptor.None;
     }
 
-    public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAnImplicitPlan(IEnumerable<VoteBlockType> blocks)
+    public static PlanDescriptor IsBlockAnImplicitPlan(IEnumerable<VoteBlockType> blocks)
     {
         var firstBlock = blocks.First();
 
@@ -120,48 +120,46 @@ public static partial class VoteBlocks
 
             if (lineStatus == PlanStatus.Plan)
             {
-                return (true, true, planName);
+                return new(true, true, planName);
             }
         }
 
-        return (false, false, "");
+        return PlanDescriptor.None;
     }
 
-    public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAProposedPlan(IEnumerable<VoteLineType> lines)
+    public static PlanDescriptor IsBlockAProposedPlan(List<VoteLineType> lines)
     {
         bool isPlan = false;
-        var firstLine = lines.First();
+        var firstLine = lines[0];
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
         if (lineStatus == PlanStatus.Proposed)
         {
-            var remainder = lines.Skip(1);
-            isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
+            var remainder = lines[1..];
+            isPlan = firstLine.Prefix.Depth == 0 && remainder.Count != 0 &&
                      remainder.All(a => a.Prefix.Depth > 0);
         }
 
-        return (isPlan, false, planName);
+        return new(isPlan, false, planName);
     }
 
-    public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockASingleLinePlan(IEnumerable<VoteLineType> lines)
+    public static PlanDescriptor IsBlockASingleLinePlan(List<VoteLineType> lines)
     {
         bool isPlan = false;
-        var firstLine = lines.First();
+        var firstLine = lines[0];
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
-        if (lineStatus == PlanStatus.Plan && lines.Count() == 1)
+        if (lineStatus == PlanStatus.Plan && lines.Count == 1)
         {
             // TODO: Make sure a fully realized version of this plan name doesn't already exist.
 
             isPlan = true;
         }
 
-        return (isPlan, false, planName);
+        return new(isPlan, false, planName);
     }
 
-    public static (PlanStatus status, string name) CheckIfPlan(VoteLineType line)
+    public static (PlanStatus PlanStatus, string PlanName) CheckIfPlan(VoteLineType line)
     {
         Match m;
 
@@ -180,21 +178,21 @@ public static partial class VoteBlocks
         return (PlanStatus.None, string.Empty);
     }
 
-    public static (bool content, bool task) AreEquivalent(List<VoteLineType> a, List<VoteLineType> b)
+    public static (bool IsContentEqual, bool IsTaskEqual) AreEquivalent(List<VoteLineType> a, List<VoteLineType> b)
     {
         if (a.Count == 0 && b.Count == 0)
-            return (true, false);
+            return (IsContentEqual: true, IsTaskEqual: false);
 
         if (a.Count == 0 || b.Count == 0)
-            return (false, false);
+            return (IsContentEqual: false, IsTaskEqual: false);
 
         bool taskIsTheSame = VoteTaskComparer.Instance.Equals(a[0].Task, b[0].Task);
 
         if (a.Count != b.Count)
-            return (false, taskIsTheSame);
+            return (IsContentEqual: false, IsTaskEqual: taskIsTheSame);
 
         bool voteLinesAreTheSame = a.SequenceEquals(b, item => item.Content, VoteContentComparer.Instance);
 
-        return (voteLinesAreTheSame, taskIsTheSame);
+        return (IsContentEqual: voteLinesAreTheSame, IsTaskEqual: taskIsTheSame);
     }
 }

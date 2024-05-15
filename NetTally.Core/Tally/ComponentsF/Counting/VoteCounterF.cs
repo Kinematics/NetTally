@@ -916,7 +916,7 @@ public class VoteCounterF(
         }
 
         List<(bool asBlocks,
-              Func<IEnumerable<VoteLineType>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)>
+              Func<List<VoteLineType>, PlanDescriptor> isPlanFunction)>
             planProcesses =
             [
                 (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
@@ -939,7 +939,7 @@ public class VoteCounterF(
     /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
     private void PreprocessPlans(
         Quest quest,
-        List<(bool asBlocks, Func<IEnumerable<VoteLineType>, (bool isPlan, bool isImplicit, string planName)> isPlanFunction)> planProcesses)
+        List<(bool asBlocks, Func<List<VoteLineType>, PlanDescriptor> isPlanFunction)> planProcesses)
     {
         Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
 
