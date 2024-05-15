@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Tally.ComponentsF.Votes;
@@ -28,17 +29,22 @@ public static partial class Prefix
 
         int depth = IndentCharsRegex().Count(indent);
 
-        string prefix = new('-', depth);
+        return CreateDepth(depth);
+    }
 
+    private static PrefixType CreateDepth(int depth)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(depth);
+        if (depth == 0) return Empty;
+
+        string prefix = new('-', depth);
         return new PrefixType(prefix);
     }
 
-    public static PrefixType Reduce(PrefixType prefix)
+    public static PrefixType Reduce(PrefixType prefix, int promotionDepth = 1)
     {
-        if (prefix.Depth > 1)
-            return prefix with { Indent = prefix.Indent[1..] };
-
-        return Empty;
+        int finalDepth = Math.Max(prefix.Depth - promotionDepth, 0);
+        return CreateDepth(finalDepth);
     }
 
     [GeneratedRegex("[-–—]")]

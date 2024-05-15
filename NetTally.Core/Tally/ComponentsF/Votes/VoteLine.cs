@@ -37,14 +37,17 @@ public static class VoteLine
     }
 
 
-    public static VoteLineType Promote(VoteLineType input)
+    public static VoteLineType Promote(VoteLineType input, int promoteDepth = 1)
     {
-        return input with { Prefix = Prefix.Reduce(input.Prefix) };
+        return input with { Prefix = Prefix.Reduce(input.Prefix, promoteDepth) };
     }
 
     public static VoteLineType FullPromote(VoteLineType input)
     {
-        return input with { Prefix = Prefix.Empty };
+        if (input.Depth > 0)
+            return input with { Prefix = Prefix.Empty };
+
+        return input;
     }
 }
 
