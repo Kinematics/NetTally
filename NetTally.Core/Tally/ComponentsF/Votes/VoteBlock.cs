@@ -54,6 +54,11 @@ public static class VoteBlock
         return new VoteBlockType(listOfLines, listOfLines[0].Marker, listOfLines[0].Task);
     }
 
+    public static VoteBlockType Create(VoteLineType line)
+    {
+        return new VoteBlockType([line], line.Marker, line.Task);
+    }
+
     public static VoteBlockType? Create(IEnumerable<VoteBlockType> blocks)
     {
         var lines = blocks.SelectMany(x => x.Lines);
