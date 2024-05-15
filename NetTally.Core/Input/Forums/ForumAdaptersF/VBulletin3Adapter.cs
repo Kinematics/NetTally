@@ -9,9 +9,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
+using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -22,7 +23,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<VBulletin3Adapter> logger = logger;
 
-        #region IForumAdapter2 interface
+        #region IForumAdapter interface
         /// <summary>
         /// String to use for a line break between tasks.
         /// </summary>
@@ -74,17 +75,17 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfo GetThreadInfo(HtmlDocument page)
+        public ThreadInfoType GetThreadInfo(HtmlDocument page)
         {
             ArgumentNullException.ThrowIfNull(page);
 
             string title = GetPageTitle(page);
-            string author = string.Empty; // vBulletin doesn't show thread authors
+            var author = Author.None; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            ThreadInfo info = new(title, author, pages);
+            var info = ThreadInfo.Create(title, author, pages);
 
-            return info;
+            return info ?? ThreadInfo.None;
         }
 
         /// <summary>
@@ -95,12 +96,9 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        public ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page)
         {
-            ArgumentNullException.ThrowIfNull(quest);
-            ArgumentNullException.ThrowIfNull(pageProvider);
-
-            return Task.FromResult(new ThreadRangeInfo(true, quest.StartPost));
+            return ThreadRange.CreateRangeByPost(quest.StartPost);
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
+        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
@@ -122,7 +120,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
             return posts;
         }
-        #endregion IForumAdapter2 interface
+        #endregion IForumAdapter interface
 
         #region Get Page Information
         private static string GetPageTitle(HtmlDocument page)
@@ -172,7 +170,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return postList.Elements("div");
         }
 
-        private Post? GetPost(HtmlDocument page, HtmlNode div, Quest quest)
+        private PostType? GetPost(HtmlDocument page, HtmlNode div, Quest quest)
         {
             if (div == null)
                 return null;
@@ -182,38 +180,32 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             if (table == null)
                 return null;
 
-            string id = GetPostId(table);
-            string author = GetPostAuthor(page, id);
+            var id = GetPostId(table);
+            var author = GetPostAuthor(page, id);
             int number = GetPostNumber(page, id);
             string text = GetPostText(page, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = $"{author}_{id}";
+                author = author with { Name = $"{author.Name}_{id.Id}" };
 
-            try
-            {
-                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
-                return new Post(origin, text);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e,
-                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
-                    author, id, number, quest.DisplayName);
-            }
+            var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+            var post = Post.Create(origin, text);
 
-            return null;
+            return post;
         }
 
-        private static string GetPostId(HtmlNode table)
+        private static PostIdType GetPostId(HtmlNode table)
         {
-            return table.Id["post".Length..];
+            var idString = table.Id["post".Length..];
+            var id = PostId.Create(idString);
+
+            return id ?? PostId.Zero;
         }
 
-        private static string GetPostAuthor(HtmlDocument page, string id)
+        private static AuthorType GetPostAuthor(HtmlDocument page, PostIdType id)
         {
-            string author = "";
-            string postAuthorDivID = $"postmenu_{id}";
+            string authorName = "";
+            string postAuthorDivID = $"postmenu_{id.Id}";
 
             var authorAnchor = page.GetElementbyId(postAuthorDivID).Element("a");
 
@@ -222,20 +214,22 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                 // ??
                 if (authorAnchor.Element("span") != null)
                 {
-                    author = authorAnchor.Element("span").InnerText;
+                    authorName = authorAnchor.Element("span").InnerText;
                 }
                 else
                 {
-                    author = authorAnchor.InnerText;
+                    authorName = authorAnchor.InnerText;
                 }
             }
 
-            return ForumPostTextConverter.CleanupWebString(author);
+            authorName = ForumPostTextConverter.CleanupWebString(authorName);
+
+            return Author.Create(authorName);
         }
 
-        private static string GetPostText(HtmlDocument page, string id, Quest quest)
+        private static string GetPostText(HtmlDocument page, PostIdType id, Quest quest)
         {
-            string postMessageId = $"post_message_{id}";
+            string postMessageId = $"post_message_{id.Id}";
 
             var postContents = page.GetElementbyId(postMessageId);
 
@@ -248,9 +242,9 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return ForumPostTextConverter.ExtractPostText(postContents, exclusion, host);
         }
 
-        private static int GetPostNumber(HtmlDocument page, string id)
+        private static int GetPostNumber(HtmlDocument page, PostIdType id)
         {
-            string postNumberAnchorID = $"postcount{id}";
+            string postNumberAnchorID = $"postcount{id.Id}";
 
             var anchor = page.GetElementbyId(postNumberAnchorID);
 
@@ -307,9 +301,10 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return $"{auth}{page}?p=";
         }
 
-        private static string GetPermalinkForId(Uri uri, string postId)
+        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
         {
-            return $"{GetHostBasePostsUrl(uri)}{postId}";
+            string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}";
+            return new Uri(url);
         }
 
         [GeneratedRegex(@"\?t=(?<thread>\d+)")]

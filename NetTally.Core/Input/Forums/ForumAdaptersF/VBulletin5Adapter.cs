@@ -10,9 +10,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
+using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -23,7 +24,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<VBulletin5Adapter> logger = logger;
 
-        #region IForumAdapter2 interface
+        #region IForumAdapter interface
         /// <summary>
         /// String to use for a line break between tasks.
         /// </summary>
@@ -78,17 +79,17 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfo GetThreadInfo(HtmlDocument page)
+        public ThreadInfoType GetThreadInfo(HtmlDocument page)
         {
             ArgumentNullException.ThrowIfNull(page);
 
             string title = GetPageTitle(page);
-            string author = string.Empty; // vBulletin doesn't show thread authors
+            var author = Author.None; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            ThreadInfo info = new(title, author, pages);
+            var info = ThreadInfo.Create(title, author, pages);
 
-            return info;
+            return info ?? ThreadInfo.None;
         }
 
         /// <summary>
@@ -99,12 +100,9 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        public ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page)
         {
-            ArgumentNullException.ThrowIfNull(quest);
-            ArgumentNullException.ThrowIfNull(pageProvider);
-
-            return Task.FromResult(new ThreadRangeInfo(true, quest.StartPost));
+            return ThreadRange.CreateRangeByPost(quest.StartPost);
         }
 
         /// <summary>
@@ -113,7 +111,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
+        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
@@ -165,40 +163,32 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return postList.Elements("li").Where(p => !string.IsNullOrEmpty(p.GetAttributeValue("data-node-id", "")));
         }
 
-        private Post? GetPost(HtmlNode li, Quest quest)
+        private PostType? GetPost(HtmlNode li, Quest quest)
         {
             if (li == null)
                 return null;
 
-            string id = GetPostId(li);
-            string author = GetPostAuthor(li);
+            var id = GetPostId(li);
+            var author = GetPostAuthor(li);
             int number = GetPostNumber(li);
             string text = GetPostText(li, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = $"{author}_{id}";
+                author = author with { Name = $"{author.Name}_{id.Id}" };
 
-            try
-            {
-                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
-                return new Post(origin, text);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e,
-                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{displayName})",
-                    author, id, number, quest.DisplayName);
-            }
+            var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+            var post = Post.Create(origin, text);
 
-            return null;
+            return post;
         }
 
-        private static string GetPostId(HtmlNode li)
+        private static PostIdType GetPostId(HtmlNode li)
         {
-            return li.GetAttributeValue("data-node-id", "");
+            string id = li.GetAttributeValue("data-node-id", "");
+            return PostId.Create(id) ?? PostId.Zero;
         }
 
-        private static string GetPostAuthor(HtmlNode li)
+        private static AuthorType GetPostAuthor(HtmlNode li)
         {
             string author = "";
 
@@ -208,7 +198,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             if (authorNode != null)
                 author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
-            return author;
+            return Author.Create(author);
         }
 
         private static int GetPostNumber(HtmlNode li)
@@ -287,11 +277,12 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return sb.ToString();
         }
 
-        private static string GetPermalinkForId(Uri uri, string postId)
+        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
         {
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire?p=735857#post735857
 
-            return $"{GetBaseThreadUrl(uri)}?p={postId}#post{postId}";
+            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Id}#post{postId.Id}";
+            return new Uri(url);
         }
 
         #endregion URL Manipulation
