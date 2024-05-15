@@ -6,7 +6,7 @@ public record ThreadInfoType(string Title, AuthorType Author, int Pages);
 
 public static class ThreadInfo
 {
-    public static readonly ThreadInfoType None = new(string.Empty, Author.None, 0);
+    public static ThreadInfoType None { get; } = new(string.Empty, Author.None, 0);
 
     public static ThreadInfoType? Create(string title, AuthorType? author, int pages)
     {
