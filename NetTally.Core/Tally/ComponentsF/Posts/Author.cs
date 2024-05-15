@@ -16,6 +16,7 @@ public record AuthorType(string Name);
 public static class Author
 {
     public static AuthorType None { get; } = new("");
+    public static AuthorType Unknown { get; } = new("#Unknown#");
 
     public static AuthorType Create(string name)
     {
