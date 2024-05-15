@@ -13,9 +13,9 @@ namespace NetTally.Tally.ComponentsF.Counting;
 public static partial class VoteBlocks
 {
     #region Plan Name Regexes
-    // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+    // Check for a vote line that marks a portion of the user's post as a proposed/base plan.
     [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex BasePlanRegex();
+    private static partial Regex ProposedPlanRegex();
 
     // Check for a plan reference. "Plan: Dwarf Raid"
     [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase, "en-US")]
@@ -42,43 +42,67 @@ public static partial class VoteBlocks
         return blocksOfLines;
     }
 
+    /// <summary>
+    /// Determines whether a list of vote lines is structured as a content block.
+    /// A content block has a 0 Depth first line, and 1+ Depth on all remaining lines.
+    /// </summary>
+    /// <param name="lines">The lines to examine.</param>
+    /// <returns><c>True</c> if the lines represent a content block. Otherwise <c>false</c>.</returns>
     public static bool IsThisAContentBlock(List<VoteLineType> lines)
     {
-        if (lines.Count == 0)
+        if (lines.Count < 2)
             return false;
 
         if (lines[0].Prefix.Depth != 0)
             return false;
 
-        var remainder = lines[1..];
-        if (remainder.Count == 0)
+        if (lines.Skip(1).Any(a => a.Prefix.Depth == 0))
             return false;
 
-        if (remainder.All(a => a.Prefix.Depth > 0))
-            return true;
-
-        return false;
+        return true;
     }
 
     /// <summary>
-    /// An explicit plan has subsequent lines nested beneath the plan name line.
+    /// Determines whether the provided vote block represents a proposed plan.
+    /// A proposed plan specifies "Proposed" in front of the plan name, and
+    /// has a content block.
     /// </summary>
-    /// <param name="lines">The block of vote lines</param>
-    /// <returns></returns>
-    public static PlanDescriptor IsBlockAnExplicitPlan(List<VoteLineType> lines)
+    /// <param name="block">The vote block to examine.</param>
+    /// <returns>A descriptor indicating whether the block is a plan, whether
+    /// it's implicit, and what its name is.</returns>
+    public static PlanDescriptor IsBlockAProposedPlan(VoteBlockType block)
     {
-        if (lines.Count == 0)
+        if (block.Lines.Count == 0)
             return PlanDescriptor.None;
 
         bool isPlan = false;
-        var firstLine = lines[0];
-        (PlanStatus PlanStatus, string PlanName) = CheckIfPlan(firstLine);
+        var (lineStatus, planName) = CheckIfPlan(block.Lines[0]);
+
+        if (lineStatus == PlanStatus.Proposed)
+        {
+            isPlan = IsThisAContentBlock(block.Lines);
+        }
+
+        return new(isPlan, false, planName);
+    }
+
+    /// <summary>
+    /// An explicit plan has a content block nested beneath the plan name line.
+    /// </summary>
+    /// <param name="block">The vote block to examine.</param>
+    /// <returns>A descriptor indicating whether the block is a plan, whether
+    /// it's implicit, and what its name is.</returns>
+    public static PlanDescriptor IsBlockAnExplicitPlan(VoteBlockType block)
+    {
+        if (block.Lines.Count == 0)
+            return PlanDescriptor.None;
+
+        bool isPlan = false;
+        (PlanStatus PlanStatus, string PlanName) = CheckIfPlan(block.Lines[0]);
 
         if (PlanStatus == PlanStatus.Plan || PlanStatus == PlanStatus.Proposed)
         {
-            var remainder = lines[1..];
-            isPlan = firstLine.Prefix.Depth == 0 && remainder.Count != 0 &&
-                     remainder.All(a => a.Prefix.Depth > 0);
+            isPlan = IsThisAContentBlock(block.Lines);
         }
 
         return new(isPlan, false, PlanName);
@@ -88,14 +112,15 @@ public static partial class VoteBlocks
     /// An implicit plan has the plan name on the first line, and subsequent lines
     /// are considered part of the plan, even without being nested.
     /// </summary>
-    /// <param name="lines">The block of vote lines</param>
-    /// <returns></returns>
-    public static PlanDescriptor IsBlockAnImplicitPlan(List<VoteLineType> lines)
+    /// <param name="block">The vote block to examine.</param>
+    /// <returns>A descriptor indicating whether the block is a plan, whether
+    /// it's implicit, and what its name is.</returns>
+    public static PlanDescriptor IsBlockAnImplicitPlan(VoteBlockType block)
     {
-        if (lines.Count > 1)
+        if (block.Lines.Count > 1)
         {
-            var firstLine = lines[0];
-            var secondLine = lines[1];
+            var firstLine = block.Lines[0];
+            var secondLine = block.Lines[1];
             var (lineStatus, planName) = CheckIfPlan(firstLine);
             var (lineStatus2, _) = CheckIfPlan(secondLine);
 
@@ -110,60 +135,40 @@ public static partial class VoteBlocks
         return PlanDescriptor.None;
     }
 
-    public static PlanDescriptor IsBlockAnImplicitPlan(IEnumerable<VoteBlockType> blocks)
+    /// <summary>
+    /// Determines whether the provided vote block represents a single-line plan.
+    /// </summary>
+    /// <param name="block">The vote block to examine.</param>
+    /// <returns>A descriptor indicating whether the block is a plan, whether
+    /// it's implicit, and what its name is.</returns>
+    public static PlanDescriptor IsBlockASingleLinePlan(VoteBlockType block)
     {
-        var firstBlock = blocks.First();
+        if (block.Lines.Count == 0)
+            return PlanDescriptor.None;
 
-        if (firstBlock.Count() == 1 && blocks.Count() > 1)
-        {
-            var (lineStatus, planName) = CheckIfPlan(firstBlock.First());
-
-            if (lineStatus == PlanStatus.Plan)
-            {
-                return new(true, true, planName);
-            }
-        }
-
-        return PlanDescriptor.None;
-    }
-
-    public static PlanDescriptor IsBlockAProposedPlan(List<VoteLineType> lines)
-    {
         bool isPlan = false;
-        var firstLine = lines[0];
-        var (lineStatus, planName) = CheckIfPlan(firstLine);
+        var (lineStatus, planName) = CheckIfPlan(block.Lines[0]);
 
-        if (lineStatus == PlanStatus.Proposed)
+        if (lineStatus == PlanStatus.Plan && block.Lines.Count == 1)
         {
-            var remainder = lines[1..];
-            isPlan = firstLine.Prefix.Depth == 0 && remainder.Count != 0 &&
-                     remainder.All(a => a.Prefix.Depth > 0);
-        }
-
-        return new(isPlan, false, planName);
-    }
-
-    public static PlanDescriptor IsBlockASingleLinePlan(List<VoteLineType> lines)
-    {
-        bool isPlan = false;
-        var firstLine = lines[0];
-        var (lineStatus, planName) = CheckIfPlan(firstLine);
-
-        if (lineStatus == PlanStatus.Plan && lines.Count == 1)
-        {
-            // TODO: Make sure a fully realized version of this plan name doesn't already exist.
-
             isPlan = true;
         }
 
         return new(isPlan, false, planName);
     }
 
+    /// <summary>
+    /// Determines whether the provided vote line contains elements that are used
+    /// to define a plan.
+    /// </summary>
+    /// <param name="line">The vote line to examine.</param>
+    /// <returns>A tuple of whether the line represents a plan, and the plan's name,
+    /// if any.</returns>
     public static (PlanStatus PlanStatus, string PlanName) CheckIfPlan(VoteLineType line)
     {
         Match m;
 
-        m = BasePlanRegex().Match(line.Content.CleanContent);
+        m = ProposedPlanRegex().Match(line.Content.CleanContent);
         if (m.Success)
             return (PlanStatus.Proposed, m.Groups["planname"].Value.Trim());
 
@@ -178,20 +183,28 @@ public static partial class VoteBlocks
         return (PlanStatus.None, string.Empty);
     }
 
-    public static (bool IsContentEqual, bool IsTaskEqual) AreEquivalent(List<VoteLineType> a, List<VoteLineType> b)
+    /// <summary>
+    /// Determines whether two provided lists of vote lines are equivalent in terms
+    /// of task and content.
+    /// </summary>
+    /// <param name="x">The first list</param>
+    /// <param name="y">The second list</param>
+    /// <returns>A tuple describing whether the content and the tasks are equal
+    /// between the two lists.</returns>
+    public static (bool IsContentEqual, bool IsTaskEqual) AreEquivalent(List<VoteLineType> x, List<VoteLineType> y)
     {
-        if (a.Count == 0 && b.Count == 0)
+        if (x.Count == 0 && y.Count == 0)
             return (IsContentEqual: true, IsTaskEqual: false);
 
-        if (a.Count == 0 || b.Count == 0)
+        if (x.Count == 0 || y.Count == 0)
             return (IsContentEqual: false, IsTaskEqual: false);
 
-        bool taskIsTheSame = VoteTaskComparer.Instance.Equals(a[0].Task, b[0].Task);
+        bool taskIsTheSame = VoteTaskComparer.Instance.Equals(x[0].Task, y[0].Task);
 
-        if (a.Count != b.Count)
+        if (x.Count != y.Count)
             return (IsContentEqual: false, IsTaskEqual: taskIsTheSame);
 
-        bool voteLinesAreTheSame = a.SequenceEquals(b, item => item.Content, VoteContentComparer.Instance);
+        bool voteLinesAreTheSame = x.SequenceEquals(y, item => item.Content, VoteContentComparer.Instance);
 
         return (IsContentEqual: voteLinesAreTheSame, IsTaskEqual: taskIsTheSame);
     }

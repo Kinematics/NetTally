@@ -26,7 +26,7 @@ public static class VoteConstructor
     /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
     public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(PostToProcess post, Quest quest,
-        bool asBlocks, Func<List<VoteLineType>, PlanDescriptor> isPlanFunction)
+        bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)
     {
         Dictionary<string, VoteBlockType> plans = new(StringComparer.OrdinalIgnoreCase);
 
@@ -36,7 +36,7 @@ public static class VoteConstructor
 
         foreach (var block in blocks)
         {
-            var (isPlan, isImplicit, planName) = isPlanFunction(block.Lines);
+            var (isPlan, isImplicit, planName) = isPlanFunction(block);
 
             if (isPlan &&
                 !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
