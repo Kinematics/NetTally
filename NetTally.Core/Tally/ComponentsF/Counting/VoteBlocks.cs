@@ -46,17 +46,17 @@ public static partial class VoteBlocks
     /// Determines whether a list of vote lines is structured as a content block.
     /// A content block has a 0 Depth first line, and 1+ Depth on all remaining lines.
     /// </summary>
-    /// <param name="lines">The lines to examine.</param>
+    /// <param name="block">The lines to examine.</param>
     /// <returns><c>True</c> if the lines represent a content block. Otherwise <c>false</c>.</returns>
-    public static bool IsThisAContentBlock(List<VoteLineType> lines)
+    public static bool IsThisAContentBlock(VoteBlockType block)
     {
-        if (lines.Count < 2)
+        if (block.Lines.Count < 2)
             return false;
 
-        if (lines[0].Prefix.Depth != 0)
+        if (block.Lines[0].Prefix.Depth != 0)
             return false;
 
-        if (lines.Skip(1).Any(a => a.Prefix.Depth == 0))
+        if (block.Lines.Skip(1).Any(a => a.Prefix.Depth == 0))
             return false;
 
         return true;
@@ -80,7 +80,7 @@ public static partial class VoteBlocks
 
         if (lineStatus == PlanStatus.Proposed)
         {
-            isPlan = IsThisAContentBlock(block.Lines);
+            isPlan = IsThisAContentBlock(block);
         }
 
         return new(isPlan, false, planName);
@@ -102,7 +102,7 @@ public static partial class VoteBlocks
 
         if (PlanStatus == PlanStatus.Plan || PlanStatus == PlanStatus.Proposed)
         {
-            isPlan = IsThisAContentBlock(block.Lines);
+            isPlan = IsThisAContentBlock(block);
         }
 
         return new(isPlan, false, PlanName);
