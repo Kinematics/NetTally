@@ -1024,6 +1024,55 @@ public class VoteCounterF(
             return unprocessed.Count < postsToProcess.Count;
         }
     }
+
+    /// <summary>
+    /// Given a plan block, if the plan is a base/proposed plan, rename it as just a "Plan".
+    /// Convert the marker for all lines to None.
+    /// </summary>
+    /// <param name="plan">The plan to examine.</param>
+    /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
+    public static (string Name, VoteBlockType Contents)?
+        NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock)
+    {
+        if (originalVoteBlock.Lines.Count == 0 || string.IsNullOrEmpty(originalPlanName))
+            return null;
+
+        VoteLineType firstLine = originalVoteBlock.Lines[0];
+
+        var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
+
+        // If it's not a plan, how did we get here?
+        if (planType == PlanStatus.None)
+            return null;
+
+        // Proposed plans need to be converted to an unadorned plan name.
+        if (planType == PlanStatus.Proposed)
+        {
+            var content = VoteContent.Create($"Plan: {planName}");
+
+            if (content != null)
+            {
+                firstLine = firstLine with { Content = content };
+            }
+        }
+
+        // All vote lines in a plan should have MarkerType of None.
+        // This allows them to be part of any comparison, and easily mesh with various output.
+        var remainingLines = originalVoteBlock.Skip(1)
+            .Select(v => v with { Marker = Marker.Empty });
+
+        List<VoteLineType> voteLines = [firstLine, .. remainingLines];
+
+        var returnPlan = VoteBlock.Create(voteLines);
+
+        if (returnPlan != null)
+        {
+            returnPlan = returnPlan with { Marker = Marker.PlanMarker };
+            return (planName, returnPlan);
+        }
+
+        return null;
+    }
     #endregion Process Posts into Votes
 
 }
