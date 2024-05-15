@@ -36,7 +36,7 @@ public class VoteCounterF(
     /// <summary>
     /// The overall collection of voters and supporters.
     /// </summary>
-    VoteStorage VoteStorage { get; } = [];
+    public VoteStorage VoteStorage { get; } = [];
 
     VoterStorage ReferencePlans { get; } = [];
 

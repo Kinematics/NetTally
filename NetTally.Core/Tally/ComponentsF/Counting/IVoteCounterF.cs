@@ -3,6 +3,7 @@ using System.ComponentModel;
 using NetTally.Collections;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.ComponentsF.Storage;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.VoteCounting;
 
@@ -31,6 +32,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     ObservableCollectionExt<VoteTaskType> TaskList { get; }
 
+    VoteStorage VoteStorage { get; }
 
     /// <summary>
     /// Reset internal storage for a new tally.
