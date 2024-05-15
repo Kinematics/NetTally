@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NetTally.Configure;
+using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
@@ -12,12 +10,10 @@ namespace NetTally.Input.Forums.ForumAdaptersF
     /// Class which allows getting an appropriate forum adapter for a given forum type.
     /// </summary>
     public class ForumAdapterFactory(
-        IOptions<GlobalSettings> options,
-        ILoggerFactory loggerFactory,
+        IServiceProvider serviceProvider,
         ForumIdentifier forumIdentifier) : IDisposable
     {
-        private readonly IOptions<GlobalSettings> inputOptions = options;
-        private readonly ILoggerFactory loggerFactory = loggerFactory;
+        private readonly IServiceProvider serviceProvider = serviceProvider;
         private readonly ForumIdentifier forumIdentifier = forumIdentifier;
         private readonly SemaphoreSlim ss = new(1);
 
@@ -83,14 +79,14 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         {
             return forumType switch
             {
-                ForumType.XenForo1 => new XenForo1Adapter(inputOptions, loggerFactory.CreateLogger<XenForo1Adapter>()),
-                ForumType.XenForo2 => new XenForo2Adapter(inputOptions, loggerFactory.CreateLogger<XenForo2Adapter>()),
-                ForumType.vBulletin3 => new VBulletin3Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin3Adapter>()),
-                ForumType.vBulletin4 => new VBulletin4Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin4Adapter>()),
-                ForumType.vBulletin5 => new VBulletin5Adapter(inputOptions, loggerFactory.CreateLogger<VBulletin5Adapter>()),
-                ForumType.phpBB => new PhpBBAdapter(inputOptions, loggerFactory.CreateLogger<PhpBBAdapter>()),
-                //ForumType.NodeBB => new NodeBBAdapter2(inputOptions, loggerFactory.CreateLogger<NodeBBAdapter2>()),
-                ForumType.Unknown => new UnknownForumAdapter(inputOptions, loggerFactory.CreateLogger<UnknownForumAdapter>()),
+                ForumType.XenForo1 => serviceProvider.GetRequiredService<XenForo1Adapter>(),
+                ForumType.XenForo2 => serviceProvider.GetRequiredService<XenForo2Adapter>(),
+                ForumType.vBulletin3 => serviceProvider.GetRequiredService<VBulletin3Adapter>(),
+                ForumType.vBulletin4 => serviceProvider.GetRequiredService<VBulletin4Adapter>(),
+                ForumType.vBulletin5 => serviceProvider.GetRequiredService<VBulletin5Adapter>(),
+                //ForumType.vBulletin6 => serviceProvider.GetRequiredService<VBulletin5Adapter>(),
+                ForumType.phpBB => serviceProvider.GetRequiredService<PhpBBAdapter>(),
+                ForumType.Unknown => serviceProvider.GetRequiredService<UnknownForumAdapter>(),
                 _ => throw new ArgumentException($"Unknown forum type: {forumType} for Uri: {uri}", nameof(forumType)),
             };
         }

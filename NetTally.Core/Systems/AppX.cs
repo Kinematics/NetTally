@@ -13,7 +13,6 @@ using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
-using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Systems.Config.Json;
@@ -133,8 +132,17 @@ public static class AppX
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<IForumReaderF, ForumReaderF>();
         services.AddTransient<ForumReader>();
-        services.AddSingleton<ForumAdapterFactory>();
+        services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
+        services.AddSingleton<Input.Forums.ForumAdaptersF.ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
+
+        services.AddTransient<Input.Forums.ForumAdaptersF.PhpBBAdapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin3Adapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin4Adapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin5Adapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.XenForo1Adapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.XenForo2Adapter>();
+        services.AddTransient<Input.Forums.ForumAdaptersF.UnknownForumAdapter>();
 
         services.AddSingleton<RankVoteCounterFactory>();
         services.AddSingleton<ITextResultsProvider, TallyOutput>();
