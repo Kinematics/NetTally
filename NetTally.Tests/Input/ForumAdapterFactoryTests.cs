@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
-using NetTally.Forums.ForumAdapters;
+using NetTally.Input.Forums;
 using NetTally.Input.Forums.ForumAdapters;
 
 namespace NetTally.Tests.Forums
@@ -17,7 +16,7 @@ namespace NetTally.Tests.Forums
         static ForumAdapterFactory forumAdapterFactory = null!;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             IServiceProvider serviceProvider = TestStartup.ConfigureServices();
             forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();

@@ -44,7 +44,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        ThreadInfoType GetThreadInfoF(Quest quest, HtmlDocument page);
+        ThreadInfoType GetThreadInfo(Quest quest, HtmlDocument page);
 
         /// <summary>
         /// Gets the range of post numbers to tally, for the given quest.
@@ -54,7 +54,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        ThreadRangeType GetQuestRangeInfoF(Quest quest, HtmlDocument page);
+        ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page);
 
         /// <summary>
         /// Get a list of posts from the provided page.
@@ -62,6 +62,6 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<PostType> GetPostsF(HtmlDocument page, Quest quest, int pageNumber);
+        IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
     }
 }
