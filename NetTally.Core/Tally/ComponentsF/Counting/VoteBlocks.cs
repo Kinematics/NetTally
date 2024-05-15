@@ -4,12 +4,33 @@ using System.Text.RegularExpressions;
 using NetTally.Enums;
 using NetTally.Extensions;
 using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Counting;
 
+/// <summary>
+/// Static class for functions to analyze blocks of vote lines.
+/// </summary>
 public static partial class VoteBlocks
 {
+    #region Plan Name Regexes
+    // Check for a vote line that marks a portion of the user's post as an abstract base plan.
+    [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex BasePlanRegex();
+
+    // Check for a plan reference. "Plan: Dwarf Raid"
+    [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex AnyPlanRegex();
+
+    // Check for a plan reference, alternate format. "Arkatekt's Plan"
+    [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex AltPlanRegex();
+    #endregion Plan Name Regexes
+
+    /// <summary>
+    /// Convert a list of vote lines into a list of vote blocks.
+    /// </summary>
+    /// <param name="lines">An enumeration of vote lines.</param>
+    /// <returns>The lines are grouped together and turned into blocks.</returns>
     public static IEnumerable<VoteBlockType> GetBlocks(IEnumerable<VoteLineType> lines)
     {
         var blocks = lines.GroupAdjacentToPreviousKey(a => a.Prefix.Depth == 0, a => a.Content, a => a.Content);
@@ -21,15 +42,15 @@ public static partial class VoteBlocks
         return blocksOfLines;
     }
 
-    public static bool IsThisAContentBlock(IEnumerable<VoteLineType> block)
+    public static bool IsThisAContentBlock(IEnumerable<VoteLineType> lines)
     {
-        if (!block.Any())
+        if (!lines.Any())
             return false;
 
-        if (block.First().Prefix.Depth != 0)
+        if (lines.First().Prefix.Depth != 0)
             return false;
 
-        var remainder = block.Skip(1);
+        var remainder = lines.Skip(1);
         if (!remainder.Any())
             return false;
 
@@ -42,18 +63,18 @@ public static partial class VoteBlocks
     /// <summary>
     /// An explicit plan has subsequent lines nested beneath the plan name line.
     /// </summary>
-    /// <param name="block">The block of vote lines</param>
+    /// <param name="lines">The block of vote lines</param>
     /// <returns></returns>
     public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAnExplicitPlan(IEnumerable<VoteLineType> block)
+        IsBlockAnExplicitPlan(IEnumerable<VoteLineType> lines)
     {
         bool isPlan = false;
-        var firstLine = block.First();
+        var firstLine = lines.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
         if (lineStatus == PlanStatus.Plan || lineStatus == PlanStatus.Proposed)
         {
-            var remainder = block.Skip(1);
+            var remainder = lines.Skip(1);
             isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
                      remainder.All(a => a.Prefix.Depth > 0);
         }
@@ -65,15 +86,15 @@ public static partial class VoteBlocks
     /// An implicit plan has the plan name on the first line, and subsequent lines
     /// are considered part of the plan, even without being nested.
     /// </summary>
-    /// <param name="block">The block of vote lines</param>
+    /// <param name="lines">The block of vote lines</param>
     /// <returns></returns>
     public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAnImplicitPlan(IEnumerable<VoteLineType> block)
+        IsBlockAnImplicitPlan(IEnumerable<VoteLineType> lines)
     {
-        if (block.Count() > 1)
+        if (lines.Count() > 1)
         {
-            var firstLine = block.First();
-            var secondLine = block.Skip(1).First();
+            var firstLine = lines.First();
+            var secondLine = lines.Skip(1).First();
             var (lineStatus, planName) = CheckIfPlan(firstLine);
             var (lineStatus2, _) = CheckIfPlan(secondLine);
 
@@ -107,15 +128,15 @@ public static partial class VoteBlocks
     }
 
     public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockAProposedPlan(IEnumerable<VoteLineType> block)
+        IsBlockAProposedPlan(IEnumerable<VoteLineType> lines)
     {
         bool isPlan = false;
-        var firstLine = block.First();
+        var firstLine = lines.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
         if (lineStatus == PlanStatus.Proposed)
         {
-            var remainder = block.Skip(1);
+            var remainder = lines.Skip(1);
             isPlan = firstLine.Prefix.Depth == 0 && remainder.Any() &&
                      remainder.All(a => a.Prefix.Depth > 0);
         }
@@ -124,34 +145,21 @@ public static partial class VoteBlocks
     }
 
     public static (bool isPlan, bool isImplicit, string planName)
-        IsBlockASingleLinePlan(IEnumerable<VoteLineType> block)
+        IsBlockASingleLinePlan(IEnumerable<VoteLineType> lines)
     {
         bool isPlan = false;
-        var firstLine = block.First();
+        var firstLine = lines.First();
         var (lineStatus, planName) = CheckIfPlan(firstLine);
 
-        if (lineStatus == PlanStatus.Plan && block.Count() == 1)
+        if (lineStatus == PlanStatus.Plan && lines.Count() == 1)
         {
-            // Make sure a fully realized version of this plan name doesn't already exist.
+            // TODO: Make sure a fully realized version of this plan name doesn't already exist.
 
             isPlan = true;
         }
 
         return (isPlan, false, planName);
     }
-
-
-    // Check for a vote line that marks a portion of the user's post as an abstract base plan.
-    [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex BasePlanRegex();
-
-    // Check for a plan reference. "Plan: Dwarf Raid"
-    [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex AnyPlanRegex();
-
-    // Check for a plan reference, alternate format. "Arkatekt's Plan"
-    [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex AltPlanRegex();
 
     public static (PlanStatus status, string name) CheckIfPlan(VoteLineType line)
     {
@@ -180,11 +188,13 @@ public static partial class VoteBlocks
         if (a.Count == 0 || b.Count == 0)
             return (false, false);
 
-        bool task = Agnostic.CaseInsensitiveComparer.Equals(a.First().Task, b.First().Task);
+        bool taskIsTheSame = VoteTaskComparer.Instance.Equals(a[0].Task, b[0].Task);
 
         if (a.Count != b.Count)
-            return (false, task);
+            return (false, taskIsTheSame);
 
-        return (a.SequenceEquals(b, item => item.Content.CleanContent, Agnostic.CurrentStringComparer), task);
+        bool voteLinesAreTheSame = a.SequenceEquals(b, item => item.Content, VoteContentComparer.Instance);
+
+        return (voteLinesAreTheSame, taskIsTheSame);
     }
 }
