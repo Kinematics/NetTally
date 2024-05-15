@@ -46,31 +46,6 @@ public static class VoteLine
     {
         return input with { Prefix = Prefix.Empty };
     }
-
-    public static VoteLineType WithEmptyMarker(VoteLineType input)
-    {
-        return input with { Marker = Marker.Empty };
-    }
-
-    public static VoteLineType WithTask(VoteLineType input, VoteTaskType task)
-    {
-        return input with { Task = task };
-    }
-
-    public static VoteLineType WithMarkerAndTask(VoteLineType input, MarkerData marker, VoteTaskType task)
-    {
-        return input with { Marker = marker, Task = task };
-    }
-
-    public static VoteLineType WithContent(VoteLineType input, VoteContentType content)
-    {
-        return input with { Content = content };
-    }
-
-    public static VoteLineType WithTrimmedContent(VoteLineType input)
-    {
-        return input with { Content = VoteContent.Trim(input.Content) };
-    }
 }
 
 /// <summary>

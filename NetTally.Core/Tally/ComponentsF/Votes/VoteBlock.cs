@@ -23,7 +23,7 @@ public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTas
 
         var firstLine = Lines[0];
 
-        yield return VoteLine.WithMarkerAndTask(firstLine, Marker, Task);
+        yield return firstLine with { Marker = Marker, Task = Task };
 
         var remainingLines = Lines.Skip(1);
 
@@ -63,16 +63,6 @@ public static class VoteBlock
     public static VoteBlockType Clone(VoteBlockType block)
     {
         return new VoteBlockType([.. block.Lines], block.Marker, block.Task);
-    }
-
-    public static VoteBlockType WithTask(VoteBlockType block, VoteTaskType voteTask)
-    {
-        return block with { Task = voteTask };
-    }
-
-    public static VoteBlockType WithMarker(VoteBlockType block, MarkerData marker)
-    {
-        return block with { Marker = marker };
     }
 }
 

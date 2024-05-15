@@ -58,7 +58,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = VoteBlock.WithMarker(vote, Marker.Empty);
+            var referenceVote = vote with { Marker = Marker.Empty };
 
             localVoters = [];
 
